@@ -1,0 +1,93 @@
+.ag-theme-quartz {
+  --ag-header-height: 40px;
+  --ag-header-foreground-color: #475569;
+  --ag-header-background-color: #e4e4e7;
+  /* --ag-header-cell-hover-background-color: rgb(80, 40, 140); */
+  /* --ag-header-cell-moving-background-color: rgb(80, 40, 140); */
+  border: none;
+}
+.ag-theme-quartz .ag-root-wrapper {
+  border-radius: 0;
+  border: none;
+}
+.ag-theme-quartz .ag-header {
+  font-family: cursive;
+  background-color: #e0f2f1;
+}
+.ag-theme-quartz .ag-header-group-cell {
+  font-weight: normal;
+  font-size: 22px;
+}
+.ag-theme-quartz .ag-header-cell {
+  font-size: 15px;
+ 
+}
+.ag-theme-quartz .ag-root-wrapper{
+  border-radius: 0;
+  }
+  /* Applies a thin scrollbar */
+  .ag-theme-quartz .ag-root-wrapper::-webkit-scrollbar {
+  width: 6px; /* For vertical scrollbars */
+  height: 6px; /* For horizontal scrollbars */
+}
+
+/* Applies the thumb color */
+.ag-theme-quartz .ag-body-horizontal-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #155e75; /* Equivalent to cyan-800 */
+}
+
+
+
+  .ag-theme-quartz .ag-row{
+    background-color: #fff;
+    height: 60px;
+
+
+  }
+  .ag-theme-quartz .ag-row:hover{
+    background-color: #fff;
+  }
+  .ag-theme-quartz .ag-cell{
+      outline: none;
+      border: none;
+      padding: 0;
+      padding: 0 5px;
+  }
+  .ag-theme-quartz .ag-cell:focus{
+    outline: none;
+    border: none;
+  }
+  /* Change hover color */
+.ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: #e0f2f1 !important; /* Change this to your desired hover color */
+}
+
+/* Change selected range highlight background color */
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-in-range .ant-picker-cell-inner {
+  background-color: #0891b2 !important; /* Change this to your desired selected range background color */
+  color: #fff;
+}
+
+/* Change the selected date's background color */
+.ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: #0891b2 !important; /* Change this to your desired selected date background color */
+  color: #fff;
+}
+.ant-picker-cell .ant-picker-cell-range-start .ant-picker-cell-in-view{
+  background-color: #e0f2f1 !important;
+}
+
+/* Make the background of autofilled input fields transparent */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset; /* Set background to transparent */
+  box-shadow: 0 0 0 1000px transparent inset;
+  -webkit-text-fill-color: inherit; /* Maintain text color */
+}
+
+/* Ensure other styles remain consistent */
+input:-webkit-autofill {
+  -webkit-transition: background-color 5000s ease-in-out 0s;
+  transition: background-color 5000s ease-in-out 0s;
+}
