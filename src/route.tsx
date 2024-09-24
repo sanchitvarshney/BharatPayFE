@@ -44,6 +44,7 @@ import QueryLayout from "./layouts/QueryLayout";
 
 import Query from "./pages/queries/Query";
 import UnderConstructionPage from "./pages/commonPages/UnderConstructionPage";
+import DashBoard from "./pages/DashBoard";
 
 export const router = createBrowserRouter([
   {
@@ -61,6 +62,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DashBoard />
+          </MainLayout>
+        ),
+        path: "/dashboard",
       },
       //master modules
 
