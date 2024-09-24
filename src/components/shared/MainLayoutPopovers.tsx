@@ -20,7 +20,7 @@ const MainLayoutPopovers: React.FC<Props> = ({ uiState }) => {
         <AlertDialogContent className="bg-white rounded">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</AlertDialogDescription>
+            <AlertDialogDescription>Do you want to log out of your account?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

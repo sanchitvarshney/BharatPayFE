@@ -12,7 +12,7 @@ const MaterialApprovalLayout = (props: { children: React.ReactNode }) => {
             </NavLink>
           </li>
           <li className="h-[50px]">
-            <NavLink to={"/under-construction"} className={({ isActive }) => `h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
+            <NavLink to={"/material-requisition-request"} className={({ isActive }) => `h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
               Material Requisition Request
             </NavLink>
           </li>

@@ -103,7 +103,7 @@ export const materialmenu = [
     name: "Warehouse",
     subMenu: [
       { name: "MR Approval", path: "/pending-material-approval" },
-      { name: "MR Requisition Req", path: "/under-construction" },
+      { name: "MR Requisition Req", path: "/material-requisition-request" },
       { name: "Raw MIN", path: "/rm-materials-in" },
       { name: "Device MIN", path: "/device-materials-in" },
     ],
@@ -154,7 +154,7 @@ export const navLinks = [
   { href: "/master-billing-address", label: "Billing Address", value: "billing-address" },
   { href: "/master-shipping-address", label: "Shipping Address", value: "shipping-address" },
   { href: "/pending-material-approval", label: "MR Approval", value: "mr-approval" },
-  { href: "/under-construction", label: "MR Requisition Req", value: "mr-requisition-req" },
+  { href: "/material-requisition-request", label: "MR Requisition Req", value: "mr-requisition-req" },
   { href: "/rm-materials-in", label: "RM Mterials in", value: "rm-materials-in" },
   { href: "/production/material-req-with-bom", label: "Req With BOM", value: "req-with-bom" },
   { href: "/production/material-req-without-bom", label: "Req Without BOM", value: "req-without-bom" },

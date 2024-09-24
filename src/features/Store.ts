@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/features/authentication/authSlice";
 import uomReducer from "@/features/master/UOM/UOMSlice";
+import commonReducer from "@/features/common/commonSlice";
 import BOMReducer from "@/features/master/BOM/BOMSlice";
 import componentReducer from "@/features/master/component/componentSlice";
 import productReducer from "@/features/master/products/productSlice";
@@ -26,6 +27,7 @@ export const store = configureStore({
     query: queryReducer,
     report: reportReducer,
     pendingMr: pendingMrRequestReducer,
+    common:commonReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

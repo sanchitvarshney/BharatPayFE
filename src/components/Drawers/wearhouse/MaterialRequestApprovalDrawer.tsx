@@ -13,7 +13,7 @@ import { IoMdCheckmark } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { approveSelectedItemAsync, clearItemdetail, getItemDetailsAsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
+import { approveSelectedItemAsync, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { CgSpinner } from "react-icons/cg";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { transformGroupSelectData } from "@/utils/transformUtills";
@@ -83,7 +83,14 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
   return (
     <div>
     
-      <CustomDrawer open={open} onOpenChange={setOpen}>
+      <CustomDrawer open={open} 
+       onOpenChange={(e) => {
+        setOpen(e);
+        if (!e) {
+          dispatch(getPendingMaterialListsync());
+        }
+      }}
+      >
         <CustomDrawerContent side="right" className="min-w-[80%] p-0" onInteractOutside={(e) => e.preventDefault()}>
           <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400 ">
             <CustomDrawerTitle className="text-slate-600 font-[500] p-0"> Process Request</CustomDrawerTitle>
