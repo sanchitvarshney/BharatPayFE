@@ -133,6 +133,11 @@ export const productionMenu = [
   },
 ];
 
+export const TRC = [
+  { name: "Add", path: "/production/add-trc" },
+  { name: "View", path: "/production/view-trc" },
+];
+
 export const navSliderData = Array.from({ length: 2 }, (_, i) => ({
   href: `/queries?query=Q${i + 1}`,
   label: `Q${i + 1} Query`,

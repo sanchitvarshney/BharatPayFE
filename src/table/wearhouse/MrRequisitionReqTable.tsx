@@ -1,57 +1,67 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-interface RowData {
-    id: number;
-    requestDate: string;
-    requestId: string;
-    rmQty: number;
-    pickLocation: string;
-  }
-
-const columnDefs: ColDef[] = [
-    {
-        headerName: 'Action',
-        field: 'action',
-        cellRenderer: () =>"action",
-      },
-      { headerName: 'ID', field: 'id', sortable: true, filter: true,flex:1 },
-      { headerName: 'Request Date', field: 'requestDate', sortable: true, filter: true,flex:1 },
-      { headerName: 'Request ID', field: 'requestId', sortable: true, filter: true ,flex:1},
-      { headerName: 'RM Qty', field: 'rmQty', sortable: true, filter: true },
-      { headerName: 'Pick Location', field: 'pickLocation', sortable: true, filter: true,flex:1 },
-];
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { CustomButton } from "@/components/reusable/CustomButton";
+import { HiViewfinderCircle } from "react-icons/hi2";
+import { CustomDrawer, CustomDrawerContent, CustomDrawerHeader, CustomDrawerTitle } from "@/components/reusable/CustomDrawer";
+import ApprovalItemDetailTable from "./ApprovalItemDetailTable";
+import { getApproveItemDetail } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 
 const MrRequisitionReqTable: React.FC = () => {
-  const rowData: RowData[] = [
+  const { approvedMaterialListData, approvedMaterialListLoading } = useAppSelector((state) => state.pendingMr);
+  const [detail, setDetail] = useState<boolean>();
+  const [txnid, setTxnid] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const columnDefs: ColDef[] = [
+    { headerName: "#", field: "id", sortable: true, filter: true, flex: 1, valueGetter: "node.rowIndex+1", maxWidth: 80 },
+    { headerName: "Request ID", field: "transaction", sortable: true, filter: true, flex: 1 },
+    { headerName: "Request Date", field: "createDate", sortable: true, filter: true, flex: 1 },
+
+    { headerName: "RM Qty", field: "totalRm", sortable: true, filter: true },
+    { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true, flex: 1 },
     {
-        id: 1,
-        requestDate: '2024-08-31',
-        requestId: 'REQ-1234',
-        rmQty: 50,
-        pickLocation: 'Location A',
-      },
-      {
-        id: 2,
-        requestDate: '2024-08-30',
-        requestId: 'REQ-5678',
-        rmQty: 100,
-        pickLocation: 'Location B',
-      },
-    // Add more rows as needed
+      headerName: "Action",
+      field: "action",
+      cellRenderer: (params: any) => (
+        <div className="flex items-center justify-center h-full">
+          <CustomButton
+            onClick={() => {
+              setDetail(true);
+              dispatch(getApproveItemDetail(params?.data?.transaction));
+              setTxnid(params?.data?.transaction);
+            }}
+            icon={<HiViewfinderCircle className="h-[18px] w-[18px]" />}
+            className="p-0 bg-cyan-700 hover:bg-cyan-800 h-[30px] px-[10px]"
+          >
+            View Detail
+          </CustomButton>
+        </div>
+      ),
+    },
   ];
+
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
     };
   }, []);
+
   return (
-    <div>
+    <>
+      <CustomDrawer open={detail} onOpenChange={setDetail}>
+        <CustomDrawerContent className="p-0 min-w-[75%]">
+          <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-300 ">
+            <CustomDrawerTitle className="text-slate-600 font-[500] p-0">{txnid}</CustomDrawerTitle>
+          </CustomDrawerHeader>
+          <ApprovalItemDetailTable />
+        </CustomDrawerContent>
+      </CustomDrawer>
       <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={10} />
+        <AgGridReact loading={approvedMaterialListLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={approvedMaterialListData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
-    </div>
+    </>
   );
 };
 

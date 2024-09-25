@@ -45,6 +45,9 @@ import QueryLayout from "./layouts/QueryLayout";
 import Query from "./pages/queries/Query";
 import UnderConstructionPage from "./pages/commonPages/UnderConstructionPage";
 import DashBoard from "./pages/DashBoard";
+import AddTRC from "./pages/TRC/AddTRC";
+import TRCLayout from "./layouts/TRCLayout";
+import ViewTRC from "./pages/TRC/ViewTRC";
 
 export const router = createBrowserRouter([
   {
@@ -286,6 +289,26 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/complete-ppr",
+      },
+      {
+        element: (
+          <MainLayout>
+            <TRCLayout>
+              <AddTRC />
+            </TRCLayout>
+          </MainLayout>
+        ),
+        path: "/production/add-trc",
+      },
+      {
+        element: (
+          <MainLayout>
+            <TRCLayout>
+              <ViewTRC />
+            </TRCLayout>
+          </MainLayout>
+        ),
+        path: "/production/view-trc",
       },
 
       //report======================================

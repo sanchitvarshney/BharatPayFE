@@ -57,7 +57,7 @@ const HomePage = () => {
         </div>
         <div className="flex flex-col items-end justify-between ">
          <div>
-          <p className="text-right text-slate-500">Stay updated with our latest products and updates.</p>
+          <p className="text-right text-slate-500">Stay updated with our latest products and updates .</p>
          <div className="flex mt-[10px] items-center overflow-hidden border rounded-full pr-[3px] max-w-[400px] min-w-[400px] shadow shadow-zinc-300 bg-white">
             <Input className="border-none focus-visible:ring-0" placeholder="Email" />
             <Button variant={"outline"} className="min-h-[30px] min-w-[30px] max-h-[30px] max-w-[30px]  p-0 bg-zinc-200 rounded-full">

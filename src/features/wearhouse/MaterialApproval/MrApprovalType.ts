@@ -72,23 +72,52 @@ export type ApproveDeviceRequestType = {
   pickLocation: string;
   issueQty: string;
   srlNumber: string[];
-}
+};
 export type ApproveDeviceRequestResponse = {
   status: string;
   success: boolean;
   message: string;
-}
+};
 
 export type MaterialRejectPayload = {
-  itemCode:string;
-  txnId:string;
-  remarks:string
-}
+  itemCode: string;
+  txnId: string;
+  remarks: string;
+};
 export type MaterialRejectResponse = {
   status: string;
   success: boolean;
   message: string;
-}
+};
+
+export type AprovedMaterialList = {
+  transaction: string;
+  createDate: string;
+  totalRm: number;
+};
+export type AprovedMaterialListResponse = {
+  status: string;
+  success: boolean;
+  data: AprovedMaterialList[];
+};
+export type AprovedMaterialListPayload = {
+  user: string;
+  date: string;
+};
+type ApproveItemDetail = {
+  item_name: string;
+  item_code: string;
+  item_uom: string;
+  execute_qty: number;
+  status: string;
+};
+
+export type ApproveItemDetailApiResponse = {
+  success: boolean;
+  data: ApproveItemDetail[];
+  status: string;
+};
+
 export type PendingMrRequestState = {
   pendingMrRequestData: PendingRequests[] | null;
   getPendingMrRequestLoading: boolean;
@@ -98,6 +127,11 @@ export type PendingMrRequestState = {
   itemDetail: ItemDetailType[] | null;
   itemDetailLoading: boolean;
   approveItemLoading: boolean;
-  rejectItemLoading:boolean
-  cancelItemLoading:boolean
+  rejectItemLoading: boolean;
+  cancelItemLoading: boolean;
+  approvedMaterialListData: AprovedMaterialList[] | null;
+  approvedMaterialListLoading: boolean;
+  approveItemDetail: ApproveItemDetail[] | null;
+  approveItemDetailLoading: boolean;
+
 };

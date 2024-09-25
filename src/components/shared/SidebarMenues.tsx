@@ -9,10 +9,11 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { Props } from "@/types/MainLayout";
 import { CgArrowTopRight } from "react-icons/cg";
-import { materialmenu, productionMenu } from "@/data/SidebarMenuData";
+import { materialmenu, productionMenu, TRC } from "@/data/SidebarMenuData";
 import CustomTooltip from "./CustomTooltip";
 import { FaCartFlatbed } from "react-icons/fa6";
 import { Button } from "../ui/button";
+import { AiFillDatabase } from "react-icons/ai";
 
 const renderMenu = (menu: any, setSidemenu: any) => {
   return (
@@ -106,6 +107,31 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
               </div>
               <Separator className="bg-slate-200 text-slate-200" />
               <ul className="p-[10px] overflow-y-auto h-[500px] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300">{renderMenu(productionMenu, setSheetOpen)}</ul>
+            </div>
+          </div>
+        </li>
+        <li className="group">
+          <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-800 group-hover:bg-cyan-800 p-[10px] rounded-md cursor-pointer"}>
+            <span className="flex gap-[10px] items-center cursor-pointer">
+              <AiFillDatabase className="h-[20px] w-[20px]" />
+              TRC
+            </span>
+            <ChevronRight />
+          </div>
+          <div className=" top-[20px] bottom-[20px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600 rounded-md  right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px]">
+            <div className="min-w-[400px]">
+              <div className="p-[10px]">
+                <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">
+                  <AiFillDatabase className="h-[20px] w-[20px]" />
+                  TRC Management
+                </span>
+                <p className="font-[350] text-[13px] mt-[10px]">Streamline production workflows and enhance efficiency. Plan, monitor, and control your production processes effectively.</p>
+                <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
+                  Explore TRC Management
+                </a>
+              </div>
+              <Separator className="bg-slate-200 text-slate-200" />
+              <ul className="p-[10px] overflow-y-auto h-[500px] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300">{renderMenu(TRC, setSheetOpen)}</ul>
             </div>
           </div>
         </li>
