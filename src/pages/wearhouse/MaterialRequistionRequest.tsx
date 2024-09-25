@@ -1,5 +1,5 @@
 import MrRequisitionReqTable from "@/table/wearhouse/MrRequisitionReqTable";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import CustomSelect from "@/components/reusable/CustomSelect";
 import { CustomButton } from "@/components/reusable/CustomButton";
@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { SingleValue } from "react-select";
 import { transformGroupSelectData } from "@/utils/transformUtills";
 import moment from "moment";
+import { getApprovedMaterialList } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 
 type Fomrstate = {
   user: OptionType | null;
@@ -25,10 +26,10 @@ const MaterialRequistionRequest: React.FC = () => {
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
   const { userData, getUserLoading } = useAppSelector((state) => state.common);
+  const { approvedMaterialListLoading} = useAppSelector((state) => state.pendingMr);
   const {
-   
     handleSubmit,
-  
+
     control,
     formState: { errors },
   } = useForm<Fomrstate>({
@@ -38,17 +39,24 @@ const MaterialRequistionRequest: React.FC = () => {
     },
   });
   const onSubmit: SubmitHandler<Fomrstate> = (data) => {
-    console.log(data)
-  }
-  ;
-
+    console.log(data);
+    dispatch(
+      getApprovedMaterialList({
+        date: data.date,
+        user: data.user?.value || "",
+      })
+    );
+  };
+  useEffect(()=>{
+    dispatch(getUserAsync(null));
+  },[])
   return (
     <div className="h-[calc(100vh-100px)] grid grid-cols-[400px_1fr]">
       <div className="p-[10px] h-full overflow-y-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
           <Card className="rounded-md ">
             <CardHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
-              <CardTitle className="text-slate-600 font-[500]">HSN Codes</CardTitle>
+              <CardTitle className="text-slate-600 font-[500]">Filter</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid  gap-[40px] mt-[30px]">
@@ -102,10 +110,10 @@ const MaterialRequistionRequest: React.FC = () => {
               </div>
             </CardContent>
             <CardFooter className="h-[50px] p-0 flex items-center px-[20px] border-t gap-[10px] justify-end">
-              <CustomButton icon={<Download className="h-[18px] w-[18px] " />} variant={"outline"}>
+              <CustomButton  icon={<Download className="h-[18px] w-[18px] " />} variant={"outline"}>
                 Download
               </CustomButton>
-              <CustomButton icon={<Search className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
+              <CustomButton loading={approvedMaterialListLoading} icon={<Search className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
                 Search
               </CustomButton>
             </CardFooter>

@@ -4,8 +4,11 @@ import { AxiosResponse } from "axios";
 import {
   ApproveDeviceRequestResponse,
   ApproveDeviceRequestType,
+  ApproveItemDetailApiResponse,
   ApproveItemsResponse,
   ApprovePayload,
+  AprovedMaterialListPayload,
+  AprovedMaterialListResponse,
   ItemDetailApiResponse,
   MaterialRejectPayload,
   MaterialRejectResponse,
@@ -27,6 +30,10 @@ const initialState: PendingMrRequestState = {
   approveItemLoading: false,
   rejectItemLoading: false,
   cancelItemLoading: false,
+  approvedMaterialListData: null,
+  approvedMaterialListLoading: false,
+  approveItemDetail: null,
+  approveItemDetailLoading: false,
 };
 
 export const getPendingMaterialListsync = createAsyncThunk<AxiosResponse<PendingMrRequestResponse>>("master/getPendingMrrequst", async () => {
@@ -58,6 +65,14 @@ export const materialRequestCancel = createAsyncThunk<AxiosResponse<MaterialReje
   const response = await axiosInstance.put(`/req/data/cancel/${params.txnID}`, { remark: params.remarks });
   return response;
 });
+export const getApprovedMaterialList = createAsyncThunk<AxiosResponse<AprovedMaterialListResponse>, AprovedMaterialListPayload>("master/getApprovedMaterialList", async (params) => {
+  const response = await axiosInstance.get(`/req/data/approvalStatus/${params.user}?date=${params.date}`);
+  return response;
+});
+export const getApproveItemDetail = createAsyncThunk<AxiosResponse<ApproveItemDetailApiResponse>, string>("master/getApproveItemDetail", async (params) => {
+  const response = await axiosInstance.get(`/req/data/approvalItem/${params}`);
+  return response;
+});
 
 const MrApprovalSlice = createSlice({
   name: "mrapproval",
@@ -86,7 +101,7 @@ const MrApprovalSlice = createSlice({
       })
       .addCase(getPendingMaterialListsync.rejected, (state) => {
         state.getPendingMrRequestLoading = false;
-        state.pendingMrRequestData = null;
+        state.pendingMrRequestData = [];
       })
       .addCase(getProcessMrReqeustAsync.pending, (state) => {
         state.processMrRequestLoading = true;
@@ -192,6 +207,32 @@ const MrApprovalSlice = createSlice({
       })
       .addCase(materialRequestCancel.rejected, (state) => {
         state.cancelItemLoading = false;
+      })
+      .addCase(getApprovedMaterialList.pending, (state) => {
+        state.approvedMaterialListLoading = true;
+      })
+      .addCase(getApprovedMaterialList.fulfilled, (state, action) => {
+        state.approvedMaterialListLoading = false;
+        if (action.payload.data.success) {
+          state.approvedMaterialListData = action.payload.data.data;
+        }
+      })
+      .addCase(getApprovedMaterialList.rejected, (state) => {
+        state.approvedMaterialListLoading = false;
+        state.approvedMaterialListData = [];
+      })
+      .addCase(getApproveItemDetail.pending, (state) => {
+        state.approveItemDetailLoading = true;
+      })
+      .addCase(getApproveItemDetail.fulfilled, (state, action) => {
+        state.approveItemDetailLoading = false;
+        if (action.payload.data.success) {
+          state.approveItemDetail = action.payload.data.data;
+        }
+      })
+      .addCase(getApproveItemDetail.rejected, (state) => {
+        state.approveItemDetailLoading = false;
+        state.approveItemDetail = [];
       });
   },
 });
