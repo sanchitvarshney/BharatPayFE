@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { AlertDialog,  AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { CustomButton } from "@/components/reusable/CustomButton";
+import { showToast } from "@/utils/toastUtils";
 const MaterialApproval: React.FC = () => {
   const [approve, setApprove] = useState<boolean>(false);
   const [alert, setAlert] = useState<boolean>(false);
@@ -47,13 +48,22 @@ const MaterialApproval: React.FC = () => {
               className="bg-red-500 hover:bg-red-600"
               onClick={(e) => {
                 e.preventDefault();
+               if(remarks){
                 dispatch(materialRequestCancel({ remarks: remarks, txnID:txnId})).then((res:any)=>{
-                   if( res.payload.data?.success){
-                    setTxnId("")
-                    setAlert(false)
-                    dispatch(getPendingMaterialListsync());
-                   }
-                })
+                  if( res.payload.data?.success){
+                    setRemarks("")
+                   setTxnId("")
+                   setAlert(false)
+                   dispatch(getPendingMaterialListsync());
+                  }
+               })
+               }else{
+                  showToast({
+                    description: "Please Enter Remarks",
+                    variant: "destructive",
+                  })
+               }
+               
               }}
             >
               Yes

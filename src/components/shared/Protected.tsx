@@ -9,7 +9,6 @@ interface ProtectedProps {
 const Protected: React.FC<ProtectedProps> = ({ children, authentication = true}) => {
   const authStatus: boolean = useAuth(); // This should ideally come from your auth logic/state
   const navigate = useNavigate();
-
   useEffect(() => {
     if (authentication && authStatus !== authentication) {
       navigate("/login");

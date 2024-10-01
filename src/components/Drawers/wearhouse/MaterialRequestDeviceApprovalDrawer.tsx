@@ -96,7 +96,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
       setRemarks("");
     }
   }, [open]);
-  console.log(isueeQty);
+ 
   return (
     <div>
       {/*confirm isuee change =======================================================  */}
