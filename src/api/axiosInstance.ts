@@ -5,15 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 // Helper function to get IP address
-const getIP = async () => {
-  try {
-    const response = await axios.get("https://api.ipify.org?format=json");
-    return response.data.ip;
-  } catch (error) {
-    console.error("Failed to get IP address", error);
-    return null;
-  }
-};
+
 
 // Helper function to get Fingerprint
 const getFingerprint = async () => {
@@ -44,7 +36,7 @@ axiosInstance.interceptors.request.use(async (config) => {
     const uniqueid = uuidv4();
 
    
-    const ip = await getIP();
+   
     const fingerprint = await getFingerprint();
 
   
@@ -52,7 +44,6 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers["authorization"] = token;
     config.headers["session"] = "2024-2025";
     config.headers["x-click-token"] = uniqueid;
-    config.headers["ip"] = ip || "unknown"; 
     config.headers["fingerprint"] = fingerprint || "unknown"; 
   }
 

@@ -91,3 +91,17 @@ input:-webkit-autofill {
   -webkit-transition: background-color 5000s ease-in-out 0s;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+.emptyInboxRotation {
+  animation: rotation 2s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

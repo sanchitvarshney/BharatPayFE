@@ -142,15 +142,15 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                 <ul className="flex flex-col gap-[10px]">
                   <li>
                     <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">BOM:</p>
-                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head[0]?.bomName}</p>}
+                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head?.bomName}</p>}
                   </li>
                   <li>
                     <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">Req. Location:</p>
-                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head[0]?.locationName}</p>}
+                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head?.locationName}</p>}
                   </li>
                   <li>
                     <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">MFG Qty:</p>
-                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head[0]?.mfgQty}</p>}
+                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head?.mfgQty}</p>}
                   </li>
                 </ul>
               </div>
@@ -253,7 +253,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 field.onChange(selectedOption as SingleValue<OptionType>);
                                 dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: selectedOption!.value }));
                               }}
-                              placeholder={"Location"}
+                              placeholder={"Pick Location"}
                               onInputChange={(value) => {
                                 if (debounceTimeout.current) {
                                   clearTimeout(debounceTimeout.current);

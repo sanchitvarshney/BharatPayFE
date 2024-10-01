@@ -31,7 +31,7 @@ export type Body = {
 };
 
 export type ProcessRequestData = {
-  head: Head[];
+  head: Head;
   body: Body[];
 };
 export type ProcessApiResponse = {

@@ -35,10 +35,7 @@ const MasterLocationViewDrawer: React.FC<Props> = ({ open, setOpen }) => {
                   <span className="font-[600]">Location Type :</span>
                   <span className="font-[500]">{getLocationDetails?.loc_type}</span>
                 </li>
-                <li className="py-[5px] border-b text-slate-600 flex items-center justify-between">
-                  <span className="font-[600]">Address :</span>
-                  <span className="font-[500]">{getLocationDetails?.loc_address}</span>
-                </li>
+                
                 <li className="py-[5px] border-b text-slate-600 flex items-center justify-between">
                   <span className="font-[600]">Address :</span>
                   <span className="font-[500]">{getLocationDetails?.loc_address}</span>
