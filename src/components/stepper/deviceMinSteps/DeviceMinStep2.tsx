@@ -112,7 +112,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
         </CardHeader>
         <CardContent className="h-[calc(100vh-180px)] p-0 grid grid-cols-[1fr_300px] ">
           <div>
-            <div className="max-h-max clear-startgap-[50px] h-[60px] px-[20px] flex items-center ">
+            <div className=" clear-startgap-[50px] h-[70px] px-[20px] flex items-center ">
               <div className="relative max-w-max ">
                 <Input
                   value={input}
@@ -149,7 +149,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
                     }
                   }}
                   ref={inputRef}
-                  className="w-[400px]"
+                  className="w-[400px] focus-visible:bg-[#fffadb]"
                   placeholder="Scan an item to add"
                 />
                 {checkSerialLoading && (

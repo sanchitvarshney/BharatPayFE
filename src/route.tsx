@@ -48,6 +48,7 @@ import DashBoard from "./pages/DashBoard";
 import AddTRC from "./pages/TRC/AddTRC";
 import TRCLayout from "./layouts/TRCLayout";
 import ViewTRC from "./pages/TRC/ViewTRC";
+import CustomRedirection from "./components/shared/CustomRedirection";
 
 export const router = createBrowserRouter([
   {
@@ -128,7 +129,10 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterBOMLayout>
-              <MasterSfgBOM />
+              <CustomRedirection UnderDevelopment={true}>
+                {" "}
+                <MasterSfgBOM />
+              </CustomRedirection>
             </MasterBOMLayout>
           </MainLayout>
         ),
@@ -138,7 +142,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterBOMLayout>
-              <MasterFGBOM />
+              <CustomRedirection UnderDevelopment={true}>
+                <MasterFGBOM />
+              </CustomRedirection>
             </MasterBOMLayout>
           </MainLayout>
         ),
@@ -148,7 +154,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterBOMLayout>
-              <MasterBOMDisabled />
+              <CustomRedirection UnderDevelopment={true}>
+                <MasterBOMDisabled />
+              </CustomRedirection>
             </MasterBOMLayout>
           </MainLayout>
         ),
@@ -166,7 +174,10 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterVenderLayout>
-              <MasterAddVender />
+              <CustomRedirection UnderDevelopment={true}>
+                {" "}
+                <MasterAddVender />
+              </CustomRedirection>
             </MasterVenderLayout>
           </MainLayout>
         ),
@@ -176,7 +187,10 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterVenderLayout>
-              <MsterVendorDetail />
+              <CustomRedirection UnderDevelopment={true}>
+                {" "}
+                <MsterVendorDetail />
+              </CustomRedirection>
             </MasterVenderLayout>
           </MainLayout>
         ),
@@ -186,7 +200,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterAddressLayout>
-              <MasterBillingAddress />
+              <CustomRedirection UnderDevelopment={true}>
+                <MasterBillingAddress />
+              </CustomRedirection>
             </MasterAddressLayout>
           </MainLayout>
         ),
@@ -196,7 +212,10 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterAddressLayout>
-              <MasterShippingaddress />
+              <CustomRedirection UnderDevelopment={true}>
+                {" "}
+                <MasterShippingaddress />
+              </CustomRedirection>
             </MasterAddressLayout>
           </MainLayout>
         ),
@@ -244,7 +263,10 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <ProductionMaterialRequisitionLayout>
-              <ProductionReqWithBOM />
+              <CustomRedirection UnderDevelopment={true}>
+                {" "}
+                <ProductionReqWithBOM />
+              </CustomRedirection>
             </ProductionMaterialRequisitionLayout>
           </MainLayout>
         ),
@@ -264,7 +286,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <ProductionAndPlanLayout>
-              <CraetePPR />
+              <CustomRedirection UnderDevelopment={true}>
+                <CraetePPR />
+              </CustomRedirection>
             </ProductionAndPlanLayout>
           </MainLayout>
         ),
@@ -274,7 +298,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <ProductionAndPlanLayout>
-              <PendingPPR />
+              <CustomRedirection UnderDevelopment={true}>
+                <PendingPPR />
+              </CustomRedirection>
             </ProductionAndPlanLayout>
           </MainLayout>
         ),
@@ -284,7 +310,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <ProductionAndPlanLayout>
-              <CompletePPR />
+              <CustomRedirection UnderDevelopment={true}>
+                <CompletePPR />
+              </CustomRedirection>
             </ProductionAndPlanLayout>
           </MainLayout>
         ),
@@ -294,7 +322,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <TRCLayout>
-              <AddTRC />
+              <CustomRedirection UnderDevelopment={true}>
+                <AddTRC />
+              </CustomRedirection>
             </TRCLayout>
           </MainLayout>
         ),
@@ -304,7 +334,9 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <TRCLayout>
-              <ViewTRC />
+              <CustomRedirection UnderDevelopment={true}>
+                <ViewTRC />
+              </CustomRedirection>
             </TRCLayout>
           </MainLayout>
         ),

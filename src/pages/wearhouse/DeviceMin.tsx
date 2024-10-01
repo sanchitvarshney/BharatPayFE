@@ -36,7 +36,7 @@ const DeviceMin: React.FC = () => {
   return (
     <div className={`grid  grid-cols-[300px_1fr] h-[calc(100vh-50px)] transition-all`}>
       <div className="flex flex-col gap-[10px] p-[10px] border-r">
-        <Card  className={`${step === 1 ? "bg-cyan-600 shadow-xl text-white" : ""} cursor-pointer transition-all flex  p-[20px] gap-[15px]`}>
+        <Card  className={`${step === 1 ? "bg-cyan-600 shadow-xl text-white" : "cursor-not-allowed pointer-events-none"}  transition-all flex  p-[20px] gap-[15px]`}>
           <div >
             <MdEditDocument className={`h-[35px] w-[35px] text-slate-600 ${step === 1 && "text-white"}`} />
           </div>
@@ -45,7 +45,7 @@ const DeviceMin: React.FC = () => {
             <CardDescription className={`${step === 1 && "text-white"}`}>First enter all the details</CardDescription>
           </CardHeader>
         </Card>
-        <Card className={`${step === 2 ? "bg-cyan-600 shadow-xl text-white" : ""} cursor-pointer transition-all flex  p-[20px] gap-[15px]`}>
+        <Card className={`${step === 2 ? "bg-cyan-600 shadow-xl text-white" : "cursor-not-allowed pointer-events-none"} transition-all flex  p-[20px] gap-[15px]`}>
         <div >
             <BsUpcScan className={`h-[35px] w-[35px] text-slate-600 ${step === 2 && "text-white"}`} />
           </div>
@@ -54,7 +54,7 @@ const DeviceMin: React.FC = () => {
             <CardDescription className={`${step === 2 && "text-white"}`}>scan all the items</CardDescription>
           </CardHeader>
         </Card>
-        <Card className={`${step === 3 ? "bg-cyan-600 shadow-xl text-white" : ""} transition-all cursor-pointer flex  p-[20px] gap-[15px]`}>
+        <Card className={`${step === 3 ? "bg-cyan-600 shadow-xl text-white" : "cursor-not-allowed pointer-events-none"} transition-all  flex  p-[20px] gap-[15px]`}>
         <div >
             <CiViewList className={`h-[35px] w-[35px] text-slate-600 ${step === 3 && "text-white"}`} />
           </div>
@@ -63,7 +63,7 @@ const DeviceMin: React.FC = () => {
             <CardDescription className={`${step === 3 && "text-white"}`}>Check All the Items you have scanned</CardDescription>
           </CardHeader>
         </Card>
-        <Card className={`${step === 4 ? "bg-cyan-600 shadow-xl text-white" : ""} transition-all cursor-pointer flex  p-[20px] gap-[15px] `}>
+        <Card className={`${step === 4 ? "bg-cyan-600 shadow-xl text-white" : "cursor-not-allowed pointer-events-none"} transition-all  flex  p-[20px] gap-[15px] `}>
         <div >
             <IoCheckmarkCircleSharp className={`h-[35px] w-[35px] text-slate-600 ${step === 4 && "text-white"}`} />
           </div>

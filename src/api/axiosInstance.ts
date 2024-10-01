@@ -3,11 +3,6 @@ import { getToken, removeToken } from "@/utils/tokenUtills";
 import { showToast } from "@/utils/toastUtils";
 import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
-
-// Helper function to get IP address
-
-
-// Helper function to get Fingerprint
 const getFingerprint = async () => {
   try {
     const fp = await FingerprintJS.load();

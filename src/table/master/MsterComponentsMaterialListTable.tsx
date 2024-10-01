@@ -71,12 +71,7 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
       filter: true,
       width: 300,
     },
-    {
-      headerName: "Is Approved",
-      field: "approval_status",
-      sortable: true,
-      filter: true,
-    },
+  
     {
       headerName: "Is Enabled",
       field: "is_enabled",
