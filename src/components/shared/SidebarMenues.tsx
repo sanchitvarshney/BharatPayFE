@@ -17,33 +17,33 @@ import { AiFillDatabase } from "react-icons/ai";
 
 const renderMenu = (menu: any, setSidemenu: any) => {
   return (
-    <ul className="flex flex-col gap-[10px]">
-      {menu.map((item: any, index: number) => (
-        <li key={index}>
-          {item.subMenu ? (
-            <Accordion type="single" collapsible>
-              <AccordionItem value={`item-${index}`} className="border-0">
+    <Accordion type="single" collapsible >
+      <ul className="flex flex-col gap-[10px]">
+        {menu.map((item: any, index: number) => (
+          <li key={index}>
+            {item.subMenu ? (
+              <AccordionItem value={`${index+item.name}`}  className="border-0">
                 <AccordionTrigger className="hover:no-underline hover:bg-cyan-800 p-[10px] rounded-md cursor-pointer">
                   <span className="flex gap-[10px] items-center">{item.name}</span>
                 </AccordionTrigger>
                 <AccordionContent className="p-[10px] mt-[10px] border-l-2 border-yellow-600 bg-cyan-900 rounded">{renderMenu(item.subMenu, setSidemenu)}</AccordionContent>
               </AccordionItem>
-            </Accordion>
-          ) : (
-            <div className="flex items-center justify-between w-full">
-              <Link onClick={() => setSidemenu(false)} to={item.path} className="w-full hover:no-underline hover:bg-cyan-700 p-[10px] rounded-md cursor-pointer flex items-center gap-[10px]">
-                {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
-              </Link>
-              <CustomTooltip message="Add to favorite" side="right">
-                <div className="h-[30px] min-w-[30px] flex justify-center items-center  hover:bg-white hover:text-cyan-600 transition-all cursor-pointer rounded-md">
-                  <Star className="h-[16px] w-[16px]" />
-                </div>
-              </CustomTooltip>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
+            ) : (
+              <div className="flex items-center justify-between w-full">
+                <Link onClick={() => setSidemenu(false)} to={item.path} className="w-full hover:no-underline hover:bg-cyan-700 p-[10px] rounded-md cursor-pointer flex items-center gap-[10px]">
+                  {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
+                </Link>
+                <CustomTooltip message="Add to favorite" side="right">
+                  <div className="h-[30px] min-w-[30px] flex justify-center items-center  hover:bg-white hover:text-cyan-600 transition-all cursor-pointer rounded-md">
+                    <Star className="h-[16px] w-[16px]" />
+                  </div>
+                </CustomTooltip>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Accordion>
   );
 };
 const SidebarMenues: React.FC<Props> = ({ uiState }) => {

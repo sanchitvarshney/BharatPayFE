@@ -124,7 +124,7 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
                     const mindata: UpateMINpayload = {
                       simExist: data.simAvailability,
                       serial: data.serialno,
-                      remarks: data.remarks,
+                      remark: data.remarks,
                       fileReference: storeSerialFiles?.fileReference,
                       min_no: storeDraftMinData?.min_no,
                       IMEI: data.IMEI,

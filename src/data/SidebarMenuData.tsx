@@ -86,6 +86,7 @@
 export const materialmenu = [
   {
     name: "Master",
+
     subMenu: [
       { name: "UOM", path: "/master-uom" },
       { name: "Component", path: "/master-components" },
@@ -93,7 +94,7 @@ export const materialmenu = [
       { name: "HSN", path: "/not-permission" },
       { name: "Bom", path: "/master-bom-ceate" },
       { name: "Location", path: "/master-location" },
-      { name: "Vender", path: "/master-vender-add" },
+      { name: "Vendor", path: "/master-vender-add" },
       { name: "Billing Address", path: "/master-billing-address" },
       { name: "Shipping Address", path: "/master-shipping-address" },
     ],
@@ -101,6 +102,7 @@ export const materialmenu = [
 
   {
     name: "Warehouse",
+
     subMenu: [
       { name: "MR Approval", path: "/pending-material-approval" },
       { name: "MR Requisition Req", path: "/material-requisition-request" },
@@ -113,6 +115,7 @@ export const materialmenu = [
 export const productionMenu = [
   {
     name: "PPC",
+
     subMenu: [
       {
         name: "Material Requisition",
@@ -155,7 +158,7 @@ export const navLinks = [
   { href: "/master-product-fg", label: "Products", value: "products" },
   { href: "/master-bom-ceate", label: "Bom", value: "bom" },
   { href: "/master-location", label: "Location", value: "location" },
-  { href: "/master-vender-add", label: "Vender", value: "vender" },
+  { href: "/master-vender-add", label: "Vendor", value: "vendor" },
   { href: "/master-billing-address", label: "Billing Address", value: "billing-address" },
   { href: "/master-shipping-address", label: "Shipping Address", value: "shipping-address" },
   { href: "/pending-material-approval", label: "MR Approval", value: "mr-approval" },

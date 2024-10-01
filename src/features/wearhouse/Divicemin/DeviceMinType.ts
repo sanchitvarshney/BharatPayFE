@@ -118,7 +118,7 @@ export type UpateMINpayload = {
   serial:string;
   fileReference:string;
   min_no:string;
-  remarks:string;
+  remark:string;
   IMEI:string;
   deviceModel:string;
 }

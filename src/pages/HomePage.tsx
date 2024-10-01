@@ -21,21 +21,21 @@ const HomePage = () => {
             </div>
           </div>
           <div className="flex  items-center mt-[30px] gap-[20px]">
-            <div className="h-[150px] w-[250px] bg-cyan-500/30 rounded-md flex flex-col items-center justify-center gap-[3px]">
+            <div className="h-[150px] w-[250px] bg-cyan-500/30 rounded-md flex flex-col items-center justify-center gap-[3px] opacity-40 pointer-events-none cursor-not-allowed">
               <FaWarehouse className="h-[50px] w-[50px] text-cyan-800" />
               <Link to={"/"} className="flex items-center gap-[5px]">
                 <p className="text-cyan-800 font-[600]">Production</p>
                 <BiLinkExternal className="text-cyan-800" />
               </Link>
             </div>
-            <div className="h-[150px] w-[250px] bg-cyan-500/30 rounded-md flex flex-col items-center justify-center gap-[3px]">
+            <div className="h-[150px] w-[250px] bg-cyan-500/30 rounded-md flex flex-col items-center justify-center gap-[3px] opacity-40 pointer-events-none cursor-not-allowed">
               <FaWarehouse className="h-[50px] w-[50px] text-cyan-800" />
               <Link to={"/"} className="flex items-center gap-[5px]">
                 <p className="text-cyan-800 font-[600]">Warehouse</p>
                 <BiLinkExternal className="text-cyan-800" />
               </Link>
             </div>
-            <div className="h-[150px] w-[250px] bg-cyan-500/30 rounded-md flex flex-col items-center justify-center gap-[3px]">
+            <div className="h-[150px] w-[250px] bg-cyan-500/30 rounded-md flex flex-col items-center justify-center gap-[3px] opacity-40 pointer-events-none cursor-not-allowed">
               <BiSolidReport className="h-[50px] w-[50px] text-cyan-800" />
               <Link to={"/"} className="flex items-center gap-[5px]">
                 <p className="text-cyan-800 font-[600]">Reports</p>
@@ -56,15 +56,15 @@ const HomePage = () => {
           </div>
         </div>
         <div className="flex flex-col items-end justify-between ">
-         <div>
-          <p className="text-right text-slate-500">Stay updated with our latest products and updates .</p>
-         <div className="flex mt-[10px] items-center overflow-hidden border rounded-full pr-[3px] max-w-[400px] min-w-[400px] shadow shadow-zinc-300 bg-white">
-            <Input className="border-none focus-visible:ring-0" placeholder="Email" />
-            <Button variant={"outline"} className="min-h-[30px] min-w-[30px] max-h-[30px] max-w-[30px]  p-0 bg-zinc-200 rounded-full">
-              <Send className=" text-slate-600 h-[17px] w-[17px]" />
-            </Button>
+          <div>
+            <p className="text-center text-slate-500">Stay updated with our latest products and updates .</p>
+            <div className="flex mt-[10px] items-center overflow-hidden border rounded-full pr-[3px] max-w-[400px] min-w-[400px] shadow shadow-zinc-300 bg-white">
+              <Input className="border-none focus-visible:ring-0" placeholder="Email" />
+              <Button variant={"outline"} className="min-h-[30px] min-w-[30px] max-h-[30px] max-w-[30px]  p-0 bg-zinc-200 rounded-full">
+                <Send className=" text-slate-600 h-[17px] w-[17px]" />
+              </Button>
+            </div>
           </div>
-         </div>
           <p className="text-[13px] text-zinc-500">© 2024 MsCorpres Automation Pvt. Ltd. | All rights reserved</p>
         </div>
       </div>
