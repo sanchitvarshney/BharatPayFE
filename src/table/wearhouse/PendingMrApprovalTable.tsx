@@ -93,7 +93,7 @@ const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert,setReque
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact loading={getPendingMrRequestLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate}  suppressCellFocus={true} rowData={pendingMrRequestData}  columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={10} />
+        <AgGridReact loading={getPendingMrRequestLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate}  suppressCellFocus={true} rowData={pendingMrRequestData}  columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>
   );

@@ -40,6 +40,7 @@ type Forstate = {
   picLocation: OptionType | null;
   issueQty: string;
   remarks: string;
+  
 };
 const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
   const [itemkey, setItemKey] = useState<string>("");

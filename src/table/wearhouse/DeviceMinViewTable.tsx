@@ -50,7 +50,7 @@ const DeviceMinViewTable: React.FC = () => {
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           pagination={true}
-          paginationPageSize={10}
+          paginationPageSize={20}
         />
       </div>
     </div>
