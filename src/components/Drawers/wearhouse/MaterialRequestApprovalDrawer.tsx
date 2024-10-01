@@ -41,12 +41,12 @@ type Forstate = {
 };
 const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
   const [itemkey, setItemKey] = useState<string>("");
-  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading ,rejectItemLoading} = useAppSelector((state) => state.pendingMr);
+  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading } = useAppSelector((state) => state.pendingMr);
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const [remarks, setRemarks] = useState<string>("");
+
   const dispatch = useAppDispatch();
   const {
-    register,
     handleSubmit,
     control,
     reset,
@@ -82,14 +82,14 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
   }, []);
   return (
     <div>
-    
-      <CustomDrawer open={open} 
-       onOpenChange={(e) => {
-        setOpen(e);
-        if (!e) {
-          dispatch(getPendingMaterialListsync());
-        }
-      }}
+      <CustomDrawer
+        open={open}
+        onOpenChange={(e) => {
+          setOpen(e);
+          if (!e) {
+            dispatch(getPendingMaterialListsync());
+          }
+        }}
       >
         <CustomDrawerContent side="right" className="min-w-[80%] p-0" onInteractOutside={(e) => e.preventDefault()}>
           <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400 ">
@@ -227,7 +227,33 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
                         {errors.picLocation && <span className=" text-[12px] text-red-500">{errors.picLocation.message}</span>}
                       </div>
                       <div>
-                        <CustomInput required type="number" label="Issue Qty" {...register("issueQty", { required: "Issue Qty is required" })} />
+                        <Controller
+                          name="issueQty"
+                          control={control}
+                          rules={{ required: "Issue Qty is required" }}
+                          render={({ field }) => (
+                            <CustomInput
+                              disabled={!itemDetail}
+                              {...field}
+                              value={field.value}
+                              required
+                              type="number"
+                              label="Issue Qty"
+                              onChange={(e) => {
+                                if (itemDetail) {
+                                  if (parseInt(e.target.value) > itemDetail[0]?.stock || parseInt(e.target.value) > itemDetail[0]?.reqQty) {
+                                    showToast({
+                                      description: "Issue Qty can't be greater than Available Qty or Requested Qty",
+                                      variant: "destructive",
+                                    });
+                                  } else {
+                                    field.onChange(e);
+                                  }
+                                }
+                              }}
+                            />
+                          )}
+                        />
                         {errors.issueQty && <span className=" text-[12px] text-red-500">{errors.issueQty.message}</span>}
                       </div>
                     </div>
@@ -245,39 +271,40 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
                               setRemarks(e.target.value);
                             }}
                           />
-                        )}/>
+                        )}
+                      />
                     </div>
                     <div className="flex items-center justify-end gap-[10px]">
-                    <CustomButton
-                    type="button"
-                    onClick={() => {
-                      if (!remarks) {
-                        showToast({
-                          description: "Remarks is required",
-                          variant: "destructive",
-                        });
-                      } else {
-                        dispatch(
-                          materialRequestReject({
-                            itemCode: itemkey,
-                            txnId: requestDetail?.id || "",
-                            remarks: remarks,
-                          })
-                        ).then((response:any)=>{
-                          if(response.payload.data?.success){
-                            dispatch(getProcessMrReqeustAsync(requestDetail?.id||""));
-                            setItemKey("")
-                            reset()
+                      <CustomButton
+                        type="button"
+                        onClick={() => {
+                          if (!remarks) {
+                            showToast({
+                              description: "Remarks is required",
+                              variant: "destructive",
+                            });
+                          } else {
+                            dispatch(
+                              materialRequestReject({
+                                itemCode: itemkey,
+                                txnId: requestDetail?.id || "",
+                                remarks: remarks,
+                              })
+                            ).then((response: any) => {
+                              if (response.payload.data?.success) {
+                                dispatch(getProcessMrReqeustAsync(requestDetail?.id || ""));
+                                setItemKey("");
+                                reset();
+                              }
+                            });
                           }
-                        })
-                      }
-                    }}
-                    variant={"outline"}
-                    icon={<RxCross2 className="h-[18px] w-[18px] text-red-500" />}
-                    loading={rejectItemLoading}
-                  >
-                    Reject
-                  </CustomButton>
+                        }}
+                        variant={"outline"}
+                        icon={<RxCross2 className="h-[18px] w-[18px] text-red-500" />}
+                        loading={rejectItemLoading}
+                      >
+                        Reject
+                      </CustomButton>
                       <CustomButton loading={approveItemLoading} className="bg-cyan-700 hover:bg-cyan-800" icon={<IoMdCheckmark className="h-[18px] w-[18px] " />}>
                         Approve
                       </CustomButton>

@@ -32,7 +32,7 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-85px)]">
-        <AgGridReact ref={gridRef} loading={getQ1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={q1Data?.body} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={10} />
+        <AgGridReact ref={gridRef} loading={getQ1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={q1Data?.body} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>
   );

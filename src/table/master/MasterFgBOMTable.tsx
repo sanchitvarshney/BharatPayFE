@@ -128,7 +128,7 @@ const MasterFgBOMTable: React.FC<Props> = ({setEdit,setView}) => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-      <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={10} />
+      <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
     </div>
   );
 };
