@@ -158,7 +158,7 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-270px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-250px)]">
       <AgGridReact
         ref={gridRef}
         suppressCellFocus={true}

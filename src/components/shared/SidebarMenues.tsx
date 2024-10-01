@@ -17,12 +17,12 @@ import { AiFillDatabase } from "react-icons/ai";
 
 const renderMenu = (menu: any, setSidemenu: any) => {
   return (
-    <Accordion type="single" collapsible >
+    <Accordion type="single" collapsible>
       <ul className="flex flex-col gap-[10px]">
         {menu.map((item: any, index: number) => (
           <li key={index}>
             {item.subMenu ? (
-              <AccordionItem value={`${index+item.name}`}  className="border-0">
+              <AccordionItem value={`${index + item.name}`} className="border-0">
                 <AccordionTrigger className="hover:no-underline hover:bg-cyan-800 p-[10px] rounded-md cursor-pointer">
                   <span className="flex gap-[10px] items-center">{item.name}</span>
                 </AccordionTrigger>

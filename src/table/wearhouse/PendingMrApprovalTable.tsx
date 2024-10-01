@@ -57,11 +57,11 @@ const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert,setReque
                 <HiOutlineRefresh className="h-[18px] w-[18px] text-slate-500" />
                 Process
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600">
+              <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600">
                 <Download className="h-[18px] w-[18px] text-slate-500" />
                 Download
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600">
+              <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600">
                 <IoPrint className="h-[18px] w-[18px] text-slate-500" />
                 Print
               </DropdownMenuItem>

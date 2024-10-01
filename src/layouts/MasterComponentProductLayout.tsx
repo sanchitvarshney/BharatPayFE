@@ -11,11 +11,11 @@ const MasterComponentProductLayout = (props:{children:React.ReactNode}) => {
              FG Products
             </NavLink>
           </li>
-          <li className="h-[50px]">
+          {/* <li className="h-[50px]">
             <NavLink to={"/master-product-sfg"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
              SFG Products
             </NavLink>
-          </li>
+          </li> */}
         </ul>
       </div>
       <div className="h-[calc(100vh-100px)] bg-transparent overflow-y-auto ">

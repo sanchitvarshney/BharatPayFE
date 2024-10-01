@@ -32,7 +32,7 @@ const DeviceMinStep4: React.FC<Props> = ({ setStep }) => {
           <p>{min_no&&min_no}</p>
          </div>
           <div className="flex items-center gap-[10px]">
-            <CustomButton variant={"outline"} icon={<Download className="h-[18px] w-[18px]" />}>
+            <CustomButton disabled variant={"outline"} icon={<Download className="h-[18px] w-[18px]" />}>
               Download
             </CustomButton>
             <CustomButton onClick={() => setStep(1)} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[10px]">

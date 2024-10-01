@@ -497,6 +497,9 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                       </FileUploaderContent>
                     </FileUploader>
                   </div>
+               <div className="mt-[20px] text-cyan-600 hover:underline" >
+               <a href="https://res.cloudinary.com/hrmscloud/raw/upload/v1727008397/PROJECTS/BPe/device-sample-serial-upload.xlsx" >Sample File <br /> <span className="text-[13px]">8.74 KB (8,956 bytes)</span></a>
+               </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
