@@ -322,7 +322,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <TRCLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 <AddTRC />
               </CustomRedirection>
             </TRCLayout>
@@ -334,7 +334,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <TRCLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 <ViewTRC />
               </CustomRedirection>
             </TRCLayout>

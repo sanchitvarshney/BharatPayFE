@@ -7,7 +7,27 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { LoginCredentials } from "@/features/authentication/authType";
 import { loginUserAsync } from "@/features/authentication/authSlice";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
+import { checkPermissions } from "@/helper/checkPermissions";
 const LoginPage = () => {
+  const [permissionsGranted, setPermissionsGranted] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkUserPermissions = async () => {
+      const result = await checkPermissions();
+      setPermissionsGranted(result);
+    };
+
+    checkUserPermissions();
+  }, []);
+console.log(permissionsGranted)
+
+
+ 
+
+
+  
+ 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -17,20 +37,22 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<LoginCredentials>();
   const { loading } = useAppSelector((state) => state.auth);
-  
 
   const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
-    dispatch(loginUserAsync(data)).then((response: any) => {
-      if (response.payload?.data?.success) {
-        toast({ title: response.payload?.data?.message, variant: "success", duration: 3000 });
-        navigate("/");
-      } else {
-        toast({ title: response.payload?.data?.message, variant: "destructive", duration: 3000 });
-      }
-    });
+    if(!permissionsGranted){
+      toast({ title: "Please Grant Permissions of location and Notification", variant: "destructive", duration: 3000 });
+    }else{
+      dispatch(loginUserAsync(data)).then((response: any) => {
+        if (response.payload?.data?.success) {
+          toast({ title: response.payload?.data?.message, variant: "success", duration: 3000 });
+          navigate("/");
+        } else {
+          toast({ title: response.payload?.data?.message, variant: "destructive", duration: 3000 });
+        }
+      });
+    }
+    
   };
-
- 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mx-auto grid w-[400px] gap-6 p-[20px] rounded-md bg-[#fff] shadow">
@@ -43,7 +65,7 @@ const LoginPage = () => {
             {errors.username && <span className=" text-[12px] text-red-500">{errors.username.message}</span>}
           </div>
           <div>
-            <PasswordInput {...register("password", { required: "password is required" })}  label="Password" autoComplete="off"  />
+            <PasswordInput {...register("password", { required: "password is required" })} label="Password" autoComplete="off" />
             {errors.password && <span className=" text-[12px] text-red-500">{errors.password.message}</span>}
             <div className="flex justify-end mt-[5px]">
               <Link to={"/forgot-password"} className="text-[12px] text-slate-600 underline">
@@ -51,7 +73,7 @@ const LoginPage = () => {
               </Link>
             </div>
           </div>
-          <CustomButton loading={loading} className="bg-cyan-700 hover:bg-cyan-800">
+          <CustomButton  loading={loading} className="bg-cyan-700 hover:bg-cyan-800">
             Login
           </CustomButton>
         </div>

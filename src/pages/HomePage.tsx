@@ -6,8 +6,10 @@ import { Search, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { BiSolidReport } from "react-icons/bi";
+import { checkPermissions } from "@/helper/checkPermissions";
 
 const HomePage = () => {
+  console.log(checkPermissions())
   return (
     <div className="h-[calc(100vh-50px)] overflow-y-auto bg-white">
       <div className="w-full h-[calc(100vh-250px)] px-[200px]  py-[10px] flex items-center justify-center">
@@ -55,7 +57,7 @@ const HomePage = () => {
             <p className="text-[13px] text-zinc-500">Email: marketing@mscorpres.in</p>
           </div>
         </div>
-        <div className="flex flex-col items-end justify-between ">
+        <div className="flex flex-col items-start justify-between ">
           <div>
             <p className="text-center text-slate-500">Stay updated with our latest products and updates .</p>
             <div className="flex mt-[10px] items-center overflow-hidden border rounded-full pr-[3px] max-w-[400px] min-w-[400px] shadow shadow-zinc-300 bg-white">

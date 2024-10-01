@@ -3,6 +3,7 @@ import { getToken, removeToken } from "@/utils/tokenUtills";
 import { showToast } from "@/utils/toastUtils";
 import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import { getLocation } from "@/helper/getLocation";
 const getFingerprint = async () => {
   try {
     const fp = await FingerprintJS.load();
@@ -22,26 +23,19 @@ const axiosInstance = axios.create({
   },
 });
 
-
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getToken();
-
   if (token) {
-  
     const uniqueid = uuidv4();
-
-   
-   
     const fingerprint = await getFingerprint();
-
-  
+    const location = await getLocation();
     config.headers.Authorization = `Bearer ${token}`;
     config.headers["authorization"] = token;
     config.headers["session"] = "2024-2025";
     config.headers["x-click-token"] = uniqueid;
-    config.headers["fingerprint"] = fingerprint || "unknown"; 
+    config.headers["x-location"] = location ||"";
+    config.headers["x-fingerprint"] = fingerprint || "unknown";
   }
-
   return config;
 });
 
