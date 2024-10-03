@@ -1,11 +1,17 @@
-
-import {  createSlice } from "@reduxjs/toolkit";
-
-import { RawminState } from "./RawMinType";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { CreateRawMinPayloadType, CreateRawMinResponse, RawminState } from "./RawMinType";
+import { AxiosResponse } from "axios";
+import axiosInstance from "@/api/axiosInstance";
 
 const initialState: RawminState = {
   documnetFileData: null,
+  createminLoading: false,
 };
+
+export const createRawMin = createAsyncThunk<AxiosResponse<CreateRawMinResponse>, CreateRawMinPayloadType>("master/getUOM", async (payload) => {
+  const response = await axiosInstance.post("/transaction/min_transaction", payload);
+  return response;
+});
 
 const RawMinSlice = createSlice({
   name: "rawmin",
@@ -21,6 +27,18 @@ const RawMinSlice = createSlice({
     resetDocumentFile: (state) => {
       state.documnetFileData = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createRawMin.pending, (state) => {
+        state.createminLoading = true;
+      })
+      .addCase(createRawMin.fulfilled, (state) => {
+        state.createminLoading = false;
+      })
+      .addCase(createRawMin.rejected, (state) => {
+        state.createminLoading = false;
+      });
   },
 });
 

@@ -10,12 +10,14 @@ import CustomSelect from "@/components/reusable/CustomSelect";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { clearTrcDetail, getTrcList } from "@/features/trc/ViewTrc/viewTrcSlice";
+import { clearTrcDetail, getTrcList, trcFinalSubmit } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { transformGroupSelectData } from "@/utils/transformUtills";
 
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+import { showToast } from "@/utils/toastUtils";
+import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
 interface Issue {
   id: number;
   issue: string;
@@ -31,7 +33,7 @@ type OptionType = {
 };
 const ViewTRC: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { TRCDetail, getTrcRequestDetailLoading, trcRequestDetail } = useAppSelector((state) => state.viewTrc);
+  const { TRCDetail, getTrcRequestDetailLoading, trcRequestDetail,TrcFinalSubmitLoading } = useAppSelector((state) => state.viewTrc);
   const { getLocationLoading, locationData } = useAppSelector((state) => state.divicemin);
   const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
   const [process, setProcess] = useState<boolean>(false);
@@ -39,14 +41,86 @@ const ViewTRC: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
+  const [approved, setApproved] = useState<string[]|null>(null);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const [device, setDevice] = useState<string>("");
   const handleInputChange = (id: number, field: keyof Issue, value: any) => {
     setIssues((prevIssues) => prevIssues.map((issue) => (issue.id === id ? { ...issue, [field]: value } : issue)));
   };
-  
-  console.log(issues);
 
+
+  const checkRequiredFields = (data: Issue[]) => {
+    let hasErrors = false;
+    const requiredFields: Array<keyof Issue> = ["issue", "selectedPart", "quantity"];
+    const miss = data.map((item) => {
+      const missingFields: string[] = [];
+      requiredFields.forEach((field) => {
+        // Check if the required field is empty
+        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
+          missingFields.push(field);
+        }
+      });
+
+      if (missingFields.length > 0) {
+        return `${item.id}`;
+      }
+    });
+    
+    if(data.filter((item) => !item.isChecked).length > 0){
+      showToast({
+        description: "Please check all issues",
+        variant: "destructive",
+      })
+      hasErrors = true;
+    }
+  
+    if (miss.filter((item) => item !== undefined).length > 0) {
+      showToast({
+        description: `Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`,
+        variant: "destructive",
+        duration: 3000,
+      });
+      hasErrors = true;
+    }
+
+   
+    return hasErrors;
+  };
+  const  onSubmit = ()=>{
+    if(issues.length === 0){
+      showToast({
+        description: "Issue not added",  
+        variant: "destructive",
+      })
+    }else if(!checkRequiredFields(issues)){
+      // TRCDetail?.txnId
+      const  consumpItem = issues.map((item)=>item.selectedPart?.value||"")
+      const consumpQty = issues.map((item)=>item.quantity)
+      const remark = issues.map((item)=>item.remarks)
+      const payload :TrcFinalSubmitPayload={
+        txnId:TRCDetail?.txnId||"", 
+        consumpItem,
+        consumpQty,
+        remark,
+        putLocation:location?.value||""
+      }
+      dispatch(trcFinalSubmit(payload)).then((res: any) => {
+        if (res.payload.data.success) {
+          if(!approved){
+            setApproved([device])
+          }else{
+            setApproved([...approved,device])
+          }
+          setDevice("")
+          if(approved?.length === trcRequestDetail!.body.length){
+            setProcess(false)
+            dispatch(getTrcList());
+          }
+        }
+      })
+    }
+  }
+ 
   useEffect(() => {
     dispatch(getTrcList());
     dispatch(getLocationAsync(null));
@@ -99,7 +173,7 @@ const ViewTRC: React.FC = () => {
                     <RadioGroup onValueChange={(e) => setDevice(e)} className="flex flex-col gap-0 p-0 m-0">
                       {trcRequestDetail
                         ? trcRequestDetail.body.map((item) => (
-                            <Label key={item.device} htmlFor={item.device} className="p-0 cursor-pointer">
+                            <Label key={item.device} htmlFor={item.device} className={`p-0 cursor-pointer ${approved && approved.includes(item.device) ? "pointer-events-none opacity-55" : ""}`}>
                               <div className=" items-center grid grid-cols-[30px_1fr] py-[10px] border-b ps-[10px] ">
                                 <RadioGroupItem value={item.device} id={item.device} />
                                 <p>{item.device}</p>
@@ -227,10 +301,10 @@ const ViewTRC: React.FC = () => {
                   </div>
                 </div>
                 <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t border-slate-300">
-                  <CustomButton disabled variant={"outline"} icon={<FaXmark className="h-[18px] w-[18px] text-red-500" />}>
+                  <CustomButton   variant={"outline"} icon={<FaXmark className="h-[18px] w-[18px] text-red-500" />}>
                     Cancel
                   </CustomButton>
-                  <CustomButton disabled className="bg-cyan-700 hover:bg-cyan-800" icon={<IoMdCheckmark className="h-[18px] w-[18px] " />}>
+                  <CustomButton onClick={onSubmit}  loading={TrcFinalSubmitLoading} className="bg-cyan-700 hover:bg-cyan-800" icon={<IoMdCheckmark className="h-[18px] w-[18px] " />}>
                     Submit
                   </CustomButton>
                 </div>
