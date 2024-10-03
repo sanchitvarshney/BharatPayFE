@@ -14,16 +14,21 @@ import { transformGroupSelectData } from "@/utils/transformUtills";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
 import AddtrcTable from "@/table/TRC/AddtrcTable";
+import { showToast } from "@/utils/toastUtils";
+import { addTrcAsync } from "@/features/trc/AddTrc/addtrcSlice";
+import { AddtrcPayloadType } from "@/features/trc/AddTrc/addtrcType";
+import { getIsueeList } from "@/features/common/commonSlice";
 
 interface RowData {
   remarks: string;
   id: number;
   isNew: boolean;
-  part: string;
+  issues: string[];
   IMEI: string;
 }
 type Formstate = {
-  location: OptionType | null;
+  pickLocation: OptionType | null;
+  putLocation: OptionType | null;
   remarks: string;
 };
 type OptionType = {
@@ -35,7 +40,8 @@ const AddTRC = () => {
   const [location, setLocation] = useState<OptionType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
   const [final, setFinal] = useState<boolean>(false);
-  const { createProductRequestLoading, locationData, getLocationDataLoading, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { locationData, getLocationDataLoading, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { addTrcLoading } = useAppSelector((state) => state.addTrc);
   // const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
 
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -49,7 +55,8 @@ const AddTRC = () => {
     formState: { errors },
   } = useForm<Formstate>({
     defaultValues: {
-      location: null,
+      pickLocation: null,
+      putLocation: null,
       remarks: "",
     },
   });
@@ -60,16 +67,67 @@ const AddTRC = () => {
       remarks: "",
       isNew: true,
       IMEI: "",
-      part: "",
+      issues: [],
     };
     setRowData((prev) => [...prev, newRow].reverse());
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
-    console.log(data);
+    if (rowData.length === 0) {
+      showToast({
+        description: "Please Add Material Details",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      let hasErrors = false;
+
+      rowData.forEach((row) => {
+        const missingFields: string[] = [];
+        if (!row.IMEI) {
+          missingFields.push("IMEI");
+        }
+        if (!row.issues.length) {
+          missingFields.push("issues");
+        }
+
+        if (missingFields.length > 0) {
+          showToast({
+            description: `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
+            variant: "destructive",
+          });
+          hasErrors = true;
+        }
+      });
+
+      if (!hasErrors) {
+        const issue = rowData.map((row) => row.issues);
+        const device = rowData.map((row) => row.IMEI);
+        const remark = rowData.map((row) => row.remarks);
+        const payload: AddtrcPayloadType = {
+          issue,
+          device,
+          remark,
+          comment: data.remarks,
+          pickLocation: data.pickLocation?.value || "",
+          putLocation: data.putLocation?.value || "",
+        };
+        dispatch(addTrcAsync(payload)).then((response: any) => {
+          if (response.payload.data?.success) {
+            showToast({
+              description: `TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`,
+              variant: "success",
+            });
+            reset();
+            setRowData([]);
+          }
+        });
+      }
+    }
   };
   useEffect(() => {
     dispatch(getLocationAsync(null));
+    dispatch(getIsueeList(null));
   }, []);
   useEffect(() => {
     if (location) {
@@ -112,9 +170,9 @@ const AddTRC = () => {
                 <CardContent className="flex flex-col gap-[20px] py-[20px]">
                   <div>
                     <Controller
-                      name="location"
+                      name="pickLocation"
                       control={control}
-                      rules={{ required: "Location is required" }}
+                      rules={{ required: "Pick Location is required" }}
                       render={({ field }) => (
                         <CustomSelect
                           isLoading={getLocationDataLoading}
@@ -136,11 +194,42 @@ const AddTRC = () => {
                             field.onChange(selectedOption as SingleValue<OptionType>);
                             setLocation(selectedOption);
                           }}
-                          placeholder={"Location"}
+                          placeholder={"Pick Location"}
                         />
                       )}
                     />
-                    {errors.location && <span className=" text-[12px] text-red-500">{errors.location.message}</span>}
+                    {errors.pickLocation && <span className=" text-[12px] text-red-500">{errors.pickLocation.message}</span>}
+                  </div>
+                  <div>
+                    <Controller
+                      name="putLocation"
+                      control={control}
+                      rules={{ required: "Put Location is required" }}
+                      render={({ field }) => (
+                        <CustomSelect
+                          isLoading={getLocationDataLoading}
+                          {...field}
+                          options={transformGroupSelectData(locationData)}
+                          onInputChange={(value) => {
+                            if (debounceTimeout.current) {
+                              clearTimeout(debounceTimeout.current);
+                            }
+                            debounceTimeout.current = setTimeout(() => {
+                              dispatch(getLocationAsync(!value ? null : value));
+                            }, 500);
+                          }}
+                          required
+                          value={field.value}
+                          isClearable={true}
+                          onChange={(selectedOption) => {
+                            field.onChange(selectedOption as SingleValue<OptionType>);
+                            setLocation(selectedOption);
+                          }}
+                          placeholder={"Put Location"}
+                        />
+                      )}
+                    />
+                    {errors.putLocation && <span className=" text-[12px] text-red-500">{errors.putLocation.message}</span>}
                   </div>
                   <div className="flex gap-[10px] items-center">
                     <Label className="text-slate-500 text-[14px]">Location Details :</Label>
@@ -163,7 +252,7 @@ const AddTRC = () => {
                   >
                     Reset
                   </CustomButton>
-                  <CustomButton loading={createProductRequestLoading} icon={<IoCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
+                  <CustomButton loading={addTrcLoading} icon={<IoCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
                     Submit
                   </CustomButton>
                 </CardFooter>

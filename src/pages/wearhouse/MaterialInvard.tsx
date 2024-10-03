@@ -63,8 +63,8 @@ type FormData = {
   vendorBranch: OptionType | null;
   vendorAddress: string;
   gstin: string;
-  invoiceDate: string;
-  invoiceId: string;
+  doucmentDate: string;
+  documentId: string;
 };
 const MaterialInvard: React.FC = () => {
   const [filename, setFilename] = useState<string>("");
@@ -91,8 +91,8 @@ const MaterialInvard: React.FC = () => {
       vendorBranch: null,
       vendorAddress: "",
       gstin: "",
-      invoiceDate: "",
-      invoiceId: "",
+      doucmentDate: "",
+      documentId: "",
     },
   });
   const checkRequiredFields = (data: RowData[]) => {
@@ -125,6 +125,7 @@ const MaterialInvard: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
+    console.log(data)
     if (rowData.length === 0) {
       showToast({
         description: "Please Add Material Details",
@@ -132,8 +133,7 @@ const MaterialInvard: React.FC = () => {
       });
     } else {
       if (!checkRequiredFields(rowData)) {
-        alert("Data Submitted");
-        console.log(data);
+        
       }
     }
   };
@@ -297,7 +297,7 @@ const MaterialInvard: React.FC = () => {
                     {" "}
                     <div>
                       <Controller
-                        name="invoiceDate"
+                        name="doucmentDate"
                         control={control}
                         rules={{ required: "Invoice Date is required" }}
                         render={({ field }) => (
@@ -312,11 +312,11 @@ const MaterialInvard: React.FC = () => {
                           />
                         )}
                       />
-                      {errors.invoiceDate && <span className=" text-[12px] text-red-500">{errors.invoiceDate.message}</span>}
+                      {errors.doucmentDate && <span className=" text-[12px] text-red-500">{errors.doucmentDate.message}</span>}
                     </div>
                     <div>
-                      <CustomInput label="Invoice Id" {...register("invoiceId", { required: "Invoice Id  is required" })} />
-                      {errors.invoiceId && <span className=" text-[12px] text-red-500">{errors.invoiceId.message}</span>}
+                      <CustomInput label="Document ID" {...register("documentId", { required: "Invoice Id  is required" })} />
+                      {errors.documentId && <span className=" text-[12px] text-red-500">{errors.documentId.message}</span>}
                     </div>
                   </div>
                   <div className=" flex flex-col gap-[30px] mt-[20px]">

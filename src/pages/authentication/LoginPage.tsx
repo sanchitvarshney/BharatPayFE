@@ -20,14 +20,8 @@ const LoginPage = () => {
 
     checkUserPermissions();
   }, []);
-console.log(permissionsGranted)
+  console.log(permissionsGranted);
 
-
- 
-
-
-  
- 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -39,9 +33,9 @@ console.log(permissionsGranted)
   const { loading } = useAppSelector((state) => state.auth);
 
   const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
-    if(!permissionsGranted){
+    if (!permissionsGranted) {
       toast({ title: "Please Grant Permissions of location and Notification", variant: "destructive", duration: 3000 });
-    }else{
+    } else {
       dispatch(loginUserAsync(data)).then((response: any) => {
         if (response.payload?.data?.success) {
           toast({ title: response.payload?.data?.message, variant: "success", duration: 3000 });
@@ -51,7 +45,6 @@ console.log(permissionsGranted)
         }
       });
     }
-    
   };
 
   return (
@@ -73,7 +66,7 @@ console.log(permissionsGranted)
               </Link>
             </div>
           </div>
-          <CustomButton  loading={loading} className="bg-cyan-700 hover:bg-cyan-800">
+          <CustomButton loading={loading} className="bg-cyan-700 hover:bg-cyan-800">
             Login
           </CustomButton>
         </div>

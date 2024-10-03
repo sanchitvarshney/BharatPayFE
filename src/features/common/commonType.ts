@@ -2,6 +2,7 @@ export type userData = {
     id: string;
     text: string;
 }
+
 export type UserApiResponse={
     status:string
     message:string
@@ -11,4 +12,6 @@ export type UserApiResponse={
 export type Commonstate = {
     getUserLoading: boolean;
     userData: userData[] | null;
+    isueeList: userData[] | null;
+    isueeListLoading: boolean;
 }
