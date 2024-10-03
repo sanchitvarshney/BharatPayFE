@@ -2,17 +2,17 @@ export type TrcList = {
   requestBy: string;
   txnId: string;
   txnStatus: string;
-  totalDeviceL: number|string;
+  totalDeviceL: number | string;
   insertDate: string;
   putLocation: string;
 };
-export type TcDetail  ={
+export type TcDetail = {
   requestedBy: string;
   txnId: string;
   location: string;
   insertDate: string;
-  totalDevice: number|string;
-}
+  totalDevice: number | string;
+};
 
 type Issue = {
   text: string;
@@ -23,10 +23,10 @@ type BodyItem = {
   issue: Issue[];
   remark: string;
   device: string;
-  deviceDetail:{
+  deviceDetail: {
     imei: string;
     model: string;
-  }
+  };
 };
 
 type Header = {
@@ -50,11 +50,23 @@ export type TrcListResponse = {
   data: TrcList[];
   success: boolean;
   message: string;
+};
+export type TrcFinalSubmitPayload = {
+  txnId: string;
+  putLocation: string;
+  consumpItem: string[];
+  consumpQty:   (string | number)[];
+  remark: string[];
+};
+export type TrcfinalSubmitResponse = {
+  success: boolean;
+  message: string;
 }
 export type ViewTrcState = {
-  trcList: TrcList[] | null
-  getTrcListLoading: boolean
-  TRCDetail: TcDetail|null
-  trcRequestDetail: Data | null
-  getTrcRequestDetailLoading: boolean
-}
+  trcList: TrcList[] | null;
+  getTrcListLoading: boolean;
+  TRCDetail: TcDetail | null;
+  trcRequestDetail: Data | null;
+  getTrcRequestDetailLoading: boolean;
+  TrcFinalSubmitLoading: boolean;
+};

@@ -23,8 +23,9 @@ import { FileInput, FileUploader, FileUploaderContent } from "@/components/ui/Fi
 import { CgSpinner } from "react-icons/cg";
 import { HiMiniTrash } from "react-icons/hi2";
 import { MdFileCopy } from "react-icons/md";
-import { storeDocumentFile } from "@/features/wearhouse/Rawmin/RawMinSlice";
+import { createRawMin, resetDocumentFile, storeDocumentFile } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+import { CreateRawMinPayloadType } from "@/features/wearhouse/Rawmin/RawMinType";
 
 interface RowData {
   partComponent: string;
@@ -42,8 +43,7 @@ interface RowData {
   autoConsump: string;
   remarks: string;
   id: number;
-  currency?: string;
-
+  currency: string;
   isNew?: boolean;
 }
 
@@ -76,7 +76,7 @@ const MaterialInvard: React.FC = () => {
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
   const { VendorData, getVendorLoading, getVendorBranchLoading, VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
-  const { documnetFileData } = useAppSelector((state) => state.rawmin);
+  const { documnetFileData, createminLoading } = useAppSelector((state) => state.rawmin);
   const {
     register,
     handleSubmit,
@@ -125,15 +125,57 @@ const MaterialInvard: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    console.log(data)
     if (rowData.length === 0) {
       showToast({
         description: "Please Add Material Details",
         variant: "destructive",
       });
+    } else if (!documnetFileData) {
+      showToast({
+        description: "Please Upload Invoice Documents",
+        variant: "destructive",
+      });
     } else {
       if (!checkRequiredFields(rowData)) {
-        
+        const component = rowData.map((item) => item.partComponent);
+        const qty = rowData.map((item) => Number(item.qty));
+        const rate = rowData.map((item) => Number(item.rate));
+        const gsttype = rowData.map((item) => item.gstType);
+        const gstrate = rowData.map((item) =>Number(item.gstRate));
+        const location = rowData.map((item) => item.location);
+        const currency = rowData.map((item) => item.currency);
+        const remarks = rowData.map((item) => item.remarks);
+        const hsnCode = rowData.map((item) => item.hsnCode);
+        const payload: CreateRawMinPayloadType = {
+          component,
+          qty,
+          rate,
+          gsttype,
+          gstrate,
+          location,
+          hsnCode,
+          remarks,
+          currency: currency || [],
+          vendor: data.vendor?.value || "",
+          vendorbranch: data.vendorBranch?.value || "",
+          address: data.vendorAddress || "",
+          doc_id: data.documentId || "",
+          doc_date: data.doucmentDate || "",
+          vendortype: data.vendorType?.value || "",
+          invoiceAttachment: documnetFileData || [],
+        };
+        dispatch(createRawMin(payload)).then((response: any) => {
+          if (response.payload.data.success) {
+            showToast({
+              description: response.payload?.data?.message,
+              variant: "success",
+            });
+            setRowData([]);
+            setTotal({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
+            reset();
+            dispatch(resetDocumentFile());
+          }
+        });
       }
     }
   };
@@ -375,6 +417,7 @@ const MaterialInvard: React.FC = () => {
                       onClick={() => {
                         reset();
                         setRowData([]);
+                        setTotal({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
                       }}
                       type="button"
                       variant={"outline"}
@@ -382,7 +425,7 @@ const MaterialInvard: React.FC = () => {
                     >
                       Reset
                     </CustomButton>
-                    <CustomButton icon={<IoMdCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
+                    <CustomButton loading={createminLoading} icon={<IoMdCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
                       Submit
                     </CustomButton>
                   </div>

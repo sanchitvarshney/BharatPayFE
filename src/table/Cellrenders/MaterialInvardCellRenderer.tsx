@@ -68,8 +68,8 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
             placeholder="Select gst type"
             onChange={(value) => handleChange(value)}
             options={[
-              { value: "local", label: "local" },
-              { value: "interstate", label: "Inter State" },
+              { value: "L", label: "local" },
+              { value: "S", label: "Inter State" },
             ]}
           />
         );

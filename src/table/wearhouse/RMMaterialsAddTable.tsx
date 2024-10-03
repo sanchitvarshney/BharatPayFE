@@ -24,7 +24,7 @@ interface RowData {
   autoConsump: string;
   remarks: string;
   id: number;
-  currency?: string;
+  currency: string;
   isNew?: boolean;
 }
 interface Totals {
@@ -64,7 +64,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       taxableValue: 0,
       foreignValue: 0,
       hsnCode: "",
-      gstType: "",
+      gstType: "L",
       gstRate: 0,
       cgst: 0,
       sgst: 0,

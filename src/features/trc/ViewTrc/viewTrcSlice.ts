@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { TrcListResponse, TRCRequestApiResponse, ViewTrcState } from "./viewTrcType";
+import { TrcFinalSubmitPayload, TrcfinalSubmitResponse, TrcListResponse, TRCRequestApiResponse, ViewTrcState } from "./viewTrcType";
 
 const initialState: ViewTrcState = {
   getTrcListLoading: false,
@@ -9,6 +9,7 @@ const initialState: ViewTrcState = {
   TRCDetail: null,
   trcRequestDetail: null,
   getTrcRequestDetailLoading: false,
+  TrcFinalSubmitLoading: false,
 };
 
 export const getTrcList = createAsyncThunk<AxiosResponse<TrcListResponse>>("trc/list", async () => {
@@ -17,6 +18,10 @@ export const getTrcList = createAsyncThunk<AxiosResponse<TrcListResponse>>("trc/
 });
 export const getTrcRequestDetail = createAsyncThunk<AxiosResponse<TRCRequestApiResponse>, string>("trc/getTrcRequestDetail", async (txnid) => {
   const response = await axiosInstance.get(`/trc/detail/${txnid}`);
+  return response;
+});
+export const trcFinalSubmit = createAsyncThunk<AxiosResponse<TrcfinalSubmitResponse>, TrcFinalSubmitPayload>("trc/trcFinalSubmit", async (payload) => {
+  const response = await axiosInstance.post(`/trc/submit`, payload);
   return response;
 });
 
@@ -56,6 +61,15 @@ const viewTrcSlice = createSlice({
       })
       .addCase(getTrcRequestDetail.rejected, (state) => {
         state.getTrcRequestDetailLoading = false;
+      })
+      .addCase(trcFinalSubmit.pending, (state) => {
+        state.TrcFinalSubmitLoading = true;
+      })
+      .addCase(trcFinalSubmit.fulfilled, (state) => {
+        state.TrcFinalSubmitLoading = false;
+      })
+      .addCase(trcFinalSubmit.rejected, (state) => {
+        state.TrcFinalSubmitLoading = false;
       });
   },
 });
