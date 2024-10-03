@@ -12,6 +12,8 @@ import queryReducer from "@/features/query/query/querySlice";
 import reportReducer from "@/features/report/report/reportSlice";
 import pendingMrRequestReducer from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import materialRequestWithoutBomReducer from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+import addTrcReducer from "@/features/trc/AddTrc/addtrcSlice";
+import viewTrcReducer from "@/features/trc/ViewTrc/viewTrcSlice";
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +29,9 @@ export const store = configureStore({
     query: queryReducer,
     report: reportReducer,
     pendingMr: pendingMrRequestReducer,
-    common:commonReducer
+    common: commonReducer,
+    addTrc: addTrcReducer,
+    viewTrc: viewTrcReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

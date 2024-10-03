@@ -39,11 +39,10 @@ const ProfileSidebar: React.FC<Props> = ({ uiState }) => {
             <PiPasswordFill className="h-[15px] w-[15px]" />
             <span className="text-[13px]"> Change Password</span>
           </Link>
-          
         </div>
         <div className="absolute bottom-0 left-0 p-[10px] w-full flex justify-center items-center">
           <Button onClick={() => setLogotAlert(true)} variant={"outline"} className="w-full bg-transparent hover:bg-white/10 gap-[10px] justify-start  hover:text-white border-0 text-slate-300">
-            <LogOut  className="h-[18px] w-[18px]"/>
+            <LogOut className="h-[18px] w-[18px]" />
             <span className="text-[14px]">Logout</span>
           </Button>
         </div>

@@ -6,13 +6,18 @@ import { Commonstate, UserApiResponse } from "./commonType";
 const initialState: Commonstate = {
   getUserLoading: false,
   userData: null,
+  isueeList: null,
+  isueeListLoading: false,
 };
 
-export const getUserAsync = createAsyncThunk<AxiosResponse<UserApiResponse>,string|null>("common/getuser", async (searchinput) => {
-  const response = await axiosInstance.get(`backend/search/user/${searchinput}`);
+export const getUserAsync = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getuser", async (searchinput) => {
+  const response = await axiosInstance.get(`/backend/search/user/${searchinput}`);
   return response;
 });
-
+export const getIsueeList = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getIsueeList", async (searchinput) => {
+  const response = await axiosInstance.get(`/backend/search/issue/${searchinput}`);
+  return response;
+});
 const commonSlice = createSlice({
   name: "common",
   initialState,
@@ -30,6 +35,18 @@ const commonSlice = createSlice({
       })
       .addCase(getUserAsync.rejected, (state) => {
         state.getUserLoading = false;
+      })
+      .addCase(getIsueeList.pending, (state) => {
+        state.isueeListLoading = true;
+      })
+      .addCase(getIsueeList.fulfilled, (state, action) => {
+        state.isueeListLoading = false;
+        if (action.payload.data.success) {
+          state.isueeList = action.payload.data.data;
+        }
+      })
+      .addCase(getIsueeList.rejected, (state) => {
+        state.isueeListLoading = false;
       });
   },
 });

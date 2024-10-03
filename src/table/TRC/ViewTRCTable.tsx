@@ -4,21 +4,17 @@ import { AgGridReact } from "ag-grid-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { CustomButton } from "@/components/reusable/CustomButton";
 import { TbRefresh } from "react-icons/tb";
-
-interface RowData {
-  id: number;
-  requestedBy: string;
-  refid: string;
-  fromLocation: string;
-  insertDate: string;
-  totalDevice: number;
-}
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { getTrcRequestDetail, setTrcDetail } from "@/features/trc/ViewTrc/viewTrcSlice";
+import { TcDetail } from "@/features/trc/ViewTrc/viewTrcType";
 
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const ViewTRCTable: React.FC<Props> = ({  setOpen }) => {
+const ViewTRCTable: React.FC<Props> = ({ setOpen }) => {
+  const dispatch = useAppDispatch();
+  const { trcList, getTrcListLoading } = useAppSelector((state) => state.viewTrc);
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
@@ -27,24 +23,26 @@ const ViewTRCTable: React.FC<Props> = ({  setOpen }) => {
       filter: true,
       flex: 1,
       maxWidth: 80,
+      valueGetter: "node.rowIndex + 1",
     },
     {
       headerName: "Requested By",
-      field: "requestedBy",
+      field: "requestBy",
       sortable: true,
       filter: true,
       flex: 1,
+      cellRenderer: (params: any) => (params?.value ? params?.value : "--"),
     },
     {
       headerName: "Reference ID",
-      field: "refid",
+      field: "txnId",
       sortable: true,
       filter: true,
       flex: 1,
     },
     {
       headerName: "From Location",
-      field: "fromLocation",
+      field: "putLocation",
       sortable: true,
       filter: true,
       flex: 1,
@@ -66,9 +64,24 @@ const ViewTRCTable: React.FC<Props> = ({  setOpen }) => {
     {
       headerName: "Action",
       field: "action",
-      cellRenderer: () => (
+      cellRenderer: (params: any) => (
         <div className="flex items-center justify-center h-full">
-          <CustomButton onClick={() => setOpen(true)} icon={<TbRefresh className="h-[18px] w-[18px]" />} className="p-0 bg-cyan-700 hover:bg-cyan-800 h-[30px] px-[10px]">
+          <CustomButton
+            onClick={() => {
+              setOpen(true);
+              const payload: TcDetail = {
+                txnId: params?.data?.txnId,
+                location: params?.data?.putLocation,
+                requestedBy: params?.data?.requestBy,
+                insertDate: params?.data?.insertDate,
+                totalDevice: params?.data?.totalDevice,
+              };
+              dispatch(setTrcDetail(payload));
+              dispatch(getTrcRequestDetail(params?.data?.txnId));
+            }}
+            icon={<TbRefresh className="h-[18px] w-[18px]" />}
+            className="p-0 bg-cyan-700 hover:bg-cyan-800 h-[30px] px-[10px]"
+          >
             Process
           </CustomButton>
         </div>
@@ -76,25 +89,6 @@ const ViewTRCTable: React.FC<Props> = ({  setOpen }) => {
       flex: 1,
       maxWidth: 100,
     },
-  ];
-  const rowData: RowData[] = [
-    {
-      id: 1,
-      requestedBy: "User A",
-      refid: "REF-1234",
-      fromLocation: "Location A",
-      insertDate: "2024-08-31",
-      totalDevice: 10,
-    },
-    {
-      id: 2,
-      requestedBy: "User B",
-      refid: "REF-5678",
-      fromLocation: "Location B",
-      insertDate: "2024-08-30",
-      totalDevice: 15,
-    },
-    // Add more rows as needed
   ];
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -106,7 +100,7 @@ const ViewTRCTable: React.FC<Props> = ({  setOpen }) => {
   return (
     <div>
       <div className="ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact loading={getTrcListLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={trcList ? trcList : []} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>
   );

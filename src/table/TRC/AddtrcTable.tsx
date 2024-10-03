@@ -12,7 +12,7 @@ interface RowData {
   remarks: string;
   id: number;
   isNew: boolean;
-  part: string;
+  issues: string[];
   IMEI: string;
 }
 type Props = {
@@ -88,7 +88,7 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
     },
     {
       headerName: "Issues",
-      field: "part",
+      field: "issues",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
     },
@@ -113,7 +113,7 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
           remarks: "",
           isNew: true,
           IMEI: "",
-          part: "",
+          issues: [],
         };
         setRowdata((prev) => [...prev, newRow].reverse());
       }
@@ -128,7 +128,8 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
       <AgGridReact
         ref={gridRef}
         columnDefs={columnDefs}
-        suppressRowClickSelection={false}
+        suppressRowClickSelection={true}
+        suppressCellFocus={true}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
         animateRows

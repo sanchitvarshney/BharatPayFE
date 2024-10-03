@@ -31,6 +31,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           },
           Select: {
             controlHeight: 35,
+            colorBorder:"#94a3b8",
+          
           },
         },
       }}
