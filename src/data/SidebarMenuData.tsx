@@ -146,7 +146,7 @@ export const navSliderData = Array.from({ length: 2 }, (_, i) => ({
   label: `Q${i + 1} Query`,
   value: `Q${i + 1} Query`,
 }));
-export const reportnav = Array.from({ length: 2 }, (_, i) => ({
+export const reportnav = Array.from({ length: 1 }, (_, i) => ({
   href: `/report?reportno=R${i + 1}`,
   label: `R${i + 1} Report`,
   value: `R${i + 1} Report`,
