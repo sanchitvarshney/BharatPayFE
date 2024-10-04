@@ -29,7 +29,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
   const handleChange = (value: string) => {
     const newValue = value;
     data[colDef.field] = newValue; // update the data
-    if (data.gstType === "local") {
+    if (data.gstType === "L") {
       data["sgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
       data["cgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
       data["igst"] = 0;
@@ -44,7 +44,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
     const newValue = e.target.value;
     data[colDef.field] = newValue; // update the data
     data["taxableValue"] = Number(data.qty) * Number(data.rate);
-    if (data.gstType === "local") {
+    if (data.gstType === "L") {
       data["sgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
       data["cgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
       data["igst"] = 0;
@@ -170,19 +170,19 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
         return <Input onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
 
       case "taxableValue":
-        return <Input disabled onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "foreignValue":
-        return <Input disabled onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "hsnCode":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "gstRate":
         return <Input onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "cgst":
-        return <Input disabled onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "sgst":
-        return <Input disabled onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "igst":
-        return <Input disabled onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "remarks":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
     }
