@@ -8,8 +8,8 @@ const initialState: ReportStateType = {
   getR1DataLoading: false,
 };
 
-export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>,string>("report/getR1", async (date) => {
-  const response = await axiosInstance.get(`/report/r1/date?date=${date}`);
+export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>,{type:string;data:string}>("report/getR1", async (date) => {
+  const response = await axiosInstance.get(`/report/r1?type=${date.type}&data=${date.data}`);
   return response;
 });
 
