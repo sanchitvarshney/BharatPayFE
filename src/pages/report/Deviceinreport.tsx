@@ -14,6 +14,8 @@ import CustomInput from "@/components/reusable/CustomInput";
 import { convertDateRange } from "@/utils/converDateRangeUtills";
 import { AgGridReact } from "@ag-grid-community/react";
 import { showToast } from "@/utils/toastUtils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 const Deviceinreport: React.FC = () => {
   const [filter, setFilter] = useState<boolean>(false);
   const [type, setType] = useState<string>("");
@@ -35,13 +37,13 @@ const Deviceinreport: React.FC = () => {
     r1Data && gridRef.current!.api.exportDataAsExcel();
   }, []);
 
-  useEffect(()=>{
-if(!filter){
-  setType("")
-  setDate(null)
-  setMin("")
-}
-  },[filter])
+  useEffect(() => {
+    if (!filter) {
+      setType("");
+      setDate(null);
+      setMin("");
+    }
+  }, [filter]);
 
   return (
     <>
@@ -176,13 +178,12 @@ if(!filter){
                   <CustomInput label="MIN" required value={min} onChange={(e) => setMin(e.target.value)} />
 
                   <CustomButton
-                  loading={getR1DataLoading}
+                    loading={getR1DataLoading}
                     onClick={() => {
                       if (min) {
                         dispatch(getR1Data({ type: "min", data: min })).then((response: any) => {
                           if (response.payload?.data?.success) {
                             setFilter(false);
-                          
                           }
                         });
                       } else {
@@ -203,20 +204,69 @@ if(!filter){
           </div>
         </CustomDrawerContent>
       </CustomDrawer>
-      <div className="h-full">
-        <div className="h-[50px] px-[10px] bg-white shadow flex items-center justify-between gap-[20px]">
-          <div></div>
-          <div className="flex gap-[10px] items-center">
-            <CustomButton onClick={onBtExport} icon={<Download className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800">
-              Download
-            </CustomButton>
-            <CustomButton onClick={() => setFilter(true)} icon={<Filter className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800 ">
-              Filter <FaAngleRight className="ml-[5px] h-[18px] w-[18px]" />
-            </CustomButton>
-          </div>
+      <div className="h-full grid grid-cols-[400px_1fr]">
+        <div className="p-[10px]">
+          <Card className="rounded-md">
+            <CardHeader className="p-0 h-[40px] flex justify-center px-[10px] bg-hbg border-b">
+              <CardTitle className="font-[500] text-slate-600">Report Detail</CardTitle>
+            </CardHeader>
+            <CardContent className="p-[10px]">
+              <ul className="text-[14px] ">
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Sku Code: </p>
+                  <p className="text-slate-500 ">{r1Data ? r1Data.head.skuCode : "--"}</p>
+                </li>
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Sku Name: </p>
+                  <p className="text-slate-500">{r1Data ? r1Data.head.skuName + r1Data.head.uom : "--"}</p>
+                </li>
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">IN Location: </p>
+                  <p className="text-slate-500">{r1Data ? r1Data.head.inLoc : "--"}</p>
+                </li>
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Vendor Name: </p>
+                  <p className="text-slate-500">{r1Data ? r1Data.head.vendorName : "--"}</p>
+                </li>
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Vendor Code: </p>
+                  <p className="text-slate-500">{r1Data ? r1Data.head.vendorCode : "--"}</p>
+                </li>
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Vendor Address: </p>
+                  <p className="text-slate-500">{r1Data ? replaceBrWithNewLine(r1Data.head.vendorAddress) : "--"}</p>
+                </li>
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Doc Type: </p>
+                  <p className="text-slate-500">{r1Data ? r1Data.head.docType : "--"}</p>
+                </li>
+                <li className="flex  gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Doc No.: </p>
+                  <p className="text-slate-500">{r1Data ? r1Data.head.docNo : "--"}</p>
+                </li>
+                <li className="flex gap-[5px] text-slate-600">
+                  <p className="font-[500] whitespace-nowrap">Doc Date.: </p>
+                  <p className="text-slate-500">{r1Data ? r1Data.head.docDate : "--"}</p>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
-        <div className="h-[calc(100vh-135px)] ">
-          <DeviceMinReportTable gridRef={gridRef} />
+        <div>
+          <div className="h-[50px] px-[10px] bg-white shadow flex items-center justify-between gap-[20px]">
+            <div></div>
+            <div className="flex gap-[10px] items-center">
+              <CustomButton onClick={onBtExport} icon={<Download className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800">
+                Download
+              </CustomButton>
+              <CustomButton onClick={() => setFilter(true)} icon={<Filter className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800 ">
+                Filter <FaAngleRight className="ml-[5px] h-[18px] w-[18px]" />
+              </CustomButton>
+            </div>
+          </div>
+          <div className="h-[calc(100vh-135px)] ">
+            <DeviceMinReportTable gridRef={gridRef} />
+          </div>
         </div>
       </div>
     </>
