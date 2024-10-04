@@ -14,17 +14,17 @@ import { transformGroupSelectData } from "@/utils/transformUtills";
 import { convertDateRange } from "@/utils/converDateRangeUtills";
 import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AgGridReact } from "ag-grid-react";
 import Q2ReportTable from "@/table/query/Q2ReportTable";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-
+import { RowData } from "@/features/query/query/queryType";
+import { AgGridReact } from "@ag-grid-community/react";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
 const Q2Statement: React.FC = () => {
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const gridRef = useRef<AgGridReact<any>>(null);
+  const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
   const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
