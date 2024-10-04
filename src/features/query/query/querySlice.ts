@@ -55,6 +55,19 @@ const querySlice = createSlice({
       })
       .addCase(getBothComponentData.rejected, (state) => {
         state.getComponentDataLoading = false;
+      })
+      .addCase(getQ2Data.pending, (state) => {
+        state.getQ2DataLading = true;
+      })
+      .addCase(getQ2Data.fulfilled, (state, action) => {
+        state.getQ2DataLading = false;
+        if (action.payload.data.success) {
+          state.q2Data = action.payload.data.response;
+        }
+      })
+      .addCase(getQ2Data.rejected, (state) => {
+        state.getQ2DataLading = false;
+        state.q2Data = null;
       });
   },
 });
