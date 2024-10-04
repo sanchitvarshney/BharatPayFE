@@ -126,10 +126,25 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
       <AgGridReact
+      onCellFocused={(event: any) => {
+        const { rowIndex, column } = event;
+        const focusedCell = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `) as HTMLInputElement;
+        const focusButton = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `) as HTMLButtonElement;
+
+        if (focusedCell) {
+          focusedCell.focus();
+        }
+        if (focusButton) {
+          focusButton.focus();
+        }
+      }}
+      navigateToNextCell={() => {
+        return null; // Returning null prevents default focus movement
+      }}
         ref={gridRef}
         columnDefs={columnDefs}
-        suppressRowClickSelection={true}
-        suppressCellFocus={true}
+       
+        
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
         animateRows

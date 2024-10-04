@@ -63,6 +63,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "gstType":
         return (
           <Select
+          onKeyDown={(e) => e.preventDefault()}
             value={value}
             className="w-full"
             placeholder="Select gst type"
