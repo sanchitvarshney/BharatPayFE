@@ -186,11 +186,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       field: "location",
       cellRenderer: "textInputCellRenderer",
     },
-    {
-      headerName: "Auto Consump",
-      field: "autoConsump",
-      cellRenderer: "textInputCellRenderer",
-    },
+    
     {
       headerName: "Remarks",
       field: "remarks",
