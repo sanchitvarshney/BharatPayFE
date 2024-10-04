@@ -16,13 +16,41 @@ export type R1DataItem = {
   insertBy: string;
 };
 
+type DocumentHead = {
+  insertDt: string;
+  skuCode: string;
+  skuName: string;
+  uom: string;
+  inLoc: string;
+  vendorName: string;
+  vendorCode: string;
+  vendorAddress: string;
+  docType: string;
+  docNo: string;
+  docDate: string;
+};
+
+type DocumentBody = {
+  serialNo: string;
+  imei: string;
+  simAvailability: string;
+  model: string;
+};
+
+type DocumentData = {
+  head: DocumentHead;
+  body: DocumentBody[];
+};
+
 export type R1ApiResponse = {
   status: string;
   success: boolean;
-  data: R1DataItem[];
+  data: DocumentData;
 };
 
+
+
 export type ReportStateType ={
-  r1Data:R1DataItem[]|null;
+  r1Data:DocumentData|null;
   getR1DataLoading:boolean;
 }

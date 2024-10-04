@@ -1,5 +1,5 @@
 import CustomSelect from "@/components/reusable/CustomSelect";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DatePicker, TimeRangePickerProps } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -13,13 +13,15 @@ import { CustomDrawer, CustomDrawerContent, CustomDrawerHeader, CustomDrawerTitl
 import CustomInput from "@/components/reusable/CustomInput";
 import { convertDateRange } from "@/utils/converDateRangeUtills";
 import { AgGridReact } from "@ag-grid-community/react";
+import { showToast } from "@/utils/toastUtils";
 const Deviceinreport: React.FC = () => {
   const [filter, setFilter] = useState<boolean>(false);
   const [type, setType] = useState<string>("");
   const [date, setDate] = useState<string | null>(null);
+  const [min, setMin] = useState<string>("");
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
-  const { getR1DataLoading,r1Data } = useAppSelector((state) => state.report);
+  const { getR1DataLoading, r1Data } = useAppSelector((state) => state.report);
   const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
   const rangePresets: TimeRangePickerProps["presets"] = [
@@ -32,6 +34,14 @@ const Deviceinreport: React.FC = () => {
   const onBtExport = useCallback(() => {
     r1Data && gridRef.current!.api.exportDataAsExcel();
   }, []);
+
+  useEffect(()=>{
+if(!filter){
+  setType("")
+  setDate(null)
+  setMin("")
+}
+  },[filter])
 
   return (
     <>
@@ -47,6 +57,7 @@ const Deviceinreport: React.FC = () => {
                 className="w-full"
                 onChange={(e) => setType(e!.value)}
                 options={[
+                  { value: "min", label: "Min" },
                   { value: "date", label: "Date" },
                   { value: "serial", label: "Serial" },
                   { value: "sim", label: "SIM Availibility" },
@@ -57,7 +68,7 @@ const Deviceinreport: React.FC = () => {
             </div>
             <div className="mt-[20px] p-[10px]">
               {type === "date" ? (
-                <div className="flex flex-col gap-[20px]">
+                <div className="flex flex-col gap-[20px] opacity-60 pointer-events-none cursor-not-allowed">
                   <RangePicker
                     required
                     placement="bottomRight"
@@ -70,22 +81,7 @@ const Deviceinreport: React.FC = () => {
                     presets={rangePresets}
                   />
                   <div className="flex justify-end">
-                    <CustomButton
-                      loading={getR1DataLoading}
-                      disabled={!date || getR1DataLoading}
-                      onClick={() => {
-                        if (date) {
-                          dispatch(getR1Data(date)).then((res: any) => {
-                            if (res.payload.data?.success) {
-                              setDate(null);
-                              setFilter(false);
-                            }
-                          });
-                        }
-                      }}
-                      icon={<Search className="h-[18px] w-[18px]" />}
-                      className="bg-cyan-700 hover:bg-cyan-800 max-w-max"
-                    >
+                    <CustomButton loading={getR1DataLoading} disabled={!date || getR1DataLoading} icon={<Search className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800 max-w-max">
                       Search
                     </CustomButton>
                   </div>
@@ -172,6 +168,33 @@ const Deviceinreport: React.FC = () => {
                     presets={rangePresets}
                   />
                   <CustomButton icon={<Search className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800 max-w-max">
+                    Search
+                  </CustomButton>
+                </div>
+              ) : type === "min" ? (
+                <div className="flex flex-col gap-[20px] ">
+                  <CustomInput label="MIN" required value={min} onChange={(e) => setMin(e.target.value)} />
+
+                  <CustomButton
+                  loading={getR1DataLoading}
+                    onClick={() => {
+                      if (min) {
+                        dispatch(getR1Data({ type: "min", data: min })).then((response: any) => {
+                          if (response.payload?.data?.success) {
+                            setFilter(false);
+                          
+                          }
+                        });
+                      } else {
+                        showToast({
+                          description: "Please enter MIN",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    icon={<Search className="h-[18px] w-[18px]" />}
+                    className="bg-cyan-700 hover:bg-cyan-800 max-w-max"
+                  >
                     Search
                   </CustomButton>
                 </div>

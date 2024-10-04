@@ -32,7 +32,7 @@ const Navslider: React.FC = () => {
           <SwiperSlide key={i}>
             <NavLink to={`?reportno=${link.name}`} className={`${reportNumber === link.name ? "bg-cyan-700 text-white" : ""}`}>
               {link.name}
-              {reportNumber === link.name ? <span className="flex items-center justify-center h-full font-[400] ">Report Detail</span> : null}
+              {reportNumber === link.name ? <span className="flex items-center justify-center h-full font-[400] ">{link.name === "R1" ? "Material Inward Report" : ""}</span> : null}
             </NavLink>
           </SwiperSlide>
         ))}
