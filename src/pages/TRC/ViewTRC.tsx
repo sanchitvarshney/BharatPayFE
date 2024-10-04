@@ -102,7 +102,8 @@ const ViewTRC: React.FC = () => {
         consumpItem,
         consumpQty,
         remark,
-        putLocation:location?.value||""
+        putLocation:location?.value||"",
+        itemCode:device||"",
       }
       dispatch(trcFinalSubmit(payload)).then((res: any) => {
         if (res.payload.data.success) {
@@ -151,7 +152,7 @@ const ViewTRC: React.FC = () => {
       <CustomDrawer open={process} onOpenChange={setProcess}>
         <CustomDrawerContent className="min-w-[100%] p-0" onInteractOutside={(e) => e.preventDefault()}>
           <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-300">
-            <CustomDrawerTitle className="text-slate-600 font-[500] p-0">REF98765RDFGHBJKLOI9876</CustomDrawerTitle>
+            <CustomDrawerTitle className="text-slate-600 font-[500] p-0">#Ref: {TRCDetail ? TRCDetail?.txnId : "--"} </CustomDrawerTitle>
           </CustomDrawerHeader>
           <div className="h-[calc(100vh-50px)] grid grid-cols-[500px_1fr]">
             <div className="border-r border-zinc-300">
@@ -287,7 +288,7 @@ const ViewTRC: React.FC = () => {
                               required
                               isClearable={true}
                               onChange={(value) => handleInputChange(issue.id, "selectedPart", value)}
-                              placeholder={"Select used part"}
+                              placeholder={"Select Used Part"}
                             />
                             <div className="flex items-center h-[35px] overflow-hidden border rounded-lg border-slate-400">
                               <Input value={issue.quantity} onChange={(e) => handleInputChange(issue.id, "quantity", Number(e.target.value))} min={0} placeholder="Qty" type="number" className="w-[100%]  text-slate-600  border-none shadow-none mt-[2px] focus-visible:ring-0" />
