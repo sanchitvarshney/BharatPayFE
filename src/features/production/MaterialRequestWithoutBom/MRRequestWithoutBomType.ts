@@ -50,6 +50,20 @@ export type LocationApiresponse = {
   status: string;
   success: boolean;
 };
+export type AvailbleQtyResponse = {
+  status: string;
+  success: boolean;
+  data: {
+    Stock: number;
+    location: string;
+    item: string;
+  };
+};
+export type AvaibleQtyData ={
+  Stock: number;
+  location: string;
+  item: string;
+}
 
 export type MrRequestWithoutBom = {
   getPartCodeLoading: boolean;
@@ -60,6 +74,7 @@ export type MrRequestWithoutBom = {
   createProductRequestLoading: boolean;
   locationData: LocationData[] | null;
   getLocationDataLoading: boolean;
-  craeteRequestData:CreateProductRequestResponse|null
-  
+  craeteRequestData: CreateProductRequestResponse | null;
+  getAvailbleQtyLoading: boolean;
+  availbleQtyData: AvaibleQtyData[]|null;
 };

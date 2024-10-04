@@ -15,7 +15,6 @@ const columnDefs: ColDef[] = [
   { headerName: "SKU", field: "skuCode", sortable: true, filter: true },
   { headerName: "IMEI", field: "imei", sortable: true, filter: true },
   { headerName: "SIM Availability", field: "simAvailiblity", sortable: true, filter: true },
-  { headerName: "In Qty", field: "inQty", sortable: true, filter: true },
   { headerName: "UOM", field: "uom", sortable: true, filter: true },
   { headerName: "In Location", field: "inLoc", sortable: true, filter: true },
   { headerName: "Vendor Name", field: "vendorName", sortable: true, filter: true },

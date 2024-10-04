@@ -97,7 +97,7 @@ const MaterialInvard: React.FC = () => {
   });
   const checkRequiredFields = (data: RowData[]) => {
     let hasErrors = false;
-    const requiredFields: Array<keyof RowData> = ["partComponent", "qty", "rate", "hsnCode", "gstType", "gstRate", "location", "autoConsump"];
+    const requiredFields: Array<keyof RowData> = ["partComponent", "qty", "rate", "hsnCode", "gstType", "gstRate", "location"];
     const miss = data.map((item) => {
       const missingFields: string[] = [];
       requiredFields.forEach((field) => {

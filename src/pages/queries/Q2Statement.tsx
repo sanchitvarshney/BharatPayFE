@@ -9,13 +9,14 @@ import { Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HiDocumentText } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getBothComponentData, getQ1Data } from "@/features/query/query/querySlice";
-import { transformBothComponentCode } from "@/utils/transformUtills";
+import { getQ2Data } from "@/features/query/query/querySlice";
+import { transformGroupSelectData } from "@/utils/transformUtills";
 import { convertDateRange } from "@/utils/converDateRangeUtills";
 import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgGridReact } from "ag-grid-react";
 import Q2ReportTable from "@/table/query/Q2ReportTable";
+import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 
 dayjs.extend(customParseFormat);
 
@@ -25,7 +26,8 @@ const Q2Statement: React.FC = () => {
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const gridRef = useRef<AgGridReact<any>>(null);
   const dispatch = useAppDispatch();
-  const { componentData, getComponentDataLoading, q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
+  const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
+  const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
   const [date, setDate] = useState<string | null>(null);
   const [value, setValue] = useState<{ label: string; value: string } | null>(null);
   const rangePresets: TimeRangePickerProps["presets"] = [
@@ -43,7 +45,7 @@ const Q2Statement: React.FC = () => {
 
   useEffect(() => {
     // dispatch(getQ1Data());
-    dispatch(getBothComponentData(null));
+    dispatch(getPertCodesync(null));
   }, []);
 
   return (
@@ -61,15 +63,14 @@ const Q2Statement: React.FC = () => {
                       if (debounceTimeout.current) {
                         clearTimeout(debounceTimeout.current);
                       }
-
                       debounceTimeout.current = setTimeout(() => {
-                        dispatch(getBothComponentData(!value ? null : value));
+                        dispatch(getPertCodesync(!value ? null : value));
                       }, 500);
                     }}
-                    isLoading={getComponentDataLoading}
+                    isLoading={getPartCodeLoading}
                     required
-                    placeholder="-- SKU --"
-                    options={transformBothComponentCode(componentData)}
+                    placeholder="-- Part --"
+                    options={transformGroupSelectData(partCodeData)}
                   />
                 </div>
                 <div>
@@ -82,10 +83,10 @@ const Q2Statement: React.FC = () => {
             </CardContent>
             <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px] border-t gap-[10px]">
               <CustomButton
-                loading={getQ1DataLoading}
+                loading={getQ2DataLading}
                 onClick={() => {
                   if (date && value) {
-                    dispatch(getQ1Data({ date: date, value: value.value })).then((res: any) => {
+                    dispatch(getQ2Data({ date: date, value: value.value })).then((res: any) => {
                       if (!res.payload?.data?.success) {
                         showToast({
                           description: res.payload?.data?.message,
@@ -107,10 +108,10 @@ const Q2Statement: React.FC = () => {
                 Serach
               </CustomButton>
               <div className="flex items-center gap-[5px]">
-                <Button onClick={onBtExport} disabled={!q1Data} className="p-0 rounded-full shadow-lg bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px]">
+                <Button onClick={onBtExport} disabled={!q2Data} className="p-0 rounded-full shadow-lg bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px]">
                   <Download className="h-[18px] w-[18px]" />
                 </Button>
-                <Button disabled={!q1Data} className="p-0 rounded-full shadow-lg bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px]">
+                <Button disabled={!q2Data} className="p-0 rounded-full shadow-lg bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px]">
                   <HiDocumentText className="h-[18px] w-[18px]" />
                 </Button>
               </div>
@@ -124,15 +125,15 @@ const Q2Statement: React.FC = () => {
               <ul className="flex flex-col gap-[5px]">
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">Name</span>
-                  {getQ1DataLoading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q1Data?.head?.name || "--"}</span>}
+                  {getQ2DataLading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q2Data?.head?.name || "--"}</span>}
                 </li>
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">SKU</span>
-                  {getQ1DataLoading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q1Data?.head?.code || "--"}</span>}
+                  {getQ2DataLading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q2Data?.head?.code || "--"}</span>}
                 </li>
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">Unit</span>
-                  {getQ1DataLoading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q1Data?.head?.uom || "--"}</span>}
+                  {getQ2DataLading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q2Data?.head?.uom || "--"}</span>}
                 </li>
               </ul>
             </CardContent>
@@ -145,11 +146,11 @@ const Q2Statement: React.FC = () => {
               <ul className="flex flex-col gap-[5px]">
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">Openning Qty</span>
-                  {getQ1DataLoading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q1Data?.head?.openingQty || "--"}</span>}
+                  {getQ2DataLading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q2Data?.head?.openingQty || "--"}</span>}
                 </li>
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">Closing Qty</span>
-                  {getQ1DataLoading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q1Data?.head?.closingQty || "--"}</span>}
+                  {getQ2DataLading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q2Data?.head?.closingQty || "--"}</span>}
                 </li>
               </ul>
             </CardContent>

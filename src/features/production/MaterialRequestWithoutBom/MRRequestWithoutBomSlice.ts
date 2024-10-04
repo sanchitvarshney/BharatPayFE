@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { CreateProductRequestResponse, CreateProductRequestType, LocationApiresponse, MrRequestWithoutBom, PartCodeDataresponse, SkuCodeDataresponse } from "./MRRequestWithoutBomType";
+import { AvailbleQtyResponse, CreateProductRequestResponse, CreateProductRequestType, LocationApiresponse, MrRequestWithoutBom, PartCodeDataresponse, SkuCodeDataresponse } from "./MRRequestWithoutBomType";
 
 const initialState: MrRequestWithoutBom = {
   getPartCodeLoading: false,
@@ -13,6 +13,8 @@ const initialState: MrRequestWithoutBom = {
   locationData: null,
   getLocationDataLoading: false,
   craeteRequestData: null,
+  getAvailbleQtyLoading: false,
+  availbleQtyData: null,
 };
 
 export const getPertCodesync = createAsyncThunk<AxiosResponse<PartCodeDataresponse>, string | null>("master/getPertCode", async (value) => {
@@ -31,6 +33,10 @@ export const getLocationAsync = createAsyncThunk<AxiosResponse<LocationApirespon
   const response = await axiosInstance.get(`/backend/search/location/${params}`);
   return response;
 });
+export const getAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: string }>("wearhouse/getAvailbleQty", async (params) => {
+  const response = await axiosInstance.get(`/backend/stock/${params.type}/${params.itemCode}/${params.location}`);
+  return response;
+});
 
 const materialRequestSlice = createSlice({
   name: "mrrequestwithoutbom",
@@ -38,6 +44,9 @@ const materialRequestSlice = createSlice({
   reducers: {
     setType: (state, action) => {
       state.type = action.payload;
+    },
+    clearAvaibleQtyData: (state) => {
+      state.availbleQtyData = null;
     },
   },
 
@@ -91,6 +100,22 @@ const materialRequestSlice = createSlice({
       .addCase(getLocationAsync.rejected, (state) => {
         state.getLocationDataLoading = false;
       })
+      .addCase(getAvailbleQty.pending, (state) => {
+        state.getAvailbleQtyLoading = true;
+      })
+      .addCase(getAvailbleQty.fulfilled, (state, action) => {
+        state.getAvailbleQtyLoading = false;
+        if (action.payload.data.success) {
+          if(!state.availbleQtyData){
+            state.availbleQtyData = [action.payload.data.data];
+          }else{
+            state.availbleQtyData.push(action.payload.data.data);
+          }
+        }
+      })
+      .addCase(getAvailbleQty.rejected, (state) => {
+        state.getAvailbleQtyLoading = false;
+      });
   },
 });
 
