@@ -57,6 +57,7 @@ export type TrcFinalSubmitPayload = {
   consumpItem: string[];
   consumpQty:   (string | number)[];
   remark: string[];
+  itemCode: string;
 };
 export type TrcfinalSubmitResponse = {
   success: boolean;
