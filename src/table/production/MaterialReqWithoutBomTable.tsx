@@ -97,7 +97,7 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
     {
       headerName: "Available Qty",
       field: "availableqty",
-     
+      cellRenderer: "textInputCellRenderer",
       flex: 1,
     },
     {

@@ -107,12 +107,17 @@ const ViewTRC: React.FC = () => {
       }
       dispatch(trcFinalSubmit(payload)).then((res: any) => {
         if (res.payload.data.success) {
+          showToast({
+            description: res.payload.data.message,
+            variant: "success",
+          })
           if(!approved){
             setApproved([device])
           }else{
             setApproved([...approved,device])
           }
           setDevice("")
+          setLocation(null)
           if(approved?.length === trcRequestDetail!.body.length){
             setProcess(false)
             dispatch(getTrcList());
@@ -248,7 +253,7 @@ const ViewTRC: React.FC = () => {
                       onChange={(selectedOption) => {
                         setLocation(selectedOption);
                       }}
-                      placeholder={"Put Location"}
+                      placeholder={"Drop Location"}
                       className="w-[500px]"
                     />
                   </div>

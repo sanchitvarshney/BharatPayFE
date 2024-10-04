@@ -8,10 +8,16 @@ const initialState: QueryStateType = {
   q1Data: null,
   getComponentDataLoading: false,
   componentData: null,
+  getQ2DataLading: false,
+  q2Data: null,
 };
 
 export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string; value: string }>("query/getQ1", async (params) => {
   const response = await axiosInstance.get(`/query/log/DV?date=${params.date}&data=${params.value}`);
+  return response;
+});
+export const getQ2Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string; value: string }>("query/getQ2", async (params) => {
+  const response = await axiosInstance.get(`/query/q2/log/RM?date=${params.date}&data=${params.value}`);
   return response;
 });
 

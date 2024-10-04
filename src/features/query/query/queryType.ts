@@ -71,5 +71,7 @@ export type QueryStateType = {
   getQ1DataLoading:boolean;
   componentData:component[]|null;
   getComponentDataLoading:boolean;
+  getQ2DataLading:boolean;
+  q2Data:Response|null;
 
 }

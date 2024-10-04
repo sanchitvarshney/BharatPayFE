@@ -8,7 +8,7 @@ type Props = {
   gridRef: RefObject<AgGridReact<any>>;
 };
 const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
-  const { q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
+  const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
@@ -32,7 +32,7 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-85px)]">
-        <AgGridReact ref={gridRef} loading={getQ1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={q1Data?.body} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact ref={gridRef} loading={getQ2DataLading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={q2Data?.body} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>
   );

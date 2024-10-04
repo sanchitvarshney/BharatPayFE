@@ -32,7 +32,7 @@ const QueryNavSlider: React.FC = () => {
           <SwiperSlide key={i}>
             <NavLink to={`?query=${link.name}`} className={`${reportNumber === link.name ? "bg-cyan-700 text-white" : ""}`}>
               {link.name}
-              {reportNumber === link.name ? <span className="flex items-center justify-center h-full font-[400] ">{link.name==="Q1"&&"SKU Statement"}</span> : null}
+              {reportNumber === link.name ? <span className="flex items-center justify-center h-full font-[400] ">{link.name==="Q1"?"SKU Statement":link.name==="Q2"?"Raw Material Statement":""}</span> : null}
             </NavLink>
           </SwiperSlide>
         ))}

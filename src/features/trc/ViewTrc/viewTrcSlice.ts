@@ -49,6 +49,7 @@ const viewTrcSlice = createSlice({
       })
       .addCase(getTrcList.rejected, (state) => {
         state.getTrcListLoading = false;
+        state.trcList = null;
       })
       .addCase(getTrcRequestDetail.pending, (state) => {
         state.getTrcRequestDetailLoading = true;

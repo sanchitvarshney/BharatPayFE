@@ -75,7 +75,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       currency: "₹",
       isNew: true,
     };
-    setRowData([newRow,...rowData, ]);
+    setRowData([newRow, ...rowData]);
   };
 
   const handleDeleteRow = (id: number) => {
@@ -186,7 +186,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       field: "location",
       cellRenderer: "textInputCellRenderer",
     },
-    
+
     {
       headerName: "Remarks",
       field: "remarks",
