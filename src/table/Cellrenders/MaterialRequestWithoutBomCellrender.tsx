@@ -10,7 +10,7 @@ interface MaterialInvardCellRendererProps {
   customFunction: () => void;
 }
 
-const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
+const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererProps> = ({ props }) => {
   const { getPartCodeLoading, getSkuLoading, skuCodeData, partCodeData, type,availbleQtyData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const dispatch = useAppDispatch();
@@ -28,7 +28,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
     }
     data[colDef.field] = newValue; // update the data
     api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
-    customFunction();
+    
   };
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;

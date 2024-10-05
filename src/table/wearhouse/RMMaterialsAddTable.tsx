@@ -197,8 +197,24 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-50px)]">
       <AgGridReact
+        suppressCellFocus={false}
+      
         ref={gridRef}
-        suppressCellFocus={true}
+        onCellFocused={(event: any) => {
+          const { rowIndex, column } = event;
+          const focusedCell = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `) as HTMLInputElement;
+          const focusButton = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `) as HTMLButtonElement;
+
+          if (focusedCell) {
+            focusedCell.focus();
+          }
+          if (focusButton) {
+            focusButton.focus();
+          }
+        }}
+        navigateToNextCell={() => {
+          return null; // Returning null prevents default focus movement
+        }}
         columnDefs={columnDefs}
         suppressRowClickSelection={false}
         rowData={rowData}
@@ -211,7 +227,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
           suppressCellFlash: true,
           editable: false,
         }}
-        onCellKeyDown={(e) => e.event?.preventDefault()}
+        
       />
     </div>
   );
