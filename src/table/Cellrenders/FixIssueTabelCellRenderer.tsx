@@ -13,7 +13,6 @@ interface MaterialInvardCellRendererProps {
 
 const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
   const dispatch = useAppDispatch();
-  const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
 
   const { value, colDef, data, api, column } = props;
   const handleChange = (value: string) => {
@@ -30,6 +29,8 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
   const renderContent = () => {
     switch (colDef.field) {
       case "selectedPart":
+        const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
+        console.log(partCodeData);
         return (
           <Select showSearch loading={getPartCodeLoading} className="w-full" value={value} onSearch={(value) => dispatch(getPertCodesync(value ? value : null))} placeholder={colDef.headerName} onChange={(value) => handleChange(value)} options={transformPartCode(partCodeData)} />
         );

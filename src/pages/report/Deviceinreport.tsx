@@ -34,7 +34,9 @@ const Deviceinreport: React.FC = () => {
     { label: "Last 3 Months", value: [dayjs().subtract(3, "month").startOf("month"), dayjs()] },
   ];
   const onBtExport = useCallback(() => {
-    r1Data && gridRef.current!.api.exportDataAsExcel();
+    r1Data && gridRef.current!.api.exportDataAsExcel({
+      sheetName: 'R1 Report' // Set your desired sheet name here
+    });
   }, []);
 
   useEffect(() => {

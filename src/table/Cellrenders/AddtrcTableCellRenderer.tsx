@@ -13,10 +13,6 @@ interface MaterialInvardCellRendererProps {
 const AddtrcTableCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props }) => {
   const dispatch = useAppDispatch();
   const { isueeList, isueeListLoading } = useAppSelector((state) => state.common);
-
-
- 
-
   const { value, colDef, data, api, column } = props;
   const handleChange = (value: string) => {
     const newValue = value;
