@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { changeSatatus, getLocationAsync, getLocationDetails } from "@/features/master/location/locationSlice";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
 // TypeScript types for hierarchical data and row data
@@ -150,6 +151,7 @@ const TreeDataLocation: React.FC<Props> = ({ setViewLocation }) => {
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-50px)]">
       <AgGridReact
+      loadingOverlayComponent={CustomLoadingOverlay}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         loading={getLocationLoading}
         ref={gridRef}

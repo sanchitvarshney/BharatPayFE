@@ -3,7 +3,7 @@ import CustomSelect from "@/components/reusable/CustomSelect";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import DeviceQueryRepoTable from "@/table/query/DeviceQueryRepoTable";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker, Select, TimeRangePickerProps } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Download, Search } from "lucide-react";
@@ -11,22 +11,27 @@ import { Button } from "@/components/ui/button";
 import { HiDocumentText } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getBothComponentData, getQ1Data } from "@/features/query/query/querySlice";
-import { transformBothComponentCode } from "@/utils/transformUtills";
+import { transformBothComponentCode, transformGroupSelectData } from "@/utils/transformUtills";
 import { convertDateRange } from "@/utils/converDateRangeUtills";
 import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgGridReact } from "@ag-grid-community/react";
 import { RowData } from "@/features/query/query/queryType";
+import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { FaChevronRight } from "react-icons/fa6";
+import { FaChevronLeft } from "react-icons/fa";
 
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
 const DeviceQuery: React.FC = () => {
+  const [filterType, setFilterType] = useState<string>("");
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
   const { componentData, getComponentDataLoading, q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
+  const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const [date, setDate] = useState<string | null>(null);
   const [value, setValue] = useState<{ label: string; value: string } | null>(null);
   const rangePresets: TimeRangePickerProps["presets"] = [
@@ -44,6 +49,7 @@ const DeviceQuery: React.FC = () => {
 
   useEffect(() => {
     dispatch(getBothComponentData(null));
+    dispatch(getLocationAsync(null));
   }, []);
 
   return (
@@ -51,7 +57,7 @@ const DeviceQuery: React.FC = () => {
       <div className="grid grid-cols-[350px_1fr]">
         <div className="p-[10px] flex flex-col gap-[10px] h-[calc(100vh-90px)] overflow-y-auto">
           <Card className="rounded-md ">
-            <CardContent>
+            <CardContent className="relative">
               <div className="py-[20px] flex flex-col gap-[30px]">
                 <div>
                   <CustomSelect
@@ -72,11 +78,26 @@ const DeviceQuery: React.FC = () => {
                     options={transformBothComponentCode(componentData)}
                   />
                 </div>
-                <div>
-                  <p className="text-slate-500 text-[14px] ml-[5px]">
-                    Date Range <span className="text-red-500">*</span>
-                  </p>
-                  <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} format={dateFormat} />
+                <div className="relative h-[60px] overflow-hidden">
+                  <div className="flex justify-end">
+                    {filterType === "location" ? (
+                      <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
+                        <FaChevronLeft className="h-[10px] w-[10px]" />
+                        Date Range
+                      </Button>
+                    ) : (
+                      <Button onClick={() => setFilterType("location")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] mb-[3px]">
+                        Location
+                        <FaChevronRight className="h-[10px] w-[10px]" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className={`absolute transition-all ${filterType === "location" ? "left-[-300px]" : "left-0"} `}>
+                    <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} format={dateFormat} />
+                  </div>
+                  <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-300px]"} w-full `}>
+                    <Select showSearch placeholder="-- Location --" onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} className="w-full" value={value} defaultValue={value} options={transformGroupSelectData(locationData)} />
+                  </div>
                 </div>
               </div>
             </CardContent>

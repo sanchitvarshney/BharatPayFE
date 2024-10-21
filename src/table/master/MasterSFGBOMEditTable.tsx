@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "antd";
 import { IoCheckmark } from "react-icons/io5";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 interface RowData {
   components: string;
   quantity: number;
@@ -171,7 +172,7 @@ const MasterSFGBOMEditTable: React.FC = () => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-      <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
+      <AgGridReact loadingOverlayComponent={CustomLoadingOverlay}  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
     </div>
   );
 };

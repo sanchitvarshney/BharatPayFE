@@ -2,7 +2,7 @@ import { CustomButton } from "@/components/reusable/CustomButton";
 import CustomSelect from "@/components/reusable/CustomSelect";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker, Select, TimeRangePickerProps } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Download, Search } from "lucide-react";
@@ -18,16 +18,20 @@ import Q2ReportTable from "@/table/query/Q2ReportTable";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { RowData } from "@/features/query/query/queryType";
 import { AgGridReact } from "@ag-grid-community/react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
 const Q2Statement: React.FC = () => {
+  const [filterType, setFilterType] = useState<string>("");
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
   const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const [date, setDate] = useState<string | null>(null);
   const [value, setValue] = useState<{ label: string; value: string } | null>(null);
   const rangePresets: TimeRangePickerProps["presets"] = [
@@ -73,11 +77,26 @@ const Q2Statement: React.FC = () => {
                     options={transformGroupSelectData(partCodeData)}
                   />
                 </div>
-                <div>
-                  <p className="text-slate-500 text-[14px] ml-[5px]">
-                    Date Range <span className="text-red-500">*</span>
-                  </p>
-                  <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} format={dateFormat} />
+                <div className="relative h-[60px] overflow-hidden">
+                  <div className="flex justify-end">
+                    {filterType === "location" ? (
+                      <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
+                        <FaChevronLeft className="h-[10px] w-[10px]" />
+                        Date Range
+                      </Button>
+                    ) : (
+                      <Button onClick={() => setFilterType("location")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] mb-[3px]">
+                        Location
+                        <FaChevronRight className="h-[10px] w-[10px]" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className={`absolute transition-all ${filterType === "location" ? "left-[-300px]" : "left-0"} `}>
+                    <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} format={dateFormat} />
+                  </div>
+                  <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-300px]"} w-full `}>
+                    <Select showSearch placeholder="-- Location --" onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} className="w-full" value={value} defaultValue={value} options={transformGroupSelectData(locationData)} />
+                  </div>
                 </div>
               </div>
             </CardContent>

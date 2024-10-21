@@ -4,6 +4,7 @@ import { AgGridReact } from "ag-grid-react";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 
 const CustomLoadingCellRenderer: React.FC = () => {
   return (
@@ -51,6 +52,7 @@ const MasterUomTable: React.FC = () => {
     <div>
       <div className="ag-theme-quartz h-[calc(100vh-90px)]">
         <AgGridReact
+        loadingOverlayComponent={CustomLoadingOverlay}
           suppressCellFocus={true}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           rowData={UOM}
