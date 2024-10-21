@@ -7,6 +7,7 @@ import { TbRefresh } from "react-icons/tb";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getTrcRequestDetail, setTrcDetail } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { TcDetail } from "@/features/trc/ViewTrc/viewTrcType";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 
 type Props = {
   open: boolean;
@@ -100,7 +101,7 @@ const ViewTRCTable: React.FC<Props> = ({ setOpen }) => {
   return (
     <div>
       <div className="ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact loading={getTrcListLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={trcList ? trcList : []} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} loading={getTrcListLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={trcList ? trcList : []} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>
   );

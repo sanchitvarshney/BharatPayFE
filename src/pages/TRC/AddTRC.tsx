@@ -163,7 +163,7 @@ const AddTRC = () => {
         <div className="h-[calc(100vh-100px)] overflow-y-hidden grid grid-cols-[450px_1fr]">
           <div className="p-[10px] border-r h-full overflow-y-auto">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <Card className="overflow-hidden rounded-md ">
+              <Card className="rounded-md ">
                 <CardHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
                   <CardTitle className="text-slate-600 font-[500]">Header Details</CardTitle>
                 </CardHeader>

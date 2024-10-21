@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 interface RowData {
     id: number;
     component: string;
@@ -77,7 +78,7 @@ const MasterSFGBOMViewTable: React.FC = () => {
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-50px)]" >
-        <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true}  rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay}  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true}  rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>
   );

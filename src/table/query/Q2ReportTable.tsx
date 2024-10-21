@@ -4,6 +4,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { ColDef } from "@ag-grid-community/core";
 import { RowData } from "@/features/query/query/queryType";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
@@ -53,7 +54,18 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-85px)]">
-        <AgGridReact ref={gridRef} loading={getQ2DataLading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact
+          loadingOverlayComponent={CustomLoadingOverlay}
+          ref={gridRef}
+          loading={getQ2DataLading}
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
+          suppressCellFocus={true}
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          pagination={true}
+          paginationPageSize={20}
+        />
       </div>
     </div>
   );

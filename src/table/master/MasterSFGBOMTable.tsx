@@ -8,6 +8,7 @@ import { HiMiniViewfinderCircle } from "react-icons/hi2";
 import { Download } from "lucide-react";
 import { Switch } from "@/components/ui/switch"
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 interface RowData {
   id: number;
   status: string;
@@ -128,7 +129,7 @@ const MasterSFGBOMTable: React.FC<Props> = ({setEdit,setView}) => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-      <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={10} />
+      <AgGridReact loadingOverlayComponent={CustomLoadingOverlay}  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={10} />
     </div>
   );
 };

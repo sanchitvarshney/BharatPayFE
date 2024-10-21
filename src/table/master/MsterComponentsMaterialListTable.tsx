@@ -8,6 +8,7 @@ import { HiMiniViewfinderCircle } from "react-icons/hi2";
 import { MdSystemUpdateAlt } from "react-icons/md";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 
 type Props = {
   open: boolean;
@@ -96,6 +97,7 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-140px)]">
         <AgGridReact
+        loadingOverlayComponent={CustomLoadingOverlay}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           loading={getComponentLoading}
           rowData={component?.components}

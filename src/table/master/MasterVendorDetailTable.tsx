@@ -7,6 +7,7 @@ import { MdOutlineCloudUpload } from "react-icons/md";
 import { HiMiniViewfinderCircle } from "react-icons/hi2";
 import { FaEdit } from "react-icons/fa";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 
 
 interface RowData {
@@ -85,7 +86,7 @@ const MasterVendorDetailTable: React.FC<Props> = ({ setViewProduct, setUpdatePro
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-150px)]">
-        <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSizeSelector={[10, 25, 50]} />
+        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay}  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSizeSelector={[10, 25, 50]} />
       </div>
     </div>
   );
