@@ -1,13 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { ColDef, IDetailCellRendererParams, ModuleRegistry } from "@ag-grid-community/core";
+import { ColDef, ModuleRegistry } from "@ag-grid-community/core";
 import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
 import { MasterDetailModule } from "@ag-grid-enterprise/master-detail";
 import { MenuModule } from "@ag-grid-enterprise/menu";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import { useAppSelector } from "@/hooks/useReduxHook";
 
 // Register required modules with ag-Grid
 ModuleRegistry.registerModules([ClientSideRowModelModule, ColumnsToolPanelModule, MasterDetailModule, MenuModule]);
@@ -15,40 +17,28 @@ ModuleRegistry.registerModules([ClientSideRowModelModule, ColumnsToolPanelModule
 const R2ReportDetail: React.FC = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const { r2ReportDetail, r2ReportDetailLoading } = useAppSelector((state) => state.report);
+  // State for rowData
+  const [rowData, setRowData] = useState<any[]>([]);
 
-  // Master table data
-  const [rowData] = useState<any[]>([
-    {
-      device: "Device A",
-      imei: "123456789012345",
-      model: "Model X",
-      dropLocation: "Location 1",
-      children: [
-        {
-          issueName: "Battery Issue",
-          isIssueValid: "Yes",
-          usedPartcode: "BP1234",
-          partcodeQty: 2,
-          remark: "Replaced battery",
-        },
-      ],
-    },
-    {
-      device: "Device B",
-      imei: "987654321098765",
-      model: "Model Y",
-      dropLocation: "Location 2",
-      children: [
-        {
-          issueName: "Screen Crack",
-          isIssueValid: "No",
-          usedPartcode: "SC5678",
-          partcodeQty: 1,
-          remark: "Screen damaged, not replaced",
-        },
-      ],
-    },
-  ]);
+  useEffect(() => {
+    if (r2ReportDetail) {
+      const transformedData = r2ReportDetail.data.map((item: any) => ({
+        device: item.device,
+        imei: item.device, // You might need to adjust this if IMEI is not directly provided
+        model: item.deviceModel,
+        dropLocation: item.putLocation,
+        children: item.deviceIssues.map((issue: any) => ({
+          issueName: issue.issueLabel,
+          isIssueValid: issue.name || "No", // or however you want to determine validity
+          usedPartcode: issue.partNo || "--",
+          partcodeQty: issue.qty || 0,
+          remark: issue.remark || "--",
+        })),
+      }));
+      setRowData(transformedData);
+    }
+  }, [r2ReportDetail]);
 
   // Master table columns
   const [columnDefs] = useState<ColDef[]>([
@@ -58,15 +48,16 @@ const R2ReportDetail: React.FC = () => {
     { field: "dropLocation", headerName: "Drop Location" },
   ]);
 
-  const defaultColDef = useMemo<ColDef>(() => {
-    return {
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
       flex: 1,
-    };
-  }, []);
+    }),
+    []
+  );
 
   // Detail (child) table columns and configuration
-  const detailCellRendererParams = useMemo<any>(() => {
-    return {
+  const detailCellRendererParams = useMemo<any>(
+    () => ({
       // Level 2 grid options (child grid)
       detailGridOptions: {
         columnDefs: [
@@ -81,21 +72,27 @@ const R2ReportDetail: React.FC = () => {
         },
       },
       // Function to retrieve the child row data
-      getDetailRowData: (params) => {
+      getDetailRowData: (params: any) => {
         params.successCallback(params.data.children);
       },
-    } as IDetailCellRendererParams;
-  }, []);
-  const rowClassRules = useMemo(() => {
-    return {
+    }),
+    []
+  );
+
+  const rowClassRules = useMemo(
+    () => ({
       "row-opened": (params: any) => params.node.expanded, // Apply class if row is expanded
-    };
-  }, []);
+    }),
+    []
+  );
+
   return (
     <div style={containerStyle}>
       <div style={gridStyle} className={"ag-theme-quartz"}>
         <AgGridReact
-        loadingOverlayComponent={CustomLoadingOverlay}
+          loading={r2ReportDetailLoading}
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
+          loadingOverlayComponent={CustomLoadingOverlay}
           suppressCellFocus={true}
           rowData={rowData}
           columnDefs={columnDefs}
