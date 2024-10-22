@@ -24,6 +24,7 @@ interface Issue {
   remarks: string;
   isChecked: boolean;
   code: string;
+
 }
 type OptionType = {
   value: string;
@@ -44,6 +45,7 @@ const ViewTRC: React.FC = () => {
 
   const checkRequiredFields = (data: Issue[]) => {
     let hasErrors = false;
+
     const requiredFields: Array<keyof Issue> = ["issue", "selectedPart", "quantity"];
     const miss = data.map((item) => {
       const missingFields: string[] = [];
@@ -74,7 +76,6 @@ const ViewTRC: React.FC = () => {
       });
       hasErrors = true;
     }
-
     return hasErrors;
   };
   const onSubmit = () => {
@@ -89,6 +90,7 @@ const ViewTRC: React.FC = () => {
       const consumpQty = issues.map((item) => item.quantity);
       const remark = issues.map((item) => item.remarks);
       const isProblemValid = issues.map((item) => item.isChecked);
+      const issueName = issues.map((item) => item.code);
       const payload: TrcFinalSubmitPayload = {
         txnId: TRCDetail?.txnId || "",
         consumpItem,
@@ -97,6 +99,7 @@ const ViewTRC: React.FC = () => {
         putLocation: location?.value || "",
         itemCode: device || "",
         isProblemValid,
+        issueName,
       };
       dispatch(trcFinalSubmit(payload)).then((res: any) => {
         if (res.payload.data.success) {
@@ -139,7 +142,7 @@ const ViewTRC: React.FC = () => {
         trcRequestDetail.body
           .find((item) => item.device === device)
           ?.issue.map((item, index) => {
-            return { id: index + 1, issue: item.text, selectedPart: "", quantity: "", remarks: "", isChecked: false, code: item.code };
+            return { id: index + 1, issue: item.text, selectedPart: "", quantity: "", remarks: "", isChecked: false, code: item.code ,};
           }) || []
       );
     }

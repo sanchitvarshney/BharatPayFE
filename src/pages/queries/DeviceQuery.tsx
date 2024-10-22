@@ -22,6 +22,7 @@ import { FaChevronRight } from "react-icons/fa6";
 import { FaChevronLeft } from "react-icons/fa";
 
 dayjs.extend(customParseFormat);
+
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
 const DeviceQuery: React.FC = () => {
@@ -100,12 +101,12 @@ const DeviceQuery: React.FC = () => {
                   <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-300px]"} w-full `}>
                     <Select
                       showSearch
-                      placeholder="-- Location --"
+                      placeholder="Location"
                       onSearch={(value) => dispatch(getLocationAsync(value ? value : null))}
                       loading={getLocationLoading}
                       className="w-full"
                       value={location}
-                      defaultValue={location}
+                     
                       onChange={(e) => setLocation(e)}
                       options={transformGroupSelectData(locationData)}
                     />
@@ -117,24 +118,38 @@ const DeviceQuery: React.FC = () => {
               <CustomButton
                 loading={getQ1DataLoading}
                 onClick={() => {
-                  console.log(value, location);
-                  if (value && (date || location)) {
-                    dispatch(getQ1Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
-                      if (!res.payload?.data?.success) {
-                        showToast({
-                          description: res.payload?.data?.message,
-                          variant: "destructive",
-                        });
-                      } else {
-                        setDate(null);
-                        setLocation("");
-                      }
-                    });
+                  if (filterType === "location") {
+                    if (value && location) {
+                      dispatch(getQ1Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                        if (!res.payload?.data?.success) {
+                          showToast({
+                            description: res.payload?.data?.message,
+                            variant: "destructive",
+                          });
+                        }
+                      });
+                    } else {
+                      showToast({
+                        description: "Please select SKU and location",
+                        variant: "destructive",
+                      });
+                    }
                   } else {
-                    showToast({
-                      description: "Please select required fields",
-                      variant: "destructive",
-                    });
+                    if (value && date) {
+                      dispatch(getQ1Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                        if (!res.payload?.data?.success) {
+                          showToast({
+                            description: res.payload?.data?.message,
+                            variant: "destructive",
+                          });
+                        }
+                      });
+                    } else {
+                      showToast({
+                        description: "Please select SKU and Date",
+                        variant: "destructive",
+                      });
+                    }
                   }
                 }}
                 type="submit"

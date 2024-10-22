@@ -43,6 +43,7 @@ const querySlice = createSlice({
       })
       .addCase(getQ1Data.rejected, (state) => {
         state.getQ1DataLoading = false;
+        state.q1Data = null;
       })
       .addCase(getBothComponentData.pending, (state) => {
         state.getComponentDataLoading = true;
@@ -67,7 +68,7 @@ const querySlice = createSlice({
       })
       .addCase(getQ2Data.rejected, (state) => {
         state.getQ2DataLading = false;
-        state.q2Data = null;
+        state.q2Data = null
       });
   },
 });

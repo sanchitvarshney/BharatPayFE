@@ -1,8 +1,10 @@
 import { Input } from "@/components/ui/input";
+import { Select } from "antd";
 import React from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import SelectPartCode from "@/components/comonAsyncSelect/SelectPartCode";
 
 interface MaterialInvardCellRendererProps {
   props: any;
@@ -10,15 +12,14 @@ interface MaterialInvardCellRendererProps {
 }
 
 const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
+  const dispatch = useAppDispatch();
+
   const { value, colDef, data, api, column } = props;
 
-  // Extract partCodeData and loading state from the Rdux store
+  // Extract partCodeData and loading state from the Redux store
+  const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
 
   // Handle Select change
-  const handleChange = (newValue: string) => {
-    data[colDef.field] = newValue; // Update the data
-    api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked"] });
-  };
 
   // Handle Input change
   const handleInputChange = (e: any) => {
@@ -32,9 +33,32 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
     switch (colDef.field) {
       case "selectedPart":
         return (
-          <SelectPartCode
-            value={value} // Controlled component pattern
-            onChange={(value) => handleChange(value?.id || "")} // Callback when a new value is selected
+          <Select
+            onFocus={() => {
+              dispatch(getPertCodesync(null));
+            }}
+            showSearch
+            loading={getPartCodeLoading}
+            className="w-full"
+            value={value}
+            onSearch={(searchValue) => {
+              // Dispatch action to fetch filtered part codes
+              dispatch(getPertCodesync(searchValue || null));
+            }}
+            placeholder={colDef.headerName}
+            onChange={(newValue) => {
+              const selectedPart = partCodeData && partCodeData?.find((item) => item.part_code === newValue);
+              data[colDef.field] = selectedPart!.id; // Update the data
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked"] });
+            }} // Set selected value
+            options={
+              partCodeData
+                ? partCodeData?.map((item) => ({
+                    label: `${item.text}`, // Customize option display
+                    value: item.part_code, // Use part_code as the value
+                  }))
+                : []
+            }
           />
         );
       case "quantity":
