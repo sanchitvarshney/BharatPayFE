@@ -1,45 +1,48 @@
 import { Input } from "@/components/ui/input";
-import { Select } from "antd";
 import React from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { transformPartCode } from "@/utils/transformUtills";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import SelectPartCode from "@/components/comonAsyncSelect/SelectPartCode";
+
 interface MaterialInvardCellRendererProps {
   props: any;
   customFunction: () => void;
 }
 
 const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
-  const dispatch = useAppDispatch();
-
   const { value, colDef, data, api, column } = props;
-  const handleChange = (value: string) => {
-    const newValue = value;
-    data[colDef.field] = newValue; // update the data
-    api.refreshCells({ rowNodes: [props.node], columns: [column, , "selectedPart", "quantity", "remarks", "isChecked"] });
+
+  // Extract partCodeData and loading state from the Rdux store
+
+  // Handle Select change
+  const handleChange = (newValue: string) => {
+    data[colDef.field] = newValue; // Update the data
+    api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked"] });
   };
+
+  // Handle Input change
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
-    data[colDef.field] = newValue; // update the data
-    api.refreshCells({ rowNodes: [props.node], columns: [column, , "selectedPart", "quantity", "remarks", "isChecked"] });
+    data[colDef.field] = newValue; // Update the data
+    api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked"] });
   };
 
+  // Render content based on the column field
   const renderContent = () => {
     switch (colDef.field) {
       case "selectedPart":
-        const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
-        console.log(partCodeData);
         return (
-          <Select showSearch loading={getPartCodeLoading} className="w-full" value={value} onSearch={(value) => dispatch(getPertCodesync(value ? value : null))} placeholder={colDef.headerName} onChange={(value) => handleChange(value)} options={transformPartCode(partCodeData)} />
+          <SelectPartCode
+            value={value} // Controlled component pattern
+            onChange={(value) => handleChange(value?.id || "")} // Callback when a new value is selected
+          />
         );
       case "quantity":
         return (
           <div className="flex items-center h-full">
-            <div className="flex items-center h-[35px] overflow-hidden border rounded-lg border-slate-400 ">
-              <Input value={value} onChange={handleInputChange} min={0} placeholder="Qty" type="number" className="w-[100%]  text-slate-600  border-none shadow-none mt-[2px] focus-visible:ring-0" />
-              <div className="w-[70px] bg-zinc-200 flex justify-center h-full items-center g"></div>
+            <div className="flex items-center h-[35px] overflow-hidden border rounded-lg border-slate-400">
+              <Input value={value} onChange={handleInputChange} min={0} placeholder="Qty" type="number" className="w-[100%] text-slate-600 border-none shadow-none mt-[2px] focus-visible:ring-0" />
+              <div className="w-[70px] bg-zinc-200 flex justify-center h-full items-center"></div>
             </div>
           </div>
         );
@@ -51,14 +54,17 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
               checked={value}
               onCheckedChange={(e) => {
                 const newValue = e;
-                data[colDef.field] = newValue; // update the data
+                data[colDef.field] = newValue; // Update the data
                 if (!e) {
                   data["selectedPart"] = null;
                   data["quantity"] = "";
                   data["remarks"] = "";
                 }
-                api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "selectedPart", "quantity", "remarks", "isChecked"] });
-                customFunction();
+                api.refreshCells({
+                  rowNodes: [props.node],
+                  columns: [column, "id", "selectedPart", "quantity", "remarks", "isChecked"],
+                });
+                customFunction(); // Custom function for further actions
               }}
               className="data-[state=checked]:bg-cyan-700 border-cyan-700 h-[20px] w-[20px]"
             />
@@ -67,12 +73,14 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
             </Label>
           </div>
         );
-
       case "remarks":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] bg-white  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] bg-white text-slate-600 border-slate-400 shadow-none mt-[2px]" />;
+      default:
+        return <span>{value}</span>;
     }
   };
 
+  // Conditional rendering based on whether the row is checked
   if (data.isChecked) {
     return renderContent();
   }

@@ -12,12 +12,12 @@ const initialState: QueryStateType = {
   q2Data: null,
 };
 
-export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string; value: string|null;location:string|null }>("query/getQ1", async (params) => {
-  const response = await axiosInstance.get(`/query/log/DV?date=${params.date}&data=${params.value}&location=${params.location}`);
+export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string|null; value: string;location:string|null }>("query/getQ1", async (params) => {
+  const response = await axiosInstance.get(params.location?`/query/log/DV?data=${params.value}&location=${params.location}`:`/query/log/DV?date=${params.date}&data=${params.value}`);
   return response;
 });
-export const getQ2Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string; value: string|null;location:string|null }>("query/getQ2", async (params) => {
-  const response = await axiosInstance.get(`/query/q2/log/RM?date=${params.date}&data=${params.value}$location={params.location}`);
+export const getQ2Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string|null; value: string;location:string|null }>("query/getQ2", async (params) => {
+  const response = await axiosInstance.get(params.location?`/query/q2/log/RM?data=${params.value}$location=${params.location}`:`/query/q2/log/RM?date=${params.date}&data=${params.value}`);
   return response;
 });
 
