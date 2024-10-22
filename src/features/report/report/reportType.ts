@@ -48,9 +48,58 @@ export type R1ApiResponse = {
   data: DocumentData;
 };
 
+export type R2ReportData = {
+  requestBy: string;
+  refId: string;
+  device: string;
+  status: string;
+  insertDate: string;
+  totalDevice: number | string;
+  putLocation: string;
+  pickLocation: string;
+};
 
+export type R2Response = {
+  status: string;
+  success: boolean;
+  data: R2ReportData[];
+};
 
-export type ReportStateType ={
-  r1Data:DocumentData|null;
-  getR1DataLoading:boolean;
+// Type for Device Issue
+export type DeviceIssue = {
+  issueCode: string;
+  issueLabel: string;
+  partNo: string | null; // partNo can be null
+  name: string | null; // name can be null
+  qty: number | null; // qty can be null
+  remark: string | null; // remark can be null
+};
+
+// Type for Device
+export type Devices = {
+  refId: string;
+  device: string;
+  pickLocation: string;
+  putLocation: string;
+  insertDate: string; // Format: "DD-MM-YYYY HH:mm:ss AM/PM"
+  status: string;
+  deviceModel: string;
+  deviceIssues: DeviceIssue[];
+};
+
+// Type for API Response
+export type  DeviceRequestApiResponse =  {
+  data: Devices[];
+  status: string; // "success"
 }
+
+export type ReportStateType = {
+  r1Data: DocumentData | null;
+  getR1DataLoading: boolean;
+  getR2DataLoading: boolean;
+  r2Data: R2ReportData[] | null;
+  r2ReportDetail:DeviceRequestApiResponse|null
+  r2ReportDetailLoading:boolean
+  refId:string|null
+
+};

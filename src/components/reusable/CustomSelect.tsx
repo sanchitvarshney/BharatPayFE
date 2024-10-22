@@ -6,6 +6,7 @@ import { Skeleton } from "../ui/skeleton";
 interface OptionType {
   label: string;
   value: string;
+  isDisabled?: boolean;
 }
 
 interface ReactSelectProps extends SelectProps<OptionType, false> {
@@ -54,19 +55,22 @@ const CustomSelect: React.FC<ReactSelectProps> = ({
       fontSize: "15px",
       cursor: "pointer",
     }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isSelected ? "#e2e8f0" : state.isFocused ? "#fff" : "white",
-      color: state.isSelected ? "#475569" : state.isFocused ? "#475569" : "#475569",
-      "&:hover": {
-        backgroundColor: "#e2e8f0",
-        color: "#475569",
-      },
-      borderRadius: "5px",
-      transition: "all 0.1s",
-      cursor: "pointer",
-      fontSize: "15px",
-    }),
+    option: (provided, state) => {
+      const isDisabled = state.data.isDisabled;
+      return({
+        ...provided,
+        backgroundColor: state.isSelected ? "#e2e8f0" : state.isFocused ? "#fff" : "white",
+        color: isDisabled ? "#a1a1a1" : state.isSelected ? "#475569" : state.isFocused ? "#475569" : "#475569",
+        cursor: isDisabled ? "not-allowed" : "pointer", // Change cursor for disabled options
+        "&:hover": {
+          backgroundColor: isDisabled ? "#f5f5f5" : "#e2e8f0", // Prevent hover effect for disabled
+          color: isDisabled ? "#a1a1a1" : "#475569",
+        },
+        borderRadius: "5px",
+        transition: "all 0.1s",
+        fontSize: "15px",
+      })
+    },
     singleValue: (provided) => ({
       ...provided,
       color: "#475569",

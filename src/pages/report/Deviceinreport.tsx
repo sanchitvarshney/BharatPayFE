@@ -61,12 +61,12 @@ const Deviceinreport: React.FC = () => {
                 className="w-full"
                 onChange={(e) => setType(e!.value)}
                 options={[
-                  { value: "min", label: "Min" },
-                  { value: "date", label: "Date" },
-                  { value: "serial", label: "Serial" },
-                  { value: "sim", label: "SIM Availibility" },
-                  { value: "docType", label: "Doc Type" },
-                  { value: "sku", label: "SKU" },
+                  { value: "min", label: "MIN" },
+                  { value: "date", label: "Date",isDisabled: true },
+                  { value: "serial", label: "Serial",isDisabled: true },
+                  { value: "sim", label: "SIM Availibility",isDisabled: true },
+                  { value: "docType", label: "Doc Type" ,isDisabled: true},
+                  { value: "sku", label: "SKU",isDisabled: true },
                 ]}
               />
             </div>
