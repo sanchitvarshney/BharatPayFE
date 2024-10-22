@@ -34,6 +34,7 @@ const DeviceQuery: React.FC = () => {
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const [date, setDate] = useState<string | null>(null);
   const [value, setValue] = useState<{ label: string; value: string } | null>(null);
+  const [location, setLocation] = useState<string | null>(null);
   const rangePresets: TimeRangePickerProps["presets"] = [
     { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
     { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
@@ -44,7 +45,9 @@ const DeviceQuery: React.FC = () => {
   ];
 
   const onBtExport = useCallback(() => {
-    gridRef.current!.api.exportDataAsExcel();
+    gridRef.current!.api.exportDataAsExcel({
+      sheetName: "Q1-Statement", // Set your desired sheet name here
+    });
   }, []);
 
   useEffect(() => {
@@ -93,10 +96,20 @@ const DeviceQuery: React.FC = () => {
                     )}
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "left-[-300px]" : "left-0"} `}>
-                    <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} format={dateFormat} />
+                    <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} value={date ? [dayjs(date[0]), dayjs(date[1])] : null} format={dateFormat} />
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-300px]"} w-full `}>
-                    <Select showSearch placeholder="-- Location --" onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} className="w-full" value={value} defaultValue={value} options={transformGroupSelectData(locationData)} />
+                    <Select
+                      showSearch
+                      placeholder="Location"
+                      onSearch={(value) => dispatch(getLocationAsync(value ? value : null))}
+                      loading={getLocationLoading}
+                      className="w-full"
+                      value={location}
+                     
+                      onChange={(e) => setLocation(e)}
+                      options={transformGroupSelectData(locationData)}
+                    />
                   </div>
                 </div>
               </div>
@@ -105,20 +118,38 @@ const DeviceQuery: React.FC = () => {
               <CustomButton
                 loading={getQ1DataLoading}
                 onClick={() => {
-                  if (date && value) {
-                    dispatch(getQ1Data({ date: date, value: value.value })).then((res: any) => {
-                      if (!res.payload?.data?.success) {
-                        showToast({
-                          description: res.payload?.data?.message,
-                          variant: "destructive",
-                        });
-                      }
-                    });
+                  if (filterType === "location") {
+                    if (value && location) {
+                      dispatch(getQ1Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                        if (!res.payload?.data?.success) {
+                          showToast({
+                            description: res.payload?.data?.message,
+                            variant: "destructive",
+                          });
+                        }
+                      });
+                    } else {
+                      showToast({
+                        description: "Please select SKU and location",
+                        variant: "destructive",
+                      });
+                    }
                   } else {
-                    showToast({
-                      description: "Please select date and component",
-                      variant: "destructive",
-                    });
+                    if (value && date) {
+                      dispatch(getQ1Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                        if (!res.payload?.data?.success) {
+                          showToast({
+                            description: res.payload?.data?.message,
+                            variant: "destructive",
+                          });
+                        }
+                      });
+                    } else {
+                      showToast({
+                        description: "Please select SKU and Date",
+                        variant: "destructive",
+                      });
+                    }
                   }
                 }}
                 type="submit"
@@ -166,7 +197,7 @@ const DeviceQuery: React.FC = () => {
               <ul className="flex flex-col gap-[5px]">
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">Openning Qty</span>
-                  {getQ1DataLoading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q1Data?.head?.openingQty || "--"}</span>}
+                  {getQ1DataLoading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q1Data?.head?.openingQty}</span>}
                 </li>
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">Closing Qty</span>
