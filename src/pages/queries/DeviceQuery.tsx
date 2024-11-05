@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import DeviceQueryRepoTable from "@/table/query/DeviceQueryRepoTable";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DatePicker, Select, TimeRangePickerProps } from "antd";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { HiDocumentText } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getBothComponentData, getQ1Data } from "@/features/query/query/querySlice";
 import { transformBothComponentCode, transformGroupSelectData } from "@/utils/transformUtills";
-import { convertDateRange } from "@/utils/converDateRangeUtills";
 import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgGridReact } from "@ag-grid-community/react";
@@ -24,7 +23,7 @@ import { FaChevronLeft } from "react-icons/fa";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
-const dateFormat = "DD-MM-YYYY";
+
 const DeviceQuery: React.FC = () => {
   const [filterType, setFilterType] = useState<string>("");
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -32,7 +31,10 @@ const DeviceQuery: React.FC = () => {
   const dispatch = useAppDispatch();
   const { componentData, getComponentDataLoading, q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
-  const [date, setDate] = useState<string | null>(null);
+  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+    from: null,
+    to: null,
+  });
   const [value, setValue] = useState<{ label: string; value: string } | null>(null);
   const [location, setLocation] = useState<string | null>(null);
   const rangePresets: TimeRangePickerProps["presets"] = [
@@ -43,7 +45,13 @@ const DeviceQuery: React.FC = () => {
     { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
     { label: "Last 90 Days", value: [dayjs().add(-90, "d"), dayjs()] },
   ];
-
+  const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
+    if (range) {
+      setDate({ from: range[0], to: range[1] });
+    } else {
+      setDate({ from: null, to: null });
+    }
+  };
   const onBtExport = useCallback(() => {
     gridRef.current!.api.exportDataAsExcel({
       sheetName: "Q1-Statement", // Set your desired sheet name here
@@ -96,7 +104,14 @@ const DeviceQuery: React.FC = () => {
                     )}
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "left-[-300px]" : "left-0"} `}>
-                    <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} value={date ? [dayjs(date[0]), dayjs(date[1])] : null} format={dateFormat} />
+                    <RangePicker
+                      presets={rangePresets}
+                      onChange={handleDateChange}
+                      disabledDate={(current) => current && current > dayjs()}
+                      placeholder={["Start date", "End Date"]}
+                      value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
+                      format="DD/MM/YYYY" // Update with your desired format
+                    />
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-300px]"} w-full `}>
                     <Select
@@ -106,7 +121,6 @@ const DeviceQuery: React.FC = () => {
                       loading={getLocationLoading}
                       className="w-full"
                       value={location}
-                     
                       onChange={(e) => setLocation(e)}
                       options={transformGroupSelectData(locationData)}
                     />
@@ -120,7 +134,7 @@ const DeviceQuery: React.FC = () => {
                 onClick={() => {
                   if (filterType === "location") {
                     if (value && location) {
-                      dispatch(getQ1Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                      dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.value, location: location ? location : null })).then((res: any) => {
                         if (!res.payload?.data?.success) {
                           showToast({
                             description: res.payload?.data?.message,
@@ -136,7 +150,7 @@ const DeviceQuery: React.FC = () => {
                     }
                   } else {
                     if (value && date) {
-                      dispatch(getQ1Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                      dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.value, location: location ? location : null })).then((res: any) => {
                         if (!res.payload?.data?.success) {
                           showToast({
                             description: res.payload?.data?.message,

@@ -54,7 +54,7 @@ export type TrcListResponse = {
 export type TrcFinalSubmitPayload = {
   txnId: string;
   putLocation: string;
-  consumpItem: string[][];
+  consumpItem: string[];
   consumpQty:   (string | number)[];
   remark: string[];
   itemCode: string;

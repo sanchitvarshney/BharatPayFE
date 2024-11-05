@@ -3,7 +3,7 @@ import CustomSelect from "@/components/reusable/CustomSelect";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DatePicker, Select, TimeRangePickerProps } from "antd";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { HiDocumentText } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getQ2Data } from "@/features/query/query/querySlice";
 import { transformGroupSelectData } from "@/utils/transformUtills";
-import { convertDateRange } from "@/utils/converDateRangeUtills";
 import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import Q2ReportTable from "@/table/query/Q2ReportTable";
@@ -23,8 +22,11 @@ import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
-const dateFormat = "DD-MM-YYYY";
 const Q2Statement: React.FC = () => {
+  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+    from: null,
+    to: null,
+  });
   const [filterType, setFilterType] = useState<string>("");
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const gridRef = useRef<AgGridReact<RowData>>(null);
@@ -32,7 +34,6 @@ const Q2Statement: React.FC = () => {
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
   const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
-  const [date, setDate] = useState<string | null>(null);
   const [value, setValue] = useState<{ label: string; value: string } | null>(null);
   const [location, setLocation] = useState<string | null>("");
   const rangePresets: TimeRangePickerProps["presets"] = [
@@ -43,6 +44,13 @@ const Q2Statement: React.FC = () => {
     { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
     { label: "Last 90 Days", value: [dayjs().add(-90, "d"), dayjs()] },
   ];
+  const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
+    if (range) {
+      setDate({ from: range[0], to: range[1] });
+    } else {
+      setDate({ from: null, to: null });
+    }
+  };
 
   const onBtExport = useCallback(() => {
     gridRef.current!.api.exportDataAsExcel();
@@ -93,7 +101,14 @@ const Q2Statement: React.FC = () => {
                     )}
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "left-[-300px]" : "left-0"} `}>
-                    <RangePicker onChange={(e) => setDate(convertDateRange(e!))} disabledDate={(current) => current && current > dayjs()} presets={rangePresets} placeholder={["Start date", "End Date"]} value={date ? [dayjs(date[0]), dayjs(date[1])] : null} format={dateFormat} />
+                    <RangePicker
+                      presets={rangePresets}
+                      onChange={handleDateChange}
+                      disabledDate={(current) => current && current > dayjs()}
+                      placeholder={["Start date", "End Date"]}
+                      value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
+                      format="DD/MM/YYYY" // Update with your desired format
+                    />{" "}
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-300px]"} w-full `}>
                     <Select
@@ -112,19 +127,18 @@ const Q2Statement: React.FC = () => {
               </div>
             </CardContent>
             <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px] border-t gap-[10px]">
-            <CustomButton
+              <CustomButton
                 loading={getQ2DataLading}
                 onClick={() => {
                   console.log(value, location);
                   if (value && (date || location)) {
-                    dispatch(getQ2Data({ date: date ? date : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                    dispatch(getQ2Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.value, location: location ? location : null })).then((res: any) => {
                       if (!res.payload?.data?.success) {
                         showToast({
                           description: res.payload?.data?.message,
                           variant: "destructive",
                         });
                       } else {
-                        setDate(null);
                         setLocation("");
                       }
                     });
