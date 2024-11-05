@@ -9,9 +9,16 @@ export type UserApiResponse={
     success:boolean
     data:userData[]
 }
+export type CurrencListResponse = {
+    status: string;
+    success: boolean;
+    data: userData[];
+}
 export type Commonstate = {
     getUserLoading: boolean;
     userData: userData[] | null;
     isueeList: userData[] | null;
     isueeListLoading: boolean;
+    currencyLoaidng: boolean;
+    currencyData: userData[] | null;
 }

@@ -1,13 +1,15 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { Commonstate, UserApiResponse } from "./commonType";
+import { Commonstate, CurrencListResponse, UserApiResponse } from "./commonType";
 
 const initialState: Commonstate = {
   getUserLoading: false,
   userData: null,
   isueeList: null,
   isueeListLoading: false,
+  currencyLoaidng: false,
+  currencyData: null,
 };
 
 export const getUserAsync = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getuser", async (searchinput) => {
@@ -16,6 +18,10 @@ export const getUserAsync = createAsyncThunk<AxiosResponse<UserApiResponse>, str
 });
 export const getIsueeList = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getIsueeList", async (searchinput) => {
   const response = await axiosInstance.get(`/backend/search/issue/${searchinput}`);
+  return response;
+});
+export const getCurrency = createAsyncThunk<AxiosResponse<CurrencListResponse>>("common/getCurrency", async () => {
+  const response = await axiosInstance.get(`/backend/currencies`);
   return response;
 });
 const commonSlice = createSlice({
@@ -47,6 +53,18 @@ const commonSlice = createSlice({
       })
       .addCase(getIsueeList.rejected, (state) => {
         state.isueeListLoading = false;
+      })
+      .addCase(getCurrency.pending, (state) => {
+        state.currencyLoaidng = true;
+      })
+      .addCase(getCurrency.fulfilled, (state, action) => {
+        state.currencyLoaidng = false;
+        if (action.payload.data.success) {
+          state.currencyData = action.payload.data.data;
+        }
+      })
+      .addCase(getCurrency.rejected, (state) => {
+        state.currencyLoaidng = false;
       });
   },
 });

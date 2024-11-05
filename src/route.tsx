@@ -49,6 +49,7 @@ import AddTRC from "./pages/TRC/AddTRC";
 import TRCLayout from "./layouts/TRCLayout";
 import ViewTRC from "./pages/TRC/ViewTRC";
 import CustomRedirection from "./components/shared/CustomRedirection";
+import BatteryQC from "./pages/production/BatteryQC";
 
 export const router = createBrowserRouter([
   {
@@ -341,6 +342,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/view-trc",
+      },
+      {
+        element: (
+          <MainLayout>
+           <BatteryQC/>
+          </MainLayout>
+        ),
+        path: "/production/battery-qc",
       },
 
       //report======================================

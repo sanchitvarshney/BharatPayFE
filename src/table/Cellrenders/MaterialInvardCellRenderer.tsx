@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "antd";
 import { IoMdCheckmark } from "react-icons/io";
-
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CustomButton } from "@/components/reusable/CustomButton";
 import React, { useEffect, useState } from "react";
@@ -10,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { transformGroupSelectData, transformPartCode } from "@/utils/transformUtills";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { transformSkuCode } from "../../utils/transformUtills";
 
 interface MaterialInvardCellRendererProps {
   props: any;
@@ -22,6 +22,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
   const dispatch = useAppDispatch();
   const { getPartCodeLoading, partCodeData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
+  const { currencyData, currencyLoaidng } = useAppSelector((state) => state.common);
 
   useEffect(() => {
     customFunction();
@@ -59,18 +60,30 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
   const renderContent = () => {
     switch (colDef.field) {
       case "partComponent":
-        return <Select value={value} showSearch loading={getPartCodeLoading} className="w-full" onSearch={(value) => dispatch(getPertCodesync(value ? value : null))} defaultValue="local" onChange={(value) => handleChange(value)} options={transformPartCode(partCodeData)} />;
+        return (
+          <Select
+            value={value}
+            filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
+            showSearch
+            loading={getPartCodeLoading}
+            className="w-full"
+            onSearch={(value) => dispatch(getPertCodesync(value ? value : null))}
+            defaultValue="local"
+            onChange={(value) => handleChange(value)}
+            options={transformPartCode(partCodeData)}
+          />
+        );
       case "gstType":
         return (
           <Select
-          onKeyDown={(e) => e.preventDefault()}
+            onKeyDown={(e) => e.preventDefault()}
             value={value}
             className="w-full"
             placeholder="Select gst type"
             onChange={(value) => handleChange(value)}
             options={[
               { value: "L", label: "Local" },
-              { value: "S", label: "Inter State" },
+              { value: "I", label: "Inter State" },
             ]}
           />
         );
@@ -83,12 +96,13 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
           <div className="flex items-center gap-[5px]">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger>
-                <Button variant={"outline"}>{value}</Button>
+                <Button variant={"outline"}>{currencyData?.find((item) => item.id === value)?.text}</Button>
               </PopoverTrigger>
               <PopoverContent className="flex flex-col gap-[10px] w-[300px]">
                 <p className="text-slate-600 text-[14px] font-[600]">Choose Currency & Enter Currency Rate</p>
                 <div className="flex items-center gap-[10px]">
                   <Select
+                    loading={currencyLoaidng}
                     className="w-[60px] h-[40px] "
                     defaultValue="₹"
                     value={value}
@@ -112,13 +126,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
                         api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
                       }
                     }}
-                    options={[
-                      { label: "₹", value: "₹" },
-                      { label: "$", value: "$" },
-                      { label: "€", value: "€" },
-                      { label: "£", value: "£" },
-                      { label: "¥", value: "¥" },
-                    ]}
+                    options={transformSkuCode(currencyData)}
                   />
                   <Input
                     value={currency}
@@ -164,11 +172,11 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "rate":
         return (
           <div className="flex items-center gap-[5px]">
-            <Input onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />
+            <Input min={0} onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />
           </div>
         );
       case "qty":
-        return <Input onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input min={0} onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
 
       case "taxableValue":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
@@ -177,7 +185,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "hsnCode":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "gstRate":
-        return <Input onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input min={0} onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "cgst":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "sgst":

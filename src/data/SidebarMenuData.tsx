@@ -134,6 +134,10 @@ export const productionMenu = [
       },
     ],
   },
+  {
+    name:"Battery QC",
+    path:"/production/battery-qc"
+  }
 ];
 
 export const TRC = [
