@@ -1,6 +1,5 @@
 import { Dayjs } from "dayjs";
 
-
 export const convertDateRange = (dateRange: [Dayjs | null, Dayjs | null]): string | null => {
   // Check if both dates are valid
   if (!dateRange[0] || !dateRange[1]) {
@@ -9,7 +8,7 @@ export const convertDateRange = (dateRange: [Dayjs | null, Dayjs | null]): strin
 
   // Helper function to format Dayjs objects
   const formatDate = (date: Dayjs): string => {
-    return date.format('DD-MM-YYYY');
+    return date.format("DD-MM-YYYY");
   };
 
   // Extract and format start and end dates
@@ -19,7 +18,7 @@ export const convertDateRange = (dateRange: [Dayjs | null, Dayjs | null]): strin
   // Combine them in the format "DD-MM-YYYY_to_DD-MM-YYYY"
   return `${startDate}_to_${endDate}`;
 };
-export const convertDateRangev2 = (dateRange: [Dayjs | null, Dayjs | null]): {from: string, to: string} | null => {
+export const convertDateRangev2 = (dateRange: [Dayjs | null, Dayjs | null]): { from: string; to: string } | null => {
   // Check if both dates are valid
   if (!dateRange[0] || !dateRange[1]) {
     return null; // Return null if either date is missing
@@ -27,7 +26,7 @@ export const convertDateRangev2 = (dateRange: [Dayjs | null, Dayjs | null]): {fr
 
   // Helper function to format Dayjs objects
   const formatDate = (date: Dayjs): string => {
-    return date.format('DD-MM-YYYY');
+    return date.format("DD-MM-YYYY");
   };
 
   // Extract and format start and end dates
@@ -35,5 +34,5 @@ export const convertDateRangev2 = (dateRange: [Dayjs | null, Dayjs | null]): {fr
   const endDate = formatDate(dateRange[1]);
 
   // Combine them in the format "DD-MM-YYYY_to_DD-MM-YYYY"
-  return {from: startDate, to: endDate};
+  return { from: startDate, to: endDate };
 };

@@ -44,12 +44,13 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+   
     if (error.response?.status === 401) {
       removeToken();
       window.location.href = "/login";
     }
     showToast({
-      description: (error.response?.data?.message ? error.response?.data?.message : error.response?.data?.message?.msg) || "An unexpected error occurred",
+      description: (error.response?.data?.message?.msg ? error.response?.data?.message?.msg : error.response?.data?.message) || "An unexpected error occurred",
       variant: "destructive",
     });
 

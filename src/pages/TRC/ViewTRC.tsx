@@ -19,7 +19,7 @@ import FixIssuesTable from "@/table/TRC/FixIssuesTable";
 interface Issue {
   id: number;
   issue: string;
-  selectedPart: string[];
+  selectedPart: string;
   quantity: number | string;
   remarks: string;
   isChecked: boolean;
@@ -39,6 +39,7 @@ const ViewTRC: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
+  console.log(issues)
   const [approved, setApproved] = useState<string[] | null>(null);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const [device, setDevice] = useState<string>("");
@@ -63,6 +64,7 @@ const ViewTRC: React.FC = () => {
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
+      console.log(issues)
       showToast({
         description: `Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`,
         variant: "destructive",
@@ -86,7 +88,7 @@ const ViewTRC: React.FC = () => {
           variant: "destructive",
         });
       } else {
-        const consumpItem = issues.map((item) => item.selectedPart || "");
+        const consumpItem = issues.filter((item) => item.isChecked).map((item) => item.selectedPart);
         const consumpQty = issues.map((item) => item.quantity);
         const remark = issues.map((item) => item.remarks);
         const isProblemValid = issues.map((item) => item.isChecked);
@@ -143,7 +145,7 @@ const ViewTRC: React.FC = () => {
         trcRequestDetail.body
           .find((item) => item.device === device)
           ?.issue.map((item, index) => {
-            return { id: index + 1, issue: item.text, selectedPart: [], quantity: "", remarks: "", isChecked: false, code: item.code, UOM: "" };
+            return { id: index + 1, issue: item.text, selectedPart: "", quantity: "", remarks: "", isChecked: false, code: item.code, UOM: "" };
           }) || []
       );
     }
@@ -160,7 +162,10 @@ const ViewTRC: React.FC = () => {
         width={"100%"}
         open={process}
         title={`#Ref: ${TRCDetail ? TRCDetail?.txnId : "--"}`}
-        onClose={() => setProcess(false)}
+        onClose={() => {
+          setProcess(false)
+          dispatch(getTrcList());
+        }}
       >
         <div className="h-[calc(100vh-60px)] grid grid-cols-[500px_1fr] ">
           <div className="border-r border-zinc-300">

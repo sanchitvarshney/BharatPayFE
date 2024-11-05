@@ -6,7 +6,7 @@ import FixIssueTabelCellRenderer from "../Cellrenders/FixIssueTabelCellRenderer"
 interface Issue {
   id: number;
   issue: string;
-  selectedPart: string[];
+  selectedPart: string;
   quantity: number | string;
   remarks: string;
   isChecked: boolean;
@@ -19,11 +19,13 @@ type Props = {
   setRowData: React.Dispatch<React.SetStateAction<Issue[]>>;
 };
 
-const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
+const FixIssuesTable: React.FC<Props> = ({ rowData }) => {
   const gridRef = useRef<AgGridReact<Issue>>(null); // Corrected type here
 
+  
   const getAllTableData = () => {
     const allData: Issue[] = [];
+
     const rowCount = gridRef.current?.api.getDisplayedRowCount() ?? 0;
     for (let i = 0; i < rowCount; i++) {
       const rowNode = gridRef.current?.api.getDisplayedRowAtIndex(i);
@@ -32,8 +34,9 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
         allData.push(rowNode.data);
       }
     }
-    setRowData(allData);
+    
   };
+
 
   const components = useMemo(
     () => ({

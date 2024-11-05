@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { transformPartCode } from "@/utils/transformUtills";
 
 interface MaterialInvardCellRendererProps {
   props: any;
@@ -13,9 +14,11 @@ interface MaterialInvardCellRendererProps {
 
 const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
   const dispatch = useAppDispatch();
-
+ 
   const { value, colDef, data, api, column } = props;
-
+  // useEffect(() => {
+  //   customFunction();
+  // }, [value]);
   // Extract partCodeData and loading state from the Redux store
   const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
 
@@ -37,6 +40,8 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
             onFocus={() => {
               dispatch(getPertCodesync(null));
             }}
+            filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
+            
             showSearch
             loading={getPartCodeLoading}
             className="w-full"
@@ -47,20 +52,14 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
             }}
             placeholder={colDef.headerName}
             onChange={(newValue) => {
-              const selectedPart = partCodeData && partCodeData?.find((item) => item.part_code === newValue);
+              const selectedPart = partCodeData && partCodeData?.find((item) => item.id === newValue);
               data[colDef.field] = newValue; // Update the data
               data["UOM"] = selectedPart!.unit;
               data["quantity"] = null;
               api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked", "UOM"] });
+              customFunction();
             }} // Set selected value
-            options={
-              partCodeData
-                ? partCodeData?.map((item) => ({
-                    label: `${item.text}`, // Customize option display
-                    value: item.part_code, // Use part_code as the value
-                  }))
-                : []
-            }
+            options={transformPartCode(partCodeData)}
           />
         );
       case "quantity":

@@ -111,7 +111,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
       unit: data.unit!,
       docId: data.docId,
       docType: data.docType!.value,
-      docDate: moment(data.docDate).format("YYYY-MM-DD"),
+      docDate: moment(data.docDate).format("DD-MM-YYYY"),
     };
 
     dispatch(createMinAsync(updateddata)).then((response: any) => {
@@ -389,7 +389,6 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                   rules={{ required: "Document Date is required" }}
                   render={({ field }) => (
                     <CustomDatePicker
-                     
                       label="Document Date"
                       className="w-full"
                       onDateChange={(e) => {
@@ -497,9 +496,11 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                       </FileUploaderContent>
                     </FileUploader>
                   </div>
-               <div className="mt-[20px] text-cyan-600 hover:underline" >
-               <a href="https://res.cloudinary.com/hrmscloud/raw/upload/v1727008397/PROJECTS/BPe/device-sample-serial-upload.xlsx" >Sample File <br /> <span className="text-[13px]">8.74 KB (8,956 bytes)</span></a>
-               </div>
+                  <div className="mt-[20px] text-cyan-600 hover:underline">
+                    <a href="https://res.cloudinary.com/hrmscloud/raw/upload/v1727008397/PROJECTS/BPe/device-sample-serial-upload.xlsx">
+                      Sample File <br /> <span className="text-[13px]">8.74 KB (8,956 bytes)</span>
+                    </a>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
