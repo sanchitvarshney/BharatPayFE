@@ -88,18 +88,34 @@ export type Devices = {
 };
 
 // Type for API Response
-export type  DeviceRequestApiResponse =  {
+export type DeviceRequestApiResponse = {
   data: Devices[];
   status: string; // "success"
-}
+};
+
+type r3report = {
+  imeiNo: string;
+  ir: string;
+  volt: string;
+  remark: string;
+  insertDate: string;
+};
+
+export type r3reportResponse = {
+  success: boolean;
+  code: number;
+  status: string;
+  data: r3report[];
+};
 
 export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
   getR2DataLoading: boolean;
   r2Data: R2ReportData[] | null;
-  r2ReportDetail:DeviceRequestApiResponse|null
-  r2ReportDetailLoading:boolean
-  refId:string|null
-
+  r2ReportDetail: DeviceRequestApiResponse | null;
+  r2ReportDetailLoading: boolean;
+  refId: string | null;
+  r3report: r3report[] | null;
+  r3reportLoading: boolean;
 };

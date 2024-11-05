@@ -1,72 +1,58 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { Commonstate, CurrencListResponse, UserApiResponse } from "./BatteryQcType";
+import { bateryqcSavePayload, BatteryQcState, DeviceApiResponse } from "./BatteryQcType";
+import { showToast } from "@/utils/toastUtils";
 
-const initialState: Commonstate = {
-  getUserLoading: false,
-  userData: null,
-  isueeList: null,
-  isueeListLoading: false,
-  currencyLoaidng: false,
-  currencyData: null,
+const initialState: BatteryQcState = {
+  batteryQcSaveLoading: false,
+  deviceDetailData: null,
+  deviceDetailLoading: false,
 };
 
-export const getUserAsync = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getuser", async (searchinput) => {
-  const response = await axiosInstance.get(`/backend/search/user/${searchinput}`);
+export const getDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, string>("batteryqc/getDeviceDetail", async (imei) => {
+  const response = await axiosInstance.get(`/qc/battery/getDeviceDetail/${imei}`);
   return response;
 });
-export const getIsueeList = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getIsueeList", async (searchinput) => {
-  const response = await axiosInstance.get(`/backend/search/issue/${searchinput}`);
+export const batteryQcSave = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, bateryqcSavePayload>("batteryqc/batteryQcSave", async (payload) => {
+  const response = await axiosInstance.post(`/qc/battery/saveBatteryQc`, payload);
   return response;
 });
-export const getCurrency = createAsyncThunk<AxiosResponse<CurrencListResponse>>("common/getCurrency", async () => {
-  const response = await axiosInstance.get(`/backend/currencies`);
-  return response;
-});
-const commonSlice = createSlice({
-  name: "common",
+
+const batteryQcSlice = createSlice({
+  name: "batteryQc",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getUserAsync.pending, (state) => {
-        state.getUserLoading = true;
+      .addCase(getDeviceDetail.pending, (state) => {
+        state.deviceDetailLoading = true;
       })
-      .addCase(getUserAsync.fulfilled, (state, action) => {
-        state.getUserLoading = false;
+      .addCase(getDeviceDetail.fulfilled, (state, action) => {
+        state.deviceDetailLoading = false;
         if (action.payload.data.success) {
-          state.userData = action.payload.data.data;
+          state.deviceDetailData = action.payload?.data?.data[0];
         }
       })
-      .addCase(getUserAsync.rejected, (state) => {
-        state.getUserLoading = false;
+      .addCase(getDeviceDetail.rejected, (state) => {
+        state.deviceDetailLoading = false;
       })
-      .addCase(getIsueeList.pending, (state) => {
-        state.isueeListLoading = true;
+      .addCase(batteryQcSave.pending, (state) => {
+        state.batteryQcSaveLoading = true;
       })
-      .addCase(getIsueeList.fulfilled, (state, action) => {
-        state.isueeListLoading = false;
+      .addCase(batteryQcSave.fulfilled, (state, action) => {
+        state.batteryQcSaveLoading = false;
         if (action.payload.data.success) {
-          state.isueeList = action.payload.data.data;
+          showToast({
+            variant: "success",
+            description: action.payload.data?.message,
+          });
         }
       })
-      .addCase(getIsueeList.rejected, (state) => {
-        state.isueeListLoading = false;
-      })
-      .addCase(getCurrency.pending, (state) => {
-        state.currencyLoaidng = true;
-      })
-      .addCase(getCurrency.fulfilled, (state, action) => {
-        state.currencyLoaidng = false;
-        if (action.payload.data.success) {
-          state.currencyData = action.payload.data.data;
-        }
-      })
-      .addCase(getCurrency.rejected, (state) => {
-        state.currencyLoaidng = false;
+      .addCase(batteryQcSave.rejected, (state) => {
+        state.batteryQcSaveLoading = false;
       });
   },
 });
 
-export default commonSlice.reducer;
+export default batteryQcSlice.reducer;
