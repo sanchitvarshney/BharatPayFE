@@ -19,7 +19,7 @@ type Props = {
   setRowData: React.Dispatch<React.SetStateAction<Issue[]>>;
 };
 
-const FixIssuesTable: React.FC<Props> = ({ rowData }) => {
+const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
   const gridRef = useRef<AgGridReact<Issue>>(null); // Corrected type here
 
   
@@ -29,11 +29,12 @@ const FixIssuesTable: React.FC<Props> = ({ rowData }) => {
     const rowCount = gridRef.current?.api.getDisplayedRowCount() ?? 0;
     for (let i = 0; i < rowCount; i++) {
       const rowNode = gridRef.current?.api.getDisplayedRowAtIndex(i);
-
       if (rowNode && rowNode.data) {
         allData.push(rowNode.data);
       }
     }
+
+    setRowData(allData);
     
   };
 
