@@ -29,6 +29,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             hoverBorderColor: "#d1d5db",
             activeShadow: "0 0 0 0 rgba(5, 145, 255, 0.1)",
           },
+          Input: {
+            colorBorder:"#d4d4d4",
+            activeBg:"#fffbeb",
+            activeBorderColor:"#a3a3a3",
+            activeShadow:"0",
+            hoverBorderColor:"#a3a3a3"
+          },
           Select: {
             controlHeight: 35,
             colorBorder:"#94a3b8",

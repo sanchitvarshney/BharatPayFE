@@ -113,3 +113,18 @@ input:-webkit-autofill {
 .ag-theme-quartz .ag-row-hover {
   background-color: transparent !important; /* Prevents default hover color */
 }
+.ag-theme-quartz .ag-watermark{
+  display: none !important;
+}
+.ag-watermark{
+  display: none;
+}
+.ag-theme-quartz .ag-watermark::before{
+  display: none !important;
+}
+.ag-watermark::before{
+  display: none;
+}
+.ag-theme-quartz .ag-watermark-text  {
+ display: none;
+}

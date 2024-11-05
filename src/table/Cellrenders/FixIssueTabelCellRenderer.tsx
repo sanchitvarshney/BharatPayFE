@@ -25,7 +25,7 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
     data[colDef.field] = newValue; // Update the data
-    api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked"] });
+    api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked", "UOM"] });
   };
 
   // Render content based on the column field
@@ -48,8 +48,10 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
             placeholder={colDef.headerName}
             onChange={(newValue) => {
               const selectedPart = partCodeData && partCodeData?.find((item) => item.part_code === newValue);
-              data[colDef.field] = selectedPart!.id; // Update the data
-              api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked"] });
+              data[colDef.field] = newValue; // Update the data
+              data["UOM"] = selectedPart!.unit;
+              data["quantity"] = null;
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked", "UOM"] });
             }} // Set selected value
             options={
               partCodeData
@@ -66,7 +68,7 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
           <div className="flex items-center h-full">
             <div className="flex items-center h-[35px] overflow-hidden border rounded-lg border-slate-400">
               <Input value={value} onChange={handleInputChange} min={0} placeholder="Qty" type="number" className="w-[100%] text-slate-600 border-none shadow-none mt-[2px] focus-visible:ring-0" />
-              <div className="w-[70px] bg-zinc-200 flex justify-center h-full items-center"></div>
+              <div className="w-[70px] bg-zinc-200 flex justify-center h-full items-center">{data?.UOM}</div>
             </div>
           </div>
         );

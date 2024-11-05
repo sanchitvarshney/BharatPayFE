@@ -26,6 +26,7 @@ import { MdFileCopy } from "react-icons/md";
 import { createRawMin, resetDocumentFile, storeDocumentFile } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { CreateRawMinPayloadType } from "@/features/wearhouse/Rawmin/RawMinType";
+import { getCurrency } from "@/features/common/commonSlice";
 
 interface RowData {
   partComponent: string;
@@ -141,7 +142,7 @@ const MaterialInvard: React.FC = () => {
         const qty = rowData.map((item) => Number(item.qty));
         const rate = rowData.map((item) => Number(item.rate));
         const gsttype = rowData.map((item) => item.gstType);
-        const gstrate = rowData.map((item) =>Number(item.gstRate));
+        const gstrate = rowData.map((item) => Number(item.gstRate));
         const location = rowData.map((item) => item.location);
         const currency = rowData.map((item) => item.currency);
         const remarks = rowData.map((item) => item.remarks);
@@ -209,6 +210,7 @@ const MaterialInvard: React.FC = () => {
     dispatch(getVendorAsync(null));
     dispatch(getLocationAsync(null));
     dispatch(getPertCodesync(null));
+    dispatch(getCurrency());
   }, []);
 
   return (

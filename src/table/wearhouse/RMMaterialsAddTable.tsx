@@ -72,7 +72,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       location: "",
       autoConsump: "",
       remarks: "",
-      currency: "₹",
+      currency: "364907247",
       isNew: true,
     };
     setRowData([newRow, ...rowData]);
@@ -198,7 +198,6 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
     <div className=" ag-theme-quartz h-[calc(100vh-50px)]">
       <AgGridReact
         suppressCellFocus={false}
-      
         ref={gridRef}
         onCellFocused={(event: any) => {
           const { rowIndex, column } = event;
@@ -227,7 +226,6 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
           suppressCellFlash: true,
           editable: false,
         }}
-        
       />
     </div>
   );

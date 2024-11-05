@@ -6,11 +6,12 @@ import FixIssueTabelCellRenderer from "../Cellrenders/FixIssueTabelCellRenderer"
 interface Issue {
   id: number;
   issue: string;
-  selectedPart: string;
+  selectedPart: string[];
   quantity: number | string;
   remarks: string;
   isChecked: boolean;
   code: string;
+  UOM: string;
 }
 
 type Props = {
@@ -68,6 +69,13 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
       field: "issue",
       hide: true,
       flex: 1,
+      editable: false,
+    },
+    {
+      headerName: "UOM",
+      field: "UOM",
+      hide: true,
+  
       editable: false,
     },
     {

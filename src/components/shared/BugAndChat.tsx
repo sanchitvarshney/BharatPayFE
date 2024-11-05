@@ -16,7 +16,7 @@ export default function BugAndChat() {
   };
 
   return (
-    <div className={`fixed z-50   h-[60px] w-[60px] rounded-full shadow-xl shadow-slate-400 border border-slate-300 cursor-move transition-all duration-500  ${hide ? "bottom-[50px] right-[-25px] rotate-[-40deg]" : "bottom-[50px] right-[20px]"}`}>
+    <div className={`fixed z-50   h-[60px] w-[60px] rounded-full shadow-xl shadow-slate-400 border border-slate-300 cursor-move transition-all duration-500  ${hide ? "bottom-[90px] right-[-25px] rotate-[-40deg]" : "bottom-[100px] right-[20px]"}`}>
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger
           onClick={() => {

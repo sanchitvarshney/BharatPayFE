@@ -19,12 +19,12 @@ import FixIssuesTable from "@/table/TRC/FixIssuesTable";
 interface Issue {
   id: number;
   issue: string;
-  selectedPart: string;
+  selectedPart: string[];
   quantity: number | string;
   remarks: string;
   isChecked: boolean;
   code: string;
-
+  UOM: string;
 }
 type OptionType = {
   value: string;
@@ -49,24 +49,18 @@ const ViewTRC: React.FC = () => {
     const requiredFields: Array<keyof Issue> = ["issue", "selectedPart", "quantity"];
     const miss = data.map((item) => {
       const missingFields: string[] = [];
-      requiredFields.forEach((field) => {
-        // Check if the required field is empty
-        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
-          missingFields.push(field);
-        }
-      });
+      if (item.isChecked) {
+        requiredFields.forEach((field) => {
+          // Check if the required field is empty
+          if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
+            missingFields.push(field);
+          }
+        });
+      }
       if (missingFields.length > 0) {
         return `${item.id}`;
       }
     });
-
-    if (data.filter((item) => !item.isChecked).length > 0) {
-      showToast({
-        description: "Please check all issues",
-        variant: "destructive",
-      });
-      hasErrors = true;
-    }
 
     if (miss.filter((item) => item !== undefined).length > 0) {
       showToast({
@@ -86,40 +80,47 @@ const ViewTRC: React.FC = () => {
       });
     } else if (!checkRequiredFields(issues)) {
       // TRCDetail?.txnId
-      const consumpItem = issues.map((item) => item.selectedPart || "");
-      const consumpQty = issues.map((item) => item.quantity);
-      const remark = issues.map((item) => item.remarks);
-      const isProblemValid = issues.map((item) => item.isChecked);
-      const issueName = issues.map((item) => item.code);
-      const payload: TrcFinalSubmitPayload = {
-        txnId: TRCDetail?.txnId || "",
-        consumpItem,
-        consumpQty,
-        remark,
-        putLocation: location?.value || "",
-        itemCode: device || "",
-        isProblemValid,
-        issueName,
-      };
-      dispatch(trcFinalSubmit(payload)).then((res: any) => {
-        if (res.payload.data.success) {
-          showToast({
-            description: res.payload.data.message,
-            variant: "success",
-          });
-          if (!approved) {
-            setApproved([device]);
-          } else {
-            setApproved([...approved, device]);
+      if (!location) {
+        showToast({
+          description: "Please select location",
+          variant: "destructive",
+        });
+      } else {
+        const consumpItem = issues.map((item) => item.selectedPart || "");
+        const consumpQty = issues.map((item) => item.quantity);
+        const remark = issues.map((item) => item.remarks);
+        const isProblemValid = issues.map((item) => item.isChecked);
+        const issueName = issues.map((item) => item.code);
+        const payload: TrcFinalSubmitPayload = {
+          txnId: TRCDetail?.txnId || "",
+          consumpItem,
+          consumpQty,
+          remark,
+          putLocation: location?.value || "",
+          itemCode: device || "",
+          isProblemValid,
+          issueName,
+        };
+        dispatch(trcFinalSubmit(payload)).then((res: any) => {
+          if (res.payload.data.success) {
+            showToast({
+              description: res.payload.data.message,
+              variant: "success",
+            });
+            if (!approved) {
+              setApproved([device]);
+            } else {
+              setApproved([...approved, device]);
+            }
+            setDevice("");
+            setLocation(null);
+            if (approved?.length === trcRequestDetail!.body.length) {
+              setProcess(false);
+              dispatch(getTrcList());
+            }
           }
-          setDevice("");
-          setLocation(null);
-          if (approved?.length === trcRequestDetail!.body.length) {
-            setProcess(false);
-            dispatch(getTrcList());
-          }
-        }
-      });
+        });
+      }
     }
   };
 
@@ -142,7 +143,7 @@ const ViewTRC: React.FC = () => {
         trcRequestDetail.body
           .find((item) => item.device === device)
           ?.issue.map((item, index) => {
-            return { id: index + 1, issue: item.text, selectedPart: "", quantity: "", remarks: "", isChecked: false, code: item.code ,};
+            return { id: index + 1, issue: item.text, selectedPart: [], quantity: "", remarks: "", isChecked: false, code: item.code, UOM: "" };
           }) || []
       );
     }

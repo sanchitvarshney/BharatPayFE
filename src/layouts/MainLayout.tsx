@@ -16,6 +16,8 @@ import ProfileSidebar from "@/components/shared/ProfileSidebar";
 import MainLayoutPopovers from "../components/shared/MainLayoutPopovers";
 import DownloadIndecator from "@/components/shared/DownloadIndecator";
 import QuickLink from "@/components/shared/QuickLink";
+import { SiSocketdotio } from "react-icons/si";
+import CustomTooltip from "@/components/shared/CustomTooltip";
 
 function MainLayout(props: { children: React.ReactNode }) {
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
@@ -158,6 +160,11 @@ function MainLayout(props: { children: React.ReactNode }) {
             </Button>
           </div>
           <div className="flex flex-col gap-[20px] items-center">
+            <CustomTooltip message="Socket Connected" side="right">
+              <button>
+              <SiSocketdotio className="h-[25px] w-[25px] text-green-300" />
+              </button>
+            </CustomTooltip>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
