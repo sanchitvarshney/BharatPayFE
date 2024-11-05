@@ -39,7 +39,7 @@ const ViewTRC: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
-  console.log(issues)
+  console.log(issues);
   const [approved, setApproved] = useState<string[] | null>(null);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const [device, setDevice] = useState<string>("");
@@ -64,7 +64,7 @@ const ViewTRC: React.FC = () => {
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
-      console.log(issues)
+      console.log(issues);
       showToast({
         description: `Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`,
         variant: "destructive",
@@ -89,10 +89,10 @@ const ViewTRC: React.FC = () => {
         });
       } else {
         const consumpItem = issues.filter((item) => item.isChecked).map((item) => item.selectedPart);
-        const consumpQty = issues.map((item) => item.quantity);
-        const remark = issues.map((item) => item.remarks);
-        const isProblemValid = issues.map((item) => item.isChecked);
-        const issueName = issues.map((item) => item.code);
+        const consumpQty = issues.filter((item) => item.isChecked).map((item) => item.quantity);
+        const remark = issues.filter((item) => item.isChecked).map((item) => item.remarks);
+        const isProblemValid = issues.filter((item) => item.isChecked).map((item) => item.isChecked);
+        const issueName = issues.filter((item) => item.isChecked).map((item) => item.code);
         const payload: TrcFinalSubmitPayload = {
           txnId: TRCDetail?.txnId || "",
           consumpItem,
@@ -163,7 +163,7 @@ const ViewTRC: React.FC = () => {
         open={process}
         title={`#Ref: ${TRCDetail ? TRCDetail?.txnId : "--"}`}
         onClose={() => {
-          setProcess(false)
+          setProcess(false);
           dispatch(getTrcList());
         }}
       >
