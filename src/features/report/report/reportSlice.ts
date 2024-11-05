@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, R1ApiResponse, R2Response, ReportStateType } from "./reportType";
+import { DeviceRequestApiResponse, R1ApiResponse, R2Response, r3reportResponse, ReportStateType } from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -11,6 +11,8 @@ const initialState: ReportStateType = {
   r2ReportDetail: null,
   r2ReportDetailLoading: false,
   refId: null,
+  r3report: null,
+  r3reportLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -25,7 +27,10 @@ export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApi
   const response = await axiosInstance.get(`/report/r2/detail/${refid}`);
   return response;
 });
-
+export const getr3Report = createAsyncThunk<AxiosResponse<r3reportResponse>, { from: string; to: string }>("report/getr3Report", async (date) => {
+  const response = await axiosInstance.get(`/report/r3BatteryQcReport?fromDate=${date.from}&toDate=${date.to}`);
+  return response;
+});
 const reportSlice = createSlice({
   name: "report",
   initialState,
@@ -53,7 +58,7 @@ const reportSlice = createSlice({
       })
       .addCase(getR2Data.pending, (state) => {
         state.getR2DataLoading = true;
-        state.r2Data = null
+        state.r2Data = null;
       })
       .addCase(getR2Data.fulfilled, (state, action) => {
         state.getR2DataLoading = false;
@@ -63,11 +68,11 @@ const reportSlice = createSlice({
       })
       .addCase(getR2Data.rejected, (state) => {
         state.getR2DataLoading = false;
-        state.r2Data = null
+        state.r2Data = null;
       })
       .addCase(getR2ReportDetail.pending, (state) => {
         state.r2ReportDetailLoading = true;
-        state.r2ReportDetail = null
+        state.r2ReportDetail = null;
       })
       .addCase(getR2ReportDetail.fulfilled, (state, action) => {
         state.r2ReportDetailLoading = false;
@@ -77,9 +82,22 @@ const reportSlice = createSlice({
       })
       .addCase(getR2ReportDetail.rejected, (state) => {
         state.r2ReportDetailLoading = false;
-        state.r2ReportDetail = null
+        state.r2ReportDetail = null;
+      })
+      .addCase(getr3Report.pending, (state) => {
+        state.r3reportLoading = true;
+        state.r3report = null;
+      })
+      .addCase(getr3Report.fulfilled, (state, action) => {
+        state.r3reportLoading = false;
+        if (action.payload.data.success) {
+          state.r3report = action.payload.data.data;
+        }
+      })
+      .addCase(getr3Report.rejected, (state) => {
+        state.r3reportLoading = false;
+        state.r3report = null;
       });
-      
   },
 });
 

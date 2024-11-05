@@ -14,6 +14,7 @@ import pendingMrRequestReducer from "@/features/wearhouse/MaterialApproval/MrApp
 import materialRequestWithoutBomReducer from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import addTrcReducer from "@/features/trc/AddTrc/addtrcSlice";
 import viewTrcReducer from "@/features/trc/ViewTrc/viewTrcSlice";
+import batteryQcReducer from "@/features/production/Batteryqc/BatteryQcSlice";
 
 export const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ export const store = configureStore({
     common: commonReducer,
     addTrc: addTrcReducer,
     viewTrc: viewTrcReducer,
+    batteryQcReducer: batteryQcReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -8,6 +8,9 @@ import { showToast } from "@/utils/toastUtils";
 import { MdOutlineRefresh } from "react-icons/md";
 import { BsUpcScan } from "react-icons/bs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { batteryQcSave, getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
+import { bateryqcSavePayload } from "@/features/production/Batteryqc/BatteryQcType";
 
 type RowData = {
   remark: string;
@@ -20,13 +23,14 @@ type RowData = {
 };
 
 const BatteryQC: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { deviceDetailLoading ,batteryQcSaveLoading} = useAppSelector((state) => state.batteryQcReducer);
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [loading, setLoading] = useState(false);
   const [resetAlert, setResetAlert] = useState<boolean>(false);
   const [imei, setImei] = useState<string>("");
   const imeiInputRef = useRef<InputRef>(null);
   const addRow = useCallback(
-    (id: string) => {
+    (id: string, sr: string) => {
       const newId = rowData.length + 1;
       const newRow: RowData = {
         id: newId,
@@ -35,13 +39,64 @@ const BatteryQC: React.FC = () => {
         IMEI: id,
         IR: "",
         voltage: "",
-        serialNo: id,
+        serialNo: sr,
       };
 
       setRowData((prev) => [...prev, newRow].reverse());
     },
     [rowData]
   );
+
+  const onsubmit = () => {
+    if (rowData.length === 0) {
+      showToast({
+        description: "Please Add Material Details",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      let hasErrors = false;
+
+      rowData.forEach((row) => {
+        const missingFields: string[] = [];
+        if (!row.IMEI) {
+          missingFields.push("IMEI");
+        }
+        if (!row.IR) {
+          missingFields.push("IR");
+        }
+        if (!row.serialNo) {
+          missingFields.push("serialNo");
+        }
+        if (!row.voltage) {
+          missingFields.push("voltage");
+        }
+
+        if (missingFields.length > 0) {
+          showToast({
+            description: `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
+            variant: "destructive",
+          });
+          hasErrors = true;
+        }
+      });
+
+      if (!hasErrors) {
+        const payload: bateryqcSavePayload = {
+          slNo: rowData.map((row) => row.serialNo),
+          imeiNo: rowData.map((row) => row.IMEI),
+          ir: rowData.map((row) => row.IR),
+          volt: rowData.map((row) => row.voltage),
+          remark: rowData.map((row) => row.remark),
+        };
+        dispatch(batteryQcSave(payload)).then((res: any) => {
+          if (res.payload.data.success) {
+            setRowData([]);
+          }
+        });
+      }
+    }
+  };
   useEffect(() => {
     imeiInputRef.current?.focus();
   }, []);
@@ -87,17 +142,29 @@ const BatteryQC: React.FC = () => {
                       });
                       return;
                     }
-                    setLoading(true);
-                    setTimeout(() => {
-                      addRow(imei);
-                      setImei("");
-                      setLoading(false);
-                    }, 2000);
+                    // setLoading(true);
+                    // setTimeout(() => {
+                    //   addRow(imei);
+                    //   setImei("");
+                    //   setLoading(false);
+                    // }, 2000);
+                    dispatch(getDeviceDetail(imei)).then((res: any) => {
+                      if (res.payload.data.success) {
+                        addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
+                        setImei("");
+                      } else {
+                        showToast({
+                          description: res.payload.data.message,
+                          variant: "destructive",
+                        });
+                       
+                      }
+                    });
                   }
                 }
               }}
               className="w-[400px]"
-              suffix={!loading ? <BsUpcScan className="h-[18px] w-[18px]" focusable /> : <MdOutlineRefresh className="h-[18px] w-[18px] animate-spin" />}
+              suffix={!deviceDetailLoading ? <BsUpcScan className="h-[18px] w-[18px]" focusable /> : <MdOutlineRefresh className="h-[18px] w-[18px] animate-spin" />}
               placeholder="IMEI/Serial Number"
             />
           </div>
@@ -114,7 +181,15 @@ const BatteryQC: React.FC = () => {
             >
               Reset
             </CustomButton>
-            <CustomButton disabled={!rowData.length} className="bg-cyan-700 hover:bg-cyan-800" icon={<FaRegSave className="h-[18px] w-[18px]" />}>
+            <CustomButton
+            loading={batteryQcSaveLoading}
+              onClick={() => {
+                onsubmit();
+              }}
+              disabled={!rowData.length}
+              className="bg-cyan-700 hover:bg-cyan-800"
+              icon={<FaRegSave className="h-[18px] w-[18px]" />}
+            >
               Submit
             </CustomButton>
           </div>
