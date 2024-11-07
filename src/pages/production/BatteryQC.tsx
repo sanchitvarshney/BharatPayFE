@@ -135,12 +135,21 @@ const BatteryQC: React.FC = () => {
                 if (e.key === "Enter") {
                   if (imei) {
                     const isUnique = !rowData.some((row) => row.IMEI === imei);
+                    const issrunique = !rowData.some((row) => row.serialNo === imei);
+                    console.log(isUnique);
                     if (!isUnique) {
                       showToast({
                         description: "Duplicate IMEI found",
                         variant: "destructive",
                       });
-                      return;
+                     return
+                    }
+                    if(!issrunique){
+                      showToast({
+                        description: "Duplicate Serial Number found",
+                        variant: "destructive",
+                      })
+                      return
                     }
                     // setLoading(true);
                     // setTimeout(() => {
