@@ -16,6 +16,7 @@ export const navSliderData: NavSliderData[] = [
   { path: "#", name: "R1", content: <p>Material Inward Report</p> },
   { path: "#", name: "R2", content: <p>TRC Report</p> },
   { path: "#", name: "R3", content: <p>Battery QC Report</p> },
+  { path: "#", name: "R4", content: <p>Production Report</p> },
 ];
 
 const Navslider: React.FC = () => {
@@ -30,6 +31,9 @@ const Navslider: React.FC = () => {
         return "TRC Report";
       case "R3":
         return "Battery QC Report";
+        case "R4":
+        return "Production Report";
+
       default:
         return "";
     }

@@ -50,6 +50,11 @@ import TRCLayout from "./layouts/TRCLayout";
 import ViewTRC from "./pages/TRC/ViewTRC";
 import CustomRedirection from "./components/shared/CustomRedirection";
 import BatteryQC from "./pages/production/BatteryQC";
+import ProductionCreate from "./pages/production/ProductionCreate";
+import ProductionManage from "./pages/production/ProductionManage";
+import DispatchLayout from "./layouts/DispatchLayout";
+import ManageDispatch from "./pages/Dispatch/ManageDispatch";
+import CraeteDispatchPage from "./pages/Dispatch/CraeteDispatchPage";
 
 export const router = createBrowserRouter([
   {
@@ -214,7 +219,6 @@ export const router = createBrowserRouter([
           <MainLayout>
             <MasterAddressLayout>
               <CustomRedirection UnderDevelopment={true}>
-                {" "}
                 <MasterShippingaddress />
               </CustomRedirection>
             </MasterAddressLayout>
@@ -265,7 +269,6 @@ export const router = createBrowserRouter([
           <MainLayout>
             <ProductionMaterialRequisitionLayout>
               <CustomRedirection UnderDevelopment={true}>
-                {" "}
                 <ProductionReqWithBOM />
               </CustomRedirection>
             </ProductionMaterialRequisitionLayout>
@@ -346,11 +349,57 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-           <BatteryQC/>
+            <BatteryQC />
           </MainLayout>
         ),
         path: "/production/battery-qc",
       },
+      {
+        element: (
+          <MainLayout>
+            <ProductionCreate />
+          </MainLayout>
+        ),
+        path: "/production/craete",
+      },
+      {
+        element: (
+          <MainLayout>
+            <CustomRedirection UnderDevelopment={true}>
+              <ProductionManage />
+            </CustomRedirection>
+          </MainLayout>
+        ),
+        path: "/production/manage",
+      },
+
+      //dispatch===========================================
+      {
+        element: (
+          <MainLayout>
+            <DispatchLayout>
+              <CustomRedirection UnderDevelopment={true}>
+                <ManageDispatch />
+              </CustomRedirection>
+            </DispatchLayout>
+          </MainLayout>
+        ),
+        path: "/dispatch/manage",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DispatchLayout>
+              <CustomRedirection UnderDevelopment={false}>
+                <CraeteDispatchPage />
+              </CustomRedirection>
+            </DispatchLayout>
+          </MainLayout>
+        ),
+        path: "/dispatch/create",
+      },
+
+      //dispatch===========================================
 
       //report======================================
       {

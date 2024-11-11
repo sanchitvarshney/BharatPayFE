@@ -124,25 +124,36 @@ export const productionMenu = [
           { name: "Req Without BOM", path: "/production/material-req-without-bom" },
         ],
       },
+      // {
+      //   name: "Production And Plans",
+      //   subMenu: [
+      //     { name: "Create PPR", path: "/production/create-ppr" },
+      //     { name: "Pending PPR", path: "/production/pending-ppr" },
+      //     { name: "Complete PPR", path: "/production/complete-ppr" },
+      //   ],
+      // },
       {
-        name: "Production And Plans",
+        name: "Production ",
         subMenu: [
-          { name: "Create PPR", path: "/production/create-ppr" },
-          { name: "Pending PPR", path: "/production/pending-ppr" },
-          { name: "Complete PPR", path: "/production/complete-ppr" },
+          { name: "Create", path: "/production/craete" },
+          { name: "Manage", path: "/production/manage" },
         ],
       },
     ],
   },
   {
-    name:"Battery QC",
-    path:"/production/battery-qc"
-  }
+    name: "Battery QC",
+    path: "/production/battery-qc",
+  },
 ];
 
 export const TRC = [
   { name: "Add", path: "/production/add-trc" },
   { name: "View", path: "/production/view-trc" },
+];
+export const Dispatch = [
+  { name: "Create", path: "/dispatch/create" },
+  { name: "Manage", path: "/dispatch/manage" },
 ];
 
 export const navSliderData = Array.from({ length: 2 }, (_, i) => ({
