@@ -22,7 +22,11 @@ export const batteryQcSave = createAsyncThunk<AxiosResponse<{ success: boolean; 
 const batteryQcSlice = createSlice({
   name: "batteryQc",
   initialState,
-  reducers: {},
+  reducers: {
+    clearDeviceDetail:(state) =>{
+      state.deviceDetailData = null
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getDeviceDetail.pending, (state) => {
@@ -55,4 +59,5 @@ const batteryQcSlice = createSlice({
   },
 });
 
+export const { clearDeviceDetail } = batteryQcSlice.actions;
 export default batteryQcSlice.reducer;

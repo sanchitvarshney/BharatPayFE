@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import Deviceinreport from "./Deviceinreport";
 import R2Report from "./R2Report";
 import R3Report from "./R3Report";
+import R4Report from "./R4Report";
 
 const Report: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -16,6 +17,9 @@ const Report: React.FC = () => {
   }
   if (reportNumber === "R3") {
     return <R3Report />;
+  }
+  if (reportNumber === "R4") {
+    return <R4Report />;
   }
   return <div>this is {reportNumber} Report</div>;
 };

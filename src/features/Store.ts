@@ -15,6 +15,7 @@ import materialRequestWithoutBomReducer from "@/features/production/MaterialRequ
 import addTrcReducer from "@/features/trc/AddTrc/addtrcSlice";
 import viewTrcReducer from "@/features/trc/ViewTrc/viewTrcSlice";
 import batteryQcReducer from "@/features/production/Batteryqc/BatteryQcSlice";
+import manageProductionTReducer from "@/features/production/ManageProduction/ManageProductionSlie"
 
 export const store = configureStore({
   reducer: {
@@ -34,6 +35,7 @@ export const store = configureStore({
     addTrc: addTrcReducer,
     viewTrc: viewTrcReducer,
     batteryQcReducer: batteryQcReducer,
+    manageProduction: manageProductionTReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
