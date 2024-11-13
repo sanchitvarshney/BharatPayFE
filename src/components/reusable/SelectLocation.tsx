@@ -15,9 +15,10 @@ type Props = {
   helperText?: string | null;
   varient?: "outlined" | "standard" | "filled";
   required?: boolean
+  size?: "small" | "medium"
 };
 
-const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText,varient="standard",required=false }) => {
+const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText,varient="standard",required=false,size="small" }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -46,7 +47,7 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
     <Autocomplete
       onFocus={() => fetchLocations(null)}
       value={value}
-      size="small"
+      size={size}
       options={locationList || []}
       getOptionLabel={(option) => `${option.text}`}
       filterSelectedOptions

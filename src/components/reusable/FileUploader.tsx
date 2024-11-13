@@ -77,7 +77,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         {...getRootProps()}
         sx={{
           p: 3,
-          border: "2px dashed #888",
+          border: "3px dashed #0e7490",
           borderRadius: 1,
           cursor: "pointer",
           bgcolor: isDragActive ? "action.hover" : "background.paper",
@@ -90,7 +90,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           ? Object.values(acceptedFileTypes).flat().join(", ")
           : "Any format"}`}
         </Typography>
-        <Typography color="textSecondary">{label}</Typography>
+        <Typography color="textSecondary" fontWeight={500}>{label}</Typography>
       </Box>
 
       {files.length > 0 && (
