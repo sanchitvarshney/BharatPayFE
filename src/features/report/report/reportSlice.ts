@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, R1ApiResponse, R2Response, r3reportResponse, ReportStateType } from "./reportType";
+import { DeviceRequestApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, ReportStateType } from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -13,6 +13,10 @@ const initialState: ReportStateType = {
   refId: null,
   r3report: null,
   r3reportLoading: false,
+  r4report: null,
+  r4reportLoading: false,
+  r4ReportDetail: null,
+  r4ReportDetailLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -29,6 +33,14 @@ export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApi
 });
 export const getr3Report = createAsyncThunk<AxiosResponse<r3reportResponse>, { from: string; to: string }>("report/getr3Report", async (date) => {
   const response = await axiosInstance.get(`/report/r3BatteryQcReport?fromDate=${date.from}&toDate=${date.to}`);
+  return response;
+});
+export const getr4Report = createAsyncThunk<AxiosResponse<R4ReportResponse>, { from?: string; to?: string; type: string; device?: string }>("report/getr4Report", async (query) => {
+  const response = await axiosInstance.get(query.type === "DEVICE" ? `/report/r4/DEVICE?deviceId=${query.device}` : `/report/r4/DATE?from=${query.from}&to=${query.to}`);
+  return response;
+});
+export const r4ReportDetail = createAsyncThunk<AxiosResponse<r4reportDetailDataResponse>, string>("report/r4ReportDetail", async (query) => {
+  const response = await axiosInstance.get(`/report/r4/consumed/${query}`);
   return response;
 });
 const reportSlice = createSlice({
@@ -97,6 +109,34 @@ const reportSlice = createSlice({
       .addCase(getr3Report.rejected, (state) => {
         state.r3reportLoading = false;
         state.r3report = null;
+      })
+      .addCase(getr4Report.pending, (state) => {
+        state.r4reportLoading = true;
+        state.r4report = null;
+      })
+      .addCase(getr4Report.fulfilled, (state, action) => {
+        state.r4reportLoading = false;
+        if (action.payload.data.success) {
+          state.r4report = action.payload.data.data;
+        }
+      })
+      .addCase(getr4Report.rejected, (state) => {
+        state.r4reportLoading = false;
+        state.r4report = null;
+      })
+      .addCase(r4ReportDetail.pending, (state) => {
+        state.r4ReportDetailLoading = true;
+        state.r4ReportDetail = null;
+      })
+      .addCase(r4ReportDetail.fulfilled, (state, action) => {
+        state.r4ReportDetailLoading = false;
+        if (action.payload.data.success) {
+          state.r4ReportDetail = action.payload.data.data;
+        }
+      })
+      .addCase(r4ReportDetail.rejected, (state) => {
+        state.r4ReportDetailLoading = false;
+        state.r4ReportDetail = null;
       });
   },
 });

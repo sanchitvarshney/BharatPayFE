@@ -1,9 +1,9 @@
 import axios from "axios";
 import { getToken, removeToken } from "@/utils/tokenUtills";
-import { showToast } from "@/utils/toastUtils";
 import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { getLocation } from "@/helper/getLocation";
+import { showToast } from "@/utils/toasterContext";
 const getFingerprint = async () => {
   try {
     const fp = await FingerprintJS.load();
@@ -49,10 +49,7 @@ axiosInstance.interceptors.response.use(
       removeToken();
       window.location.href = "/login";
     }
-    showToast({
-      description: (error.response?.data?.message?.msg ? error.response?.data?.message?.msg : error.response?.data?.message) || "An unexpected error occurred",
-      variant: "destructive",
-    });
+    showToast((error.response?.data?.message?.msg ? error.response?.data?.message?.msg : error.response?.data?.message) || "An unexpected error occurred", "error");
 
     return Promise.reject(error);
   }

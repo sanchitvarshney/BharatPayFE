@@ -51,7 +51,7 @@ const CreateProductionCellrenderer: React.FC<MaterialInvardCellRendererProps> = 
           />
         );
       case "qty":
-        return <Input suffix={data.uom} onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} />;
+        return <Input  suffix={data.uom} onChange={handleInputChange} value={value} type="number" min={0} placeholder={colDef.headerName} />;
       case "remark":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} />;
     }

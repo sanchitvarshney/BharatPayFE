@@ -11,6 +11,8 @@ import { store } from "./features/Store";
 import { Toaster } from "@/components/ui/toaster";
 import { ConfigProvider } from "antd";
 import { ToasterProvider, ToasterConsumer } from "@/utils/toasterContext.tsx";
+import { ThemeProvider } from "@mui/material";
+import theme from "./theme/index.ts";
 moduleregistri();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
@@ -31,7 +33,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             activeBg: "#fffbeb",
             colorBorder: "#d4d4d4",
             boxShadowSecondary: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
-            colorPrimary:"#aaaaaa"
+            colorPrimary: "#aaaaaa",
           },
           Input: {
             colorBorder: "#d4d4d4",
@@ -53,12 +55,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         },
       }}
     >
-      <Toaster />
-      <ToasterProvider>
-      <RouterProvider router={router} />
-      <ToasterConsumer />
-    </ToasterProvider>
-     
+      <ThemeProvider theme={theme}>
+        <Toaster />
+        <ToasterProvider>
+          <RouterProvider router={router} />
+          <ToasterConsumer />
+        </ToasterProvider>
+      </ThemeProvider>
     </ConfigProvider>
   </Provider>
 );

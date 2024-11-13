@@ -2,26 +2,28 @@ import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { Button } from "@/components/ui/button";
-import { HiMiniTrash } from "react-icons/hi2";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CreateProductionCellrenderer from "../Cellrenders/CreateProductionCellrenderer";
 import { Plus } from "lucide-react";
+import { IconButton } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 interface RowData {
   remark: string;
   id: number;
   isNew: boolean;
   component: string;
-  qty: string
+  qty: string;
   uom: string;
 }
 type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
   addrow: () => void;
+  enabled: boolean;
 };
-const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow }) => {
+const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, enabled }) => {
   const { type } = useAppSelector((state) => state.materialRequestWithoutBom);
   console.log(type);
   const gridRef = useRef<AgGridReact<RowData>>(null);
@@ -67,14 +69,14 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow })
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button variant={"outline"} className="border shadow-none p-0 h-[30px] w-[30px]" onClick={() => handleDeleteRow(params.data.id)}>
-            <HiMiniTrash className="h-[18px] w-[18px] text-red-500" />
-          </Button>
+          <IconButton onClick={() => handleDeleteRow(params.data.id)}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
         </div>
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={addrow}>
+          <Button disabled={!enabled} className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={addrow}>
             <Plus className="h-[18px] w-[18px]" />
           </Button>
         </div>
@@ -102,9 +104,8 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow })
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-150px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-200px)]">
       <AgGridReact
-      
         suppressCellFocus={true}
         onCellFocused={(event: any) => {
           const { rowIndex, column } = event;

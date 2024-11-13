@@ -108,6 +108,43 @@ export type r3reportResponse = {
   data: r3report[];
 };
 
+export type R4ReportResponse =  {
+  success: boolean;
+  status: string;
+  data: R4Report[];
+}
+
+type R4Report =  {
+  productionLocation: string;
+  dropLocation: string;
+  insertBy: string | null;
+  productImei: string;
+  productSrlNo: string;
+  prodductionId: string;
+}
+
+export type r4reportDetailDataResponse = {
+  success: boolean;
+  status: string;
+  data: r4reportDetailData
+};
+export type r4reportDetailData = {
+  productionData: {
+    productionLocation: string;
+    dropLocation: string;
+    insertDate: string;
+    insertBy: string | null;
+    productImei: string;
+    productSrlNo: string;
+    prodductionId: string;
+  };
+  itemDetail: Array<{
+    partNo: string;
+    name: string;
+    qty: number;
+    location: string;
+  }>;
+};
 export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
@@ -118,4 +155,8 @@ export type ReportStateType = {
   refId: string | null;
   r3report: r3report[] | null;
   r3reportLoading: boolean;
+  r4report:R4Report[] | null  
+  r4reportLoading:boolean
+  r4ReportDetail:r4reportDetailData | null
+  r4ReportDetailLoading:boolean
 };
