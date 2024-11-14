@@ -1,6 +1,6 @@
 import { BellRing } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
@@ -18,8 +18,10 @@ import DownloadIndecator from "@/components/shared/DownloadIndecator";
 import QuickLink from "@/components/shared/QuickLink";
 import { SiSocketdotio } from "react-icons/si";
 import CustomTooltip from "@/components/shared/CustomTooltip";
-
+import { IconButton } from "@mui/material";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 function MainLayout(props: { children: React.ReactNode }) {
+  const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
   const [favoriteSheet, setFavoriteSheet] = useState<boolean>(false);
@@ -146,6 +148,20 @@ function MainLayout(props: { children: React.ReactNode }) {
                 </Tooltip>
               </TooltipProvider>
             </div>
+            <IconButton
+            onClick={()=>navigate("/sop")}
+              size="small"
+              sx={{
+                background: "white",
+                color: "#ca8a04",
+                "&:hover": {
+                  background: "#ca8a04",
+                  color: "white",
+                },
+              }}
+            >
+              <CreateNewFolderIcon fontSize="medium" />
+            </IconButton>
           </div>
           <div className="flex flex-col gap-[30px]">
             <div className="line"></div>
@@ -162,7 +178,7 @@ function MainLayout(props: { children: React.ReactNode }) {
           <div className="flex flex-col gap-[20px] items-center">
             <CustomTooltip message="Socket Connected" side="right">
               <button>
-              <SiSocketdotio className="h-[25px] w-[25px] text-green-300" />
+                <SiSocketdotio className="h-[25px] w-[25px] text-green-300" />
               </button>
             </CustomTooltip>
             <TooltipProvider>

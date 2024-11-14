@@ -55,6 +55,7 @@ import ProductionManage from "./pages/production/ProductionManage";
 import DispatchLayout from "./layouts/DispatchLayout";
 import ManageDispatch from "./pages/Dispatch/ManageDispatch";
 import CraeteDispatchPage from "./pages/Dispatch/CraeteDispatchPage";
+import SopPage from "./pages/fileupload/SopPage";
 
 export const router = createBrowserRouter([
   {
@@ -401,6 +402,17 @@ export const router = createBrowserRouter([
 
       //dispatch===========================================
 
+      ///////////////////////////////////////
+      {
+        element: (
+          <MainLayout>
+            <SopPage />
+          </MainLayout>
+        ),
+        path: "/sop",
+      },
+
+      //////////////////////////////////////////////
       //report======================================
       {
         element: (

@@ -147,29 +147,7 @@ const ProductionCreate: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      {/* <AlertDialog open={resetAlert} onOpenChange={setResetAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This will reset the data.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700"
-              onClick={() => {
-                setRowData([]);
-                setResetAlert(false);
-                setImei("");
-                setPicklocation(null);
-                setDroplocation(null);
-              }}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog> */}
+  
 
       <div className="h-[calc(100vh-100px)] grid grid-cols-[400px_1fr]">
         <div className="bg-white p-[20px] border-r border-neutral-300 flex flex-col gap-[30px]">

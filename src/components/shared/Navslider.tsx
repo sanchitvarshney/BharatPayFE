@@ -17,6 +17,7 @@ export const navSliderData: NavSliderData[] = [
   { path: "#", name: "R2", content: <p>TRC Report</p> },
   { path: "#", name: "R3", content: <p>Battery QC Report</p> },
   { path: "#", name: "R4", content: <p>Production Report</p> },
+  { path: "#", name: "R5", content: <p>Dispatch Report</p> },
 ];
 
 const Navslider: React.FC = () => {
@@ -31,8 +32,10 @@ const Navslider: React.FC = () => {
         return "TRC Report";
       case "R3":
         return "Battery QC Report";
-        case "R4":
+      case "R4":
         return "Production Report";
+      case "R5":
+        return "Dispatch Report";
 
       default:
         return "";
@@ -41,28 +44,12 @@ const Navslider: React.FC = () => {
 
   return (
     <Wrapper className="bg-zinc-200 text-slate-600">
-      <Swiper
-        mousewheel={true}
-        slidesPerView={"auto"}
-        spaceBetween={1}
-        loop={false}
-        navigation={true}
-        freeMode={true}
-        modules={[FreeMode, Navigation, Mousewheel]}
-        className="mySwiper"
-      >
+      <Swiper mousewheel={true} slidesPerView={"auto"} spaceBetween={1} loop={false} navigation={true} freeMode={true} modules={[FreeMode, Navigation, Mousewheel]} className="mySwiper">
         {navSliderData.map((link, i) => (
           <SwiperSlide key={i}>
-            <NavLink
-              to={`?reportno=${link.name}`}
-              className={reportNumber === link.name ? "bg-cyan-700 text-white" : ""}
-            >
+            <NavLink to={`?reportno=${link.name}`} className={reportNumber === link.name ? "bg-cyan-700 text-white" : ""}>
               {link.name}
-              {reportNumber === link.name && (
-                <span className="flex items-center justify-center h-full font-[400]">
-                  {getReportLabel(link.name)}
-                </span>
-              )}
+              {reportNumber === link.name && <span className="flex items-center justify-center h-full font-[400]">{getReportLabel(link.name)}</span>}
             </NavLink>
           </SwiperSlide>
         ))}
@@ -77,7 +64,7 @@ const Wrapper = styled.div`
   height: 35px;
   display: flex;
   justify-content: start;
-  
+
   .swiper {
     z-index: 3;
     display: flex;
