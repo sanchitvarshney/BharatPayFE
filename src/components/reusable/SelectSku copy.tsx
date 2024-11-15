@@ -15,17 +15,18 @@ type Props = {
   error?: boolean;
   helperText?: string | null;
   varient?: "outlined" | "standard" | "filled";
-  required?: boolean
+  required?: boolean;
+  size?: "small" | "medium";
 };
 
-const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText,varient="standard",required=false }) => {
+const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "standard", required = false, size = "small" }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
   const [deviceList, setDeviceList] = useState<DeviceType[]>([]);
 
   // Fetch devices based on SKU query
-  const fetchDevices = async (query: string|null) => {
+  const fetchDevices = async (query: string | null) => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/product/bySku/${query}`);
@@ -45,10 +46,9 @@ const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device
 
   return (
     <Autocomplete
-
       onFocus={() => fetchDevices(null)}
       value={value}
-      size="small"
+      size={size}
       options={deviceList || []}
       getOptionLabel={(option) => `${option.text}`}
       filterSelectedOptions
@@ -62,7 +62,7 @@ const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device
       }}
       renderInput={(params) => (
         <TextField
-        required={required}
+          required={required}
           error={error}
           helperText={helperText}
           {...params}

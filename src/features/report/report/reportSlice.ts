@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, ReportStateType } from "./reportType";
+import { DeviceRequestApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, ReportStateType } from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -17,6 +17,11 @@ const initialState: ReportStateType = {
   r4reportLoading: false,
   r4ReportDetail: null,
   r4ReportDetailLoading: false,
+  r5report: null,
+  r5reportLoading: false,
+  r5reportDetailLoading: false,
+  r5reportDetail: null,
+ 
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -43,6 +48,16 @@ export const r4ReportDetail = createAsyncThunk<AxiosResponse<r4reportDetailDataR
   const response = await axiosInstance.get(`/report/r4/consumed/${query}`);
   return response;
 });
+
+export const getr5Report = createAsyncThunk<AxiosResponse<R5reportResponse>, { from?: string; to?: string; type: string; device?: string }>("report/getr5Report", async (query) => {
+  const response = await axiosInstance.get(query.type === "DEVICE" ? `/report/r5/DEVICE?deviceId=${query.device}` : `/report/r5/DATE?from=${query.from}&to=${query.to}`);
+  return response;
+});
+export const getr5ReportDetail = createAsyncThunk<AxiosResponse<{ data: {slNo:string}[]; success: boolean; message: string }>, string>("report/getr5ReportDetail", async (query) => {
+  const response = await axiosInstance.get(`/report/r5/device/${query}`);
+  return response;
+});
+
 const reportSlice = createSlice({
   name: "report",
   initialState,
@@ -137,6 +152,34 @@ const reportSlice = createSlice({
       .addCase(r4ReportDetail.rejected, (state) => {
         state.r4ReportDetailLoading = false;
         state.r4ReportDetail = null;
+      })
+      .addCase(getr5Report.pending, (state) => {
+        state.r5reportLoading = true;
+        state.r5report = null;
+      })
+      .addCase(getr5Report.fulfilled, (state, action) => {
+        state.r5reportLoading = false;
+        if (action.payload.data.success) {
+          state.r5report = action.payload.data.data;
+        }
+      })
+      .addCase(getr5Report.rejected, (state) => {
+        state.r5reportLoading = false;
+        state.r5report = null;
+      })
+      .addCase(getr5ReportDetail.pending, (state) => {
+        state.r5reportDetailLoading = true;
+        state.r5reportDetail = null;
+      })
+      .addCase(getr5ReportDetail.fulfilled, (state, action) => {
+        state.r5reportDetailLoading = false;
+        if (action.payload.data.success) {
+          state.r5reportDetail = action.payload.data.data;
+        }
+      })
+      .addCase(getr5ReportDetail.rejected, (state) => {
+        state.r5reportDetailLoading = false;
+        state.r5reportDetail = null;
       });
   },
 });

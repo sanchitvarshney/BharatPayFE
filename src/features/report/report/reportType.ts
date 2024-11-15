@@ -108,25 +108,25 @@ export type r3reportResponse = {
   data: r3report[];
 };
 
-export type R4ReportResponse =  {
+export type R4ReportResponse = {
   success: boolean;
   status: string;
   data: R4Report[];
-}
+};
 
-type R4Report =  {
+type R4Report = {
   productionLocation: string;
   dropLocation: string;
   insertBy: string | null;
   productImei: string;
   productSrlNo: string;
   prodductionId: string;
-}
+};
 
 export type r4reportDetailDataResponse = {
   success: boolean;
   status: string;
-  data: r4reportDetailData
+  data: r4reportDetailData;
 };
 export type r4reportDetailData = {
   productionData: {
@@ -145,6 +145,24 @@ export type r4reportDetailData = {
     location: string;
   }>;
 };
+
+type R5report  =  {
+  txnId: string;
+  sku: string;
+  skuName: string;
+  dispatchId: string;
+  dispatchDate: string; // If needed, this can be converted to `Date` when processing.
+  dispatchQty: string; // You can convert to `number` if required.
+  docNo: string;
+  inserby: string | null; // Nullable field
+}
+
+export type R5reportResponse =  {
+  status: string;
+  success: boolean;
+  data: R5report[]; // Array of dispatch records
+}
+
 export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
@@ -155,8 +173,12 @@ export type ReportStateType = {
   refId: string | null;
   r3report: r3report[] | null;
   r3reportLoading: boolean;
-  r4report:R4Report[] | null  
-  r4reportLoading:boolean
-  r4ReportDetail:r4reportDetailData | null
-  r4ReportDetailLoading:boolean
+  r4report: R4Report[] | null;
+  r4reportLoading: boolean;
+  r4ReportDetail: r4reportDetailData | null;
+  r4ReportDetailLoading: boolean;
+  r5report: R5report[] | null;
+  r5reportLoading: boolean;
+  r5reportDetailLoading: boolean
+  r5reportDetail: {slNo:string}[]|null
 };
