@@ -31,13 +31,13 @@ const CraeteDispatchPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setResetAlert(false)}>Cancel</Button>
-          <Button onClick={() => setResetAlert(false)} autoFocus>
+          <Button variant="contained" color="error" onClick={() => setResetAlert(false)} autoFocus>
             Continue
           </Button>
         </DialogActions>
       </Dialog>
-      <Grid container className="h-[calc(100vh-100px)] grid grid-cols-[500px_1fr]  bg-white ">
-        <Grid size={5} className="w-full h-full border-e border-slate-300">
+      <div className="h-[calc(100vh-100px)] grid grid-cols-[500px_1fr]  bg-white ">
+        <div className="w-full h-full border-e border-slate-300">
           <Grid container spacing={3} sx={{ p: "20px" }}>
             <Grid size={6}>
               <TextField fullWidth label={"Customer Name"} variant="outlined" />
@@ -70,8 +70,8 @@ const CraeteDispatchPage: React.FC = () => {
               <TextField fullWidth label={"Remarks (If any)"} variant="outlined" multiline rows={3} />
             </Grid>
           </Grid>
-        </Grid>
-        <Grid size={7}>
+        </div>
+        <div>
           <div className="h-[90px] flex items-center px-[20px] justify-between">
             <FormControl sx={{ width: "400px" }} variant="outlined">
               <InputLabel>IMEI/Sr No.</InputLabel>
@@ -127,8 +127,8 @@ const CraeteDispatchPage: React.FC = () => {
           <div className="bg-red-100">
             <ImeiTable setRowdata={setRowData} rowData={rowData} />
           </div>
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </>
   );
 };
