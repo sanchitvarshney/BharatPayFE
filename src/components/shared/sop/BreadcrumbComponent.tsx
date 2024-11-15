@@ -4,15 +4,16 @@ import { Breadcrumbs, Typography } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 type FolderDataType = {
-  id: string;
+  folderId: string;
   name: string;
+  parentId: string;
   children?: FolderDataType[];
 };
 
 // Utility function to find the path for breadcrumb
 const findPath = (folders: FolderDataType[], targetId: string, path: FolderDataType[] = []): FolderDataType[] | null => {
   for (const folder of folders) {
-    if (folder.id === targetId) {
+    if (folder.parentId === targetId) {
       return [...path, folder];
     }
     if (folder.children) {
@@ -38,7 +39,7 @@ const BreadcrumbComponent: React.FC<BreadcrumbComponentProps> = ({ targetId, fol
       {path && (
         <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
           {path.map((folder) => (
-            <Typography key={folder.id} color="text.primary" fontSize="12px">
+            <Typography key={folder.parentId} color="text.primary" fontSize="12px">
               {folder.name}
             </Typography>
           ))}

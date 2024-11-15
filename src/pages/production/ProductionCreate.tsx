@@ -147,21 +147,19 @@ const ProductionCreate: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-  
 
       <div className="h-[calc(100vh-100px)] grid grid-cols-[400px_1fr]">
         <div className="bg-white p-[20px] border-r border-neutral-300 flex flex-col gap-[30px]">
           <Typography variant="h2" fontSize={20} fontWeight={500}>
-            {" "}
             Create Production
           </Typography>
-          <SelectDevice required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
-          <SelectLocation required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
-          <SelectLocation required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pic Location" helperText={"Location where the components will be picked up"} />
+          <SelectDevice size="medium"  required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
+          <SelectLocation size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
+          <SelectLocation size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pic Location" helperText={"Location where the components will be picked up"} />
         </div>
         <div>
           <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] ">
-            <FormControl required sx={{ width: "400px" }} variant="outlined" size="small">
+            <FormControl required sx={{ width: "400px" }} variant="outlined" >
               <InputLabel
                 sx={{
                   color: "#a3a3a3", // Default label color

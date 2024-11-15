@@ -40,7 +40,7 @@ const FilesTable: React.FC = () => {
 
   return (
     <Wrapper>
-      <div className="ag-theme-quartz h-[calc(100vh-110px)]">
+      <div className="ag-theme-quartz h-[calc(100vh-150px)]">
         <AgGridReact loading={false} loadingOverlayComponent={CustomLoadingOverlay} suppressCellFocus={true} overlayNoRowsTemplate={OverlayNoRowsTemplate} columnDefs={columnDefs} pagination={true} paginationPageSize={50} loadingCellRenderer="customLoadingCellRenderer" />
       </div>
     </Wrapper>
