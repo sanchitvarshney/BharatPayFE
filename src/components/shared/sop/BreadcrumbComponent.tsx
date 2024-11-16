@@ -13,7 +13,7 @@ type FolderDataType = {
 // Utility function to find the path for breadcrumb
 const findPath = (folders: FolderDataType[], targetId: string, path: FolderDataType[] = []): FolderDataType[] | null => {
   for (const folder of folders) {
-    if (folder.parentId === targetId) {
+    if (folder.folderId === targetId) {
       return [...path, folder];
     }
     if (folder.children) {
@@ -39,7 +39,7 @@ const BreadcrumbComponent: React.FC<BreadcrumbComponentProps> = ({ targetId, fol
       {path && (
         <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
           {path.map((folder) => (
-            <Typography key={folder.parentId} color="text.primary" fontSize="12px">
+            <Typography key={folder.folderId} color="text.primary" fontSize="12px">
               {folder.name}
             </Typography>
           ))}
