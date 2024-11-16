@@ -174,8 +174,22 @@ export default function SopPage() {
       </div>
     );
   };
+  const collectAllFolderIds = (folders: FolderDataType[]): { [key: string]: boolean } => {
+    let allFolders: { [key: string]: boolean } = {};
+    folders.forEach((folder) => {
+      allFolders[folder.folderId] = true; // Expand by default
+      if (folder.children) {
+        allFolders = { ...allFolders, ...collectAllFolderIds(folder.children) };
+      }
+    });
+    return allFolders;
+  };
   React.useEffect(() => {
-    dispatch(getFolderData());
+    dispatch(getFolderData()).then((res: any) => {
+      if (res.payload.data.success) {
+        setOpenFolders(collectAllFolderIds(res.payload.data.data));
+      }
+    });
   }, []);
   React.useEffect(() => {
     if (folderData) {
@@ -192,6 +206,7 @@ export default function SopPage() {
       }
     }
   }, [search, fileData]);
+
   return (
     <>
       <Menu
@@ -273,7 +288,9 @@ export default function SopPage() {
           <TextField size="small" fullWidth onChange={(e) => setDeleteInput(e.target.value)} value={deleteInput} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteAlert(false)}>Cancel</Button>
+          <Button disabled={deleteFolderLoading} onClick={() => setDeleteAlert(false)}>
+            Cancel
+          </Button>
           <Button
             disabled={deleteInput !== `delete/${findFolderNameById(folders, target)}` || deleteFolderLoading}
             variant="contained"
@@ -283,6 +300,9 @@ export default function SopPage() {
                 if (res.payload.data.success) {
                   setFolders(res.payload.data.data);
                   setDeleteAlert(false);
+                  if (target === targetDestination) {
+                    refreshFile();
+                  }
                 }
               });
             }}
@@ -363,7 +383,7 @@ export default function SopPage() {
           <FileUploader value={fileList} onFileChange={setFileList} />
         </DialogContent>
         <DialogActions>
-          <Button disabled={createFolderLoading} startIcon={<CloseIcon fontSize="small" />} variant="contained" sx={{ background: "white", color: "red" }} onClick={() => setUploadFile(false)}>
+          <Button disabled={uploadFileLoading} startIcon={<CloseIcon fontSize="small" />} variant="contained" sx={{ background: "white", color: "red" }} onClick={() => setUploadFile(false)}>
             Cancel
           </Button>
           <Button disabled={uploadFileLoading} variant="contained" onClick={handleUpload} startIcon={<FileUploadIcon fontSize="small" />}>

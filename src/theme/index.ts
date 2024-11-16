@@ -8,6 +8,7 @@ export const theme = createTheme({
         root: {
           "& .MuiInputLabel-root": {
             color: "gray", // Default label color
+           
           },
           "& .MuiInputLabel-root.Mui-focused": {
             color: "#404040", // Focused label color
