@@ -1,13 +1,9 @@
-import { BellRing } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import { FaLightbulb } from "react-icons/fa";
 import { FaCircleUser } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import styled from "styled-components";
 import { FavoriteMenuLinkListType, MainUIStateType } from "@/types/MainLayout";
 import SidebarMenues from "@/components/shared/SidebarMenues";
@@ -17,9 +13,10 @@ import MainLayoutPopovers from "../components/shared/MainLayoutPopovers";
 import DownloadIndecator from "@/components/shared/DownloadIndecator";
 import QuickLink from "@/components/shared/QuickLink";
 import { SiSocketdotio } from "react-icons/si";
-import CustomTooltip from "@/components/shared/CustomTooltip";
-import { IconButton } from "@mui/material";
+import { FormControl, IconButton, MenuItem, Select } from "@mui/material";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+import NotificationPnnel from "./NotificationPnnel";
 function MainLayout(props: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
@@ -67,25 +64,38 @@ function MainLayout(props: { children: React.ReactNode }) {
       <ProfileSidebar uiState={uiState} />
       {/* sidebars=========================== */}
       <div>
-        <nav className={`flex items-center justify-between h-[50px] px-[20px] fixed top-0 left-[50px] w-[calc(100vw-50px)]   ${import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ? "bg-amber-300" : "bg-neutral-300"}`}>
+        <nav
+          style={{
+            boxShadow: "rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px",
+          }}
+          className={`  z-[7] flex  items-center justify-between h-[50px] px-[20px] fixed top-0 left-[50px] w-[calc(100vw-50px)]   ${import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ? "bg-amber-300" : "bg-neutral-300"}`}
+        >
           <div className="flex gap-[20px] items-center">
             <div className="date">
-              <Select defaultValue="2024-2025">
-                <SelectTrigger className="w-[180px] bg-white border-0 text-slate-700">
-                  <SelectValue placeholder="Session" />
-                </SelectTrigger>
-                <SelectContent className="bg-white ">
-                  <SelectItem value="2024-2025" className="text-slate-700 focus:text-white focus:bg-cyan-600">
-                    2024-2025
-                  </SelectItem>
-                  <SelectItem value="2023-2024" className="text-slate-700 focus:text-white focus:bg-cyan-600">
-                    2023-2024
-                  </SelectItem>
-                  <SelectItem value="2022-2023" className="text-slate-700 focus:text-white focus:bg-cyan-600">
-                    2022-2023
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl sx={{ width: "300px" }}>
+                <Select
+                  defaultValue={"2024-2025"}
+                  className="shadow"
+                  sx={{
+                    background: "white",
+                    border: "none",
+                    outline: "none",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none",
+                    },
+                    "& .MuiSelect-select": {
+                      padding: "8px 12px",
+                    },
+                  }}
+                  size="small"
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                >
+                  <MenuItem value={"2024-2025"}> 2024-2025</MenuItem>
+                  <MenuItem value={"2023-2024"}> 2023-2024</MenuItem>
+                  <MenuItem value={"2022-2023"}> 2022-2023</MenuItem>
+                </Select>
+              </FormControl>
             </div>
           </div>
           <div className="flex items-center gap-[20px]">
@@ -96,26 +106,13 @@ function MainLayout(props: { children: React.ReactNode }) {
             <div className="download">
               <DownloadIndecator />
             </div>
-            <div className="chat"></div>
 
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="relative flex items-center justify-center bg-white cursor-pointer notification max-w-max p-[5px] rounded-md" onClick={() => setNotificationSheet(true)}>
-                    <BellRing className="h-[25px] w-[25px] text-slate-600" />
-                    <Badge className="bg-yellow-600 hover:bg-yellow-600 h-[15px] w-[15px] rounded-full p-0 flex justify-center items-center absolute top-[-2px] right-[-2px]">0</Badge>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="bg-cyan-700">
-                  <p>Notifications</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <NotificationPnnel />
           </div>
         </nav>
       </div>
       <div className="mt-[50px] ">
-        <div className="w-[60px] h-[100vh] bg-cyan-950 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[50] border-r border-slate-600">
+        <div className={`w-[60px] h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[50] ${sheetOpen && "border-r border-white"}`}>
           <div className="flex flex-col items-center gap-[20px]">
             <div className="flex items-center justify-center">
               <Link
@@ -130,38 +127,34 @@ function MainLayout(props: { children: React.ReactNode }) {
               </Link>
             </div>
             <div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <FaStar
-                      className="h-[25px] w-[25px] text-white"
-                      onClick={() => {
-                        setFavoriteSheet(!favoriteSheet);
-                        setSheet2Open(false);
-                        setSheetOpen(false);
-                      }}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-cyan-700">
-                    <p>Favorite Pages</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <MuiTooltip title="Favorite Pages" placement="right">
+                <IconButton
+                  onClick={() => {
+                    setFavoriteSheet(!favoriteSheet);
+                    setSheet2Open(false);
+                    setSheetOpen(false);
+                  }}
+                >
+                  <FaStar className="h-[25px] w-[25px] text-white" />
+                </IconButton>
+              </MuiTooltip>
             </div>
-            <IconButton
-            onClick={()=>navigate("/sop")}
-              size="small"
-              sx={{
-                background: "white",
-                color: "#ca8a04",
-                "&:hover": {
-                  background: "#ca8a04",
-                  color: "white",
-                },
-              }}
-            >
-              <CreateNewFolderIcon fontSize="medium" />
-            </IconButton>
+            <MuiTooltip title="SOP" placement="right">
+              <IconButton
+                onClick={() => navigate("/sop")}
+                size="small"
+                sx={{
+                  background: "white",
+                  color: "#ca8a04",
+                  "&:hover": {
+                    background: "#ca8a04",
+                    color: "white",
+                  },
+                }}
+              >
+                <CreateNewFolderIcon fontSize="medium" />
+              </IconButton>
+            </MuiTooltip>
           </div>
           <div className="flex flex-col gap-[30px]">
             <div className="line"></div>
@@ -176,38 +169,28 @@ function MainLayout(props: { children: React.ReactNode }) {
             </Button>
           </div>
           <div className="flex flex-col gap-[20px] items-center">
-            <CustomTooltip message="Socket Connected" side="right">
-              <button>
+            <MuiTooltip title="Socket Connected" placement="right">
+              <IconButton>
                 <SiSocketdotio className="h-[25px] w-[25px] text-green-300" />
-              </button>
-            </CustomTooltip>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <FaLightbulb className="h-[25px] w-[25px] text-white" />
-                </TooltipTrigger>
-                <TooltipContent side="right" className="bg-cyan-700">
-                  <p>Explore All Features</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <FaCircleUser
-                    className="h-[25px] w-[25px] text-white"
-                    onClick={() => {
-                      setSheet2Open(!sheet2Open);
-                      setSheetOpen(false);
-                      setFavoriteSheet(false);
-                    }}
-                  />
-                </TooltipTrigger>
-                <TooltipContent side="right" className="bg-cyan-700">
-                  <p>Account</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+              </IconButton>
+            </MuiTooltip>
+
+            <MuiTooltip title="Explore All Features" placement="right">
+              <IconButton>
+                <FaLightbulb className="h-[25px] w-[25px] text-white" />
+              </IconButton>
+            </MuiTooltip>
+            <MuiTooltip title="Account" placement="right">
+              <IconButton
+                onClick={() => {
+                  setSheet2Open(!sheet2Open);
+                  setSheetOpen(false);
+                  setFavoriteSheet(false);
+                }}
+              >
+                <FaCircleUser className="h-[25px] w-[25px] text-white" />
+              </IconButton>
+            </MuiTooltip>
           </div>
         </div>
         <main className="ml-[60px]  bg-[#f1f1f1] h-full">{props.children}</main>

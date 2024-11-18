@@ -92,7 +92,7 @@ export const materialmenu = [
       { name: "Component", path: "/master-components" },
       { name: "Products", path: "/master-product-fg" },
       { name: "HSN", path: "/not-permission" },
-      { name: "Bom", path: "/master-bom-ceate" },
+      { name: "Bill of Material", path: "/master-bom-ceate" },
       { name: "Location", path: "/master-location" },
       { name: "Vendor", path: "/master-vender-add" },
       { name: "Billing Address", path: "/master-billing-address" },

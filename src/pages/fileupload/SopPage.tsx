@@ -393,7 +393,7 @@ export default function SopPage() {
       </BootstrapDialog>
 
       <div className="h-[calc(100vh-50px)] grid grid-cols-[350px_1fr] bg-white overflow-x-hidden relative">
-        <div className="h-full border-r border-neutral-300">{folderDataLoading ? <CustomLoadingOverlay /> : <List component="nav">{folders.map((folder) => renderFolder(folder))}</List>}</div>
+        <div className="h-full overflow-y-auto border-r border-neutral-300">{folderDataLoading ? <CustomLoadingOverlay /> : <List component="nav">{folders.map((folder) => renderFolder(folder))}</List>}</div>
 
         <div className={`${folderDataLoading || !folderData ? "cursor-not-allowed opacity-30 pointer-events-none" : ""}`}>
           <div className="h-[100px] flex flex-col border-b border-neutral-300">

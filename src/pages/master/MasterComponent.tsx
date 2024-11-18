@@ -1,12 +1,5 @@
 import MsterComponentsMaterialListTable from "@/table/master/MsterComponentsMaterialListTable";
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import CustomInput from "@/components/reusable/CustomInput";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import { Textarea } from "@/components/ui/textarea";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { HiOutlineRefresh } from "react-icons/hi";
-import { IoCheckmark } from "react-icons/io5";
 import MasterComponentsUpdateDrawer from "@/components/Drawers/master/MasterComponentsUpdateDrawer";
 import MasterComponentsUplaodImageDrawer from "@/components/Drawers/master/MasterComponentsUplaodImageDrawer";
 import MasterComponnetsViewImageDrawer from "@/components/Drawers/master/MasterComponnetsViewImageDrawer";
@@ -14,19 +7,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { createComponentAsync, getComponentsAsync, getGroupsAsync } from "@/features/master/component/componentSlice";
 import { getUOMAsync } from "@/features/master/UOM/UOMSlice";
-import { transformGroupSelectData, transformUomSelectData } from "@/utils/transformUtills";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { showToast } from "@/utils/toastUtils";
-import { SingleValue } from "react-select";
-
+import { Autocomplete, Button, TextField, Typography } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import SaveIcon from "@mui/icons-material/Save";
+import { showToast } from "@/utils/toasterContext";
 type OptionType = {
-  value: string;
-  label: string;
+  id: string;
+  text: string;
 };
 export type createComponentdata = {
   component: string;
   part: string;
-  uom: OptionType | null;
+  uom: { units_id: string; units_name: string } | null;
   group: OptionType | null;
   notes: string;
 };
@@ -55,30 +49,16 @@ const MasterComponent: React.FC = () => {
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.group !== null && data.uom !== null) {
-      let newdata = { ...data, uom: data.uom?.value, group: data.group?.value };
+      let newdata = { ...data, uom: data.uom?.units_id, group: data.group?.id };
       dispatch(createComponentAsync(newdata)).then((res: any) => {
         if (res.payload?.data?.success) {
           reset();
           dispatch(getComponentsAsync());
-          showToast({
-            description: res.payload.data.message,
-            variant: "success",
-            className: "font-[500]",
-          });
+          showToast(res.payload.data.message, "success");
         }
       });
     } else {
-      !data.group
-        ? showToast({
-            description: "Please select a Group ",
-            variant: "destructive",
-            className: "font-[500]",
-          })
-        : showToast({
-            description: "Please select a UOM",
-            variant: "destructive",
-            className: "font-[500]",
-          });
+      !data.group ? showToast("Please select a Group ", "error") : showToast("Please select a UOM", "error");
     }
   };
 
@@ -95,116 +75,96 @@ const MasterComponent: React.FC = () => {
       <MasterComponentsUplaodImageDrawer open={uploadImage} setOpen={setUploadImage} />
       <MasterComponnetsViewImageDrawer open={viewImage} setOpen={setViewImage} />
       {/* drawers */}
-      <div className="h-[calc(100vh-100px)] grid grid-cols-[550px_1fr]">
-        <div className="h-full overflow-y-auto p-[10px]">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Card className="rounded-md ">
-              <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
-                <CardTitle className="text-slate-600 font-[500]">Add New Component</CardTitle>
-              </CardHeader>
-              <CardContent className="mt-[30px]">
-                <div className="grid grid-cols-2 gap-[30px]">
-                  <div>
-                    <CustomInput label="Component Name" required={true} {...register("component", { required: "Component Name is required" })} />
-                    {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
-                  </div>
-                  <div>
-                    <CustomInput label="Part Code" required={true} {...register("part", { required: "Part Code Name is required" })} />
-                    {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
-                  </div>
-                  <div>
-                    <Controller
-                      name="uom"
-                      control={control}
-                      rules={{ required: "You must select a unit" }}
-                      render={({ field }) => (
-                        <CustomSelect {...field} value={field.value} isClearable={true} onChange={(selectedOption) => field.onChange(selectedOption as SingleValue<OptionType>)} options={transformUomSelectData(UOM)} isLoading={getUOMloading} placeholder={"Select UOM"} />
-                      )}
-                    />
-
-                    {errors.uom && <span className=" text-[12px] text-red-500">{errors.uom.message}</span>}
-                  </div>
-                  <div>
-                    <Controller
-                      name="group"
-                      control={control}
-                      rules={{ required: "You must select a unit" }}
-                      render={({ field }) => (
-                        <CustomSelect
-                          {...field}
-                          value={field.value}
-                          isClearable={true}
-                          onChange={(selectedOption) => field.onChange(selectedOption as SingleValue<OptionType>)}
-                          options={transformGroupSelectData(groupList)}
-                          isLoading={getGroupListLoading}
-                          placeholder={"Select Group"}
-                        />
-                      )}
-                    />
-                    {errors.group && <span className=" text-[12px] text-red-500">{errors.group.message}</span>}
-                  </div>
-                </div>
-                <div className="mt-[30px]">
-                  <p className="text-slate-500 tetx-[15px]">
-                    Description <span className="text-red-500 text-[15px]">*</span>
-                  </p>
-                  <Textarea className="h-[100px] resize-none" {...register("notes", { required: "Description Name is required" })} />
-                  {errors.notes && <span className=" text-[12px] text-red-500">{errors.notes.message}</span>}
-                </div>
-              </CardContent>
-              <CardFooter className="h-[50px] p-0 flex items-center px-[20px] border-t gap-[10px] justify-end">
-                <CustomButton
-                  type="button"
-                  onClick={() => {
-                    reset();
-                  }}
-                  icon={<HiOutlineRefresh className="h-[18px] w-[18px] text-red-600" />}
-                  variant={"outline"}
-                >
-                  Reset
-                </CustomButton>
-                <CustomButton loading={createComponentLoading} type="submit" icon={<IoCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
-                  Submit
-                </CustomButton>
-              </CardFooter>
-            </Card>
-          </form>
-          {/* <Card className="mt-[20px] rounded-md overflow-hidden">
-            <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
-              <CardTitle className="text-slate-600 font-[500]">HSN Codes</CardTitle>
-              <CardDescription> 0 Codes Added</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-[30px] mt-[30px]">
-                <div>
-                  <CustomSelect required placeholder={"Code"} />
-                </div>
-                <div>
-                  <CustomInput label="Percentage %" required />
-                </div>
+      <div className="h-[calc(100vh-100px)] grid grid-cols-[550px_1fr] bg-white">
+        <div className="h-full overflow-y-auto border-r border-neutral-300 ">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-[20px]">
+            <Typography className="text-slate-600" variant="h1" component={"div"} fontSize={20} fontWeight={500}>
+              Add New Component
+            </Typography>
+            <div className="grid grid-cols-2 gap-[30px] mt-[20px]">
+              <div>
+                <TextField fullWidth label="Component Name"  {...register("component", { required: "Component Name is required" })} />
+                {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
               </div>
-            </CardContent>
-            <CardFooter className="h-[50px] p-0 flex items-center px-[20px] border-t gap-[10px] justify-end">
-              <CustomButton icon={<HiOutlineRefresh className="h-[18px] w-[18px] text-red-600" />} variant={"outline"}>
+              <div>
+                <TextField fullWidth label="Part Code"  {...register("part", { required: "Part Code Name is required" })} />
+                {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
+              </div>
+              <div>
+                <Controller
+                  name="uom"
+                  control={control}
+                  rules={{ required: "You must select a unit" }}
+                  render={({ field }) => (
+                    <Autocomplete
+                      loading={getUOMloading}
+                      value={field.value}
+                      options={UOM ? UOM : []}
+                      getOptionLabel={(option) => option.units_name}
+                      renderInput={(params) => <TextField {...params} label={"Select UOM"} variant="outlined" />}
+                      onChange={(_, value) => field.onChange(value)}
+                      isOptionEqualToValue={(option, value) => option.units_id === value.units_id}
+                    />
+                  )}
+                />
+
+                {errors.uom && <span className=" text-[12px] text-red-500">{errors.uom.message}</span>}
+              </div>
+              <div>
+                <Controller
+                  name="group"
+                  control={control}
+                  rules={{ required: "You must select a unit" }}
+                  render={({ field }) => (
+                    <Autocomplete
+                      loading={getGroupListLoading}
+                      value={field.value}
+                      options={groupList ? groupList : []}
+                      getOptionLabel={(option) => option.text}
+                      renderInput={(params) => <TextField {...params} label={"Groups"} variant="outlined" />}
+                      onChange={(_, value) => field.onChange(value)}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                    />
+                    // <Autocomplete loading={getGroupListLoading} value={field.value} onChange={(e) => field.onChange(e)}  options={transformGroupSelectData(groupList)} fullWidth renderInput={(params) => <TextField {...params} label="Groups" />} />
+                  )}
+                />
+                {errors.group && <span className=" text-[12px] text-red-500">{errors.group.message}</span>}
+              </div>
+            </div>
+            <div className="mt-[30px]">
+              <TextField label={"Description"} fullWidth multiline rows={3} className="h-[100px] resize-none" {...register("notes", { required: "Description Name is required" })} />
+              {errors.notes && <span className=" text-[12px] text-red-500">{errors.notes.message}</span>}
+            </div>
+            <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end mt-[20px]">
+              <Button
+                type="button"
+                onClick={() => {
+                  reset();
+                }}
+                startIcon={<RefreshIcon fontSize="small" />}
+                variant={"contained"}
+                sx={{ background: "white", color: "red" }}
+              >
                 Reset
-              </CustomButton>
-              <CustomButton icon={<IoCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
+              </Button>
+              <LoadingButton loadingPosition="start" loading={createComponentLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
                 Submit
-              </CustomButton>
-            </CardFooter>
-          </Card> */}
+              </LoadingButton>
+            </div>
+          </form>
+
           <div className="h-[100px]"></div>
         </div>
         <div>
           <div className="h-[40px] flex items-center gap-[20px] justify-end bg-white px-[20px]">
             <div className="flex items-center space-x-2">
-              <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" />
+              <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" disabled />
               <label htmlFor="terms" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
                 Show Rejected
               </label>
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox id="Disabled" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" />
+              <Checkbox id="Disabled" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" disabled />
               <label htmlFor="Disabled" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
                 Show Disabled
               </label>
