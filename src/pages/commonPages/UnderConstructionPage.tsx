@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 const UnderConstructionPage: React.FC = () => {
@@ -11,10 +11,12 @@ const UnderConstructionPage: React.FC = () => {
         </div>
         <div className="flex flex-col gap-[20px] items-center">
           <div>
-            <h1 className="text-slate-600 text-[30px] font-[500] ">This page is under Development</h1>
+            <Typography variant="h1" fontSize={30} fontWeight={500} className="">
+              This page is Under Development
+            </Typography>
           </div>
           <div className="flex items-center gap-[20px]">
-            <Button className="bg-cyan-700 hover:bg-cyan-800" onClick={() => naviagte(-1)}>
+            <Button variant="contained" onClick={() => naviagte(-1)}>
               Go back
             </Button>
           </div>

@@ -1,24 +1,62 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import { useNavigate, useLocation } from "react-router-dom";
+import SettingsIcon from '@mui/icons-material/Settings';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+type Props = {
+  children: React.ReactNode;
+};
 
-const DispatchLayout = (props: { children: React.ReactNode }) => {
+const DispatchLayout: React.FC<Props> = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine the active tab based on the current route
+  const tabRoutes = ["/dispatch/create", "/dispatch/manage"];
+  const currentTabIndex = tabRoutes.indexOf(location.pathname);
+
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    // Navigate to the corresponding route when tab changes
+    navigate(tabRoutes[newValue]);
+  };
+
   return (
-    <div className="">
-      <div className="w-full bg-white tab h-[50px] shadow z-[5] border-b border-slate-300 relative">
-        <ul className="group flex items-center  h-[50px] ">
-          <li className="h-[50px]">
-            <NavLink to={"/dispatch/create"} className={({ isActive }) => `h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-              Create
-            </NavLink>
-          </li>
-          <li className="h-[50px]">
-            <NavLink to={"/dispatch/manage"} className={({ isActive }) => `h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-              Manage
-            </NavLink>
-          </li>
-        </ul>
+    <div className="h-full">
+      <div className=" w-full h-[50px] border-b border-neutral-300 bg-white">
+        <Tabs
+          sx={{ padding: 0, width: "max-content" }}
+          TabIndicatorProps={{
+            style: {
+              height: "3px", // Increase thickness of the indicator
+            },
+          }}
+          value={currentTabIndex === -1 ? 0 : currentTabIndex}
+          onChange={handleChange}
+          centered
+        >
+          <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <WarehouseIcon fontSize="small" />
+                Create
+              </div>
+            }
+          />
+          <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <SettingsIcon fontSize="small" />
+                Manage
+              </div>
+            }
+          />
+        </Tabs>
       </div>
-      <div className="h-[calc(100vh-100px)] bg-transparent overflow-y-auto ">{props.children}</div>
+      <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
     </div>
   );
 };

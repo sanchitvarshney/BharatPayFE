@@ -73,9 +73,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ multiple = false, onFileCha
           cursor: loading ? "not-allowed" : "pointer",
           bgcolor: isDragActive ? "action.hover" : "background.paper",
           opacity: loading ? 0.7 : 1,
+          "&:hover": { bgcolor: "#fffbeb" },
+          "&:focus": { bgcolor: "#fffbeb" },
+        
         }}
       >
-        <input {...getInputProps()} disabled={loading} />
+        <input {...getInputProps()} disabled={loading} className=""/>
         {loading ? <CircularProgress size={35} /> : <UploadFileIcon color="primary" fontSize="large" />}
 
         <Typography variant="body2" color="textSecondary">

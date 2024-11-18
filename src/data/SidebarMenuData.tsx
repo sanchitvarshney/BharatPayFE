@@ -145,6 +145,13 @@ export const productionMenu = [
     name: "Battery QC",
     path: "/production/battery-qc",
   },
+  {
+    name: "QR Code Generater",
+    subMenu: [
+      { name: "Singel Qr Code", path: "/production/single-qr-generater" },
+      { name: "Master Qr Code", path: "/production/master-qr-generater" },
+    ],
+  },
 ];
 
 export const TRC = [
