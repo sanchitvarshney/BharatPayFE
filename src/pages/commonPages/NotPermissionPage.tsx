@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Button, TextField, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 const NotPermissionPage: React.FC = () => {
@@ -9,13 +8,13 @@ const NotPermissionPage: React.FC = () => {
       <div className="flex gap-[30px] w-[50%]">
         <div className="flex flex-col gap-[20px]">
           <div>
-            <h1 className="text-slate-600 text-[30px] font-[500] ">You don't have permission to access this page</h1>
-            <p className="text-slate-600">Request access or go back</p>
+            <Typography variant="h1" fontSize={30} fontWeight={500}>You don't have permission to access this page</Typography>
+            <Typography >Request access or go back</Typography>
           </div>
-          <Textarea placeholder="Message(optional)" />
+          <TextField label="Message(optional)"  multiline rows={3} />
           <div className="flex items-center gap-[20px]">
-            <Button className="bg-cyan-700 hover:bg-cyan-800">Request access</Button>
-            <Button className="bg-cyan-700 hover:bg-cyan-800" onClick={() => naviagte(-1)}>
+            <Button variant="contained">Request access</Button>
+            <Button variant="contained" onClick={() => naviagte(-1)}>
               Go back
             </Button>
           </div>

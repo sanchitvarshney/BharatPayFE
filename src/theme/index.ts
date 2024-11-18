@@ -1,7 +1,9 @@
 import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
- 
+  typography: {
+    fontFamily: 'MsCorpres EmberFont, sans-serif'
+  },
   components: {
     MuiTextField: {
       styleOverrides: {
@@ -10,18 +12,15 @@ export const theme = createTheme({
             color: "gray", // Default label color
            
           },
+          "& .MuiOutlinedInput-root": {
+            "&:focus-within": {
+              backgroundColor: "#fffbeb", // Background color on focus
+            },
+          },
           "& .MuiInputLabel-root.Mui-focused": {
             color: "#404040", // Focused label color
           },
-          "& .MuiInput-underline:before": {
-            borderBottomColor: "#a3a3a3", // Default underline color
-          },
-          "& .MuiInput-underline:hover:before": {
-            borderBottomColor: "#a3a3a3", // Hover underline color
-          },
-          "& .MuiInput-underline:after": {
-            borderBottomColor: "#a3a3a3", // Focused underline color
-          },
+         
         },
       },
     },
@@ -30,6 +29,13 @@ export const theme = createTheme({
         listbox: {
           fontSize: "0.830rem", // Set your desired global font size for dropdown options
         },
+        root:{
+          "& .MuiOutlinedInput-root": {
+            "&:focus-within": {
+              backgroundColor: "#fffbeb", // Background color on focus
+            },
+          },
+        }
       },
     },
     MuiMenuItem: {
@@ -76,8 +82,8 @@ export const theme = createTheme({
           "&:hover .MuiOutlinedInput-notchedOutline": {
             borderColor: "#a8a29e", // Change border color on hover
           },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#115e59", // Change border color when focused
+         "&.Mui-focused": {
+            backgroundColor: "#fffbeb", // Background color on focus
           },
         },
       },
@@ -86,6 +92,16 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           fontSize: "12px", // Global font size for buttons
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          "&:focus-within": {
+            backgroundColor: "#fffbebs", // Background color on focus
+           
+          },
         },
       },
     },

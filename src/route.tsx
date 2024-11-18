@@ -56,6 +56,9 @@ import DispatchLayout from "./layouts/DispatchLayout";
 import ManageDispatch from "./pages/Dispatch/ManageDispatch";
 import CraeteDispatchPage from "./pages/Dispatch/CraeteDispatchPage";
 import SopPage from "./pages/fileupload/SopPage";
+import QrLayout from "./layouts/QrLayout";
+import MasterQrGenerater from "./pages/production/MasterQrGenerater";
+import SingleQrGenerater from "./pages/production/SingleQrGenerater";
 
 export const router = createBrowserRouter([
   {
@@ -372,6 +375,28 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/manage",
+      },
+      {
+        element: (
+          <MainLayout>
+            <QrLayout>
+              <CustomRedirection UnderDevelopment={true}>
+                <MasterQrGenerater />
+              </CustomRedirection>
+            </QrLayout>
+          </MainLayout>
+        ),
+        path: "/production/master-qr-generater",
+      },
+      {
+        element: (
+          <MainLayout>
+            <QrLayout>
+              <SingleQrGenerater />
+            </QrLayout>
+          </MainLayout>
+        ),
+        path: "/production/single-qr-generater",
       },
 
       //dispatch===========================================

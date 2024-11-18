@@ -103,9 +103,7 @@ const CraeteDispatchPage: React.FC = () => {
                     minLength: { value: 2, message: "Customer Name must be at least 2 characters" },
                     maxLength: { value: 50, message: "Customer Name cannot exceed 50 characters" },
                   }}
-                  render={({ field }) => <TextField error={!!errors.name} helperText={errors.name?.message} fullWidth {...field} label={"Customer Name"} variant="outlined" sx={{
-                    
-                  }} />}
+                  render={({ field }) => <TextField error={!!errors.name} helperText={errors.name?.message} fullWidth {...field} label={"Customer Name"} variant="outlined" sx={{}} />}
                 />
               </Grid>
               <Grid size={6}>
@@ -216,8 +214,9 @@ const CraeteDispatchPage: React.FC = () => {
                     setImei(e.target.value);
                   }}
                   onKeyDown={(e) => {
-                    e.preventDefault();
+               
                     if (e.key === "Enter") {
+                      e.preventDefault();
                       if (imei) {
                         if (rowData.some((row) => row.srno === imei || row.imei === imei)) {
                           showToast("IMEI already added", "error");

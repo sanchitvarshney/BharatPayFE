@@ -67,7 +67,7 @@ function MainLayout(props: { children: React.ReactNode }) {
       <ProfileSidebar uiState={uiState} />
       {/* sidebars=========================== */}
       <div>
-        <nav className={`flex items-center justify-between h-[50px] px-[20px] fixed top-0 left-[50px] w-[calc(100vw-50px)]   ${import.meta.env.VITE_REACT_APP_API_BASE_URL === "https://bharatpaytest.mscorpres.net" ? "bg-amber-300" : "bg-neutral-300"}`}>
+        <nav className={`flex items-center justify-between h-[50px] px-[20px] fixed top-0 left-[50px] w-[calc(100vw-50px)]   ${import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ? "bg-amber-300" : "bg-neutral-300"}`}>
           <div className="flex gap-[20px] items-center">
             <div className="date">
               <Select defaultValue="2024-2025">
