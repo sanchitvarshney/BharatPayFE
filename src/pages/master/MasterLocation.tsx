@@ -1,35 +1,23 @@
-import React, { useRef, useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import CustomInput from "@/components/reusable/CustomInput";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { HiOutlineRefresh } from "react-icons/hi";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import React, { useState } from "react";
 import MasterLocationViewDrawer from "@/components/Drawers/master/MasterLocationViewDrawer";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import TreeDataLocation from "@/table/master/TreeDataLocation";
-import { SingleValue } from "react-select";
-import { transformGroupSelectData } from "@/utils/transformUtills";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { createLocationAsync } from "@/features/master/location/locationSlice";
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import LoadingButton from "@mui/lab/LoadingButton";
+import SaveIcon from "@mui/icons-material/Save";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
-type OptionType = {
-  value: string;
-  label: string;
-};
 type FormType = {
   name: string;
   address: string;
-  parent: OptionType | null;
-  type: OptionType | null;
+  parent: LocationType | null;
+  type: string | undefined;
 };
 const MasterLocation: React.FC = () => {
   const [viewLocation, setViwLocation] = useState<boolean>(false);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const { getLocationLoading, locationData } = useAppSelector((state) => state.divicemin);
   const { createLocationLoading } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
   const {
@@ -43,7 +31,7 @@ const MasterLocation: React.FC = () => {
       name: "",
       address: "",
       parent: null,
-      type: null,
+      type: undefined,
     },
   });
 
@@ -51,13 +39,12 @@ const MasterLocation: React.FC = () => {
     const newdata = {
       name: data.name,
       address: data.address,
-      parent: data.parent!.value,
-      type: data.type!.value,
+      parent: data.parent!.id,
+      type: data.type || "",
     };
     dispatch(createLocationAsync(newdata)).then((res: any) => {
       if (res.payload?.data?.success) {
         reset();
-        
       }
     });
   };
@@ -65,92 +52,53 @@ const MasterLocation: React.FC = () => {
   return (
     <>
       <MasterLocationViewDrawer open={viewLocation} setOpen={setViwLocation} />
-      <div className="h-[calc(100vh-50px)] grid grid-cols-[550px_1fr]">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="p-[10px]">
-            <Card className="rounded-md ">
-              <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
-                <CardTitle className="text-slate-600 font-[500]">Add Location</CardTitle>
-              </CardHeader>
-              <CardContent className="py-[20px]">
-                <div>
-                  <CustomInput label="Location Name" required {...register("name", { required: "Location Name is required" })} />
-                  {errors.name && <span className=" text-[12px] text-red-500">{errors.name.message}</span>}
-                </div>
-                <div className="grid grid-cols-2 gap-[30px] mt-[30px]">
-                  <div>
-                    <Controller
-                      name="parent"
-                      control={control}
-                      rules={{ required: "Parent Location is required" }}
-                      render={({ field }) => (
-                        <CustomSelect
-                          onMenuOpen={() => dispatch(getLocationAsync(null))}
-                          options={transformGroupSelectData(locationData)}
-                          isLoading={getLocationLoading}
-                          {...field}
-                          required
-                          value={field.value}
-                          isClearable={true}
-                          onChange={(selectedOption) => field.onChange(selectedOption as SingleValue<OptionType>)}
-                          placeholder={"Parent Location"}
-                          onInputChange={(value) => {
-                            if (debounceTimeout.current) {
-                              clearTimeout(debounceTimeout.current);
-                            }
-                            debounceTimeout.current = setTimeout(() => {
-                              dispatch(getLocationAsync(!value ? null : value));
-                            }, 500);
-                          }}
-                        />
-                      )}
-                    />
+      <div className="h-[calc(100vh-50px)] grid grid-cols-[550px_1fr] bg-white">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-[20px] border-r border-neutral-300">
+          <Typography variant="h1" className="text-slate-600 " fontSize={20} fontWeight={500}>
+            Add Location
+          </Typography>
+          <div className="mt-[20px]">
+            <TextField fullWidth label="Location Name" {...register("name", { required: "Location Name is required" })} />
+            {errors.name && <span className=" text-[12px] text-red-500">{errors.name.message}</span>}
+          </div>
+          <div className="grid grid-cols-2 gap-[30px] mt-[30px]">
+            <div>
+              <Controller name="parent" control={control} rules={{ required: "Parent Location is required" }} render={({ field }) => <SelectLocation label="Parent Location" varient="outlined" size="medium" value={field.value} onChange={field.onChange} />} />
 
-                    {errors.parent && <span className=" text-[12px] text-red-500">{errors.parent.message}</span>}
-                  </div>
-                  <div>
-                    <Controller
-                      name="type"
-                      control={control}
-                      rules={{ required: "Location Type is required" }}
-                      render={({ field }) => (
-                        <CustomSelect
-                          {...field}
-                          options={[
-                            { value: "1", label: "Storable" },
-                            { value: "0", label: "Non-Storable" },
-                          ]}
-                          required
-                          value={field.value}
-                          isClearable={true}
-                          onChange={(selectedOption) => field.onChange(selectedOption as SingleValue<OptionType>)}
-                          placeholder={"Location Type"}
-                        />
-                      )}
-                    />
-                    {errors.type && <span className=" text-[12px] text-red-500">{errors.type.message}</span>}
-                  </div>
-                </div>
-                <div className="py-[20px]">
-                  <Label className="text-slate-500 text-[15px] font-[400]">
-                    Address <span className="text-red-500">*</span>
-                  </Label>
-                  <Textarea {...register("address")} className="h-[100px] resize-none" />
-                </div>
-              </CardContent>
-              <CardFooter className="h-[50px] p-0 flex items-center px-[20px] border-t gap-[10px] justify-end">
-                <CustomButton onClick={() => reset()} type="button" icon={<HiOutlineRefresh className="h-[18px] w-[18px] text-red-600" />} variant={"outline"}>
-                  Reset
-                </CustomButton>
-                <CustomButton loading={createLocationLoading} icon={<Plus className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
-                  Add
-                </CustomButton>
-              </CardFooter>
-            </Card>
+              {errors.parent && <span className=" text-[12px] text-red-500">{errors.parent.message}</span>}
+            </div>
+            <div>
+              <Controller
+                name="type"
+                control={control}
+                rules={{ required: "Location Type is required" }}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Location Type</InputLabel>
+                    <Select {...field} labelId="demo-simple-select-label" id="demo-simple-select" label="Product Type">
+                      <MenuItem value={"1"}>Storable</MenuItem>
+                      <MenuItem value={"0"}>Non-Storable</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+              />
+              {errors.type && <span className=" text-[12px] text-red-500">{errors.type.message}</span>}
+            </div>
+          </div>
+          <div className="py-[20px]">
+            <TextField fullWidth label="Address" multiline rows={3} {...register("address")} className="h-[100px] resize-none" />
+          </div>
+          <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end">
+            <Button onClick={() => reset()} type="button" startIcon={<RefreshIcon fontSize="small" />} variant={"contained"} sx={{ color: "red", backgroundColor: "white" }}>
+              Reset
+            </Button>
+            <LoadingButton type="submit" loadingPosition="start" loading={createLocationLoading} startIcon={<SaveIcon fontSize="small" />} variant="contained">
+              Submit
+            </LoadingButton>
           </div>
         </form>
         <div>
-          <TreeDataLocation setViewLocation={setViwLocation}/>
+          <TreeDataLocation setViewLocation={setViwLocation} />
         </div>
       </div>
     </>

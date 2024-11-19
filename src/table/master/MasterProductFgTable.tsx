@@ -8,6 +8,7 @@ import { MdOutlineCloudUpload } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 
 type Props = {
   updateProduct?: boolean;
@@ -90,7 +91,7 @@ const MasterProductFgTable: React.FC<Props> = ({ setUpdateProduct, setViewProduc
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} loading={getProductsLoading} suppressCellFocus={true}  paginationPageSize={20}  rowData={products} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSizeSelector={[20, 30, 50]} />
+        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay}  overlayNoRowsTemplate={OverlayNoRowsTemplate} loading={getProductsLoading} suppressCellFocus={true}  paginationPageSize={20}  rowData={products} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSizeSelector={[20, 30, 50]} />
       </div>
     </div>
   );

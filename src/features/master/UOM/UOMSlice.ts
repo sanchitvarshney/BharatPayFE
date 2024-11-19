@@ -10,7 +10,7 @@ const initialState: UOMState = {
 };
 
 export const getUOMAsync = createAsyncThunk<AxiosResponse<UomApiResponse>>("master/getUOM", async () => {
-  const response = await axiosInstance.get("/uom ");
+  const response = await axiosInstance.get("/uom");
   return response;
 });
 export const createUomAsync = createAsyncThunk<AxiosResponse<UomCreateApiresponse>, UOM>("master/createuom", async (uom) => {

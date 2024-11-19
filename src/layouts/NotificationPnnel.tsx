@@ -1,15 +1,12 @@
+import React from "react";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
-import { IconButton } from "@mui/material";
-import FileDownloadSharpIcon from "@mui/icons-material/FileDownloadSharp";
-import React from "react";
-import Link from "@mui/material/Link";
-import CircularProgress from "@mui/material/CircularProgress";
-import MuiTooltip from "../reusable/MuiTooltip";
-const DownloadIndecator = () => {
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import { CircularProgress, IconButton } from "@mui/material";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+const NotificationPnnel: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const [loading, setLoading] = React.useState(false);
-
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     setLoading(true);
@@ -21,12 +18,12 @@ const DownloadIndecator = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-
   return (
     <>
-      <MuiTooltip title="Download" placement="bottom">
+      <MuiTooltip title="Notification" placement="bottom">
         <IconButton
           sx={{
             color: open ? "black" : "#525252",
@@ -39,10 +36,9 @@ const DownloadIndecator = () => {
           onClick={handleClick}
           aria-label="delete"
         >
-          <FileDownloadSharpIcon />
+          <NotificationsActiveIcon />
         </IconButton>
       </MuiTooltip>
-
       <Popover
         id={id}
         open={open}
@@ -60,23 +56,13 @@ const DownloadIndecator = () => {
           sx: {
             border: "none", // Remove border
             borderTopRightRadius: 0, // Remove border radius
-            boxShadow: 2, // Optional: remove shadow
+            boxShadow: 2,
           },
         }}
       >
         <div className="w-[300px] bg-neutral-200 p-[10px]">
-          <div className="min-h-[50px] flex justify-between">
-            <Typography sx={{ p: 2 }}>Downloads</Typography>
-            <Link
-              component="button"
-              variant="body2"
-              sx={{ color: "black" }}
-              onClick={() => {
-                console.info("I'm a button.");
-              }}
-            >
-              Clear All
-            </Link>
+          <div className="min-h-[50px]">
+            <Typography sx={{ p: 2 }}>Notification</Typography>
           </div>
           <div className="bg-white h-[300px] rounded flex items-center justify-center">{loading && <CircularProgress size={40} />}</div>
         </div>
@@ -85,4 +71,4 @@ const DownloadIndecator = () => {
   );
 };
 
-export default DownloadIndecator;
+export default NotificationPnnel;

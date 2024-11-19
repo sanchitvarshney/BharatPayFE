@@ -3,13 +3,13 @@ import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import useDebounce from "@/hooks/useDebounce";
 import axiosInstance from "@/api/axiosInstance";
 
-export type DeviceType = {
+export type GroupdataType = {
   id: string;
   text: string;
 };
 type Props = {
-  onChange: (value: DeviceType | null) => void;
-  value: DeviceType | null | undefined;
+  onChange: (value: GroupdataType | null) => void;
+  value: GroupdataType | null | undefined;
   label?: string;
   width?: string;
   error?: boolean;
@@ -19,11 +19,11 @@ type Props = {
   size?: "small" | "medium";
 };
 
-const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "standard", required = false, size = "small" }) => {
+const SelectUom: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "standard", required = false, size = "small" }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
-  const [deviceList, setDeviceList] = useState<DeviceType[]>([]);
+  const [deviceList, setDeviceList] = useState<GroupdataType[]>([]);
 
   // Fetch devices based on SKU query
   const fetchDevices = async (query: string | null) => {
@@ -91,4 +91,4 @@ const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device
   );
 };
 
-export default SelectDevice;
+export default SelectUom;

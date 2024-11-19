@@ -50,7 +50,7 @@ const MasterUomTable: React.FC = () => {
 
   return (
     <div>
-      <div className="ag-theme-quartz h-[calc(100vh-90px)]">
+      <div className="ag-theme-quartz h-[calc(100vh-50px)]">
         <AgGridReact
         loadingOverlayComponent={CustomLoadingOverlay}
           suppressCellFocus={true}
