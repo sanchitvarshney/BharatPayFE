@@ -16,9 +16,11 @@ type Props = {
   error?: boolean;
   helperText?: string | null;
   required?: boolean;
+  varient?: "outlined" | "standard" | "filled";
+  size?: "small" | "medium"
 };
 
-const SelectComponent: React.FC<Props> = ({ value, onChange, label = "Search Item", width = "100%", error, helperText, required = false }) => {
+const SelectComponent: React.FC<Props> = ({ value, onChange, label = "Search Item", width = "100%", error, helperText, required = false ,varient="outlined",size="medium"}) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -47,7 +49,7 @@ const SelectComponent: React.FC<Props> = ({ value, onChange, label = "Search Ite
     <Autocomplete
       onFocus={() => fetchItems(null)}
       value={value}
-      size="small"
+      size={size}
       options={itemList || []}
       getOptionLabel={(option) => `${option.text}`}
       filterSelectedOptions
@@ -66,7 +68,7 @@ const SelectComponent: React.FC<Props> = ({ value, onChange, label = "Search Ite
           helperText={helperText}
           {...params}
           label={label}
-          variant="outlined"
+          variant={varient}
           InputProps={{
             ...params.InputProps,
             endAdornment: (

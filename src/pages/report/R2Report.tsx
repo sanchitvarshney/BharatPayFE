@@ -48,6 +48,7 @@ const R2Report: React.FC = () => {
       // Handle downloaded report data
     });
   }, [onDownloadReport]);
+  
   return (
     <>
       <CustomDrawer open={open} onOpenChange={setOpen}>

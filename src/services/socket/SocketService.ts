@@ -1,6 +1,5 @@
 import { getToken } from "@/utils/tokenUtills";
 import { io, Socket } from "socket.io-client";
-
 interface ISocketService {
   socket: Socket | null;
   connect: () => void;
@@ -8,12 +7,9 @@ interface ISocketService {
   on: <T>(event: string, callback: (data: T) => void) => void;
   emit: <T>(event: string, data: T) => void;
 }
-
 class SocketService implements ISocketService {
   socket: Socket | null = null;
-
   constructor(private url: string) {}
-
   connect() {
     this.socket = io(this.url, {
       transports: ["websocket"],

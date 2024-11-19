@@ -25,7 +25,7 @@ const HomePage = () => {
             </FormControl>
           </div>
           <div className="flex  items-center mt-[30px] gap-[20px]">
-            <Card  sx={{ background: "#ecfeff" }} elevation={2} className="h-[150px] w-[250px] flex items-center justify-center flex-col ">
+            <Card sx={{ background: "#ecfeff" }} elevation={2} className="h-[150px] w-[250px] flex items-center justify-center flex-col ">
               <img src="./production.svg" alt="" className="h-[100px] w-[100px]" />
               <Link to={"/"} className="flex items-center gap-[5px]">
                 <p className="text-cyan-800 font-[600]">Production</p>
