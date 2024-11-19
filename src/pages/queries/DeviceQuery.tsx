@@ -7,7 +7,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getBothComponentData, getQ1Data } from "@/features/query/query/querySlice";
-import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgGridReact } from "@ag-grid-community/react";
 import { RowData } from "@/features/query/query/queryType";
@@ -21,6 +20,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import { showToast } from "../../utils/toasterContext";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
@@ -78,25 +78,8 @@ const DeviceQuery: React.FC = () => {
                       setValue(value);
                     }}
                   />
-                  {/* <CustomSelect
-                    value={value}
-                    onChange={(e) => setValue(e)}
-                    onInputChange={(value) => {
-                      if (debounceTimeout.current) {
-                        clearTimeout(debounceTimeout.current);
-                      }
-
-                      debounceTimeout.current = setTimeout(() => {
-                        dispatch(getBothComponentData(!value ? null : value));
-                      }, 500);
-                    }}
-                    isLoading={getComponentDataLoading}
-                    required
-                    placeholder="-- SKU --"
-                    options={transformBothComponentCode(componentData)}
-                  /> */}
                 </div>
-                <div className="relative h-[80px] overflow-hidden w-full">
+                <div className="relative h-[90px] overflow-hidden w-full">
                   <div className="flex justify-end w-full">
                     {filterType === "location" ? (
                       <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
@@ -112,7 +95,7 @@ const DeviceQuery: React.FC = () => {
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "left-[-400px]" : "left-0"} `}>
                     <RangePicker
-                      className="w-[320px] h-[40px]"
+                      className="w-[330px] h-[50px]"
                       presets={rangePresets}
                       onChange={handleDateChange}
                       disabledDate={(current) => current && current > dayjs()}
@@ -123,16 +106,6 @@ const DeviceQuery: React.FC = () => {
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
                     <SelectLocation value={location} onChange={(e) => setLocation(e)} size="medium" varient="outlined" />
-                    {/* <Select
-                      showSearch
-                      placeholder="Location"
-                      onSearch={(value) => dispatch(getLocationAsync(value ? value : null))}
-                      loading={getLocationLoading}
-                      className="w-full"
-                      value={location}
-                      onChange={(e) => setLocation(e)}
-                      options={transformGroupSelectData(locationData)}
-                    /> */}
                   </div>
                 </div>
               </div>
@@ -145,33 +118,21 @@ const DeviceQuery: React.FC = () => {
                     if (value && location) {
                       dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
                         if (!res.payload?.data?.success) {
-                          showToast({
-                            description: res.payload?.data?.message,
-                            variant: "destructive",
-                          });
+                          showToast(res.payload?.data?.message, "error");
                         }
                       });
                     } else {
-                      showToast({
-                        description: "Please select SKU and location",
-                        variant: "destructive",
-                      });
+                      showToast("Please select SKU and location", "error");
                     }
                   } else {
                     if (value && date) {
                       dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
                         if (!res.payload?.data?.success) {
-                          showToast({
-                            description: res.payload?.data?.message,
-                            variant: "destructive",
-                          });
+                          showToast(res.payload?.data?.message, "error");
                         }
                       });
                     } else {
-                      showToast({
-                        description: "Please select SKU and Date",
-                        variant: "destructive",
-                      });
+                      showToast("Please select SKU and Date", "error");
                     }
                   }
                 }}

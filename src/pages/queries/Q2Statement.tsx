@@ -1,4 +1,4 @@
-import { CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DatePicker, TimeRangePickerProps } from "antd";
 import dayjs, { Dayjs } from "dayjs";
@@ -6,20 +6,20 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getQ2Data } from "@/features/query/query/querySlice";
-import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import Q2ReportTable from "@/table/query/Q2ReportTable";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { RowData } from "@/features/query/query/queryType";
 import { AgGridReact } from "@ag-grid-community/react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { IconButton, Paper } from "@mui/material";
+import { CardContent, IconButton, Paper } from "@mui/material";
 import SelectComponent, { ComponentType } from "@/components/reusable/SelectComponent";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SearchIcon from "@mui/icons-material/Search";
 import DownloadIcon from "@mui/icons-material/Download";
 import FilterIcon from "@mui/icons-material/Filter";
+import { showToast } from "@/utils/toasterContext";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
@@ -61,7 +61,7 @@ const Q2Statement: React.FC = () => {
 
   return (
     <div>
-      <div className="grid grid-cols-[450px_1fr]">
+      <div className="grid grid-cols-[400px_1fr]">
         <div className="p-[10px] flex flex-col gap-[10px] h-[calc(100vh-90px)] overflow-y-auto">
           <Paper elevation={2} className="rounded-md ">
             <CardContent>
@@ -85,7 +85,7 @@ const Q2Statement: React.FC = () => {
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "left-[-400px]" : "left-0"} `}>
                     <RangePicker
-                      className="w-[350px] h-[50px] "
+                      className="w-[330px] h-[50px] "
                       presets={rangePresets}
                       onChange={handleDateChange}
                       disabledDate={(current) => current && current > dayjs()}
@@ -110,19 +110,13 @@ const Q2Statement: React.FC = () => {
                   if (value && (date || location)) {
                     dispatch(getQ2Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
                       if (!res.payload?.data?.success) {
-                        showToast({
-                          description: res.payload?.data?.message,
-                          variant: "destructive",
-                        });
+                        showToast(res.payload?.data?.message, "error");
                       } else {
                         setLocation(null);
                       }
                     });
                   } else {
-                    showToast({
-                      description: "Please select required fields",
-                      variant: "destructive",
-                    });
+                    showToast("Please select required fields", "error");
                   }
                 }}
                 type="submit"
