@@ -53,7 +53,6 @@ export default function SopPage() {
   const [search, setSearch] = React.useState<string>("");
   const dispatch = useAppDispatch();
   const { folderData, folderDataLoading, createFolderLoading, deleteFolderLoading, uploadFileLoading, fileData } = useAppSelector((state) => state.sop);
-
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const handleMenuclick = (event: React.MouseEvent<HTMLElement>) => {
@@ -334,7 +333,7 @@ export default function SopPage() {
         </IconButton>
 
         <DialogContent dividers>
-          <Typography gutterBottom>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</Typography>
+          <Typography gutterBottom>Enter a name for the new folder. This folder will be created inside the currently selected location. Ensure the folder name is unique and meaningful for easy identification.</Typography>
           <FormControl sx={{ width: "600px", py: "10px" }} variant="outlined">
             <OutlinedInput
               placeholder="Folder Name"
