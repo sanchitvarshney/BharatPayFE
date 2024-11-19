@@ -3,7 +3,6 @@ import App from "./App";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
 import AuthLayout from "./layouts/AuthLayout";
-import LoginPage from "./pages/authentication/LoginPage";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import Custom404Page from "./pages/commonPages/Custom404Page";
 import NotPermissionPage from "./pages/commonPages/NotPermissionPage";
@@ -41,7 +40,6 @@ import DeviceMin from "./pages/wearhouse/DeviceMin";
 import Report from "./pages/report/Report";
 import ReportLayout from "./layouts/ReportLayout";
 import QueryLayout from "./layouts/QueryLayout";
-
 import Query from "./pages/queries/Query";
 import UnderConstructionPage from "./pages/commonPages/UnderConstructionPage";
 import DashBoard from "./pages/DashBoard";
@@ -59,6 +57,7 @@ import SopPage from "./pages/fileupload/SopPage";
 import QrLayout from "./layouts/QrLayout";
 import MasterQrGenerater from "./pages/production/MasterQrGenerater";
 import SingleQrGenerater from "./pages/production/SingleQrGenerater";
+import LogningV2 from "./pages/commonPages/LogningV2";
 
 export const router = createBrowserRouter([
   {
@@ -495,13 +494,12 @@ export const router = createBrowserRouter([
   {
     element: (
       <Protected authentication={false}>
-        <AuthLayout>
-          <LoginPage />
-        </AuthLayout>
+        <LogningV2 />
       </Protected>
     ),
     path: "/login",
   },
+
   {
     element: (
       <Protected authentication={false}>

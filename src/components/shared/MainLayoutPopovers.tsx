@@ -1,11 +1,15 @@
 import React from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Props } from "@/types/MainLayout";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAppDispatch } from "@/hooks/useReduxHook";
 import { logout } from "@/features/authentication/authSlice";
-
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import { Button } from "@mui/material";
 const MainLayoutPopovers: React.FC<Props> = ({ uiState }) => {
   const { logotAlert, setLogotAlert, notificationSheet, setNotificationSheet } = uiState;
 
@@ -13,20 +17,27 @@ const MainLayoutPopovers: React.FC<Props> = ({ uiState }) => {
   return (
     <>
       {/* logout alert ========================== */}
-      <AlertDialog open={logotAlert} onOpenChange={setLogotAlert}>
-        <AlertDialogContent className="bg-white rounded">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>Do you want to log out of your account?</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => dispatch(logout())}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={logotAlert} onClose={setLogotAlert} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">{"Are you sure you want to logout?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">Logging out will end your current session and return you to the login screen. </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLogotAlert(false)}>Back</Button>
+          <Button
+          variant="contained"
+          color="error"
+            onClick={() => {
+              dispatch(logout());
+              setLogotAlert(false);
+            }}
+            autoFocus
+          >
+            Continue
+          </Button>
+        </DialogActions>
+      </Dialog>
+   
       {/* logout alert ========================== */}
 
       {/* notification sheet ==================== */}

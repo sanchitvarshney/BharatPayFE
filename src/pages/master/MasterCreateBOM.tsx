@@ -19,6 +19,7 @@ interface RowData {
   component: string;
   qty: number;
   isNew: boolean;
+  uom: string;
 }
 
 type FormState = {
@@ -54,6 +55,7 @@ const MasterCraeteBOM: React.FC = () => {
       component: "",
       qty: 0,
       isNew: true,
+      uom: "",
     };
     setRowData((prev) => [newRow, ...prev]);
   }, [rowData]);
@@ -172,11 +174,15 @@ const MasterCraeteBOM: React.FC = () => {
               {errors.sku && <span className=" text-[12px] text-red-500">{errors.sku.message}</span>}
             </div>
           </div>
+          <div className="mt-[30px]">
+            <TextField multiline rows={3} fullWidth label="Remark" {...register("remark")} />
+            {errors.subject && <p className="text-red-500 text-[12px]">{errors.subject.message}</p>}
+          </div>
           <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end mt-[30px]">
             <Button onClick={() => reset()} type="button" startIcon={<RefreshIcon fontSize="small" />} variant={"contained"} sx={{ backgroundColor: "white", color: "red" }}>
               Reset
             </Button>
-            <LoadingButton type="submit" variant="contained" loading={createBomLoading} startIcon={<SaveIcon fontSize="small" />}>
+            <LoadingButton loadingPosition="start" type="submit" variant="contained" loading={createBomLoading} startIcon={<SaveIcon fontSize="small" />}>
               Submit
             </LoadingButton>
           </div>

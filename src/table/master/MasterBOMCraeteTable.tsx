@@ -3,15 +3,17 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { HiMiniTrash } from "react-icons/hi2";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import CraeteBomCellRender from "../Cellrenders/CraeteBomCellRender";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { IconButton } from "@mui/material";
 interface RowData {
   id: number;
   component: string;
   qty: number;
   isNew: boolean;
+  uom: string;
 }
 type Props = {
   rowData: RowData[];
@@ -64,9 +66,9 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button variant={"outline"} className="border shadow-none h-[30px] w-[30px] p-0" onClick={() => handleDeleteRow(params.data.id)}>
-            <HiMiniTrash className="h-[18px] w-[18px] text-red-500" />
-          </Button>
+          <IconButton color="error" onClick={() => handleDeleteRow(params.data.id)}>
+            <DeleteIcon />
+          </IconButton>
         </div>
       ),
       headerComponent: () => (
@@ -77,14 +79,7 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
         </div>
       ),
     },
-    {
-      headerName: "#",
-      field: "id",
-      width: 70,
-      valueGetter: (params: any) => params.node.rowIndex + 1,
-      sortable: false,
-      filter: false,
-    },
+
     {
       headerName: "Components",
       field: "component",
@@ -97,17 +92,25 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       cellRenderer: "textInputCellRenderer",
       flex: 1,
     },
+    {
+      headerName: "Uom",
+      field: "uom",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      hide: true,
+    },
   ];
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
       <AgGridReact
+        suppressCellFocus
         ref={gridRef}
         onCellFocused={(event: any) => {
           const { rowIndex, column } = event;
           const focusedCell = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `) as HTMLInputElement;
           const focusButton = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `) as HTMLButtonElement;
-  
+
           if (focusedCell) {
             focusedCell.focus();
           }
@@ -119,7 +122,6 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
           return null; // Returning null prevents default focus movement
         }}
         columnDefs={columnDefs}
-        
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
         animateRows

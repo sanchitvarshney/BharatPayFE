@@ -128,3 +128,21 @@ input:-webkit-autofill {
 .ag-theme-quartz .ag-watermark-text  {
  display: none;
 }
+
+/* Global scrollbar customization for Material-UI Autocomplete dropdown */
+.MuiAutocomplete-listbox::-webkit-scrollbar {
+  width: 8px; /* Adjust the scrollbar width */
+}
+
+.MuiAutocomplete-listbox::-webkit-scrollbar-thumb {
+  background-color: #a3a3a3; /* Customize the scrollbar color */
+  border-radius: 4px; /* Add rounded corners */
+}
+
+.MuiAutocomplete-listbox::-webkit-scrollbar-thumb:hover {
+  background-color: #8b8b8b; /* Change color on hover */
+}
+
+.MuiAutocomplete-listbox::-webkit-scrollbar-track {
+  background: #f0f0f0; /* Optional: Customize the track background */
+}
