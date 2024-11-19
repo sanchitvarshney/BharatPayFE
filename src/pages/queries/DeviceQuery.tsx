@@ -1,42 +1,41 @@
-import { CustomButton } from "@/components/reusable/CustomButton";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import DeviceQueryRepoTable from "@/table/query/DeviceQueryRepoTable";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { DatePicker, Select, TimeRangePickerProps } from "antd";
+import { DatePicker, TimeRangePickerProps } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HiDocumentText } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getBothComponentData, getQ1Data } from "@/features/query/query/querySlice";
-import { transformBothComponentCode, transformGroupSelectData } from "@/utils/transformUtills";
-import { showToast } from "@/utils/toastUtils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgGridReact } from "@ag-grid-community/react";
 import { RowData } from "@/features/query/query/queryType";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { FaChevronRight } from "react-icons/fa6";
 import { FaChevronLeft } from "react-icons/fa";
-
+import { CardContent, IconButton, Paper, Typography } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import SearchIcon from "@mui/icons-material/Search";
+import DownloadIcon from "@mui/icons-material/Download";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
+import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import { showToast } from "../../utils/toasterContext";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
 
 const DeviceQuery: React.FC = () => {
   const [filterType, setFilterType] = useState<string>("");
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
-  const { componentData, getComponentDataLoading, q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
-  const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
+  const { q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
   });
-  const [value, setValue] = useState<{ label: string; value: string } | null>(null);
-  const [location, setLocation] = useState<string | null>(null);
+  const [value, setValue] = useState<DeviceType | null>(null);
+  const [location, setLocation] = useState<LocationType | null>(null);
   const rangePresets: TimeRangePickerProps["presets"] = [
     { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
     { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
@@ -65,32 +64,23 @@ const DeviceQuery: React.FC = () => {
 
   return (
     <div>
-      <div className="grid grid-cols-[350px_1fr]">
-        <div className="p-[10px] flex flex-col gap-[10px] h-[calc(100vh-90px)] overflow-y-auto">
-          <Card className="rounded-md ">
+      <div className="grid grid-cols-[400px_1fr]  ">
+        <div className="p-[10px] flex flex-col gap-[10px] h-[calc(100vh-90px)] overflow-y-auto border-r border-neutral-300">
+          <Paper elevation={2} className="rounded-md ">
             <CardContent className="relative">
               <div className="py-[20px] flex flex-col gap-[30px]">
                 <div>
-                  <CustomSelect
+                  <SelectSku
+                    varient="outlined"
+                    size="medium"
                     value={value}
-                    onChange={(e) => setValue(e)}
-                    onInputChange={(value) => {
-                      if (debounceTimeout.current) {
-                        clearTimeout(debounceTimeout.current);
-                      }
-
-                      debounceTimeout.current = setTimeout(() => {
-                        dispatch(getBothComponentData(!value ? null : value));
-                      }, 500);
+                    onChange={(value) => {
+                      setValue(value);
                     }}
-                    isLoading={getComponentDataLoading}
-                    required
-                    placeholder="-- SKU --"
-                    options={transformBothComponentCode(componentData)}
                   />
                 </div>
-                <div className="relative h-[60px] overflow-hidden">
-                  <div className="flex justify-end">
+                <div className="relative h-[90px] overflow-hidden w-full">
+                  <div className="flex justify-end w-full">
                     {filterType === "location" ? (
                       <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
                         <FaChevronLeft className="h-[10px] w-[10px]" />
@@ -103,8 +93,9 @@ const DeviceQuery: React.FC = () => {
                       </Button>
                     )}
                   </div>
-                  <div className={`absolute transition-all ${filterType === "location" ? "left-[-300px]" : "left-0"} `}>
+                  <div className={`absolute transition-all ${filterType === "location" ? "left-[-400px]" : "left-0"} `}>
                     <RangePicker
+                      className="w-[330px] h-[50px]"
                       presets={rangePresets}
                       onChange={handleDateChange}
                       disabledDate={(current) => current && current > dayjs()}
@@ -113,78 +104,59 @@ const DeviceQuery: React.FC = () => {
                       format="DD/MM/YYYY" // Update with your desired format
                     />
                   </div>
-                  <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-300px]"} w-full `}>
-                    <Select
-                      showSearch
-                      placeholder="Location"
-                      onSearch={(value) => dispatch(getLocationAsync(value ? value : null))}
-                      loading={getLocationLoading}
-                      className="w-full"
-                      value={location}
-                      onChange={(e) => setLocation(e)}
-                      options={transformGroupSelectData(locationData)}
-                    />
+                  <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
+                    <SelectLocation value={location} onChange={(e) => setLocation(e)} size="medium" varient="outlined" />
                   </div>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px] border-t gap-[10px]">
-              <CustomButton
+              <LoadingButton
                 loading={getQ1DataLoading}
                 onClick={() => {
                   if (filterType === "location") {
                     if (value && location) {
-                      dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                      dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
                         if (!res.payload?.data?.success) {
-                          showToast({
-                            description: res.payload?.data?.message,
-                            variant: "destructive",
-                          });
+                          showToast(res.payload?.data?.message, "error");
                         }
                       });
                     } else {
-                      showToast({
-                        description: "Please select SKU and location",
-                        variant: "destructive",
-                      });
+                      showToast("Please select SKU and location", "error");
                     }
                   } else {
                     if (value && date) {
-                      dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.value, location: location ? location : null })).then((res: any) => {
+                      dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
                         if (!res.payload?.data?.success) {
-                          showToast({
-                            description: res.payload?.data?.message,
-                            variant: "destructive",
-                          });
+                          showToast(res.payload?.data?.message, "error");
                         }
                       });
                     } else {
-                      showToast({
-                        description: "Please select SKU and Date",
-                        variant: "destructive",
-                      });
+                      showToast("Please select SKU and Date", "error");
                     }
                   }
                 }}
                 type="submit"
-                icon={<Search className="h-[18px] w-[18px] " />}
-                className="bg-cyan-700 hover:bg-cyan-800"
+                startIcon={<SearchIcon fontSize="small" />}
+                variant="contained"
+                loadingPosition="start"
               >
                 Search
-              </CustomButton>
+              </LoadingButton>
               <div className="flex items-center gap-[5px]">
-                <Button onClick={onBtExport} disabled={!q1Data} className="p-0 rounded-full shadow-lg bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px]">
-                  <Download className="h-[18px] w-[18px]" />
-                </Button>
-                <Button disabled={!q1Data} className="p-0 rounded-full shadow-lg bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px]">
-                  <HiDocumentText className="h-[18px] w-[18px]" />
-                </Button>
+                <MuiTooltip title="Download" placement="bottom">
+                  <IconButton disabled={!q1Data} onClick={onBtExport}>
+                    <DownloadIcon />
+                  </IconButton>
+                </MuiTooltip>
               </div>
             </CardFooter>
-          </Card>
-          <Card className="rounded-md">
+          </Paper>
+          <Paper elevation={2} className="rounded-md ">
             <CardHeader className="p-0 h-[40px] flex justify-center px-[10px] bg-hbg border-b">
-              <CardTitle className="font-[500] text-slate-600">Device Info</CardTitle>
+              <Typography className=" text-slate-600" fontWeight={600}>
+                Device Info
+              </Typography>
             </CardHeader>
             <CardContent>
               <ul className="flex flex-col gap-[5px]">
@@ -202,8 +174,8 @@ const DeviceQuery: React.FC = () => {
                 </li>
               </ul>
             </CardContent>
-          </Card>
-          <Card className="rounded-md ">
+          </Paper>
+          <Paper elevation={2} className="rounded-md ">
             <CardHeader className="p-0 h-[40px] flex justify-center px-[10px] bg-hbg border-b">
               <CardTitle className="font-[600] text-slate-600">Stock Summary</CardTitle>
             </CardHeader>
@@ -219,7 +191,7 @@ const DeviceQuery: React.FC = () => {
                 </li>
               </ul>
             </CardContent>
-          </Card>
+          </Paper>
         </div>
         <DeviceQueryRepoTable gridRef={gridRef} />
       </div>
