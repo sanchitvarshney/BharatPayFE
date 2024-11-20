@@ -1,7 +1,6 @@
 import React from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 interface RowData {
