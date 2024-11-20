@@ -17,7 +17,7 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "serialNo", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 100 },
     { headerName: "IMEI", field: "imei", sortable: true, filter: true, flex: 1 },
-    { headerName: "Sr No.", field: "srno", sortable: true, filter: true, flex: 1 },
+    { headerName: "SR No.", field: "srno", sortable: true, filter: true, flex: 1 },
     {
       headerName: "",
       field: "",

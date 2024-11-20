@@ -12,7 +12,7 @@ const R5ReportDetail: React.FC = () => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", sortable: false, filter: false, width: 100, valueGetter: "node.rowIndex+1" },
 
-    { headerName: "IMEI/Sr No.", field: "slNo", sortable: false, filter: false ,flex:1},
+    { headerName: "IMEI/SR No.", field: "slNo", sortable: false, filter: false ,flex:1},
   ];
   const { r5reportDetail, r5reportDetailLoading } = useAppSelector((state) => state.report);
 
