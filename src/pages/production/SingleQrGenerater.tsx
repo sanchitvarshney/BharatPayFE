@@ -140,7 +140,7 @@ const SingleQrGenerater: React.FC = () => {
               {errors.simno && <FormHelperText>{errors.simno.message}</FormHelperText>}
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Sim Operator</InputLabel>
+              <InputLabel id="demo-simple-select-label">SIM Operator</InputLabel>
               <Select
                 onChange={(e) => {
                   setOperater(e.target.value);
@@ -148,7 +148,7 @@ const SingleQrGenerater: React.FC = () => {
                 value={operater}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                label="Sim Operator"
+                label="SIM Operator"
               >
                 <MenuItem value={"Airtel"}>Airtel</MenuItem>
                 <MenuItem value={"Vodafone Idea"}> Vodafone Idea</MenuItem>

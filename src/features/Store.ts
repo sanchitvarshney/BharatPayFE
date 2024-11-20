@@ -18,6 +18,7 @@ import batteryQcReducer from "@/features/production/Batteryqc/BatteryQcSlice";
 import manageProductionTReducer from "@/features/production/ManageProduction/ManageProductionSlie";
 import dispatchReducer from "@/features/Dispatch/DispatchSlice";
 import sopRedeucer from "@/features/Sop/sopSlice";
+import qrslice from "@/features/production/QRCode/QRCodeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ export const store = configureStore({
     manageProduction: manageProductionTReducer,
     dispatch: dispatchReducer,
     sop: sopRedeucer,
+    qr: qrslice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
