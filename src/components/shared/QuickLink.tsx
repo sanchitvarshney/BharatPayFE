@@ -2,7 +2,6 @@ import * as React from "react";
 import { type DialogProps } from "@radix-ui/react-dialog";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import { CircleIcon } from "lucide-react";
-
 import { useNavigate } from "react-router-dom";
 import { navLinks } from "@/data/SidebarMenuData";
 import { Button } from "../ui/button";
