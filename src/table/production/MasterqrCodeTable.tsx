@@ -1,7 +1,6 @@
 import React from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 interface RowData {
@@ -36,7 +35,18 @@ const MasterqrCodeTable: React.FC<Props> = ({ rowData, setRowdata }) => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-210px)] ">
-      <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
+      <AgGridReact
+        overlayNoRowsTemplate={`
+    <div>
+      <div class="flex items-center justify-center w-full h-full no-rows-template opacity-60">
+        <img src="/scanqr.svg" class="w-[250px]" alt="No Data" />
+      </div>
+    </div>
+    `}
+        suppressCellFocus={true}
+        rowData={rowData}
+        columnDefs={columnDefs}
+      />
     </div>
   );
 };

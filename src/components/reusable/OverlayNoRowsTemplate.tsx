@@ -4,8 +4,4 @@ export const OverlayNoRowsTemplate = `
         <img src="/empty.png" class="w-[110px]" alt="No Data" />
       </div>
     </div>
-    `
-
-
-
-
+    `;
