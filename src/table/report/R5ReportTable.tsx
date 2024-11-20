@@ -21,13 +21,13 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setOpen, setTxn }) => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
 
-    { headerName: "SKU", field: "sku", sortable: true, filter: true },
-    { headerName: "SKU Name", field: "skuName", sortable: true, filter: true },
-    { headerName: "Dispatch Date", field: "dispatchDate", sortable: true, filter: true },
-    { headerName: "Dispatch Qty", field: "dispatchQty", sortable: true, filter: true },
-    { headerName: "Insert By", field: "inserby", sortable: true, filter: true },
-    { headerName: "", field: "txnId", sortable: true, filter: true, hide: true },
-    { headerName: "", field: "dispatchId", sortable: true, filter: true, hide: true },
+    { headerName: "SKU", field: "sku", sortable: true, filter: true, flex: 1 },
+    { headerName: "SKU Name", field: "skuName", sortable: true, filter: true, flex: 1 },
+    { headerName: "Dispatch Date", field: "dispatchDate", sortable: true, filter: true, flex: 1 },
+    { headerName: "Dispatch Qty", field: "dispatchQty", sortable: true, filter: true, flex: 1 },
+    { headerName: "Insert By", field: "inserby", sortable: true, filter: true, flex: 1 },
+    { headerName: "TXN ID", field: "txnId", sortable: false, filter: true, flex: 1, hide: true },
+    { headerName: "--", field: "dispatchId", sortable: true, filter: true, flex: 1, hide: true },
 
     {
       headerName: "",
