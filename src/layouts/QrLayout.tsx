@@ -5,6 +5,7 @@ import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
 import QrCodeIcon from "@mui/icons-material/QrCode";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 type Props = {
   children: React.ReactNode;
 };
@@ -14,7 +15,7 @@ const QrLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/production/single-qr-generater", "/production/master-qr-generater"];
+  const tabRoutes = ["/production/single-qr-generater", "/production/master-qr-generater","/production/download-excel"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -51,6 +52,15 @@ const QrLayout: React.FC<Props> = ({ children }) => {
               <div className="flex items-center gap-[10px]">
                 <QrCodeScannerIcon />
                 Master QR Generater
+              </div>
+            }
+          />
+           <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <FileDownloadIcon />
+                Download QR
               </div>
             }
           />

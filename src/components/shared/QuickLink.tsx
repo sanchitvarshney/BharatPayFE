@@ -34,11 +34,14 @@ export default function QuickLink({ ...props }: DialogProps) {
 
   return (
     <>
-      <Button className="bg-white text-slate-600 w-[300px]  text-start flex items-start justify-between hover:bg-white hover:text-slate-600" onClick={() => setOpen(true)} {...props}>
-       <div className="w-full"> <span className="hidden lg:inline-flex">Quick links...</span></div>
-       <kbd className="pointer-events-none text-xs   hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-            <span className="text-xs">⌘</span>f
-          </kbd>
+      <Button className="bg-white h-[40px] text-slate-600 w-[300px]  text-start flex items-start justify-between hover:bg-white hover:text-slate-600" onClick={() => setOpen(true)} {...props}>
+        <div className="w-full">
+          {" "}
+          <span className="hidden lg:inline-flex">Quick links...</span>
+        </div>
+        <kbd className="pointer-events-none text-xs   hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+          <span className="text-xs">⌘</span>f
+        </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type a command or search..." />

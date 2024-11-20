@@ -58,6 +58,7 @@ import QrLayout from "./layouts/QrLayout";
 import MasterQrGenerater from "./pages/production/MasterQrGenerater";
 import SingleQrGenerater from "./pages/production/SingleQrGenerater";
 import LogningV2 from "./pages/commonPages/LogningV2";
+import DownloadQrExcel from "./pages/production/DownloadQrExcel";
 
 export const router = createBrowserRouter([
   {
@@ -379,7 +380,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <QrLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 <MasterQrGenerater />
               </CustomRedirection>
             </QrLayout>
@@ -396,6 +397,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/single-qr-generater",
+      },
+      {
+        element: (
+          <MainLayout>
+            <QrLayout>
+              <DownloadQrExcel />
+            </QrLayout>
+          </MainLayout>
+        ),
+        path: "/production/download-excel",
       },
 
       //dispatch===========================================

@@ -147,10 +147,7 @@ export const productionMenu = [
   },
   {
     name: "QR Code Generater",
-    subMenu: [
-      { name: "Singel Qr Code", path: "/production/single-qr-generater" },
-      { name: "Master Qr Code", path: "/production/master-qr-generater" },
-    ],
+    path: "/production/single-qr-generater",
   },
 ];
 
