@@ -17,7 +17,7 @@ const DownloadQrExcel: React.FC = () => {
       return showToast("Lot ID is required", "error");
     }
 
-    setLoading(true); // Set loading state to true before making the request
+    setLoading(true);
 
     try {
       const response = await axiosInstance.get(`/dispatchDevicePrint/downloadLotSheet/${lotId}`, {
@@ -61,52 +61,55 @@ const DownloadQrExcel: React.FC = () => {
         showToast("Network error or server not reachable", "error");
       }
     } finally {
-      setLoading(false); // Set loading state to false after the request completes
+      setLoading(false);
     }
   };
 
   return (
-    <div className="h-[calc(100vh-100px)] bg-white grid  overflow-x-hidden">
+    <div className="h-[calc(100vh-100px)] bg-white grid  overflow-x-hidden overflow-y-hidden">
       <div className="h-full border-r border-neutral-300">
-        <div className="p-[30px] grid gap-[30px]">
-          <Card sx={{ p: 2, background: "#fffbeb" }}>
-            <Typography fontSize={15} className="text-slate-700">
-              <InfoIcon className="text-amber-400" sx={{ mr: 1, mb: "2px" }} />
-              Download Excel files for created lots, scan QR codes to retrieve Lot IDs, and regenerate PDFs as needed.
-            </Typography>
-          </Card>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel>Lot ID</InputLabel>
-            <OutlinedInput
-              value={lotid}
-              label="Lot ID"
-              id="standard-adornment-qty"
-              aria-describedby="standard-weight-helper-text"
-              inputProps={{
-                "aria-label": "weight",
-              }}
-              onChange={(e) => {
-                setLotid(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  if (Object.keys(JSON.parse(lotid)).length > 0) {
-                    downloadLotSheet(JSON.parse(lotid).lotId);
-                  } else {
-                    downloadLotSheet(lotid);
+        <div className="p-[30px] grid gap-[30px] h-full">
+          <div className="flex flex-col items-center gap-[30px]  h-full relative ">
+            <Card sx={{ p: 2, background: "#fffbeb" }}>
+              <Typography fontSize={15} className="text-slate-700">
+                <InfoIcon className="text-amber-400" sx={{ mr: 1, mb: "2px" }} />
+                Scan QR codes to retrieve lots ID, and download in excel.
+              </Typography>
+            </Card>
+            <FormControl sx={{ width: "500px" }} variant="outlined">
+              <InputLabel>Lot ID</InputLabel>
+              <OutlinedInput
+                value={lotid}
+                label="Lot ID"
+                id="standard-adornment-qty"
+                aria-describedby="standard-weight-helper-text"
+                inputProps={{
+                  "aria-label": "weight",
+                }}
+                onChange={(e) => {
+                  setLotid(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (Object.keys(JSON.parse(lotid)).length > 0) {
+                      downloadLotSheet(JSON.parse(lotid).lotId);
+                    } else {
+                      downloadLotSheet(lotid);
+                    }
                   }
+                }}
+                endAdornment={<InputAdornment position="end">{loading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}</InputAdornment>}
+                startAdornment={
+                  <InputAdornment position="start">
+                    <img src="/excel.svg" alt="" className="h-[25px] w-[25px]" />
+                  </InputAdornment>
                 }
-              }}
-              endAdornment={<InputAdornment position="end">{loading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}</InputAdornment>}
-              startAdornment={
-                <InputAdornment position="start">
-                  <img src="/excel.svg" alt="" className="h-[25px] w-[25px]" />
-                </InputAdornment>
-              }
-            />
-            <FormHelperText> Enter the unique identifier for the lot or scan the QR code for quick input.</FormHelperText>
-          </FormControl>
+              />
+              <FormHelperText> Enter the unique identifier for the lot or scan the QR code for quick input.</FormHelperText>
+            </FormControl>
+            <img src="/scan.svg" alt="" className="w-[300px]" />
+          </div>
         </div>
       </div>
     </div>

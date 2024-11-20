@@ -60,7 +60,7 @@ const QrLayout: React.FC<Props> = ({ children }) => {
             label={
               <div className="flex items-center gap-[10px]">
                 <FileDownloadIcon />
-                Download Excel / Generate PDF
+                Download QR
               </div>
             }
           />
