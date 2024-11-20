@@ -15,7 +15,7 @@ const GeneratedLotListTable: React.FC = () => {
     { headerName: "Device Model", field: "deviceModel", sortable: true, filter: true },
     { headerName: "SKU ID", field: "skuId", sortable: true, filter: true },
     { headerName: "Lot Size", field: "lotSize", sortable: true, filter: true },
-    { headerName: "Sr No.", field: "srlno", sortable: true, filter: true },
+    { headerName: "SR No.", field: "srlno", sortable: true, filter: true },
     { headerName: "Box No.", field: "boxNo", sortable: true, filter: true },
     { headerName: "Insert Date", field: "insertDate", sortable: true, filter: true },
     { headerName: "Insert By", field: "insertBy", sortable: true, filter: true },

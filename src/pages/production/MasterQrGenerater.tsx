@@ -40,7 +40,7 @@ type FormDataType = {
   model: string;
   Lotsize: string;
 };
-const MasterQrGenerater: React.FC = () => {
+const MasterQrGenerator: React.FC = () => {
   const dispatch = useAppDispatch();
   const { getlotListLoading } = useAppSelector((state) => state.qr);
   const [resetAlert, setResetAlert] = React.useState(false);
@@ -179,7 +179,7 @@ const MasterQrGenerater: React.FC = () => {
               <Card sx={{ p: 2, background: "#fffbeb" }}>
                 <Typography fontSize={15} className="text-slate-700">
                   <InfoIcon className="text-amber-400" sx={{ mr: 1, mb: "2px" }} />
-                  Generate QR codes in bulk for packed devices. Simply provide the device details, select the SKU, specify the lot size, and input the IMEI/serial numbers for seamless QR code generation.
+                  Generate QR codes in bulk for packed devices. Simply provide the device details, select the SKU, specify the lot size, and input the IMEI/Serial numbers for seamless QR code generation.
                 </Typography>
               </Card>
               <TextField error={!!errors.model} helperText={errors.model ? errors.model?.message : "Enter the model name or number of the device for identification."} label="Device Model" fullWidth {...register("model", { required: "Device Model is required" })} />
@@ -196,10 +196,10 @@ const MasterQrGenerater: React.FC = () => {
             <div>
               <div className="h-[110px] flex items-center px-[20px] justify-between flex-wrap">
                 <FormControl sx={{ width: "400px" }} variant="outlined">
-                  <InputLabel>Sr No.</InputLabel>
+                  <InputLabel>SR No.</InputLabel>
                   <OutlinedInput
                     value={imei}
-                    label="Sr No."
+                    label="SR No."
                     id="standard-adornment-qty"
                     aria-describedby="standard-weight-helper-text"
                     inputProps={{
@@ -299,4 +299,4 @@ const MasterQrGenerater: React.FC = () => {
   );
 };
 
-export default MasterQrGenerater;
+export default MasterQrGenerator;

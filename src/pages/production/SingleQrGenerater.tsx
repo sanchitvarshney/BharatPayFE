@@ -16,7 +16,7 @@ type FormDataType = {
   simno: string;
   srno: string;
 };
-const SingleQrGenerater: React.FC = () => {
+const SingleQrGenerator: React.FC = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [operater, setOperater] = useState<string>("");
@@ -90,14 +90,14 @@ const SingleQrGenerater: React.FC = () => {
               {errors.imei && <FormHelperText>{errors.imei.message}</FormHelperText>}
             </FormControl>
             <FormControl error={errors.srno ? true : false} fullWidth variant="outlined">
-              <InputLabel>Sr No.</InputLabel>
+              <InputLabel>SR No.</InputLabel>
               <OutlinedInput
                   autoComplete="off"
                 {...register("srno", {
                   required: { value: true, message: "Serial No. is required." },
                 })}
                 error={errors.imei ? true : false}
-                label="Sr No."
+                label="SR No."
                 inputProps={{
                   "aria-label": "weight",
                 }}
@@ -193,4 +193,4 @@ const SingleQrGenerater: React.FC = () => {
   );
 };
 
-export default SingleQrGenerater;
+export default SingleQrGenerator;

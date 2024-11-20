@@ -146,8 +146,8 @@ export const productionMenu = [
     path: "/production/battery-qc",
   },
   {
-    name: "QR Code Generater",
-    path: "/production/single-qr-generater",
+    name: "QR Code Generator",
+    path: "/production/single-qr-generator",
   },
 ];
 

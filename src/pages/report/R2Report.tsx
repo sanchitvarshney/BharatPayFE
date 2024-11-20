@@ -3,16 +3,16 @@ import { DatePicker, TimeRangePickerProps } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { convertDateRangev2 } from "@/utils/converDateRangeUtills";
-import { Download, Filter } from "lucide-react";
 import R2ReportDetail from "@/table/report/R2ReportDetail";
 import { CustomDrawer, CustomDrawerContent, CustomDrawerHeader, CustomDrawerTitle } from "@/components/reusable/CustomDrawer";
-import { showToast } from "@/utils/toastUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getR2Data } from "@/features/report/report/reportSlice";
-import { CustomButton } from "@/components/reusable/CustomButton";
 import R2ReportTable from "@/table/report/R2ReportTable";
 import { useSocket } from "@/hooks/useSocket";
-
+import LoadingButton from "@mui/lab/LoadingButton";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import { showToast } from "@/utils/toasterContext";
+import DownloadIcon from '@mui/icons-material/Download';
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -41,14 +41,11 @@ const R2Report: React.FC = () => {
     onDownloadReport((data) => {
       console.log("Report downloaded:", data);
       setLoading(false);
-      showToast({
-        description: "Report downloaded successfully",
-        variant: "success",
-      });
-      // Handle downloaded report data
+      showToast("Report downloaded successfully", "success");
+     
     });
   }, [onDownloadReport]);
-  
+
   return (
     <>
       <CustomDrawer open={open} onOpenChange={setOpen}>
@@ -77,14 +74,11 @@ const R2Report: React.FC = () => {
               placeholder={["Start date", "End Date"]}
               format={dateFormat}
             />
-            <CustomButton
+            <LoadingButton
               loading={getR2DataLoading}
               onClick={() => {
                 if (!date) {
-                  showToast({
-                    description: "Please select a date",
-                    variant: "destructive",
-                  });
+                  showToast("Please select a date", "error");
                 } else {
                   dispatch(getR2Data(date)).then((res: any) => {
                     if (res.payload?.data?.status === "success") {
@@ -92,15 +86,15 @@ const R2Report: React.FC = () => {
                   });
                 }
               }}
-              size={"sm"}
-              className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]"
+              startIcon={<FilterAltIcon fontSize="small" />}
+              variant="contained"
             >
-              <Filter className="h-[17px] w-[17px]" /> Filter
-            </CustomButton>
+              Filter
+            </LoadingButton>
           </div>
-          <CustomButton loading={loading} onClick={handleDownload} size={"sm"} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
-            <Download className="h-[17px] w-[17px]" /> Download
-          </CustomButton>
+          <LoadingButton variant="contained" startIcon={<DownloadIcon fontSize="small" />} disabled loading={loading} onClick={handleDownload}  >
+            Download
+          </LoadingButton>
         </div>
         <R2ReportTable setOpen={setOpen} />
       </div>

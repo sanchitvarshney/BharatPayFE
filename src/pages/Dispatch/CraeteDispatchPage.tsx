@@ -201,10 +201,10 @@ const CraeteDispatchPage: React.FC = () => {
           <div>
             <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
               <FormControl sx={{ width: "400px" }} variant="outlined">
-                <InputLabel>IMEI/Sr No.</InputLabel>
+                <InputLabel>IMEI/SR No.</InputLabel>
                 <OutlinedInput
                   value={imei}
-                  label="IMEI/Sr No."
+                  label="IMEI/SR No."
                   id="standard-adornment-qty"
                   aria-describedby="standard-weight-helper-text"
                   inputProps={{

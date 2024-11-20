@@ -55,8 +55,8 @@ import ManageDispatch from "./pages/Dispatch/ManageDispatch";
 import CraeteDispatchPage from "./pages/Dispatch/CraeteDispatchPage";
 import SopPage from "./pages/fileupload/SopPage";
 import QrLayout from "./layouts/QrLayout";
-import MasterQrGenerater from "./pages/production/MasterQrGenerater";
-import SingleQrGenerater from "./pages/production/SingleQrGenerater";
+import MasterQrGenerator from "./pages/production/MasterQrGenerater";
+import SingleQrGenerator from "./pages/production/SingleQrGenerater";
 import LogningV2 from "./pages/commonPages/LogningV2";
 import DownloadQrExcel from "./pages/production/DownloadQrExcel";
 
@@ -381,22 +381,22 @@ export const router = createBrowserRouter([
           <MainLayout>
             <QrLayout>
               <CustomRedirection UnderDevelopment={false}>
-                <MasterQrGenerater />
+                <MasterQrGenerator />
               </CustomRedirection>
             </QrLayout>
           </MainLayout>
         ),
-        path: "/production/master-qr-generater",
+        path: "/production/master-qr-generator",
       },
       {
         element: (
           <MainLayout>
             <QrLayout>
-              <SingleQrGenerater />
+              <SingleQrGenerator />
             </QrLayout>
           </MainLayout>
         ),
-        path: "/production/single-qr-generater",
+        path: "/production/single-qr-generator",
       },
       {
         element: (

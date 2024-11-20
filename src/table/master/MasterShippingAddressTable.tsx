@@ -13,7 +13,7 @@ interface RowData {
   }
 
 const columnDefs: ColDef[] = [
-    { headerName: 'Sr No.', field: 'srNo', sortable: true, filter: true,flex:1 },
+    { headerName: 'SR No.', field: 'srNo', sortable: true, filter: true,flex:1 },
   { headerName: 'Label', field: 'label', sortable: true, filter: true ,flex:1},
   { headerName: 'Company', field: 'company', sortable: true, filter: true,flex:1 },
   { headerName: 'State', field: 'state', sortable: true, filter: true,flex:1 },

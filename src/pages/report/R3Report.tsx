@@ -1,14 +1,15 @@
 import React, { useCallback, useRef, useState } from "react";
 import { DatePicker, TimeRangePickerProps } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { Download, Filter } from "lucide-react";
 import dayjs, { Dayjs } from "dayjs";
 import R3ReportTable from "@/table/report/R3ReportTable";
 import { AgGridReact } from "@ag-grid-community/react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { showToast } from "@/utils/toastUtils";
 import { getr3Report } from "@/features/report/report/reportSlice";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { showToast } from "@/utils/toasterContext";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import DownloadIcon from "@mui/icons-material/Download";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
@@ -41,6 +42,7 @@ const R3Report: React.FC = () => {
       sheetName: "R3 Report", // Set your desired sheet name here
     });
   }, []);
+  console.log("===========", date);
   return (
     <div className="bg-white h-[calc(100vh-90px)]">
       <div className="h-[50px] flex items-center justify-between px-[20px] gap-[20px]">
@@ -53,27 +55,38 @@ const R3Report: React.FC = () => {
             value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
             format="DD/MM/YYYY" // Update with your desired format
           />
-          <CustomButton
+          <LoadingButton
+            variant="contained"
+            startIcon={<FilterAltIcon fontSize="small" />}
+            loadingPosition="start"
             loading={r3reportLoading}
             onClick={() => {
-              if (!date) {
-                showToast({
-                  description: "Please select date",
-                  variant: "destructive",
-                });
+              if (!date.from || !date.to) {
+                showToast("Select date range", "error");
               } else {
                 dispatch(getr3Report({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
               }
             }}
-            size={"sm"}
-            className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]"
           >
-            <Filter className="h-[17px] w-[17px]" /> Filter
-          </CustomButton>
+            Filter
+          </LoadingButton>
         </div>
-        <CustomButton onClick={onBtExport} size={"sm"} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
-          <Download className="h-[17px] w-[17px]" /> Download
-        </CustomButton>
+        <LoadingButton
+          variant="contained"
+          startIcon={<DownloadIcon fontSize={"small"} />}
+          loadingPosition="start"
+          loading={r3reportLoading}
+          disabled={!date.from || !date.to}
+          onClick={() => {
+            if (!date) {
+              showToast("Select date range", "error");
+            } else {
+              onBtExport();
+            }
+          }}
+        >
+          Download
+        </LoadingButton>
       </div>
       <R3ReportTable gridRef={gridRef} />
     </div>

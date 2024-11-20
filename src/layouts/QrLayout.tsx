@@ -15,7 +15,7 @@ const QrLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/production/single-qr-generater", "/production/master-qr-generater","/production/download-excel"];
+  const tabRoutes = ["/production/single-qr-generator", "/production/master-qr-generator","/production/download-excel"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -42,7 +42,7 @@ const QrLayout: React.FC<Props> = ({ children }) => {
             label={
               <div className="flex items-center gap-[10px]">
                 <QrCodeIcon />
-                Single QR Generater
+                Single QR Generator
               </div>
             }
           />
@@ -51,7 +51,7 @@ const QrLayout: React.FC<Props> = ({ children }) => {
             label={
               <div className="flex items-center gap-[10px]">
                 <QrCodeScannerIcon />
-                Master QR Generater
+                Master QR Generator
               </div>
             }
           />
