@@ -17,7 +17,7 @@ import {
   ProcessApiResponse,
   RequestDetail,
 } from "./MrApprovalType";
-import { showToast } from "@/utils/toastUtils";
+import { showToast } from "@/utils/toasterContext";
 
 const initialState: PendingMrRequestState = {
   pendingMrRequestData: null,
@@ -45,6 +45,7 @@ export const getProcessMrReqeustAsync = createAsyncThunk<AxiosResponse<ProcessAp
   return response;
 });
 export const getItemDetailsAsync = createAsyncThunk<AxiosResponse<ItemDetailApiResponse>, { txnid: string; itemKey: string; picLocation: string }>("master/getItemDetails", async (params) => {
+
   const response = await axiosInstance.get(`/req/data/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`);
   return response;
 });
@@ -134,15 +135,9 @@ const MrApprovalSlice = createSlice({
       .addCase(approveSelectedItemAsync.fulfilled, (state, action) => {
         state.approveItemLoading = false;
         if (action.payload.data.success) {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "success",
-          });
+          showToast(action.payload?.data?.message, "success");
         } else {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "destructive",
-          });
+          showToast(action.payload?.data?.message, "error");
         }
       })
       .addCase(approveSelectedItemAsync.rejected, (state) => {
@@ -154,15 +149,9 @@ const MrApprovalSlice = createSlice({
       .addCase(approveDeviceRequest.fulfilled, (state, action) => {
         state.approveItemLoading = false;
         if (action.payload.data.success) {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "success",
-          });
+          showToast(action.payload?.data?.message, "success");
         } else {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "destructive",
-          });
+          showToast(action.payload?.data?.message, "error");
         }
       })
       .addCase(approveDeviceRequest.rejected, (state) => {
@@ -174,15 +163,9 @@ const MrApprovalSlice = createSlice({
       .addCase(materialRequestReject.fulfilled, (state, action) => {
         state.rejectItemLoading = false;
         if (action.payload.data.success) {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "success",
-          });
+          showToast(action.payload?.data?.message, "success");
         } else {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "destructive",
-          });
+          showToast(action.payload?.data?.message, "error");
         }
       })
       .addCase(materialRequestReject.rejected, (state) => {
@@ -194,15 +177,9 @@ const MrApprovalSlice = createSlice({
       .addCase(materialRequestCancel.fulfilled, (state, action) => {
         state.cancelItemLoading = false;
         if (action.payload.data.success) {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "success",
-          });
+          showToast(action.payload?.data?.message, "success");
         } else {
-          showToast({
-            description: action.payload?.data?.message,
-            variant: "destructive",
-          });
+          showToast(action.payload?.data?.message, "error");
         }
       })
       .addCase(materialRequestCancel.rejected, (state) => {

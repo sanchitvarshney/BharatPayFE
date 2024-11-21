@@ -12,6 +12,7 @@ const initialState: Commonstate = {
   currencyData: null,
 };
 
+
 export const getUserAsync = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getuser", async (searchinput) => {
   const response = await axiosInstance.get(`/backend/search/user/${searchinput}`);
   return response;

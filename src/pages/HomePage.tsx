@@ -75,7 +75,7 @@ const HomePage = () => {
                 placeholder="Search..."
                 id="input-with-password-adornment"
                 endAdornment={
-                  <InputAdornment position="start">
+                  <InputAdornment position="end">
                     <IconButton>
                       <SendIcon />
                     </IconButton>

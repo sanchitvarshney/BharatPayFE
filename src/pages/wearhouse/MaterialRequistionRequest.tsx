@@ -1,32 +1,27 @@
 import MrRequisitionReqTable from "@/table/wearhouse/MrRequisitionReqTable";
-import React, { useEffect, useRef } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { Download, Search } from "lucide-react";
-import CustomDatePicker from "@/components/reusable/CustomDatePicker";
+import React, { useEffect } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { getUserAsync } from "@/features/common/commonSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { SingleValue } from "react-select";
-import { transformGroupSelectData } from "@/utils/transformUtills";
-import moment from "moment";
 import { getApprovedMaterialList } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
-
+import { CardContent, Divider, TextField, Typography } from "@mui/material";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import LoadingButton from "@mui/lab/LoadingButton";
+import DownloadIcon from "@mui/icons-material/Download";
+import SearchIcon from "@mui/icons-material/Search";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
+import SelectUser, { UserData } from "@/components/reusable/SelectUser";
 type Fomrstate = {
-  user: OptionType | null;
-  date: string;
+  user: UserData | null;
+  date: Dayjs | null;
 };
 
-type OptionType = {
-  value: string;
-  label: string;
-};
 const MaterialRequistionRequest: React.FC = () => {
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
-  const { userData, getUserLoading } = useAppSelector((state) => state.common);
-  const { approvedMaterialListLoading} = useAppSelector((state) => state.pendingMr);
+  const { approvedMaterialListLoading } = useAppSelector((state) => state.pendingMr);
   const {
     handleSubmit,
 
@@ -35,58 +30,41 @@ const MaterialRequistionRequest: React.FC = () => {
   } = useForm<Fomrstate>({
     defaultValues: {
       user: null,
-      date: "",
+      date: null,
     },
   });
   const onSubmit: SubmitHandler<Fomrstate> = (data) => {
     console.log(data);
     dispatch(
       getApprovedMaterialList({
-        date: data.date,
-        user: data.user?.value || "",
+        date: dayjs(data.date).format("DD-MM-YYYY"),
+        user: data.user?.id || "",
       })
     );
   };
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(getUserAsync(null));
-  },[])
+  }, []);
   return (
     <div className="h-[calc(100vh-100px)] grid grid-cols-[400px_1fr]">
-      <div className="p-[10px] h-full overflow-y-auto">
+      <div className="h-full overflow-y-auto bg-white border-r border-neutral-300">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Card className="rounded-md ">
-            <CardHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
-              <CardTitle className="text-slate-600 font-[500]">Filter</CardTitle>
-            </CardHeader>
+          <div>
+            <div className="h-[40px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
+              <Typography fontSize={17} fontWeight={500} className="flex items-center text-slate-600 gap-[10px]">
+                <FilterAltIcon fontSize="small" className="text-slate-600" /> Filter
+              </Typography>
+            </div>
+            <Divider />
             <CardContent>
-              <div className="grid  gap-[40px] mt-[30px]">
+              <div className="grid  gap-[30px] mt-[30px]">
                 <div>
                   <Controller
                     name="user"
                     control={control}
                     rules={{ required: "User is required" }}
-                    render={({ field }) => (
-                      <CustomSelect
-                        options={transformGroupSelectData(userData)}
-                        isLoading={getUserLoading}
-                        {...field}
-                        required
-                        value={field.value}
-                        isClearable={true}
-                        onChange={(selectedOption) => field.onChange(selectedOption as SingleValue<OptionType>)}
-                        placeholder={"User"}
-                        onInputChange={(value) => {
-                          if (debounceTimeout.current) {
-                            clearTimeout(debounceTimeout.current);
-                          }
-                          debounceTimeout.current = setTimeout(() => {
-                            dispatch(getUserAsync(!value ? null : value));
-                          }, 500);
-                        }}
-                      />
-                    )}
+                    render={({ field }) => <SelectUser value={field.value} onChange={field.onChange} label="User" error={errors.user !== undefined} helperText={errors.user ? errors.user.message : ""} />}
                   />
-                  {errors.user && <p className="text-red-500 text-[12px]">{errors.user.message}</p>}
                 </div>
                 <div>
                   <Controller
@@ -94,30 +72,40 @@ const MaterialRequistionRequest: React.FC = () => {
                     control={control}
                     rules={{ required: " Date is required" }}
                     render={({ field }) => (
-                      <CustomDatePicker
-                        label="Date"
-                        className="w-full"
-                        onDateChange={(e) => {
-                          const date = new Date(e!.toString());
-                          const formattedDate = moment(date).format("DD-MM-YYYY");
-                          field.onChange(formattedDate);
-                        }}
-                      />
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          slots={{
+                            textField: TextField,
+                          }}
+                          slotProps={{
+                            textField: {
+                              variant: "outlined",
+
+                              error: !!errors.date,
+                              helperText: errors.date ? " Date is required" : null,
+                            },
+                          }}
+                          value={field.value}
+                          onChange={(value) => field.onChange(value)}
+                          sx={{ width: "100%" }}
+                          label="Date"
+                          name="startDate"
+                        />
+                      </LocalizationProvider>
                     )}
                   />
-                  {errors.date && <p className="text-red-500 text-[12px]">{errors.date.message}</p>}
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="h-[50px] p-0 flex items-center px-[20px] border-t gap-[10px] justify-end">
-              <CustomButton  icon={<Download className="h-[18px] w-[18px] " />} variant={"outline"}>
+            <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end">
+              <LoadingButton disabled sx={{ background: "#ffff", color: "green" }} startIcon={<DownloadIcon fontSize="small" />} variant={"contained"}>
                 Download
-              </CustomButton>
-              <CustomButton loading={approvedMaterialListLoading} icon={<Search className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
+              </LoadingButton>
+              <LoadingButton loadingPosition="start" type="submit" loading={approvedMaterialListLoading} startIcon={<SearchIcon fontSize="small" />} variant="contained">
                 Search
-              </CustomButton>
-            </CardFooter>
-          </Card>
+              </LoadingButton>
+            </div>
+          </div>
         </form>
       </div>
       <div>
