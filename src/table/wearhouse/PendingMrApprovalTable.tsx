@@ -2,16 +2,16 @@ import React, { Dispatch, useMemo } from "react";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { BsThreeDotsVertical } from "react-icons/bs";
-
-import { HiOutlineRefresh } from "react-icons/hi";
-import { IoPrint } from "react-icons/io5";
-import { Download } from "lucide-react";
-import { RxCross2 } from "react-icons/rx";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getProcessMrReqeustAsync, setRequestDetail } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
-
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import MenuItem from "@mui/material/MenuItem";
+import { IconButton, ListItemIcon, Menu } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import CachedIcon from "@mui/icons-material/Cached";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import CloseIcon from "@mui/icons-material/Close";
+import PrintIcon from '@mui/icons-material/Print';
 type Props = {
   approve: boolean;
   setApprove: Dispatch<React.SetStateAction<boolean>>;
@@ -20,61 +20,36 @@ type Props = {
   setxnId: Dispatch<React.SetStateAction<string>>;
 };
 
-
-const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert,setRequestType ,setxnId}) => {
+const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert, setRequestType, setxnId }) => {
   const dispatch = useAppDispatch();
   const { getPendingMrRequestLoading, pendingMrRequestData } = useAppSelector((state) => state.pendingMr);
- 
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [params, setParams] = React.useState<any>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const columnDefs: ColDef[] = [
     {
       headerName: "Action",
       maxWidth: 150,
       field: "action",
       cellRenderer: (params: any) => (
-        <div className="flex items-center h-full">
-          <DropdownMenu>
-            <div className="flex items-center px-[20px] h-full">
-              <DropdownMenuTrigger className="p-[5px] focus-visible::ring-slate-300 h-full flex items-center">
-                <BsThreeDotsVertical className="font-[600] text-[20px] text-slate-600" />
-              </DropdownMenuTrigger>
-            </div>
-            <DropdownMenuContent className="w-[170px]" side="bottom" align="start">
-              <DropdownMenuItem
-                onSelect={() => {
-                  setRequestType(params?.data?.transactionType || "")
-                  dispatch(
-                    setRequestDetail({
-                      name: params?.data?.userName,
-                      id: params?.data?.transactionId,
-                      requestDate: params?.data?.insertDate,
-                    })
-                  );
-                  setApprove(true);
-                  dispatch(getProcessMrReqeustAsync(params?.data?.transactionId));
-                }}
-                className="flex items-center gap-[10px] text-slate-600"
-              >
-                <HiOutlineRefresh className="h-[18px] w-[18px] text-slate-500" />
-                Process
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600">
-                <Download className="h-[18px] w-[18px] text-slate-500" />
-                Download
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600">
-                <IoPrint className="h-[18px] w-[18px] text-slate-500" />
-                Print
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onSelect={() => {
-                setAlert(true)
-                setxnId(params?.data?.transactionId)
-              }}>
-                <RxCross2 className="h-[18px] w-[18px] text-slate-500" />
-                Cancel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <>
+          <div className="flex items-center h-full">
+            <IconButton
+              onClick={(e) => {
+                handleClick(e);
+                setParams(params);
+              }}
+            >
+              <MoreVertIcon />
+            </IconButton>
+          </div>
+        </>
       ),
     },
     { headerName: "#", field: "id", sortable: true, filter: true, maxWidth: 100, valueGetter: (params: any) => params.node.rowIndex + 1 },
@@ -89,11 +64,108 @@ const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert,setReque
       filter: true,
     };
   }, []);
-  
+
   return (
     <div>
+      <Menu
+        anchorEl={anchorEl}
+        id="account-menu"
+        open={open}
+        onClose={handleClose}
+        onClick={handleClose}
+        slotProps={{
+          paper: {
+            elevation: 2,
+
+            sx: {
+              width: "200px",
+              overflow: "visible",
+              mt: 1.5,
+              ml: -2.5,
+              border: "1px solid #d3d3d3",
+              "& .MuiAvatar-root": {
+                width: 32,
+                height: 32,
+                ml: -0.5,
+                mr: 1,
+              },
+              "&::before": {
+                content: '""',
+                display: "block",
+                position: "absolute",
+                top: 0,
+                left: 14,
+                width: 10,
+                height: 10,
+                bgcolor: "background.paper",
+                transform: "translateY(-50%) rotate(45deg)",
+                zIndex: 0,
+                borderTop: "1px solid #d3d3d3",
+                borderLeft: "1px solid #d3d3d3",
+              },
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: "left", vertical: "top" }}
+        anchorOrigin={{ horizontal: "center", vertical: "center" }}
+      >
+        <MenuItem
+          onClick={() => {
+            setRequestType(params?.data?.transactionType || "");
+            dispatch(
+              setRequestDetail({
+                name: params?.data?.userName,
+                id: params?.data?.transactionId,
+                requestDate: params?.data?.insertDate,
+              })
+            );
+            setApprove(true);
+            dispatch(getProcessMrReqeustAsync(params?.data?.transactionId));
+          }}
+        >
+          <ListItemIcon>
+            <CachedIcon fontSize="small" />
+          </ListItemIcon>
+          Process
+        </MenuItem>
+
+        <MenuItem disabled onClick={() => {}}>
+          <ListItemIcon>
+            <FileDownloadIcon fontSize="small" />
+          </ListItemIcon>
+          Download
+        </MenuItem>
+        <MenuItem disabled onClick={() => {}}>
+          <ListItemIcon>
+            <PrintIcon fontSize="small" />
+          </ListItemIcon>
+          Print
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setAlert(true);
+            setxnId(params?.data?.transactionId);
+          }}
+        >
+          <ListItemIcon>
+            <CloseIcon fontSize="small" />
+          </ListItemIcon>
+          Cancel
+        </MenuItem>
+      </Menu>
+
       <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact loading={getPendingMrRequestLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate}  suppressCellFocus={true} rowData={pendingMrRequestData}  columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact
+          loadingOverlayComponent={CustomLoadingOverlay}
+          loading={getPendingMrRequestLoading}
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
+          suppressCellFocus={true}
+          rowData={pendingMrRequestData || []}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          pagination={true}
+          paginationPageSize={20}
+        />
       </div>
     </div>
   );

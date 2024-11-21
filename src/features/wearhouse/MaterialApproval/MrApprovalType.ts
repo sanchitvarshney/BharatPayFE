@@ -21,7 +21,7 @@ export type Head = {
   transactionId: string;
 };
 
-export type Body = {
+export type ProcessRequestDataBody = {
   remark: string;
   partKey: string;
   partName: string;
@@ -32,7 +32,7 @@ export type Body = {
 
 export type ProcessRequestData = {
   head: Head;
-  body: Body[];
+  body: ProcessRequestDataBody[];
 };
 export type ProcessApiResponse = {
   status: string;

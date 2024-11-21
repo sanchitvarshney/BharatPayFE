@@ -4,73 +4,78 @@ import { crearLocation, getLocationAsync } from "@/features/wearhouse/Divicemin/
 import { clearItemdetail, getPendingMaterialListsync, materialRequestCancel } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import PendingMrApprovalTable from "@/table/wearhouse/PendingMrApprovalTable";
+import {  Button, DialogActions, DialogContent, DialogContentText, DialogTitle,  TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { AlertDialog,  AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { showToast } from "@/utils/toastUtils";
+import Dialog from "@mui/material/Dialog";
+
+import { LoadingButton } from "@mui/lab";
+
+import { showToast } from "@/utils/toasterContext";
+
 const MaterialApproval: React.FC = () => {
   const [approve, setApprove] = useState<boolean>(false);
   const [alert, setAlert] = useState<boolean>(false);
   const [approved, setApproved] = useState<string[] | null>(null);
   const [requestType, setRequestType] = useState<string>("");
-  const [remarks,setRemarks] = useState<string>("")
-  const {cancelItemLoading} = useAppSelector(state=>state.pendingMr)
-  const [txnId,setTxnId] = useState<string>("")
+  const [remarks, setRemarks] = useState<string>("");
+  const { cancelItemLoading } = useAppSelector((state) => state.pendingMr);
+  const [txnId, setTxnId] = useState<string>("");
+ 
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(getPendingMaterialListsync());
   }, []);
   useEffect(() => {
     dispatch(clearItemdetail());
-    if(!approve){
-      dispatch(crearLocation())
-      
-    }else{
+    if (!approve) {
+      dispatch(crearLocation());
+    } else {
       dispatch(getLocationAsync(null));
     }
   }, [approve]);
   return (
     <>
-     <AlertDialog open={alert} onOpenChange={setAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-600">Do you Want to Cancel the Material Request?</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div>
-            <Textarea placeholder="Remarks" className="resize-none" onChange={(e) => setRemarks(e.target.value)} />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>No</AlertDialogCancel>
-            {/* <AlertDialogAction className="bg-red-500 hover:bg-red-600">Yes</AlertDialogAction> */}
-            <CustomButton
-              loading={cancelItemLoading}
-              className="bg-red-500 hover:bg-red-600"
-              onClick={(e) => {
-                e.preventDefault();
-               if(remarks){
-                dispatch(materialRequestCancel({ remarks: remarks, txnID:txnId})).then((res:any)=>{
-                  if( res.payload.data?.success){
-                    setRemarks("")
-                   setTxnId("")
-                   setAlert(false)
-                   dispatch(getPendingMaterialListsync());
-                  }
-               })
-               }else{
-                  showToast({
-                    description: "Please Enter Remarks",
-                    variant: "destructive",
-                  })
-               }
-               
-              }}
-            >
-              Yes
-            </CustomButton>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+     
+      <Dialog
+        open={alert}
+        onClose={() => setAlert(false)}
+        PaperProps={{
+          component: "form",
+          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries((formData as any).entries());
+            const remark = formJson.remark;
+
+            if (remark) {
+              dispatch(materialRequestCancel({ remarks: remarks, txnID: txnId })).then((res: any) => {
+                if (res.payload.data?.success) {
+                  setRemarks("");
+                  setTxnId("");
+                  setAlert(false);
+                  dispatch(getPendingMaterialListsync());
+                }
+              });
+            } else {
+              showToast("Please Enter Remarks", "error");
+            }
+          },
+        }}
+      >
+        <DialogTitle>Are you sure?</DialogTitle>
+        <DialogContent sx={{width:"600px"}}>
+          <DialogContentText>
+          do you want to cancel the material request?
+          </DialogContentText>
+          <TextField autoComplete="off" autoFocus margin="dense" id="name" name="remark" label="Remark (required)" fullWidth variant="standard" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAlert(false)}>No</Button>
+          <LoadingButton loading={cancelItemLoading} type="submit" variant="contained" color="error">
+            Yes
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
       {requestType === "DEVICE" ? (
         <MaterialRequestDeviceApprovalDrawer approved={approved} setApproved={setApproved} open={approve} setOpen={setApprove} alert={alert} setAlert={setAlert} />
       ) : (

@@ -64,6 +64,12 @@ export const theme = createTheme({
         input: {
           fontSize: "12px", // Global font size for placeholder
         },
+        root: {
+          '&.Mui-disabled': {
+            cursor: 'not-allowed !important',
+            backgroundColor: '#f0f0f0',
+          },
+        },
       },
     },
     MuiInputLabel: {
