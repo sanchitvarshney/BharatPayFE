@@ -1,26 +1,34 @@
-import React, { useEffect, useRef, useState } from "react";
-import { CustomDrawer, CustomDrawerContent, CustomDrawerHeader, CustomDrawerTitle } from "@/components/reusable/CustomDrawer"; // Update with the correct path
-import { CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Filter } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import CustomInput from "@/components/reusable/CustomInput";
-import { Textarea } from "@/components/ui/textarea";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { IoMdCheckmark } from "react-icons/io";
-import { RxCross2 } from "react-icons/rx";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { approveSelectedItemAsync, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
-import { CgSpinner } from "react-icons/cg";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { transformGroupSelectData } from "@/utils/transformUtills";
-import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { SingleValue } from "react-select";
-import { showToast } from "@/utils/toastUtils";
-
+import ListItemText from "@mui/material/ListItemText";
+import ListItemButton from "@mui/material/ListItemButton";
+import List from "@mui/material/List";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import CloseIcon from "@mui/icons-material/Close";
+import Slide from "@mui/material/Slide";
+import { TransitionProps } from "@mui/material/transitions";
+import Grid from "@mui/material/Grid2";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import PlaceIcon from "@mui/icons-material/Place";
+import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
+import AppsIcon from "@mui/icons-material/Apps";
+import Dialog from "@mui/material/Dialog";
+import { Avatar, Button, Chip, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import { showToast } from "@/utils/toasterContext";
+import DoneIcon from "@mui/icons-material/Done";
+import { ProcessRequestDataBody } from "@/features/wearhouse/MaterialApproval/MrApprovalType";
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -29,27 +37,49 @@ type Props = {
   approved: string[] | null;
   setApproved: React.Dispatch<React.SetStateAction<string[] | null>>;
 };
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
-type OptionType = {
-  label: string;
-  value: string;
-};
 type Forstate = {
-  picLocation: OptionType | null;
+  picLocation: LocationType | null;
   issueQty: string;
   remarks: string;
 };
 const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
   const [itemkey, setItemKey] = useState<string>("");
   const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading } = useAppSelector((state) => state.pendingMr);
-  const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
+  const [isueeQty, setIsueeQty] = useState<string>("");
+  const [confirmIssueChange, setConfirmIssueChange] = useState<boolean>(false);
   const [remarks, setRemarks] = useState<string>("");
-
   const dispatch = useAppDispatch();
+  const [data, setData] = useState<ProcessRequestDataBody[] | null>(null);
+
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+
+  const handleChange = (value: string) => {
+    setSelectedValue(value);
+    setItemKey(value);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    dispatch(getPendingMaterialListsync());
+    setSelectedValue(null);
+    setRemarks("");
+    setIsueeQty("");
+    setItemKey("");
+  };
   const {
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<Forstate>({
     defaultValues: {
@@ -58,15 +88,14 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
       remarks: "",
     },
   });
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const onSubmit: SubmitHandler<Forstate> = (data) => {
     dispatch(
       approveSelectedItemAsync({
         itemsCode: itemkey,
-        pickLocation: data.picLocation!.value,
+        pickLocation: data.picLocation!.id,
         issueQty: data.issueQty,
-        remarks: data.remarks,
         transactionId: requestDetail?.id || "",
+        remarks: data.remarks,
       })
     ).then((response: any) => {
       if (response.payload.data?.success) {
@@ -74,215 +103,315 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
         setItemKey("");
         reset();
         approved ? setApproved([...approved, itemkey]) : setApproved([itemkey]);
+
+        setIsueeQty("");
+        setSelectedValue(null);
       }
     });
   };
+
   useEffect(() => {
-    dispatch(getLocationAsync(null));
-  }, []);
+    if (!open) {
+      setItemKey("");
+      reset();
+      setIsueeQty("");
+      setRemarks("");
+    }
+  }, [open]);
+  useEffect(() => {
+    dispatch(clearItemdetail());
+
+    reset();
+    setIsueeQty("");
+    setRemarks("");
+  }, [selectedValue]);
+  useEffect(() => {
+    if (processRequestData) {
+      setData(processRequestData.body);
+    } else {
+      setData(null);
+    }
+  }, [processRequestData]);
   return (
-    <div>
-      <CustomDrawer
+    <>
+      {/*confirm isuee change =======================================================  */}
+
+      <Dialog open={confirmIssueChange} onClose={() => setConfirmIssueChange(false)}>
+        <DialogTitle>Are you absolutely sure?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>If you change the issue quantity, Then your all scanned data will be cleared.</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmIssueChange(false)}>No</Button>
+          <LoadingButton
+            onClick={() => {
+              setConfirmIssueChange(false);
+              setIsueeQty("");
+              setValue("issueQty", "");
+            }}
+            type="submit"
+            variant="contained"
+            color="error"
+          >
+            Yes
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        fullScreen
         open={open}
-        onOpenChange={(e) => {
-          setOpen(e);
-          if (!e) {
-            dispatch(getPendingMaterialListsync());
-          }
+        onClose={() => {
+          setOpen(false);
+          dispatch(getPendingMaterialListsync());
         }}
+        TransitionComponent={Transition}
       >
-        <CustomDrawerContent side="right" className="min-w-[80%] p-0" onInteractOutside={(e) => e.preventDefault()}>
-          <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400 ">
-            <CustomDrawerTitle className="text-slate-600 font-[500] p-0"> Process Request</CustomDrawerTitle>
-          </CustomDrawerHeader>
-          <div className="h-[calc(100vh-50px)] overflow-y-auto grid grid-cols-[250px_1fr_1fr]">
-            <div className="relative border-r border-slate-300">
-              <CardTitle className="text-slate-600 border-b h-[40px] px-[10px] flex items-center bg-hbg">Requested Details</CardTitle>
-              <div className="p-[10px]">
-                <ul className="flex flex-col gap-[10px]">
-                  <li>
-                    <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">BOM:</p>
-                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head?.bomName}</p>}
-                  </li>
-                  <li>
-                    <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">Req. Location:</p>
-                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head?.locationName}</p>}
-                  </li>
-                  <li>
-                    <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">MFG Qty:</p>
-                    {processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : <p className="text-slate-500 text-[14px] ml-[5px]">{processRequestData?.head?.mfgQty}</p>}
-                  </li>
-                </ul>
-              </div>
-              <div className="absolute bottom-[10px] border-t w-full border-slate-300 p-[10px]">
-                <ul className="flex flex-col gap-[10px]">
-                  <li>
-                    <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">Request Id:</p>
-                    <p className="text-slate-500 text-[14px] ml-[5px]">{requestDetail?.id}</p>
-                  </li>
-                  <li>
-                    <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">Request From:</p>
-                    <p className="text-slate-500 text-[14px] ml-[5px]">{requestDetail?.name}</p>
-                  </li>
-                  <li>
-                    <p className="text-slate-500 font-[600] text-[14px] ml-[5px]">Request Date:</p>
-                    <p className="text-slate-500 text-[14px] ml-[5px]">{requestDetail?.requestDate}</p>
-                  </li>
-                </ul>
-              </div>
+        <div className="h-[50px] flex items-center  px-[20px] bg-neutral-200  shadow border-b border-neutral-300">
+          <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+            <CloseIcon />
+          </IconButton>
+          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+            Device Process Request
+          </Typography>
+        </div>
+
+        <Grid container sx={{ height: "calc(100vh-50px)", flexDirection: "row", flex: 1, overflowY: "auto", width: "100%" }}>
+          <Grid size={3} sx={{ borderRight: "1px solid #d4d4d4", position: "relative" }}>
+            <div className="h-[50px] flex items-center px-[10px] bg-cyan-50 border-b">
+              <Chip label="1" sx={{ mr: 2 }} />
+              <Typography variant="h5" fontSize={18} fontWeight={500}>
+                Requested Details
+              </Typography>
             </div>
-            <div className="border-r border-slate-300">
-              <CardTitle className="text-slate-600 border-b h-[40px] px-[10px] flex items-center bg-hbg ">Requested Items</CardTitle>
-              <div className="p-[10px] h-[calc(100vh-90px)] ">
-                <div className="relative flex items-center">
-                  <Input placeholder="Serch Items" />
-                  <Filter className="h-[20px] w-[20px] text-slate-400 absolute right-[5px]" />
-                </div>
-                <div className="mt-[20px] ">
-                  {processMrRequestLoading ? (
-                    <ul className="flex flex-col gap-[10px]">
-                      <li>
-                        <Skeleton className="h-[50px] w-full" />
-                      </li>
-                      <li>
-                        <Skeleton className="h-[50px] w-full" />
-                      </li>
-                      <li>
-                        <Skeleton className="h-[50px] w-full" />
-                      </li>
-                    </ul>
-                  ) : (
-                    <RadioGroup
-                      defaultValue="option-one"
-                      onValueChange={(e) => {
-                        setItemKey(e);
-                      }}
-                    >
-                      {processRequestData?.body?.map((item, index) => (
-                        <Label key={index} htmlFor={item?.partKey} className={`flex  space-x-2  border-b p-[10px] items-start cursor-pointer ${approved?.includes(item?.partKey) ? "opacity-50 pointer-events-none" : ""}`}>
-                          <RadioGroupItem value={item?.partKey} id={item?.partKey} className="mt-[5px]" />
-                          <div>
-                            <p className="text-slate-600 font-[600]">{item?.partCode}</p>
-                            <p className="text-slate-600 text-[13px]">{item?.partName}</p>
-                          </div>
-                        </Label>
-                      ))}
-                    </RadioGroup>
-                  )}
-                </div>
-              </div>
+            <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <AccountTreeIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="BOM" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.bomName} />
+              </ListItem>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <PlaceIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Req. Location:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.locationName} />
+              </ListItem>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <AppsIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="MFG Qty:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.mfgQty} />
+              </ListItem>
+            </List>
+
+            <div className="absolute bottom-0 left-0 right-0 ">
+              <Divider />
+              <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <ContactEmergencyIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary="Request ID" secondary={requestDetail?.id} />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <AccountCircleIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary="Requested By" secondary={requestDetail?.name} />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <InsertInvitationIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary="Request Date" secondary={requestDetail?.requestDate} />
+                </ListItem>
+              </List>
             </div>
-            <div className="">
-              <CardTitle className="text-slate-600 border-b h-[40px] px-[10px] flex items-center bg-hbg ">Item Transfer Details</CardTitle>
-              <div className={`p-[10px]  relative ${itemkey ? "" : "opacity-40 pointer-events-none"}`}>
-                {itemDetailLoading && (
-                  <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-[10] bg-white/60">
-                    <div className="max-h-max max-w-max">
-                      <CgSpinner className="text-slate-600  animate-spin h-[30px] w-[30px]" />
-                    </div>
+          </Grid>
+
+          <Grid size={4} sx={{ borderRight: "1px solid #d4d4d4" }}>
+            <div className="h-[50px] flex items-center px-[10px] bg-cyan-50 border-b">
+              <Chip label="2" sx={{ mr: 2 }} />
+              <Typography variant="h5" fontSize={18} fontWeight={500}>
+                Requested Items
+              </Typography>
+            </div>
+            <FormControl fullWidth sx={{ p: 2 }}>
+              <OutlinedInput
+                onChange={(e) => {
+                  if (processRequestData) {
+                    setData(processRequestData.body.filter((item) => item.partName.toLowerCase().includes(e.target.value.toLowerCase()) || item.partCode.toLowerCase().includes(e.target.value.toLowerCase())));
+                  }
+                }}
+                placeholder="Search..."
+                endAdornment={
+                  <InputAdornment position="end">
+                    {" "}
+                    <FilterAltIcon />
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+            {processMrRequestLoading ? (
+              <ul className="flex flex-col gap-[10px]">
+                <li>
+                  <Skeleton className="h-[50px] w-full" />
+                </li>
+                <li>
+                  <Skeleton className="h-[50px] w-full" />
+                </li>
+                <li>
+                  <Skeleton className="h-[50px] w-full" />
+                </li>
+              </ul>
+            ) : (
+              <RadioGroup value={selectedValue}>
+                <List className=" h-[calc(100vh-185px)] overflow-y-auto">
+                  {data &&
+                    data.map((item, index) => (
+                      <ListItemButton
+                        disabled={approved?.includes(item?.partKey)}
+                        key={index}
+                        onClick={() => handleChange(item.partKey)}
+                        selected={selectedValue === item.partKey}
+                        sx={{
+                          backgroundColor: selectedValue === item.partKey ? "lightblue" : "inherit",
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <FormControlLabel value={item?.partKey} control={<Radio />} label={<ListItemText primary={item?.partCode} secondary={item?.partName} />} sx={{ width: "100%", margin: 0 }} />
+                        {approved?.includes(item?.partKey) ? (
+                          <Chip size="small" label="Approved" color="success" icon={<CheckCircleOutlineIcon fontSize="small" />} />
+                        ) : (
+                          <Chip size="small" sx={{ background: "#d97706" }} label="Pending" color="info" icon={<AccessTimeIcon fontSize="small" />} />
+                        )}
+                      </ListItemButton>
+                    ))}
+                </List>
+              </RadioGroup>
+            )}
+          </Grid>
+
+          <Grid size={5}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="h-[50px] flex items-center px-[10px] bg-cyan-50 border-b">
+                <Chip label="3" sx={{ mr: 2 }} />
+                <Typography variant="h5" fontSize={18} fontWeight={500}>
+                  Transferring Details
+                </Typography>
+              </div>
+              <div className="h-[calc(100vh-100px)]  ">
+                {!selectedValue && (
+                  <div className="flex items-center justify-center w-full h-[calc(100vh-100px)] ">
+                    <img src="/select.svg" alt="" className="opacity-30 w-[150px]" />
                   </div>
                 )}
-                <div className="grid grid-cols-2 gap-[10px]">
-                  <div className="border-b">
-                    <p className="text-slate-600 font-[600]">Available Qty</p>
-                    <p className="text-slate-600 text-[14px]">{itemDetail ? itemDetail[0]?.stock : "--"}</p>
-                  </div>
-                  <div className="border-b">
-                    <p className="text-slate-600 font-[600]">Requested Qty</p>
-                    <p className="text-slate-600 text-[14px]">{itemDetail ? itemDetail[0]?.reqQty : "--"}</p>
-                  </div>
-                </div>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <div className="mt-[30px] flex flex-col gap-[20px]">
-                    <div className="grid grid-cols-2 gap-[10px]">
-                      <div>
+
+                {selectedValue && (
+                  <>
+                    <List sx={{ width: "100%", bgcolor: "background.paper", display: "flex", height: "85px" }}>
+                      <ListItem>
+                        <ListItemText primary="Available Qty" secondary={itemDetailLoading ? <Skeleton className="w-full h-[20px]" /> : itemDetail ? itemDetail[0]?.stock : "--"} />
+                      </ListItem>
+                      <ListItem>
+                        <ListItemText primary="Requested Qty" secondary={itemDetailLoading ? <Skeleton className="w-full h-[20px]" /> : itemDetail ? itemDetail[0]?.reqQty : "--"} />
+                      </ListItem>
+                    </List>
+                    <Grid container spacing={2} sx={{ p: 2 }}>
+                      <Grid size={6}>
                         <Controller
                           name="picLocation"
                           control={control}
                           rules={{ required: "Pic Location is required" }}
                           render={({ field }) => (
-                            <CustomSelect
-                              options={transformGroupSelectData(locationData)}
-                              isLoading={getLocationLoading}
-                              {...field}
-                              required
+                            <SelectLocation
                               value={field.value}
-                              isClearable={true}
-                              onChange={(selectedOption) => {
-                                field.onChange(selectedOption as SingleValue<OptionType>);
-                                dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: selectedOption!.value }));
+                              onChange={(e) => {
+                                field.onChange(e);
+                                dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
                               }}
-                              placeholder={"Pick Location"}
-                              onInputChange={(value) => {
-                                if (debounceTimeout.current) {
-                                  clearTimeout(debounceTimeout.current);
-                                }
-                                debounceTimeout.current = setTimeout(() => {
-                                  dispatch(getLocationAsync(!value ? null : value));
-                                }, 500);
-                              }}
+                              error={!!errors.picLocation}
                             />
                           )}
                         />
-                        {errors.picLocation && <span className=" text-[12px] text-red-500">{errors.picLocation.message}</span>}
-                      </div>
-                      <div>
+                      </Grid>
+                      <Grid size={6}>
                         <Controller
                           name="issueQty"
                           control={control}
                           rules={{ required: "Issue Qty is required" }}
                           render={({ field }) => (
-                            <CustomInput
-                              disabled={!itemDetail}
-                              {...field}
-                              value={field.value}
-                              required
-                              type="number"
-                              label="Issue Qty"
-                              onChange={(e) => {
-                                if (itemDetail) {
-                                  if (parseInt(e.target.value) > itemDetail[0]?.stock || parseInt(e.target.value) > itemDetail[0]?.reqQty) {
-                                    showToast({
-                                      description: "Issue Qty can't be greater than Available Qty or Requested Qty",
-                                      variant: "destructive",
-                                    });
-                                  } else {
-                                    field.onChange(e);
+                            <FormControl disabled={!itemDetail || itemDetail[0]?.stock < 1 || itemDetail[0]?.reqQty < 1} fullWidth>
+                              <InputLabel>Issue Qty</InputLabel>
+                              <OutlinedInput
+                                disabled={!itemDetail || itemDetail[0]?.stock < 1 || itemDetail[0]?.reqQty < 1}
+                                fullWidth
+                                error={!!errors.issueQty}
+                                {...field}
+                                value={field.value}
+                                type="number"
+                                label="Issue Qty"
+                                onChange={(e) => {
+                                  if (!/^[0-9]*$/.test(e.target.value)) return;
+                                  if (itemDetail) {
+                                    if (parseInt(e.target.value) > itemDetail[0]?.stock || parseInt(e.target.value) > itemDetail[0]?.reqQty) {
+                                      showToast("Issue Qty can't be greater than Available Qty or Requested Qty", "error");
+                                    } else {
+                                      field.onChange(e);
+                                      setIsueeQty(e.target.value);
+                                    }
                                   }
-                                }
+                                }}
+                              />
+                            </FormControl>
+                          )}
+                        />
+                      </Grid>
+                      <Grid size={12}>
+                        <Controller
+                          name="remarks"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              label="Remark"
+                              fullWidth
+                              {...field}
+                              multiline
+                              rows={1}
+                              value={field.value}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                setRemarks(e.target.value);
                               }}
                             />
                           )}
                         />
-                        {errors.issueQty && <span className=" text-[12px] text-red-500">{errors.issueQty.message}</span>}
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-slate-500">Remarks</Label>
-                      <Controller
-                        name="remarks"
-                        control={control}
-                        render={({ field }) => (
-                          <Textarea
-                            {...field}
-                            value={field.value}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              setRemarks(e.target.value);
-                            }}
-                          />
-                        )}
-                      />
-                    </div>
-                    <div className="flex items-center justify-end gap-[10px]">
-                      <CustomButton
-                        type="button"
+                      </Grid>
+                    </Grid>
+                    <div className="h-[50px]  flex items-center justify-end gap-[10px] px-[10px] mt-[30px] ">
+                      <LoadingButton
+                        disabled={approveItemLoading}
+                        loadingPosition="start"
+                        startIcon={<CloseIcon fontSize="small" />}
+                        variant="contained"
+                        sx={{ background: "white", color: "red" }}
                         onClick={() => {
                           if (!remarks) {
-                            showToast({
-                              description: "Remarks is required",
-                              variant: "destructive",
-                            });
+                            showToast("Remark is required", "error");
                           } else {
                             dispatch(
                               materialRequestReject({
@@ -292,31 +421,35 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
                               })
                             ).then((response: any) => {
                               if (response.payload.data?.success) {
-                                dispatch(getProcessMrReqeustAsync(requestDetail?.id || ""));
+                                dispatch(getProcessMrReqeustAsync(requestDetail?.id || "")).then((res: any) => {
+                                  if (!res.payload.data?.success) {
+                                    setOpen(false);
+                                    console.log(res);
+                                  }
+                                });
                                 setItemKey("");
                                 reset();
+                                setSelectedValue(null);
                               }
                             });
                           }
                         }}
-                        variant={"outline"}
-                        icon={<RxCross2 className="h-[18px] w-[18px] text-red-500" />}
                         loading={rejectItemLoading}
                       >
                         Reject
-                      </CustomButton>
-                      <CustomButton loading={approveItemLoading} className="bg-cyan-700 hover:bg-cyan-800" icon={<IoMdCheckmark className="h-[18px] w-[18px] " />}>
+                      </LoadingButton>
+                      <LoadingButton loadingPosition="start" type="submit" startIcon={<DoneIcon fontSize="small" />} variant="contained" disabled={approveItemLoading || !isueeQty} loading={approveItemLoading}>
                         Approve
-                      </CustomButton>
+                      </LoadingButton>
                     </div>
-                  </div>
-                </form>
+                  </>
+                )}
               </div>
-            </div>
-          </div>
-        </CustomDrawerContent>
-      </CustomDrawer>
-    </div>
+            </form>
+          </Grid>
+        </Grid>
+      </Dialog>
+    </>
   );
 };
 

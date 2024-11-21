@@ -77,6 +77,7 @@ const MaterialRequistionRequest: React.FC = () => {
                           slots={{
                             textField: TextField,
                           }}
+                          maxDate={dayjs()}
                           slotProps={{
                             textField: {
                               variant: "outlined",

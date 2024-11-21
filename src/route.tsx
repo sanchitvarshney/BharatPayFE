@@ -257,7 +257,7 @@ export const router = createBrowserRouter([
             <MaterialInvard />
           </MainLayout>
         ),
-        path: "/rm-materials-in",
+        path: "/raw-min",
       },
       {
         element: (

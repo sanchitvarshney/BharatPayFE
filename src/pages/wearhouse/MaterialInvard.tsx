@@ -1,24 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import RMMaterialsAddTable from "@/table/wearhouse/RMMaterialsAddTable";
 import CustomInput from "@/components/reusable/CustomInput";
-import CustomSelect from "@/components/reusable/CustomSelect";
 import { CustomButton } from "@/components/reusable/CustomButton";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import CustomDatePicker from "@/components/reusable/CustomDatePicker";
+
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { IoMdCheckmark, IoMdCloudUpload } from "react-icons/io";
 import { TbRefresh } from "react-icons/tb";
 import { Button } from "@/components/ui/button";
 import { FaAngleUp } from "react-icons/fa6";
-import { SingleValue } from "react-select";
-import moment from "moment";
+
 import { showToast } from "@/utils/toastUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getLocationAsync, getVendorAddress, getVendorAsync, getVendorBranchAsync, uploadInvoiceFile } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { transformGroupSelectData } from "@/utils/transformUtills";
 import { FileInput, FileUploader, FileUploaderContent } from "@/components/ui/Fileupload";
 import { CgSpinner } from "react-icons/cg";
 import { HiMiniTrash } from "react-icons/hi2";
@@ -27,6 +22,13 @@ import { createRawMin, resetDocumentFile, storeDocumentFile } from "@/features/w
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { CreateRawMinPayloadType } from "@/features/wearhouse/Rawmin/RawMinType";
 import { getCurrency } from "@/features/common/commonSlice";
+import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import SelectVendor, { VendorData } from "@/components/reusable/SelectVendor";
+import { replaceBrWithNewLine } from "@/utils/replacebrtag";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 
 interface RowData {
   partComponent: string;
@@ -54,17 +56,14 @@ interface Totals {
   igst: number;
   taxableValue: number;
 }
-type OptionType = {
-  label: string;
-  value: string;
-};
+
 type FormData = {
-  vendorType: OptionType | null;
-  vendor: OptionType | null;
-  vendorBranch: OptionType | null;
+  vendorType: string;
+  vendor: VendorData | null;
+  vendorBranch: string;
   vendorAddress: string;
   gstin: string;
-  doucmentDate: string;
+  doucmentDate: Dayjs | null;
   documentId: string;
 };
 const MaterialInvard: React.FC = () => {
@@ -74,25 +73,26 @@ const MaterialInvard: React.FC = () => {
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [total, setTotal] = useState<Totals>({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
-  const { VendorData, getVendorLoading, getVendorBranchLoading, VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
+  const {  VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
   const { documnetFileData, createminLoading } = useAppSelector((state) => state.rawmin);
+
   const {
     register,
     handleSubmit,
     control,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      vendorType: { value: "V01", label: "Vendor" },
+      vendorType: "V01",
       vendor: null,
-      vendorBranch: null,
+      vendorBranch: "",
       vendorAddress: "",
       gstin: "",
-      doucmentDate: "",
+      doucmentDate: null,
       documentId: "",
     },
   });
@@ -157,12 +157,12 @@ const MaterialInvard: React.FC = () => {
           hsnCode,
           remarks,
           currency: currency || [],
-          vendor: data.vendor?.value || "",
-          vendorbranch: data.vendorBranch?.value || "",
+          vendor: data.vendor?.id || "",
+          vendorbranch: data.vendorBranch || "",
           address: data.vendorAddress || "",
           doc_id: data.documentId || "",
-          doc_date: data.doucmentDate || "",
-          vendortype: data.vendorType?.value || "",
+          doc_date: dayjs(data.doucmentDate).format("DD-MM-YYYY") || "",
+          vendortype: data.vendorType || "",
           invoiceAttachment: documnetFileData || [],
         };
         dispatch(createRawMin(payload)).then((response: any) => {
@@ -219,30 +219,6 @@ const MaterialInvard: React.FC = () => {
       <div className="h-[calc(100vh-50px)]  ">
         <div className="h-[calc(100vh-50px)] grid grid-cols-[500px_1fr]">
           <div className="p-[10px] border-r h-full overflow-y-auto flex flex-col gap-[10px] relative">
-            {/* <Card className="rounded-md ">
-              <CardContent className="flex flex-col gap-[20px] pt-[20px]">
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">Sub-Total value before Taxes</p>
-                  <p className="text-[14px] text-muted-foreground">{total.taxableValue}</p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">CGST</p>
-                  <p className="text-[14px] text-muted-foreground">(+) {total.cgst}</p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">SGST</p>
-                  <p className="text-[14px] text-muted-foreground">(+) {total.sgst}</p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">IGST</p>
-                  <p className="text-[14px] text-muted-foreground">(+) {total.igst}</p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">Sub-Total values after Taxes</p>
-                  <p className="text-[14px] text-muted-foreground">{total.taxableValue + (total.cgst + total.sgst + total.igst)}</p>
-                </div>
-              </CardContent>
-            </Card> */}
             <form onSubmit={handleSubmit(onSubmit)}>
               <Card className="rounded-md ">
                 <CardContent className="mt-[20px] flex flex-col gap-[20px]">
@@ -252,16 +228,12 @@ const MaterialInvard: React.FC = () => {
                       control={control}
                       rules={{ required: "Vendor Type is required" }}
                       render={({ field }) => (
-                        <CustomSelect
-                          {...field}
-                          defaultValue={{ value: "V01", label: "Vendor" }}
-                          options={[{ value: "V01", label: "Vendor" }]}
-                          required
-                          value={field.value}
-                          isClearable={true}
-                          onChange={(selectedOption) => field.onChange(selectedOption as SingleValue<OptionType>)}
-                          placeholder={"Vendor Type"}
-                        />
+                        <FormControl fullWidth>
+                          <InputLabel id="demo-simple-select-label">Vendor Type</InputLabel>
+                          <Select labelId="demo-simple-select-label" id="demo-simple-select" label="Vendor Type" {...field}>
+                            <MenuItem value={"V01"}>Vendor</MenuItem>
+                          </Select>
+                        </FormControl>
                       )}
                     />
                     {errors.vendorType && <span className=" text-[12px] text-red-500">{errors.vendorType.message}</span>}
@@ -273,27 +245,35 @@ const MaterialInvard: React.FC = () => {
                         control={control}
                         rules={{ required: "Vendor  is required" }}
                         render={({ field }) => (
-                          <CustomSelect
-                            {...field}
-                            isLoading={getVendorLoading}
-                            options={transformGroupSelectData(VendorData)}
-                            required
-                            value={field.value}
-                            isClearable={true}
-                            onChange={(selectedOption) => {
-                              field.onChange(selectedOption as SingleValue<OptionType>);
-                              dispatch(getVendorBranchAsync(selectedOption!.value));
-                            }}
-                            onInputChange={(value) => {
-                              if (debounceTimeout.current) {
-                                clearTimeout(debounceTimeout.current);
-                              }
+                          // <CustomSelect
+                          //   {...field}
+                          //   isLoading={getVendorLoading}
+                          //   options={transformGroupSelectData(VendorData)}
+                          //   required
+                          //   value={field.value}
+                          //   isClearable={true}
+                          //   onChange={(selectedOption) => {
+                          //     field.onChange(selectedOption as SingleValue<OptionType>);
+                          //     dispatch(getVendorBranchAsync(selectedOption!.value));
+                          //   }}
+                          //   onInputChange={(value) => {
+                          //     if (debounceTimeout.current) {
+                          //       clearTimeout(debounceTimeout.current);
+                          //     }
 
-                              debounceTimeout.current = setTimeout(() => {
-                                dispatch(getVendorAsync(!value ? null : value));
-                              }, 500);
+                          //     debounceTimeout.current = setTimeout(() => {
+                          //       dispatch(getVendorAsync(!value ? null : value));
+                          //     }, 500);
+                          //   }}
+                          //   placeholder={"Vendor"}
+                          // />
+                          <SelectVendor
+                            value={field.value}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              dispatch(getVendorBranchAsync(e!.id));
                             }}
-                            placeholder={"Vendor"}
+                            label="Vendor"
                           />
                         )}
                       />
@@ -305,24 +285,46 @@ const MaterialInvard: React.FC = () => {
                         control={control}
                         rules={{ required: "Vendor Branch  is required" }}
                         render={({ field }) => (
-                          <CustomSelect
-                            {...field}
-                            options={transformGroupSelectData(VendorBranchData)}
-                            isLoading={getVendorBranchLoading}
-                            required
-                            value={field.value}
-                            isClearable={true}
-                            onChange={(selectedOption) => {
-                              field.onChange(selectedOption as SingleValue<OptionType>);
-                              dispatch(getVendorAddress(selectedOption!.value)).then((response: any) => {
-                                if (response.payload.data.success) {
-                                  setValue("vendorAddress", response.payload.data?.data?.address?.replace("</br>", ""));
-                                  setValue("gstin", response.payload.data?.data?.gstid);
-                                }
-                              });
-                            }}
-                            placeholder={"Vendor Branch"}
-                          />
+                          // <CustomSelect
+                          //   {...field}
+                          //   options={transformGroupSelectData(VendorBranchData)}
+                          //   isLoading={getVendorBranchLoading}
+                          //   required
+                          //   value={field.value}
+                          //   isClearable={true}
+                          //   onChange={(selectedOption) => {
+                          //     field.onChange(selectedOption as SingleValue<OptionType>);
+                          //     dispatch(getVendorAddress(selectedOption!.value)).then((response: any) => {
+                          //       if (response.payload.data.success) {
+                          //         setValue("vendorAddress", response.payload.data?.data?.address?.replace("</br>", ""));
+                          //         setValue("gstin", response.payload.data?.data?.gstid);
+                          //       }
+                          //     });
+                          //   }}
+                          //   placeholder={"Vendor Branch"}
+                          // />
+                          <FormControl disabled={!VendorBranchData} fullWidth>
+                            <InputLabel id="Vendor-simple-select-label">Vendor Branch</InputLabel>
+                            <Select
+                              labelId="Vendor-simple-select-label"
+                              id="Vendor-simple-select"
+                              label="Vendor Branch"
+                              value={field.value}
+                              onChange={(e) => {
+                                field.onChange(e.target.value);
+                                dispatch(getVendorAddress(e.target.value)).then((response: any) => {
+                                  if (response.payload.data.success) {
+                                    setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address));
+                                    setValue("gstin", response.payload.data?.data?.gstid);
+                                  }
+                                });
+                              }}
+                            >
+                              {VendorBranchData?.map((item) => (
+                                <MenuItem value={item.id}>{item.text}</MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
                         )}
                       />
                       {errors.vendorBranch && <span className=" text-[12px] text-red-500">{errors.vendorBranch.message}</span>}
@@ -333,36 +335,46 @@ const MaterialInvard: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-slate-600 font-[400]">Bill From Address</Label>
-                    <Textarea className="h-[100px] resize-none" {...register("vendorAddress", { required: "Bill From Address is required" })} />
-                    {errors.vendorAddress && <span className=" text-[12px] text-red-500">{errors.vendorAddress.message}</span>}
+                    <TextField
+                      error={!!errors.vendorAddress}
+                      helperText={errors?.vendorAddress?.message}
+                      focused={!!watch("vendorAddress")}
+                      multiline
+                      rows={3}
+                      fullWidth
+                      label="Bill From Address"
+                      className="h-[100px] resize-none"
+                      {...register("vendorAddress", { required: "Bill From Address is required" })}
+                    />
                   </div>
-                  <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
-                    {" "}
-                    <div>
-                      <Controller
+                  <Controller
                         name="doucmentDate"
                         control={control}
-                        rules={{ required: "Invoice Date is required" }}
+                        rules={{ required: " Date is required" }}
                         render={({ field }) => (
-                          <CustomDatePicker
-                            label="Document Date"
-                            className="w-full"
-                            onDateChange={(e) => {
-                              const date = new Date(e!.toString());
-                              const formattedDate = moment(date).format("DD-MM-YYYY");
-                              field.onChange(formattedDate); // Update form state
-                            }}
-                          />
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              slots={{
+                                textField: TextField,
+                              }}
+                              maxDate={dayjs()}
+                              slotProps={{
+                                textField: {
+                                  variant: "outlined",
+                                  error: !!errors.doucmentDate,
+                                  helperText: errors.doucmentDate?.message,
+                                },
+                              }}
+                              value={field.value}
+                              onChange={(value) => field.onChange(value)}
+                              sx={{ width: "100%" }}
+                              label="Date"
+                              name="startDate"
+                            />
+                          </LocalizationProvider>
                         )}
                       />
-                      {errors.doucmentDate && <span className=" text-[12px] text-red-500">{errors.doucmentDate.message}</span>}
-                    </div>
-                    <div>
-                      <CustomInput label="Document ID" {...register("documentId", { required: "Invoice Id  is required" })} />
-                      {errors.documentId && <span className=" text-[12px] text-red-500">{errors.documentId.message}</span>}
-                    </div>
-                  </div>
+                  <TextField label="Document ID" error={!!errors.documentId} helperText={errors.documentId?.message} {...register("documentId", { required: "Invoice Id  is required" })} />
                   <div className=" flex flex-col gap-[30px] mt-[20px]">
                     <div>
                       <CustomInput required label="Document Name" value={filename} onChange={(e) => setFilename(e.target.value)} />
