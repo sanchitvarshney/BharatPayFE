@@ -11,7 +11,7 @@ interface MaterialInvardCellRendererProps {
 }
 
 const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererProps> = ({ props }) => {
-  const { getPartCodeLoading, getSkuLoading, skuCodeData, partCodeData, type,availbleQtyData } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { getPartCodeLoading, getSkuLoading, skuCodeData, partCodeData, type, availbleQtyData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const dispatch = useAppDispatch();
   const { value, colDef, data, api, column } = props;
@@ -20,6 +20,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
     if (colDef.field === "code") {
       if (type === "device") {
         data.unit = skuCodeData?.find((item) => item.id === value)?.unit;
+        
         api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
       } else {
         data.unit = partCodeData?.find((item) => item.id === value)?.unit;
@@ -28,7 +29,6 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
     }
     data[colDef.field] = newValue; // update the data
     api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
-    
   };
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
@@ -41,6 +41,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
       case "code":
         return type === "device" ? (
           <Select
+            filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
             showSearch
             loading={getSkuLoading}
             className="w-full"
@@ -63,6 +64,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
           />
         ) : (
           <Select
+            filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
             showSearch
             loading={getPartCodeLoading}
             className="w-full"
@@ -122,16 +124,15 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
       case "remarks":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "availableqty":
-      
         const [availbleQty, setAvailbleQty] = useState("--");
         useEffect(() => {
           if (availbleQtyData) {
-            setAvailbleQty(availbleQtyData.find((item) => (item.location === data?.pickLocation) && (item.item === data?.code))?.Stock.toString()|| "--");
-            api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code","availableqty"] });
+            setAvailbleQty(availbleQtyData.find((item) => item.location === data?.pickLocation && item.item === data?.code)?.Stock.toString() || "--");
+            api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code", "availableqty"] });
           }
-        },[availbleQtyData]);
+        }, [availbleQtyData]);
 
-       return <div>{availbleQty}</div>;
+        return <div>{availbleQty}</div>;
     }
   };
 

@@ -1,24 +1,24 @@
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "antd";
 import { IoMdCheckmark } from "react-icons/io";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CustomButton } from "@/components/reusable/CustomButton";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { transformGroupSelectData, transformPartCode } from "@/utils/transformUtills";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { transformSkuCode } from "../../utils/transformUtills";
+import { Button, Typography } from "@mui/material";
 
 interface MaterialInvardCellRendererProps {
   props: any;
   customFunction: () => void;
 }
 const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
-  const [currency, setCurrency] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
   const { value, colDef, data, api, column } = props;
+  const [currency, setCurrency] = useState<string>(data.excRate);
+  const [open, setOpen] = useState<boolean>(false);
+
   const dispatch = useAppDispatch();
   const { getPartCodeLoading, partCodeData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
@@ -39,12 +39,15 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       data["cgst"] = 0;
       data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue) * 2;
     }
-    api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate"] }); // refresh the cell to show the new value
+    api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
   };
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
     data[colDef.field] = newValue; // update the data
     data["taxableValue"] = Number(data.qty) * Number(data.rate);
+    if (data.excRate != 0 || data.excRate != "") {
+      data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
+    }
     if (data.gstType === "L") {
       data["sgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
       data["cgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
@@ -54,7 +57,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       data["cgst"] = 0;
       data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue) * 2;
     }
-    api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate"] }); // refresh the cell to show the new value
+    api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
   };
 
   const renderContent = () => {
@@ -66,7 +69,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
             filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
             showSearch
             loading={getPartCodeLoading}
-            className="w-full"
+            className="w-full h-[35px] "
             onSearch={(value) => dispatch(getPertCodesync(value ? value : null))}
             defaultValue="local"
             onChange={(value) => handleChange(value)}
@@ -78,7 +81,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
           <Select
             onKeyDown={(e) => e.preventDefault()}
             value={value}
-            className="w-full"
+            className="w-full h-[35px]"
             placeholder="Select gst type"
             onChange={(value) => handleChange(value)}
             options={[
@@ -88,18 +91,22 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
           />
         );
       case "location":
-        return <Select onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} value={value} className="w-full" defaultValue="" onChange={(value) => handleChange(value)} options={transformGroupSelectData(locationData)} />;
+        return <Select onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} value={value} className="w-full h-[35px]" defaultValue="" onChange={(value) => handleChange(value)} options={transformGroupSelectData(locationData)} />;
       case "autoConsump":
-        return <Select className="w-full" defaultValue="" onChange={(value) => handleChange(value)} options={[{ value: "N", label: "NO" }]} />;
+        return <Select className="w-full h-[]" defaultValue="" onChange={(value) => handleChange(value)} options={[{ value: "N", label: "NO" }]} />;
       case "currency":
         return (
           <div className="flex items-center gap-[5px]">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger>
-                <Button variant={"outline"}>{currencyData?.find((item) => item.id === value)?.text}</Button>
+                <Button type="button" variant={"outlined"}>
+                  {currencyData?.find((item) => item.id === value)?.text}
+                </Button>
               </PopoverTrigger>
-              <PopoverContent className="flex flex-col gap-[10px] w-[300px]">
-                <p className="text-slate-600 text-[14px] font-[600]">Choose Currency & Enter Currency Rate</p>
+              <PopoverContent className="flex flex-col gap-[10px] w-[350px] shadow-none" style={{ boxShadow: "rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset" }}>
+                <Typography fontSize={"16px"} fontWeight={"500"}>
+                  Choose Currency & Enter Currency Rate
+                </Typography>
                 <div className="flex items-center gap-[10px]">
                   <Select
                     loading={currencyLoaidng}
@@ -113,7 +120,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
                     onChange={(e) => {
                       data.currency = e;
                       api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
-                      if (data.currency === "₹") {
+                      if (currencyData?.find((item) => item.id === e)?.text === "₹") {
                         data["foreignValue"] = 0;
                         data["taxableValue"] = Number(data.qty) * Number(data.rate);
                         api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] });
@@ -129,13 +136,15 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
                     options={transformSkuCode(currencyData)}
                   />
                   <Input
+                    disabled={currencyData?.find((item) => item.id === data.currency)?.text === "₹"}
                     value={currency}
                     className="h-[40px]"
                     type="number"
+                    placeholder="Exchange Rate"
                     onChange={(e) => {
                       setCurrency(e.target.value);
 
-                      if (data.currency === "₹") {
+                      if (currencyData?.find((item) => item.id === data.currency)?.text === "₹") {
                         data["taxableValue"] = Number(data.qty) * Number(data.rate);
                         data["foreignValue"] = 0;
                         api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
@@ -147,6 +156,8 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
                         data["foreignValue"] = Number(data.qty) * Number(data.rate);
                         api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
                       }
+                      data["excRate"] = Number(e.target.value);
+                      api.refreshCells({ rowNodes: [props.node], columns: [, "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue", "excRate"] });
                     }}
                   />
                 </div>
@@ -156,14 +167,14 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
                     <p className="text-[14px]">{data.taxableValue}</p>
                   </div>
                   <div className="flex items-center justify-between text-slate-600">
-                    <p className="font-[500]">Total Cost in {data.currency} :</p>
+                    <p className="font-[500]">Total Cost in {currencyData?.find((item: any) => item.id === data.currency)?.text}:</p>
                     <p className="text-[14px]">{data.currency == "₹" ? data.taxableValue : data.foreignValue}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-end gap-[10px] h-[50px] mt-[10px]">
-                  <CustomButton onClick={() => setOpen(false)} icon={<IoMdCheckmark className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800">
+                  <Button type="button" onClick={() => setOpen(false)} startIcon={<IoMdCheckmark className="h-[18px] w-[18px]" />} variant="contained">
                     Submit
-                  </CustomButton>
+                  </Button>
                 </div>
               </PopoverContent>
             </Popover>
@@ -172,7 +183,28 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "rate":
         return (
           <div className="flex items-center gap-[5px]">
-            <Input min={0} onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />
+            <Input
+              min={0}
+              onChange={(e) => {
+                handleInputChange(e);
+                if (currencyData?.find((item) => item.id === data.currency)?.text === "₹") {
+                    data["foreignValue"] = 0;
+                    data["taxableValue"] = Number(data.qty) * Number(data.rate);
+                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] });
+                  } else if (currency === "0" || currency === "" ) {
+                    data["taxableValue"] = Number(data.qty) * Number(data.rate);
+                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
+                  } else {
+                    data["foreignValue"] = Number(data.qty) * Number(data.rate);
+                    data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
+                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
+                  }
+              }}
+              value={value}
+              type="number"
+              placeholder={colDef.headerName}
+              className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]"
+            />
           </div>
         );
       case "qty":

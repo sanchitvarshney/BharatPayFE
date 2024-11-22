@@ -80,37 +80,38 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
           </Button>
         </div>
       ),
+      pinned: "left",
     },
 
     {
       headerName: `${type === "part" ? "Part Code" : "SKU"}`,
       field: "code",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+
+      minWidth: 300,
     },
     {
       headerName: "Pick Location",
       field: "pickLocation",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+
+      minWidth: 300,
     },
     {
       headerName: "Available Qty",
       field: "availableqty",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
     },
     {
       headerName: "Order Qty",
       field: "orderqty",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+      minWidth: 250,
     },
     {
       headerName: "Remarks",
       field: "remarks",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
     },
     {
       headerName: "unit",
@@ -160,12 +161,10 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
             focusButton.focus();
           }
         }}
-        
         columnDefs={columnDefs}
         suppressRowClickSelection={false}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
-        
         animateRows
         loading={false}
         statusBar={statusBar}

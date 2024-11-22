@@ -155,7 +155,11 @@ const DeviceMinSlice = createSlice({
     },
     crearLocation: (state) => {
       state.locationData= null
-    }
+    },
+    clearaddressdetail: (state) => {
+      state.venderaddressdata = null;
+      state.VendorBranchData = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -324,5 +328,5 @@ const DeviceMinSlice = createSlice({
   },
 });
 
-export const { storeDraftMin, storeInvoiceFile, storeSerialFile, storeStepFormdata, resetDraftMin, resetInvoiceFile, resetSerialFile, resetForm,resetAllSubmitInfo,reseAllupdateDeviceInfo ,crearLocation} = DeviceMinSlice.actions;
+export const { clearaddressdetail,storeDraftMin, storeInvoiceFile, storeSerialFile, storeStepFormdata, resetDraftMin, resetInvoiceFile, resetSerialFile, resetForm,resetAllSubmitInfo,reseAllupdateDeviceInfo ,crearLocation} = DeviceMinSlice.actions;
 export default DeviceMinSlice.reducer;

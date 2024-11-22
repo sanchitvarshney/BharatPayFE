@@ -3,11 +3,12 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { HiMiniTrash } from "react-icons/hi2";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import MaterialInvardCellRenderer from "../Cellrenders/MaterialInvardCellRenderer";
 import { calculateTotals } from "@/utils/calculateTotalMin";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import { IconButton } from "@mui/material";
+import { Icons } from "@/components/icons";
 interface RowData {
   partComponent: string;
   qty: number;
@@ -26,6 +27,7 @@ interface RowData {
   id: number;
   currency: string;
   isNew?: boolean;
+  excRate: number,
 }
 interface Totals {
   cgst: number;
@@ -74,6 +76,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       remarks: "",
       currency: "364907247",
       isNew: true,
+      excRate: 0,
     };
     setRowData([newRow, ...rowData]);
   };
@@ -106,18 +109,25 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button variant={"outline"} className="border shadow-none p-0 h-[30px] w-[30px]" onClick={() => handleDeleteRow(params.data.id)}>
-            <HiMiniTrash className="h-[18px] w-[18px] text-red-500" />
-          </Button>
+          <IconButton onClick={() => handleDeleteRow(params.data.id)}>
+            <Icons.delete fontSize="small" color="error" />
+          </IconButton>
         </div>
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={handleAddRow}>
+          <Button type="button" className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={handleAddRow}>
             <Plus className="h-[18px] w-[18px]" />
           </Button>
         </div>
       ),
+      pinned: "left",
+    },
+    {
+      headerName: "",
+      field: "excRate",
+      cellRenderer: "textInputCellRenderer",
+      hide: true,
     },
     {
       headerName: "Part Component",
@@ -195,7 +205,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-50px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-120px)]">
       <AgGridReact
         suppressCellFocus={false}
         ref={gridRef}
