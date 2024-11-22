@@ -5,6 +5,8 @@ import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 interface RowData {
   srno: string;
+  operator: string;
+  
 }
 
 type Props = {
@@ -15,6 +17,7 @@ const MasterqrCodeTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "serialNo", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 100 },
     { headerName: "SR No.", field: "srno", sortable: true, filter: true, flex: 1 },
+    { headerName: "Operator", field: "operator", sortable: true, filter: true, flex: 1 },
     {
       headerName: "",
       field: "",

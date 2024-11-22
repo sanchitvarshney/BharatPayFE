@@ -39,6 +39,7 @@ const AddtrcTableCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ pr
         };
         return (
           <Select
+          className="h-[35px]"
             loading={isueeListLoading}
             options={transformPartCode(isueeList)}
             showSearch

@@ -18,7 +18,7 @@ class SocketService implements ISocketService {
 
   connect() {
     if (this.socket?.connected) return;
-    this.isLoading = true; // Start loading
+    this.isLoading = true; 
     this.socket = io(this.url, {
       transports: ["websocket"],
       auth: { token: getToken() },
@@ -35,7 +35,7 @@ class SocketService implements ISocketService {
 
     this.socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
-      this.isLoading = false; // Stop loading on error
+      this.isLoading = false; 
     });
   
   }

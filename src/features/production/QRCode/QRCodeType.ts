@@ -36,7 +36,22 @@ export type LotListResponse = {
   status: string;
 };
 
+export type DviceInfoApiResponse = {
+  success: boolean;
+  message: string;
+  data: DviceInfo;
+};
+type DviceInfo = {
+  imei_no: string;
+  srlNo: string;
+  operator: string;
+  simNo: string;
+  url: string;
+};
+
 export type ManageProductionState = {
   getlotListLoading: boolean;
   lotListData: LotList[] | null;
+  checkserialLoading: boolean;
+  checkserialData: DviceInfo | null;
 };
