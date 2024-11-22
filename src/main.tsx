@@ -13,6 +13,7 @@ import { ConfigProvider } from "antd";
 import { ToasterProvider, ToasterConsumer } from "@/utils/toasterContext.tsx";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme/index.ts";
+import { SocketProvider } from "./components/context/SocketContext.tsx";
 moduleregistri();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
@@ -51,7 +52,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             optionSelectedBg: "#e4e4e4",
             optionSelectedFontWeight: 400,
             boxShadowSecondary: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px",
-            
           },
         },
       }}
@@ -59,8 +59,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ThemeProvider theme={theme}>
         <Toaster />
         <ToasterProvider>
-          <RouterProvider router={router} />
-          <ToasterConsumer />
+          <SocketProvider>
+            {" "}
+            <RouterProvider router={router} />
+            <ToasterConsumer />
+          </SocketProvider>
         </ToasterProvider>
       </ThemeProvider>
     </ConfigProvider>
