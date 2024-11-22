@@ -1,21 +1,18 @@
-import { CustomButton } from "@/components/reusable/CustomButton";
 import ViewTRCTable from "@/table/TRC/ViewTRCTable";
-import React, { useEffect, useRef, useState } from "react";
-import { IoMdCheckmark } from "react-icons/io";
-import { FaXmark } from "react-icons/fa6";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import CustomSelect from "@/components/reusable/CustomSelect";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { clearTrcDetail, getTrcList, trcFinalSubmit } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { transformGroupSelectData } from "@/utils/transformUtills";
 import { Drawer } from "antd";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { showToast } from "@/utils/toastUtils";
 import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
 import FixIssuesTable from "@/table/TRC/FixIssuesTable";
+import { LoadingButton } from "@mui/lab";
+import { Icons } from "@/components/icons";
+import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup } from "@mui/material";
 interface Issue {
   id: number;
   issue: string;
@@ -26,24 +23,18 @@ interface Issue {
   code: string;
   UOM: string;
 }
-type OptionType = {
-  value: string;
-  label: string;
-};
+
 const ViewTRC: React.FC = () => {
   const dispatch = useAppDispatch();
   const { TRCDetail, getTrcRequestDetailLoading, trcRequestDetail, TrcFinalSubmitLoading } = useAppSelector((state) => state.viewTrc);
-  const { getLocationLoading, locationData } = useAppSelector((state) => state.divicemin);
   const [process, setProcess] = useState<boolean>(false);
-  const [location, setLocation] = useState<OptionType | null>(null);
+  const [location, setLocation] = useState<LocationType | null>(null);
   const [issues, setIssues] = useState<Issue[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
-  console.log(issues);
-  const [approved, setApproved] = useState<string[] | null>(null);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const [device, setDevice] = useState<string>("");
 
+  const [approved, setApproved] = useState<string[]>([]);
+  const [device, setDevice] = useState<string>("");
   const checkRequiredFields = (data: Issue[]) => {
     let hasErrors = false;
 
@@ -98,7 +89,7 @@ const ViewTRC: React.FC = () => {
           consumpItem,
           consumpQty,
           remark,
-          putLocation: location?.value || "",
+          putLocation: location?.id || "",
           itemCode: device || "",
           isProblemValid,
           issueName,
@@ -184,17 +175,42 @@ const ViewTRC: React.FC = () => {
                     <Skeleton className="h-[30px] w-full" />
                   </div>
                 ) : (
-                  <RadioGroup onValueChange={(e) => setDevice(e)} className="flex flex-col gap-0 p-0 m-0">
-                    {trcRequestDetail
-                      ? trcRequestDetail.body.map((item) => (
-                          <Label key={item.device} htmlFor={item.device} className={`p-0 cursor-pointer ${approved && approved.includes(item.device) ? "pointer-events-none opacity-55" : ""}`}>
-                            <div className=" items-center grid grid-cols-[30px_1fr] py-[10px] border-b ps-[10px] ">
-                              <RadioGroupItem value={item.device} id={item.device} />
-                              <p>{item.device}</p>
-                            </div>
-                          </Label>
-                        ))
-                      : ""}
+                  // <RadioGroup onValueChange={(e) => setDevice(e)} className="flex flex-col gap-0 p-0 m-0">
+                  //   {trcRequestDetail
+                  //     ? trcRequestDetail.body.map((item) => (
+                  //         <Label key={item.device} htmlFor={item.device} className={`p-0 cursor-pointer ${approved && approved.includes(item.device) ? "pointer-events-none opacity-55" : ""}`}>
+                  //           <div className=" items-center grid grid-cols-[30px_1fr] py-[10px] border-b ps-[10px] ">
+                  //             <RadioGroupItem value={item.device} id={item.device} />
+                  //             <p>{item.device}</p>
+                  //           </div>
+                  //         </Label>
+                  //       ))
+                  //     : ""}
+                  // </RadioGroup>
+                  <RadioGroup value={device}>
+                    <List className="">
+                      {trcRequestDetail &&
+                        trcRequestDetail.body.map((item, index) => (
+                          <ListItemButton
+                            disabled={approved!.includes(item.device)}
+                            key={index}
+                            onClick={() => setDevice(item.device)}
+                            selected={device === item.device}
+                            sx={{
+                              backgroundColor: device === item.device ? "lightblue" : "inherit",
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <FormControlLabel value={item?.device} control={<Radio />} label={<ListItemText primary={item?.device} />} sx={{ width: "100%", margin: 0 }} />
+                            {approved?.includes(item?.device) ? (
+                              <Chip size="small" label="Approved" color="success" icon={<Icons.checkcircle fontSize="small" />} />
+                            ) : (
+                              <Chip size="small" sx={{ background: "#d97706" }} label="Pending" color="info" icon={<Icons.time fontSize="small" />} />
+                            )}
+                          </ListItemButton>
+                        ))}
+                    </List>
                   </RadioGroup>
                 )}
               </div>
@@ -244,26 +260,7 @@ const ViewTRC: React.FC = () => {
                   </div>
                 </div>
                 <div className=" h-[60px]  flex items-center px-[10px]">
-                  <CustomSelect
-                    isLoading={getLocationLoading}
-                    value={location}
-                    options={transformGroupSelectData(locationData)}
-                    onInputChange={(value) => {
-                      if (debounceTimeout.current) {
-                        clearTimeout(debounceTimeout.current);
-                      }
-                      debounceTimeout.current = setTimeout(() => {
-                        dispatch(getLocationAsync(!value ? null : value));
-                      }, 500);
-                    }}
-                    required
-                    isClearable={true}
-                    onChange={(selectedOption) => {
-                      setLocation(selectedOption);
-                    }}
-                    placeholder={"Drop Location"}
-                    className="w-[500px]"
-                  />
+                  <SelectLocation value={location} onChange={setLocation} label="Drop Location" width="400px" />
                 </div>
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between">
@@ -282,12 +279,12 @@ const ViewTRC: React.FC = () => {
                 </div>
               </div>
               <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-slate-300">
-                <CustomButton variant={"outline"} icon={<FaXmark className="h-[18px] w-[18px] text-red-500" />}>
+                <LoadingButton variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => setProcess(false)}>
                   Cancel
-                </CustomButton>
-                <CustomButton onClick={onSubmit} loading={TrcFinalSubmitLoading} className="bg-cyan-700 hover:bg-cyan-800" icon={<IoMdCheckmark className="h-[18px] w-[18px] " />}>
+                </LoadingButton>
+                <LoadingButton variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.done fontSize="small" />}>
                   Submit
-                </CustomButton>
+                </LoadingButton>
               </div>
             </div>
           </div>

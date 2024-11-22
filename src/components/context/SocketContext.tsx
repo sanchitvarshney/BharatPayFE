@@ -1,14 +1,12 @@
-import { socketService } from '@/services/socket/SocketService';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { socketService } from "@/services/socket/SocketService";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type Props = {
-    children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-// Creating a context for SocketService
 const SocketContext = createContext<any>(null);
 
-// Custom hook to use SocketContext
 export const useSocketContext = () => useContext(SocketContext);
 
 // SocketProvider component that provides socket context globally
@@ -39,16 +37,12 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   };
 
   const emitDownloadReport = (payload: any) => {
-    socketService.emit('DOWNLOAD_REPORT', payload);
+    socketService.emit("DOWNLOAD_REPORT", payload);
   };
 
   const onDownloadReport = (callback: (data: any) => void) => {
-    socketService.on('DOWNLOAD_REPORT', callback);
+    socketService.on("DOWNLOAD_REPORT", callback);
   };
 
-  return (
-    <SocketContext.Provider value={{ emitDownloadReport, onDownloadReport, isConnected, refreshConnection, isLoading }}>
-      {children}
-    </SocketContext.Provider>
-  );
+  return <SocketContext.Provider value={{ emitDownloadReport, onDownloadReport, isConnected, refreshConnection, isLoading }}>{children}</SocketContext.Provider>;
 };

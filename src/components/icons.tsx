@@ -6,6 +6,10 @@
   import AddIcon from '@mui/icons-material/Add';
   import FullscreenIcon from '@mui/icons-material/Fullscreen';
   import CachedIcon from '@mui/icons-material/Cached';
+  import CloseIcon from '@mui/icons-material/Close';
+  import DoneIcon from '@mui/icons-material/Done';
+  import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
   export const Icons = {
     save: SaveIcon,
     refresh: RefreshIcon,
@@ -13,5 +17,9 @@
     bom:AccountTreeIcon,
     add:AddIcon,
     view:FullscreenIcon,
-    refreshv2:CachedIcon
+    refreshv2:CachedIcon,
+    close:CloseIcon,
+    done:DoneIcon,
+    time:AccessTimeIcon,
+    checkcircle:CheckCircleOutlineIcon
   };

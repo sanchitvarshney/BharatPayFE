@@ -19,7 +19,7 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
 function MainLayout(props: { children: React.ReactNode }) {
-  const { isConnected, refreshConnection,isLoading } = useSocketContext();
+  const { isConnected, refreshConnection, isLoading } = useSocketContext();
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
@@ -172,8 +172,8 @@ function MainLayout(props: { children: React.ReactNode }) {
           </div>
           <div className="flex flex-col gap-[20px] items-center">
             <MuiTooltip title={`Socket ${isConnected ? "Connected" : "Disconnected"}`} placement="right">
-              <IconButton  onClick={()=>refreshConnection()}>
-                <SiSocketdotio className={`h-[25px] w-[25px] ${isConnected ? "text-green-500" : "text-red-300"}  ${isLoading ? "animate-spin" : ""}`} />
+              <IconButton onClick={() => refreshConnection()}>
+                <SiSocketdotio className={`h-[25px] w-[25px] ${isConnected ? "text-green-500" : "text-red-500"}  ${isLoading ? "animate-spin" : ""}`} />
               </IconButton>
             </MuiTooltip>
 
