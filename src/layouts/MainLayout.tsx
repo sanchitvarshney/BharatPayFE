@@ -17,7 +17,9 @@ import { FormControl, IconButton, MenuItem, Select } from "@mui/material";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
+import { useSocketContext } from "@/components/context/SocketContext";
 function MainLayout(props: { children: React.ReactNode }) {
+  const { isConnected, refreshConnection,isLoading } = useSocketContext();
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
@@ -112,7 +114,7 @@ function MainLayout(props: { children: React.ReactNode }) {
         </nav>
       </div>
       <div className="mt-[50px] ">
-        <div className={`w-[60px] h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[50] ${sheetOpen ? "border-r border-white":"border-r border-transparent"}`}>
+        <div className={`w-[60px] h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[50] ${sheetOpen ? "border-r border-white" : "border-r border-transparent"}`}>
           <div className="flex flex-col items-center gap-[20px]">
             <div className="flex items-center justify-center">
               <Link
@@ -169,9 +171,9 @@ function MainLayout(props: { children: React.ReactNode }) {
             </Button>
           </div>
           <div className="flex flex-col gap-[20px] items-center">
-            <MuiTooltip title="Socket Connected" placement="right">
-              <IconButton>
-                <SiSocketdotio className="h-[25px] w-[25px] text-green-300" />
+            <MuiTooltip title={`Socket ${isConnected ? "Connected" : "Disconnected"}`} placement="right">
+              <IconButton onClick={()=>refreshConnection()}>
+                <SiSocketdotio className={`h-[25px] w-[25px] text-${isConnected ? "green" : "red"}-300 ${isLoading ? "animate-spin" : ""}`} />
               </IconButton>
             </MuiTooltip>
 

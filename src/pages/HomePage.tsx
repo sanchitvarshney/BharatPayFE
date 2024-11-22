@@ -1,11 +1,9 @@
 import { BiLinkExternal } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import { checkPermissions } from "@/helper/checkPermissions";
 import { Card, FormControl, IconButton, InputAdornment, OutlinedInput, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SendIcon from "@mui/icons-material/Send";
 const HomePage = () => {
-  console.log(checkPermissions());
   return (
     <div className="h-[calc(100vh-50px)] overflow-y-auto bg-white">
       <div className="w-full h-[calc(100vh-250px)] px-[200px]  py-[10px] flex items-center justify-center">

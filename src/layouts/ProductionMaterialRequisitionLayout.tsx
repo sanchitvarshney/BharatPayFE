@@ -1,28 +1,65 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Icons } from "@/components/icons";
 
-const ProductionMaterialRequisitionLayout = (props:{children:React.ReactNode}) => {
+type Props = {
+  children: React.ReactNode;
+};
+
+const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine the active tab based on the current route
+  const tabRoutes = ["/production/material-req-with-bom", "/production/material-req-without-bom"];
+  const currentTabIndex = tabRoutes.indexOf(location.pathname);
+
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    // Navigate to the corresponding route when tab changes
+    navigate(tabRoutes[newValue]);
+  };
+
   return (
-    <div className="">
-      <div className="w-full bg-white tab h-[50px] shadow z-[5] border-b border-slate-300 relative">
-        <ul className="group flex items-center  h-[50px] ">
-          <li className="h-[50px]">
-            <NavLink to={"/production/material-req-with-bom"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-             Material Requisition with BOM
-            </NavLink>
-          </li>
-          <li className="h-[50px]">
-            <NavLink to={"/production/material-req-without-bom"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-             Material Requisition without BOM
-            </NavLink>
-          </li>
-        </ul>
+    <div className="h-full">
+      <div className=" w-full h-[50px] border-b border-neutral-300 bg-white">
+        <Tabs
+        selectionFollowsFocus
+          sx={{ padding: 0, width: "max-content" }}
+          TabIndicatorProps={{
+            style: {
+              height: "3px", // Increase thickness of the indicator
+            },
+          }}
+          value={currentTabIndex === -1 ? 0 : currentTabIndex}
+          onChange={handleChange}
+          centered
+        >
+          <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <Icons.bom fontSize="small" />
+                Material Requisition with BOM
+              </div>
+            }
+          />
+          <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <Icons.bom fontSize="small" />
+                Material Requisition without BOM
+              </div>
+            }
+          />
+        </Tabs>
       </div>
-      <div className="h-[calc(100vh-100px)] bg-transparent overflow-y-auto ">
-        {props.children}
-      </div>
+      <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
     </div>
-  )
-}
+  );
+};
 
-export default ProductionMaterialRequisitionLayout
+export default ProductionMaterialRequisitionLayout;

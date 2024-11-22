@@ -20,13 +20,12 @@
 }
 .ag-theme-quartz .ag-header-cell {
   font-size: 15px;
- 
 }
-.ag-theme-quartz .ag-root-wrapper{
+.ag-theme-quartz .ag-root-wrapper {
   border-radius: 0;
-  }
-  /* Applies a thin scrollbar */
-  .ag-theme-quartz .ag-root-wrapper::-webkit-scrollbar {
+}
+/* Applies a thin scrollbar */
+.ag-theme-quartz .ag-root-wrapper::-webkit-scrollbar {
   width: 6px; /* For vertical scrollbars */
   height: 6px; /* For horizontal scrollbars */
 }
@@ -36,28 +35,24 @@
   background-color: #155e75; /* Equivalent to cyan-800 */
 }
 
-
-
-  .ag-theme-quartz .ag-row{
-    background-color: #fff;
-    height: 60px;
-
-
-  }
-  .ag-theme-quartz .ag-row:hover{
-    background-color: #fff;
-  }
-  .ag-theme-quartz .ag-cell{
-      outline: none;
-      border: none;
-      padding: 0;
-      padding: 0 5px;
-  }
-  .ag-theme-quartz .ag-cell:focus{
-    outline: none;
-    border: none;
-  }
-  /* Change hover color */
+.ag-theme-quartz .ag-row {
+  background-color: #fff;
+  height: 60px;
+}
+.ag-theme-quartz .ag-row:hover {
+  background-color: #fff;
+}
+.ag-theme-quartz .ag-cell {
+  outline: none;
+  border: none;
+  padding: 0;
+  padding: 0 5px;
+}
+.ag-theme-quartz .ag-cell:focus {
+  outline: none;
+  border: none;
+}
+/* Change hover color */
 .ant-picker-cell:hover .ant-picker-cell-inner {
   background-color: #e0f2f1 !important; /* Change this to your desired hover color */
 }
@@ -75,7 +70,7 @@
   background-color: #0891b2 !important; /* Change this to your desired selected date background color */
   color: #fff;
 }
-.ant-picker-cell .ant-picker-cell-range-start .ant-picker-cell-in-view{
+.ant-picker-cell .ant-picker-cell-range-start .ant-picker-cell-in-view {
   background-color: #e0f2f1 !important;
 }
 
@@ -113,20 +108,20 @@ input:-webkit-autofill {
 .ag-theme-quartz .ag-row-hover {
   background-color: transparent !important; /* Prevents default hover color */
 }
-.ag-theme-quartz .ag-watermark{
+.ag-theme-quartz .ag-watermark {
   display: none !important;
 }
-.ag-watermark{
+.ag-watermark {
   display: none;
 }
-.ag-theme-quartz .ag-watermark::before{
+.ag-theme-quartz .ag-watermark::before {
   display: none !important;
 }
-.ag-watermark::before{
+.ag-watermark::before {
   display: none;
 }
-.ag-theme-quartz .ag-watermark-text  {
- display: none;
+.ag-theme-quartz .ag-watermark-text {
+  display: none;
 }
 
 /* Global scrollbar customization for Material-UI Autocomplete dropdown */
@@ -145,4 +140,8 @@ input:-webkit-autofill {
 
 .MuiAutocomplete-listbox::-webkit-scrollbar-track {
   background: #f0f0f0; /* Optional: Customize the track background */
+}
+.ag-ltr .ag-cell-focus:not(.ag-cell-range-selected):focus-within {
+  border: none !important;
+  background: #fffbeb;
 }

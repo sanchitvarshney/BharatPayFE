@@ -1,13 +1,14 @@
 import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { HiMiniTrash } from "react-icons/hi2";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import MaterialRequestWithoutBomCellrender from "../Cellrenders/MaterialRequestWithoutBomCellrender";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { CustomButton } from "@/components/reusable/CustomButton";
+import { Icons } from "@/components/icons";
+import { IconButton } from "@mui/material";
+
 interface RowData {
   code: string;
   pickLocation: string;
@@ -68,49 +69,50 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button variant={"outline"} className="border shadow-none p-0 h-[30px] w-[30px]" onClick={() => handleDeleteRow(params.data.id)}>
-            <HiMiniTrash className="h-[18px] w-[18px] text-red-500" />
-          </Button>
+          <IconButton onClick={() => handleDeleteRow(params.data.id)}>
+            <Icons.delete fontSize="small" color="error" />
+          </IconButton>
         </div>
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={addRow}>
-            <Plus className="h-[18px] w-[18px]" />
-          </Button>
+          <CustomButton className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={addRow}>
+            <Icons.add fontSize="small" />
+          </CustomButton>
         </div>
       ),
+      pinned: "left",
     },
 
     {
       headerName: `${type === "part" ? "Part Code" : "SKU"}`,
       field: "code",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+
+      minWidth: 300,
     },
     {
       headerName: "Pick Location",
       field: "pickLocation",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+
+      minWidth: 300,
     },
     {
       headerName: "Available Qty",
       field: "availableqty",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
     },
     {
       headerName: "Order Qty",
       field: "orderqty",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+      minWidth: 250,
     },
     {
       headerName: "Remarks",
       field: "remarks",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
     },
     {
       headerName: "unit",
@@ -160,12 +162,9 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
             focusButton.focus();
           }
         }}
-        
         columnDefs={columnDefs}
-        suppressRowClickSelection={false}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
-        
         animateRows
         loading={false}
         statusBar={statusBar}

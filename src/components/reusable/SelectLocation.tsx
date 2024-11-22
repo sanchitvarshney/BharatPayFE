@@ -14,18 +14,18 @@ type Props = {
   error?: boolean;
   helperText?: string | null;
   varient?: "outlined" | "standard" | "filled";
-  required?: boolean
-  size?: "small" | "medium"
+  required?: boolean;
+  size?: "small" | "medium";
 };
 
-const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText,varient="outlined",required=false,size="medium" }) => {
+const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
   const [locationList, setLocationList] = useState<LocationType[]>([]);
 
   // Fetch locations based on search query
-  const fetchLocations = async (query: string|null) => {
+  const fetchLocations = async (query: string | null) => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/backend/search/location/${query}`);
@@ -42,10 +42,11 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
       fetchLocations(debouncedInputValue);
     }
   }, [debouncedInputValue]);
-
+  useEffect(() => {
+    fetchLocations(null);
+  }, []);
   return (
     <Autocomplete
-      onFocus={() => fetchLocations(null)}
       value={value}
       size={size}
       options={locationList || []}
@@ -61,7 +62,7 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
       }}
       renderInput={(params) => (
         <TextField
-        required={required}
+          required={required}
           error={error}
           helperText={helperText}
           {...params}

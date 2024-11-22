@@ -74,6 +74,7 @@ const MaterialRequistionRequest: React.FC = () => {
                     render={({ field }) => (
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
+                        format="DD-MM-YYYY"
                           slots={{
                             textField: TextField,
                           }}

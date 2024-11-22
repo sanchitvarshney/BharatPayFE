@@ -8,11 +8,11 @@ import { CustomDrawer, CustomDrawerContent, CustomDrawerHeader, CustomDrawerTitl
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getR2Data } from "@/features/report/report/reportSlice";
 import R2ReportTable from "@/table/report/R2ReportTable";
-import { useSocket } from "@/hooks/useSocket";
 import LoadingButton from "@mui/lab/LoadingButton";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { showToast } from "@/utils/toasterContext";
-import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from "@mui/icons-material/Download";
+import { useSocketContext } from "@/components/context/SocketContext";
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -20,7 +20,7 @@ const dateFormat = "DD-MM-YYYY";
 const R2Report: React.FC = () => {
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [open, setOpen] = useState(false);
-  const { emitDownloadReport, onDownloadReport } = useSocket();
+  const { emitDownloadReport, onDownloadReport } = useSocketContext();
   const rangePresets: TimeRangePickerProps["presets"] = [
     { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
     { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
@@ -38,11 +38,10 @@ const R2Report: React.FC = () => {
     setLoading(true);
   };
   useEffect(() => {
-    onDownloadReport((data) => {
+    onDownloadReport((data: any) => {
       console.log("Report downloaded:", data);
       setLoading(false);
       showToast("Report downloaded successfully", "success");
-     
     });
   }, [onDownloadReport]);
 
@@ -92,7 +91,7 @@ const R2Report: React.FC = () => {
               Filter
             </LoadingButton>
           </div>
-          <LoadingButton variant="contained" startIcon={<DownloadIcon fontSize="small" />} disabled loading={loading} onClick={handleDownload}  >
+          <LoadingButton variant="contained" startIcon={<DownloadIcon fontSize="small" />} disabled loading={loading} onClick={handleDownload}>
             Download
           </LoadingButton>
         </div>

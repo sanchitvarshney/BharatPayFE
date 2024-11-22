@@ -1,21 +1,17 @@
 import { CustomButton } from "@/components/reusable/CustomButton";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { CardContent, CardFooter } from "@/components/ui/card";
 import MaterialReqWithoutBomTable from "@/table/production/MaterialReqWithoutBomTable";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { HiOutlineRefresh } from "react-icons/hi";
-import { IoCheckmark } from "react-icons/io5";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { SingleValue } from "react-select";
-import { showToast } from "@/utils/toastUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { createProductRequest, getLocationAsync, getPertCodesync, getSkuAsync, setType } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { transformGroupSelectData } from "@/utils/transformUtills";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, ListItemButton, ListItemText, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import { LoadingButton } from "@mui/lab";
+import { Icons } from "@/components/icons";
+import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
   code: string;
@@ -27,23 +23,19 @@ interface RowData {
   availableqty: string;
 }
 type Formstate = {
-  location: OptionType | null;
+  location: LocationType | null;
   remarks: string;
 };
-type OptionType = {
-  value: string;
-  label: string;
-};
+
 const MaterialReqWithoutBom = () => {
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [location, setLocation] = useState<OptionType | null>(null);
+  const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
   const [final, setFinal] = useState<boolean>(false);
-  const { type, createProductRequestLoading, locationData, getLocationDataLoading, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { type, createProductRequestLoading, locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   // const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const [open, setOpen] = useState<boolean>(false);
   const [reqType, setReqType] = useState<string>("");
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
 
   const handleTypeChange = (e: string) => {
@@ -59,6 +51,7 @@ const MaterialReqWithoutBom = () => {
     handleSubmit,
     reset,
     control,
+
     formState: { errors },
   } = useForm<Formstate>({
     defaultValues: {
@@ -82,10 +75,7 @@ const MaterialReqWithoutBom = () => {
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
     if (rowData.length === 0) {
-      showToast({
-        description: "Please Add Material Details",
-        variant: "destructive",
-      });
+      showToast("Please Add Material Details", "error");
       return;
     } else {
       let hasErrors = false;
@@ -102,10 +92,7 @@ const MaterialReqWithoutBom = () => {
           missingFields.push("orderqty");
         }
         if (missingFields.length > 0) {
-          showToast({
-            description: `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
-            variant: "destructive",
-          });
+          showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
           hasErrors = true;
         }
       });
@@ -115,7 +102,7 @@ const MaterialReqWithoutBom = () => {
         const picLocation = rowData.map((row) => row.pickLocation);
         const qty = rowData.map((row) => row.orderqty);
         const remark = rowData.map((row) => row.remarks);
-        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.value, comment: data.remarks })).then((res: any) => {
+        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.id, comment: data.remarks })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
@@ -133,33 +120,33 @@ const MaterialReqWithoutBom = () => {
   }, []);
   useEffect(() => {
     if (location) {
-      const locationDetail = locationData?.find((item) => item.id === location?.value)?.specification;
+      const locationDetail = locationData?.find((item) => item.id === location?.id)?.specification;
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
   return (
     <div>
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>If you change [Request Type] your hole data will be reset </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-500 hover:bg-red-600"
-              onClick={() => {
-                dispatch(setType(reqType));
-                reset();
-                setRowData([]);
-              }}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">{"Are you absolutely sure?"}</DialogTitle>
+        <DialogContent sx={{ width: "600px" }}>
+          <DialogContentText id="alert-dialog-description">If you change [Request Type] your hole data will be reset</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              dispatch(setType(reqType));
+              reset();
+              setRowData([]);
+            }}
+            autoFocus
+          >
+            Continue
+          </Button>
+        </DialogActions>
+      </Dialog>
       {final ? (
         <div className="h-[calc(100vh-100px)] flex items-center justify-center bg-white">
           <div className="max-h-max max-w-max flex flex-col gap-[30px]">
@@ -184,79 +171,92 @@ const MaterialReqWithoutBom = () => {
         </div>
       ) : (
         <div className="h-[calc(100vh-100px)] overflow-y-hidden grid grid-cols-[450px_1fr]">
-          <div className="p-[10px] border-r h-full overflow-y-auto">
+          <div className="h-full overflow-y-auto bg-white border-r border-neutral-300">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <Card className="rounded-md ">
-                <CardHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
-                  <CardTitle className="text-slate-600 font-[500]">Header Details</CardTitle>
-                </CardHeader>
+              <div>
+                <div className="h-[41px] border-b border-neutral-300 p-0 flex flex-col justify-center px-[20px] bg-hbg">
+                  <Typography className="text-slate-600 font-[500]" fontWeight={500}>
+                    Header Details
+                  </Typography>
+                </div>
                 <CardContent className="flex flex-col gap-[20px] py-[20px]">
-                  <div className="grid grid-cols-2 gap-[20px]">
-                    <div onClick={() => handleTypeChange("part")} className={`cursor-pointer p-[10px] border rounded-lg text-slate-600 ${type === "part" ? "bg-hbg border-cyan-500 text-cyan-700" : ""}`}>
-                      Material
+                  <RadioGroup value={type}>
+                    <div className="grid grid-cols-2 gap-[20px]">
+                      <ListItemButton
+                        sx={{
+                          border: "1px solid #0e7490",
+                          borderRadius: "5px",
+                          "&.Mui-selected": {
+                            backgroundColor: "#ecfeff",
+
+                            color: "black",
+                          },
+                        }}
+                        onClick={() => handleTypeChange("part")}
+                        selected={type === "part"}
+                      >
+                        <FormControlLabel value={"part"} control={<Radio />} label={<ListItemText primary={"Material"} />} sx={{ width: "100%", margin: 0 }} />
+                      </ListItemButton>
+                      <ListItemButton
+                        sx={{
+                          borderRadius: "5px",
+                          border: "1px solid #0e7490",
+                          "&.Mui-selected": {
+                            backgroundColor: "#ecfeff",
+                            color: "black",
+                          },
+                        }}
+                        onClick={() => handleTypeChange("device")}
+                        selected={type === "device"}
+                      >
+                        <FormControlLabel value={"device"} control={<Radio />} label={<ListItemText primary={"SKU"} />} sx={{ width: "100%", margin: 0 }} />
+                      </ListItemButton>
                     </div>
-                    <div onClick={() => handleTypeChange("device")} className={`cursor-pointer p-[10px] border rounded-lg text-slate-600 ${type === "device" ? "bg-hbg border-cyan-500 text-cyan-700" : ""}`}>
-                      SKU
-                    </div>
-                  </div>
+                  </RadioGroup>
                   <div>
                     <Controller
                       name="location"
                       control={control}
                       rules={{ required: "Location is required" }}
                       render={({ field }) => (
-                        <CustomSelect
-                          isLoading={getLocationDataLoading}
-                          {...field}
-                          defaultValue={{ value: "V01", label: "Vendor" }}
-                          options={transformGroupSelectData(locationData)}
-                          onInputChange={(value) => {
-                            if (debounceTimeout.current) {
-                              clearTimeout(debounceTimeout.current);
-                            }
-                            debounceTimeout.current = setTimeout(() => {
-                              dispatch(getLocationAsync(!value ? null : value));
-                            }, 500);
-                          }}
-                          required
+                        <SelectLocation
+                          error={!!errors.location}
+                          helperText={errors.location?.message}
                           value={field.value}
-                          isClearable={true}
-                          onChange={(selectedOption) => {
-                            field.onChange(selectedOption as SingleValue<OptionType>);
-                            setLocation(selectedOption);
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setLocation(e);
                           }}
-                          placeholder={"Location"}
                         />
                       )}
                     />
-                    {errors.location && <span className=" text-[12px] text-red-500">{errors.location.message}</span>}
                   </div>
                   <div className="flex gap-[10px] items-center">
-                    <Label className="text-slate-500 text-[14px]">Location Details :</Label>
+                    <Typography>Location Details :</Typography>
                     <span className="text-[14px] text-slate-600">{locationdetail}</span>
                   </div>
                   <div>
-                    <Label className="text-slate-500">Remarks</Label>
-                    <Textarea className="h-[100px] resize-none" {...register("remarks")} />
+                    <TextField fullWidth multiline rows={4} label="Remark (if any)" {...register("remarks")} />
                   </div>
                 </CardContent>
-                <CardFooter className="h-[50px] p-0 flex items-center px-[20px] border-t gap-[10px] justify-end">
-                  <CustomButton
+                <CardFooter className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
+                  <LoadingButton
                     type="button"
                     onClick={() => {
                       reset();
                       setRowData([]);
                     }}
-                    icon={<HiOutlineRefresh className="h-[18px] w-[18px] text-red-600" />}
-                    variant={"outline"}
+                    startIcon={<Icons.refresh fontSize="small" />}
+                    variant={"contained"}
+                    sx={{ background: "white", color: "red" }}
                   >
                     Reset
-                  </CustomButton>
-                  <CustomButton loading={createProductRequestLoading} icon={<IoCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
+                  </LoadingButton>
+                  <LoadingButton type="submit" loadingPosition="start" loading={createProductRequestLoading} startIcon={<Icons.save fontSize="small" />} variant="contained">
                     Submit
-                  </CustomButton>
+                  </LoadingButton>
                 </CardFooter>
-              </Card>
+              </div>
             </form>
           </div>
 
