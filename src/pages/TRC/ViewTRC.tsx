@@ -6,13 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { Drawer } from "antd";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { showToast } from "@/utils/toastUtils";
 import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
 import FixIssuesTable from "@/table/TRC/FixIssuesTable";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
-import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup } from "@mui/material";
+import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
+import { showToast } from "@/utils/toasterContext";
 interface Issue {
   id: number;
   issue: string;
@@ -56,28 +56,18 @@ const ViewTRC: React.FC = () => {
 
     if (miss.filter((item) => item !== undefined).length > 0) {
       console.log(issues);
-      showToast({
-        description: `Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`,
-        variant: "destructive",
-        duration: 3000,
-      });
+      showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
       hasErrors = true;
     }
     return hasErrors;
   };
   const onSubmit = () => {
     if (issues.length === 0) {
-      showToast({
-        description: "Issue not added",
-        variant: "destructive",
-      });
+      showToast("Issue not added", "error");
     } else if (!checkRequiredFields(issues)) {
       // TRCDetail?.txnId
       if (!location) {
-        showToast({
-          description: "Please select location",
-          variant: "destructive",
-        });
+        showToast("Please select location", "error");
       } else {
         const consumpItem = issues.filter((item) => item.isChecked).map((item) => item.selectedPart);
         const consumpQty = issues.filter((item) => item.isChecked).map((item) => item.quantity);
@@ -96,10 +86,7 @@ const ViewTRC: React.FC = () => {
         };
         dispatch(trcFinalSubmit(payload)).then((res: any) => {
           if (res.payload.data.success) {
-            showToast({
-              description: res.payload.data.message,
-              variant: "success",
-            });
+            showToast(res.payload.data.message, "success");
             if (!approved) {
               setApproved([device]);
             } else {
@@ -145,25 +132,37 @@ const ViewTRC: React.FC = () => {
   return (
     <>
       <Drawer
+        placement="bottom"
         styles={{
           body: {
             padding: "0px",
           },
+          header: {
+            padding: "0px 20px",
+            background: "#e5e5e5",
+            minHeight: "50px",
+            borderBottom: "1px solid #c4c4c4",
+          },
         }}
-        width={"100%"}
-        open={process}
+        closeIcon={<Icons.close />}
         title={`#Ref: ${TRCDetail ? TRCDetail?.txnId : "--"}`}
+        width={"100%"}
+        height={"100vh"}
+        open={process}
         onClose={() => {
           setProcess(false);
           dispatch(getTrcList());
         }}
       >
-        <div className="h-[calc(100vh-60px)] grid grid-cols-[500px_1fr] ">
-          <div className="border-r border-zinc-300">
-            <div className="bg-hbg h-[40px] flex items-center px-[10px]">
-              <p className="text-slate-600 font-[600]">Device List</p>
+        <div className="h-[calc(100vh-50px)] grid grid-cols-[500px_1fr] ">
+          <div className="border-r border-neutral-300">
+            <div className="bg-hbg h-[40px] flex items-center px-[10px] border-b border-neutral-300 gap-[10px]">
+              <Chip label="1" />
+              <Typography fontWeight={600} fontSize={16}>
+                Device List
+              </Typography>
             </div>
-            <div className="h-[calc(100vh-160px)] ">
+            <div className="h-[calc(100vh-150px)] ">
               <div className=" h-[calc(100vh-290px)] overflow-y-auto">
                 {getTrcRequestDetailLoading ? (
                   <div className="flex flex-col gap-[5px] p-[10px]">
@@ -175,18 +174,6 @@ const ViewTRC: React.FC = () => {
                     <Skeleton className="h-[30px] w-full" />
                   </div>
                 ) : (
-                  // <RadioGroup onValueChange={(e) => setDevice(e)} className="flex flex-col gap-0 p-0 m-0">
-                  //   {trcRequestDetail
-                  //     ? trcRequestDetail.body.map((item) => (
-                  //         <Label key={item.device} htmlFor={item.device} className={`p-0 cursor-pointer ${approved && approved.includes(item.device) ? "pointer-events-none opacity-55" : ""}`}>
-                  //           <div className=" items-center grid grid-cols-[30px_1fr] py-[10px] border-b ps-[10px] ">
-                  //             <RadioGroupItem value={item.device} id={item.device} />
-                  //             <p>{item.device}</p>
-                  //           </div>
-                  //         </Label>
-                  //       ))
-                  //     : ""}
-                  // </RadioGroup>
                   <RadioGroup value={device}>
                     <List className="">
                       {trcRequestDetail &&
@@ -214,7 +201,7 @@ const ViewTRC: React.FC = () => {
                   </RadioGroup>
                 )}
               </div>
-              <div className=" h-[150px] border-t border-slate-300 p-[10px]">
+              <div className=" h-[150px] border-t border-neutral-300 p-[10px]">
                 <div className="flex items-center gap-[10px]">
                   <p className="font-[500]">Requested By : </p>
                   <p>{TRCDetail ? TRCDetail?.requestedBy || "--" : "--"} </p>
@@ -239,13 +226,13 @@ const ViewTRC: React.FC = () => {
             </div>
           </div>
           <div>
-            <div className="bg-hbg h-[40px] flex items-center px-[10px]">
-              <p className="text-slate-600 font-[600]">Fix Issues</p>
+            <div className="bg-hbg h-[40px] flex items-center px-[10px] border-b border-neutral-300 gap-[10px]">
+              <Chip label="2" />
+              <Typography fontWeight={600} fontSize={16}>
+                Fix Issues
+              </Typography>
             </div>
             <div className="h-[calc(100vh-100px)] overflow-y-auto ">
-              {/* <div className="flex items-center justify-center h-[100%]">
-                  <img src="/empty.png" alt="" className="h-[100px] w-[100px]" />
-                </div> */}
               <div className="h-[calc(100vh-150px)] ">
                 <div className="p-[20px]  h-[70px]">
                   <div className="grid grid-cols-[1fr_1fr] gap-[20px]">
@@ -263,8 +250,10 @@ const ViewTRC: React.FC = () => {
                   <SelectLocation value={location} onChange={setLocation} label="Drop Location" width="400px" />
                 </div>
                 <div>
-                  <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between">
-                    <p className="text-slate-600 font-[600]">Verify Fix Issues</p>
+                  <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
+                    <Typography fontWeight={600} fontSize={16}>
+                      Verify Fix Issues
+                    </Typography>
                     <p className="text-slate-600 font-[600]">Total fix issues: {issues.filter((issue) => issue.isChecked).length.toString()}</p>
                   </div>
                   <div className="h-[calc(100vh-320px)]  overflow-y-auto overflow-x-auto">
@@ -278,7 +267,7 @@ const ViewTRC: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-slate-300">
+              <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-neutral-300">
                 <LoadingButton variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => setProcess(false)}>
                   Cancel
                 </LoadingButton>

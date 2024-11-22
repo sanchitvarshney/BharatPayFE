@@ -211,7 +211,7 @@ const AddTRC = () => {
                   >
                     Reset
                   </Button>
-                  <LoadingButton loading={addTrcLoading} startIcon={<Icons.save />} variant="contained" type="submit">
+                  <LoadingButton loadingPosition="start" loading={addTrcLoading} startIcon={<Icons.save />} variant="contained" type="submit">
                     Submit
                   </LoadingButton>
                 </div>
