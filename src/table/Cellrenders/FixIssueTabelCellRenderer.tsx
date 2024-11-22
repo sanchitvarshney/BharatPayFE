@@ -3,9 +3,8 @@ import { Select } from "antd";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { transformPartCode } from "@/utils/transformUtills";
+import { Checkbox, FormControlLabel } from "@mui/material";
 
 interface MaterialInvardCellRendererProps {
   props: any;
@@ -14,7 +13,7 @@ interface MaterialInvardCellRendererProps {
 
 const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
   const dispatch = useAppDispatch();
- 
+
   const { value, colDef, data, api, column } = props;
   // useEffect(() => {
   //   customFunction();
@@ -41,10 +40,9 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
               dispatch(getPertCodesync(null));
             }}
             filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
-            
             showSearch
             loading={getPartCodeLoading}
-            className="w-full"
+            className="w-full h-[35px]"
             value={value}
             onSearch={(searchValue) => {
               // Dispatch action to fetch filtered part codes
@@ -74,29 +72,30 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
       case "isChecked":
         return (
           <div className="flex items-center gap-[10px] h-full">
-            <Checkbox
-              id={`issue${data?.id}`}
-              checked={value}
-              onCheckedChange={(e) => {
-                const newValue = e;
-                console.log(e)
-                data[colDef.field] = newValue; // Update the data
-                if (!e) {
-                  data["selectedPart"] = null;
-                  data["quantity"] = "";
-                  data["remarks"] = "";
-                }
-                api.refreshCells({
-                  rowNodes: [props.node],
-                  columns: [column, "id", "selectedPart", "quantity", "remarks", "isChecked"],
-                });
-                customFunction(); // Custom function for further actions
-              }}
-              className="data-[state=checked]:bg-cyan-700 border-cyan-700 h-[20px] w-[20px]"
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={value}
+                  onChange={(e) => {
+                    const newValue = e.target.checked;
+                    console.log(e);
+                    data[colDef.field] = newValue; // Update the data
+                    if (!e) {
+                      data["selectedPart"] = null;
+                      data["quantity"] = "";
+                      data["remarks"] = "";
+                    }
+                    api.refreshCells({
+                      rowNodes: [props.node],
+                      columns: [column, "id", "selectedPart", "quantity", "remarks", "isChecked"],
+                    });
+                    customFunction(); // Custom function for further actions
+                  }}
+                />
+              }
+              label={data?.issue}
             />
-            <Label htmlFor={`issue${data?.id}`} className="cursor-pointer">
-              {data?.issue}
-            </Label>
+           
           </div>
         );
       case "remarks":
