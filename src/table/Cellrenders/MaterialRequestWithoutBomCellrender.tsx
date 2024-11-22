@@ -3,6 +3,7 @@ import { getAvailbleQty, getPertCodesync, getSkuAsync } from "@/features/product
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { transformGroupSelectData, transformPartCode, transformSkuCode } from "@/utils/transformUtills";
+import { ButtonBase } from "@mui/material";
 import { Select } from "antd";
 import React, { useEffect, useState } from "react";
 interface MaterialInvardCellRendererProps {
@@ -20,7 +21,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
     if (colDef.field === "code") {
       if (type === "device") {
         data.unit = skuCodeData?.find((item) => item.id === value)?.unit;
-        
+
         api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
       } else {
         data.unit = partCodeData?.find((item) => item.id === value)?.unit;
@@ -132,7 +133,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
           }
         }, [availbleQtyData]);
 
-        return <div>{availbleQty}</div>;
+        return <ButtonBase>{availbleQty}</ButtonBase>;
     }
   };
 
