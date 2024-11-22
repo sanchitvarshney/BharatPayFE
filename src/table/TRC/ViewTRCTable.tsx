@@ -2,12 +2,13 @@ import React, { useMemo } from "react";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { TbRefresh } from "react-icons/tb";
+
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getTrcRequestDetail, setTrcDetail } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { TcDetail } from "@/features/trc/ViewTrc/viewTrcType";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { Button } from "@mui/material";
+import { Icons } from "@/components/icons";
 
 type Props = {
   open: boolean;
@@ -67,7 +68,7 @@ const ViewTRCTable: React.FC<Props> = ({ setOpen }) => {
       field: "action",
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center h-full">
-          <CustomButton
+          <Button
             onClick={() => {
               setOpen(true);
               const payload: TcDetail = {
@@ -80,11 +81,12 @@ const ViewTRCTable: React.FC<Props> = ({ setOpen }) => {
               dispatch(setTrcDetail(payload));
               dispatch(getTrcRequestDetail(params?.data?.txnId));
             }}
-            icon={<TbRefresh className="h-[18px] w-[18px]" />}
-            className="p-0 bg-cyan-700 hover:bg-cyan-800 h-[30px] px-[10px]"
+            startIcon={<Icons.refreshv2 />}
+            variant="contained"
+            size="small"
           >
             Process
-          </CustomButton>
+          </Button>
         </div>
       ),
       flex: 1,
@@ -101,7 +103,17 @@ const ViewTRCTable: React.FC<Props> = ({ setOpen }) => {
   return (
     <div>
       <div className="ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} loading={getTrcListLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={trcList ? trcList : []} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact
+          loadingOverlayComponent={CustomLoadingOverlay}
+          loading={getTrcListLoading}
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
+          suppressCellFocus={true}
+          rowData={trcList ? trcList : []}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          pagination={true}
+          paginationPageSize={20}
+        />
       </div>
     </div>
   );

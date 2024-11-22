@@ -3,11 +3,12 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { HiMiniTrash } from "react-icons/hi2";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import AddtrcTableCellRenderer from "../Cellrenders/AddtrcTableCellRenderer";
+import { IconButton } from "@mui/material";
+import { Icons } from "@/components/icons";
 interface RowData {
   remarks: string;
   id: number;
@@ -66,9 +67,9 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button variant={"outline"} className="border shadow-none p-0 h-[30px] w-[30px]" onClick={() => handleDeleteRow(params.data.id)}>
-            <HiMiniTrash className="h-[18px] w-[18px] text-red-500" />
-          </Button>
+          <IconButton   onClick={() => handleDeleteRow(params.data.id)}>
+            <Icons.delete color="error"/>
+          </IconButton>
         </div>
       ),
       headerComponent: () => (

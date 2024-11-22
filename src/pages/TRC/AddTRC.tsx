@@ -1,23 +1,19 @@
 import { CustomButton } from "@/components/reusable/CustomButton";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { HiOutlineRefresh } from "react-icons/hi";
-import { IoCheckmark } from "react-icons/io5";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { SingleValue } from "react-select";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getLocationAsync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { transformGroupSelectData } from "@/utils/transformUtills";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
 import AddtrcTable from "@/table/TRC/AddtrcTable";
-import { showToast } from "@/utils/toastUtils";
 import { addTrcAsync } from "@/features/trc/AddTrc/addtrcSlice";
 import { AddtrcPayloadType } from "@/features/trc/AddTrc/addtrcType";
 import { getIsueeList } from "@/features/common/commonSlice";
+import { Button, TextField, Typography } from "@mui/material";
+import { Icons } from "@/components/icons";
+import { LoadingButton } from "@mui/lab";
+import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
   remarks: string;
@@ -27,24 +23,19 @@ interface RowData {
   IMEI: string;
 }
 type Formstate = {
-  pickLocation: OptionType | null;
-  putLocation: OptionType | null;
+  pickLocation: LocationType | null;
+  putLocation: LocationType | null;
   remarks: string;
 };
-type OptionType = {
-  value: string;
-  label: string;
-};
+
 const AddTRC = () => {
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [location, setLocation] = useState<OptionType | null>(null);
+  const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
   const [final, setFinal] = useState<boolean>(false);
-  const { locationData, getLocationDataLoading, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { addTrcLoading } = useAppSelector((state) => state.addTrc);
-  // const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
 
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const dispatch = useAppDispatch();
 
   const {
@@ -69,15 +60,12 @@ const AddTRC = () => {
       IMEI: "",
       issues: [],
     };
-    setRowData((prev) => [...prev, newRow].reverse());
+    setRowData((prev) => [newRow, ...prev]);
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
     if (rowData.length === 0) {
-      showToast({
-        description: "Please Add Material Details",
-        variant: "destructive",
-      });
+      showToast("Please Add Material Details", "error");
       return;
     } else {
       let hasErrors = false;
@@ -92,10 +80,7 @@ const AddTRC = () => {
         }
 
         if (missingFields.length > 0) {
-          showToast({
-            description: `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
-            variant: "destructive",
-          });
+          showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
           hasErrors = true;
         }
       });
@@ -109,15 +94,12 @@ const AddTRC = () => {
           device,
           remark,
           comment: data.remarks,
-          pickLocation: data.pickLocation?.value || "",
-          putLocation: data.putLocation?.value || "",
+          pickLocation: data.pickLocation?.id || "",
+          putLocation: data.putLocation?.id || "",
         };
         dispatch(addTrcAsync(payload)).then((response: any) => {
           if (response.payload.data?.success) {
-            showToast({
-              description: `TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`,
-              variant: "success",
-            });
+            showToast(`TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`, "success");
             reset();
             setRowData([]);
           }
@@ -131,7 +113,7 @@ const AddTRC = () => {
   }, []);
   useEffect(() => {
     if (location) {
-      const locationDetail = locationData?.find((item) => item.id === location?.value)?.specification;
+      const locationDetail = locationData?.find((item) => item.id === location?.id)?.specification;
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
@@ -161,102 +143,79 @@ const AddTRC = () => {
         </div>
       ) : (
         <div className="h-[calc(100vh-100px)] overflow-y-hidden grid grid-cols-[450px_1fr]">
-          <div className="p-[10px] border-r h-full overflow-y-auto">
+          <div className="h-full overflow-y-auto bg-white border-r border-neutral-300">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <Card className="rounded-md ">
-                <CardHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-hbg">
-                  <CardTitle className="text-slate-600 font-[500]">Header Details</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-[20px] py-[20px]">
+              <div>
+                <div className="h-[41px] p-0 flex flex-col justify-center px-[20px] bg-hbg border-b border-neutral-300">
+                  <Typography className="text-slate-600 " fontWeight={500}>
+                    Header Details
+                  </Typography>
+                </div>
+                <div className="flex flex-col gap-[20px] p-[20px]">
                   <div>
                     <Controller
                       name="pickLocation"
                       control={control}
                       rules={{ required: "Pick Location is required" }}
                       render={({ field }) => (
-                        <CustomSelect
-                          isLoading={getLocationDataLoading}
-                          {...field}
-                          defaultValue={{ value: "V01", label: "Vendor" }}
-                          options={transformGroupSelectData(locationData)}
-                          onInputChange={(value) => {
-                            if (debounceTimeout.current) {
-                              clearTimeout(debounceTimeout.current);
-                            }
-                            debounceTimeout.current = setTimeout(() => {
-                              dispatch(getLocationAsync(!value ? null : value));
-                            }, 500);
-                          }}
-                          required
+                        <SelectLocation
+                          error={!!errors.pickLocation}
+                          helperText={errors.pickLocation?.message}
                           value={field.value}
-                          isClearable={true}
-                          onChange={(selectedOption) => {
-                            field.onChange(selectedOption as SingleValue<OptionType>);
-                            setLocation(selectedOption);
+                          label="Pick Location"
+                          onChange={(value) => {
+                            field.onChange(value);
+                            setLocation(value);
                           }}
-                          placeholder={"Pick Location"}
                         />
                       )}
                     />
-                    {errors.pickLocation && <span className=" text-[12px] text-red-500">{errors.pickLocation.message}</span>}
                   </div>
                   <div>
                     <Controller
                       name="putLocation"
                       control={control}
-                      rules={{ required: "Put Location is required" }}
+                      rules={{ required: "Location Location is required" }}
                       render={({ field }) => (
-                        <CustomSelect
-                          isLoading={getLocationDataLoading}
-                          {...field}
-                          options={transformGroupSelectData(locationData)}
-                          onInputChange={(value) => {
-                            if (debounceTimeout.current) {
-                              clearTimeout(debounceTimeout.current);
-                            }
-                            debounceTimeout.current = setTimeout(() => {
-                              dispatch(getLocationAsync(!value ? null : value));
-                            }, 500);
-                          }}
-                          required
+                        <SelectLocation
+                          error={!!errors.putLocation}
+                          helperText={errors.putLocation?.message}
                           value={field.value}
-                          isClearable={true}
-                          onChange={(selectedOption) => {
-                            field.onChange(selectedOption as SingleValue<OptionType>);
-                            setLocation(selectedOption);
+                          label="Drop Location"
+                          onChange={(value) => {
+                            field.onChange(value);
+                            setLocation(value);
                           }}
-                          placeholder={"Put Location"}
                         />
                       )}
                     />
-                    {errors.putLocation && <span className=" text-[12px] text-red-500">{errors.putLocation.message}</span>}
                   </div>
                   <div className="flex gap-[10px] items-center">
-                    <Label className="text-slate-500 text-[14px]">Location Details :</Label>
+                    <Typography>Location Details :</Typography>
                     <span className="text-[14px] text-slate-600">{locationdetail}</span>
                   </div>
                   <div>
-                    <Label className="text-slate-500">Remarks</Label>
-                    <Textarea className="h-[100px] resize-none" {...register("remarks")} />
+                    <TextField multiline rows={3} fullWidth label="Remarks" className="h-[100px] resize-none" {...register("remarks")} />
                   </div>
-                </CardContent>
-                <CardFooter className="h-[50px] p-0 flex items-center px-[20px] border-t gap-[10px] justify-end">
-                  <CustomButton
+                </div>
+                <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end">
+                  <Button
                     type="button"
                     onClick={() => {
                       reset();
                       setRowData([]);
                     }}
-                    icon={<HiOutlineRefresh className="h-[18px] w-[18px] text-red-600" />}
-                    variant={"outline"}
+                    startIcon={<Icons.refresh />}
+                    variant={"contained"}
+                    sx={{ color: "red", background: "white" }}
                   >
                     Reset
-                  </CustomButton>
-                  <CustomButton loading={addTrcLoading} icon={<IoCheckmark className="h-[18px] w-[18px] " />} className="bg-cyan-700 hover:bg-cyan-800">
+                  </Button>
+                  <LoadingButton loading={addTrcLoading} startIcon={<Icons.save />} variant="contained" type="submit">
                     Submit
-                  </CustomButton>
-                </CardFooter>
-              </Card>
+                  </LoadingButton>
+                </div>
+              </div>
             </form>
           </div>
           <AddtrcTable addRow={addRow} setRowdata={setRowData} rowData={rowData} />

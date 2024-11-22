@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, TextField, Typography } from "@mui/material";
+import { Button, Card, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, TextField, Typography } from "@mui/material";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import { showToast } from "@/utils/toasterContext";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -19,7 +19,7 @@ import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { DatePicker, TimeRangePickerProps } from "antd";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { clearLotList, getLotListData } from "@/features/production/QRCode/QRCodeSlice";
+import { checkserial, clearLotList, getLotListData } from "@/features/production/QRCode/QRCodeSlice";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
@@ -33,6 +33,7 @@ const rangePresets: TimeRangePickerProps["presets"] = [
 ];
 type RowData = {
   srno: string;
+  operator: string;
 };
 
 type FormDataType = {
@@ -42,7 +43,7 @@ type FormDataType = {
 };
 const MasterQrGenerator: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { getlotListLoading } = useAppSelector((state) => state.qr);
+  const { getlotListLoading ,checkserialLoading} = useAppSelector((state) => state.qr);
   const [resetAlert, setResetAlert] = React.useState(false);
   const [imei, setImei] = React.useState<string>("");
   const [rowData, setRowData] = React.useState<RowData[]>([]);
@@ -72,7 +73,7 @@ const MasterQrGenerator: React.FC = () => {
     defaultValues: {
       sku: null,
       model: "",
-      Lotsize: "",
+      Lotsize: "30",
     },
   });
   const onsubmit = async (data: FormDataType) => {
@@ -189,7 +190,34 @@ const MasterQrGenerator: React.FC = () => {
                 control={control}
                 render={({ field }) => <SelectDevice error={!!errors.sku} helperText={errors.sku ? errors.sku?.message : "Choose the appropriate SKU associated with the device."} size="medium" label="Select SKU" varient="outlined" value={field.value} onChange={field.onChange} />}
               />
-              <TextField error={!!errors.Lotsize} helperText={errors.Lotsize ? errors.Lotsize?.message : "Specify the number of devices to be included in the batch."} label="Lot Size" type="number" fullWidth {...register("Lotsize", { required: "Lot Size is required" })} />
+              <Controller
+                name="Lotsize"
+                rules={{ required: { value: true, message: "Lot Size is required" } }}
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    error={!!errors.Lotsize}
+                    value={field.value}
+                    slotProps={{
+                      htmlInput: {
+                        min: 1,
+                        readOnly: true,
+                      },
+                    }}
+                    onChange={(e) => {
+                      if (Number(e.target.value) > 30) {
+                        showToast("Lot Size should be less than 30", "error");
+                      } else {
+                        field.onChange(e.target.value);
+                      }
+                    }}
+                    helperText={errors.Lotsize ? errors.Lotsize?.message : "Specify the number of devices to be included in the batch."}
+                    label="Lot Size"
+                    type="number"
+                    fullWidth
+                  />
+                )}
+              />
             </div>
           </div>
           {page === "CREATE" ? (
@@ -217,19 +245,24 @@ const MasterQrGenerator: React.FC = () => {
                             showToast("Serial number already added", "error");
                             return;
                           }
-                          const newdata: RowData = {
-                            srno: imei,
-                          };
-                          if (rowData.length === 0) {
-                            setRowData([newdata]);
-                          } else {
-                            setRowData([newdata, ...rowData]);
-                          }
-                          setImei("");
+                          dispatch(checkserial(imei)).then((response: any) => {
+                            if (response.payload?.data.success) {
+                              const newdata: RowData = {
+                                srno: response.payload?.data.srlNo,
+                                operator: response.payload?.data.operator,
+                              };
+                              if (rowData.length === 0) {
+                                setRowData([newdata]);
+                              } else {
+                                setRowData([newdata, ...rowData]);
+                              }
+                              setImei("");
+                            }
+                          });
                         }
                       }
                     }}
-                    endAdornment={<InputAdornment position="end">{<QrCodeScannerIcon />}</InputAdornment>}
+                    endAdornment={<InputAdornment position="end">{checkserialLoading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}</InputAdornment>}
                   />
                   <FormHelperText>Input or scan the unique Serial Numbers of the devices. </FormHelperText>
                 </FormControl>
