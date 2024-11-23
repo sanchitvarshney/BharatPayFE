@@ -1,3 +1,8 @@
+import { LocationType } from "@/components/reusable/SelectLocation";
+import { DeviceType } from "@/components/reusable/SelectSku";
+import { VendorData } from "@/components/reusable/SelectVendor";
+import { Dayjs } from "dayjs";
+
 export type Location = {
   id: string;
   text: string;
@@ -41,22 +46,19 @@ export type UploadInvoiceFileApiResponse = {
   data: InvoiceFileData[];
 };
 
-type OptionType = {
-  value: string;
-  label: string;
-};
+
 export type Step1Form = {
-  vendorType: OptionType | null;
-  vendor: OptionType | null;
-  vendorBranch: OptionType | null;
+  vendorType:  string;
+  vendor: VendorData | null;
+  vendorBranch: string;
   vendorAddress: string;
-  sku: OptionType | null;
-  location: OptionType | null;
+  sku: DeviceType | null;
+  location: LocationType | null;
   qty: string;
-  docDate: string;
+  docDate: Dayjs | null;
   unit: string;
   docId: string;
-  docType: OptionType | null;
+  docType: string;
 };
 interface UomDetail {
   product_name: string;

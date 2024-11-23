@@ -10,6 +10,12 @@
   import DoneIcon from '@mui/icons-material/Done';
   import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import InfoIcon from '@mui/icons-material/Info';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
   export const Icons = {
     save: SaveIcon,
     refresh: RefreshIcon,
@@ -21,5 +27,11 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
     close:CloseIcon,
     done:DoneIcon,
     time:AccessTimeIcon,
-    checkcircle:CheckCircleOutlineIcon
+    checkcircle:CheckCircleOutlineIcon,
+    qrScan:QrCodeScannerIcon,
+    form:FormatListNumberedRtlIcon,
+    checklist:ChecklistIcon,
+    alldone:DoneAllIcon,
+    info:InfoIcon,
+    uploadfile:FileUploadIcon
   };

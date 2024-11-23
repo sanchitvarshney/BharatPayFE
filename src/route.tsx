@@ -133,7 +133,7 @@ export const router = createBrowserRouter([
             </MasterBOMLayout>
           </MainLayout>
         ),
-        path: "/master-bom-ceate",
+        path: "/master-bom-create",
       },
       {
         element: (

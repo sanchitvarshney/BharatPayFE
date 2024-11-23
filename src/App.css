@@ -145,3 +145,18 @@ input:-webkit-autofill {
   border: none !important;
   background: #fffbeb;
 }
+
+
+.custom-step-icon {
+  background-color: #0e7490; /* Green background for step numbers */
+  color: white; /* White text color */
+  font-size: 14px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
