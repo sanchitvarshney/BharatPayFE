@@ -107,7 +107,7 @@ const AddBatteryQcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-150px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-200px)]">
       <AgGridReact
         suppressCellFocus={true}
         onCellFocused={(event: any) => {

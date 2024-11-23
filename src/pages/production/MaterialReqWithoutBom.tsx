@@ -18,7 +18,7 @@ interface RowData {
   pickLocation: string;
   orderqty: string;
   remarks: string;
-  id: number;
+  id: string;
   isNew: boolean;
   availableqty: string;
 }
@@ -60,7 +60,7 @@ const MaterialReqWithoutBom = () => {
     },
   });
   const addRow = useCallback(() => {
-    const newId = rowData.length + 1;
+    const newId = crypto.randomUUID();
     const newRow: RowData = {
       id: newId,
       code: "",

@@ -1,16 +1,14 @@
-import { CustomButton } from "@/components/reusable/CustomButton";
 import AddBatteryQcTable from "@/table/production/AddBatteryQcTable";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { GrPowerReset } from "react-icons/gr";
-import { FaRegSave } from "react-icons/fa";
-import { Input, Steps, InputRef } from "antd";
+import { Steps, InputRef } from "antd";
 import { showToast } from "@/utils/toastUtils";
-import { MdOutlineRefresh } from "react-icons/md";
-import { BsUpcScan } from "react-icons/bs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { batteryQcSave, getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { bateryqcSavePayload } from "@/features/production/Batteryqc/BatteryQcType";
+import { LoadingButton } from "@mui/lab";
+import { Icons } from "@/components/icons";
+import { CircularProgress, FormControl, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
 
 type RowData = {
   remark: string;
@@ -22,9 +20,12 @@ type RowData = {
   serialNo: string;
 };
 
+
+
+
 const BatteryQC: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { deviceDetailLoading ,batteryQcSaveLoading} = useAppSelector((state) => state.batteryQcReducer);
+  const { deviceDetailLoading, batteryQcSaveLoading } = useAppSelector((state) => state.batteryQcReducer);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [resetAlert, setResetAlert] = useState<boolean>(false);
   const [imei, setImei] = useState<string>("");
@@ -126,99 +127,119 @@ const BatteryQC: React.FC = () => {
 
       <div className="h-[calc(100vh-50px)] grid grid-cols-[1fr_400px]">
         <div>
-          <div className="h-[50px] bg-white flex items-center px-[20px] gap-[20px]">
-            <Input
-              ref={imeiInputRef}
-              value={imei}
-              onChange={(e) => setImei(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (imei) {
-                    const isUnique = !rowData.some((row) => row.IMEI === imei);
-                    const issrunique = !rowData.some((row) => row.serialNo === imei);
-                    console.log(isUnique);
-                    if (!isUnique) {
-                      showToast({
-                        description: "Duplicate IMEI found",
-                        variant: "destructive",
-                      });
-                     return
-                    }
-                    if(!issrunique){
-                      showToast({
-                        description: "Duplicate Serial Number found",
-                        variant: "destructive",
-                      })
-                      return
-                    }
-                    
-                    dispatch(getDeviceDetail(imei)).then((res: any) => {
-                      if (res.payload.data.success) {
-                        addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
-                        setImei("");
-                      } else {
+          <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px]">
+            <FormControl>
+              <InputLabel htmlFor="outlined-adornment-IMEI/Serial">IMEI/Serial Number</InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-IMEI/Serial"
+                ref={imeiInputRef}
+                value={imei}
+                onChange={(e) => setImei(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (imei) {
+                      const isUnique = !rowData.some((row) => row.IMEI === imei);
+                      const issrunique = !rowData.some((row) => row.serialNo === imei);
+                      console.log(isUnique);
+                      if (!isUnique) {
                         showToast({
-                          description: res.payload.data.message,
+                          description: "Duplicate IMEI found",
                           variant: "destructive",
                         });
-                       
+                        return;
                       }
-                    });
+                      if (!issrunique) {
+                        showToast({
+                          description: "Duplicate Serial Number found",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+
+                      dispatch(getDeviceDetail(imei)).then((res: any) => {
+                        if (res.payload.data.success) {
+                          addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
+                          setImei("");
+                        } else {
+                          showToast({
+                            description: res.payload.data.message,
+                            variant: "destructive",
+                          });
+                        }
+                      });
+                    }
                   }
+                }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    {
+                      deviceDetailLoading ? <CircularProgress/>: <Icons.qrScan />
+                    }
+                   
+                  </InputAdornment>
                 }
-              }}
-              className="w-[400px]"
-              suffix={!deviceDetailLoading ? <BsUpcScan className="h-[18px] w-[18px]" focusable /> : <MdOutlineRefresh className="h-[18px] w-[18px] animate-spin" />}
-              placeholder="IMEI/Serial Number"
-            />
+                className="w-[400px]"
+                label="IMEI/Serial Number"
+              />
+            </FormControl>
           </div>
           <AddBatteryQcTable rowData={rowData} setRowdata={setRowData} />
           <div className="h-[50px] bg-white border-t border-neutral-300 flex items-center justify-end gap-[10px] px-[20px]">
-            <CustomButton
+            <LoadingButton
               disabled={!rowData.length}
               onClick={() => {
                 setResetAlert(true);
               }}
               className="text-red-600 hover:text-red-600"
-              variant={"outline"}
-              icon={<GrPowerReset className="h-[18px] w-[18px]" />}
+              variant={"contained"}
+              sx={{ color: "red", background: "white" }}
+              startIcon={<Icons.refresh fontSize="small" />}
             >
               Reset
-            </CustomButton>
-            <CustomButton
-            loading={batteryQcSaveLoading}
+            </LoadingButton>
+            <LoadingButton
+              loading={batteryQcSaveLoading}
               onClick={() => {
                 onsubmit();
               }}
               disabled={!rowData.length}
               className="bg-cyan-700 hover:bg-cyan-800"
-              icon={<FaRegSave className="h-[18px] w-[18px]" />}
+              startIcon={<Icons.save fontSize="small" />}
+              variant="contained"
             >
               Submit
-            </CustomButton>
+            </LoadingButton>
           </div>
         </div>
         <div className="bg-white p-[20px] border-l border-neutral-300">
           <Steps
-            progressDot
+           
             current={4}
             direction="vertical"
             items={[
               {
                 title: "Scan IMEI",
-                description: "Scan the unique IMEI  number of the device. This number helps in identifying and tracking the device. Ensure there are no spaces or special characters for a valid input.",
+                description:
+                  "Scan the unique IMEI number of the device. This number helps in identifying and tracking the device. Ensure there are no spaces or special characters for a valid input.",
+                icon: <div className="custom-step-icon">1</div>, // Custom number icon
               },
               {
                 title: "Enter IR (Internal Resistance)",
-                description: "Provide the internal resistance (IR) value of the device. This value, typically measured in ohms (Ω), is crucial for assessing the device's operational efficiency. Make sure to use accurate measurements.",
+                description:
+                  "Provide the internal resistance (IR) value of the device. This value, typically measured in ohms (Ω), is crucial for assessing the device's operational efficiency. Make sure to use accurate measurements.",
+                icon: <div className="custom-step-icon">2</div>,
               },
               {
                 title: "Enter Voltage",
-                description: "Input the voltage level of the device. Voltage, measured in volts (V), is essential for monitoring the power status. Please double-check to avoid input errors.",
+                description:
+                  "Input the voltage level of the device. Voltage, measured in volts (V), is essential for monitoring the power status. Please double-check to avoid input errors.",
+                icon: <div className="custom-step-icon">3</div>,
               },
               {
                 title: "Enter Remarks (If Needed)",
-                description: "Add any additional notes or observations related to the device. This field is optional but useful for recording specific conditions or requirements. Keep it concise and relevant.",
+                description:
+                  "Add any additional notes or observations related to the device. This field is optional but useful for recording specific conditions or requirements. Keep it concise and relevant.",
+                icon: <div className="custom-step-icon">4</div>,
               },
             ]}
           />

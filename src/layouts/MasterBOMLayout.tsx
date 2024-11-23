@@ -1,39 +1,54 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import React from "react";
+import { Box, Tabs, Tab } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+import QrCodeIcon from "@mui/icons-material/QrCode";
+import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
-const MasterBOMLayout = (props:{children:React.ReactNode}) => {
+type Props = {
+  children: React.ReactNode;
+};
+
+const MasterBOMLayout: React.FC<Props> = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const tabRoutes = [
+    { path: "/master-bom-create", label: "Create Bill Of Materials", icon: <QrCodeIcon /> },
+    { path: "/master-fg-bom", label: "FG BOM", icon: <QrCodeScannerIcon /> },
+    { path: "/master-sfg-bom", label: "SFG BOM", icon: <FileDownloadIcon /> },
+    { path: "/master-bom-disabled", label: "Disabled", icon: <FileDownloadIcon /> },
+  ];
+
+  const currentTabIndex = tabRoutes.findIndex((route) => route.path === location.pathname);
+
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    navigate(tabRoutes[newValue].path);
+  };
+
   return (
-    <div className="">
-      <div className="w-full bg-white tab h-[50px] shadow z-[5] border-b border-slate-300 relative">
-        <ul className="group flex items-center  h-[50px] ">
-          <li className="h-[50px]">
-            <NavLink to={"/master-bom-ceate"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-             Create Bill Of Materials
-            </NavLink> 
-          </li>
-          <li className="h-[50px]">
-          <NavLink to={"/master-fg-bom"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-             FG BOM
-            </NavLink>
-          </li>
-          <li className="h-[50px]">
-          <NavLink to={"/master-sfg-bom"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-             SFG BOM
-            </NavLink>
-          </li>
-          <li className="h-[50px]">
-          <NavLink to={"/master-bom-disabled"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
-             Disabled
-            </NavLink>
-          </li>
-
-        </ul>
+    <div className="h-full">
+      <div className="w-full h-[50px] border-b border-neutral-300 bg-white">
+        <Tabs
+        selectionFollowsFocus
+          sx={{ padding: 0, width: "max-content" }}
+          TabIndicatorProps={{ style: { height: "3px" } }}
+          value={currentTabIndex === -1 ? 0 : currentTabIndex}
+          onChange={handleChange}
+          centered
+        >
+          {tabRoutes.map(({ label, icon }, index) => (
+            <Tab
+              key={index}
+              sx={{ fontWeight: 500 }}
+              label={<div className="flex items-center gap-[10px]">{icon} {label}</div>}
+            />
+          ))}
+        </Tabs>
       </div>
-      <div className="h-[calc(100vh-100px)] bg-transparent overflow-y-auto ">
-        {props.children}
-      </div>
+      <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
     </div>
-  )
-}
+  );
+};
 
-export default MasterBOMLayout
+export default MasterBOMLayout;

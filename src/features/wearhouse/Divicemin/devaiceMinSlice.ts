@@ -126,9 +126,13 @@ const DeviceMinSlice = createSlice({
       }
     },
     storeInvoiceFile: (state, action) => {
+      if(Array.isArray(action.payload)){
+        state.storeInvoiceFiles = action.payload
+        return
+      }
       if(state.storeInvoiceFiles){
         state.storeInvoiceFiles?.push(action.payload);
-      }else{
+      }else {
         state.storeInvoiceFiles = [action.payload];
       }
       

@@ -14,7 +14,7 @@ interface RowData {
   pickLocation: string;
   orderqty: string;
   remarks: string;
-  id: number;
+  id: string;
   isNew: boolean;
   availableqty: string;
 }
@@ -58,7 +58,8 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
     }),
     []
   );
-  const handleDeleteRow = (id: number) => {
+  const handleDeleteRow = (id: string) => {
+   
     setRowdata(rowData.filter((row) => row.id !== id));
   };
 
@@ -128,17 +129,7 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
           return;
         }
         e.preventDefault();
-        const newId = rowData.length + 1;
-        const newRow: RowData = {
-          id: newId,
-          code: "",
-          pickLocation: "",
-          orderqty: "",
-          remarks: "",
-          isNew: true,
-          availableqty: "",
-        };
-        setRowdata((prev) => [...prev, newRow].reverse());
+        addRow()
       }
     };
 

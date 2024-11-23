@@ -19,7 +19,7 @@ type Props = {
   size?: "small" | "medium";
 };
 
-const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "standard", required = false, size = "small" }) => {
+const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);

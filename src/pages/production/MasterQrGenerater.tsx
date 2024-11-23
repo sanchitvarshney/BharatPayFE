@@ -159,7 +159,7 @@ const MasterQrGenerator: React.FC = () => {
         </DialogActions>
       </Dialog>
       <form onSubmit={handleSubmit(onsubmit)}>
-        <div className="h-[calc(100vh-100px)] grid grid-cols-[550px_1fr]  overflow-x-hidden  bg-white ">
+        <div className="h-[calc(100vh-100px)] grid grid-cols-[450px_1fr]  overflow-x-hidden  bg-white ">
           <div className="h-full overflow-y-auto border-e border-slate-300">
             <div className="pt-[20px] px-[20px]">
               <FormControl sx={{ width: "200px" }}>
