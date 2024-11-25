@@ -146,7 +146,7 @@ export type r4reportDetailData = {
   }>;
 };
 
-type R5report  =  {
+type R5report = {
   txnId: string;
   sku: string;
   skuName: string;
@@ -155,13 +155,33 @@ type R5report  =  {
   dispatchQty: string; // You can convert to `number` if required.
   docNo: string;
   inserby: string | null; // Nullable field
-}
+};
 
-export type R5reportResponse =  {
+export type R5reportResponse = {
   status: string;
   success: boolean;
   data: R5report[]; // Array of dispatch records
-}
+};
+
+type MainR1Report = {
+  minNo: string;
+  insertDt: string;
+  skuCode: string;
+  skuName: string;
+  uom: string;
+  inLoc: string;
+  vendorName: string | null;
+  vendorCode: string | null;
+  vendorAddress: string | null;
+  docType: string;
+  docNo: string;
+  docDate: string;
+};
+export type MainR1ReportResponse = {
+  status: string;
+  success: boolean;
+  data: MainR1Report[];
+};
 
 export type ReportStateType = {
   r1Data: DocumentData | null;
@@ -179,6 +199,8 @@ export type ReportStateType = {
   r4ReportDetailLoading: boolean;
   r5report: R5report[] | null;
   r5reportLoading: boolean;
-  r5reportDetailLoading: boolean
-  r5reportDetail: {slNo:string}[]|null
+  r5reportDetailLoading: boolean;
+  r5reportDetail: { slNo: string }[] | null;
+  mainR1Report: MainR1Report[] | null;
+  mainR1ReportLoading: boolean;
 };

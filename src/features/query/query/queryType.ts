@@ -52,26 +52,43 @@ export interface Q1ApiResponse {
   response: Response;
 }
 
-
-
 export type component = {
   NAME: string;
   CODE: string;
   KEY: string;
   SOURCE: string;
-  
-}
+};
 export type componentApiResponse = {
   status: string;
   success: boolean;
   data: component[];
-}
-export type QueryStateType = {
-  q1Data:Response|null;
-  getQ1DataLoading:boolean;
-  componentData:component[]|null;
-  getComponentDataLoading:boolean;
-  getQ2DataLading:boolean;
-  q2Data:Response|null;
+};
 
-}
+type ComponentData = {
+ component: {
+      partCode: string;
+      name: string;
+      uom: string;
+    };
+    locationQty: Array<{
+      locationName: string;
+      closeQty: number;
+    }>;
+};
+
+export type Q3ApiResponse = {
+  status: string;
+  success: boolean;
+  data: ComponentData;
+};
+
+export type QueryStateType = {
+  q1Data: Response | null;
+  getQ1DataLoading: boolean;
+  componentData: component[] | null;
+  getComponentDataLoading: boolean;
+  getQ2DataLading: boolean;
+  q2Data: Response | null;
+  q3data: ComponentData | null;
+  q3DataLoading: boolean;
+};

@@ -20,7 +20,7 @@ const LoginPage = () => {
 
     checkUserPermissions();
   }, []);
-  console.log(permissionsGranted);
+
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

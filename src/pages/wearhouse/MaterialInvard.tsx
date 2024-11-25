@@ -106,7 +106,7 @@ const MaterialInvard: React.FC = () => {
         return `${item.id}`;
       }
     });
-    console.log(miss.filter((item) => item !== undefined));
+   
     if (miss.filter((item) => item !== undefined).length > 0) {
       showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
       hasErrors = true;
@@ -249,7 +249,7 @@ const MaterialInvard: React.FC = () => {
                               field.onChange(e.target.value);
                               dispatch(getVendorAddress(e.target.value)).then((response: any) => {
                                 if (response.payload.data.success) {
-                                  setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address));
+                                  setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) ||"");
                                   setValue("gstin", response.payload.data?.data?.gstid);
                                 }
                               });

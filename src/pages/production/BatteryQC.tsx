@@ -140,7 +140,7 @@ const BatteryQC: React.FC = () => {
                     if (imei) {
                       const isUnique = !rowData.some((row) => row.IMEI === imei);
                       const issrunique = !rowData.some((row) => row.serialNo === imei);
-                      console.log(isUnique);
+                   
                       if (!isUnique) {
                         showToast({
                           description: "Duplicate IMEI found",

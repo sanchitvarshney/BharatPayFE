@@ -4,13 +4,14 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { FreeMode, Navigation, Mousewheel } from "swiper/modules";
-import { NavLink, useSearchParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 interface NavSliderData {
   path: string;
   name: string;
   content: React.ReactNode;
 }
+
 
 export const navSliderData: NavSliderData[] = [
   { path: "#", name: "R1", content: <p>Material Inward Report</p> },
@@ -21,35 +22,15 @@ export const navSliderData: NavSliderData[] = [
 ];
 
 const Navslider: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const reportNumber = searchParams.get("reportno");
-
-  const getReportLabel = (reportName: string) => {
-    switch (reportName) {
-      case "R1":
-        return "Material Inward Report";
-      case "R2":
-        return "TRC Report";
-      case "R3":
-        return "Battery QC Report";
-      case "R4":
-        return "Production Report";
-      case "R5":
-        return "Dispatch Report";
-
-      default:
-        return "";
-    }
-  };
-
+  const { id } = useParams();
   return (
     <Wrapper className="bg-zinc-200 text-slate-600">
       <Swiper mousewheel={true} slidesPerView={"auto"} spaceBetween={1} loop={false} navigation={true} freeMode={true} modules={[FreeMode, Navigation, Mousewheel]} className="mySwiper">
         {navSliderData.map((link, i) => (
           <SwiperSlide key={i}>
-            <NavLink to={`?reportno=${link.name}`} className={reportNumber === link.name ? "bg-cyan-700 text-white" : ""}>
+            <NavLink to={`/report/${link.name}`} className={id === link.name ? "bg-cyan-700 text-white" : ""}>
               {link.name}
-              {reportNumber === link.name && <span className="flex items-center justify-center h-full font-[400]">{getReportLabel(link.name)}</span>}
+              {id === link.name && <span className="flex items-center justify-center h-full font-[400]">{link.content}</span>}
             </NavLink>
           </SwiperSlide>
         ))}

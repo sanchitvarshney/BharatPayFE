@@ -26,7 +26,7 @@ const DeviceMinReportTable: React.FC<Props> = ({ gridRef }) => {
   }, []);
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-135px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-50px)]">
         <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} ref={gridRef} loading={getR1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={r1Data ? r1Data.body : []} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>

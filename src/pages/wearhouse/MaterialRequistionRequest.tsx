@@ -34,7 +34,7 @@ const MaterialRequistionRequest: React.FC = () => {
     },
   });
   const onSubmit: SubmitHandler<Fomrstate> = (data) => {
-    console.log(data);
+
     dispatch(
       getApprovedMaterialList({
         date: dayjs(data.date).format("DD-MM-YYYY"),

@@ -424,7 +424,7 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
                                 dispatch(getProcessMrReqeustAsync(requestDetail?.id || "")).then((res: any) => {
                                   if (!res.payload.data?.success) {
                                     setOpen(false);
-                                    console.log(res);
+                                   
                                   }
                                 });
                                 setItemKey("");

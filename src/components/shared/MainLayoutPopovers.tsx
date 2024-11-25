@@ -1,9 +1,7 @@
 import React from "react";
 import { Props } from "@/types/MainLayout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useAppDispatch } from "@/hooks/useReduxHook";
-import { logout } from "@/features/authentication/authSlice";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -12,8 +10,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { Button } from "@mui/material";
 const MainLayoutPopovers: React.FC<Props> = ({ uiState }) => {
   const { logotAlert, setLogotAlert, notificationSheet, setNotificationSheet } = uiState;
-
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   return (
     <>
       {/* logout alert ========================== */}
@@ -25,10 +22,11 @@ const MainLayoutPopovers: React.FC<Props> = ({ uiState }) => {
         <DialogActions>
           <Button onClick={() => setLogotAlert(false)}>Back</Button>
           <Button
-          variant="contained"
-          color="error"
+            variant="contained"
+            color="error"
             onClick={() => {
-              dispatch(logout());
+              localStorage.clear();
+              navigate("/login");
               setLogotAlert(false);
             }}
             autoFocus
@@ -37,7 +35,7 @@ const MainLayoutPopovers: React.FC<Props> = ({ uiState }) => {
           </Button>
         </DialogActions>
       </Dialog>
-   
+
       {/* logout alert ========================== */}
 
       {/* notification sheet ==================== */}

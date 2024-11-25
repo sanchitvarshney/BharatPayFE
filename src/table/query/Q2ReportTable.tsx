@@ -12,7 +12,6 @@ type Props = {
 const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
   const [rowData, setRowData] = useState<RowData[]>([]);
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
-  console.log("running");
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,

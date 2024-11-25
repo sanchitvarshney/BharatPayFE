@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, ReportStateType } from "./reportType";
+import { DeviceRequestApiResponse, MainR1ReportResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, ReportStateType } from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -21,11 +21,16 @@ const initialState: ReportStateType = {
   r5reportLoading: false,
   r5reportDetailLoading: false,
   r5reportDetail: null,
- 
+  mainR1Report: null,
+  mainR1ReportLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
-  const response = await axiosInstance.get(`/report/r1?type=${date.type}&data=${date.data}`);
+  const response = await axiosInstance.get(`/report/r1/detail?type=${date.type}&data=${date.data}`);
+  return response;
+});
+export const getMainR1Data = createAsyncThunk<AxiosResponse<MainR1ReportResponse>, { type: "min" | "date"; data: string; from: string; to: string }>("report/mainR1Data", async (payload) => {
+  const response = await axiosInstance.get(payload.type === "min" ? `/report/r1?type=min&data=${payload.data}` : `/report/r1?type=date&from=${payload.from}&to=${payload.to}`);
   return response;
 });
 export const getR2Data = createAsyncThunk<AxiosResponse<R2Response>, { from: string; to: string }>("report/getR2Data", async (date) => {
@@ -53,7 +58,7 @@ export const getr5Report = createAsyncThunk<AxiosResponse<R5reportResponse>, { f
   const response = await axiosInstance.get(query.type === "DEVICE" ? `/report/r5/DEVICE?deviceId=${query.device}` : `/report/r5/DATE?from=${query.from}&to=${query.to}`);
   return response;
 });
-export const getr5ReportDetail = createAsyncThunk<AxiosResponse<{ data: {slNo:string}[]; success: boolean; message: string }>, string>("report/getr5ReportDetail", async (query) => {
+export const getr5ReportDetail = createAsyncThunk<AxiosResponse<{ data: { slNo: string }[]; success: boolean; message: string }>, string>("report/getr5ReportDetail", async (query) => {
   const response = await axiosInstance.get(`/report/r5/device/${query}`);
   return response;
 });
@@ -68,6 +73,9 @@ const reportSlice = createSlice({
     clearRefId(state) {
       state.refId = null;
     },
+    clearR1data(state) {
+      state.r1Data = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -82,6 +90,18 @@ const reportSlice = createSlice({
       })
       .addCase(getR1Data.rejected, (state) => {
         state.getR1DataLoading = false;
+      })
+      .addCase(getMainR1Data.pending, (state) => {
+        state.mainR1ReportLoading = true;
+      })
+      .addCase(getMainR1Data.fulfilled, (state, action) => {
+        state.mainR1ReportLoading = false;
+        if (action.payload.data.success) {
+          state.mainR1Report = action.payload.data.data;
+        }
+      })
+      .addCase(getMainR1Data.rejected, (state) => {
+        state.mainR1ReportLoading = false;
       })
       .addCase(getR2Data.pending, (state) => {
         state.getR2DataLoading = true;
@@ -184,6 +204,6 @@ const reportSlice = createSlice({
   },
 });
 
-export const { setRefId, clearRefId } = reportSlice.actions;
+export const { setRefId, clearRefId ,clearR1data} = reportSlice.actions;
 
 export default reportSlice.reducer;

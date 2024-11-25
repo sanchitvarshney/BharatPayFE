@@ -25,7 +25,6 @@ type Props = {
 };
 const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
   const { type } = useAppSelector((state) => state.materialRequestWithoutBom);
-  console.log(type);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -136,7 +135,6 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
-  console.log(rowData);
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
       <AgGridReact
