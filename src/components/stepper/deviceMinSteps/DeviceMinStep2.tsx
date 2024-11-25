@@ -187,11 +187,12 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
           </div>
         </CardContent>
         <CardFooter className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px]">
-          <Button onClick={() => setStep(step - 1)} variant={"outline"} className="flex items-center gap-[10px]">
+          <Button type="button" onClick={() => setStep(step - 1)} variant={"outline"} className="flex items-center gap-[10px]">
             <FaArrowLeftLong className="h-[18px] w-[18px]" />
             Back
           </Button>
           <CustomButton
+          type="button"
             onClick={() => {
               let notsubmit: any[] | null = null;
               notsubmit = rowData?.filter((item) => item.isNew);

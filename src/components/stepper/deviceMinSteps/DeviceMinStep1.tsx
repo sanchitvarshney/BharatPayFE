@@ -457,9 +457,13 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
           </div>
         </div>
         <div className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px] border-t border-neutral-300">
-          <CustomButton loading={createMinLoading} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
-            Next <FaArrowRightLong className="h-[18px] w-[18px]" />
-          </CustomButton>
+         {
+          storeStep1formData ?<CustomButton type="button" onClick={() => setStep(2)} loading={createMinLoading} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
+          Next <FaArrowRightLong className="h-[18px] w-[18px]" />
+        </CustomButton>: <CustomButton type="submit" loading={createMinLoading} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
+          Next <FaArrowRightLong className="h-[18px] w-[18px]" />
+        </CustomButton>
+         }
         </div>
       </div>
     </form>
