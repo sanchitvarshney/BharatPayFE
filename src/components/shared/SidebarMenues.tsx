@@ -162,7 +162,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
           </div>
         </li>
         <li className="group">
-          <Link to={"/report?reportno=R1"} onClick={() => setSheetOpen(false)}>
+          <Link to={"/report/R1"} onClick={() => setSheetOpen(false)}>
             <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-900 group-hover:bg-cyan-900 p-[10px]  cursor-pointer"}>
               <span className="flex gap-[10px] items-center cursor-pointer">
                 <TbReportSearch className="h-[20px] w-[20px]" />
@@ -173,7 +173,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
           </Link>
         </li>
         <li className="group">
-          <Link to={"/queries?query=Q1"} onClick={() => setSheetOpen(false)}>
+          <Link to={"/queries/Q1"} onClick={() => setSheetOpen(false)}>
             <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-900 group-hover:bg-cyan-900 p-[10px]  cursor-pointer"}>
               <span className="flex gap-[10px] items-center cursor-pointer">
                 <TbReportSearch className="h-[20px] w-[20px]" />
