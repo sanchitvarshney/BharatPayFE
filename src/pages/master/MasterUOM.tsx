@@ -15,7 +15,8 @@ const MasterUOM: React.FC = () => {
   const dispatch = useAppDispatch();
   const { createUOMloading } = useAppSelector((state) => state.uom);
   const { toast } = useToast();
-
+  const path = window.location.pathname;
+  console.log(path)
   const {
     register,
     handleSubmit,

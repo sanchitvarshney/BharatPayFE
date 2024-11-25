@@ -106,7 +106,7 @@ const Q2Statement: React.FC = () => {
                 loadingPosition="start"
                 loading={getQ2DataLading}
                 onClick={() => {
-                  console.log(value, location);
+                  
                   if (value && (date || location)) {
                     dispatch(getQ2Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
                       if (!res.payload?.data?.success) {

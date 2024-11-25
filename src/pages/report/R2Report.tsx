@@ -38,8 +38,8 @@ const R2Report: React.FC = () => {
     setLoading(true);
   };
   useEffect(() => {
-    onDownloadReport((data: any) => {
-      console.log("Report downloaded:", data);
+    onDownloadReport((_: any) => {
+      
       setLoading(false);
       showToast("Report downloaded successfully", "success");
     });

@@ -7,7 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import { FreeMode, Navigation, Mousewheel } from "swiper/modules";
-import { NavLink, useSearchParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 interface NavSliderData {
   path: string;
@@ -15,24 +15,23 @@ interface NavSliderData {
   content: React.ReactNode;
 }
 
-export const navSliderData = Array.from({ length: 2 }, (_, i) => ({
-  path: "#",
-  name: `Q${i + 1}`,
-  content: <p>{`Q${i + 1}`} query Detail</p>,
-}));
+export const navSliderData: NavSliderData[] = [
+  { path: "#", name: "Q1", content: <p>SKU Statement</p> },
+  { path: "#", name: "Q2", content: <p>Raw Material Statement</p> },
+  { path: "#", name: "Q3", content: <p>Component Statement</p> },
+];
 
 const QueryNavSlider: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const reportNumber = searchParams.get("query");
-  console.log(reportNumber);
+  const { id } = useParams();
+
   return (
-    <Wrapper className="bg-zinc-200 text-slate-600">
+    <Wrapper className="border-b bg-zinc-200 text-slate-600 border-neutral-300">
       <Swiper mousewheel={true} slidesPerView={"auto"} spaceBetween={1} loop={false} navigation={true} freeMode={true} modules={[FreeMode, Navigation, Mousewheel]} className="mySwiper">
-        {navSliderData.map((link: NavSliderData, i: number) => (
+        {navSliderData.map((link, i) => (
           <SwiperSlide key={i}>
-            <NavLink to={`?query=${link.name}`} className={`${reportNumber === link.name ? "bg-cyan-700 text-white" : ""}`}>
+            <NavLink to={`/queries/${link.name}`} className={id === link.name ? "bg-cyan-700 text-white" : ""}>
               {link.name}
-              {reportNumber === link.name ? <span className="flex items-center justify-center h-full font-[400] ">{link.name==="Q1"?"SKU Statement":link.name==="Q2"?"Raw Material Statement":""}</span> : null}
+              {id === link.name && <span className="flex items-center justify-center h-full font-[400]">{link.content}</span>}
             </NavLink>
           </SwiperSlide>
         ))}
@@ -46,7 +45,7 @@ const Wrapper = styled.div`
   width: 100%;
   height: 35px;
   display: flex;
- 
+
   .swiper {
     z-index: 3;
     display: flex;

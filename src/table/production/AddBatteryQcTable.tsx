@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { HiMiniTrash } from "react-icons/hi2";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
-import { useAppSelector } from "@/hooks/useReduxHook";
 import AddBatteryQcCellrender from "../Cellrenders/AddBatteryQcCellrender";
 interface RowData {
   remark: string;
@@ -21,8 +20,6 @@ type Props = {
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
 };
 const AddBatteryQcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
-  const { type } = useAppSelector((state) => state.materialRequestWithoutBom);
-  console.log(type);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];

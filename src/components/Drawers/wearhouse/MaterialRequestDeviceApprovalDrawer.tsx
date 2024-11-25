@@ -508,7 +508,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 dispatch(getProcessMrReqeustAsync(requestDetail?.id || "")).then((res: any) => {
                                   if (!res.payload.data?.success) {
                                     setOpen(false);
-                                    console.log(res)
+                                   
                                   }
                                 });
                                 setItemKey("");

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
-import { useAppSelector } from "@/hooks/useReduxHook";
 import AddtrcTableCellRenderer from "../Cellrenders/AddtrcTableCellRenderer";
 import { IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
@@ -22,8 +21,6 @@ type Props = {
   addRow: () => void;
 };
 const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
-  const { type } = useAppSelector((state) => state.materialRequestWithoutBom);
-  console.log(type);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -67,8 +64,8 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <IconButton   onClick={() => handleDeleteRow(params.data.id)}>
-            <Icons.delete color="error"/>
+          <IconButton onClick={() => handleDeleteRow(params.data.id)}>
+            <Icons.delete color="error" />
           </IconButton>
         </div>
       ),
@@ -123,29 +120,26 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
-  console.log(rowData);
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
       <AgGridReact
-      onCellFocused={(event: any) => {
-        const { rowIndex, column } = event;
-        const focusedCell = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `) as HTMLInputElement;
-        const focusButton = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `) as HTMLButtonElement;
+        onCellFocused={(event: any) => {
+          const { rowIndex, column } = event;
+          const focusedCell = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `) as HTMLInputElement;
+          const focusButton = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `) as HTMLButtonElement;
 
-        if (focusedCell) {
-          focusedCell.focus();
-        }
-        if (focusButton) {
-          focusButton.focus();
-        }
-      }}
-      navigateToNextCell={() => {
-        return null; // Returning null prevents default focus movement
-      }}
+          if (focusedCell) {
+            focusedCell.focus();
+          }
+          if (focusButton) {
+            focusButton.focus();
+          }
+        }}
+        navigateToNextCell={() => {
+          return null; // Returning null prevents default focus movement
+        }}
         ref={gridRef}
         columnDefs={columnDefs}
-       
-        
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
         animateRows

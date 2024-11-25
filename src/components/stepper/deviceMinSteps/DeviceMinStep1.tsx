@@ -222,7 +222,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                           field.onChange(e.target.value);
                           dispatch(getVendorAddress(e.target.value)).then((response: any) => {
                             if (response.payload.data.success) {
-                              setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address));
+                              setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) || "");
                             }
                           });
                         }}

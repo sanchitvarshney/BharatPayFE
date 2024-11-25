@@ -78,7 +78,6 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
                   checked={value}
                   onChange={(e) => {
                     const newValue = e.target.checked;
-                    console.log(e);
                     data[colDef.field] = newValue; // Update the data
                     if (!e) {
                       data["selectedPart"] = null;

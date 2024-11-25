@@ -19,6 +19,7 @@ import manageProductionTReducer from "@/features/production/ManageProduction/Man
 import dispatchReducer from "@/features/Dispatch/DispatchSlice";
 import sopRedeucer from "@/features/Sop/sopSlice";
 import qrslice from "@/features/production/QRCode/QRCodeSlice";
+import menuReducer from "@/features/menu/menuSlice";
 
 export const store = configureStore({
   reducer: {
@@ -42,6 +43,7 @@ export const store = configureStore({
     dispatch: dispatchReducer,
     sop: sopRedeucer,
     qr: qrslice,
+    menu: menuReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

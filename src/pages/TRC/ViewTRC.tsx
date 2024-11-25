@@ -55,7 +55,7 @@ const ViewTRC: React.FC = () => {
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
-      console.log(issues);
+  
       showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
       hasErrors = true;
     }

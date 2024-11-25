@@ -12,7 +12,6 @@ type Props = {
 const DeviceQueryRepoTable: React.FC<Props> = ({ gridRef }) => {
   const [rowData, setRowData] = useState<RowData[]>([]);
   const { q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
-  console.log("running");
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,

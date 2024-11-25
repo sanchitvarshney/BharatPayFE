@@ -59,6 +59,7 @@ import MasterQrGenerator from "./pages/production/MasterQrGenerater";
 import SingleQrGenerator from "./pages/production/SingleQrGenerater";
 import LogningV2 from "./pages/commonPages/LogningV2";
 import DownloadQrExcel from "./pages/production/DownloadQrExcel";
+import ProfilePage from "./pages/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +85,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/dashboard",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ProfilePage />
+          </MainLayout>
+        ),
+        path: "/profile",
       },
       //master modules
 
@@ -457,7 +466,7 @@ export const router = createBrowserRouter([
             </ReportLayout>
           </MainLayout>
         ),
-        path: "report",
+        path: "report/:id",
       },
       //query======================================
       {
@@ -468,7 +477,7 @@ export const router = createBrowserRouter([
             </QueryLayout>
           </MainLayout>
         ),
-        path: "queries",
+        path: "queries/:id",
       },
     ],
   },

@@ -42,7 +42,7 @@ const R3Report: React.FC = () => {
       sheetName: "R3 Report", // Set your desired sheet name here
     });
   }, []);
-  console.log("===========", date);
+  
   return (
     <div className="bg-white h-[calc(100vh-90px)]">
       <div className="h-[50px] flex items-center justify-between px-[20px] gap-[20px]">

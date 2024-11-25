@@ -143,7 +143,12 @@ function MainLayout(props: { children: React.ReactNode }) {
             </div>
             <MuiTooltip title="SOP" placement="right">
               <IconButton
-                onClick={() => navigate("/sop")}
+                onClick={() => {
+                  navigate("/sop")
+                  setSheet2Open(false);
+                  setSheetOpen(false);
+                  setFavoriteSheet(false);
+                }}
                 size="small"
                 sx={{
                   background: "white",

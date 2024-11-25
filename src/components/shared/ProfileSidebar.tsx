@@ -6,8 +6,8 @@ import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
 import { Link } from "react-router-dom";
-import { FaUserEdit } from "react-icons/fa";
-import { PiPasswordFill } from "react-icons/pi";
+
+import { Icons } from "../icons";
 
 const ProfileSidebar: React.FC<Props> = ({ uiState }) => {
   const { sidebaref, setSheet2Open, sheet2Open, setLogotAlert } = uiState;
@@ -28,16 +28,12 @@ const ProfileSidebar: React.FC<Props> = ({ uiState }) => {
           <p className="text-[13px] text-slate-200">{user?.crn_type}</p>
         </div>
         <div className="bg-white/10 h-[50px]  mx-auto mt-[20px] flex items-center justify-center text-zinc-300 max-w-max px-[20px] rounded-md">
-          <p>Secret Identity: 870308</p>
+          <p>Secret Identity: {user?.crn_id}</p>
         </div>
         <div className="p-[10px] mt-[10px] flex flex-col gap-[10px] absolute bottom-[60px]  w-full px-[10px]">
-          <Link to={"#"} className="dispaly flex items-center gap-[10px] py-[8px] px-[10px] hover:bg-white/10 rounded text-slate-300">
-            <FaUserEdit className="h-[15px] w-[15px]" />
-            <span className="text-[13px]"> Update User Details</span>
-          </Link>
-          <Link to={"#"} className="dispaly flex items-center gap-[10px] py-[8px] px-[10px] hover:bg-white/10 rounded text-slate-300">
-            <PiPasswordFill className="h-[15px] w-[15px]" />
-            <span className="text-[13px]"> Change Password</span>
+          <Link to={"/profile"} onClick={() => setSheet2Open(false)} className="dispaly flex items-center gap-[10px] py-[8px] px-[10px] hover:bg-white/10 rounded text-slate-300">
+            <Icons.person fontSize="small" />
+            <span className="text-[13px]"> Profile</span>
           </Link>
         </div>
         <div className="absolute bottom-0 left-0 p-[10px] w-full flex justify-center items-center">

@@ -4,7 +4,6 @@ import { ColDef } from "ag-grid-community";
 import { Button } from "@/components/ui/button";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
-import { useAppSelector } from "@/hooks/useReduxHook";
 import CreateProductionCellrenderer from "../Cellrenders/CreateProductionCellrenderer";
 import { Plus } from "lucide-react";
 import { IconButton } from "@mui/material";
@@ -24,8 +23,6 @@ type Props = {
   enabled: boolean;
 };
 const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, enabled }) => {
-  const { type } = useAppSelector((state) => state.materialRequestWithoutBom);
-  console.log(type);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
