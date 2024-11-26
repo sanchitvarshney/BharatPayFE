@@ -48,6 +48,7 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        
       ),
       sortable: false,
       filter: false,
