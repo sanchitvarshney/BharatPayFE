@@ -34,15 +34,15 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
             </DropdownMenuTrigger>
           </div>
           <DropdownMenuContent className="w-[170px]">
-            <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onClick={() => setOpen(true)}>
+            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setOpen(true)}>
               <MdSystemUpdateAlt className="h-[18px] w-[18px] text-slate-500" />
               Update
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
+            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
               <HiMiniViewfinderCircle className="h-[18px] w-[18px] text-slate-500" />
               View
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onClick={() => setUploadImage(true)}>
+            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setUploadImage(true)}>
               <MdFileUpload className="h-[18px] w-[18px] text-slate-500" />
               Upload
             </DropdownMenuItem>
@@ -72,14 +72,14 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
       filter: true,
       width: 300,
     },
-  
+
     {
       headerName: "Is Enabled",
       field: "is_enabled",
       sortable: true,
       filter: true,
-      cellRenderer: (params: any) => params?.value==="Y"?"Enable":"Disable"
- },
+      cellRenderer: (params: any) => (params?.value === "Y" ? "Enable" : "Disable"),
+    },
     {
       headerName: "UOM",
       field: "units_name",
@@ -97,7 +97,7 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-140px)]">
         <AgGridReact
-        loadingOverlayComponent={CustomLoadingOverlay}
+          loadingOverlayComponent={CustomLoadingOverlay}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           loading={getComponentLoading}
           rowData={component?.components}
