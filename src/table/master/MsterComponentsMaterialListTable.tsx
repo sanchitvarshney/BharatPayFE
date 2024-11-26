@@ -19,6 +19,7 @@ type Props = {
   setViewImage: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+
 const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadImage, setViewImage }) => {
   const { component, getComponentLoading } = useAppSelector((state) => state.component);
   const columnDefs: ColDef[] = [
@@ -37,8 +38,8 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
             <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setOpen(true)}>
               <MdSystemUpdateAlt className="h-[18px] w-[18px] text-slate-500" />
               Update
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
+            </DropdownMenuItem> 
+            <DropdownMenuItem disabled  className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
               <HiMiniViewfinderCircle className="h-[18px] w-[18px] text-slate-500" />
               View
             </DropdownMenuItem>
@@ -48,7 +49,6 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
       ),
       sortable: false,
       filter: false,
