@@ -183,6 +183,29 @@ export type MainR1ReportResponse = {
   data: MainR1Report[];
 };
 
+
+export type r6report =  {
+  txnId: string;
+  partCode: string;
+  componentName: string;
+  uom: string;
+  qty: number;
+  location: string;
+  rate: string;
+  hsn: string;
+  vendorCode: string;
+  vendorName: string;
+  vendorAddress: string;
+  insertDt: string; // Consider converting this to `Date` if you're handling it as a date object.
+  insertby: string;
+}
+
+export type r6reportApiResponse ={
+  success: boolean;
+  data: r6report[];
+}
+
+
 export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
@@ -203,4 +226,6 @@ export type ReportStateType = {
   r5reportDetail: { slNo: string }[] | null;
   mainR1Report: MainR1Report[] | null;
   mainR1ReportLoading: boolean;
+  r6Report: r6report[] | null;
+  r6ReportLoading: boolean;
 };

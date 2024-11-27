@@ -11,6 +11,9 @@ import DoneIcon from "@mui/icons-material/Done";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
+import DownloadIcon from "@mui/icons-material/Download";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline"; // Default icon
+
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -23,22 +26,22 @@ export const Icons = {
   done: DoneIcon,
   time: AccessTimeIcon,
   checkcircle: CheckCircleOutlineIcon,
-  qrScan: QrCodeScannerIcon,
+  download: DownloadIcon,
+  qrcode: QrCodeScannerIcon,
+  qrcode2: QrCodeScannerIcon,
 };
 
-type IconName = keyof typeof Icons;
+type IconName = keyof typeof Icons | string;
 
 interface IconProps {
   name: IconName; // Ensures the name corresponds to a valid key in Icons
   size?: "small" | "inherit" | "large" | "medium"; // Optional size prop
   color?: string; // Optional color
 }
-const DynamicIcon: React.FC<IconProps> = ({ name, size = "medium", color = "inherit" }) => {
-  const IconComponent = Icons[name];
 
-  if (!IconComponent) {
-    return null; // Optionally handle unknown icon names
-  }
+const DynamicIcon: React.FC<IconProps> = ({ name, size = "medium", color = "inherit" }) => {
+  // Select the icon if it exists, otherwise fall back to the default icon
+  const IconComponent = Icons[name as keyof typeof Icons] || HelpOutlineIcon;
 
   return <IconComponent fontSize={size} style={{ color }} />;
 };

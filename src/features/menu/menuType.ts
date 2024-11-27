@@ -19,7 +19,25 @@ export type MenuResponse = {
   menu: Menu[];
 };
 
+type Tab = {
+  tabId: string;
+  name: string;
+  url: string;
+  order: string;
+  icon: string;
+  description: string;
+  status: number;
+};
+
+export type TabApiResponse = {
+  success: boolean;
+  data: Tab[];
+  code: number;
+};
+
 export type MenuState = {
   menu: Menu[] | null;
   menuLoading: boolean;
-}
+  menuTab: Tab[] | null;
+  menuTabLoading: boolean;
+};
