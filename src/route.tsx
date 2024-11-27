@@ -60,6 +60,8 @@ import SingleQrGenerator from "./pages/production/SingleQrGenerater";
 import LogningV2 from "./pages/commonPages/LogningV2";
 import DownloadQrExcel from "./pages/production/DownloadQrExcel";
 import ProfilePage from "./pages/ProfilePage";
+import MasterReport from "./pages/report/MasterReport";
+import MasterComponentDeatil from "./pages/master/MasterComponentDeatil";
 
 export const router = createBrowserRouter([
   {
@@ -117,6 +119,14 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <MasterComponentDeatil />
+          </MainLayout>
+        ),
+        path: "/master-components/:id",
+      },
+      {
+        element: (
+          <MainLayout>
             <MasterComponentProductLayout>
               <MasterProductFg />
             </MasterComponentProductLayout>
@@ -149,7 +159,6 @@ export const router = createBrowserRouter([
           <MainLayout>
             <MasterBOMLayout>
               <CustomRedirection UnderDevelopment={true}>
-                {" "}
                 <MasterSfgBOM />
               </CustomRedirection>
             </MasterBOMLayout>
@@ -467,6 +476,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "report/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MasterReport />
+          </MainLayout>
+        ),
+        path: "/master-report",
       },
       //query======================================
       {

@@ -5,10 +5,11 @@ import R2Report from "./R2Report";
 import R3Report from "./R3Report";
 import R4Report from "./R4Report";
 import R5report from "./R5report";
+import R6Report from "./R6Report";
 
 const Report: React.FC = () => {
   const { id } = useParams();
- 
+
   if (id === "R1") {
     return <Deviceinreport />;
   }
@@ -23,6 +24,9 @@ const Report: React.FC = () => {
   }
   if (id === "R5") {
     return <R5report />;
+  }
+  if (id === "R6") {
+    return <R6Report />;
   }
   return <div>this is {id} Report</div>;
 };

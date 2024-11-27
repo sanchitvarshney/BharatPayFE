@@ -16,8 +16,14 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import InfoIcon from "@mui/icons-material/Info";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import SearchIcon from "@mui/icons-material/Search";
-import PersonIcon from '@mui/icons-material/Person';
-import DownloadIcon from '@mui/icons-material/Download';
+import PersonIcon from "@mui/icons-material/Person";
+import DownloadIcon from "@mui/icons-material/Download";
+import LaunchIcon from "@mui/icons-material/Launch";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import RestoreIcon from "@mui/icons-material/Restore";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import CreateIcon from "@mui/icons-material/Create";
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -37,6 +43,12 @@ export const Icons = {
   info: InfoIcon,
   uploadfile: FileUploadIcon,
   search: SearchIcon,
-  person:PersonIcon,
-  download:DownloadIcon
+  person: PersonIcon,
+  download: DownloadIcon,
+  followLink: LaunchIcon,
+  left: KeyboardArrowLeftIcon,
+  copy: ContentCopyIcon,
+  history: RestoreIcon,
+  detail: ArticleOutlinedIcon,
+  edit: CreateIcon,
 };

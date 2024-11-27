@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
-import { ColDef } from "ag-grid-community";
-import { AgGridReact } from "ag-grid-react";
+import React, { RefObject, useMemo } from "react";
+import { ColDef } from "@ag-grid-community/core";
+import { AgGridReact } from "@ag-grid-community/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MdFileUpload } from "react-icons/md";
@@ -9,6 +9,8 @@ import { MdSystemUpdateAlt } from "react-icons/md";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { Link } from "react-router-dom";
+import { Icons } from "@/components/icons";
 
 type Props = {
   open: boolean;
@@ -17,9 +19,10 @@ type Props = {
   setUploadImage: React.Dispatch<React.SetStateAction<boolean>>;
   viewImage: boolean;
   setViewImage: React.Dispatch<React.SetStateAction<boolean>>;
+  gridRef?: RefObject<AgGridReact<any>>;
 };
 
-const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadImage, setViewImage }) => {
+const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadImage, setViewImage, gridRef }) => {
   const { component, getComponentLoading } = useAppSelector((state) => state.component);
   const columnDefs: ColDef[] = [
     {
@@ -34,15 +37,15 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
             </DropdownMenuTrigger>
           </div>
           <DropdownMenuContent className="w-[170px]">
-            <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onClick={() => setOpen(true)}>
+            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setOpen(true)}>
               <MdSystemUpdateAlt className="h-[18px] w-[18px] text-slate-500" />
               Update
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
+            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
               <HiMiniViewfinderCircle className="h-[18px] w-[18px] text-slate-500" />
               View
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onClick={() => setUploadImage(true)}>
+            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setUploadImage(true)}>
               <MdFileUpload className="h-[18px] w-[18px] text-slate-500" />
               Upload
             </DropdownMenuItem>
@@ -60,26 +63,32 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
       valueGetter: (params: any) => params.node.rowIndex + 1,
     },
     {
-      headerName: "Part Code",
-      field: "c_part_no",
-      sortable: true,
-      filter: true,
-    },
-    {
       headerName: "Name",
       field: "c_name",
       sortable: true,
       filter: true,
       width: 300,
+      cellRenderer: (params: any) => (
+        <Link className="text-cyan-500 flex items-center gap-[10px]" to={`/master-components/${params?.data?.c_part_no}`}>
+          {params?.value}
+          <Icons.followLink sx={{ fontSize: "15px" }} />
+        </Link>
+      ),
     },
-  
+    {
+      headerName: "Part Code",
+      field: "c_part_no",
+      sortable: true,
+      filter: true,
+    },
+
     {
       headerName: "Is Enabled",
       field: "is_enabled",
       sortable: true,
       filter: true,
-      cellRenderer: (params: any) => params?.value==="Y"?"Enable":"Disable"
- },
+      cellRenderer: (params: any) => (params?.value === "Y" ? "Enable" : "Disable"),
+    },
     {
       headerName: "UOM",
       field: "units_name",
@@ -90,14 +99,15 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
-      floatingFilter: true,
+      floatingFilter: false,
     };
   }, []);
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-140px)]">
         <AgGridReact
-        loadingOverlayComponent={CustomLoadingOverlay}
+          ref={gridRef}
+          loadingOverlayComponent={CustomLoadingOverlay}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           loading={getComponentLoading}
           rowData={component?.components}

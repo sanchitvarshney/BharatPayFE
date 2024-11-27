@@ -31,13 +31,13 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
     const newValue = value;
     data[colDef.field] = newValue; // update the data
     if (data.gstType === "L") {
-      data["sgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
-      data["cgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
+      data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+      data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
       data["igst"] = 0;
     } else {
       data["sgst"] = 0;
       data["cgst"] = 0;
-      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue) * 2;
+      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
     }
     api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
   };
@@ -49,13 +49,13 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
     }
     if (data.gstType === "L") {
-      data["sgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
-      data["cgst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
+      data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+      data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
       data["igst"] = 0;
     } else {
       data["sgst"] = 0;
       data["cgst"] = 0;
-      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue) * 2;
+      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
     }
     api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
   };
@@ -186,12 +186,13 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
             <Input
               min={0}
               onChange={(e) => {
-                handleInputChange(e);
-                if (currencyData?.find((item) => item.id === data.currency)?.text === "₹") {
+                if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                  handleInputChange(e);
+                  if (currencyData?.find((item) => item.id === data.currency)?.text === "₹") {
                     data["foreignValue"] = 0;
                     data["taxableValue"] = Number(data.qty) * Number(data.rate);
                     api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] });
-                  } else if (currency === "0" || currency === "" ) {
+                  } else if (currency === "0" || currency === "") {
                     data["taxableValue"] = Number(data.qty) * Number(data.rate);
                     api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
                   } else {
@@ -199,16 +200,20 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
                     data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
                     api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
                   }
+                }
               }}
               value={value}
-              type="number"
               placeholder={colDef.headerName}
               className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]"
             />
           </div>
         );
       case "qty":
-        return <Input min={0} onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input min={0} onChange={(e)=>{
+          if (/^-?\d*\.?\d*$/.test(e.target.value)){
+            handleInputChange(e);
+          }
+        }} value={value}  placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
 
       case "taxableValue":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
@@ -217,7 +222,11 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "hsnCode":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "gstRate":
-        return <Input min={0} onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input min={0} onChange={(e)=>{
+          if (/^-?\d*\.?\d*$/.test(e.target.value)){
+            handleInputChange(e);
+          }
+        }} value={value}  placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "cgst":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "sgst":

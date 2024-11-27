@@ -16,6 +16,7 @@ import {
   PendingMrRequestState,
   ProcessApiResponse,
   RequestDetail,
+  SerialResponseData,
 } from "./MrApprovalType";
 import { showToast } from "@/utils/toasterContext";
 
@@ -34,10 +35,16 @@ const initialState: PendingMrRequestState = {
   approvedMaterialListLoading: false,
   approveItemDetail: null,
   approveItemDetailLoading: false,
+  serial: null,
+  serialLoading: false,
 };
 
 export const getPendingMaterialListsync = createAsyncThunk<AxiosResponse<PendingMrRequestResponse>>("master/getPendingMrrequst", async () => {
   const response = await axiosInstance.get("/req/data/list ");
+  return response;
+});
+export const serailList = createAsyncThunk<AxiosResponse<SerialResponseData>, string>("master/serailList", async (id) => {
+  const response = await axiosInstance.get(`/req/data/approvalSerial?txnID=${id}`);
   return response;
 });
 export const getProcessMrReqeustAsync = createAsyncThunk<AxiosResponse<ProcessApiResponse>, string>("master/getProcessMrrequst", async (id) => {
@@ -45,7 +52,6 @@ export const getProcessMrReqeustAsync = createAsyncThunk<AxiosResponse<ProcessAp
   return response;
 });
 export const getItemDetailsAsync = createAsyncThunk<AxiosResponse<ItemDetailApiResponse>, { txnid: string; itemKey: string; picLocation: string }>("master/getItemDetails", async (params) => {
-
   const response = await axiosInstance.get(`/req/data/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`);
   return response;
 });
@@ -103,6 +109,19 @@ const MrApprovalSlice = createSlice({
       .addCase(getPendingMaterialListsync.rejected, (state) => {
         state.getPendingMrRequestLoading = false;
         state.pendingMrRequestData = [];
+      })
+      .addCase(serailList.pending, (state) => {
+        state.serialLoading = true;
+      })
+      .addCase(serailList.fulfilled, (state, action) => {
+        state.serialLoading = false;
+        if (action.payload.data.success) {
+          state.serial = action.payload.data.data;
+        }
+      })
+      .addCase(serailList.rejected, (state) => {
+        state.serialLoading = false;
+        state.serial = [];
       })
       .addCase(getProcessMrReqeustAsync.pending, (state) => {
         state.processMrRequestLoading = true;
