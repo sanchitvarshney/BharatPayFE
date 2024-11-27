@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
-import { ColDef } from "ag-grid-community";
-import { AgGridReact } from "ag-grid-react";
+import React, { RefObject, useMemo } from "react";
+import { ColDef } from "@ag-grid-community/core";
+import { AgGridReact } from "@ag-grid-community/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MdFileUpload } from "react-icons/md";
@@ -19,9 +19,10 @@ type Props = {
   setUploadImage: React.Dispatch<React.SetStateAction<boolean>>;
   viewImage: boolean;
   setViewImage: React.Dispatch<React.SetStateAction<boolean>>;
+  gridRef?: RefObject<AgGridReact<any>>;
 };
 
-const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadImage, setViewImage }) => {
+const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadImage, setViewImage, gridRef }) => {
   const { component, getComponentLoading } = useAppSelector((state) => state.component);
   const columnDefs: ColDef[] = [
     {
@@ -98,13 +99,14 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
-      floatingFilter: true,
+      floatingFilter: false,
     };
   }, []);
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-140px)]">
         <AgGridReact
+          ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           loading={getComponentLoading}

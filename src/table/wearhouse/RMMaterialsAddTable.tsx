@@ -104,9 +104,15 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
   );
   const columnDefs: ColDef[] = [
     {
+      headerName: "#",
+      valueGetter: "node.rowIndex + 1",
+      width: 50,
+      pinned: "left",
+    },
+    {
       headerName: "Action",
       field: "action",
-      width: 120,
+      width: 100,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
           <IconButton onClick={() => handleDeleteRow(params.data.id)}>

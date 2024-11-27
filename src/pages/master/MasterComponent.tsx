@@ -1,5 +1,5 @@
 import MsterComponentsMaterialListTable from "@/table/master/MsterComponentsMaterialListTable";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import MasterComponentsUpdateDrawer from "@/components/Drawers/master/MasterComponentsUpdateDrawer";
 import MasterComponentsUplaodImageDrawer from "@/components/Drawers/master/MasterComponentsUplaodImageDrawer";
 import MasterComponnetsViewImageDrawer from "@/components/Drawers/master/MasterComponnetsViewImageDrawer";
@@ -13,6 +13,8 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SaveIcon from "@mui/icons-material/Save";
 import { showToast } from "@/utils/toasterContext";
+import { AgGridReact } from "@ag-grid-community/react";
+import { Icons } from "@/components/icons";
 type OptionType = {
   id: string;
   text: string;
@@ -29,6 +31,7 @@ const MasterComponent: React.FC = () => {
   const [viewImage, setViewImage] = useState<boolean>(false);
   const [uploadImage, setUploadImage] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const gridRef = useRef<AgGridReact<any>>(null);
   const {
     register,
     handleSubmit,
@@ -45,7 +48,7 @@ const MasterComponent: React.FC = () => {
     },
   });
   const { UOM, getUOMloading } = useAppSelector((state) => state.uom);
-  const { groupList, getGroupListLoading, createComponentLoading } = useAppSelector((state) => state.component);
+  const { groupList, getGroupListLoading, createComponentLoading, component } = useAppSelector((state) => state.component);
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.group !== null && data.uom !== null) {
@@ -62,6 +65,13 @@ const MasterComponent: React.FC = () => {
     }
   };
 
+  const onBtExport = useCallback(() => {
+    console.log("click");
+    component &&
+      gridRef.current!.api.exportDataAsExcel({
+        sheetName: "R6 Report",
+      });
+  }, []);
   useEffect(() => {
     dispatch(getComponentsAsync());
     dispatch(getUOMAsync());
@@ -83,11 +93,11 @@ const MasterComponent: React.FC = () => {
             </Typography>
             <div className="grid grid-cols-2 gap-[30px] mt-[20px]">
               <div>
-                <TextField fullWidth label="Component Name"  {...register("component", { required: "Component Name is required" })} />
+                <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
                 {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
               </div>
               <div>
-                <TextField fullWidth label="Part Code"  {...register("part", { required: "Part Code Name is required" })} />
+                <TextField fullWidth label="Part Code" {...register("part", { required: "Part Code Name is required" })} />
                 {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
               </div>
               <div>
@@ -150,6 +160,23 @@ const MasterComponent: React.FC = () => {
               <LoadingButton loadingPosition="start" loading={createComponentLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
                 Submit
               </LoadingButton>
+              <Button
+                disabled={!component}
+                variant="contained"
+                color="primary"
+                style={{
+                  borderRadius: "50%",
+                  width: 30,
+                  height: 30,
+                  minWidth: 0,
+                  padding: 0,
+                }}
+                onClick={() => onBtExport()}
+                size="small"
+                sx={{ zIndex: 1 }}
+              >
+                <Icons.download fontSize="small" />
+              </Button>
             </div>
           </form>
 
@@ -170,7 +197,7 @@ const MasterComponent: React.FC = () => {
               </label>
             </div>
           </div>
-          <MsterComponentsMaterialListTable setOpen={setUpadte} open={update} setViewImage={setViewImage} setUploadImage={setUploadImage} viewImage={viewImage} uploadImage={uploadImage} />
+          <MsterComponentsMaterialListTable gridRef={gridRef} setOpen={setUpadte} open={update} setViewImage={setViewImage} setUploadImage={setUploadImage} viewImage={viewImage} uploadImage={uploadImage} />
         </div>
       </div>
     </>

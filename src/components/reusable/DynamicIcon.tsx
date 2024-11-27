@@ -13,7 +13,11 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import DownloadIcon from "@mui/icons-material/Download";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline"; // Default icon
-
+import WindowIcon from "@mui/icons-material/Window";
+import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
+import StorageIcon from "@mui/icons-material/Storage";
+import WarehouseIcon from "@mui/icons-material/Warehouse";
+import AssessmentIcon from '@mui/icons-material/Assessment';
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -29,6 +33,11 @@ export const Icons = {
   download: DownloadIcon,
   qrcode: QrCodeScannerIcon,
   qrcode2: QrCodeScannerIcon,
+  grid: WindowIcon,
+  production: PrecisionManufacturingIcon,
+  trc: StorageIcon,
+  dispatch: WarehouseIcon,
+  report:AssessmentIcon
 };
 
 type IconName = keyof typeof Icons | string;

@@ -1,7 +1,6 @@
 import { ChevronRight, Star } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { MdHome } from "react-icons/md";
-import { IoGrid } from "react-icons/io5";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
@@ -13,12 +12,13 @@ import MuiTooltip from "../reusable/MuiTooltip";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getMenuData } from "@/features/menu/menuSlice";
 import { Menu } from "@/features/menu/menuType";
+import DynamicIcon from "../reusable/DynamicIcon";
 
 const renderMenu = (menu: Menu[] | undefined, setSidemenu: React.Dispatch<React.SetStateAction<boolean>>) => {
   return (
     <Accordion type="single" collapsible>
       <ul className="flex flex-col gap-[10px]">
-        {menu?.map((item:Menu,index) => (
+        {menu?.map((item: Menu, index) => (
           <li key={index}>
             {item.children ? (
               <AccordionItem value={`${index + item.name}`} className="border-0">
@@ -29,7 +29,7 @@ const renderMenu = (menu: Menu[] | undefined, setSidemenu: React.Dispatch<React.
               </AccordionItem>
             ) : (
               <div className="flex items-center justify-between w-full">
-                <Link onClick={() => setSidemenu(false)} to={`${item.url}`||"#"} className="w-full hover:no-underline hover:bg-cyan-700 p-[10px] rounded-md  cursor-pointer flex items-center gap-[10px]">
+                <Link onClick={() => setSidemenu(false)} to={`${item.url}` || "#"} className="w-full hover:no-underline hover:bg-cyan-700 p-[10px] rounded-md  cursor-pointer flex items-center gap-[10px]">
                   {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
                 </Link>
                 <MuiTooltip title="Add to favorite" placement="right">
@@ -65,34 +65,42 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
             Dashboard
           </NavLink>
         </li>
-        {menu?.map((item) => (
-          <li className="group" key={item.menu_key}>
-            <div className={"flex justify-between items-center py-[10px] hover:bg-cyan-900 p-[10px] group-hover:bg-cyan-900  cursor-pointer"}>
-              <span className="flex gap-[10px] items-center cursor-pointer">
-                <IoGrid className="h-[20px] w-[20px]" />
-                {item.name}
-              </span>
-              <ChevronRight />
-            </div>
-            <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md">
-              <div className="min-w-[400px]">
-                <div className="p-[10px] h-[130px]">
-                  <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <IoGrid className="h-[20px] w-[20px]" />
-                    {item.name}
-                  </span>
-                  <p className="font-[350] text-[13px] mt-[10px]">{item.description}</p>
-                  <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
-                    Explore material management
-                  </a>
-                </div>
-                <Separator className="bg-slate-200 text-slate-200" />
-                <ul className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">{renderMenu(item.children, setSheetOpen)}</ul>
+        {menu?.map((item) =>
+          item.children ? (
+            <li className="group" key={item.menu_key}>
+              <div className={"flex justify-between items-center py-[10px] hover:bg-cyan-900 p-[10px] group-hover:bg-cyan-900  cursor-pointer"}>
+                <span className="flex gap-[10px] items-center cursor-pointer">
+                  <DynamicIcon name={item?.icon} size="small" />
+                  {item.name}
+                </span>
+                <ChevronRight />
               </div>
+              <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md">
+                <div className="min-w-[400px]">
+                  <div className="p-[10px] h-[130px]">
+                    <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">
+                      <DynamicIcon name={item?.icon} size="small" />
+                      {item.name}
+                    </span>
+                    <p className="font-[350] text-[13px] mt-[10px]">{item.description}</p>
+                    <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
+                      Explore material management
+                    </a>
+                  </div>
+                  <Separator className="bg-slate-200 text-slate-200" />
+                  <ul className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">{renderMenu(item.children, setSheetOpen)}</ul>
+                </div>
+              </div>
+            </li>
+          ) : (
+            <div className="flex items-center justify-between w-full">
+              <Link onClick={() => setSheetOpen(false)} to={`${item.url}` || "#"} className="w-full hover:no-underline hover:bg-cyan-900 p-[10px] roundeded-none  cursor-pointer flex items-center gap-[10px]">
+                <DynamicIcon name={item?.icon} size="small" />
+                {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
+              </Link>
             </div>
-          </li>
-        ))}
-       
+          )
+        )}
       </ul>
     </div>
   );
