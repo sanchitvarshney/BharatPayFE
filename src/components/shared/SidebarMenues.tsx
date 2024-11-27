@@ -65,122 +65,15 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
             Dashboard
           </NavLink>
         </li>
-<<<<<<< HEAD
         {menu?.map((item) => (
           <li className="group" key={item.menu_key}>
             <div className={"flex justify-between items-center py-[10px] hover:bg-cyan-900 p-[10px] group-hover:bg-cyan-900  cursor-pointer"}>
-=======
-        <li className="group">
-          <div className={"flex justify-between items-center py-[10px] hover:bg-cyan-900 p-[10px] group-hover:bg-cyan-900  cursor-pointer"}>
-            <span className="flex gap-[10px] items-center cursor-pointer">
-              <IoGrid className="h-[20px] w-[20px]" />
-              Material Management
-            </span>
-            <ChevronRight />
-          </div>
-          <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md">
-            <div className="min-w-[400px]">
-              <div className="p-[10px] h-[130px]">
-                <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <IoGrid className="h-[20px] w-[20px]" />
-                  Material Management
-                </span>
-                <p className="font-[350] text-[13px] mt-[10px]">Control and track materials seamlessly. Ensure efficient handling, storage, and supply chain operations.</p>
-                <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
-                  Explore material management
-                </a>
-              </div>
-              <Separator className="bg-slate-200 text-slate-200" />
-              <ul className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">{renderMenu(materialmenu, setSheetOpen)}</ul>
-            </div>
-          </div>
-        </li>
-        <li className="group">
-          <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-900 group-hover:bg-cyan-900 p-[10px]  cursor-pointer"}>
-            <span className="flex gap-[10px] items-center cursor-pointer">
-              <FaCartFlatbed className="h-[20px] w-[20px]" />
-              Production Management
-            </span>
-            <ChevronRight />
-          </div>
-          <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600 rounded-md   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px]">
-            <div className="min-w-[400px]">
-              <div className="p-[10px]">
-                <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <FaCartFlatbed className="h-[20px] w-[20px]" />
-                  Production Management
-                </span>
-                <p className="font-[350] text-[13px] mt-[10px]">Streamline production workflows and enhance efficiency. Plan, monitor, and control your production processes effectively.</p>
-                <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
-                  Explore Production Management
-                </a>
-              </div>
-              <Separator className="bg-slate-200 text-slate-200" />
-              <ul className="p-[10px] overflow-y-auto h-[500px] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300">{renderMenu(productionMenu, setSheetOpen)}</ul>
-            </div>
-          </div>
-        </li>
-        <li className="group">
-          <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-900 group-hover:bg-cyan-900 p-[10px]  cursor-pointer"}>
-            <span className="flex gap-[10px] items-center cursor-pointer">
-              <AiFillDatabase className="h-[20px] w-[20px]" />
-              TRC
-            </span>
-            <ChevronRight />
-          </div>
-          <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600 rounded-md   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px]">
-            <div className="min-w-[400px]">
-              <div className="p-[10px]">
-                <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <AiFillDatabase className="h-[20px] w-[20px]" />
-                  TRC Management
-                </span>
-                <p className="font-[350] text-[13px] mt-[10px]">Streamline production workflows and enhance efficiency. Plan, monitor, and control your production processes effectively.</p>
-                <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
-                  Explore TRC Management
-                </a>
-              </div>
-              <Separator className="bg-slate-200 text-slate-200" />
-              <ul className="p-[10px] overflow-y-auto h-[500px] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300">{renderMenu(TRC, setSheetOpen)}</ul>
-            </div>
-          </div>
-        </li>
-        <li className="group">
-          <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-900 group-hover:bg-cyan-900 p-[10px]  cursor-pointer"}>
-            <span className="flex gap-[10px] items-center cursor-pointer">
-              <PiShippingContainerBold className="h-[20px] w-[20px]" />
-              Dispatch
-            </span>
-            <ChevronRight />
-          </div>
-          <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600 rounded-md   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px]">
-            <div className="min-w-[400px]">
-              <div className="p-[10px]">
-                <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <PiShippingContainerBold className="h-[20px] w-[20px]" />
-                  Dispatch
-                </span>
-                <p className="font-[350] text-[13px] mt-[10px]">Streamline production workflows and enhance efficiency. Plan, monitor, and control your production processes effectively.</p>
-                <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
-                  Explore Dispatch Module
-                </a>
-              </div>
-              <Separator className="bg-slate-200 text-slate-200" />
-              <ul className="p-[10px] overflow-y-auto h-[500px] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300">{renderMenu(Dispatch, setSheetOpen)}</ul>
-            </div>
-          </div>
-        </li>
-        <li className="group">
-          <Link to={"/report/R1"} onClick={() => setSheetOpen(false)}>
-            <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-900 group-hover:bg-cyan-900 p-[10px]  cursor-pointer"}>
->>>>>>> d6bbccae4a6a8328cfca3e033fbb63385e3ddc08
               <span className="flex gap-[10px] items-center cursor-pointer">
                 <IoGrid className="h-[20px] w-[20px]" />
                 {item.name}
               </span>
               <ChevronRight />
             </div>
-<<<<<<< HEAD
             <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md">
               <div className="min-w-[400px]">
                 <div className="p-[10px] h-[130px]">
@@ -196,18 +89,6 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
                 <Separator className="bg-slate-200 text-slate-200" />
                 <ul className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">{renderMenu(item.children, setSheetOpen)}</ul>
               </div>
-=======
-          </Link>
-        </li>
-        <li className="group">
-          <Link to={"/queries/Q1"} onClick={() => setSheetOpen(false)}>
-            <div className={" flex justify-between items-center py-[10px] hover:bg-cyan-900 group-hover:bg-cyan-900 p-[10px]  cursor-pointer"}>
-              <span className="flex gap-[10px] items-center cursor-pointer">
-                <TbReportSearch className="h-[20px] w-[20px]" />
-                Query
-              </span>
-              <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
->>>>>>> d6bbccae4a6a8328cfca3e033fbb63385e3ddc08
             </div>
           </li>
         ))}
