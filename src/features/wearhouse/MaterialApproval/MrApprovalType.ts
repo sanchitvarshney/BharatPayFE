@@ -110,12 +110,24 @@ type ApproveItemDetail = {
   item_uom: string;
   execute_qty: number;
   status: string;
+  type: string;
+  appTxnId: string;
 };
 
 export type ApproveItemDetailApiResponse = {
   success: boolean;
   data: ApproveItemDetail[];
   status: string;
+};
+export type SerialResponseData = {
+  success: boolean;
+  message: string;
+  status: string;
+  data: Serial[];
+};
+
+type Serial = {
+  srlNo: string;
 };
 
 export type PendingMrRequestState = {
@@ -133,5 +145,6 @@ export type PendingMrRequestState = {
   approvedMaterialListLoading: boolean;
   approveItemDetail: ApproveItemDetail[] | null;
   approveItemDetailLoading: boolean;
-
+  serial: Serial[] | null;
+  serialLoading: boolean;
 };

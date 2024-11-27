@@ -14,11 +14,12 @@ interface NavSliderData {
 
 
 export const navSliderData: NavSliderData[] = [
-  { path: "#", name: "R1", content: <p>Material Inward Report</p> },
+  { path: "#", name: "R1", content: <p>Device MIN Report</p> },
   { path: "#", name: "R2", content: <p>TRC Report</p> },
   { path: "#", name: "R3", content: <p>Battery QC Report</p> },
   { path: "#", name: "R4", content: <p>Production Report</p> },
   { path: "#", name: "R5", content: <p>Dispatch Report</p> },
+  { path: "#", name: "R6", content: <p>Raw MIN Report</p> },
 ];
 
 const Navslider: React.FC = () => {

@@ -9,6 +9,8 @@ import { MdSystemUpdateAlt } from "react-icons/md";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { Link } from "react-router-dom";
+import { Icons } from "@/components/icons";
 
 type Props = {
   open: boolean;
@@ -18,7 +20,6 @@ type Props = {
   viewImage: boolean;
   setViewImage: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
 
 const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadImage, setViewImage }) => {
   const { component, getComponentLoading } = useAppSelector((state) => state.component);
@@ -38,8 +39,8 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
             <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setOpen(true)}>
               <MdSystemUpdateAlt className="h-[18px] w-[18px] text-slate-500" />
               Update
-            </DropdownMenuItem> 
-            <DropdownMenuItem disabled  className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
               <HiMiniViewfinderCircle className="h-[18px] w-[18px] text-slate-500" />
               View
             </DropdownMenuItem>
@@ -61,17 +62,23 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
       valueGetter: (params: any) => params.node.rowIndex + 1,
     },
     {
-      headerName: "Part Code",
-      field: "c_part_no",
-      sortable: true,
-      filter: true,
-    },
-    {
       headerName: "Name",
       field: "c_name",
       sortable: true,
       filter: true,
       width: 300,
+      cellRenderer: (params: any) => (
+        <Link className="text-cyan-500 flex items-center gap-[10px]" to={`/master-components/${params?.data?.c_part_no}`}>
+          {params?.value}
+          <Icons.followLink sx={{ fontSize: "15px" }} />
+        </Link>
+      ),
+    },
+    {
+      headerName: "Part Code",
+      field: "c_part_no",
+      sortable: true,
+      filter: true,
     },
 
     {

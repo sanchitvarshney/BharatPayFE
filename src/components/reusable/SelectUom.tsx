@@ -19,7 +19,7 @@ type Props = {
   size?: "small" | "medium";
 };
 
-const SelectUom: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "standard", required = false, size = "small" }) => {
+const SelectUom: React.FC<Props> = ({ value, onChange, label = "Select UOM", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,7 +29,7 @@ const SelectUom: React.FC<Props> = ({ value, onChange, label = "Search Device", 
   const fetchDevices = async (query: string | null) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/product/bySku/${query}`);
+      const response = await axiosInstance.get(`/uom/uomSelect2`);
       setDeviceList(response.data.data); // Response is based on the LocationApiresponse type
     } catch (error) {
       console.error("Error fetching devices:", error);
@@ -57,9 +57,6 @@ const SelectUom: React.FC<Props> = ({ value, onChange, label = "Search Device", 
       }}
       loading={loading}
       isOptionEqualToValue={(option, value) => option.id === value?.id}
-      onInputChange={(_, newInputValue, reason) => {
-        (reason === "input" || reason === "clear") && setInputValue(newInputValue);
-      }}
       renderInput={(params) => (
         <TextField
           required={required}
