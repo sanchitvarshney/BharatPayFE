@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
-import useDebounce from "@/hooks/useDebounce";
 import axiosInstance from "@/api/axiosInstance";
 
 export type GroupdataType = {
@@ -20,13 +19,11 @@ type Props = {
 };
 
 const SelectUom: React.FC<Props> = ({ value, onChange, label = "Select UOM", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" }) => {
-  const [inputValue, setInputValue] = useState("");
-  const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
   const [deviceList, setDeviceList] = useState<GroupdataType[]>([]);
 
   // Fetch devices based on SKU query
-  const fetchDevices = async (query: string | null) => {
+  const fetchDevices = async (_: string | null) => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/uom/uomSelect2`);
@@ -38,11 +35,7 @@ const SelectUom: React.FC<Props> = ({ value, onChange, label = "Select UOM", wid
     }
   };
 
-  useEffect(() => {
-    if (debouncedInputValue) {
-      fetchDevices(debouncedInputValue);
-    }
-  }, [debouncedInputValue]);
+ 
 
   return (
     <Autocomplete
