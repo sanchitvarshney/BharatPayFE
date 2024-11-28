@@ -1,5 +1,5 @@
 import { Card, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, Link, OutlinedInput, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -20,13 +20,11 @@ import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
-  const [permissionsGranted, setPermissionsGranted] = useState<boolean | null>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   useEffect(() => {
     const checkUserPermissions = async () => {
-      const result = await checkPermissions();
-      setPermissionsGranted(result);
+      await checkPermissions();
     };
 
     checkUserPermissions();
@@ -38,18 +36,14 @@ const LogningV2: React.FC = () => {
   } = useForm<LoginCredentials>();
   const { loading } = useAppSelector((state) => state.auth);
   const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
-    if (!permissionsGranted) {
-      showToast("Please Grant Permissions of location and Notification", "error");
-    } else {
-      dispatch(loginUserAsync(data)).then((response: any) => {
-        if (response.payload?.data?.success) {
-          showToast(response.payload?.data?.message, "success");
-          navigate("/");
-        } else {
-          showToast(response.payload?.data?.message, "error");
-        }
-      });
-    }
+    dispatch(loginUserAsync(data)).then((response: any) => {
+      if (response.payload?.data?.success) {
+        showToast(response.payload?.data?.message, "success");
+        navigate("/");
+      } else {
+        showToast(response.payload?.data?.message, "error");
+      }
+    });
   };
 
   return (

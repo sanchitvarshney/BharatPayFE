@@ -1,13 +1,13 @@
 import React from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { TiDocumentText } from "react-icons/ti";
 import { Badge } from "@/components/ui/badge";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { getR2ReportDetail, setRefId } from "@/features/report/report/reportSlice";
-import { CustomButton } from "@/components/reusable/CustomButton";
+import { LoadingButton } from "@mui/lab";
+import { Icons } from "@/components/icons";
 
 type Props = {
   open?: boolean;
@@ -36,26 +36,26 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
       field: "action",
       cellRenderer: (params: any) => (
         <div className="flex items-center h-full">
-          <CustomButton
+          <LoadingButton
+            variant="contained"
             loading={r2ReportDetailLoading}
             onClick={() => {
               setOpen(true);
               dispatch(getR2ReportDetail(params?.data?.refId));
               dispatch(setRefId(params?.data?.refId));
             }}
-            size={"sm"}
-            className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]"
+            size="small"
+            startIcon={<Icons.detail fontSize="small" />}
           >
-            <TiDocumentText className="h-[17px] w-[17px]" />
             View Details
-          </CustomButton>
+          </LoadingButton>
         </div>
       ),
     },
   ];
 
   return (
-    <div className="relative ag-theme-quartz h-[calc(100vh-135px)]">
+    <div className="relative ag-theme-quartz h-[calc(100vh-175px)]">
       <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data ? r2Data : []} pagination={true} />
     </div>
   );

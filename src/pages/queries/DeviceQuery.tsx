@@ -4,29 +4,26 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DatePicker, TimeRangePickerProps } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getBothComponentData, getQ1Data } from "@/features/query/query/querySlice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AgGridReact } from "@ag-grid-community/react";
 import { RowData } from "@/features/query/query/queryType";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { FaChevronRight } from "react-icons/fa6";
-import { FaChevronLeft } from "react-icons/fa";
-import { CardContent, IconButton, Paper, Typography } from "@mui/material";
+
+import { Button, CardContent, Paper, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SearchIcon from "@mui/icons-material/Search";
-import DownloadIcon from "@mui/icons-material/Download";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { showToast } from "../../utils/toasterContext";
+import { Icons } from "@/components/icons";
+
 dayjs.extend(customParseFormat);
-
 const { RangePicker } = DatePicker;
-
 const DeviceQuery: React.FC = () => {
-  const [filterType, setFilterType] = useState<string>("");
+  const [filterType, _] = useState<string>("");
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
   const { q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
@@ -81,7 +78,7 @@ const DeviceQuery: React.FC = () => {
                 </div>
                 <div className="relative h-[90px] overflow-hidden w-full">
                   <div className="flex justify-end w-full">
-                    {filterType === "location" ? (
+                    {/* {filterType === "location" ? (
                       <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
                         <FaChevronLeft className="h-[10px] w-[10px]" />
                         Date Range
@@ -91,7 +88,7 @@ const DeviceQuery: React.FC = () => {
                         Location
                         <FaChevronRight className="h-[10px] w-[10px]" />
                       </Button>
-                    )}
+                    )} */}
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "left-[-400px]" : "left-0"} `}>
                     <RangePicker
@@ -144,10 +141,24 @@ const DeviceQuery: React.FC = () => {
                 Search
               </LoadingButton>
               <div className="flex items-center gap-[5px]">
-                <MuiTooltip title="Download" placement="bottom">
-                  <IconButton disabled={!q1Data} onClick={onBtExport}>
-                    <DownloadIcon />
-                  </IconButton>
+                <MuiTooltip title="Download" placement="right">
+                  <Button
+                    disabled={!q1Data || q1Data.body.length === 0}
+                    variant="contained"
+                    color="primary"
+                    style={{
+                      borderRadius: "50%",
+                      width: 30,
+                      height: 30,
+                      minWidth: 0,
+                      padding: 0,
+                    }}
+                    onClick={() => onBtExport()}
+                    size="small"
+                    sx={{ zIndex: 1 }}
+                  >
+                    <Icons.download fontSize="small" />
+                  </Button>
                 </MuiTooltip>
               </div>
             </CardFooter>

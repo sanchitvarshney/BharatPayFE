@@ -370,22 +370,7 @@ English (United State)"
                 </Typography>
                 <div className="mt-[50px]">
                   <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-                    <ListItem sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}>
-                      <ListItemText
-                        primary={
-                          <Typography variant="h4" fontSize={"17px"}>
-                            Save my Activity Logs
-                          </Typography>
-                        }
-                        secondary="You can save your all activity logs including unusual activity detected."
-                      />
-                      <Switch
-                        edge="end"
-                        inputProps={{
-                          "aria-labelledby": "switch-list-label-wifi",
-                        }}
-                      />
-                    </ListItem>
+                   
 
                     <ListItem
                       sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}
@@ -421,23 +406,7 @@ English (United State)"
                         }}
                       />
                     </ListItem>
-                    <ListItem
-                      sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}
-                      secondaryAction={
-                        <IconButton aria-label="comment">
-                          <CreateIcon />
-                        </IconButton>
-                      }
-                    >
-                      <ListItemText
-                        primary={
-                          <Typography variant="h4" fontSize={"17px"}>
-                            Biometric
-                          </Typography>
-                        }
-                        secondary="Secure your account with 2FA security. When it is activated you will need to enter not only your password, but also scan your fingerprint."
-                      />
-                    </ListItem>
+                   
                   </List>
                 </div>
               </div>

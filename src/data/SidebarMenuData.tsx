@@ -189,6 +189,7 @@ export const navLinks = [
   { href: "/production/pending-ppr", label: "Pending PPR", value: "pending-ppr" },
   { href: "/production/complete-ppr", label: "Complete PPR", value: "complete-ppr" },
   { href: "/device-materials-in", label: "Device MIN", value: "device-min" },
-  ...navSliderData,
-  ...reportnav,
+  { href: "/device-materials-in", label: "Device MIN", value: "device-min" },
+  { href: "/report/R1", label: "Report", value: "report" },
+  { href: "/queries/Q1", label: "Query", value: "query" },
 ];
