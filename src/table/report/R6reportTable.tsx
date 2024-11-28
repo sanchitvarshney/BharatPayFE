@@ -55,7 +55,7 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
   };
 
   const columnDefs: ColDef[] = [
-    { field: "#", headerName: "#", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 70 },
+    { field: "id", headerName: "#", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 70 },
     {
       field: "txnId",
       headerName: "MIN No.",
@@ -65,14 +65,14 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
       cellRenderer: (params: any) => {
         return (
           <div className="flex items-center justify-center h-full gap-[10px]">
-            {loading && current === params.value ? (
+            {loading && current === params.data.insertDt ? (
               <CircularProgress size={20} />
             ) : (
               <MuiTooltip title="Print" placement="left">
                 <IconButton
                   onClick={() => {
                     generateprint(params.value);
-                    setCurrent(params.value);
+                    setCurrent(params.data.insertDt);
                   }}
                   color="primary"
                 >
