@@ -60,7 +60,7 @@ function MainLayout(props: { children: React.ReactNode }) {
       <MainLayoutPopovers uiState={uiState} />
       {/* alert disalogs start=============== */}
       {/* sidebars=========================== */}
-      <div className={`sheetone absolute  h-[100vh] z-10 top-0 w-full transition-all  ${sheetOpen || sheet2Open || favoriteSheet ? "bg-[#00000081]" : "left-[-100%]"}`}></div>
+      <div className={`sheetone absolute  h-[100vh] z-[50] top-0 w-full transition-all  ${sheetOpen || sheet2Open || favoriteSheet ? "bg-[#00000081]" : "left-[-100%]"}`}></div>
       <FavoriteSidebar uiState={uiState} />
       <SidebarMenues uiState={uiState} />
       <ProfileSidebar uiState={uiState} />
@@ -114,7 +114,7 @@ function MainLayout(props: { children: React.ReactNode }) {
         </nav>
       </div>
       <div className="mt-[50px] ">
-        <div className={`w-[60px] h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[50] ${sheetOpen ? "border-r border-white" : "border-r border-transparent"}`}>
+        <div className={`w-[60px] h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[70] ${sheetOpen ? "border-r border-white" : "border-r border-transparent"}`}>
           <div className="flex flex-col items-center gap-[20px]">
             <div className="flex items-center justify-center">
               <Link

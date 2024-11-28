@@ -14,7 +14,7 @@ const ProfileSidebar: React.FC<Props> = ({ uiState }) => {
   const { user } = useUser();
 
   return (
-    <div ref={sidebaref} className={`absolute  min-h-[100vh] w-[300px] z-[30] top-0 bg-cyan-950 transition-all duration-500 ${sheet2Open ? "left-[60px]" : "left-[-300px]"}`}>
+    <div ref={sidebaref} className={`absolute  min-h-[100vh] w-[300px] z-[60] top-0 bg-cyan-950 transition-all duration-500 ${sheet2Open ? "left-[60px]" : "left-[-300px]"}`}>
       <Button variant={"outline"} onClick={() => setSheet2Open(false)} className="cursor-pointer absolute top-[10px] right-[10px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white">
         <FaArrowLeftLong className="text-[20px] " />
       </Button>{" "}

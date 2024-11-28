@@ -6,7 +6,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { AgGridReact } from "@ag-grid-community/react";
 import R4ReportTable from "@/table/report/R4ReportTable";
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
-import { FormControl, InputLabel,  MenuItem, Select } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { showToast } from "@/utils/toasterContext";
@@ -43,7 +43,7 @@ const { RangePicker } = DatePicker;
 
 const R4Report: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { r4reportLoading, r4ReportDetail, r4ReportDetailLoading } = useAppSelector((state) => state.report);
+  const { r4reportLoading, r4ReportDetail, r4ReportDetailLoading, r4report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DEVICE");
   const [device, setDevice] = useState<DeviceType | null>(null);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
@@ -84,8 +84,8 @@ const R4Report: React.FC = () => {
             <CloseIcon fontSize="small" />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div" fontWeight={500} fontSize={18}>
-            {r4ReportDetail && (`#${r4ReportDetail?.productionData?.productImei}`)}
-            {r4ReportDetailLoading && <Skeleton className="h-[30px] w-[300px]"/>}
+            {r4ReportDetail && `#${r4ReportDetail?.productionData?.productImei}`}
+            {r4ReportDetailLoading && <Skeleton className="h-[30px] w-[300px]" />}
           </Typography>
         </div>
         <div className="h-full grid grid-cols-[400px_1fr] w-full ">
@@ -97,15 +97,7 @@ const R4Report: React.FC = () => {
                     <LocationCityIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Pick Location" secondary={<>
-                {
-                  r4ReportDetailLoading ? (
-                    <Skeleton className="h-[15px] w-[100px]"/>
-                  ):(
-                    r4ReportDetail?.productionData?.productionLocation
-                  )
-                }
-                  </>} />
+                <ListItemText primary="Pick Location" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[100px]" /> : r4ReportDetail?.productionData?.productionLocation}</>} />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -113,15 +105,7 @@ const R4Report: React.FC = () => {
                     <ShareLocationIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Drop Location" secondary={<>
-                {
-                  r4ReportDetailLoading ? ( 
-                    <Skeleton className="h-[15px] w-[130px]"/>
-                  ):(
-                    r4ReportDetail?.productionData?.dropLocation
-                  )
-                }
-                  </>} />
+                <ListItemText primary="Drop Location" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[130px]" /> : r4ReportDetail?.productionData?.dropLocation}</>} />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -129,15 +113,7 @@ const R4Report: React.FC = () => {
                     <DateRangeIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Insert Date" secondary={<>
-                  {
-                  r4ReportDetailLoading ? ( 
-                    <Skeleton className="h-[15px] w-[150px]"/>
-                  ):(
-                    r4ReportDetail?.productionData?.insertDate
-                  )
-                }
-                  </>} />
+                <ListItemText primary="Insert Date" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[150px]" /> : r4ReportDetail?.productionData?.insertDate}</>} />
               </ListItem>
 
               <ListItem>
@@ -146,15 +122,7 @@ const R4Report: React.FC = () => {
                     <PersonIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Insert By" secondary={<>
-                  {
-                  r4ReportDetailLoading ? ( 
-                    <Skeleton className="h-[15px] w-[100px]"/>
-                  ):(
-                    r4ReportDetail?.productionData?.insertBy
-                  )
-                }
-                  </>} />
+                <ListItemText primary="Insert By" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[100px]" /> : r4ReportDetail?.productionData?.insertBy}</>} />
               </ListItem>
             </List>
           </div>
@@ -166,7 +134,7 @@ const R4Report: React.FC = () => {
       <div className="bg-white h-[calc(100vh-90px)]">
         <div className="h-[90px] flex items-center justify-between px-[20px] gap-[20px]">
           <div className="flex items-center gap-[10px]">
-            <FormControl size="small" sx={{ minWidth: "300px" }}>
+            <FormControl sx={{ minWidth: "300px"}}>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
                 <MenuItem value={"DEVICE"}>SKU</MenuItem>
@@ -176,7 +144,7 @@ const R4Report: React.FC = () => {
             {filter === "DEVICE" && <SelectSku width="300px" varient="outlined" onChange={(e) => setDevice(e)} value={device} />}
             {filter === "DATE" && (
               <RangePicker
-                className="w-[300px] h-[35px] border-2 rounded-lg border-neutral-300 rounded-0 "
+                className="w-[300px] h-[55px] border-2 rounded-lg border-neutral-300 rounded-0 "
                 presets={rangePresets}
                 onChange={handleDateChange}
                 disabledDate={(current) => current && current > dayjs()}
@@ -210,7 +178,7 @@ const R4Report: React.FC = () => {
               Filter
             </LoadingButton>
           </div>
-          <LoadingButton variant="contained" startIcon={<DownloadIcon fontSize="small" />} onClick={onBtExport}>
+          <LoadingButton disabled={!r4report} variant="contained" startIcon={<DownloadIcon fontSize="small" />} onClick={onBtExport}>
             Download
           </LoadingButton>
         </div>

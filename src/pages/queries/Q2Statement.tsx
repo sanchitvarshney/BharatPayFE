@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DatePicker, TimeRangePickerProps } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getQ2Data } from "@/features/query/query/querySlice";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,15 +10,15 @@ import Q2ReportTable from "@/table/query/Q2ReportTable";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { RowData } from "@/features/query/query/queryType";
 import { AgGridReact } from "@ag-grid-community/react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { CardContent, IconButton, Paper } from "@mui/material";
+import { Button, CardContent, IconButton, Paper } from "@mui/material";
 import SelectComponent, { ComponentType } from "@/components/reusable/SelectComponent";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SearchIcon from "@mui/icons-material/Search";
-import DownloadIcon from "@mui/icons-material/Download";
 import FilterIcon from "@mui/icons-material/Filter";
 import { showToast } from "@/utils/toasterContext";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+import { Icons } from "@/components/icons";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
@@ -28,7 +27,7 @@ const Q2Statement: React.FC = () => {
     from: null,
     to: null,
   });
-  const [filterType, setFilterType] = useState<string>("");
+  const [filterType, _] = useState<string>("");
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
@@ -71,7 +70,7 @@ const Q2Statement: React.FC = () => {
                 </div>
                 <div className="relative h-[90px] overflow-hidden">
                   <div className="flex justify-end">
-                    {filterType === "location" ? (
+                    {/* {filterType === "location" ? (
                       <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
                         <FaChevronLeft className="h-[10px] w-[10px]" />
                         Date Range
@@ -81,7 +80,7 @@ const Q2Statement: React.FC = () => {
                         Location
                         <FaChevronRight className="h-[10px] w-[10px]" />
                       </Button>
-                    )}
+                    )} */}
                   </div>
                   <div className={`absolute transition-all ${filterType === "location" ? "left-[-400px]" : "left-0"} `}>
                     <RangePicker
@@ -106,7 +105,6 @@ const Q2Statement: React.FC = () => {
                 loadingPosition="start"
                 loading={getQ2DataLading}
                 onClick={() => {
-                  
                   if (value && (date || location)) {
                     dispatch(getQ2Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
                       if (!res.payload?.data?.success) {
@@ -125,10 +123,26 @@ const Q2Statement: React.FC = () => {
                 Search
               </LoadingButton>
               <div className="flex items-center gap-[5px]">
-                <IconButton disabled={!q2Data} onClick={onBtExport} color="primary">
-                  <DownloadIcon />
-                </IconButton>
-                <IconButton disabled={!q2Data} color="warning">
+                <MuiTooltip title="Download" placement="right">
+                  <Button
+                    disabled={!q2Data || q2Data.body.length === 0}
+                    variant="contained"
+                    color="primary"
+                    style={{
+                      borderRadius: "50%",
+                      width: 30,
+                      height: 30,
+                      minWidth: 0,
+                      padding: 0,
+                    }}
+                    onClick={() => onBtExport()}
+                    size="small"
+                    sx={{ zIndex: 1 }}
+                  >
+                    <Icons.download fontSize="small" />
+                  </Button>
+                </MuiTooltip>
+                <IconButton disabled color="warning">
                   <FilterIcon />
                 </IconButton>
               </div>
@@ -167,7 +181,7 @@ const Q2Statement: React.FC = () => {
                 </li>
                 <li className="py-[5px] border-b flex flex-col text-slate-500">
                   <span className="font-[500]">Closing Qty</span>
-                  {getQ2DataLading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q2Data?.head?.closingQty || "--"}</span>}
+                  {getQ2DataLading ? <Skeleton className="h-[20px] w-full" /> : <span className="text-[13px] ">{q2Data?.head?.closingQty || (q2Data?.head?.closingQty === 0 && "0") || "--"}</span>}
                 </li>
               </ul>
             </CardContent>

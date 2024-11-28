@@ -55,7 +55,7 @@ const Deviceinreport: React.FC = () => {
       gridRef.current!.api.exportDataAsExcel({
         sheetName: "R1 Report", // Set your desired sheet name here
       });
-  }, []);
+  }, [mainR1Report]);
 
   return (
     <>

@@ -15,7 +15,7 @@ interface NavSliderData {
   content: React.ReactNode;
 }
 
-export const navSliderData: NavSliderData[] = [
+export const queryNavSliderData: NavSliderData[] = [
   { path: "#", name: "Q1", content: <p>SKU Statement</p> },
   { path: "#", name: "Q2", content: <p>Raw Material Statement</p> },
   { path: "#", name: "Q3", content: <p>Component Statement</p> },
@@ -27,7 +27,7 @@ const QueryNavSlider: React.FC = () => {
   return (
     <Wrapper className="border-b bg-zinc-200 text-slate-600 border-neutral-300">
       <Swiper mousewheel={true} slidesPerView={"auto"} spaceBetween={1} loop={false} navigation={true} freeMode={true} modules={[FreeMode, Navigation, Mousewheel]} className="mySwiper">
-        {navSliderData.map((link, i) => (
+        {queryNavSliderData.map((link, i) => (
           <SwiperSlide key={i}>
             <NavLink to={`/queries/${link.name}`} className={id === link.name ? "bg-cyan-700 text-white" : ""}>
               {link.name}

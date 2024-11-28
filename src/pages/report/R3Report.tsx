@@ -42,12 +42,13 @@ const R3Report: React.FC = () => {
       sheetName: "R3 Report", // Set your desired sheet name here
     });
   }, []);
-  
+
   return (
     <div className="bg-white h-[calc(100vh-90px)]">
-      <div className="h-[50px] flex items-center justify-between px-[20px] gap-[20px]">
+      <div className="h-[90px] flex items-center justify-between px-[20px] gap-[20px]">
         <div className="flex items-center gap-[10px]">
           <RangePicker
+            className="h-[50px]"
             presets={rangePresets}
             onChange={handleDateChange}
             disabledDate={(current) => current && current > dayjs()}

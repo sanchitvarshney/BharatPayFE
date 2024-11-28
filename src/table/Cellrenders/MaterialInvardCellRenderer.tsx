@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { transformGroupSelectData, transformPartCode } from "@/utils/transformUtills";
+import { transformGroupSelectData } from "@/utils/transformUtills";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { transformSkuCode } from "../../utils/transformUtills";
 import { Button, Typography } from "@mui/material";
@@ -65,15 +65,20 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "partComponent":
         return (
           <Select
-            value={value}
-            filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
+            filterOption={false} // Disable default filtering as we are implementing a custom filter.
             showSearch
             loading={getPartCodeLoading}
-            className="w-full h-[35px] "
-            onSearch={(value) => dispatch(getPertCodesync(value ? value : null))}
-            defaultValue="local"
-            onChange={(value) => handleChange(value)}
-            options={transformPartCode(partCodeData)}
+            className="w-full"
+            value={value}
+            onSearch={(input) => dispatch(getPertCodesync(input ? input : null))} // Fetch data dynamically based on search input.
+            placeholder={colDef.headerName}
+            onChange={(selectedValue) => {
+              handleChange(selectedValue);
+            }}
+            options={partCodeData?.map((item) => ({
+              value: item.id,
+              label: `${item.part_code}-${item.text}`, // Combines part_code and text for display.
+            }))}
           />
         );
       case "gstType":
@@ -209,11 +214,19 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
           </div>
         );
       case "qty":
-        return <Input min={0} onChange={(e)=>{
-          if (/^-?\d*\.?\d*$/.test(e.target.value)){
-            handleInputChange(e);
-          }
-        }} value={value}  placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return (
+          <Input
+            min={0}
+            onChange={(e) => {
+              if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                handleInputChange(e);
+              }
+            }}
+            value={value}
+            placeholder={colDef.headerName}
+            className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]"
+          />
+        );
 
       case "taxableValue":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
@@ -222,11 +235,19 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "hsnCode":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
       case "gstRate":
-        return <Input min={0} onChange={(e)=>{
-          if (/^-?\d*\.?\d*$/.test(e.target.value)){
-            handleInputChange(e);
-          }
-        }} value={value}  placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return (
+          <Input
+            min={0}
+            onChange={(e) => {
+              if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                handleInputChange(e);
+              }
+            }}
+            value={value}
+            placeholder={colDef.headerName}
+            className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]"
+          />
+        );
       case "cgst":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "sgst":

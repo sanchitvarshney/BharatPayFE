@@ -86,7 +86,7 @@ const MasterLocation: React.FC = () => {
             </div>
           </div>
           <div className="py-[20px]">
-            <TextField fullWidth label="Address" multiline rows={3} {...register("address")} className="h-[100px] resize-none" />
+            <TextField error={!!errors.address} helperText={errors.address?.message} fullWidth label="Address" multiline rows={3} {...register("address",{required:"Address is required"})} className="h-[100px] resize-none" />
           </div>
           <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end">
             <Button onClick={() => reset()} type="button" startIcon={<RefreshIcon fontSize="small" />} variant={"contained"} sx={{ color: "red", backgroundColor: "white" }}>

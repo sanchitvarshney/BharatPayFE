@@ -36,7 +36,7 @@ const R3ReportTable: React.FC<Props>= ({ gridRef }) => {
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-135px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-175px)]">
         <AgGridReact
          ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}

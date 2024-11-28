@@ -7,7 +7,7 @@ import { CiSquareMinus } from "react-icons/ci";
 const FavoriteSidebar: React.FC<Props> = ({ uiState }) => {
   const { favoriteref, setFavoriteSheet, favoriteSheet } = uiState;
   return (
-    <div ref={favoriteref} className={`absolute  h-[100vh] w-[300px] z-[30] top-0 bg-cyan-950 transition-all duration-500 ${favoriteSheet ? "left-[60px]" : "left-[-300px]"}`}>
+    <div ref={favoriteref} className={`absolute  h-[100vh] w-[300px] z-[60] top-0 bg-cyan-950 transition-all duration-500 ${favoriteSheet ? "left-[60px]" : "left-[-300px]"}`}>
       <FaArrowLeftLong onClick={() => setFavoriteSheet(false)} className="text-[20px] cursor-pointer absolute top-[10px] right-[10px] text-white" />
       <div className="mt-[50px]">
         <ul className="mt-[10px] p-[10px] flex flex-col  text-white">

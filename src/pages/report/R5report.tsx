@@ -24,7 +24,7 @@ const { RangePicker } = DatePicker;
 
 const R5report: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { r5reportLoading } = useAppSelector((state) => state.report);
+  const { r5reportLoading, r5report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DATE");
   const [txn, setTxn] = useState<string>("");
   const [device, setDevice] = useState<DeviceType | null>(null);
@@ -55,7 +55,7 @@ const R5report: React.FC = () => {
   };
   const onBtExport = useCallback(() => {
     gridRef.current!.api.exportDataAsExcel({
-      sheetName: "R3 Report", // Set your desired sheet name here
+      sheetName: "R5 Report", // Set your desired sheet name here
     });
   }, []);
   return (
@@ -73,7 +73,7 @@ const R5report: React.FC = () => {
       <div className="bg-white h-[calc(100vh-90px)] overflow-x-hidden">
         <div className="h-[90px] flex items-center justify-between px-[20px] gap-[20px]">
           <div className="flex items-center gap-[10px]">
-            <FormControl size="small" sx={{ minWidth: "300px" }}>
+            <FormControl sx={{ minWidth: "300px" }}>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
                 <MenuItem value={"DEVICE"}>SKU</MenuItem>
@@ -83,7 +83,7 @@ const R5report: React.FC = () => {
             {filter === "DEVICE" && <SelectSku width="300px" varient="outlined" onChange={(e) => setDevice(e)} value={device} />}
             {filter === "DATE" && (
               <RangePicker
-                className="w-[300px] h-[35px] border-2 rounded-lg border-neutral-300 rounded-0 "
+                className="w-[300px]  h-[50px] border-2 rounded-lg border-neutral-300 rounded-0 "
                 presets={rangePresets}
                 onChange={handleDateChange}
                 disabledDate={(current) => current && current > dayjs()}
@@ -117,7 +117,7 @@ const R5report: React.FC = () => {
               Filter
             </LoadingButton>
           </div>
-          <LoadingButton variant="contained" startIcon={<DownloadIcon fontSize="small" />} onClick={onBtExport}>
+          <LoadingButton disabled={!r5report} variant="contained" startIcon={<DownloadIcon fontSize="small" />} onClick={onBtExport}>
             Download
           </LoadingButton>
         </div>

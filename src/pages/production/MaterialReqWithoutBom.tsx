@@ -1,4 +1,3 @@
-import { CustomButton } from "@/components/reusable/CustomButton";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import MaterialReqWithoutBomTable from "@/table/production/MaterialReqWithoutBomTable";
 import { useCallback, useEffect, useState } from "react";
@@ -140,6 +139,7 @@ const MaterialReqWithoutBom = () => {
               dispatch(setType(reqType));
               reset();
               setRowData([]);
+              setOpen(false);
             }}
             autoFocus
           >
@@ -162,10 +162,12 @@ const MaterialReqWithoutBom = () => {
               <p className="text-green-600">{craeteRequestData && craeteRequestData.message}</p>
             </div>
             <div className="flex items-center justify-center">
-              <CustomButton onClick={() => setFinal(false)} className="flex items-center gap-[10px] bg-cyan-700 hover:bg-cyan-800">
+              <Button endIcon={<FaArrowRightLong />} onClick={() => {
+                setFinal(false)
+                setLocationdetail("--");
+              }} variant="contained">
                 Create New Request
-                <FaArrowRightLong />
-              </CustomButton>
+              </Button>
             </div>
           </div>
         </div>

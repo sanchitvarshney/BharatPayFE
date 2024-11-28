@@ -59,9 +59,10 @@ const R2Report: React.FC = () => {
       </CustomDrawer>
 
       <div className="bg-white">
-        <div className="h-[50px] flex items-center justify-between px-[20px] gap-[20px]">
+        <div className="h-[90px] flex items-center justify-between px-[20px] gap-[20px]">
           <div className="flex items-center gap-[10px]">
             <RangePicker
+            className="h-[50px]"
               value={[date ? dayjs(date.from, dateFormat) : null, date ? dayjs(date.to, dateFormat) : null]}
               onChange={(value) => {
                 // Ensure the value is not null and correctly formatted

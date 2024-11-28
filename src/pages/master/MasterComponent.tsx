@@ -66,12 +66,11 @@ const MasterComponent: React.FC = () => {
   };
 
   const onBtExport = useCallback(() => {
-    console.log("click");
     component &&
       gridRef.current!.api.exportDataAsExcel({
         sheetName: "R6 Report",
       });
-  }, []);
+  }, [component]);
   useEffect(() => {
     dispatch(getComponentsAsync());
     dispatch(getUOMAsync());
