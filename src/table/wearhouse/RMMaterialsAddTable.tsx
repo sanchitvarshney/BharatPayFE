@@ -139,6 +139,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       headerName: "Part Component",
       field: "partComponent",
       cellRenderer: "textInputCellRenderer",
+      minWidth: 300,
     },
     {
       headerName: "Qty",

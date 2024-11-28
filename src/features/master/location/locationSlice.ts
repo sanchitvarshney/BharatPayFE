@@ -2,7 +2,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { CreateLocationPayloadtype, CreateLocationResponse, GetLocationDetailsresponse, LocationResponse, LocationStates, StatusUpdateResponse } from "./locationType.";
-import { showToast } from "../../../utils/toastUtils";
+import { showToast } from "@/utils/toasterContext";
 
 const initialState: LocationStates = {
   getLocationLoading: false,
@@ -57,7 +57,7 @@ const locationSlice = createSlice({
         state.createLocationLoading = false;
         if (action.payload.data.success) {
           state.createLocationData = action.payload.data;
-          showToast({ title: "Success", description: action.payload.data.message, variant: "success" });
+          showToast(action.payload.data.message,"success");
         }
       })
       .addCase(createLocationAsync.rejected, (state) => {
@@ -70,7 +70,7 @@ const locationSlice = createSlice({
         state.updateStatusLoading = false;
         if (action.payload.data.success) {
           state.changeStatusData = action.payload.data;
-          showToast({ title: "Success", description: action.payload.data?.message, variant: "success" });
+          showToast(action.payload.data?.message, "success");
         }
       })
       .addCase(changeSatatus.rejected, (state) => {

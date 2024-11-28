@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import useDebounce from "@/hooks/useDebounce";
 import axiosInstance from "@/api/axiosInstance";
+import { useAppSelector } from "@/hooks/useReduxHook";
 export type LocationType = {
   id: string;
   text: string;
@@ -23,7 +24,7 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
   const [locationList, setLocationList] = useState<LocationType[]>([]);
-
+  const { locationData  } = useAppSelector((state) => state.location);
   // Fetch locations based on search query
   const fetchLocations = async (query: string | null) => {
     setLoading(true);
@@ -44,7 +45,7 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
   }, [debouncedInputValue]);
   useEffect(() => {
     fetchLocations(null);
-  }, []);
+  }, [locationData]);
   return (
     <Autocomplete
       value={value}

@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { getAvailbleQty, getPertCodesync, getSkuAsync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { transformGroupSelectData, transformPartCode, transformSkuCode } from "@/utils/transformUtills";
+import { transformGroupSelectData, transformSkuCode } from "@/utils/transformUtills";
 import { ButtonBase } from "@mui/material";
 import { Select } from "antd";
 import React, { useEffect, useState } from "react";
@@ -65,26 +65,29 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
           />
         ) : (
           <Select
-            filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
+            filterOption={false} // Disable default filtering as we are implementing a custom filter.
             showSearch
             loading={getPartCodeLoading}
             className="w-full"
             value={value}
-            onSearch={(value) => dispatch(getPertCodesync(value ? value : null))}
+            onSearch={(input) => dispatch(getPertCodesync(input ? input : null))} // Fetch data dynamically based on search input.
             placeholder={colDef.headerName}
-            onChange={(value) => {
-              handleChange(value);
-              if (value && data?.pickLocation) {
+            onChange={(selectedValue) => {
+              handleChange(selectedValue);
+              if (selectedValue && data?.pickLocation) {
                 dispatch(
                   getAvailbleQty({
-                    itemCode: value,
+                    itemCode: selectedValue,
                     type: "RM",
                     location: data?.pickLocation,
                   })
                 );
               }
             }}
-            options={transformPartCode(partCodeData)}
+            options={partCodeData?.map((item) => ({
+              value: item.id,
+              label: `${item.part_code}-${item.text}`, // Combines part_code and text for display.
+            }))}
           />
         );
 
