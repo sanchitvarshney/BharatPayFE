@@ -45,7 +45,7 @@ const R6Report: React.FC = () => {
   return (
     <>
       <ResizablePanelGroup direction="horizontal" className="w-full h-[calc(100vh-50px)]">
-        <ResizablePanel defaultSize={30} className="p-0 m-0 bg-white">
+        <ResizablePanel defaultSize={20} className="p-0 m-0 bg-white">
           <div className=" min-w-[300px]">
             <div className="flex items-center gap-[10px] p-[10px] w-full mt-[20px]">
               <FormControl fullWidth>
@@ -172,7 +172,7 @@ const R6Report: React.FC = () => {
           </div>
         </ResizablePanel>
         <ResizableHandle className="bg-neutral-300" withHandle />
-        <ResizablePanel defaultSize={70}>
+        <ResizablePanel defaultSize={80}>
           <div>
             <R6reportTable gridRef={gridRef} />
           </div>
