@@ -13,8 +13,8 @@ import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
-  code: string;
-  pickLocation: string;
+  code:  {lable:string, value:string} | null;
+  pickLocation:  {lable:string, value:string} | null;
   orderqty: string;
   remarks: string;
   id: string;
@@ -62,14 +62,14 @@ const MaterialReqWithoutBom = () => {
     const newId = crypto.randomUUID();
     const newRow: RowData = {
       id: newId,
-      code: "",
-      pickLocation: "",
+      code: null,
+      pickLocation: null,
       orderqty: "",
       remarks: "",
       isNew: true,
       availableqty: "--",
     };
-    setRowData((prev) => [...prev, newRow].reverse());
+    setRowData((prev) => [newRow,...prev]);
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
@@ -97,8 +97,8 @@ const MaterialReqWithoutBom = () => {
       });
 
       if (!hasErrors) {
-        const itemKey = rowData.map((row) => row.code);
-        const picLocation = rowData.map((row) => row.pickLocation);
+        const itemKey = rowData.map((row) => row.code?.value || "");
+        const picLocation = rowData.map((row) => row.pickLocation?.value || "");
         const qty = rowData.map((row) => row.orderqty);
         const remark = rowData.map((row) => row.remarks);
         dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.id, comment: data.remarks })).then((res: any) => {

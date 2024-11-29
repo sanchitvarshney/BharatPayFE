@@ -24,6 +24,11 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import RestoreIcon from "@mui/icons-material/Restore";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import CreateIcon from "@mui/icons-material/Create";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EmailIcon from "@mui/icons-material/Email";
+import CallIcon from "@mui/icons-material/Call";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -51,4 +56,9 @@ export const Icons = {
   history: RestoreIcon,
   detail: ArticleOutlinedIcon,
   edit: CreateIcon,
+  outlineinfo: InfoOutlinedIcon,
+  threedotv: MoreVertIcon,
+  email: EmailIcon,
+  call: CallIcon,
+  down: KeyboardArrowDownIcon,
 };

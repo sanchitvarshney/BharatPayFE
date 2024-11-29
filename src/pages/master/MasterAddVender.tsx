@@ -1,97 +1,135 @@
-import { CustomButton } from "@/components/reusable/CustomButton";
-import CustomInput from "@/components/reusable/CustomInput";
-import CustomSelect from "@/components/reusable/CustomSelect";
-import FileUploaderTest from "@/components/reusable/FileUploaderTest";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RefreshCcw, Save } from "lucide-react";
 import React, { useState } from "react";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
 
+import Divider from "@mui/material/Divider";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import CloseIcon from "@mui/icons-material/Close";
+import Slide from "@mui/material/Slide";
+import { TransitionProps } from "@mui/material/transitions";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+import { Icons } from "@/components/icons";
+import SelectVendor, { VendorData } from "@/components/reusable/SelectVendor";
+import { Autocomplete, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import MasterVendorDetailTable from "@/table/master/MasterVendorDetailTable";
+import FileUploader from "@/components/reusable/FileUploader";
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 const MasterAddVender: React.FC = () => {
-  const [files, setfiles] = useState<File[] | null>(null);
+  const [vandor, setVandor] = React.useState<VendorData | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+
+  const options = ["Active", "Deactive", "Both"];
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
   return (
-    <div className="h-[calc(100vh-100px)]">
-      <div className="h-[calc(100vh-150px)]  overflow-y-auto p-[20px] grid  gap-[20px] lg:px-[200px] md:px-[20px] sm:px-[20px]">
-        <Card className="rounded-md max-h-max">
-          <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-[#e0f2f1]">
-            <CardTitle className="text-slate-600 font-[500]">Vendor Details</CardTitle>
-            <CardDescription>Provide Vendor Details (New Or Supplementary)</CardDescription>
-          </CardHeader>
-          <CardContent className="mt-[20px]">
-            <div className="grid grid-cols-3 gap-[30px] ">
-              <CustomInput label="Vendor Name" />
-              <CustomInput label="Pan Number" />
-              <CustomInput label="CIN Number" />
-              <CustomInput label="Payment Terms (in-days)" />
-              <CustomInput label="Email" />
-              <CustomInput label="Mobile" />
-              <CustomInput label="Fax Number" />
-              <CustomInput label="Payment Terms (in-days)" />
-              <div>
-                <CustomSelect required placeholder={"MSME Status"} />
-              </div>
+    <>
+      <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
+        <AppBar sx={{ position: "relative" }}>
+          <Toolbar>
+            <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+              <CloseIcon />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              Add Vendor
+            </Typography>
+            <Button startIcon={<Icons.save />} variant="contained" sx={{ background: "white", color: "black" }} autoFocus color="inherit" onClick={handleClose}>
+              save
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <form className="sm:p-[20px] md:px-[100px] md:py-[30px] h-[calc(100vh-64px)] overflow-y-auto">
+          <div id="primary-item-details" className="flex items-center w-full py-[20px] gap-3">
+            <h2 id="primary-item-details" className="text-lg font-semibold">
+              Vendor Details
+            </h2>
+            <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
+          </div>
+          <div className="grid grid-cols-4 gap-[30px]">
+            <TextField label="Vendor Name" />
+            <TextField label="Vendor Email" />
+            <TextField label="Mobile Number" />
+            <TextField label="Pan Number" />
+            <TextField label="Cin  Number" />
+            <TextField label="Cin  Number" />
+            <TextField label="Payments Terms (in-days)" type="number" />
+            <TextField label="Fax Number" />
+          </div>
+          <div className="flex items-center w-full py-[20px] gap-3 mt-[20px]">
+            <h2 className="text-lg font-semibold">GST Details</h2>
+            <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
+          </div>
+          <div className="grid grid-cols-4 gap-[30px]">
+            <TextField label="GST Number" />
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">E-Invoice Applicability</InputLabel>
+              <Select labelId="demo-simple-select-label" id="demo-simple-select" label="E-Invoice Applicability">
+                <MenuItem value={"Y"}>Yes</MenuItem>
+                <MenuItem value={"N"}>No</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div className="flex items-center w-full py-[20px] gap-3 mt-[20px]">
+            <h2 className="text-lg font-semibold">Branch Details</h2>
+            <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
+          </div>
+          <div className="grid grid-cols-4 gap-[30px]">
+            <TextField label="Branch Name" />
+            <Autocomplete value={status} onChange={(_, newValue) => setStatus(newValue)} options={options} renderInput={(params) => <TextField {...params} label="Select State" />} style={{ width: 300 }} />
+            <TextField label="City" />
+            <TextField label="Pin Code" />
+            <div className="col-span-2">
+              <TextField fullWidth multiline rows={3} label="Complete Address" />
             </div>
-          </CardContent>
-        </Card>
-        <Card className="rounded-md max-h-max">
-          <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-[#e0f2f1]">
-            <CardTitle className="text-slate-600 font-[500]">GST Details</CardTitle>
-            <CardDescription>Provide GSt Details</CardDescription>
-          </CardHeader>
-          <CardContent className="mt-[20px]">
-            <div className="grid grid-cols-3 gap-[30px] ">
-              <CustomInput label="GST Number" />
-              <div>
-                <CustomSelect required placeholder={"E-Invoice Applicability"} />
-              </div>
+          </div>
+          <div className="flex items-center w-full py-[20px] gap-3 mt-[20px]">
+            <h2 className="text-lg font-semibold">Upload Document</h2>
+            <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
+          </div>
+          <div className="grid grid-cols-2 gap-[30px]">
+            <div>
+              <TextField fullWidth label="Document Name" />
+              <FileUploader />
             </div>
-          </CardContent>
-        </Card>
-        <Card className="rounded-md max-h-max">
-          <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-[#e0f2f1]">
-            <CardTitle className="text-slate-600 font-[500]">Branch Details</CardTitle>
-            <CardDescription>Provide Branch Details</CardDescription>
-          </CardHeader>
-          <CardContent className="mt-[20px]">
-            <div className="grid grid-cols-3 gap-[30px] ">
-              <CustomInput label="Branch Name" />
-              <div>
-                <CustomSelect required placeholder={"Select State"} />
-              </div>
-              <CustomInput label="City" />
-              <CustomInput label="Pin Code" />
-              <div></div>
-              <div></div>
-              <div>
-                <Label className="text-slate-500 font-[400]">Complete Address</Label>
-                <Textarea className="h-[100px] resize-none" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="rounded-md max-h-max w-[50%]">
-          <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-[#e0f2f1]">
-            <CardTitle className="text-slate-600 font-[500]">Upload Document</CardTitle>
-            <CardDescription>Upload vendor PDF document</CardDescription>
-          </CardHeader>
-          <CardContent className="mt-[20px]">
-            <div className="grid gap-[30px] ">
-              <FileUploaderTest files={files} setFiles={setfiles} requiredFilename="XLS, CSV, XLSX" />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </form>
+      </Dialog>
+      <div className="h-full bg-white">
+        <div className="h-[90px] flex items-center px-[20px] justify-between">
+          <div className="flex items-center gap-[10px]">
+            <Typography variant="h2" fontSize={20} fontWeight={500}>
+              Vendor / Suppliers
+            </Typography>
+            <MuiTooltip title="Vendor / Suppliers" placement="right">
+              <Icons.outlineinfo className="text-cyan-700" />
+            </MuiTooltip>
+          </div>
+          <Button variant="contained" startIcon={<Icons.add />} onClick={handleClickOpen}>
+            Add New Vendor
+          </Button>
+        </div>
+        <div className="h-[90px] flex items-center px-[20px] gap-[10px]">
+          <SelectVendor width="300px" value={vandor} onChange={setVandor} />
+          <Autocomplete value={status} onChange={(_, newValue) => setStatus(newValue)} options={options} renderInput={(params) => <TextField {...params} label="Status" />} style={{ width: 300 }} />
+        </div>
+        <MasterVendorDetailTable />
       </div>
-      <div className="h-[50px] bg-white shadow flex  items-center justify-end px-[20px] gap-[20px] border-t border-slate-300">
-        <CustomButton variant={"outline"} className="flex items-center gap-[5px]">
-          <RefreshCcw className="h-[18px] w-[18px] text-slate-600" />
-          Reset
-        </CustomButton>
-        <CustomButton icon={<Save className="h-[18px] w-[18px]" />} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
-          Submit
-        </CustomButton>
-      </div>
-    </div>
+    </>
   );
 };
 
