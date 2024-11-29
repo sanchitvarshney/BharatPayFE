@@ -14,6 +14,8 @@ import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { showToast } from "@/utils/toasterContext";
+import { DeviceType } from "@/components/reusable/SelectSku";
+import SelectSku from "@/components/reusable/SelectSku";
 
 interface RowData {
   remarks: string;
@@ -26,6 +28,7 @@ type Formstate = {
   pickLocation: LocationType | null;
   putLocation: LocationType | null;
   remarks: string;
+  sku: DeviceType | null;
 };
 
 const AddTRC = () => {
@@ -90,6 +93,7 @@ const AddTRC = () => {
         const device = rowData.map((row) => row.IMEI);
         const remark = rowData.map((row) => row.remarks);
         const payload: AddtrcPayloadType = {
+          sku: data.sku?.id || "",
           issue,
           device,
           remark,
@@ -152,6 +156,23 @@ const AddTRC = () => {
                   </Typography>
                 </div>
                 <div className="flex flex-col gap-[20px] p-[20px]">
+                  <Controller
+                    name="sku"
+                    control={control}
+                    rules={{ required: "SKU is required" }}
+                    render={({ field }) => (
+                      <SelectSku
+                        error={!!errors.sku}
+                        helperText={errors.sku?.message}
+                        value={field.value}
+                        label="SKU"
+                        onChange={(value) => {
+                          field.onChange(value);
+                          setLocation(value);
+                        }}
+                      />
+                    )}
+                  />
                   <div>
                     <Controller
                       name="pickLocation"

@@ -1,4 +1,5 @@
 export type AddtrcPayloadType = {
+  sku: string,
   pickLocation: string,
   putLocation: string,
   comment: string,
