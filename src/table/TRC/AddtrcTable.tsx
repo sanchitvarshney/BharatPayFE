@@ -1,12 +1,10 @@
 import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import AddtrcTableCellRenderer from "../Cellrenders/AddtrcTableCellRenderer";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 interface RowData {
   remarks: string;
@@ -71,8 +69,21 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={addRow}>
-            <Plus className="h-[18px] w-[18px]" />
+          <Button
+            variant="contained"
+            color="primary"
+            style={{
+              borderRadius: "10%",
+              width: 25,
+              height: 25,
+              minWidth: 0,
+              padding: 0,
+            }}
+            onClick={addRow}
+            size="small"
+            sx={{ zIndex: 1 }}
+          >
+            <Icons.add fontSize="small" />
           </Button>
         </div>
       ),

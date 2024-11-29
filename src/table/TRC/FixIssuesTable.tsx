@@ -6,7 +6,7 @@ import FixIssueTabelCellRenderer from "../Cellrenders/FixIssueTabelCellRenderer"
 interface Issue {
   id: number;
   issue: string;
-  selectedPart: string;
+  selectedPart: {lable:string, value:string} | null;
   quantity: number | string;
   remarks: string;
   isChecked: boolean;

@@ -16,7 +16,7 @@ import { showToast } from "@/utils/toasterContext";
 interface Issue {
   id: number;
   issue: string;
-  selectedPart: string;
+  selectedPart: {lable:string, value:string} | null;
   quantity: number | string;
   remarks: string;
   isChecked: boolean;
@@ -69,7 +69,7 @@ const ViewTRC: React.FC = () => {
       if (!location) {
         showToast("Please select location", "error");
       } else {
-        const consumpItem = issues.filter((item) => item.isChecked).map((item) => item.selectedPart);
+        const consumpItem = issues.filter((item) => item.isChecked).map((item) => item.selectedPart?.value||"");
         const consumpQty = issues.filter((item) => item.isChecked).map((item) => item.quantity);
         const remark = issues.filter((item) => item.isChecked).map((item) => item.remarks);
         const isProblemValid = issues.filter((item) => item.isChecked).map((item) => item.isChecked);
@@ -123,7 +123,7 @@ const ViewTRC: React.FC = () => {
         trcRequestDetail.body
           .find((item) => item.device === device)
           ?.issue.map((item, index) => {
-            return { id: index + 1, issue: item.text, selectedPart: "", quantity: "", remarks: "", isChecked: false, code: item.code, UOM: "" };
+            return { id: index + 1, issue: item.text, selectedPart: null, quantity: "", remarks: "", isChecked: false, code: item.code, UOM: "" };
           }) || []
       );
     }

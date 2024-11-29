@@ -31,7 +31,7 @@ export const transformPartCode = (data: any[] | null) => {
     return undefined;
   } else {
     return data.map((item) => {
-      return { label: item.part_code, value: item.id };
+      return { label: item.text, value: item.id };
     });
   }
 };
