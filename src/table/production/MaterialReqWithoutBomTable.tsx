@@ -5,13 +5,12 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { StatusPanelDef } from "@ag-grid-community/core";
 import MaterialRequestWithoutBomCellrender from "../Cellrenders/MaterialRequestWithoutBomCellrender";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { CustomButton } from "@/components/reusable/CustomButton";
 import { Icons } from "@/components/icons";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 
 interface RowData {
-  code: string;
-  pickLocation: string;
+  code: {lable:string, value:string} | null;
+  pickLocation: {lable:string, value:string} | null;
   orderqty: string;
   remarks: string;
   id: string;
@@ -58,15 +57,21 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
     []
   );
   const handleDeleteRow = (id: string) => {
-   
     setRowdata(rowData.filter((row) => row.id !== id));
   };
 
   const columnDefs: ColDef[] = [
     {
+      headerName: "#",
+      field: "id",
+      width: 50,
+      valueGetter: "node.rowIndex + 1",
+      pinned: "left",
+    },
+    {
       headerName: "Action",
       field: "action",
-      width: 120,
+      width: 80,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
           <IconButton onClick={() => handleDeleteRow(params.data.id)}>
@@ -76,9 +81,24 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <CustomButton className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={addRow}>
+        
+          <Button
+            variant="contained"
+            color="primary"
+            style={{
+              borderRadius: "10%",
+              width: 25,
+              height: 25,
+              minWidth: 0,
+              padding: 0,
+            }}
+            onClick={addRow}
+            size="small"
+            sx={{ zIndex: 1 }}
+            
+          >
             <Icons.add fontSize="small" />
-          </CustomButton>
+          </Button>
         </div>
       ),
       pinned: "left",
@@ -88,7 +108,6 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
       headerName: `${type === "part" ? "Part Code" : "SKU"}`,
       field: "code",
       cellRenderer: "textInputCellRenderer",
-
       minWidth: 300,
     },
     {
@@ -128,7 +147,7 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
           return;
         }
         e.preventDefault();
-        addRow()
+        addRow();
       }
     };
 

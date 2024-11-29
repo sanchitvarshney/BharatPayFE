@@ -123,7 +123,7 @@ const MasterComponent: React.FC = () => {
                 <Controller
                   name="group"
                   control={control}
-                  rules={{ required: "You must select a unit" }}
+                  rules={{ required: "You must select a group" }}
                   render={({ field }) => (
                     <Autocomplete
                       loading={getGroupListLoading}
@@ -134,7 +134,6 @@ const MasterComponent: React.FC = () => {
                       onChange={(_, value) => field.onChange(value)}
                       isOptionEqualToValue={(option, value) => option.id === value.id}
                     />
-                    // <Autocomplete loading={getGroupListLoading} value={field.value} onChange={(e) => field.onChange(e)}  options={transformGroupSelectData(groupList)} fullWidth renderInput={(params) => <TextField {...params} label="Groups" />} />
                   )}
                 />
                 {errors.group && <span className=" text-[12px] text-red-500">{errors.group.message}</span>}

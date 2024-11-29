@@ -62,6 +62,7 @@ import DownloadQrExcel from "./pages/production/DownloadQrExcel";
 import ProfilePage from "./pages/ProfilePage";
 import MasterReport from "./pages/report/MasterReport";
 import MasterComponentDeatil from "./pages/master/MasterComponentDeatil";
+import MaterVendorDetail from "./pages/master/MaterVendorDetail";
 
 export const router = createBrowserRouter([
   {
@@ -201,12 +202,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterVenderLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                {" "}
-                <MasterAddVender />
-              </CustomRedirection>
-            </MasterVenderLayout>
+            <CustomRedirection UnderDevelopment={false}>
+              <MasterAddVender />
+            </CustomRedirection>
           </MainLayout>
         ),
         path: "/master-vender-add",
@@ -214,8 +212,18 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <CustomRedirection UnderDevelopment={false}>
+              <MaterVendorDetail />
+            </CustomRedirection>
+          </MainLayout>
+        ),
+        path: "/master-vende/:id",
+      },
+      {
+        element: (
+          <MainLayout>
             <MasterVenderLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 {" "}
                 <MsterVendorDetail />
               </CustomRedirection>

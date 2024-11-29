@@ -1,5 +1,4 @@
-import { Input } from "@/components/ui/input";
-import { Select, Tooltip } from "antd";
+import { Input, Select, Tooltip } from "antd";
 import React from "react";
 import type { SelectProps } from "antd";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -28,7 +27,7 @@ const AddtrcTableCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ pr
   const renderContent = () => {
     switch (colDef.field) {
       case "IMEI":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] bg-white  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
 
       case "issues":
         const sharedProps: SelectProps = {
@@ -39,7 +38,7 @@ const AddtrcTableCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ pr
         };
         return (
           <Select
-          className="h-[35px]"
+          className="h-[35px] custom-select"
             loading={isueeListLoading}
             options={transformPartCode(isueeList)}
             showSearch
@@ -56,7 +55,7 @@ const AddtrcTableCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ pr
         );
 
       case "remarks":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] bg-white  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
     }
   };
 

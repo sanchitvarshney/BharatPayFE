@@ -1,10 +1,8 @@
-import { Input } from "@/components/ui/input";
-import { Select } from "antd";
+import { Input } from "antd";
 import React from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { transformPartCode } from "@/utils/transformUtills";
+
 import { Checkbox, FormControlLabel } from "@mui/material";
+import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
 
 interface MaterialInvardCellRendererProps {
   props: any;
@@ -12,14 +10,12 @@ interface MaterialInvardCellRendererProps {
 }
 
 const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
-  const dispatch = useAppDispatch();
 
   const { value, colDef, data, api, column } = props;
   // useEffect(() => {
   //   customFunction();
   // }, [value]);
   // Extract partCodeData and loading state from the Redux store
-  const { partCodeData, getPartCodeLoading } = useAppSelector((state) => state.materialRequestWithoutBom);
 
   // Handle Select change
 
@@ -35,38 +31,39 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
     switch (colDef.field) {
       case "selectedPart":
         return (
-          <Select
-            onFocus={() => {
-              dispatch(getPertCodesync(null));
-            }}
-            filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase()) || option?.value.toString().includes(input)}
-            showSearch
-            loading={getPartCodeLoading}
-            className="w-full h-[35px]"
-            value={value}
-            onSearch={(searchValue) => {
-              // Dispatch action to fetch filtered part codes
-              dispatch(getPertCodesync(searchValue || null));
-            }}
-            placeholder={colDef.headerName}
-            onChange={(newValue) => {
-              const selectedPart = partCodeData && partCodeData?.find((item) => item.id === newValue);
-              data[colDef.field] = newValue; // Update the data
-              data["UOM"] = selectedPart!.unit;
-              data["quantity"] = null;
-              api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked", "UOM"] });
-              customFunction();
-            }} // Set selected value
-            options={transformPartCode(partCodeData)}
-          />
+          <AntCompSelect
+          getUom={(value) => {
+            data.UOM = value;
+            api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
+            customFunction();
+          }}
+          onChange={(selectedValue) => {
+            const newValue = selectedValue;
+            data[colDef.field] = newValue; // update the data
+
+           
+            api.refreshCells({ rowNodes: [props.node], columns: [column, "selectedPart", "quantity", "remarks", "isChecked", "UOM"] });
+          }}
+          value={value}
+        />
         );
       case "quantity":
         return (
           <div className="flex items-center h-full">
-            <div className="flex items-center h-[35px] overflow-hidden border rounded-lg border-slate-400">
-              <Input value={value} onChange={handleInputChange} min={0} placeholder="Qty" type="number" className="w-[100%] text-slate-600 border-none shadow-none mt-[2px] focus-visible:ring-0" />
-              <div className="w-[70px] bg-zinc-200 flex justify-center h-full items-center">{data?.UOM}</div>
-            </div>
+            <Input
+              onChange={(e) => {
+                if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                  if (Number(e.target.value) >= 0) {
+                    handleInputChange(e);
+                  }
+                }
+              }}
+              value={value}
+              type="text"
+              placeholder={colDef.headerName}
+              className="w-[100%] custom-input"
+              suffix={data?.UOM}
+            />
           </div>
         );
       case "isChecked":
@@ -94,11 +91,10 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
               }
               label={data?.issue}
             />
-           
           </div>
         );
       case "remarks":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] bg-white text-slate-600 border-slate-400 shadow-none mt-[2px]" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
       default:
         return <span>{value}</span>;
     }

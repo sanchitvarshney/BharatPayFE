@@ -160,3 +160,33 @@ input:-webkit-autofill {
   justify-content: center;
 }
 
+.custom-select .ant-select-selector {
+  border: none !important;
+  border-bottom: 2px solid #a3a3a3 !important; /* Customize the color as needed */
+  border-radius: 0 !important; /* Remove rounded corners */
+  box-shadow: none !important; /* Remove any shadow effects */
+  background-color: transparent !important;
+}
+
+.custom-select .ant-select-selector:focus,
+.custom-select .ant-select-selector:hover {
+  border-color: #155e75 !important; /* Adjust focus/hover color */
+  background-color: transparent !important;
+}
+.custom-input {
+  border: none;
+  border-bottom: 2px solid #a3a3a3; /* Bottom border */
+  border-radius: 0;
+  box-shadow: none; /* No shadow */
+  padding: 5px 12px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  background-color: transparent !important;
+}
+
+.custom-input:focus ,.custom-input:hover {
+  border-color: #155e75; /* Focus color */
+  outline: none;
+  box-shadow: none; /* No outline shadow */
+  background-color: transparent !important;
+}
