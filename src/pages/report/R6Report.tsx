@@ -27,6 +27,7 @@ const R6Report: React.FC = () => {
   const { RangePicker } = DatePicker;
   const rangePresets: TimeRangePickerProps["presets"] = [
     { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
+    { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
     { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
     { label: "Last 14 Days", value: [dayjs().add(-14, "d"), dayjs()] },
     { label: "Current Month", value: [dayjs().startOf("month"), dayjs()] },
@@ -73,7 +74,7 @@ const R6Report: React.FC = () => {
                     placement="bottomRight"
                     className="w-full h-[50px]"
                     format="DD-MM-YYYY"
-                    disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
+                    disabledDate={(current) => current && current > dayjs()}
                     placeholder={["Start date", "End Date"]}
                     value={date.from && date.to ? [date.from, date.to] : null}
                     onChange={(range: [Dayjs | null, Dayjs | null] | null) => {

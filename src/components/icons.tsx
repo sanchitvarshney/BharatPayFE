@@ -29,6 +29,16 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EmailIcon from "@mui/icons-material/Email";
 import CallIcon from "@mui/icons-material/Call";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import FaxIcon from '@mui/icons-material/Fax';
+import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency';
+import TagIcon from '@mui/icons-material/Tag';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import StreetviewIcon from '@mui/icons-material/Streetview';
+import ApartmentIcon from '@mui/icons-material/Apartment';
+
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -61,4 +71,13 @@ export const Icons = {
   email: EmailIcon,
   call: CallIcon,
   down: KeyboardArrowDownIcon,
+  attachment:AttachFileIcon,
+  user:AccountCircleIcon,
+  fax: FaxIcon,
+  idCard: ContactEmergencyIcon,
+  tag: TagIcon,
+  date: DateRangeIcon,
+  qrcode: QrCode2Icon,
+  branch: StreetviewIcon,
+  city: ApartmentIcon
 };
