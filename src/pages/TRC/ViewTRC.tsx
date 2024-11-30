@@ -1,5 +1,5 @@
 import ViewTRCTable from "@/table/TRC/ViewTRCTable";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { clearTrcDetail, getTrcList, trcFinalSubmit } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,14 +14,13 @@ import SelectLocation, { LocationType } from "@/components/reusable/SelectLocati
 import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
 interface Issue {
-  id: number;
-  issue: string;
+  id: string;
   selectedPart: {lable:string, value:string} | null;
   quantity: number | string;
   remarks: string;
-  isChecked: boolean;
   code: string;
   UOM: string;
+  isNew:boolean
 }
 
 const ViewTRC: React.FC = () => {
@@ -38,17 +37,15 @@ const ViewTRC: React.FC = () => {
   const checkRequiredFields = (data: Issue[]) => {
     let hasErrors = false;
 
-    const requiredFields: Array<keyof Issue> = ["issue", "selectedPart", "quantity"];
+    const requiredFields: Array<keyof Issue> = [ "selectedPart", "quantity"];
     const miss = data.map((item) => {
       const missingFields: string[] = [];
-      if (item.isChecked) {
-        requiredFields.forEach((field) => {
-          // Check if the required field is empty
-          if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
-            missingFields.push(field);
-          }
-        });
-      }
+      requiredFields.forEach((field) => {
+        // Check if the required field is empty
+        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
+          missingFields.push(field);
+        }
+      });
       if (missingFields.length > 0) {
         return `${item.id}`;
       }
@@ -69,11 +66,10 @@ const ViewTRC: React.FC = () => {
       if (!location) {
         showToast("Please select location", "error");
       } else {
-        const consumpItem = issues.filter((item) => item.isChecked).map((item) => item.selectedPart?.value||"");
-        const consumpQty = issues.filter((item) => item.isChecked).map((item) => item.quantity);
-        const remark = issues.filter((item) => item.isChecked).map((item) => item.remarks);
-        const isProblemValid = issues.filter((item) => item.isChecked).map((item) => item.isChecked);
-        const issueName = issues.filter((item) => item.isChecked).map((item) => item.code);
+        const consumpItem = issues.map((item) => item.selectedPart?.value||"");
+        const consumpQty = issues.map((item) => item.quantity);
+        const remark = issues.map((item) => item.remarks);
+        
         const payload: TrcFinalSubmitPayload = {
           txnId: TRCDetail?.txnId || "",
           consumpItem,
@@ -81,8 +77,7 @@ const ViewTRC: React.FC = () => {
           remark,
           putLocation: location?.id || "",
           itemCode: device || "",
-          isProblemValid,
-          issueName,
+         
         };
         dispatch(trcFinalSubmit(payload)).then((res: any) => {
           if (res.payload.data.success) {
@@ -117,17 +112,22 @@ const ViewTRC: React.FC = () => {
     }
   }, [process]);
 
-  useEffect(() => {
-    if (device && trcRequestDetail) {
-      setIssues(
-        trcRequestDetail.body
-          .find((item) => item.device === device)
-          ?.issue.map((item, index) => {
-            return { id: index + 1, issue: item.text, selectedPart: null, quantity: "", remarks: "", isChecked: false, code: item.code, UOM: "" };
-          }) || []
-      );
-    }
-  }, [device]);
+
+  const addRow = useCallback(() => {
+    const newId = crypto.randomUUID();
+    const newRow: Issue = {
+      id: newId,
+      selectedPart: null,
+      quantity: "",
+      remarks: "",
+      code: "",
+      UOM: "",
+      isNew: true
+    };
+    setIssues((prev) => [newRow,...prev]);
+  }, [issues]);
+
+ 
 
   return (
     <>
@@ -252,9 +252,9 @@ const ViewTRC: React.FC = () => {
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
                     <Typography fontWeight={600} fontSize={16}>
-                      Verify Fix Issues
+                     Consumable Components
                     </Typography>
-                    <p className="text-slate-600 font-[600]">Total fix issues: {issues.filter((issue) => issue.isChecked).length.toString()}</p>
+                    <p className="text-slate-600 font-[600]">Total fix issues: {issues.length.toString()}</p>
                   </div>
                   <div className="h-[calc(100vh-320px)]  overflow-y-auto overflow-x-auto">
                     {!device ? (
@@ -262,16 +262,16 @@ const ViewTRC: React.FC = () => {
                         <img src="/empty.png" alt="" className="h-[100px] w-[100px]" />
                       </div>
                     ) : (
-                      <FixIssuesTable rowData={issues} setRowData={setIssues} />
+                      <FixIssuesTable addRow={addRow} rowData={issues} setRowData={setIssues} />
                     )}
                   </div>
                 </div>
               </div>
               <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-neutral-300">
-                <LoadingButton variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => setProcess(false)}>
+                <LoadingButton disabled={TrcFinalSubmitLoading} variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => setProcess(false)}>
                   Cancel
                 </LoadingButton>
-                <LoadingButton variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.done fontSize="small" />}>
+                <LoadingButton loadingPosition="start" disabled={!issues.length}  variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.done fontSize="small" />}>
                   Submit
                 </LoadingButton>
               </div>

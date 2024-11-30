@@ -16,7 +16,7 @@ const CustomLoadingCellRenderer: React.FC = () => {
 
 const columnDefs: ColDef[] = [
   {
-    headerName: "ID",
+    headerName: "#",
     field: "ID",
     sortable: true,
     filter: true,

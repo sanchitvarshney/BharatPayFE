@@ -2,27 +2,29 @@ import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import FixIssueTabelCellRenderer from "../Cellrenders/FixIssueTabelCellRenderer";
+import { Button, IconButton } from "@mui/material";
+import { Icons } from "@/components/icons";
+import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 
 interface Issue {
-  id: number;
-  issue: string;
-  selectedPart: {lable:string, value:string} | null;
+  id: string;
+  selectedPart: { lable: string; value: string } | null;
   quantity: number | string;
   remarks: string;
-  isChecked: boolean;
   code: string;
   UOM: string;
+  isNew: boolean;
 }
 
 type Props = {
   rowData: Issue[];
   setRowData: React.Dispatch<React.SetStateAction<Issue[]>>;
+  addRow: () => void;
 };
 
-const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
+const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData, addRow }) => {
   const gridRef = useRef<AgGridReact<Issue>>(null); // Corrected type here
 
-  
   const getAllTableData = () => {
     const allData: Issue[] = [];
 
@@ -35,9 +37,7 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
     }
 
     setRowData(allData);
-    
   };
-
 
   const components = useMemo(
     () => ({
@@ -45,15 +45,45 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
     }),
     []
   );
+  const handleDeleteRow = (id: string) => {
+    setRowData(rowData.filter((row) => row.id !== id));
+  };
 
   const columnDefs: ColDef[] = [
     {
-      headerName: "",
-      field: "isChecked",
-      flex: 1,
-      cellRenderer: "textInputCellRenderer",
-      editable: false,
+      headerName: "Action",
+      field: "action",
+      width: 80,
+      cellRenderer: (params: any) => (
+        <div className="flex items-center justify-center w-full h-full">
+          <IconButton onClick={() => handleDeleteRow(params.data.id)}>
+            <Icons.delete fontSize="small" color="error" />
+          </IconButton>
+        </div>
+      ),
+      headerComponent: () => (
+        <div className="flex items-center justify-center w-full h-full">
+          <Button
+            variant="contained"
+            color="primary"
+            style={{
+              borderRadius: "10%",
+              width: 25,
+              height: 25,
+              minWidth: 0,
+              padding: 0,
+            }}
+            onClick={addRow}
+            size="small"
+            sx={{ zIndex: 1 }}
+          >
+            <Icons.add fontSize="small" />
+          </Button>
+        </div>
+      ),
+      pinned: "left",
     },
+
     {
       headerName: "",
       field: "id",
@@ -79,7 +109,7 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
       headerName: "UOM",
       field: "UOM",
       hide: true,
-  
+
       editable: false,
     },
     {
@@ -103,7 +133,20 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
       editable: false,
     },
   ];
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "a" && (e.metaKey || e.ctrlKey)) {
+        if ((e.target instanceof HTMLElement && e.target.isContentEditable) || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) {
+          return;
+        }
+        e.preventDefault();
+        addRow();
+      }
+    };
 
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
   return (
     <div>
       <div className="ag-theme-quartz h-[calc(100vh-320px)]">
@@ -127,8 +170,8 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData }) => {
           components={components}
           rowData={rowData}
           columnDefs={columnDefs}
-          headerHeight={0}
           ref={gridRef}
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
         />
       </div>
     </div>

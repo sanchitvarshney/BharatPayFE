@@ -114,7 +114,7 @@ function MainLayout(props: { children: React.ReactNode }) {
         </nav>
       </div>
       <div className="mt-[50px] ">
-        <div className={`w-[60px] h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[70] ${sheetOpen ? "border-r border-white" : "border-r border-transparent"}`}>
+        <div className={`w-[60px] overflow-hidden h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[70] ${sheetOpen ? "border-r border-white" : "border-r border-transparent"}`}>
           <div className="flex flex-col items-center gap-[20px]">
             <div className="flex items-center justify-center">
               <Link
@@ -163,7 +163,7 @@ function MainLayout(props: { children: React.ReactNode }) {
               </IconButton>
             </MuiTooltip>
           </div>
-          <div className="flex flex-col gap-[30px]">
+          <div className="flex flex-col gap-[30px]  ">
             <div className="line"></div>
             <Button
               onClick={() => {

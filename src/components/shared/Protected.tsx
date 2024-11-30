@@ -32,7 +32,7 @@ const Protected: React.FC<ProtectedProps> = ({ children, authentication = true }
   }, [authStatus, authentication, navigate]);
 
   // Render a loader or fallback while waiting for the auth logic to complete
-  if (isLoading) {
+  if (isLoading ) {
     return <div className="relative flex items-center justify-center w-full h-screen bg-white">
       <div className="absolute top-0 left-0 right-0 w-full h-full opacity-50">
         <LinearProgress/>

@@ -63,6 +63,11 @@ import ProfilePage from "./pages/ProfilePage";
 import MasterReport from "./pages/report/MasterReport";
 import MasterComponentDeatil from "./pages/master/MasterComponentDeatil";
 import MaterVendorDetail from "./pages/master/MaterVendorDetail";
+import MasterCategory from "./pages/master/MasterCategory";
+import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
+import BugAndChat from "./components/shared/BugAndChat";
+import MobileVerifyPage from "./pages/commonPages/MobileVerifyPage";
+import VerifyMobileAndEmail from "./pages/commonPages/VerifyMobileAndEmail";
 
 export const router = createBrowserRouter([
   {
@@ -81,6 +86,7 @@ export const router = createBrowserRouter([
         ),
         path: "/",
       },
+
       {
         element: (
           <MainLayout>
@@ -106,6 +112,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-uom",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MasterCategory />
+          </MainLayout>
+        ),
+        path: "/master-category",
       },
       {
         element: (
@@ -554,5 +568,32 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/forgot-password",
+  },
+  {
+    element: (
+      <Protected authentication={true}>
+        <MailVerifyPage />
+        <BugAndChat />
+      </Protected>
+    ),
+    path: "/verify-mail",
+  },
+  {
+    element: (
+      <Protected authentication={true}>
+        <MobileVerifyPage />
+        <BugAndChat />
+      </Protected>
+    ),
+    path: "/verify-mobile",
+  },
+  {
+    element: (
+      <Protected authentication={true}>
+        <VerifyMobileAndEmail />
+        <BugAndChat />
+      </Protected>
+    ),
+    path: "/verify-mobile-mail",
   },
 ]);

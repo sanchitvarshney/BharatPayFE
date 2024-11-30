@@ -58,8 +58,7 @@ export type TrcFinalSubmitPayload = {
   consumpQty:   (string | number)[];
   remark: string[];
   itemCode: string;
-  isProblemValid: boolean[],
-  issueName:string[]
+
 };
 export type TrcfinalSubmitResponse = {
   success: boolean;

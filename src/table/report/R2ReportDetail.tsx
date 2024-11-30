@@ -61,8 +61,7 @@ const R2ReportDetail: React.FC = () => {
       // Level 2 grid options (child grid)
       detailGridOptions: {
         columnDefs: [
-          { field: "issueName", headerName: "Issue Name" },
-          { field: "isIssueValid", headerName: "Is Issue Valid" },
+        
           { field: "usedPartcode", headerName: "Used Partcode" },
           { field: "partcodeQty", headerName: "Partcode Qty" },
           { field: "remark", headerName: "Remark" },
