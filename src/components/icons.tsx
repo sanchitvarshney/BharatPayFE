@@ -41,7 +41,7 @@ import ApartmentIcon from '@mui/icons-material/Apartment';
 import PasswordIcon from '@mui/icons-material/Password';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SecurityUpdateGoodIcon from '@mui/icons-material/SecurityUpdateGood';
-
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -85,5 +85,6 @@ export const Icons = {
   city: ApartmentIcon,
   code:PasswordIcon,
   logout:LogoutIcon,
-  mobile:SecurityUpdateGoodIcon
+  mobile:SecurityUpdateGoodIcon,
+  right:KeyboardArrowRightIcon
 };

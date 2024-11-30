@@ -9,14 +9,7 @@ interface MaterialInvardCellRendererProps {
 
 const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
   const { value, colDef, data, api, column } = props;
-  // useEffect(() => {
-  //   customFunction();
-  // }, [value]);
-  // Extract partCodeData and loading state from the Redux store
 
-  // Handle Select change
-
-  // Handle Input change
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
     data[colDef.field] = newValue; // Update the data
@@ -47,6 +40,7 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
         return (
           <div className="flex items-center h-full">
             <Input
+          
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
                   if (Number(e.target.value) >= 0) {
@@ -56,7 +50,7 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
               }}
               value={value}
               type="text"
-              placeholder={colDef.headerName}
+              placeholder={"00"}
               className="w-[100%] custom-input"
               suffix={data?.UOM}
               
@@ -64,7 +58,7 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
           </div>
         );
       case "remarks":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
+        return <Input  onChange={handleInputChange} value={value} type="text" placeholder={"--"} className="w-[100%] custom-input" />;
       default:
         return <span>{value}</span>;
     }

@@ -31,7 +31,9 @@ const AntCompSelect: React.FC<Props> = ({ value, onChange, label = "Search Item"
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/backend/search/item/${query}`);
-      setItemList(response.data.data); // Assuming response follows the LocationApiresponse format
+      if (response.data.success) {
+        setItemList(response.data.data||[]);
+      }
     } catch (error) {
       console.error("Error fetching items:", error);
     } finally {

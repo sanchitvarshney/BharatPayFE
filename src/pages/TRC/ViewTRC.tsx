@@ -252,7 +252,7 @@ const ViewTRC: React.FC = () => {
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
                     <Typography fontWeight={600} fontSize={16}>
-                      Verify Fix Issues
+                     Consumable Components
                     </Typography>
                     <p className="text-slate-600 font-[600]">Total fix issues: {issues.length.toString()}</p>
                   </div>
