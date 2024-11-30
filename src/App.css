@@ -190,3 +190,7 @@ input:-webkit-autofill {
   box-shadow: none; /* No outline shadow */
   background-color: transparent !important;
 }
+
+.ant-select-dropdown {
+  border-radius: 0 !important;
+  }

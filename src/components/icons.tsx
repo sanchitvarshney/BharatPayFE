@@ -38,6 +38,9 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import StreetviewIcon from '@mui/icons-material/Streetview';
 import ApartmentIcon from '@mui/icons-material/Apartment';
+import PasswordIcon from '@mui/icons-material/Password';
+import LogoutIcon from '@mui/icons-material/Logout';
+import SecurityUpdateGoodIcon from '@mui/icons-material/SecurityUpdateGood';
 
 export const Icons = {
   save: SaveIcon,
@@ -79,5 +82,8 @@ export const Icons = {
   date: DateRangeIcon,
   qrcode: QrCode2Icon,
   branch: StreetviewIcon,
-  city: ApartmentIcon
+  city: ApartmentIcon,
+  code:PasswordIcon,
+  logout:LogoutIcon,
+  mobile:SecurityUpdateGoodIcon
 };

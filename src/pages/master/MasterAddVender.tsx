@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
-
 import Divider from "@mui/material/Divider";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -12,7 +11,7 @@ import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { Icons } from "@/components/icons";
-import {  FormControl, InputAdornment, InputLabel, List, ListItem, ListItemIcon, ListItemText, MenuItem, Select, TextField } from "@mui/material";
+import { FormControl, InputAdornment, InputLabel, List, ListItem, ListItemIcon, ListItemText, MenuItem, Select, TextField } from "@mui/material";
 import MasterVendorDetailTable from "@/table/master/MasterVendorDetailTable";
 import FileUploader from "@/components/reusable/FileUploader";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -55,7 +54,7 @@ type FormDataType = {
 
 const MasterAddVender: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { uploadfileloading,createVendorLoading } = useAppSelector((state) => state.vendor);
+  const { uploadfileloading, createVendorLoading } = useAppSelector((state) => state.vendor);
   const [open, setOpen] = React.useState(false);
   const [file, setFile] = useState<File[] | null>(null);
   const [files, setFiles] = useState<{ name: string; url: string }[]>([]);
@@ -65,9 +64,10 @@ const MasterAddVender: React.FC = () => {
     handleSubmit,
     control,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormDataType>({
-    mode:"all",
+    mode: "all",
     defaultValues: {
       name: "",
       email: "",
@@ -90,7 +90,7 @@ const MasterAddVender: React.FC = () => {
       msme_activity: "",
     },
   });
- 
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -345,6 +345,58 @@ const MasterAddVender: React.FC = () => {
                   },
                 }}
               />
+              <FormControl fullWidth variant="filled">
+                <InputLabel id="demo-simple-select-label">MSME Status</InputLabel>
+                <Select {...register("msme_status")} labelId="demo-simple-select-label" id="demo-simple-select" label="MSME Status">
+                  <MenuItem value={"Y"}>Yes</MenuItem>
+                  <MenuItem value={"N"}>No</MenuItem>
+                </Select>
+              </FormControl>
+              {watch("msme_status") === "Y" && (
+                <FormControl fullWidth variant="filled">
+                  <InputLabel id="demo-simple-select-label">MSME year</InputLabel>
+                  <Select {...register("msme_year")} labelId="demo-simple-select-label" id="demo-simple-select" label="MSME year">
+                    <MenuItem value={"20023-2024"}>20023-2024</MenuItem>
+                    <MenuItem value={"2024-2025"}>2024-2025</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+              {watch("msme_status") === "Y" && (
+                <TextField
+                  {...register("msme_id")}
+                  label="CIN  Number"
+                  variant="filled"
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Icons.tag />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              )}
+              {watch("msme_status") === "Y" && (
+                <FormControl fullWidth variant="filled">
+                  <InputLabel id="demo-simple-select-label">MSME Type</InputLabel>
+                  <Select {...register("msme_type")} labelId="demo-simple-select-label" id="demo-simple-select" label="MSME Type">
+                    <MenuItem value={"micro"}>Micro</MenuItem>
+                    <MenuItem value={"small"}>Small</MenuItem>
+                    <MenuItem value={"medium"}>Medium</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+              {watch("msme_status") === "Y" && (
+                <FormControl fullWidth variant="filled">
+                  <InputLabel id="demo-simple-select-label">MSME Activity</InputLabel>
+                  <Select {...register("msme_activity")} labelId="demo-simple-select-label" id="demo-simple-select" label="MSME Activity">
+                    <MenuItem value={"trediing"}>Treding</MenuItem>
+                    <MenuItem value={"manufacturing"}>Manufacturing</MenuItem>
+                    <MenuItem value={"service"}>Service</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
             </div>
             <div className="flex items-center w-full py-[20px] gap-3 mt-[20px]">
               <h2 className="text-lg font-semibold">GST Details</h2>
