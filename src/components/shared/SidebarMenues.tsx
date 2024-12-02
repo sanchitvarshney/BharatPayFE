@@ -119,7 +119,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
                   <ChevronRight />
                 </div>
                 <div
-                  className={`top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md ${
+                  className={`top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-300 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md ${
                     !sheetOpen && "hidden"
                   }`}
                 >
