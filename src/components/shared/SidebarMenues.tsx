@@ -16,12 +16,12 @@ import DynamicIcon from "../reusable/DynamicIcon";
 import { Box, CircularProgress, circularProgressClasses, CircularProgressProps } from "@mui/material";
 function FacebookCircularProgress(props: CircularProgressProps) {
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ position: "relative" }}>
       <CircularProgress
         variant="determinate"
         sx={(theme) => ({
           color: theme.palette.grey[200],
-          ...theme.applyStyles('dark', {
+          ...theme.applyStyles("dark", {
             color: theme.palette.grey[800],
           }),
         })}
@@ -34,15 +34,15 @@ function FacebookCircularProgress(props: CircularProgressProps) {
         variant="indeterminate"
         disableShrink
         sx={(theme) => ({
-          color: '#1a90ff',
-          animationDuration: '550ms',
-          position: 'absolute',
+          color: "#1a90ff",
+          animationDuration: "550ms",
+          position: "absolute",
           left: 0,
           [`& .${circularProgressClasses.circle}`]: {
-            strokeLinecap: 'round',
+            strokeLinecap: "round",
           },
-          ...theme.applyStyles('dark', {
-            color: '#308fe8',
+          ...theme.applyStyles("dark", {
+            color: "#308fe8",
           }),
         })}
         size={40}
@@ -98,7 +98,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
       </Button>
       {menuLoading ? (
         <div className="h-[100vh] flex items-center justify-center ">
-         <FacebookCircularProgress/>
+          <FacebookCircularProgress />
         </div>
       ) : (
         <ul className="flex flex-col text-white py-[5px] mt-[50px] ">
@@ -118,7 +118,11 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
                   </span>
                   <ChevronRight />
                 </div>
-                <div className=" top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md">
+                <div
+                  className={`top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-500 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md ${
+                    !sheetOpen && "hidden"
+                  }`}
+                >
                   <div className="min-w-[400px]">
                     <div className="p-[10px] h-[130px]">
                       <span className="flex gap-[10px] items-center cursor-pointer text-[18px] opacity-0 group-hover:opacity-100 transition-all duration-500">

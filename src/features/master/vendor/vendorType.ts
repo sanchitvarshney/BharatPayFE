@@ -31,7 +31,7 @@ export type VendorData = {
   mobile: string;
   email: string;
   files: string[];
-  documentName:string[]
+  documentName: string[];
 };
 
 export type Branch = {
@@ -49,10 +49,40 @@ export type VendorCreatePayload = {
   branch: Branch;
 };
 
+export type VendorBarnchResponse = {
+  success: boolean;
+  data: VendorBarnch;
+};
+
+type VendorBarnch = {
+  vendor: {
+    name: string;
+    code: string;
+    cinNo: string;
+    panNo: string;
+  };
+  branch: Array<{
+    branch: string;
+    state: {
+      state: string;
+      name: string;
+    };
+    city: string;
+    address: string;
+    pincode: string;
+    mobile: string;
+    email: string;
+    fax: string;
+    gstin: string;
+  }>;
+};
+
 export type VendorState = {
   getvendorLoading: boolean;
   vendor: Vendor[] | null;
   createVendorLoading: boolean;
   files: string[] | null;
   uploadfileloading: boolean;
+  vendorDetail: VendorBarnch | null;
+  getVendorDetailLoading: boolean;
 };
