@@ -87,7 +87,15 @@ const MaterVendorDetail: React.FC = () => {
 
             <Divider orientation="vertical" flexItem />
           </div>
-          <div className="flex items-center pr-[20px] gap-[30px]">
+          <div className="flex items-center pr-[20px] gap-[10px]">
+            <Button
+              onClick={() => {
+                dispatch(getVendorBranch(id || ""));
+              }}
+              className="p-[5px] px-[8px]  bg-white text-slate-600 border border-slate-600 hover:bg-white/80"
+            >
+              <Icons.refresh fontSize="small" />
+            </Button>
             <Button disabled className="p-[5px] px-[8px]  bg-white text-red-600 border border-red-600 hover:bg-white/80">
               <Icons.delete fontSize="small" />
             </Button>
@@ -312,7 +320,7 @@ const MaterVendorDetail: React.FC = () => {
                                   <Icons.edit fontSize="small" />
                                   Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="flex items-center gap-[10px]">
+                                <DropdownMenuItem disabled className="flex items-center gap-[10px]">
                                   <Icons.delete fontSize="small" color="error" />
                                   Delete
                                 </DropdownMenuItem>

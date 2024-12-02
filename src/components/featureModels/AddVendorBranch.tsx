@@ -54,7 +54,7 @@ const AddVendorBranch: React.FC<Props> = ({ open, handleClose }) => {
 
   const onSubmit = (data: FormDataType) => {
     const payload: AddVendorBranchPayload = {
-      vendor: data.branch,
+      vendor: id || "",
       branch: data.branch,
       state: data.state?.Code || "",
       city: data.city,
