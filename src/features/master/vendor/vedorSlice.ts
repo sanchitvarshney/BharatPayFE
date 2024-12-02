@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { UpadteVendorBranchPayload, VendorBarnchResponse, VendorCreatePayload, VendorResponse, VendorState } from "./vendorType";
+import { AddVendorBranchPayload, UpadteVendorBranchPayload, VendorBarnchResponse, VendorCreatePayload, VendorResponse, VendorState } from "./vendorType";
 import { showToast } from "@/utils/toasterContext";
 
 const initialState: VendorState = {
@@ -13,6 +13,7 @@ const initialState: VendorState = {
   vendorDetail: null,
   getVendorDetailLoading: false,
   updateVendorBranchLoading: false,
+  addvendorbranchLoading: false,
 };
 
 export const getVendor = createAsyncThunk<AxiosResponse<VendorResponse>>("master/vendor/getVendor", async () => {
@@ -26,6 +27,10 @@ export const getVendorBranch = createAsyncThunk<AxiosResponse<VendorBarnchRespon
 });
 export const updateVendorBranch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpadteVendorBranchPayload>("master/vendor/updateVendor", async (payload) => {
   const response = await axiosInstance.put(`/vendor/updateVendorBranch`, payload);
+  return response;
+});
+export const addVendorBranch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, AddVendorBranchPayload>("master/vendor/addVendorBranch", async (payload) => {
+  const response = await axiosInstance.post(`/vendor/addVendorBranch`, payload);
   return response;
 });
 export const createVendor = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, VendorCreatePayload>("master/vendor/createVendor", async (payload) => {
@@ -81,6 +86,18 @@ const vendorSlice = createSlice({
       })
       .addCase(createVendor.rejected, (state) => {
         state.createVendorLoading = false;
+      })
+      .addCase(addVendorBranch.pending, (state) => {
+        state.addvendorbranchLoading = true;
+      })
+      .addCase(addVendorBranch.fulfilled, (state, action) => {
+        state.addvendorbranchLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(addVendorBranch.rejected, (state) => {
+        state.addvendorbranchLoading = false;
       })
       .addCase(uploadFile.pending, (state) => {
         state.uploadfileloading = true;

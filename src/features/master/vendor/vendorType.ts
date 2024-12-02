@@ -96,6 +96,18 @@ export type UpadteVendorBranchPayload = {
   gstid: string;
   email: string;
 };
+export type AddVendorBranchPayload = {
+  vendor: string;
+  branch: string;
+  state: string;
+  city: string;
+  address: string;
+  pincode: string;
+  mobile: string;
+  gstid: string;
+  email: string;
+  fax?: string; // Optional property
+};
 export type VendorState = {
   getvendorLoading: boolean;
   vendor: Vendor[] | null;
@@ -105,4 +117,5 @@ export type VendorState = {
   vendorDetail: VendorBarnch | null;
   getVendorDetailLoading: boolean;
   updateVendorBranchLoading: boolean;
+  addvendorbranchLoading: boolean;
 };
