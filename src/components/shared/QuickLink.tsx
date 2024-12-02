@@ -3,10 +3,46 @@ import { type DialogProps } from "@radix-ui/react-dialog";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import { CircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { navLinks } from "@/data/SidebarMenuData";
 import { Button } from "../ui/button";
+import { useAppSelector } from "@/hooks/useReduxHook";
 
+interface MenuItem {
+  menu_key: string;
+  name: string;
+  url: string | null;
+  children?: MenuItem[];
+}
+
+interface Link {
+  href: string;
+  label: string;
+  value: string;
+}
+
+function convertMenuToLinks(menu: MenuItem[]): Link[] {
+  const links: Link[] = [];
+
+  function traverseMenu(items: MenuItem[]) {
+    items.forEach((item) => {
+      if (item.url) {
+        links.push({
+          href: item.url,
+          label: item.name,
+          value: item.name.toLowerCase().replace(/\s+/g, "-"), // Generate a "value" field
+        });
+      }
+
+      if (item.children && item.children.length > 0) {
+        traverseMenu(item.children);
+      }
+    });
+  }
+
+  traverseMenu(menu);
+  return links;
+}
 export default function QuickLink({ ...props }: DialogProps) {
+  const { menu } = useAppSelector((state) => state.menu);
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
 
@@ -47,21 +83,22 @@ export default function QuickLink({ ...props }: DialogProps) {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Links">
-            {navLinks.map((item) => (
-              <CommandItem
-                key={item.value}
-                value={item.value}
-                onSelect={() => {
-                  runCommand(() => navigate(item.href as string));
-                }}
-                className="pointer-events-auto data-[disabled]:pointer-events-auto data-[disabled]:opacity-70 cursor-pointer aria-selected:bg-zinc-200"
-              >
-                <div className="flex items-center justify-center w-4 h-4 mr-2">
-                  <CircleIcon className="w-3 h-3" />
-                </div>
-                {item.label}
-              </CommandItem>
-            ))}
+            {menu &&
+              convertMenuToLinks(menu)?.map((item) => (
+                <CommandItem
+                  key={item.value}
+                  value={item.value}
+                  onSelect={() => {
+                    runCommand(() => navigate(item.href as string));
+                  }}
+                  className="pointer-events-auto data-[disabled]:pointer-events-auto data-[disabled]:opacity-70 cursor-pointer aria-selected:bg-zinc-200"
+                >
+                  <div className="flex items-center justify-center w-4 h-4 mr-2">
+                    <CircleIcon className="w-3 h-3" />
+                  </div>
+                  {item.label}
+                </CommandItem>
+              ))}
           </CommandGroup>
 
           <CommandSeparator />
