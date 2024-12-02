@@ -95,9 +95,9 @@ const DeviceQuery: React.FC = () => {
                       </Button>
                     )} */}
                     </div>
-                    <div className={`absolute transition-all ${filterType === "location" ? "left-[-400px]" : "left-0"} `}>
+                    <div className={`w-full  `}>
                       <RangePicker
-                        className="w-[330px] h-[50px]"
+                        className="w-full h-[50px]"
                         presets={rangePresets}
                         onChange={handleDateChange}
                         disabledDate={(current) => current && current > dayjs()}
