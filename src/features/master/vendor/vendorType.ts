@@ -93,7 +93,7 @@ export type UpadteVendorBranchPayload = {
   address: string;
   pincode: string;
   mobile: string;
-  gstid: string;
+  gstin: string;
   email: string;
 };
 export type AddVendorBranchPayload = {
@@ -104,7 +104,7 @@ export type AddVendorBranchPayload = {
   address: string;
   pincode: string;
   mobile: string;
-  gstid: string;
+  gstin: string;
   email: string;
   fax?: string; // Optional property
 };

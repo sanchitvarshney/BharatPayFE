@@ -61,7 +61,7 @@ const AddVendorBranch: React.FC<Props> = ({ open, handleClose }) => {
       address: data.address,
       pincode: data.pincode,
       mobile: data.mobile,
-      gstid: data.gstin,
+      gstin: data.gstin,
       email: data.email,
       fax: data.fax,
     };
@@ -147,7 +147,7 @@ const AddVendorBranch: React.FC<Props> = ({ open, handleClose }) => {
           <Button disabled={addvendorbranchLoading} onClick={handleClose} startIcon={<Icons.close fontSize="small" />} sx={{ color: "red", background: "white" }} variant="contained">
             Cancel
           </Button>
-          <Button type="submit" disabled={addvendorbranchLoading} startIcon={<Icons.add fontSize="small" />} onClick={handleClose} autoFocus variant="contained">
+          <Button type="submit" disabled={addvendorbranchLoading} startIcon={<Icons.add fontSize="small" />}  autoFocus variant="contained">
             Create
           </Button>
         </DialogActions>
