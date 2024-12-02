@@ -74,7 +74,7 @@ const UpdateVendorBranchForm: React.FC<Props> = ({ branch, setEditBranchId, scro
       address: data.address,
       pincode: data.pincode,
       mobile: data.mobile,
-      gstid: data.gstin,
+      gstin: data.gstin,
       email: data.email,
     };
     dispatch(updateVendorBranch(payload)).then((res: any) => {

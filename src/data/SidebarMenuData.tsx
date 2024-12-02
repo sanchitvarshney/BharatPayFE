@@ -4,7 +4,7 @@
 //     name: "Material Management",
 //     subMenu: [
 //       {
-//         name: "Master",
+//         name: "Master",side
 //         subMenu: [
 //           { name: "UOM", path: "/not-permission" },
 //           { name: "Component", path: "/not-permission" },
