@@ -1,13 +1,9 @@
 import React from "react";
-import styled from "styled-components";
-
-import { Swiper, SwiperSlide } from "swiper/react";
-
-import "swiper/css";
-import "swiper/css/navigation";
-
-import { FreeMode, Navigation, Mousewheel } from "swiper/modules";
-import { NavLink, useParams } from "react-router-dom";
+import { useParams, NavLink } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Tabs, { tabsClasses } from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import { Typography } from "@mui/material";
 
 interface NavSliderData {
   path: string;
@@ -23,81 +19,64 @@ export const queryNavSliderData: NavSliderData[] = [
 
 const QueryNavSlider: React.FC = () => {
   const { id } = useParams();
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+
+  React.useEffect(() => {
+    const index = queryNavSliderData.findIndex((link) => link.name === id);
+    if (index !== -1) {
+      setValue(index);
+    }
+  }, [id]);
 
   return (
-    <Wrapper className="border-b bg-zinc-200 text-slate-600 border-neutral-300">
-      <Swiper mousewheel={true} slidesPerView={"auto"} spaceBetween={1} loop={false} navigation={true} freeMode={true} modules={[FreeMode, Navigation, Mousewheel]} className="mySwiper">
-        {queryNavSliderData.map((link, i) => (
-          <SwiperSlide key={i}>
-            <NavLink to={`/queries/${link.name}`} className={id === link.name ? "bg-cyan-700 text-white" : ""}>
-              {link.name}
-              {id === link.name && <span className="flex items-center justify-center h-full font-[400]">{link.content}</span>}
-            </NavLink>
-          </SwiperSlide>
+    <Box
+      sx={{
+        flexGrow: 1,
+        bgcolor: "background.paper",
+        borderBottom: "1px solid #ccc",
+      }}
+    >
+      <Tabs
+        selectionFollowsFocus
+        value={value}
+        onChange={handleChange}
+        variant="scrollable"
+        scrollButtons
+        aria-label="query navigation slider"
+        sx={{
+         
+          [`& .${tabsClasses.scrollButtons}`]: {
+            "&.Mui-disabled": { opacity: 0.3 },
+          },
+         
+        }}
+      >
+        {queryNavSliderData.map((link, index) => (
+          <Tab
+         
+            key={index}
+            component={NavLink}
+            to={`/queries/${link.name}`}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <Typography fontWeight={500}>{link.name}</Typography>
+                {value === index && (
+                  <Typography variant="inherit" className="text-slate-600">
+                    {link.content}
+                  </Typography>
+                )}
+              </div>
+            }
+            wrapped
+          />
         ))}
-      </Swiper>
-    </Wrapper>
+      </Tabs>
+    </Box>
   );
 };
-
-// Styling with styled-components
-const Wrapper = styled.div`
-  width: 100%;
-  height: 35px;
-  display: flex;
-
-  .swiper {
-    z-index: 3;
-    display: flex;
-    width: 100%;
-  }
-
-  .swiper-button-next {
-    background-color: #adacac;
-    right: 0;
-    padding: 5px 10px;
-    color: white;
-  }
-  .swiper-button-next::after,
-  .swiper-button-prev::after {
-    font-size: 20px;
-    font-weight: bold;
-  }
-  .swiper-button-disabled {
-    display: none;
-  }
-  .swiper-button-prev {
-    background-color: #adacac;
-    left: 0;
-    padding: 5px 10px;
-    color: white;
-  }
-  .swiper-slide {
-    width: max-content;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    a {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0 15px;
-      font-weight: 600;
-      font-size: 13px;
-      display: flex;
-      justify-items: center;
-      gap: 5px;
-    }
-  }
-
-  span {
-    padding: 0px 10px;
-    width: 100%;
-  }
-`;
 
 export default QueryNavSlider;

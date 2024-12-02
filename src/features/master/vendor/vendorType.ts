@@ -59,9 +59,17 @@ type VendorBarnch = {
     name: string;
     code: string;
     cinNo: string;
+    gstin: string;
     panNo: string;
+    email: string;
+    mobile: string;
+    paymentinDays: string;
+    invoiceStatus: string;
+    docName: string[]; // Array of strings
+    file: string[]; // Array of strings
   };
   branch: Array<{
+    code: string;
     branch: string;
     state: {
       state: string;
@@ -76,7 +84,18 @@ type VendorBarnch = {
     gstin: string;
   }>;
 };
-
+export type UpadteVendorBranchPayload = {
+  code: string;
+  vendor_code: string;
+  label: string;
+  state: string;
+  city: string;
+  address: string;
+  pincode: string;
+  mobile: string;
+  gstid: string;
+  email: string;
+};
 export type VendorState = {
   getvendorLoading: boolean;
   vendor: Vendor[] | null;
@@ -85,4 +104,5 @@ export type VendorState = {
   uploadfileloading: boolean;
   vendorDetail: VendorBarnch | null;
   getVendorDetailLoading: boolean;
+  updateVendorBranchLoading: boolean;
 };

@@ -1,18 +1,19 @@
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { IconButton, LinearProgress, ListItemIcon, Tab, Tabs, Typography } from "@mui/material";
+import { IconButton, LinearProgress, Tab, Tabs, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import Divider from "@mui/material/Divider";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Fade from "@mui/material/Fade";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getVendorBranch } from "@/features/master/vendor/vedorSlice";
 import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import UpdateVendorBranchForm from "@/components/from/UpdateVendorBranchForm";
+
 const MaterVendorDetail: React.FC = () => {
+  const [editbranchid, setEditBranchId] = React.useState<string>("");
   const dispatch = useAppDispatch();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { vendorDetail, getVendorDetailLoading } = useAppSelector((state) => state.vendor);
@@ -21,9 +22,6 @@ const MaterVendorDetail: React.FC = () => {
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
   };
 
   const [value2, setValue2] = React.useState("detail1");
@@ -174,11 +172,11 @@ const MaterVendorDetail: React.FC = () => {
                   <div className="grid grid-cols-4 gap-6 mt-4">
                     {[
                       { label: "Name", value: vendorDetail?.vendor?.name },
-                      { label: "Email", value: "sachin.gmail.com" },
-                      { label: "Pan Number", value: vendorDetail?.vendor?.panNo },
+                      { label: "Email", value: vendorDetail?.vendor?.email },
+                      { label: "PAN Number", value: vendorDetail?.vendor?.panNo },
                       { label: "CIN Number", value: vendorDetail?.vendor?.cinNo },
-                      { label: "Fax Number", value: "123489FGHJK" },
-                      { label: "Payment Terms (in-days)", value: "30" },
+                      // { label: "FAX Number", value:  },
+                      { label: "Payment Terms (in-days)", value: vendorDetail?.vendor?.paymentinDays },
                     ].map(({ label, value }) => (
                       <div key={label} className="py-5">
                         <Typography variant="body2" color="textSecondary" className="text-gray-600">
@@ -229,29 +227,6 @@ const MaterVendorDetail: React.FC = () => {
                         <IconButton size="small" id="fade-button" aria-controls={open ? "fade-menu" : undefined} aria-haspopup="true" aria-expanded={open ? "true" : undefined} onClick={handleClick}>
                           <Icons.threedotv fontSize="small" />
                         </IconButton>
-                        <Menu
-                          id="fade-menu"
-                          MenuListProps={{
-                            "aria-labelledby": "fade-button",
-                          }}
-                          anchorEl={anchorEl}
-                          open={open}
-                          onClose={handleClose}
-                          TransitionComponent={Fade}
-                        >
-                          <MenuItem onClick={handleClose}>
-                            <ListItemIcon>
-                              <Icons.edit fontSize="small" />
-                            </ListItemIcon>
-                            <Typography variant="inherit">Edit</Typography>
-                          </MenuItem>
-                          <MenuItem onClick={handleClose}>
-                            <ListItemIcon>
-                              <Icons.delete fontSize="small" color="error" />
-                            </ListItemIcon>
-                            <Typography variant="inherit">Delete</Typography>
-                          </MenuItem>
-                        </Menu>
                       </div>
                     </div>
                   </div>
@@ -294,49 +269,70 @@ const MaterVendorDetail: React.FC = () => {
                   </header>
                 </section>
                 {vendorDetail &&
-                  vendorDetail?.branch?.map((branch, i) => (
-                    <div key={i}>
-                      <header className="flex items-center w-full gap-3 mt-3">
-                        <h3 id="basic-item-details" className="text-sm font-medium text-cyan-700">
-                          Branch {i + 1}
-                        </h3>
-                        <Divider
-                          sx={{
-                            borderBottomWidth: 1,
-                            borderColor: "#d4d4d4",
-                            flexGrow: 1,
-                            borderStyle: "dashed",
-                          }}
-                        />
-                        <button onClick={handleClick} type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Edit basic item details">
-                          Manage Branch <Icons.down fontSize="small" />
-                        </button>
-                      </header>
-                      <div className="flex gap-[50px]  mt-4 ">
-                        <div className="grid w-[80%] grid-cols-4 gap-[20px] ">
-                          {[
-                            { label: "Branch Name", value: branch?.branch },
-                            { label: "State", value: branch?.state?.name },
-                            { label: "City", value: branch?.city },
-                            { label: "Pincode", value: branch?.pincode },
-                            { label: "Mobile", value: branch?.mobile },
-                            { label: "Email", value: branch?.email },
-                            { label: "GST IN", value: branch?.gstin },
-                            { label: "Complete Address", value: replaceBrWithNewLine(branch?.address) },
-                          ].map(({ label, value }) => (
-                            <div key={label} className={`py-3 ${label === "Complete Address" ? "col-span-2" : ""}`}>
-                              <Typography variant="body2" color="textSecondary" className="text-gray-600">
-                                {label}:
-                              </Typography>
-                              <Typography variant="body1" fontWeight={500}>
-                                {value || "N/A"}
-                              </Typography>
-                            </div>
-                          ))}
+                  vendorDetail?.branch?.map((branch, i) =>
+                    editbranchid === branch?.code ? (
+                      <UpdateVendorBranchForm scrollToSection={scrollToSection} branch={branch} setEditBranchId={setEditBranchId} />
+                    ) : (
+                      <div id={branch.code} key={branch.code}>
+                        <header className="flex items-center w-full gap-3 mt-3">
+                          <h3 id="basic-item-details" className="text-sm font-medium text-cyan-700">
+                            Branch {i + 1}
+                          </h3>
+                          <Divider
+                            sx={{
+                              borderBottomWidth: 1,
+                              borderColor: "#d4d4d4",
+                              flexGrow: 1,
+                              borderStyle: "dashed",
+                            }}
+                          />
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Edit basic item details">
+                              Manage Branch <Icons.down fontSize="small" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                onSelect={() => {
+                                  setEditBranchId(branch?.code);
+                                }}
+                                className="flex items-center gap-[10px]"
+                              >
+                                <Icons.edit fontSize="small" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="flex items-center gap-[10px]">
+                                <Icons.delete fontSize="small" color="error" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </header>
+                        <div className="flex gap-[50px]  mt-4 ">
+                          <div className="grid w-[80%] grid-cols-4 gap-[20px] ">
+                            {[
+                              { label: "Branch Name", value: branch?.branch },
+                              { label: "State", value: branch?.state?.name },
+                              { label: "City", value: branch?.city },
+                              { label: "Pincode", value: branch?.pincode },
+                              { label: "Mobile", value: branch?.mobile },
+                              { label: "Email", value: branch?.email },
+                              { label: "GST IN", value: branch?.gstin },
+                              { label: "Complete Address", value: replaceBrWithNewLine(branch?.address) },
+                            ].map(({ label, value }) => (
+                              <div key={label} className={`py-3 ${label === "Complete Address" ? "col-span-2" : ""}`}>
+                                <Typography variant="body2" color="textSecondary" className="text-gray-600">
+                                  {label}:
+                                </Typography>
+                                <Typography variant="body1" fontWeight={500}>
+                                  {value || "N/A"}
+                                </Typography>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
 
                 <section id="attachments" aria-labelledby="attachments" className="mt-8">
                   <header className="flex items-center w-full gap-3">

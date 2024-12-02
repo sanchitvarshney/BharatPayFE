@@ -61,7 +61,7 @@ const Q2Statement: React.FC = () => {
   return (
     <div>
       <div className="grid grid-cols-[400px_1fr]">
-        <div className="p-[10px] flex flex-col gap-[10px] h-[calc(100vh-90px)] overflow-y-auto">
+        <div className="p-[10px] flex flex-col gap-[10px] h-[calc(100vh-100px)] overflow-y-auto">
           <Paper elevation={2} className="rounded-md ">
             <CardContent>
               <div className="py-[20px] flex flex-col gap-[30px]">

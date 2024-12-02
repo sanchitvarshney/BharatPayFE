@@ -52,7 +52,7 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
 
   return (
     <div>
-      <div className=" ag-theme-quartz h-[calc(100vh-85px)]">
+      <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
