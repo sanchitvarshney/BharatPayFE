@@ -2,9 +2,9 @@ import { Outlet } from "react-router-dom";
 import "./App.css";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import BugAndChat from "./components/shared/BugAndChat";
 import { useEffect, useState } from "react";
 import InternetStatusBar from "./components/shared/InternetStatusBar";
+import BugAndChat from "./components/shared/BugAndChat";
 
 dayjs.extend(customParseFormat);
 function App() {
@@ -34,13 +34,11 @@ function App() {
   }, []);
   return (
     <>
-    
-        <InternetStatusBar />
-        <div className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}>
-          <Outlet />
-          <BugAndChat />
-        </div>
-      
+      <InternetStatusBar />
+      <div className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}>
+        <Outlet />
+        {(import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME") && <BugAndChat />}
+      </div>
     </>
   );
 }

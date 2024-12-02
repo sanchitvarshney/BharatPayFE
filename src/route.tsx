@@ -65,7 +65,6 @@ import MasterComponentDeatil from "./pages/master/MasterComponentDeatil";
 import MaterVendorDetail from "./pages/master/MaterVendorDetail";
 import MasterCategory from "./pages/master/MasterCategory";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
-import BugAndChat from "./components/shared/BugAndChat";
 import MobileVerifyPage from "./pages/commonPages/MobileVerifyPage";
 import VerifyMobileAndEmail from "./pages/commonPages/VerifyMobileAndEmail";
 
@@ -572,7 +571,7 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication={true}>
         <MailVerifyPage />
-        <BugAndChat />
+        {/* <BugAndChat /> */}
       </Protected>
     ),
     path: "/verify-mail",
@@ -581,7 +580,7 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication={true}>
         <MobileVerifyPage />
-        <BugAndChat />
+        {/* <BugAndChat /> */}
       </Protected>
     ),
     path: "/verify-mobile",
@@ -590,7 +589,7 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication={true}>
         <VerifyMobileAndEmail />
-        <BugAndChat />
+        {/* <BugAndChat /> */}
       </Protected>
     ),
     path: "/verify-mobile-mail",

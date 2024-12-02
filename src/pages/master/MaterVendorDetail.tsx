@@ -79,16 +79,7 @@ const MaterVendorDetail: React.FC = () => {
                 </div>
               }
             />
-            <Tab
-              value="billing-address"
-              label={
-                <div className="flex w-full items-start gap-[10px]">
-                  <Typography fontSize={13} className="capitalize">
-                    Billing Address
-                  </Typography>
-                </div>
-              }
-            />
+          
             <Tab
               value="GST"
               label={
@@ -239,48 +230,7 @@ const MaterVendorDetail: React.FC = () => {
                 </div>
               </section>
 
-              <section id="billing-address" aria-labelledby="stock-details" className="mt-8">
-                <header className="flex items-center w-full gap-3">
-                  <h2 className="text-lg font-semibold">Billing Address</h2>
-                  <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
-                  <button type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Add alternate UOM">
-                    <Icons.add fontSize="small" sx={{ fontSize: "15px" }} />
-                    Add Billing Address
-                  </button>
-                </header>
-              </section>
-              <div className="grid grid-cols-4 gap-[30px] my-[20px]">
-                <div className="flex items-start justify-between w-full gap-[20px] ">
-                  <div>
-                    <Typography variant="body2" color="textSecondary" className="text-gray-600">
-                      Loaction 1
-                    </Typography>
-                    <Typography variant="inherit" fontSize={13}>
-                      Unit No 321, Tower - 4, Assotech Business Cresterra, Sector 135, Expressway Noida, UP 201304
-                    </Typography>
-                  </div>
-                  <div>
-                    <IconButton size="small" id="fade-button-1" aria-controls={open ? "fade-menu-1" : undefined} aria-haspopup="true" aria-expanded={open ? "true" : undefined} onClick={handleClick}>
-                      <Icons.threedotv fontSize="small" />
-                    </IconButton>
-                  </div>
-                </div>
-                <div className="flex items-start justify-between w-full gap-[20px] ">
-                  <div>
-                    <Typography variant="body2" color="textSecondary" className="text-gray-600">
-                      Loaction 2
-                    </Typography>
-                    <Typography variant="inherit" fontSize={13}>
-                      Unit No 321, Tower - 4, Assotech Business Cresterra, Sector 135, Expressway Noida, UP 201304
-                    </Typography>
-                  </div>
-                  <div>
-                    <IconButton size="small" id="fade-button-2" aria-controls={open ? "fade-menu-2" : undefined} aria-haspopup="true" aria-expanded={open ? "true" : undefined} onClick={handleClick}>
-                      <Icons.threedotv fontSize="small" />
-                    </IconButton>
-                  </div>
-                </div>
-              </div>
+             
 
               <section id="GST" aria-labelledby="attachments" className="mt-8">
                 <header className="flex items-center w-full gap-3">

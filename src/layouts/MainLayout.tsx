@@ -18,8 +18,10 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
+import { useAppSelector } from "@/hooks/useReduxHook";
 function MainLayout(props: { children: React.ReactNode }) {
   const { isConnected, refreshConnection, isLoading } = useSocketContext();
+  const { menu } = useAppSelector((state) => state.menu);
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
@@ -102,9 +104,7 @@ function MainLayout(props: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-[20px]">
             <div className="toggle"></div>
-            <div className="search">
-              <QuickLink />
-            </div>
+            <div className="search">{menu && <QuickLink />}</div>
             <div className="download">
               <DownloadIndecator />
             </div>
@@ -144,7 +144,7 @@ function MainLayout(props: { children: React.ReactNode }) {
             <MuiTooltip title="SOP" placement="right">
               <IconButton
                 onClick={() => {
-                  navigate("/sop")
+                  navigate("/sop");
                   setSheet2Open(false);
                   setSheetOpen(false);
                   setFavoriteSheet(false);
