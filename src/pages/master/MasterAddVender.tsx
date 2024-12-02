@@ -20,6 +20,7 @@ import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
 import { Controller, useForm } from "react-hook-form";
 import { Branch, VendorCreatePayload, VendorData } from "@/features/master/vendor/vendorType";
+import SelectState, { StateData } from "@/components/reusable/SelectState";
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<unknown>;
@@ -40,7 +41,7 @@ type FormDataType = {
   paymenttermsdays: string;
   einvoiceapplicability: "Y" | "N";
   branch: string;
-  state: string;
+  state: StateData | null;
   city: string;
   address: string;
   pincode: string;
@@ -79,7 +80,7 @@ const MasterAddVender: React.FC = () => {
       paymenttermsdays: "",
       einvoiceapplicability: "N",
       branch: "",
-      state: "",
+      state: null,
       city: "",
       address: "",
       pincode: "",
@@ -111,7 +112,7 @@ const MasterAddVender: React.FC = () => {
       cinno: data.cin,
       gstin: data.gst,
       mobile: data.mobile,
-      state: data.state,
+      state: data.state?.Code || "",
       city: data.city,
       address: data.address,
       pincode: data.pincode,
@@ -126,7 +127,7 @@ const MasterAddVender: React.FC = () => {
     };
     const branch: Branch = {
       branch: data.branch,
-      state: data.state,
+      state: data.state?.Code || "",
       city: data.city,
       address: data.address,
       pincode: data.pincode,
@@ -408,8 +409,6 @@ const MasterAddVender: React.FC = () => {
                 name="gst"
                 rules={{
                   required: "GST Number is required",
-
-                 
                 }}
                 render={({ field }) => (
                   <TextField
@@ -459,22 +458,7 @@ const MasterAddVender: React.FC = () => {
                   },
                 }}
               />
-              <TextField
-                label="State"
-                {...register("state", { required: "State is required" })}
-                error={!!errors.state}
-                helperText={errors.state?.message}
-                variant="filled"
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Icons.city />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
+              <Controller rules={{ required: "State is required" }} control={control} name="state" render={({ field }) => <SelectState error={!!errors.state} varient="filled" helperText={errors.state?.message} onChange={field.onChange} value={field.value} />} />
               <TextField
                 {...register("city", { required: "City is required" })}
                 error={!!errors.city}

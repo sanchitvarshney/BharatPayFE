@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { VendorBarnchResponse, VendorCreatePayload, VendorResponse, VendorState } from "./vendorType";
+import { UpadteVendorBranchPayload, VendorBarnchResponse, VendorCreatePayload, VendorResponse, VendorState } from "./vendorType";
 import { showToast } from "@/utils/toasterContext";
 
 const initialState: VendorState = {
@@ -12,14 +12,20 @@ const initialState: VendorState = {
   uploadfileloading: false,
   vendorDetail: null,
   getVendorDetailLoading: false,
+  updateVendorBranchLoading: false,
 };
 
 export const getVendor = createAsyncThunk<AxiosResponse<VendorResponse>>("master/vendor/getVendor", async () => {
   const response = await axiosInstance.get(`/vendor/vendorList`);
   return response;
 });
+
 export const getVendorBranch = createAsyncThunk<AxiosResponse<VendorBarnchResponse>, string>("master/vendor/getVendorBranch", async (id) => {
   const response = await axiosInstance.get(`/vendor/vendorDetail/${id}`);
+  return response;
+});
+export const updateVendorBranch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpadteVendorBranchPayload>("master/vendor/updateVendor", async (payload) => {
+  const response = await axiosInstance.put(`/vendor/updateVendorBranch`, payload);
   return response;
 });
 export const createVendor = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, VendorCreatePayload>("master/vendor/createVendor", async (payload) => {
@@ -92,6 +98,18 @@ const vendorSlice = createSlice({
       })
       .addCase(uploadFile.rejected, (state) => {
         state.uploadfileloading = false;
+      })
+      .addCase(updateVendorBranch.pending, (state) => {
+        state.updateVendorBranchLoading = true;
+      })
+      .addCase(updateVendorBranch.fulfilled, (state, action) => {
+        state.updateVendorBranchLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateVendorBranch.rejected, (state) => {
+        state.updateVendorBranchLoading = false;
       });
   },
 });
