@@ -92,7 +92,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
   }, []);
 
   return (
-    <div ref={modalRef} className={` absolute  h-[100vh] w-[300px] z-[60] top-0 bg-cyan-800 transition-all duration-500 ${sheetOpen ? "left-[60px]" : "left-[-300px]"}`}>
+    <div ref={modalRef} className={` absolute  h-[100vh] w-[300px] z-[60] top-0 bg-cyan-800 transition-all duration-300 ${sheetOpen ? "left-[60px]" : "left-[-300px]"}`}>
       <Button variant={"outline"} onClick={() => setSheetOpen(false)} className="cursor-pointer absolute top-[10px] right-[10px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white">
         <FaArrowLeftLong className="text-[20px] " />
       </Button>
@@ -119,7 +119,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
                   <ChevronRight />
                 </div>
                 <div
-                  className={`top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600   right-[0] w-[0]  opacity-0 overflow-hidden  transition-all duration-300 group-hover:w-[400px] group-hover:opacity-100 group-hover:right-[-400px] rounded-md ${
+                  className={`top-[10px] bottom-[10px] z-[-9] bg-cyan-950 shadow absolute border-l border-slate-600 hidden   left-[300px] w-[400px] overflow-hidden  opacity-0   transition-opacity duration-300 group-hover:${sheetOpen && "block"} group-hover:opacity-100     rounded-md ${
                     !sheetOpen && "hidden"
                   }`}
                 >
