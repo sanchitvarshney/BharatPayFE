@@ -221,7 +221,7 @@ export const router = createBrowserRouter([
             </CustomRedirection>
           </MainLayout>
         ),
-        path: "/master-vender-add",
+        path: "/master-vendor-add",
       },
       {
         element: (
@@ -231,14 +231,13 @@ export const router = createBrowserRouter([
             </CustomRedirection>
           </MainLayout>
         ),
-        path: "/master-vende/:id",
+        path: "/master-vendor/:id",
       },
       {
         element: (
           <MainLayout>
             <MasterVenderLayout>
               <CustomRedirection UnderDevelopment={false}>
-                {" "}
                 <MsterVendorDetail />
               </CustomRedirection>
             </MasterVenderLayout>
@@ -404,7 +403,7 @@ export const router = createBrowserRouter([
             <ProductionCreate />
           </MainLayout>
         ),
-        path: "/production/craete",
+        path: "/production/create",
       },
       {
         element: (

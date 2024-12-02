@@ -102,8 +102,8 @@ const VerifyMobileAndEmail: React.FC = () => {
           <Typography variant="inherit" fontSize={15} gutterBottom>
             Please enter the verification code sent to your 9************12 and s********g@m*******.in
           </Typography>
-          <div className="w-full h-[250px] overflow-hidden flex items-end justify-center bg-teal-100">
-            <img src="./mailverify.png" alt="" className="w-[50%]" />
+          <div className="w-full h-[300px] overflow-hidden flex items-end justify-center bg-teal-100">
+            <img src="./verify1.svg" alt="" className="w-[50%]" />
           </div>
           <div className="flex flex-col gap-[20px] mt-[20px] justify-start items-center">
             <div className="grid grid-cols-2 gap-[10px]  w-full">
