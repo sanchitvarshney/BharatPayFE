@@ -15,7 +15,7 @@ const { RangePicker } = DatePicker;
 const dateFormat = "YYYY/MM/DD";
 const PendingPPR: React.FC = () => {
   const [wise, setWise] = React.useState<string>("sku");
- 
+
   return (
     <div className="h-[calc(100vh-100px)]">
       <div className="h-[50px] flex justify-between items-center">
@@ -32,8 +32,16 @@ const PendingPPR: React.FC = () => {
                 { value: "date", label: "Date Wise" },
               ]}
             />
-            {wise === "sku" ? <CustomSelect className="w-[300px]" placeholder="Product SKU" /> : wise === "pprs" ? <CustomSelect className="w-[300px]" placeholder="PPR Status" /> : wise === "pprn" ? <Input className="w-[300px]" /> : wise === "date" ? <RangePicker presets={rangePresets} defaultValue={[dayjs("2015/01/01", dateFormat), dayjs("2015/01/01", dateFormat)]} format={dateFormat} /> : null}
-       
+            {wise === "sku" ? (
+              <CustomSelect className="w-[300px]" placeholder="Product SKU" />
+            ) : wise === "pprs" ? (
+              <CustomSelect className="w-[300px]" placeholder="PPR Status" />
+            ) : wise === "pprn" ? (
+              <Input className="w-[300px]" />
+            ) : wise === "date" ? (
+              <RangePicker presets={rangePresets} defaultValue={[dayjs("2015/01/01", dateFormat), dayjs("2015/01/01", dateFormat)]} format={dateFormat} />
+            ) : null}
+
             <CustomButton className="bg-cyan-700 hover:bg-cyan-800" icon={<Search className="h-[18px] w-[18px]" />}>
               Download
             </CustomButton>

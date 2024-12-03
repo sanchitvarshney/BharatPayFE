@@ -7,10 +7,8 @@ import { AgGridReact } from "@ag-grid-community/react";
 
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import { Divider, Drawer, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { showToast } from "@/utils/toasterContext";
-import DownloadIcon from "@mui/icons-material/Download";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getr5Report } from "@/features/report/report/reportSlice";
 import IconButton from "@mui/material/IconButton";
@@ -19,11 +17,15 @@ import CloseIcon from "@mui/icons-material/Close";
 import R5ReportTable from "@/table/report/R5ReportTable";
 import R5ReportDetail from "@/table/report/R5ReportDetail";
 import { rangePresets } from "@/utils/rangePresets";
+import { Icons } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 
 const R5report: React.FC = () => {
+  const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { r5reportLoading, r5report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DATE");
@@ -64,58 +66,82 @@ const R5report: React.FC = () => {
         <Divider />
         <R5ReportDetail />
       </Drawer>
-      <div className="bg-white h-[calc(100vh-90px)] overflow-x-hidden">
-        <div className="h-[90px] flex items-center justify-between px-[20px] gap-[20px]">
-          <div className="flex items-center gap-[10px]">
-            <FormControl sx={{ minWidth: "300px" }}>
+      <div className="bg-white h-[calc(100vh-100px)] overflow-x-hidden flex">
+        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300  relative ${colapse ? "min-w-[15px] max-w-[15px]" : "min-w-[400px] max-w-[400px] "}`}>
+          <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
+            {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+          </Button>
+          <div className="flex flex-col gap-[20px] mr-[15px] mt-[20px] p-[20px] overflow-hidden">
+            <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
                 <MenuItem value={"DEVICE"}>SKU</MenuItem>
                 <MenuItem value={"DATE"}>Date</MenuItem>
               </Select>
             </FormControl>
-            {filter === "DEVICE" && <SelectSku width="300px" varient="outlined" onChange={(e) => setDevice(e)} value={device} />}
+            {filter === "DEVICE" && <SelectSku varient="outlined" onChange={(e) => setDevice(e)} value={device} />}
             {filter === "DATE" && (
               <RangePicker
-                className="w-[300px]  h-[50px] border-2 rounded-lg border-neutral-300 rounded-0 "
+                className="w-full  h-[50px] border-2 rounded-lg border-neutral-300 rounded-0 "
                 presets={rangePresets}
                 onChange={handleDateChange}
                 disabledDate={(current) => current && current > dayjs()}
                 placeholder={["Start date", "End Date"]}
                 value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
-                format="DD/MM/YYYY" // Update with your desired format
+                format="DD-MM-YYYY" // Update with your desired format
               />
             )}
-            <LoadingButton
-              loading={r5reportLoading}
-              variant="contained"
-              startIcon={<FilterAltIcon fontSize="small" />}
-              loadingPosition="start"
-              onClick={() => {
-                if (filter === "DEVICE") {
-                  if (!device) {
-                    showToast("Please select a device", "error");
-                  } else {
-                    dispatch(getr5Report({ type: "DEVICE", device: device?.id }));
+            <div className="flex items-center justify-between">
+              <LoadingButton
+                loading={r5reportLoading}
+                variant="contained"
+                startIcon={<Icons.search fontSize="small" />}
+                loadingPosition="start"
+                onClick={() => {
+                  if (filter === "DEVICE") {
+                    if (!device) {
+                      showToast("Please select a device", "error");
+                    } else {
+                      dispatch(getr5Report({ type: "DEVICE", device: device?.id }));
+                    }
                   }
-                }
-                if (filter === "DATE") {
-                  if (!date.from || !date.to) {
-                    showToast("Please select a date", "error");
-                  } else {
-                    dispatch(getr5Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  if (filter === "DATE") {
+                    if (!date.from || !date.to) {
+                      showToast("Please select a date", "error");
+                    } else {
+                      dispatch(getr5Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                    }
                   }
-                }
-              }}
-            >
-              Filter
-            </LoadingButton>
+                }}
+              >
+                Search
+              </LoadingButton>
+
+              <MuiTooltip title="Download" placement="right">
+                <LoadingButton
+                  variant="contained"
+                  disabled={!r5report}
+                  onClick={onBtExport}
+                  color="primary"
+                  style={{
+                    borderRadius: "50%",
+                    width: 30,
+                    height: 30,
+                    minWidth: 0,
+                    padding: 0,
+                  }}
+                  size="small"
+                  sx={{ zIndex: 1 }}
+                >
+                  <Icons.download fontSize="small" />
+                </LoadingButton>
+              </MuiTooltip>
+            </div>
           </div>
-          <LoadingButton disabled={!r5report} variant="contained" startIcon={<DownloadIcon fontSize="small" />} onClick={onBtExport}>
-            Download
-          </LoadingButton>
         </div>
-        <R5ReportTable setTxn={setTxn} setOpen={setOpen} gridRef={gridRef} />
+        <div className="w-full">
+          <R5ReportTable setTxn={setTxn} setOpen={setOpen} gridRef={gridRef} />
+        </div>
       </div>
     </>
   );

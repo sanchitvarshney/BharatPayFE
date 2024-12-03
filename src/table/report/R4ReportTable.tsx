@@ -60,7 +60,7 @@ const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen }) => {
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-175px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}

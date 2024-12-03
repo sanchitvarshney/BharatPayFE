@@ -51,11 +51,12 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
           </LoadingButton>
         </div>
       ),
+      pinned: "right",
     },
   ];
 
   return (
-    <div className="relative ag-theme-quartz h-[calc(100vh-175px)]">
+    <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
       <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data ? r2Data : []} pagination={true} />
     </div>
   );

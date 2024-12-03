@@ -64,7 +64,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setOpen, setTxn }) => {
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-180px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}

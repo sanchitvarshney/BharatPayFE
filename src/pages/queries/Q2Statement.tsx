@@ -98,7 +98,7 @@ const Q2Statement: React.FC = () => {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px] border-t gap-[10px]">
+              <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px]  gap-[10px]">
                 <LoadingButton
                   variant="contained"
                   loadingPosition="start"

@@ -7,10 +7,8 @@ import { AgGridReact } from "@ag-grid-community/react";
 import R4ReportTable from "@/table/report/R4ReportTable";
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { showToast } from "@/utils/toasterContext";
-import DownloadIcon from "@mui/icons-material/Download";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getr4Report } from "@/features/report/report/reportSlice";
 import Dialog from "@mui/material/Dialog";
@@ -31,6 +29,9 @@ import PersonIcon from "@mui/icons-material/Person";
 import R4ReportDetailTable from "@/table/report/R4ReportDetailTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { rangePresets } from "@/utils/rangePresets";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<unknown>;
@@ -43,6 +44,7 @@ dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 
 const R4Report: React.FC = () => {
+  const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { r4reportLoading, r4ReportDetail, r4ReportDetailLoading, r4report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DEVICE");
@@ -57,7 +59,7 @@ const R4Report: React.FC = () => {
     setOpen(false);
   };
   const gridRef = useRef<AgGridReact<any>>(null);
- 
+
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
       setDate({ from: range[0], to: range[1] });
@@ -125,20 +127,23 @@ const R4Report: React.FC = () => {
           </div>
         </div>
       </Dialog>
-      <div className="bg-white h-[calc(100vh-90px)]">
-        <div className="h-[90px] flex items-center justify-between px-[20px] gap-[20px]">
-          <div className="flex items-center gap-[10px]">
-            <FormControl sx={{ minWidth: "300px"}}>
+      <div className="bg-white h-[calc(100vh-100px)] flex">
+        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300  relative ${colapse ? "min-w-[15px] max-w-[15px]" : "min-w-[400px] max-w-[400px] "}`}>
+          <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
+            {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+          </Button>
+          <div className="flex  gap-[20px] flex-col  mr-[15px] p-[20px] overflow-hidden mt-[20px]">
+            <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
                 <MenuItem value={"DEVICE"}>SKU</MenuItem>
                 <MenuItem value={"DATE"}>Date</MenuItem>
               </Select>
             </FormControl>
-            {filter === "DEVICE" && <SelectSku width="300px" varient="outlined" onChange={(e) => setDevice(e)} value={device} />}
+            {filter === "DEVICE" && <SelectSku varient="outlined" onChange={(e) => setDevice(e)} value={device} />}
             {filter === "DATE" && (
               <RangePicker
-                className="w-[300px] h-[55px] border-2 rounded-lg border-neutral-300 rounded-0 "
+                className="w-full h-[55px] border-2 rounded-lg border-neutral-300 rounded-0 "
                 presets={rangePresets}
                 onChange={handleDateChange}
                 disabledDate={(current) => current && current > dayjs()}
@@ -147,36 +152,58 @@ const R4Report: React.FC = () => {
                 format="DD/MM/YYYY" // Update with your desired format
               />
             )}
-            <LoadingButton
-              loading={r4reportLoading}
-              variant="contained"
-              startIcon={<FilterAltIcon fontSize="small" />}
-              loadingPosition="start"
-              onClick={() => {
-                if (filter === "DEVICE") {
-                  if (!device) {
-                    showToast("Please select a device", "error");
-                  } else {
-                    dispatch(getr4Report({ type: "DEVICE", device: device?.id }));
+            <div className="flex justify-between itesms-center">
+              <LoadingButton
+                loading={r4reportLoading}
+                variant="contained"
+                startIcon={<Icons.search fontSize="small" />}
+                loadingPosition="start"
+                onClick={() => {
+                  if (filter === "DEVICE") {
+                    if (!device) {
+                      showToast("Please select a device", "error");
+                    } else {
+                      dispatch(getr4Report({ type: "DEVICE", device: device?.id }));
+                    }
                   }
-                }
-                if (filter === "DATE") {
-                  if (!date.from || !date.to) {
-                    showToast("Please select a date", "error");
-                  } else {
-                    dispatch(getr4Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  if (filter === "DATE") {
+                    if (!date.from || !date.to) {
+                      showToast("Please select a date", "error");
+                    } else {
+                      dispatch(getr4Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                    }
                   }
-                }
-              }}
-            >
-              Filter
-            </LoadingButton>
+                }}
+              >
+                Search
+              </LoadingButton>
+              <MuiTooltip title="Download" placement="right">
+                <LoadingButton
+                  variant="contained"
+                  disabled={!r4report} 
+                  
+                  onClick={onBtExport}
+                  color="primary"
+                  style={{
+                    borderRadius: "50%",
+                    width: 30,
+                    height: 30,
+                    minWidth: 0,
+                    padding: 0,
+                  }}
+                  size="small"
+                  sx={{ zIndex: 1 }}
+                >
+                  <Icons.download fontSize="small" />
+                </LoadingButton>
+              </MuiTooltip>
+            
+            </div>
           </div>
-          <LoadingButton disabled={!r4report} variant="contained" startIcon={<DownloadIcon fontSize="small" />} onClick={onBtExport}>
-            Download
-          </LoadingButton>
         </div>
-        <R4ReportTable setOpen={setOpen} gridRef={gridRef} />
+        <div className="w-full ">
+          <R4ReportTable setOpen={setOpen} gridRef={gridRef} />
+        </div>
       </div>
     </>
   );
