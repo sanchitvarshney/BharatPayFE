@@ -42,6 +42,9 @@ import PasswordIcon from '@mui/icons-material/Password';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SecurityUpdateGoodIcon from '@mui/icons-material/SecurityUpdateGood';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import ChatIcon from '@mui/icons-material/Chat';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -86,5 +89,8 @@ export const Icons = {
   code:PasswordIcon,
   logout:LogoutIcon,
   mobile:SecurityUpdateGoodIcon,
-  right:KeyboardArrowRightIcon
+  right:KeyboardArrowRightIcon,
+  chat:ChatIcon,
+  visible:Visibility,
+  invisible:VisibilityOff
 };

@@ -3,7 +3,14 @@ export interface LoginCredentials {
     password: string;
   }
   
-export   type LoginResponse = {
+  export type PasswordChangePayload = {
+    userId: string;
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  };
+  
+  export   type LoginResponse = {
     data: {
       token: string;
       department: string;
@@ -41,4 +48,5 @@ export   type LoginResponse = {
     user: LoginResponse | null;
     loading: boolean;
     token: string | null;
+    changepasswordloading: boolean;
   }

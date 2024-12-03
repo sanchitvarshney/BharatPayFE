@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { AddVendorBranchPayload, UpadteVendorBranchPayload, VendorBarnchResponse, VendorCreatePayload, VendorResponse, VendorState } from "./vendorType";
+import { AddVendorBranchPayload, UpadteVendorBranchPayload, VendorBarnchResponse, VendorBasicDetailUpdatePayload, VendorCreatePayload, VendorResponse, VendorState } from "./vendorType";
 import { showToast } from "@/utils/toasterContext";
 
 const initialState: VendorState = {
@@ -14,6 +14,7 @@ const initialState: VendorState = {
   getVendorDetailLoading: false,
   updateVendorBranchLoading: false,
   addvendorbranchLoading: false,
+  vendorBasicDetailUpdateLoading: false,
 };
 
 export const getVendor = createAsyncThunk<AxiosResponse<VendorResponse>>("master/vendor/getVendor", async () => {
@@ -27,6 +28,10 @@ export const getVendorBranch = createAsyncThunk<AxiosResponse<VendorBarnchRespon
 });
 export const updateVendorBranch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpadteVendorBranchPayload>("master/vendor/updateVendor", async (payload) => {
   const response = await axiosInstance.put(`/vendor/updateVendorBranch`, payload);
+  return response;
+});
+export const updateBasicDetail = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, VendorBasicDetailUpdatePayload>("master/vendor/updateBasicDetail", async (payload) => {
+  const response = await axiosInstance.put(`/vendor/updateVendorBasicDetail`, payload);
   return response;
 });
 export const addVendorBranch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, AddVendorBranchPayload>("master/vendor/addVendorBranch", async (payload) => {
@@ -127,6 +132,18 @@ const vendorSlice = createSlice({
       })
       .addCase(updateVendorBranch.rejected, (state) => {
         state.updateVendorBranchLoading = false;
+      })
+      .addCase(updateBasicDetail.pending, (state) => {
+        state.vendorBasicDetailUpdateLoading = true;
+      })
+      .addCase(updateBasicDetail.fulfilled, (state, action) => {
+        state.vendorBasicDetailUpdateLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateBasicDetail.rejected, (state) => {
+        state.vendorBasicDetailUpdateLoading = false;
       });
   },
 });

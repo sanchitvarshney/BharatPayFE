@@ -1,5 +1,5 @@
-import { Button, Divider, FormControl, IconButton, Input, InputAdornment, InputLabel, ListItem, Switch, TextField, Typography } from "@mui/material";
-import React from "react";
+import { Button, Divider, IconButton, InputAdornment, LinearProgress, ListItem, Switch, TextField, Typography } from "@mui/material";
+import React, { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Box from "@mui/material/Box";
@@ -18,10 +18,33 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
 import CloseIcon from "@mui/icons-material/Close";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useUser } from "@/hooks/useUser";
+import { Icons } from "@/components/icons";
+import { CheckCircle } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { PasswordChangePayload } from "@/features/authentication/authType";
+import { changePasswordAsync } from "@/features/authentication/authSlice";
+import { showToast } from "@/utils/toasterContext";
+
+const schema = z
+  .object({
+    oldPassword: z.string().min(1, "Old password is required"), // Old password must be filled
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+    confirmPassword: z.string().min(1, "password is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"], // This highlights confirmPassword in case of an error
+  });
+type FormValues = z.infer<typeof schema>;
+
 const ProfilePage: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { changepasswordloading } = useAppSelector((state) => state.auth);
   const { user } = useUser();
   const [tab, setTab] = React.useState("P");
   const [editFullName, setEditFullName] = React.useState(false);
@@ -29,15 +52,69 @@ const ProfilePage: React.FC = () => {
   const [editPhone, setEditPhone] = React.useState(false);
   const [changePassword, setChangePassword] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState<boolean>(false);
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    label: "",
+  });
+  const [passwordChecks, setPasswordChecks] = useState({
+    hasUpperCase: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+    isValidLength: false,
+  });
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      oldPassword: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const checkPasswordStrength = (password: string) => {
+    const checks = {
+      hasUpperCase: /[A-Z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecialChar: /[^a-zA-Z0-9]/.test(password),
+      isValidLength: password.length >= 8 && password.length <= 16,
+    };
 
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+    const score = Object.values(checks).filter((check) => check).length;
+
+    setPasswordChecks(checks);
+
+    let label = "";
+    if (score <= 2) label = "Weak";
+    else if (score === 3) label = "Medium";
+    else label = "Strong";
+
+    setPasswordStrength({ score, label });
   };
 
-  const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  const onSubmit = (data: FormValues) => {
+    const payload: PasswordChangePayload = {
+      oldPassword: data.oldPassword,
+      newPassword: data.password,
+      confirmPassword: data.confirmPassword,
+      userId: user?.crn_id || "",
+    };
+    if (data.oldPassword === data.password) {
+      showToast("New password cannot be same as old password", "error");
+    } else {
+      dispatch(changePasswordAsync(payload)).then((res: any) => {
+        if (res.payload?.data?.success) {
+          setChangePassword(false);
+          reset();
+        }
+      });
+    }
   };
 
   return (
@@ -118,57 +195,150 @@ const ProfilePage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog
-        open={changePassword}
-        onClose={() => setChangePassword(false)}
-        PaperProps={{
-          component: "form",
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            // const formData = new FormData(event.currentTarget);
-            // const formJson = Object.fromEntries((formData as any).entries());
-          },
-        }}
-      >
-        <DialogTitle>Reset Password</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Update your password to keep your account secure. Use a combination of letters, numbers, and special characters for better protection.</DialogContentText>
-          <Grid container spacing={2} sx={{ mt: 2 }}>
-            <Grid size={6}>
-              <TextField size="small" autoFocus required margin="dense" id="Cpassword" name="Cpassword" label="Current Password" type="text" fullWidth variant="standard" />
-            </Grid>
-            <Grid size={6}>
-              <FormControl size="small" required sx={{ width: "100%" }} variant="standard">
-                <InputLabel htmlFor="standard-adornment-password">New Password</InputLabel>
-                <Input
-                  id="standard-adornment-password"
-                  type={showPassword ? "text" : "password"}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton aria-label={showPassword ? "hide the password" : "display the password"} onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} onMouseUp={handleMouseUpPassword}>
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
+      <Dialog maxWidth="lg" open={changePassword} onClose={() => setChangePassword(false)}>
+        <div className="absolute top-0 left-0 right-0">{changepasswordloading && <LinearProgress />}</div>
+        <div className="flex items-center justify-between w-full pr-[20px]">
+          <DialogTitle>Reset Password</DialogTitle>
+          <IconButton
+            onClick={() => {
+              setChangePassword(false);
+              reset();
+            }}
+          >
+            <Icons.close />
+          </IconButton>
+        </div>
+        <Divider />
+        <DialogContent className="min-w-[700px]">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid grid-cols-2">
+              <div className="flex flex-col gap-[20px] px-[20px]">
+                <TextField
+                  {...register("oldPassword")}
+                  error={!!errors.oldPassword}
+                  helperText={errors.oldPassword?.message}
+                  margin="dense"
+                  label="Current Password"
+                  type="text"
+                  fullWidth
+                  variant="filled"
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Icons.code fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                 />
-              </FormControl>
-            </Grid>
-            <Grid size={6}>
-              <TextField size="small" autoFocus required margin="dense" id="Copassword" name="Copassword" label="Confirm Password" type="text" fullWidth variant="standard" />
-            </Grid>
-            <Grid size={6}>
-              <TextField size="small" autoFocus required margin="dense" id="2stepVCode" name="2stepVCode" label="Enter 2 Step Verification Code" type="text" fullWidth variant="standard" />
-            </Grid>
-          </Grid>
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      value={field.value}
+                      onChange={(e) => {
+                        checkPasswordStrength(e.target.value);
+                        field.onChange(e);
+                      }}
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {showPassword ? (
+                                <IconButton onClick={() => setShowPassword(false)} size="small">
+                                  <Icons.visible fontSize="small" />
+                                </IconButton>
+                              ) : (
+                                <IconButton size="small" onClick={() => setShowPassword(true)}>
+                                  <Icons.invisible fontSize="small" />
+                                </IconButton>
+                              )}
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
+                      margin="dense"
+                      label="New Password"
+                      type={showPassword ? "text" : "password"}
+                      fullWidth
+                      variant="filled"
+                    />
+                  )}
+                />
+                <TextField
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {showConfirmPassword ? (
+                            <IconButton onClick={() => setShowConfirmPassword(false)} size="small">
+                              <Icons.visible fontSize="small" />
+                            </IconButton>
+                          ) : (
+                            <IconButton size="small" onClick={() => setShowConfirmPassword(true)}>
+                              <Icons.invisible fontSize="small" />
+                            </IconButton>
+                          )}
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  {...register("confirmPassword")}
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword?.message}
+                  margin="dense"
+                  label="Confirm Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  fullWidth
+                  variant="filled"
+                />
+                <Button disabled={changepasswordloading} variant="contained" type="submit">
+                  Update
+                </Button>
+              </div>
+
+              <div className="px-[20px] border-l border-gray-200 min-w-[400px]">
+                <Typography gutterBottom variant="h3" fontWeight={600} fontSize={20}>
+                  Password Requirements
+                </Typography>
+
+                <ul className="space-y-5 text-lg text-gray-600">
+                  <li className={`flex items-center ${passwordChecks.hasUpperCase ? "text-green-600" : "text-gray-500"}`}>
+                    {passwordChecks.hasUpperCase ? <CheckCircle className="w-8 h-8 mr-4 text-green-600" /> : <div className="w-8 h-8 mr-4 text-gray-500" />}
+                    <span>At least one uppercase letter</span>
+                  </li>
+                  <li className={`flex items-center ${passwordChecks.hasNumber ? "text-green-600" : "text-gray-500"}`}>
+                    {passwordChecks.hasNumber ? <CheckCircle className="w-8 h-8 mr-4 text-green-600" /> : <div className="w-8 h-8 mr-4 text-gray-500" />}
+                    <span>At least one number</span>
+                  </li>
+                  <li className={`flex items-center ${passwordChecks.hasSpecialChar ? "text-green-600" : "text-gray-500"}`}>
+                    {passwordChecks.hasSpecialChar ? <CheckCircle className="w-8 h-8 mr-4 text-green-600" /> : <div className="w-8 h-8 mr-4 text-gray-500" />}
+                    <span>At least one special character</span>
+                  </li>
+                  <li className={`flex items-center ${passwordChecks.isValidLength ? "text-green-600" : "text-gray-500"}`}>
+                    {passwordChecks.isValidLength ? <CheckCircle className="w-8 h-8 mr-4 text-green-600" /> : <div className="w-8 h-8 mr-4 text-gray-500" />}
+                    <span>8-16 characters in length</span>
+                  </li>
+                </ul>
+                <div className="mt-8">
+                  <Typography variant="h4" fontWeight={600} fontSize={18}>
+                    Password Strength:
+                  </Typography>
+                  <div className="w-full h-3 mt-2 bg-gray-200 rounded-full">
+                    <div className={`h-3 rounded-full ${passwordStrength.label === "Strong" ? "bg-green-600" : passwordStrength.label === "Medium" ? "bg-yellow-600" : "bg-red-600"}`} style={{ width: `${passwordStrength.score * 25}%` }} />
+                  </div>
+                  <Typography gutterBottom fontWeight={600}>
+                    <span className={`${passwordStrength.label === "Strong" ? "text-green-600" : passwordStrength.label === "Medium" ? "text-yellow-600" : "text-red-600"}`}>{passwordStrength.label}</span>
+                  </Typography>
+                </div>
+              </div>
+            </div>
+          </form>
         </DialogContent>
-        <DialogActions>
-          <Button startIcon={<CloseIcon fontSize="small" />} variant="contained" sx={{ background: "white", color: "red" }} onClick={() => setChangePassword(false)}>
-            Cancel
-          </Button>
-          <Button startIcon={<SystemUpdateAltIcon fontSize="small" />} variant="contained" type="submit">
-            Reset
-          </Button>
-        </DialogActions>
       </Dialog>
       <div className="h-full bg-white">
         <Grid container spacing={2} sx={{ height: "calc(100vh - 50px)" }}>
@@ -370,8 +540,6 @@ English (United State)"
                 </Typography>
                 <div className="mt-[50px]">
                   <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-                   
-
                     <ListItem
                       sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}
                       secondaryAction={
@@ -406,7 +574,6 @@ English (United State)"
                         }}
                       />
                     </ListItem>
-                   
                   </List>
                 </div>
               </div>
