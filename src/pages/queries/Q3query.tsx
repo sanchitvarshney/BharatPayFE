@@ -20,7 +20,7 @@ const Q3query: React.FC = () => {
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
       <div className={` h-full flex   `}>
-        <div className={` transition-all h-full ${colapse ? "min-w-[16px] max-w-[0px]" : "min-w-[350px] max-w-[350px] "}  overflow-y-auto overflow-x-hidden border-r border-neutral-400/70 relative  `}>
+        <div className={` transition-all h-full ${colapse ? "min-w-[16px] max-w-[0px]" : "min-w-[400px] max-w-[400px] "}  overflow-y-auto overflow-x-hidden border-r border-neutral-400/70 relative  `}>
           <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
             {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
           </Button>

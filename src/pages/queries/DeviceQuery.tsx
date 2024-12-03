@@ -63,7 +63,7 @@ const DeviceQuery: React.FC = () => {
   return (
     <div className="bg-white">
       <div className="flex ">
-        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300 min-w-[400px] relative ${colapse ? "min-w-[15px] max-w-[15px]": "min-w-[400px] max-w-[400px] "}`}>
+        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300  relative ${colapse ? "min-w-[15px] max-w-[15px]": "min-w-[400px] max-w-[400px] "}`}>
           <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
             {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
           </Button>
