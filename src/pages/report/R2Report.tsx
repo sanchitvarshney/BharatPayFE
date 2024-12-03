@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { convertDateRangev2 } from "@/utils/converDateRangeUtills";
@@ -9,26 +9,21 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getR2Data } from "@/features/report/report/reportSlice";
 import R2ReportTable from "@/table/report/R2ReportTable";
 import LoadingButton from "@mui/lab/LoadingButton";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { showToast } from "@/utils/toasterContext";
-import DownloadIcon from "@mui/icons-material/Download";
 import { useSocketContext } from "@/components/context/SocketContext";
+import { rangePresets } from "@/utils/rangePresets";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
 
 const R2Report: React.FC = () => {
+  const [colapse, setcolapse] = useState<boolean>(false);
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [open, setOpen] = useState(false);
   const { emitDownloadReport, onDownloadReport } = useSocketContext();
-  const rangePresets: TimeRangePickerProps["presets"] = [
-    { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
-    { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
-    { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
-    { label: "Last 14 Days", value: [dayjs().add(-14, "d"), dayjs()] },
-    { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
-    { label: "Last 90 Days", value: [dayjs().add(-90, "d"), dayjs()] },
-  ];
 
   const dispatch = useAppDispatch();
   const { getR2DataLoading, refId } = useAppSelector((state) => state.report);
@@ -39,7 +34,6 @@ const R2Report: React.FC = () => {
   };
   useEffect(() => {
     onDownloadReport((_: any) => {
-      
       setLoading(false);
       showToast("Report downloaded successfully", "success");
     });
@@ -58,11 +52,15 @@ const R2Report: React.FC = () => {
         </CustomDrawerContent>
       </CustomDrawer>
 
-      <div className="bg-white">
-        <div className="h-[90px] flex items-center justify-between px-[20px] gap-[20px]">
-          <div className="flex items-center gap-[10px]">
+      <div className="bg-white h-[calc(100vh-100px)] flex">
+        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300  relative ${colapse ? "min-w-[15px] max-w-[15px]" : "min-w-[400px] max-w-[400px] "}`}>
+          <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
+            {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+          </Button>
+          
+          <div className=" flex flex-col  p-[20px] gap-[20px] mr-[15px] mt-[20px] overflow-hidden ">
             <RangePicker
-            className="h-[50px]"
+              className="h-[50px]"
               value={[date ? dayjs(date.from, dateFormat) : null, date ? dayjs(date.to, dateFormat) : null]}
               onChange={(value) => {
                 // Ensure the value is not null and correctly formatted
@@ -74,29 +72,51 @@ const R2Report: React.FC = () => {
               placeholder={["Start date", "End Date"]}
               format={dateFormat}
             />
-            <LoadingButton
-              loading={getR2DataLoading}
-              onClick={() => {
-                if (!date) {
-                  showToast("Please select a date", "error");
-                } else {
-                  dispatch(getR2Data(date)).then((res: any) => {
-                    if (res.payload?.data?.status === "success") {
-                    }
-                  });
-                }
-              }}
-              startIcon={<FilterAltIcon fontSize="small" />}
-              variant="contained"
-            >
-              Filter
-            </LoadingButton>
+            <div className="flex items-center justify-between">
+              <LoadingButton
+                loadingPosition="start"
+                loading={getR2DataLoading}
+                onClick={() => {
+                  if (!date) {
+                    showToast("Please select a date", "error");
+                  } else {
+                    dispatch(getR2Data(date)).then((res: any) => {
+                      if (res.payload?.data?.status === "success") {
+                      }
+                    });
+                  }
+                }}
+                startIcon={<Icons.search fontSize="small" />}
+                variant="contained"
+              >
+                Search
+              </LoadingButton>
+              <MuiTooltip title="Download" placement="right">
+                <LoadingButton
+                  variant="contained"
+                  disabled
+                  loading={loading}
+                  onClick={handleDownload}
+                  color="primary"
+                  style={{
+                    borderRadius: "50%",
+                    width: 30,
+                    height: 30,
+                    minWidth: 0,
+                    padding: 0,
+                  }}
+                  size="small"
+                  sx={{ zIndex: 1 }}
+                >
+                  <Icons.download fontSize="small" />
+                </LoadingButton>
+              </MuiTooltip>
+            </div>
           </div>
-          <LoadingButton variant="contained" startIcon={<DownloadIcon fontSize="small" />} disabled loading={loading} onClick={handleDownload}>
-            Download
-          </LoadingButton>
         </div>
-        <R2ReportTable setOpen={setOpen} />
+        <div className="w-full">
+          <R2ReportTable setOpen={setOpen} />
+        </div>
       </div>
     </>
   );

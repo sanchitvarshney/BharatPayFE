@@ -8,7 +8,7 @@ const ReportLayout: React.FC<Props> = ({ children }) => {
   return (
     <div>
       <Navslider />
-      <div className="h-[calc(100vh-85px)]">{children}</div>
+      <div className="h-[calc(100vh-100px)]">{children}</div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, NavLink } from "react-router-dom";
+import { useParams, NavLink, useNavigate, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Tabs, { tabsClasses } from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -12,17 +12,22 @@ interface NavSliderData {
 }
 
 export const queryNavSliderData: NavSliderData[] = [
-  { path: "#", name: "Q1", content: <p>SKU Statement</p> },
-  { path: "#", name: "Q2", content: <p>Raw Material Statement</p> },
-  { path: "#", name: "Q3", content: <p>Component Statement</p> },
+  { path: "/queries/Q1", name: "Q1", content: <p>SKU Statement</p> },
+  { path: "/queries/Q2", name: "Q2", content: <p>Raw Material Statement</p> },
+  { path: "/queries/Q3", name: "Q3", content: <p>Component Statement</p> },
 ];
 
 const QueryNavSlider: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [value, setValue] = React.useState(0);
+  const location = useLocation();
+
+  // Determine the active tab index based on the current route
+  const currentTabIndex = queryNavSliderData.findIndex((tab) => tab.path === location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+    navigate(queryNavSliderData[newValue].path);
   };
 
   React.useEffect(() => {
@@ -42,22 +47,19 @@ const QueryNavSlider: React.FC = () => {
     >
       <Tabs
         selectionFollowsFocus
-        value={value}
+        value={currentTabIndex !== -1 ? currentTabIndex : 0}
         onChange={handleChange}
         variant="scrollable"
         scrollButtons
         aria-label="query navigation slider"
         sx={{
-         
           [`& .${tabsClasses.scrollButtons}`]: {
             "&.Mui-disabled": { opacity: 0.3 },
           },
-         
         }}
       >
         {queryNavSliderData.map((link, index) => (
           <Tab
-         
             key={index}
             component={NavLink}
             to={`/queries/${link.name}`}
@@ -72,6 +74,7 @@ const QueryNavSlider: React.FC = () => {
               </div>
             }
             wrapped
+            onFocus={() => setValue(index)} // Update value on focus
           />
         ))}
       </Tabs>

@@ -17,20 +17,14 @@ import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker } from "antd";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkserial, clearLotList, getLotListData } from "@/features/production/QRCode/QRCodeSlice";
+import { rangePresets } from "@/utils/rangePresets";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
-const rangePresets: TimeRangePickerProps["presets"] = [
-  { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
-  { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
-  { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
-  { label: "Last 14 Days", value: [dayjs().add(-14, "d"), dayjs()] },
-  { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
-  { label: "Last 90 Days", value: [dayjs().add(-90, "d"), dayjs()] },
-];
+
 type RowData = {
   srno: string;
   operator: string;
@@ -43,7 +37,7 @@ type FormDataType = {
 };
 const MasterQrGenerator: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { getlotListLoading ,checkserialLoading} = useAppSelector((state) => state.qr);
+  const { getlotListLoading, checkserialLoading } = useAppSelector((state) => state.qr);
   const [resetAlert, setResetAlert] = React.useState(false);
   const [imei, setImei] = React.useState<string>("");
   const [rowData, setRowData] = React.useState<RowData[]>([]);

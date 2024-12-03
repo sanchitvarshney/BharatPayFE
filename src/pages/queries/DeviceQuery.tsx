@@ -1,7 +1,7 @@
 import { CardFooter } from "@/components/ui/card";
 import DeviceQueryRepoTable from "@/table/query/DeviceQueryRepoTable";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -19,6 +19,7 @@ import SelectLocation, { LocationType } from "@/components/reusable/SelectLocati
 import { showToast } from "../../utils/toasterContext";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { rangePresets } from "@/utils/rangePresets";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
@@ -34,14 +35,7 @@ const DeviceQuery: React.FC = () => {
   });
   const [value, setValue] = useState<DeviceType | null>(null);
   const [location, setLocation] = useState<LocationType | null>(null);
-  const rangePresets: TimeRangePickerProps["presets"] = [
-    { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
-    { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
-    { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
-    { label: "Last 14 Days", value: [dayjs().add(-14, "d"), dayjs()] },
-    { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
-    { label: "Last 90 Days", value: [dayjs().add(-90, "d"), dayjs()] },
-  ];
+
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
       setDate({ from: range[0], to: range[1] });
@@ -63,11 +57,11 @@ const DeviceQuery: React.FC = () => {
   return (
     <div className="bg-white">
       <div className="flex ">
-        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300 min-w-[400px] relative ${colapse ? "min-w-[15px] max-w-[15px]": "min-w-[400px] max-w-[400px] "}`}>
+        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300  relative ${colapse ? "min-w-[15px] max-w-[15px]" : "min-w-[400px] max-w-[400px] "}`}>
           <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
             {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
           </Button>
-          <div className="mr-[15px] h-full overflow-y-auto ">
+          <div className="mr-[15px] h-full overflow-y-auto mt-[20px]">
             <Paper elevation={0} className="rounded-md ">
               <CardContent className="relative">
                 <div className=" flex flex-col gap-[30px]">
@@ -106,7 +100,7 @@ const DeviceQuery: React.FC = () => {
                         format="DD/MM/YYYY" // Update with your desired format
                       />
                     </div>
-                    <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
+                    <div className={`absolute hidden transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
                       <SelectLocation value={location} onChange={(e) => setLocation(e)} size="medium" varient="outlined" />
                     </div>
                   </div>

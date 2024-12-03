@@ -17,9 +17,10 @@ type Props = {
   varient?: "outlined" | "standard" | "filled";
   required?: boolean;
   size?: "small" | "medium";
+  tabindex?:number
 };
 
-const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" }) => {
+const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" ,tabindex=0}) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -48,6 +49,7 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
   }, [locationData]);
   return (
     <Autocomplete
+    tabIndex={tabindex}
       value={value}
       size={size}
       options={locationList || []}

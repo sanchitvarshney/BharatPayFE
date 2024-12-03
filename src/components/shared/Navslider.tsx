@@ -1,109 +1,92 @@
-import React from "react";
-import styled from "styled-components";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/navigation";
-import { FreeMode, Navigation, Mousewheel } from "swiper/modules";
-import { NavLink, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams, NavLink, useLocation } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Tabs, { tabsClasses } from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import { Typography } from "@mui/material";
 
+// Define the navigation slider data
 interface NavSliderData {
   path: string;
   name: string;
   content: React.ReactNode;
 }
 
-
 export const navSliderData: NavSliderData[] = [
-  { path: "#", name: "R1", content: <p>Device MIN Report</p> },
-  { path: "#", name: "R2", content: <p>TRC Report</p> },
-  { path: "#", name: "R3", content: <p>Battery QC Report</p> },
-  { path: "#", name: "R4", content: <p>Production Report</p> },
-  { path: "#", name: "R5", content: <p>Dispatch Report</p> },
-  { path: "#", name: "R6", content: <p>Raw MIN Report</p> },
+  { path: "/report/R1", name: "R1", content: <p>Device MIN Report</p> },
+  { path: "/report/R2", name: "R2", content: <p>TRC Report</p> },
+  { path: "/report/R3", name: "R3", content: <p>Battery QC Report</p> },
+  { path: "/report/R4", name: "R4", content: <p>Production Report</p> },
+  { path: "/report/R5", name: "R5", content: <p>Dispatch Report</p> },
+  { path: "/report/R6", name: "R6", content: <p>Raw MIN Report</p> },
 ];
 
-const Navslider: React.FC = () => {
+const NavSlider: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
+
+  // State to manage the current tab index
+  const [value, setValue] = useState<number>(0);
+
+  // Determine the current tab index based on the current route
+  const currentTabIndex = navSliderData.findIndex((tab) => tab.path === location.pathname);
+
+  // Handle tab change
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+    navigate(navSliderData[newValue].path);
+  };
+
+  // Sync tab selection with route parameter
+  useEffect(() => {
+    const index = navSliderData.findIndex((link) => link.name === id);
+    if (index !== -1) {
+      setValue(index);
+    }
+  }, [id]);
+
   return (
-    <Wrapper className="bg-zinc-200 text-slate-600">
-      <Swiper mousewheel={true} slidesPerView={"auto"} spaceBetween={1} loop={false} navigation={true} freeMode={true} modules={[FreeMode, Navigation, Mousewheel]} className="mySwiper">
-        {navSliderData.map((link, i) => (
-          <SwiperSlide key={i}>
-            <NavLink to={`/report/${link.name}`} className={id === link.name ? "bg-cyan-700 text-white" : ""}>
-              {link.name}
-              {id === link.name && <span className="flex items-center justify-center h-full font-[400]">{link.content}</span>}
-            </NavLink>
-          </SwiperSlide>
+    <Box
+      sx={{
+        flexGrow: 1,
+        bgcolor: "background.paper",
+        borderBottom: "1px solid #ccc",
+      }}
+    >
+      <Tabs
+      selectionFollowsFocus
+        value={currentTabIndex !== -1 ? currentTabIndex : 0}
+        onChange={handleChange}
+        variant="scrollable"
+        scrollButtons="auto"
+        aria-label="navigation slider"
+        sx={{
+          [`& .${tabsClasses.scrollButtons}`]: {
+            "&.Mui-disabled": { opacity: 0.3 },
+          },
+        }}
+      >
+        {navSliderData.map((link, index) => (
+          <Tab
+            key={index}
+            component={NavLink}
+            to={link.path}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <Typography fontWeight={500}>{link.name}</Typography>
+                {value === index && (
+                  <Typography variant="body2" color="textSecondary">
+                    {link.content}
+                  </Typography>
+                )}
+              </div>
+            }
+          />
         ))}
-      </Swiper>
-    </Wrapper>
+      </Tabs>
+    </Box>
   );
 };
 
-// Styling with styled-components
-const Wrapper = styled.div`
-  width: 100%;
-  height: 35px;
-  display: flex;
-  justify-content: start;
-
-  .swiper {
-    z-index: 3;
-    display: flex;
-    justify-content: start;
-    width: 100%;
-  }
-
-  .swiper-button-next,
-  .swiper-button-prev {
-    background-color: #adacac;
-    padding: 5px 10px;
-    color: white;
-  }
-
-  .swiper-button-next {
-    right: 0;
-  }
-
-  .swiper-button-prev {
-    left: 0;
-  }
-
-  .swiper-button-next::after,
-  .swiper-button-prev::after {
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .swiper-button-disabled {
-    display: none;
-  }
-
-  .swiper-slide {
-    width: max-content;
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    a {
-      text-transform: uppercase;
-      height: 100%;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0 15px;
-      font-weight: 600;
-      font-size: 13px;
-      gap: 5px;
-    }
-  }
-
-  span {
-    padding: 0px 10px;
-    width: 100%;
-  }
-`;
-
-export default Navslider;
+export default NavSlider;
