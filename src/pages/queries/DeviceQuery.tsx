@@ -67,7 +67,7 @@ const DeviceQuery: React.FC = () => {
           <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
             {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
           </Button>
-          <div className="mr-[15px] h-full overflow-y-auto ">
+          <div className="mr-[15px] h-full overflow-y-auto mt-[20px]">
             <Paper elevation={0} className="rounded-md ">
               <CardContent className="relative">
                 <div className=" flex flex-col gap-[30px]">
@@ -106,8 +106,8 @@ const DeviceQuery: React.FC = () => {
                         format="DD/MM/YYYY" // Update with your desired format
                       />
                     </div>
-                    <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
-                      <SelectLocation value={location} onChange={(e) => setLocation(e)} size="medium" varient="outlined" />
+                    <div className={`absolute hidden transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
+                      <SelectLocation   value={location} onChange={(e) => setLocation(e)} size="medium" varient="outlined" />
                     </div>
                   </div>
                 </div>

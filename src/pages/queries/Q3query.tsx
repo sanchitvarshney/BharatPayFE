@@ -24,7 +24,7 @@ const Q3query: React.FC = () => {
           <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
             {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
           </Button>
-          <div className="p-[20px]">
+          <div className="p-[20px] mt-[20px]">
             <div className="flex flex-col gap-[30px]">
               <SelectComponent value={component} onChange={setComponent} />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
