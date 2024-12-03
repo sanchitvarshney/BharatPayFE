@@ -170,7 +170,7 @@ const MasterAddVender: React.FC = () => {
               <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
             </div>
 
-            <div className="grid grid-cols-4 gap-[30px]">
+            <div className="grid grid-cols-4 gap-[30px] overflow-x-hidden">
               <div className="col-span-2">
                 <TextField
                   error={!!errors.name}
