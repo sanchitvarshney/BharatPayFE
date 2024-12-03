@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { convertDateRangev2 } from "@/utils/converDateRangeUtills";
@@ -13,6 +13,7 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { showToast } from "@/utils/toasterContext";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useSocketContext } from "@/components/context/SocketContext";
+import { rangePresets } from "@/utils/rangePresets";
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -21,14 +22,7 @@ const R2Report: React.FC = () => {
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [open, setOpen] = useState(false);
   const { emitDownloadReport, onDownloadReport } = useSocketContext();
-  const rangePresets: TimeRangePickerProps["presets"] = [
-    { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
-    { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
-    { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
-    { label: "Last 14 Days", value: [dayjs().add(-14, "d"), dayjs()] },
-    { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
-    { label: "Last 90 Days", value: [dayjs().add(-90, "d"), dayjs()] },
-  ];
+ 
 
   const dispatch = useAppDispatch();
   const { getR2DataLoading, refId } = useAppSelector((state) => state.report);

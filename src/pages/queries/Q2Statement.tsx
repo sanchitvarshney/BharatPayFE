@@ -1,6 +1,6 @@
 import { CardFooter } from "@/components/ui/card";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -19,6 +19,7 @@ import { showToast } from "@/utils/toasterContext";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { rangePresets } from "@/utils/rangePresets";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
@@ -34,14 +35,7 @@ const Q2Statement: React.FC = () => {
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
   const [value, setValue] = useState<ComponentType | null>(null);
   const [location, setLocation] = useState<LocationType | null>(null);
-  const rangePresets: TimeRangePickerProps["presets"] = [
-    { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
-    { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
-    { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
-    { label: "Last 14 Days", value: [dayjs().add(-14, "d"), dayjs()] },
-    { label: "Last 30 Days", value: [dayjs().add(-30, "d"), dayjs()] },
-    { label: "Last 90 Days", value: [dayjs().add(-90, "d"), dayjs()] },
-  ];
+ 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
       setDate({ from: range[0], to: range[1] });

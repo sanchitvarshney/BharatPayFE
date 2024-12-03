@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -13,6 +13,7 @@ import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import R6reportTable from "@/table/report/R6reportTable";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { rangePresets } from "@/utils/rangePresets";
 const R6Report: React.FC = () => {
   const [type, setType] = useState<string>("min");
   const [min, setMin] = useState<string>("");
@@ -25,15 +26,6 @@ const R6Report: React.FC = () => {
   const { r6ReportLoading, r6Report } = useAppSelector((state) => state.report);
   const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
-  const rangePresets: TimeRangePickerProps["presets"] = [
-    { label: "Today", value: [dayjs().startOf("day"), dayjs()] },
-    { label: "Yesterday", value: [dayjs().add(-1, "d"), dayjs()] },
-    { label: "Last 7 Days", value: [dayjs().add(-7, "d"), dayjs()] },
-    { label: "Last 14 Days", value: [dayjs().add(-14, "d"), dayjs()] },
-    { label: "Current Month", value: [dayjs().startOf("month"), dayjs()] },
-    { label: "Previous Month", value: [dayjs().subtract(1, "month").startOf("month"), dayjs().subtract(1, "month").endOf("month")] },
-    { label: "Last 3 Months", value: [dayjs().subtract(3, "month").startOf("month"), dayjs()] },
-  ];
 
   const onBtExport = useCallback(() => {
     console.log("click");

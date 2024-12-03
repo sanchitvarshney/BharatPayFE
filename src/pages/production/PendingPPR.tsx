@@ -4,9 +4,10 @@ import PendingPPRTable from "@/table/production/PendingPPRTable";
 import { Input } from "antd";
 import { Download, Search } from "lucide-react";
 import React from "react";
-import { DatePicker, TimeRangePickerProps } from "antd";
+import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { rangePresets } from "@/utils/rangePresets";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
@@ -14,12 +15,7 @@ const { RangePicker } = DatePicker;
 const dateFormat = "YYYY/MM/DD";
 const PendingPPR: React.FC = () => {
   const [wise, setWise] = React.useState<string>("sku");
-  const rangePresets: TimeRangePickerProps['presets'] = [
-    { label: 'Last 7 Days', value: [dayjs().add(-7, 'd'), dayjs()] },
-    { label: 'Last 14 Days', value: [dayjs().add(-14, 'd'), dayjs()] },
-    { label: 'Last 30 Days', value: [dayjs().add(-30, 'd'), dayjs()] },
-    { label: 'Last 90 Days', value: [dayjs().add(-90, 'd'), dayjs()] },
-  ];
+ 
   return (
     <div className="h-[calc(100vh-100px)]">
       <div className="h-[50px] flex justify-between items-center">
