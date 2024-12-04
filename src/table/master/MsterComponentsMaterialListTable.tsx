@@ -1,11 +1,7 @@
 import React, { RefObject, useMemo } from "react";
 import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MdFileUpload } from "react-icons/md";
-import { HiMiniViewfinderCircle } from "react-icons/hi2";
-import { MdSystemUpdateAlt } from "react-icons/md";
+
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -22,39 +18,9 @@ type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
 };
 
-const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadImage, setViewImage, gridRef }) => {
+const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
   const { component, getComponentLoading } = useAppSelector((state) => state.component);
   const columnDefs: ColDef[] = [
-    {
-      headerName: "",
-      maxWidth: 70,
-      field: "action",
-      cellRenderer: () => (
-        <DropdownMenu>
-          <div className="flex items-center px-[20px] h-full">
-            <DropdownMenuTrigger className="p-[5px] focus-visible::ring-slate-300 ">
-              <BsThreeDotsVertical className="font-[600] text-[20px] text-slate-600" />
-            </DropdownMenuTrigger>
-          </div>
-          <DropdownMenuContent className="w-[170px]">
-            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setOpen(true)}>
-              <MdSystemUpdateAlt className="h-[18px] w-[18px] text-slate-500" />
-              Update
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setViewImage(true)}>
-              <HiMiniViewfinderCircle className="h-[18px] w-[18px] text-slate-500" />
-              View
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600" onClick={() => setUploadImage(true)}>
-              <MdFileUpload className="h-[18px] w-[18px] text-slate-500" />
-              Upload
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-      sortable: false,
-      filter: false,
-    },
     {
       headerName: "#",
       maxWidth: 100,
@@ -68,12 +34,15 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ setOpen, setUploadI
       sortable: true,
       filter: true,
       width: 300,
-      cellRenderer: (params: any) => (
-        <Link className="text-cyan-500 flex items-center gap-[10px]" to={`/master-components/${params?.data?.c_part_no}`}>
-          {params?.value}
-          <Icons.followLink sx={{ fontSize: "15px" }} />
-        </Link>
-      ),
+      cellRenderer: (params: any) =>
+        import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME" ? (
+          <Link className="text-cyan-500 flex items-center gap-[10px]" to={`/master-components/${params?.data?.c_part_no}`}>
+            {params?.value}
+            <Icons.followLink sx={{ fontSize: "15px" }} />
+          </Link>
+        ) : (
+          params?.value
+        ),
     },
     {
       headerName: "Part Code",
