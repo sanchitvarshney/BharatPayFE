@@ -6,6 +6,7 @@ import axiosInstance from "@/api/axiosInstance";
 export type ComponentType = {
   id: string;
   text: string;
+  part_code: string;
 };
 
 type Props = {
@@ -53,7 +54,7 @@ const SelectComponent: React.FC<Props> = ({ value, onChange, label = "Search Ite
       value={value}
       size={size}
       options={itemList || []}
-      getOptionLabel={(option) => `${option.text}`}
+      getOptionLabel={(option) => `(${option.part_code})-${option.text}`}
       filterSelectedOptions
       onChange={(_, value) => {
         onChange(value);
@@ -85,7 +86,7 @@ const SelectComponent: React.FC<Props> = ({ value, onChange, label = "Search Ite
       renderOption={(props, option) => (
         <li {...props}>
           <div>
-            <p className="text-[13px]">{`${option.text}`}</p>
+            <p className="text-[13px]">{`${option.part_code}-${option.text}`}</p>
           </div>
         </li>
       )}

@@ -67,6 +67,7 @@ import MasterCategory from "./pages/master/MasterCategory";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 import MobileVerifyPage from "./pages/commonPages/MobileVerifyPage";
 import VerifyMobileAndEmail from "./pages/commonPages/VerifyMobileAndEmail";
+import DocViewer from "./pages/commonPages/DocViewer";
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +85,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DocViewer />
+          </MainLayout>
+        ),
+        path: "/docViewer",
       },
 
       {

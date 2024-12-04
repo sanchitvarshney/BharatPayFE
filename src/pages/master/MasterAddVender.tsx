@@ -569,9 +569,14 @@ const MasterAddVender: React.FC = () => {
               <Icons.outlineinfo className="text-cyan-700" />
             </MuiTooltip>
           </div>
-          <Button variant="contained" startIcon={<Icons.add />} onClick={handleClickOpen}>
-            Add New Vendor
-          </Button>
+          <div className="flex items-center gap-[20px]">
+            <IconButton onClick={() => dispatch(getVendor())}>
+              <Icons.refresh />
+            </IconButton>
+            <Button variant="contained" startIcon={<Icons.add />} onClick={handleClickOpen}>
+              Add New Vendor
+            </Button>
+          </div>
         </div>
 
         <MasterVendorDetailTable />

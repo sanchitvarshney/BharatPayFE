@@ -5,9 +5,12 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useEffect, useState } from "react";
 import InternetStatusBar from "./components/shared/InternetStatusBar";
 import BugAndChat from "./components/shared/BugAndChat";
+import { useUser } from "./hooks/useUser";
+import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 
 dayjs.extend(customParseFormat);
 function App() {
+  const { user } = useUser();
   const [isOffline, setIsOffline] = useState<boolean>(false);
   useEffect(() => {
     const handleOffline = () => {
@@ -32,15 +35,21 @@ function App() {
       window.removeEventListener("online", handleOnline);
     };
   }, []);
-  return (
-    <>
-      <InternetStatusBar />
-      <div className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}>
-        <Outlet />
-        {(import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME") && <BugAndChat />}
-      </div>
-    </>
-  );
+  if (user) {
+    if (!user.other.e_v) {
+      return <MailVerifyPage />;
+    } else {
+      return (
+        <>
+          <InternetStatusBar />
+          <div className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}>
+            <Outlet />
+            {(import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME") && <BugAndChat />}
+          </div>
+        </>
+      );
+    }
+  }
 }
 
 export default App;

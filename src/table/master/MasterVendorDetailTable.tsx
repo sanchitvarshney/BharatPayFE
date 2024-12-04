@@ -26,10 +26,9 @@ const MasterVendorDetailTable: React.FC<Props> = () => {
       filter: true,
       flex: 1,
       cellRenderer: (params: any) => (
-        <div className="flex items-center justify-center w-full h-full">
-          <Link to={`/master-vendor/${params.data.vendor_code}`} className="   rounded-md   flex items-center justify-between text-cyan-600  gap-[20px]  whitespace-pre-wrap  w-full px-[5px] ">
+        <div className="flex items-center justify-center h-[50px] ">
+          <Link to={`/master-vendor/${params.data.vendor_code}`} className=" hover:bg-white   rounded-md   flex items-center justify-between text-cyan-600  gap-[20px]  whitespace-pre-wrap  w-full px-[5px] ">
             <Typography fontSize={14} textAlign={"start"}>
-              {" "}
               {params.value}
             </Typography>
             <Icons.followLink sx={{ fontSize: "16px" }} />

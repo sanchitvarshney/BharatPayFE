@@ -29,6 +29,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { PasswordChangePayload } from "@/features/authentication/authType";
 import { changePasswordAsync } from "@/features/authentication/authSlice";
 import { showToast } from "@/utils/toasterContext";
+import UpadteEmail from "@/components/featureModels/UpdateEmail";
 
 const schema = z
   .object({
@@ -119,6 +120,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
+    <UpadteEmail open={editEmail} handleClose={() => setEditEmail(false)}/>
       <Dialog
         open={editFullName}
         onClose={() => setEditFullName(false)}
@@ -145,32 +147,7 @@ const ProfilePage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog
-        open={editEmail}
-        onClose={() => setEditEmail(false)}
-        PaperProps={{
-          component: "form",
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            // const formData = new FormData(event.currentTarget);
-            // const formJson = Object.fromEntries((formData as any).entries());
-          },
-        }}
-      >
-        <DialogTitle>Update Email</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Please enter your new email address to update your contact information. We’ll use this email to send you important updates.</DialogContentText>
-          <TextField autoFocus required margin="dense" id="email" name="email" label="Email" type="email" fullWidth variant="standard" />
-        </DialogContent>
-        <DialogActions>
-          <Button startIcon={<CloseIcon fontSize="small" />} variant="contained" sx={{ background: "white", color: "red" }} onClick={() => setEditEmail(false)}>
-            Cancel
-          </Button>
-          <Button startIcon={<SystemUpdateAltIcon fontSize="small" />} variant="contained" type="submit">
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
+      
       <Dialog
         open={editPhone}
         onClose={() => setEditPhone(false)}

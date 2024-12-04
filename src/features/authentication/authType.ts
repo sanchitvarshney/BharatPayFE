@@ -49,4 +49,7 @@ export interface LoginCredentials {
     loading: boolean;
     token: string | null;
     changepasswordloading: boolean;
+    emailOtpLoading: boolean
+    updateEmailLoading: boolean
+    verifyMailLoading: boolean
   }
