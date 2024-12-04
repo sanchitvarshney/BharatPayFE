@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getEmailOtpAsync, updateEmailAsync } from "@/features/authentication/authSlice";
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
 type Props = {
   open: boolean;
   handleClose: () => void;
@@ -41,6 +42,7 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
 }
 
 const UpadteEmail: React.FC<Props> = ({ open, handleClose }) => {
+  const {user} = useUser()
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { emailOtpLoading, updateEmailLoading } = useAppSelector((state) => state.auth);
@@ -52,6 +54,8 @@ const UpadteEmail: React.FC<Props> = ({ open, handleClose }) => {
 
   useEffect(() => {
     setUpdate(false);
+    setEmail("");
+    setOtp("");
   }, [open]);
   React.useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
@@ -155,6 +159,9 @@ const UpadteEmail: React.FC<Props> = ({ open, handleClose }) => {
             onClick={() => {
               if (!email) return showToast("Please enter email", "error");
               if (!otp) return showToast("Please enter otp", "error");
+              if(user?.crn_email === email) return showToast("Please enter different email", "error");
+            //regex for chekc valid emal
+              if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast("Please enter valid email", "error");
               dispatch(updateEmailAsync({ otp: otp, emailId: email })).then((res: any) => {
                 if (res.payload.data.success) {
                   setUpdate(false);
