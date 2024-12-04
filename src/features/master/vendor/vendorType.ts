@@ -108,6 +108,18 @@ export type AddVendorBranchPayload = {
   email: string;
   fax?: string; // Optional property
 };
+
+export type VendorBasicDetailUpdatePayload = {
+  vendor: string;
+  name: string;
+  email: string;
+  mobile: string;
+  pannumber: string;
+  cinnumber: string;
+  gstin: string;
+  paymentTerm: string;
+};
+
 export type VendorState = {
   getvendorLoading: boolean;
   vendor: Vendor[] | null;
@@ -118,4 +130,5 @@ export type VendorState = {
   getVendorDetailLoading: boolean;
   updateVendorBranchLoading: boolean;
   addvendorbranchLoading: boolean;
+  vendorBasicDetailUpdateLoading: boolean;
 };

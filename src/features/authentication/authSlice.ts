@@ -2,7 +2,8 @@ import axiosInstance from "@/api/axiosInstance";
 import { getToken, setToken } from "@/utils/tokenUtills";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { AuthState, LoginResponse } from "./authType";
+import { AuthState, LoginResponse, PasswordChangePayload } from "./authType";
+import { showToast } from "@/utils/toasterContext";
 
 export type LoginCredentials = {
   username: string;
@@ -13,13 +14,33 @@ const initialState: AuthState = {
   user: null,
   loading: false,
   token: getToken(),
+  changepasswordloading: false,
+  emailOtpLoading: false,
+  updateEmailLoading: false,
+  verifyMailLoading: false,
 };
 
 export const loginUserAsync = createAsyncThunk<AxiosResponse<LoginResponse>, LoginCredentials>("auth/loginUser", async (loginCredential) => {
   const response = await axiosInstance.post<LoginResponse>("/auth/signin", loginCredential);
   return response;
 });
+export const changePasswordAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, PasswordChangePayload>("auth/changePassword", async (payload) => {
+  const response = await axiosInstance.put("/user/change-my-password", payload);
+  return response;
+});
+export const getEmailOtpAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>>("auth/getEmailOtpAsycn", async () => {
+  const response = await axiosInstance.get("/user/get-email-otp");
+  return response;
+});
 
+export const updateEmailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { emailId: string; otp: string }>("auth/updateEmailAsync", async (paylaod) => {
+  const response = await axiosInstance.put("/user/verify-email-otp", paylaod);
+  return response;
+});
+export const verifyMailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { otp: string }>("auth/verifyMailAsync", async (paylaod) => {
+  const response = await axiosInstance.put("/user/verify-mail", paylaod);
+  return response;
+});
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -37,15 +58,63 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(loginUserAsync.fulfilled, (state, action) => {
-       if(action.payload.data.status){
-      
-        setToken(action.payload.data.data?.token);
-        localStorage.setItem("loggedinUser", JSON.stringify(action.payload.data.data));
-       }
-       state.loading = false;
+        if (action.payload.data.success) {
+          setToken(action.payload.data.data?.token);
+
+          localStorage.setItem("loggedinUser", btoa(JSON.stringify(action.payload.data.data)));
+        }
+        state.loading = false;
       })
       .addCase(loginUserAsync.rejected, (state) => {
         state.loading = false;
+      })
+      .addCase(changePasswordAsync.pending, (state) => {
+        state.changepasswordloading = true;
+      })
+      .addCase(changePasswordAsync.fulfilled, (state, action) => {
+        state.changepasswordloading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(changePasswordAsync.rejected, (state) => {
+        state.changepasswordloading = false;
+      })
+      .addCase(getEmailOtpAsync.pending, (state) => {
+        state.emailOtpLoading = true;
+      })
+      .addCase(getEmailOtpAsync.fulfilled, (state, action) => {
+        state.emailOtpLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(getEmailOtpAsync.rejected, (state) => {
+        state.emailOtpLoading = false;
+      })
+      .addCase(updateEmailAsync.pending, (state) => {
+        state.updateEmailLoading = true;
+      })
+      .addCase(updateEmailAsync.fulfilled, (state, action) => {
+        state.updateEmailLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateEmailAsync.rejected, (state) => {
+        state.updateEmailLoading = false;
+      })
+      .addCase(verifyMailAsync.pending, (state) => {
+        state.verifyMailLoading = true;
+      })
+      .addCase(verifyMailAsync.fulfilled, (state, action) => {
+        state.verifyMailLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(verifyMailAsync.rejected, (state) => {
+        state.verifyMailLoading = false;
       });
   },
 });

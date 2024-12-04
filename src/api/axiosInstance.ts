@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getToken, removeToken } from "@/utils/tokenUtills";
+import { getToken } from "@/utils/tokenUtills";
 import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { getLocation } from "@/helper/getLocation";
@@ -46,7 +46,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
    
     if (error.response?.status === 401) {
-      removeToken();
+      localStorage.clear();
       window.location.href = "/login";
     }
     showToast((error.response?.data?.message?.msg ? error.response?.data?.message?.msg : error.response?.data?.message) || "An unexpected error occurred", "error");

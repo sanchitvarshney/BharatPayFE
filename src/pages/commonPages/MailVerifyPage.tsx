@@ -1,11 +1,14 @@
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import {  FormControl, IconButton, InputAdornment, OutlinedInput, Typography } from "@mui/material";
-import React from "react";
+import { FormControl, IconButton, InputAdornment, OutlinedInput, Typography } from "@mui/material";
+import React, { useEffect } from "react";
 import CircularProgress, { CircularProgressProps } from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
-import { useNavigate } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
+import { getEmailOtpAsync, verifyMailAsync } from "@/features/authentication/authSlice";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { showToast } from "@/utils/toasterContext";
 
 function CircularProgressWithLabel(props: CircularProgressProps & { value: number }) {
   return (
@@ -24,7 +27,7 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
         }}
       >
         <Typography variant="caption" component="div" sx={{ color: "text.secondary" }}>
-          {`${Math.round(props.value / 3.33333333333)}s`}
+          {`${Math.round(props.value)}s`}
         </Typography>
       </Box>
     </Box>
@@ -32,9 +35,13 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
 }
 
 const MailVerifyPage: React.FC = () => {
+  const { verifyMailLoading } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const { clearUser, saveUser, user } = useUser();
   const [progress, setProgress] = React.useState(30); // Start with 30 seconds
   const [send, setSend] = React.useState<boolean>(true);
-  const navigate = useNavigate();
+  const [otp, setOtp] = React.useState<string>("");
+
   React.useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
 
@@ -56,6 +63,19 @@ const MailVerifyPage: React.FC = () => {
     };
   }, [send]);
 
+  useEffect(() => {
+   if(user){
+    if (!user?.other?.e_v) {
+      dispatch(getEmailOtpAsync()).then((res: any) => {
+        if (res.payload.data.success) {
+          setSend(false);
+          setProgress(100); // Reset timer
+        }
+      });
+    }
+   }
+  }, [user]);
+ 
   return (
     <>
       <div className="flex justify-center h-[100vh] bg-white relative">
@@ -63,8 +83,9 @@ const MailVerifyPage: React.FC = () => {
           <Button
             onClick={() => {
               localStorage.clear();
-              navigate("/login");
-              
+              clearUser();
+              saveUser(null);
+              window.location.reload();
             }}
             className="flex items-center gap-[20px] border border-red-500 hover:bg-red-50 shadow-none bg-transparent text-red-500 "
           >
@@ -79,7 +100,7 @@ const MailVerifyPage: React.FC = () => {
             Check Your E-mail
           </Typography>
           <Typography variant="inherit" fontSize={15} gutterBottom>
-            Enter the code that we sent to s********g@m*******.in
+            Enter the code that we sent to {user?.crn_email}
           </Typography>
           <div className="w-full h-[300px] overflow-hidden flex items-end justify-center bg-teal-100">
             <img src="./verify3.svg" alt="" className="w-[50%]" />
@@ -87,6 +108,8 @@ const MailVerifyPage: React.FC = () => {
           <div className="flex flex-col gap-[20px] mt-[20px] justify-start items-center">
             <FormControl fullWidth variant="outlined">
               <OutlinedInput
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
                 autoFocus
                 sx={{
                   borderRadius: "15px",
@@ -105,9 +128,14 @@ const MailVerifyPage: React.FC = () => {
                       {send ? (
                         <MuiTooltip title="Resend Code" placement="top">
                           <IconButton
+                          disabled={verifyMailLoading}
                             onClick={() => {
-                              setSend(false);
-                              setProgress(30); // Reset timer
+                              dispatch(getEmailOtpAsync()).then((res: any) => {
+                                if (res.payload.data.success) {
+                                  setSend(false);
+                                  setProgress(100); // Reset timer
+                                }
+                              });
                             }}
                             size="small"
                           >
@@ -115,7 +143,7 @@ const MailVerifyPage: React.FC = () => {
                           </IconButton>
                         </MuiTooltip>
                       ) : (
-                        <CircularProgressWithLabel size={30} value={progress * 3.33333333333} />
+                        <CircularProgressWithLabel size={30} value={progress} />
                       )}
                       <Icons.email />
                     </div>
@@ -124,7 +152,30 @@ const MailVerifyPage: React.FC = () => {
               />
             </FormControl>
 
-            <Button className="w-full rounded-full bg-cyan-500 hover:bg-cyan-600">Continue</Button>
+            <Button
+              disabled={verifyMailLoading}
+              onClick={() => {
+                if (!otp) return showToast("Please enter the code", "error");
+                dispatch(verifyMailAsync({ otp: otp })).then((res: any) => {
+                  if (res.payload.data.success) {
+                    if (user) {
+                      const newuser = {
+                        ...user,
+                        other: {
+                          ...user?.other,
+                          e_v: true,
+                        },
+                      };
+                      saveUser(newuser);
+                      window.location.reload();
+                    }
+                  }
+                });
+              }}
+              className="w-full rounded-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-neutral-300 disabled:text-slate-400"
+            >
+              {verifyMailLoading ? <CircularProgress size={25} /> : "Continue"}
+            </Button>
           </div>
         </div>
       </div>

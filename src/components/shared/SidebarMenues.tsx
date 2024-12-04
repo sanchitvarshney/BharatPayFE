@@ -57,7 +57,7 @@ const renderMenu = (menu: Menu[] | undefined, setSidemenu: React.Dispatch<React.
     <Accordion type="single" collapsible>
       <ul className="flex flex-col gap-[10px]">
         {menu?.map((item: Menu, index) => (
-          <li key={index}>
+          <li key={item.menu_key}>
             {item.children ? (
               <AccordionItem value={`${index + item.name}`} className="border-0">
                 <AccordionTrigger className="hover:no-underline hover:bg-cyan-800 p-[10px] rounded-md  cursor-pointer">
@@ -66,7 +66,7 @@ const renderMenu = (menu: Menu[] | undefined, setSidemenu: React.Dispatch<React.
                 <AccordionContent className="p-[10px] mt-[10px] border-l-2 border-yellow-600 bg-cyan-900 rounded">{renderMenu(item.children, setSidemenu)}</AccordionContent>
               </AccordionItem>
             ) : (
-              <div className="flex items-center justify-between w-full">
+              <div key={item.menu_key} className="flex items-center justify-between w-full">
                 <Link onClick={() => setSidemenu(false)} to={`${item.url}` || "#"} className="w-full hover:no-underline hover:bg-cyan-700 p-[10px] rounded-md  cursor-pointer flex items-center gap-[10px]">
                   {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
                 </Link>
@@ -140,7 +140,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
                 </div>
               </li>
             ) : (
-              <div className="flex items-center justify-between w-full">
+              <div key={item.menu_key} className="flex items-center justify-between w-full">
                 <Link onClick={() => setSheetOpen(false)} to={`${item.url}` || "#"} className="w-full hover:no-underline hover:bg-cyan-900 p-[10px] roundeded-none  cursor-pointer flex items-center gap-[10px]">
                   <DynamicIcon name={item?.icon} size="small" />
                   {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />

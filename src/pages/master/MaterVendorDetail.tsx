@@ -12,9 +12,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import UpdateVendorBranchForm from "@/components/from/UpdateVendorBranchForm";
 import AddVendorBranch from "@/components/featureModels/AddVendorBranch";
+import UpdateVendorBasicDetail from "@/components/from/UpdateVendorBasicDetail";
 
 const MaterVendorDetail: React.FC = () => {
   const [addvendor, setAddVendor] = React.useState<boolean>(false);
+  const [updatebasicdetail, setUpdateBasicDetail] = React.useState<boolean>(false);
   const [editbranchid, setEditBranchId] = React.useState<string>("");
   const dispatch = useAppDispatch();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -177,32 +179,41 @@ const MaterVendorDetail: React.FC = () => {
                           borderStyle: "dashed",
                         }}
                       />
-                      <button type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Edit basic item details">
+                      <button
+                        onClick={() => setUpdateBasicDetail(true)}
+                        type="button"
+                        className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        aria-label="Edit basic item details"
+                      >
                         <Icons.edit fontSize="small" sx={{ fontSize: "15px" }} />
                         Edit basic details
                       </button>
                     </header>
-
+                    {updatebasicdetail ? (
+                      <UpdateVendorBasicDetail detail={vendorDetail?.vendor || null} setUpdateBasicDetail={setUpdateBasicDetail} />
+                    ) : (
+                      <div className="grid grid-cols-4 gap-6 mt-4">
+                        {[
+                          { label: "Name", value: vendorDetail?.vendor?.name },
+                          { label: "Email", value: vendorDetail?.vendor?.email },
+                          { label: "Mobile", value: vendorDetail?.vendor?.mobile },
+                          { label: "PAN Number", value: vendorDetail?.vendor?.panNo },
+                          { label: "CIN Number", value: vendorDetail?.vendor?.cinNo },
+                          // { label: "FAX Number", value:  },
+                          { label: "Payment Terms (in-days)", value: vendorDetail?.vendor?.paymentinDays },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="py-5">
+                            <Typography variant="body2" color="textSecondary" className="text-gray-600">
+                              {label}:
+                            </Typography>
+                            <Typography variant="body1" fontWeight={500}>
+                              {value || "N/A"}
+                            </Typography>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {/* Grid: Basic Item Details */}
-                    <div className="grid grid-cols-4 gap-6 mt-4">
-                      {[
-                        { label: "Name", value: vendorDetail?.vendor?.name },
-                        { label: "Email", value: vendorDetail?.vendor?.email },
-                        { label: "PAN Number", value: vendorDetail?.vendor?.panNo },
-                        { label: "CIN Number", value: vendorDetail?.vendor?.cinNo },
-                        // { label: "FAX Number", value:  },
-                        { label: "Payment Terms (in-days)", value: vendorDetail?.vendor?.paymentinDays },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="py-5">
-                          <Typography variant="body2" color="textSecondary" className="text-gray-600">
-                            {label}:
-                          </Typography>
-                          <Typography variant="body1" fontWeight={500}>
-                            {value || "N/A"}
-                          </Typography>
-                        </div>
-                      ))}
-                    </div>
                   </section>
 
                   <section className="mt-8">
@@ -218,24 +229,24 @@ const MaterVendorDetail: React.FC = () => {
                           borderStyle: "dashed",
                         }}
                       />
-                      <button type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Edit item prices">
+                      {/* <button disabled type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Edit item prices">
                         <Icons.add fontSize="small" sx={{ fontSize: "15px" }} />
                         Add Contact Details
-                      </button>
+                      </button> */}
                     </header>
                     <div className="grid grid-cols-4 gap-[30px] mt-[20px]">
                       <div className="flex justify-between w-full items-strat ">
                         <div>
                           <Typography variant="body2" color="textSecondary" className="text-gray-600">
-                            Sachin Maurya
+                            {vendorDetail?.vendor?.name}
                           </Typography>
                           <div className="flex items-center gap-[10px] text-cyan-900">
                             <Icons.email fontSize="small" sx={{ fontSize: "17px" }} />
-                            <Typography fontWeight={500}>sachin.gmail.com</Typography>
+                            <Typography fontWeight={500}> {vendorDetail?.vendor?.email}</Typography>
                           </div>
                           <div className="flex items-center gap-[10px] text-cyan-900">
                             <Icons.call fontSize="small" sx={{ fontSize: "17px" }} />
-                            <Typography fontWeight={500}>12348998765</Typography>
+                            <Typography fontWeight={500}>{vendorDetail?.vendor?.mobile}</Typography>
                           </div>
                         </div>
                         <div>
