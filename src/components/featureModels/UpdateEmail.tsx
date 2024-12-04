@@ -42,7 +42,7 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
 }
 
 const UpadteEmail: React.FC<Props> = ({ open, handleClose }) => {
-  const {user} = useUser()
+  const { user } = useUser();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { emailOtpLoading, updateEmailLoading } = useAppSelector((state) => state.auth);
@@ -104,7 +104,7 @@ const UpadteEmail: React.FC<Props> = ({ open, handleClose }) => {
                       {send ? (
                         <MuiTooltip title="Resend Code" placement="top">
                           <IconButton
-                          disabled={emailOtpLoading}
+                            disabled={emailOtpLoading}
                             onClick={() => {
                               dispatch(getEmailOtpAsync()).then((res: any) => {
                                 if (res.payload.data.success) {
@@ -159,9 +159,9 @@ const UpadteEmail: React.FC<Props> = ({ open, handleClose }) => {
             onClick={() => {
               if (!email) return showToast("Please enter email", "error");
               if (!otp) return showToast("Please enter otp", "error");
-              if(user?.crn_email === email) return showToast("Please enter different email", "error");
-            //regex for chekc valid emal
-              if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast("Please enter valid email", "error");
+              if (user?.crn_email === email) return showToast("Please enter different email", "error");
+              //regex for chekc valid emal
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast("Please enter valid email", "error");
               dispatch(updateEmailAsync({ otp: otp, emailId: email })).then((res: any) => {
                 if (res.payload.data.success) {
                   setUpdate(false);
