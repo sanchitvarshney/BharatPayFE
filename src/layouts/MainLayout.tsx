@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
-import { FaLightbulb } from "react-icons/fa";
+
 import { FaCircleUser } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
 import styled from "styled-components";
@@ -182,11 +182,11 @@ function MainLayout(props: { children: React.ReactNode }) {
               </IconButton>
             </MuiTooltip>
 
-            <MuiTooltip title="Explore All Features" placement="right">
-              <IconButton>
-                <FaLightbulb className="h-[25px] w-[25px] text-white" />
+            {/* <MuiTooltip title="Explore All Features" placement="right">
+              <IconButton disabled>
+                <FaLightbulb className="h-[25px] w-[25px] " />
               </IconButton>
-            </MuiTooltip>
+            </MuiTooltip> */}
             <MuiTooltip title="Account" placement="right">
               <IconButton
                 onClick={() => {
