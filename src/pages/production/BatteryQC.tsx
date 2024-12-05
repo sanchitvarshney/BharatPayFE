@@ -156,7 +156,7 @@ const BatteryQC: React.FC = () => {
                         return;
                       }
 
-                      dispatch(getDeviceDetail(imei)).then((res: any) => {
+                      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
                         if (res.payload.data.success) {
                           addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
                           setImei("");
