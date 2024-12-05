@@ -1,4 +1,4 @@
-import { Button, Divider, IconButton, InputAdornment, LinearProgress, ListItem, Switch, TextField, Typography } from "@mui/material";
+import { Button, Divider, IconButton, InputAdornment, LinearProgress, ListItem, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Grid from "@mui/material/Grid2";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -392,11 +392,11 @@ const ProfilePage: React.FC = () => {
                   <List sx={{ width: "100%", bgcolor: "background.paper" }}>
                     <ListItem
                       sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}
-                      secondaryAction={
-                        <IconButton onClick={() => setEditFullName(true)}>
-                          <CreateIcon />
-                        </IconButton>
-                      }
+                      // secondaryAction={
+                      //   <IconButton onClick={() => setEditFullName(true)}>
+                      //     <CreateIcon />
+                      //   </IconButton>
+                      // }
                     >
                       <ListItemText
                         primary={
@@ -428,11 +428,11 @@ const ProfilePage: React.FC = () => {
 
                     <ListItem
                       sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}
-                      secondaryAction={
-                        <IconButton onClick={() => setEditPhone(true)} aria-label="comment">
-                          <CreateIcon />
-                        </IconButton>
-                      }
+                      // secondaryAction={
+                      //   <IconButton onClick={() => setEditPhone(true)} aria-label="comment">
+                      //     <CreateIcon />
+                      //   </IconButton>
+                      // }
                     >
                       <ListItemText
                         primary={
@@ -535,7 +535,7 @@ English (United State)"
                       />
                     </ListItem>
 
-                    <ListItem sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}>
+                    {/* <ListItem sx={{ ":hover": { backgroundColor: "#f5f5f5" }, paddingX: "20px" }}>
                       <ListItemText
                         primary={
                           <Typography variant="h4" fontSize={"17px"}>
@@ -550,7 +550,7 @@ English (United State)"
                           "aria-labelledby": "switch-list-label-wifi",
                         }}
                       />
-                    </ListItem>
+                    </ListItem> */}
                   </List>
                 </div>
               </div>
