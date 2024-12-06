@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import DeviceQuery from "./DeviceQuery";
 import Q2Statement from "./Q2Statement";
 import Q3query from "./Q3query";
+import Q4query from "./Q4query";
 
 const Query: React.FC = () => {
   const { id } = useParams();
@@ -15,6 +16,9 @@ const Query: React.FC = () => {
   }
   if (id === "Q3") {
     return <Q3query />;
+  }
+  if (id === "Q4") {
+    return <Q4query />;
   }
   return <div>this is {id} query</div>;
 };

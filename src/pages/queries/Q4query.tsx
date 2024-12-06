@@ -1,22 +1,18 @@
 import { Icons } from "@/components/icons";
-import SelectComponent, { ComponentType } from "@/components/reusable/SelectComponent";
+import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import { Button } from "@/components/ui/button";
-import { getQ3DatA } from "@/features/query/query/querySlice";
+import { getQ4DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { LoadingButton } from "@mui/lab";
-import { List, ListItem, ListItemText, Skeleton, TextField, Typography } from "@mui/material";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs, { Dayjs } from "dayjs";
+import { List, ListItem, ListItemText, Skeleton, Typography } from "@mui/material";
+
 import React, { useState } from "react";
-const Q3query: React.FC = () => {
+const Q4query: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
-  const [component, setComponent] = React.useState<ComponentType | null>(null);
-  const [date, setDate] = React.useState<Dayjs | null>(dayjs());
+  const [component, setComponent] = React.useState<DeviceType | null>(null);
   const dispatch = useAppDispatch();
-  const { q3data, q3DataLoading } = useAppSelector((state) => state.query);
+  const { q4Data, q4DataLoading } = useAppSelector((state) => state.query);
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
       <div className={` h-full flex   `}>
@@ -26,35 +22,15 @@ const Q3query: React.FC = () => {
           </Button>
           <div className="p-[20px] ">
             <div className="flex flex-col gap-[30px]">
-              <SelectComponent value={component} onChange={setComponent} />
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  format="DD-MM-YYYY"
-                  slots={{
-                    textField: TextField,
-                  }}
-                  maxDate={dayjs()}
-                  slotProps={{
-                    textField: {
-                      variant: "outlined",
-                    },
-                  }}
-                  value={date}
-                  onChange={(value) => setDate(value)}
-                  sx={{ width: "100%" }}
-                  label="Till Date"
-                  name="startDate"
-                />
-              </LocalizationProvider>
+              <SelectDevice value={component} onChange={setComponent} />
             </div>
             <div className="mt-[20px]">
               <LoadingButton
                 loadingPosition="start"
-                loading={q3DataLoading}
+                loading={q4DataLoading}
                 onClick={() => {
-                  if (!date) showToast("Please select date", "error");
                   if (!component) showToast("Please select component", "error");
-                  dispatch(getQ3DatA({ date: dayjs(date).format("DD-MM-YYYY"), comp: component?.id || "" }));
+                  dispatch(getQ4DatA(component?.id || ""));
                 }}
                 startIcon={<Icons.search fontSize="small" />}
                 variant="contained"
@@ -63,35 +39,35 @@ const Q3query: React.FC = () => {
               </LoadingButton>
             </div>
           </div>
-          {q3data && (
+          {q4Data && (
             <List>
               <ListItem>
-                <ListItemText primary={"Part Code"} secondary={q3data?.component?.partCode} />
+                <ListItemText primary={"SKU Code"} secondary={q4Data?.component?.sku} />
               </ListItem>
               <ListItem>
-                <ListItemText primary={"Name"} secondary={q3data?.component?.name} />
+                <ListItemText primary={"Name"} secondary={q4Data?.component?.name} />
               </ListItem>
               <ListItem>
-                <ListItemText primary={"Unit"} secondary={q3data?.component?.uom} />
+                <ListItemText primary={"Unit"} secondary={q4Data?.component?.uom} />
               </ListItem>
             </List>
           )}
         </div>
-        {q3data ? (
+        {q4Data ? (
           <div className="w-full">
             <div className="flex items-center px-[20px] h-[60px] justify-between">
               <Typography variant="h1" fontWeight={500} fontSize={25} component={"div"} className="">
-                Component Locations
+                Device Locations
               </Typography>
               <div className="flex items-center gap-[10px]">
                 <Typography>Total : </Typography>
-                <Typography>{q3data?.locationQty.reduce((sum, item) => sum + Number(item.closeQty), 0)}</Typography>
+                <Typography>{q4Data?.locationQty.reduce((sum, item) => sum + Number(item.closeQty), 0)}</Typography>
               </div>
             </div>
             <div className="p-[20px] flex flex-wrap gap-[10px]">
-              {q3DataLoading
+              {q4DataLoading
                 ? Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="w-[150px] min-h-[150px] " />)
-                : q3data?.locationQty.map((item, index) => (
+                : q4Data?.locationQty.map((item, index) => (
                     <div key={index} className="  h-[100px] max-w-max px-[50px]  rounded border bg-slate-50 flex flex-col gap-[5px] justify-center items-center">
                       <Typography fontWeight={500}>{item.locationName}</Typography>
                       <Typography fontWeight={500} className="text-slate-500">
@@ -111,4 +87,4 @@ const Q3query: React.FC = () => {
   );
 };
 
-export default Q3query;
+export default Q4query;
