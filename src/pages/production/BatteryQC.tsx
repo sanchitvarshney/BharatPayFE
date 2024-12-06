@@ -82,6 +82,7 @@ const BatteryQC: React.FC = () => {
         }
       });
 
+      
       if (!hasErrors) {
         const payload: bateryqcSavePayload = {
           slNo: rowData.map((row) => row.serialNo),

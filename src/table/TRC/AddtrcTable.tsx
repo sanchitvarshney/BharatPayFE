@@ -4,11 +4,11 @@ import { ColDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import AddtrcTableCellRenderer from "../Cellrenders/AddtrcTableCellRenderer";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 interface RowData {
   remarks: string;
-  id: number;
+  id: string;
   isNew: boolean;
   issues: string[];
   IMEI: string;
@@ -16,9 +16,8 @@ interface RowData {
 type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
-  addRow: () => void;
 };
-const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
+const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -51,7 +50,7 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
     }),
     []
   );
-  const handleDeleteRow = (id: number) => {
+  const handleDeleteRow = (id: string) => {
     setRowdata(rowData.filter((row) => row.id !== id));
   };
 
@@ -67,32 +66,12 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
           </IconButton>
         </div>
       ),
-      headerComponent: () => (
-        <div className="flex items-center justify-center w-full h-full">
-          <Button
-            variant="contained"
-            color="primary"
-            style={{
-              borderRadius: "10%",
-              width: 25,
-              height: 25,
-              minWidth: 0,
-              padding: 0,
-            }}
-            onClick={addRow}
-            size="small"
-            sx={{ zIndex: 1 }}
-          >
-            <Icons.add fontSize="small" />
-          </Button>
-        </div>
-      ),
     },
 
     {
       headerName: "IMEI/Serial No.",
       field: "IMEI",
-      cellRenderer: "textInputCellRenderer",
+
       flex: 1,
     },
     {
@@ -109,30 +88,9 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
     },
   ];
 
-  React.useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "a" && (e.metaKey || e.ctrlKey)) {
-        if ((e.target instanceof HTMLElement && e.target.isContentEditable) || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) {
-          return;
-        }
-        e.preventDefault();
-        const newId = rowData.length + 1;
-        const newRow: RowData = {
-          id: newId,
-          remarks: "",
-          isNew: true,
-          IMEI: "",
-          issues: [],
-        };
-        setRowdata((prev) => [...prev, newRow].reverse());
-      }
-    };
 
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-200px)]">
       <AgGridReact
         onCellFocused={(event: any) => {
           const { rowIndex, column } = event;

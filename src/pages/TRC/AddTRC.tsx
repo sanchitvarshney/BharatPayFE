@@ -9,17 +9,19 @@ import AddtrcTable from "@/table/TRC/AddtrcTable";
 import { addTrcAsync } from "@/features/trc/AddTrc/addtrcSlice";
 import { AddtrcPayloadType } from "@/features/trc/AddTrc/addtrcType";
 import { getIsueeList } from "@/features/common/commonSlice";
-import { Button, TextField, Typography } from "@mui/material";
+import { Button, CircularProgress, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { showToast } from "@/utils/toasterContext";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import SelectSku from "@/components/reusable/SelectSku";
+import { generateUniqueId } from "@/utils/uniqueid";
+import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 
 interface RowData {
   remarks: string;
-  id: number;
+  id: string;
   isNew: boolean;
   issues: string[];
   IMEI: string;
@@ -32,6 +34,7 @@ type Formstate = {
 };
 
 const AddTRC = () => {
+  const [imei, setImei] = useState<string>("");
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
@@ -54,17 +57,20 @@ const AddTRC = () => {
       remarks: "",
     },
   });
-  const addRow = useCallback(() => {
-    const newId = rowData.length + 1;
-    const newRow: RowData = {
-      id: newId,
-      remarks: "",
-      isNew: true,
-      IMEI: "",
-      issues: [],
-    };
-    setRowData((prev) => [newRow, ...prev]);
-  }, [rowData]);
+  const addRow = useCallback(
+    (imei: string) => {
+      const newId = generateUniqueId();
+      const newRow: RowData = {
+        id: newId,
+        remarks: "",
+        isNew: true,
+        IMEI: imei,
+        issues: [],
+      };
+      setRowData((prev) => [newRow, ...prev]);
+    },
+    [rowData]
+  );
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
     if (rowData.length === 0) {
@@ -239,7 +245,40 @@ const AddTRC = () => {
               </div>
             </form>
           </div>
-          <AddtrcTable addRow={addRow} setRowdata={setRowData} rowData={rowData} />
+          <div>
+            <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px]">
+              <FormControl>
+                <InputLabel htmlFor="outlined-adornment-IMEI/Serial">IMEI/Serial Number</InputLabel>
+                <OutlinedInput
+                  id="outlined-adornment-IMEI/Serial"
+                  value={imei}
+                  onChange={(e) => setImei(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      if (imei) {
+                        const isUnique = !rowData.some((row) => row.IMEI === imei);
+
+                        if (!isUnique) {
+                          showToast("Duplicate IMEI found", "warning");
+                          return;
+                        }
+                        dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
+                          if (res.payload.data.success) {
+                            addRow(res.payload.data?.data[0]?.device_imei);
+                            setImei("");
+                          }
+                        });
+                      }
+                    }
+                  }}
+                  endAdornment={<InputAdornment position="end">{false ? <CircularProgress /> : <Icons.qrScan />}</InputAdornment>}
+                  className="w-[400px]"
+                  label="IMEI/Serial Number"
+                />
+              </FormControl>
+            </div>
+            <AddtrcTable setRowdata={setRowData} rowData={rowData} />
+          </div>
         </div>
       )}
     </div>

@@ -9,7 +9,7 @@ import Q2ReportTable from "@/table/query/Q2ReportTable";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { RowData } from "@/features/query/query/queryType";
 import { AgGridReact } from "@ag-grid-community/react";
-import { CardContent, Divider, IconButton, List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
+import { CardContent, Divider, FormControl, IconButton, List, ListItem, ListItemText, MenuItem, Paper, Select, Typography } from "@mui/material";
 import SelectComponent, { ComponentType } from "@/components/reusable/SelectComponent";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -29,13 +29,13 @@ const Q2Statement: React.FC = () => {
     from: null,
     to: null,
   });
-  const [filterType, _] = useState<string>("");
+  const [filterType, setFilterType] = useState<string>("DATE");
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
   const [value, setValue] = useState<ComponentType | null>(null);
   const [location, setLocation] = useState<LocationType | null>(null);
- 
+
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
       setDate({ from: range[0], to: range[1] });
@@ -63,38 +63,30 @@ const Q2Statement: React.FC = () => {
           <div className="mr-[15px] h-full overflow-y-auto ">
             <Paper elevation={0} className="rounded-md ">
               <CardContent>
-                <div className="py-[20px] flex flex-col gap-[30px]">
+                <div className="py-[20px] flex flex-col gap-[20px]">
+                  <FormControl fullWidth>
+                    <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                      <MenuItem value="DATE">Date</MenuItem>
+                      <MenuItem value="LOCATION">Location</MenuItem>
+                    </Select>
+                  </FormControl>
                   <div>
                     <SelectComponent value={value} onChange={(e) => setValue(e)} label="-- Part --" />
                   </div>
-                  <div className="relative h-[60px] overflow-hidden">
-                    <div className="flex justify-end">
-                      {/* {filterType === "location" ? (
-                      <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
-                        <FaChevronLeft className="h-[10px] w-[10px]" />
-                        Date Range
-                      </Button>
-                    ) : (
-                      <Button onClick={() => setFilterType("location")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] mb-[3px]">
-                        Location
-                        <FaChevronRight className="h-[10px] w-[10px]" />
-                      </Button>
-                    )} */}
-                    </div>
-                    <div className={`absolute w-full transition-all ${filterType === "location" ? "left-[-400px]" : "left-0"} `}>
+                  <div className="">
+                    {filterType === "DATE" ? (
                       <RangePicker
-                        className="w-full h-[50px] "
+                        className="w-full h-[50px] border-[2px] rounded-sm "
                         presets={rangePresets}
                         onChange={handleDateChange}
                         disabledDate={(current) => current && current > dayjs()}
                         placeholder={["Start date", "End Date"]}
                         value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
                         format="DD/MM/YYYY" // Update with your desired format
-                      />{" "}
-                    </div>
-                    <div className={`absolute transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
+                      />
+                    ) : (
                       <SelectLocation value={location} onChange={(e) => setLocation(e)} label="-- Location --" />
-                    </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
