@@ -10,7 +10,7 @@ import { AgGridReact } from "@ag-grid-community/react";
 import { RowData } from "@/features/query/query/queryType";
 import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 
-import { CardContent, Divider, List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
+import { CardContent, Divider, FormControl, List, ListItem, ListItemText, MenuItem, Paper, Select, Typography } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SearchIcon from "@mui/icons-material/Search";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
@@ -25,7 +25,7 @@ dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const DeviceQuery: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
-  const [filterType, _] = useState<string>("");
+  const [filterType, setFilterType] = useState<string>("DATE");
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const dispatch = useAppDispatch();
   const { q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
@@ -64,7 +64,13 @@ const DeviceQuery: React.FC = () => {
           <div className="mr-[15px] h-full overflow-y-auto mt-[20px]">
             <Paper elevation={0} className="rounded-md ">
               <CardContent className="relative">
-                <div className=" flex flex-col gap-[30px]">
+                <div className=" flex flex-col gap-[20px]">
+                  <FormControl fullWidth>
+                    <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                      <MenuItem value="DATE">Date</MenuItem>
+                      <MenuItem value="LOCATION">Location</MenuItem>
+                    </Select>
+                  </FormControl>
                   <div>
                     <SelectSku
                       varient="outlined"
@@ -75,23 +81,10 @@ const DeviceQuery: React.FC = () => {
                       }}
                     />
                   </div>
-                  <div className="relative h-[60px]  overflow-hidden w-full">
-                    <div className="flex justify-end w-full">
-                      {/* {filterType === "location" ? (
-                      <Button onClick={() => setFilterType("")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] flex items-center gap-[5px] mb-[3px]">
-                        <FaChevronLeft className="h-[10px] w-[10px]" />
-                        Date Range
-                      </Button>
-                    ) : (
-                      <Button onClick={() => setFilterType("location")} variant="link" className="p-0 max-h-max text-cyan-600 font-[400] text-[13px] mb-[3px]">
-                        Location
-                        <FaChevronRight className="h-[10px] w-[10px]" />
-                      </Button>
-                    )} */}
-                    </div>
-                    <div className={`w-full  `}>
+                  <div className="">
+                    {filterType === "DATE" ? (
                       <RangePicker
-                        className="w-full h-[50px]"
+                        className="w-full h-[50px] border-[2px] rounded-sm "
                         presets={rangePresets}
                         onChange={handleDateChange}
                         disabledDate={(current) => current && current > dayjs()}
@@ -99,10 +92,9 @@ const DeviceQuery: React.FC = () => {
                         value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
                         format="DD/MM/YYYY" // Update with your desired format
                       />
-                    </div>
-                    <div className={`absolute hidden transition-all ${filterType === "location" ? "right-0" : "right-[-400px]"} w-full `}>
-                      <SelectLocation value={location} onChange={(e) => setLocation(e)} size="medium" varient="outlined" />
-                    </div>
+                    ) : (
+                      <SelectLocation value={location} onChange={(e) => setLocation(e)} label="-- Location --" />
+                    )}
                   </div>
                 </div>
               </CardContent>
