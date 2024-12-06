@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { componentApiResponse, Q1ApiResponse, Q3ApiResponse, QueryStateType } from "./queryType";
+import { componentApiResponse, Q1ApiResponse, Q3ApiResponse, Q4Apiresponse, QueryStateType } from "./queryType";
 
 const initialState: QueryStateType = {
   getQ1DataLoading: false,
@@ -12,6 +12,8 @@ const initialState: QueryStateType = {
   q2Data: null,
   q3data: null,
   q3DataLoading: false,
+  q4Data: null,
+  q4DataLoading: false,
 };
 
 export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null }>("query/getQ1", async (params) => {
@@ -29,6 +31,10 @@ export const getBothComponentData = createAsyncThunk<AxiosResponse<componentApiR
 });
 export const getQ3DatA = createAsyncThunk<AxiosResponse<Q3ApiResponse>, { date: string; comp: string }>("query/getQ3DatA", async (payload) => {
   const response = await axiosInstance.get(`/query/q3/${payload.comp}/${payload.date}`);
+  return response;
+});
+export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, string>("query/getQ4DatA", async (id) => {
+  const response = await axiosInstance.get(`/query/q4/${id}`);
   return response;
 });
 
@@ -78,7 +84,6 @@ const querySlice = createSlice({
       })
       .addCase(getQ3DatA.pending, (state) => {
         state.q3DataLoading = true;
-       
       })
       .addCase(getQ3DatA.fulfilled, (state, action) => {
         state.q3DataLoading = false;
@@ -88,6 +93,19 @@ const querySlice = createSlice({
       })
       .addCase(getQ3DatA.rejected, (state) => {
         state.q3DataLoading = false;
+        state.q3data = null;
+      })
+      .addCase(getQ4DatA.pending, (state) => {
+        state.q4DataLoading = true;
+      })
+      .addCase(getQ4DatA.fulfilled, (state, action) => {
+        state.q4DataLoading = false;
+        if (action.payload.data.success) {
+          state.q4Data = action.payload.data.data;
+        }
+      })
+      .addCase(getQ4DatA.rejected, (state) => {
+        state.q4DataLoading = false;
         state.q3data = null;
       });
   },

@@ -15,6 +15,7 @@ export const queryNavSliderData: NavSliderData[] = [
   { path: "/queries/Q1", name: "Q1", content: <p>SKU Statement</p> },
   { path: "/queries/Q2", name: "Q2", content: <p>Raw Material Statement</p> },
   { path: "/queries/Q3", name: "Q3", content: <p>Component Statement</p> },
+  { path: "/queries/Q4", name: "Q4", content: <p>Device Statement</p> },
 ];
 
 const QueryNavSlider: React.FC = () => {

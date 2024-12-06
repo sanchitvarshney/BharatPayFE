@@ -65,21 +65,38 @@ export type componentApiResponse = {
 };
 
 type ComponentData = {
- component: {
-      partCode: string;
-      name: string;
-      uom: string;
-    };
-    locationQty: Array<{
-      locationName: string;
-      closeQty: number;
-    }>;
+  component: {
+    partCode: string;
+    name: string;
+    uom: string;
+  };
+  locationQty: Array<{
+    locationName: string;
+    closeQty: number;
+  }>;
 };
 
 export type Q3ApiResponse = {
   status: string;
   success: boolean;
   data: ComponentData;
+};
+
+type Q4Data = {
+  component: {
+    sku: string;
+    name: string;
+    uom: string;
+  };
+  locationQty: {
+    locationName: string;
+    closeQty: number;
+  }[];
+};
+export type Q4Apiresponse = {
+  data: Q4Data;
+  status: string;
+  success: boolean;
 };
 
 export type QueryStateType = {
@@ -91,4 +108,6 @@ export type QueryStateType = {
   q2Data: Response | null;
   q3data: ComponentData | null;
   q3DataLoading: boolean;
+  q4Data: Q4Data | null;
+  q4DataLoading: boolean;
 };
