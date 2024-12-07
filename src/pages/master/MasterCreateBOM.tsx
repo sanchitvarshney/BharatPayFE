@@ -76,7 +76,7 @@ const MasterCraeteBOM: React.FC = () => {
         return `${item.id}`;
       }
     });
-    
+
     if (miss.filter((item) => item !== undefined).length > 0) {
       showToast({
         description: `Some required fields are empty: line no. ${miss

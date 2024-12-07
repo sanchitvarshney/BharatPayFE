@@ -21,7 +21,7 @@ class SocketService implements ISocketService {
     this.isLoading = true; 
     this.socket = io(this.url, {
       transports: ["websocket"],
-      auth: { token: getToken() },
+      auth: { authorization: getToken() },
     });
 
     this.socket.on("connect", () => {
