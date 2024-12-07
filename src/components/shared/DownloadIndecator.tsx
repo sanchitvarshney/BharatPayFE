@@ -108,7 +108,7 @@ const DownloadIndecator = () => {
           </div>
           <div className="bg-white rounded justify-center gap-[10px] overflow-y-auto ">
             <ScrollArea className="w-full flex flex-col gap-[10px] h-[300px] p-[10px] pr-[15px]">
-              {notification.map((item, index) => (
+              {notification?.map((item, index) => (
                 <div key={index} className="w-full p-[5px] border rounded-md mb-[10px]">
                   <div className="flex items-center justify-between">
                     <div>
