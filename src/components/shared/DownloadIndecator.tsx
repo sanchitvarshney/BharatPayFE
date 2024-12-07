@@ -65,7 +65,7 @@ const DownloadIndecator = () => {
           onClick={handleClick}
           aria-label="delete"
         >
-          <Badge badgeContent={notification.length} color="warning">
+          <Badge badgeContent={notification?.length} color="warning">
             <FileDownloadSharpIcon />
           </Badge>
         </IconButton>
