@@ -4,6 +4,20 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 type Props = {
   children: React.ReactNode;
 };
+export type NotificationData = {
+  ID: number;
+  insert_date: string;
+  module_name: string;
+  msg_type: string;
+  other_data: string;
+  reactNotificationId: string;
+  req_code: string;
+  req_date: string;
+  request_txt_label: string;
+  status: string;
+  update_date: string | null;
+  user_id: string;
+};
 
 const SocketContext = createContext<any>(null);
 
@@ -37,12 +51,19 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   };
 
   const emitDownloadReport = (payload: any) => {
-    socketService.emit("DOWNLOAD_REPORT", payload);
+    console.log("clicked");
+    socketService.emit("r7Download", payload);
   };
 
-  const onDownloadReport = (callback: (data: any) => void) => {
-    socketService.on("DOWNLOAD_REPORT", callback);
+  const onDownloadReport = (callback: (data: { notificationId: string; percent: string }) => void) => {
+    socketService.on("progress", callback);
+  };
+  const onnotification = (callback: (data: NotificationData[]) => void) => {
+    socketService.on("notification", callback);
+  };
+  const off = (event: string) => {
+    socketService.off(event);
   };
 
-  return <SocketContext.Provider value={{ emitDownloadReport, onDownloadReport, isConnected, refreshConnection, isLoading }}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ emitDownloadReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification }}>{children}</SocketContext.Provider>;
 };

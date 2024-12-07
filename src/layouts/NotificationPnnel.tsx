@@ -2,7 +2,7 @@ import React from "react";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import { CircularProgress, IconButton } from "@mui/material";
+import { Badge, CircularProgress, IconButton } from "@mui/material";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 const NotificationPnnel: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
@@ -21,6 +21,9 @@ const NotificationPnnel: React.FC = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
+
+
+
   return (
     <>
       <MuiTooltip title="Notification" placement="bottom">
@@ -36,7 +39,9 @@ const NotificationPnnel: React.FC = () => {
           onClick={handleClick}
           aria-label="delete"
         >
-          <NotificationsActiveIcon />
+          <Badge badgeContent={0} color="primary">
+            <NotificationsActiveIcon />
+          </Badge>
         </IconButton>
       </MuiTooltip>
       <Popover

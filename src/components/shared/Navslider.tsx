@@ -19,6 +19,7 @@ export const navSliderData: NavSliderData[] = [
   { path: "/report/R4", name: "R4", content: <p>Production Report</p> },
   { path: "/report/R5", name: "R5", content: <p>Dispatch Report</p> },
   { path: "/report/R6", name: "R6", content: <p>Raw MIN Report</p> },
+  { path: "/report/R7", name: "R7", content: <p>Date Wise RM Report</p> },
 ];
 
 const NavSlider: React.FC = () => {
@@ -55,7 +56,7 @@ const NavSlider: React.FC = () => {
       }}
     >
       <Tabs
-      selectionFollowsFocus
+        selectionFollowsFocus
         value={currentTabIndex !== -1 ? currentTabIndex : 0}
         onChange={handleChange}
         variant="scrollable"

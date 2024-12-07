@@ -1,31 +1,57 @@
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
-import { IconButton } from "@mui/material";
+import { Badge, IconButton } from "@mui/material";
 import FileDownloadSharpIcon from "@mui/icons-material/FileDownloadSharp";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "@mui/material/Link";
-import CircularProgress from "@mui/material/CircularProgress";
 import MuiTooltip from "../reusable/MuiTooltip";
+import { NotificationData, useSocketContext } from "../context/SocketContext";
+import ProgressWithParcentage from "../reusable/ProgressWithParcentage";
+import { Icons } from "../icons";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { showToast } from "@/utils/toasterContext";
 const DownloadIndecator = () => {
+  const { onDownloadReport, off, onnotification } = useSocketContext();
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const [loading, setLoading] = React.useState(false);
-
+  const [notification, setNotification] = React.useState<NotificationData[]>([]);
+  const [progress, setProgress] = React.useState<{ notificationId: string; percent: string } | null>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+    
   };
+
 
   const handleClose = () => {
     setAnchorEl(null);
   };
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
+  useEffect(() => {
+    const handlenotification = (data: NotificationData[]) => {
+      setNotification(data);
+      console.log(data);
+    };
+
+    onnotification(handlenotification);
+    return () => off("notification");
+  }, [onnotification]);
+  useEffect(() => {
+    const handleDownloadReport = (data: { notificationId: string; percent: string }) => {
+      setProgress(data);
+      console.log(data)
+      if(Number(data.percent) === 100){
+        showToast("Download completed", "success");
+      }
+    };
+
+    onDownloadReport(handleDownloadReport);
+
+    return () => off("progress");
+  }, [onDownloadReport]);
 
   return (
     <>
+      
       <MuiTooltip title="Download" placement="bottom">
         <IconButton
           sx={{
@@ -39,7 +65,9 @@ const DownloadIndecator = () => {
           onClick={handleClick}
           aria-label="delete"
         >
-          <FileDownloadSharpIcon />
+          <Badge badgeContent={notification?.length} color="warning">
+            <FileDownloadSharpIcon />
+          </Badge>
         </IconButton>
       </MuiTooltip>
 
@@ -64,8 +92,8 @@ const DownloadIndecator = () => {
           },
         }}
       >
-        <div className="w-[300px] bg-neutral-200 p-[10px]">
-          <div className="min-h-[50px] flex justify-between">
+        <div className="w-[350px] bg-neutral-200 p-[10px]">
+          <div className="min-h-[50px] max-h-[50px] flex justify-between">
             <Typography sx={{ p: 2 }}>Downloads</Typography>
             <Link
               component="button"
@@ -78,7 +106,34 @@ const DownloadIndecator = () => {
               Clear All
             </Link>
           </div>
-          <div className="bg-white h-[300px] rounded flex items-center justify-center">{loading && <CircularProgress size={40} />}</div>
+          <div className="bg-white rounded justify-center gap-[10px] overflow-y-auto ">
+            <ScrollArea className="w-full flex flex-col gap-[10px] h-[300px] p-[10px] pr-[15px]">
+              {notification?.map((item, index) => (
+                <div key={index} className="w-full p-[5px] border rounded-md mb-[10px]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Typography fontSize={14} variant="body2">
+                        {item.req_code}
+                      </Typography>
+                      <Typography color="text.secondary" fontSize={12} variant="body2">
+                        {item.insert_date}
+                      </Typography>
+                    </div>
+                    {item.status === "complete" && item.msg_type === "file" && (
+                      <IconButton size="small" color="success"
+                      onClick={()=>{
+                        window.location.href  = (`${import.meta.env.VITE_SOKET_URL}/${JSON.parse(item.other_data)?.fileUrl}`);
+                      }}
+                      >
+                        <Icons.download fontSize="small" />
+                      </IconButton>
+                    )}
+                  </div>
+                  {item.status !== "complete" && <ProgressWithParcentage value={item.reactNotificationId === progress?.notificationId ? parseInt(progress?.percent) : 0} />}
+                </div>
+              ))}
+            </ScrollArea>
+          </div>
         </div>
       </Popover>
     </>

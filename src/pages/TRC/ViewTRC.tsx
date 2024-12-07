@@ -15,12 +15,12 @@ import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, Radi
 import { showToast } from "@/utils/toasterContext";
 interface Issue {
   id: string;
-  selectedPart: {lable:string, value:string} | null;
+  selectedPart: { lable: string; value: string } | null;
   quantity: number | string;
   remarks: string;
   code: string;
   UOM: string;
-  isNew:boolean
+  isNew: boolean;
 }
 
 const ViewTRC: React.FC = () => {
@@ -28,6 +28,7 @@ const ViewTRC: React.FC = () => {
   const { TRCDetail, getTrcRequestDetailLoading, trcRequestDetail, TrcFinalSubmitLoading } = useAppSelector((state) => state.viewTrc);
   const [process, setProcess] = useState<boolean>(false);
   const [location, setLocation] = useState<LocationType | null>(null);
+  const [consumplocation, setConsumplocation] = useState<LocationType | null>(null);
   const [issues, setIssues] = useState<Issue[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
@@ -37,7 +38,7 @@ const ViewTRC: React.FC = () => {
   const checkRequiredFields = (data: Issue[]) => {
     let hasErrors = false;
 
-    const requiredFields: Array<keyof Issue> = [ "selectedPart", "quantity"];
+    const requiredFields: Array<keyof Issue> = ["selectedPart", "quantity"];
     const miss = data.map((item) => {
       const missingFields: string[] = [];
       requiredFields.forEach((field) => {
@@ -52,7 +53,6 @@ const ViewTRC: React.FC = () => {
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
-  
       showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
       hasErrors = true;
     }
@@ -63,39 +63,39 @@ const ViewTRC: React.FC = () => {
       showToast("Issue not added", "error");
     } else if (!checkRequiredFields(issues)) {
       // TRCDetail?.txnId
-      if (!location) {
-        showToast("Please select location", "error");
-      } else {
-        const consumpItem = issues.map((item) => item.selectedPart?.value||"");
-        const consumpQty = issues.map((item) => item.quantity);
-        const remark = issues.map((item) => item.remarks);
-        
-        const payload: TrcFinalSubmitPayload = {
-          txnId: TRCDetail?.txnId || "",
-          consumpItem,
-          consumpQty,
-          remark,
-          putLocation: location?.id || "",
-          itemCode: device || "",
-         
-        };
-        dispatch(trcFinalSubmit(payload)).then((res: any) => {
-          if (res.payload.data.success) {
-            showToast(res.payload.data.message, "success");
-            if (!approved) {
-              setApproved([device]);
-            } else {
-              setApproved([...approved, device]);
-            }
-            setDevice("");
-            setLocation(null);
-            if (approved?.length === trcRequestDetail!.body.length) {
-              setProcess(false);
-              dispatch(getTrcList());
-            }
+      if (!location) return showToast("Please select location", "error");
+      if (!consumplocation) return showToast("Please select consump location", "error");
+      const consumpItem = issues.map((item) => item.selectedPart?.value || "");
+      const consumpQty = issues.map((item) => item.quantity);
+      const remark = issues.map((item) => item.remarks);
+
+      const payload: TrcFinalSubmitPayload = {
+        txnId: TRCDetail?.txnId || "",
+        consumpItem,
+        consumpQty,
+        remark,
+        putLocation: location?.id || "",
+        itemCode: device || "",
+        consumpLoc: consumplocation?.id || "",
+      };
+      dispatch(trcFinalSubmit(payload)).then((res: any) => {
+        if (res.payload.data.success) {
+          showToast(res.payload.data.message, "success");
+          if (!approved) {
+            setApproved([device]);
+          } else {
+            setApproved([...approved, device]);
           }
-        });
-      }
+          setDevice("");
+          setLocation(null);
+          setConsumplocation(null);
+          setIssues([]);
+          if (approved?.length === trcRequestDetail!.body.length) {
+            setProcess(false);
+            dispatch(getTrcList());
+          }
+        }
+      });
     }
   };
 
@@ -112,7 +112,6 @@ const ViewTRC: React.FC = () => {
     }
   }, [process]);
 
-
   const addRow = useCallback(() => {
     const newId = crypto.randomUUID();
     const newRow: Issue = {
@@ -122,12 +121,10 @@ const ViewTRC: React.FC = () => {
       remarks: "",
       code: "",
       UOM: "",
-      isNew: true
+      isNew: true,
     };
-    setIssues((prev) => [newRow,...prev]);
+    setIssues((prev) => [newRow, ...prev]);
   }, [issues]);
-
- 
 
   return (
     <>
@@ -246,13 +243,14 @@ const ViewTRC: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className=" h-[60px]  flex items-center px-[10px]">
-                  <SelectLocation value={location} onChange={setLocation} label="Drop Location" width="400px" />
+                <div className=" h-[60px]  grid grid-cols-2 items-center gap-[20px] px-[20px]">
+                  <SelectLocation value={location} onChange={setLocation} label="Drop Location" />
+                  <SelectLocation value={consumplocation} onChange={setConsumplocation} label="Consump Location" />
                 </div>
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
                     <Typography fontWeight={600} fontSize={16}>
-                     Consumable Components
+                      Consumable Components
                     </Typography>
                     <p className="text-slate-600 font-[600]">Total fix issues: {issues.length.toString()}</p>
                   </div>
@@ -271,7 +269,7 @@ const ViewTRC: React.FC = () => {
                 <LoadingButton disabled={TrcFinalSubmitLoading} variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => setProcess(false)}>
                   Cancel
                 </LoadingButton>
-                <LoadingButton loadingPosition="start" disabled={!issues.length}  variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.done fontSize="small" />}>
+                <LoadingButton loadingPosition="start" disabled={!issues.length} variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.save fontSize="small" />}>
                   Submit
                 </LoadingButton>
               </div>

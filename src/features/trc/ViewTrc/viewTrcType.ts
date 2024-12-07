@@ -58,6 +58,7 @@ export type TrcFinalSubmitPayload = {
   consumpQty:   (string | number)[];
   remark: string[];
   itemCode: string;
+  consumpLoc: string;
 
 };
 export type TrcfinalSubmitResponse = {
