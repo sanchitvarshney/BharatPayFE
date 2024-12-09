@@ -25,8 +25,14 @@ type Props = {
   detail: {
     name: string;
     uom: string; // Unit of Measure
-    category: string;
-    subcategory: string;
+    category:  {
+      code:string;
+      name: string;
+    };
+    subcategory:  {
+      code:string;
+      name: string;
+    };
     mrp: string; // Maximum Retail Price
     status: string; // Assuming status is a binary "Yes" or "No"
     description: string;
@@ -41,8 +47,8 @@ const UpdateComponentBasicDetail: React.FC<Props> = ({ detail, setUpdateBasicDet
   const defaultValues: FormDataType = {
     name: detail?.name || "",
     uom: { id: detail?.uomId || "", text: detail?.uom || "" },
-    category: null,
-    subcategory: null,
+    category: {catId: detail?.category?.code || "", name: detail?.category?.name || "" },
+    subcategory: {catId: detail?.subcategory?.code || "", name: detail?.subcategory?.name || "" },
     mrp: detail?.mrp || "",
     status: detail?.status || "",
     description: detail?.description || "",

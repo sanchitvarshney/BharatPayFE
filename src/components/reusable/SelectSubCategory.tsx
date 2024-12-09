@@ -21,7 +21,7 @@ type Props = {
   disabled?: boolean;
 };
 
-const SelectSubCategory: React.FC<Props> = ({ value, onChange, label = "Select Subcategory", width = "100%", error, helperText, variant = "outlined", required = false, size = "medium", categoryId,disabled= false }) => {
+const SelectSubCategory: React.FC<Props> = ({ value, onChange, label = "Select Subcategory", width = "100%", error, helperText, variant = "outlined", required = false, size = "medium", categoryId, disabled = false }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [subCategoryList, setSubCategoryList] = useState<SubCategoryType[]>([]);
 
@@ -32,6 +32,8 @@ const SelectSubCategory: React.FC<Props> = ({ value, onChange, label = "Select S
       const response = await axiosInstance.get(`/component/category/subCategoryList/${categoryId}`);
       if (response.data.success) {
         setSubCategoryList(response.data.data || []);
+      } else {
+        setSubCategoryList([]);
       }
     } catch (error) {
       console.error("Error fetching subcategories:", error);
@@ -42,13 +44,13 @@ const SelectSubCategory: React.FC<Props> = ({ value, onChange, label = "Select S
 
   useEffect(() => {
     if (categoryId) {
-      if (!subCategoryList.length) fetchSubCategories();
+      fetchSubCategories();
     }
   }, [categoryId]);
 
   return (
     <Autocomplete
-    disabled={disabled}
+      disabled={disabled}
       value={value}
       size={size}
       options={subCategoryList || []}

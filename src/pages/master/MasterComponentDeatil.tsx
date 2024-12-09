@@ -173,8 +173,8 @@ const MasterComponentDeatil: React.FC = () => {
                       detail={{
                         name: componentDetail?.[0]?.name || "",
                         uom: componentDetail?.[0]?.uomname || "",
-                        category: componentDetail?.[0]?.category || "",
-                        subcategory: componentDetail?.[0]?.subcategory || "",
+                        category: componentDetail?.[0]?.category || { name: "", code: "" },
+                        subcategory: componentDetail?.[0]?.subcategory || { name: "", code: "" },
                         mrp: componentDetail?.[0]?.mrp || "",
                         status: componentDetail?.[0]?.enable_status || "",
                         description: componentDetail?.[0]?.description || "",
@@ -191,8 +191,8 @@ const MasterComponentDeatil: React.FC = () => {
                         { label: "Type", value: "--" },
                         { label: "MRP", value: componentDetail?.[0]?.mrp },
                         { label: "Status", value: componentDetail?.[0]?.enable_status === "Y" ? "Active" : "Inactive" },
-                        { label: "Category", value: componentDetail?.[0]?.category },
-                        { label: "Sub Category", value: componentDetail?.[0]?.subcategory },
+                        { label: "Category", value: componentDetail?.[0]?.category?.name },
+                        { label: "Sub Category", value: componentDetail?.[0]?.subcategory?.name },
                         { label: "Description", value: componentDetail?.[0]?.description },
                       ].map(({ label, value }) => (
                         <div key={label} className="py-5">

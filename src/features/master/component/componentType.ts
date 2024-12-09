@@ -48,8 +48,14 @@ export type ComponentDetail = {
   uomid: string;
   name: string;
   mrp: string;
-  category: string;
-  subcategory: string;
+  category: {
+    code: string;
+    name: string;
+  };
+  subcategory: {
+    code: string;
+    name: string;
+  };
   enable_status: string;
   alert_status: string;
   brand: string;
