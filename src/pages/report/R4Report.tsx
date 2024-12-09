@@ -127,11 +127,13 @@ const R4Report: React.FC = () => {
           </div>
         </div>
       </Dialog>
-      <div className="bg-white h-[calc(100vh-100px)] flex">
-        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300  relative ${colapse ? "min-w-[15px] max-w-[15px]" : "min-w-[400px] max-w-[400px] "}`}>
-          <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
-            {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
-          </Button>
+      <div className="bg-white h-[calc(100vh-100px)] flex relative">
+        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}`}>
+          <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
+            <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
+              {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+            </Button>
+          </div>
           <div className="flex  gap-[20px] flex-col  mr-[15px] p-[20px] overflow-hidden mt-[20px]">
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
@@ -180,8 +182,7 @@ const R4Report: React.FC = () => {
               <MuiTooltip title="Download" placement="right">
                 <LoadingButton
                   variant="contained"
-                  disabled={!r4report} 
-                  
+                  disabled={!r4report}
                   onClick={onBtExport}
                   color="primary"
                   style={{
@@ -197,7 +198,6 @@ const R4Report: React.FC = () => {
                   <Icons.download fontSize="small" />
                 </LoadingButton>
               </MuiTooltip>
-            
             </div>
           </div>
         </div>

@@ -45,6 +45,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ChatIcon from '@mui/icons-material/Chat';
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import CheckIcon from '@mui/icons-material/Check';
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -92,5 +93,6 @@ export const Icons = {
   right:KeyboardArrowRightIcon,
   chat:ChatIcon,
   visible:Visibility,
-  invisible:VisibilityOff
+  invisible:VisibilityOff,
+  check:CheckIcon
 };

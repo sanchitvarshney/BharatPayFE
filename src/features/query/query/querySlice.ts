@@ -21,7 +21,7 @@ export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: 
   return response;
 });
 export const getQ2Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null }>("query/getQ2", async (params) => {
-  const response = await axiosInstance.get(params.location ? `/query/q2/log/RM?data=${params.value}$location=${params.location}` : `/query/q2/log/RM?date=${params.date}&data=${params.value}`);
+  const response = await axiosInstance.get(params.location ? `/query/q2/log/RM?data=${params.value}&location=${params.location}&type=location` : `/query/q2/log/RM?date=${params.date}&data=${params.value}&type=date`);
   return response;
 });
 

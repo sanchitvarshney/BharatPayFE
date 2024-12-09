@@ -2,8 +2,6 @@
   --ag-header-height: 40px;
   --ag-header-foreground-color: #475569;
   --ag-header-background-color: #e4e4e7;
-  /* --ag-header-cell-hover-background-color: rgb(80, 40, 140); */
-  /* --ag-header-cell-moving-background-color: rgb(80, 40, 140); */
   border: none;
 }
 .ag-theme-quartz .ag-root-wrapper {
@@ -219,3 +217,6 @@ input:-webkit-autofill {
     background-color: #3c4d60; /* Darker shade when hovering */
   }
 }
+
+
+

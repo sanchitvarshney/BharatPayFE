@@ -3,16 +3,13 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import DeviceMinCellRener from "../Cellrenders/DeviceMinCellRener";
-import { Button } from "@/components/ui/button";
-import { IoMdCheckmark } from "react-icons/io";
 import { showToast } from "@/utils/toastUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { UpdateDEviceMin } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { UpateMINpayload } from "@/features/wearhouse/Divicemin/DeviceMinType";
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { HiMiniTrash } from "react-icons/hi2";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { CgSpinner } from "react-icons/cg";
+import { CircularProgress, IconButton } from "@mui/material";
+import { Icons } from "@/components/icons";
 
 interface RowData {
   remarks: string;
@@ -79,7 +76,7 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       headerName: "IMEI",
       field: "IMEI",
       cellRenderer: "textInputCellRenderer",
-      minWidth: 200,
+      minWidth: 270,
     },
     {
       headerName: "Model",
@@ -108,13 +105,15 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     {
       headerName: "",
       field: "isNew",
+      pinned: "right",
       cellRenderer: (params: any) => {
         const dispatch = useAppDispatch();
-        const { value, data, api, column } = params;
+        const { data, api, column } = params;
         const { storeSerialFiles, storeDraftMinData, updateMinLoading } = useAppSelector((state) => state.divicemin);
         return (
           <div key={data.id} className="flex items-center justify-center h-full gap-[10px]">
-            <CustomButton
+            <IconButton
+              color="success"
               onClick={() => {
                 if (!data.simAvailability) {
                   showToast({ title: "Please Select SIM Availability", variant: "destructive" });
@@ -144,21 +143,22 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
                   }
                 }
               }}
-              className={`w-[30px] h-[30px] bg-white text-slate-600 hover:bg-white hover:text-slate-600 p-0 ${!value ? "bg-green-500 text-white hover:bg-green-500 hover:text-white" : "text-slate-600"}`}
+              disabled={updateMinLoading && id === data?.id}
             >
-              {updateMinLoading && id === data?.id ? <CgSpinner className="w-[20px] h-[20px] animate-spin text-slate-400" /> : <IoMdCheckmark />}
-            </CustomButton>
-            <Button onClick={() => setRowdata(rowData.filter((item) => item.id !== data?.id))} className="w-[30px] h-[30px] p-0 text-slate-600" variant={"outline"}>
-              <HiMiniTrash className="h-[20px] w-[20px] text-red-500 cursor-pointer" />
-            </Button>
+              {updateMinLoading && id === data?.id ? <CircularProgress size={23} /> : <Icons.check />}
+            </IconButton>
+            <IconButton onClick={() => setRowdata(rowData.filter((item) => item.id !== data?.id))} color="error">
+              <Icons.delete />
+            </IconButton>
           </div>
         );
       },
+      width: 120,
     },
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-250px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-220px)]">
       <AgGridReact
         ref={gridRef}
         onCellFocused={(event: any) => {

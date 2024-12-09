@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CustomButton } from "@/components/reusable/CustomButton";
+import { Card, CardContent, CardFooter,  } from "@/components/ui/card";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { IoMdCheckmark } from "react-icons/io";
 import DeviceMinViewTable from "@/table/wearhouse/DeviceMinViewTable";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getAllSubmitInfo, reseAllupdateDeviceInfo, resetAllSubmitInfo, resetDraftMin, resetForm, resetInvoiceFile, resetSerialFile, submitFinalStage } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { CgSpinner } from "react-icons/cg";
-import { Button } from "@/components/ui/button";
 import parse from "html-react-parser";
+import { CircularProgress, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { showToast } from "@/utils/toasterContext";
 type Props = {
   setStep: (step: number) => void;
   step: number;
@@ -24,22 +24,23 @@ const DeviceMinStep3: React.FC<Props> = ({ setStep, step }) => {
     }
   }, []);
   return (
-    <Card className="h-[calc(100vh-70px)] relative">
+    <div className="h-[calc(100vh-50px)] relative">
       {getAllsubmitinfoLoading && (
-        <div className="absolute top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center bg-white/60">
+        <div className="absolute top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center bg-white">
           <div className="flex items-center">
-            <CgSpinner className="h-[50px] w-[50px] text-slate-400 animate-spin" />
-            Loading...
+            <CircularProgress size={50}/>
           </div>
         </div>
       )}
 
-      <CardHeader className="p-0 bg-hbg h-[60px] flex-row items-center px-[20px] justify-between">
-        <CardTitle>Check All the Items you have Submit</CardTitle>
+      <div className="p-0 bg-hbg h-[50px] flex items-center px-[20px] justify-between border-b border-neutral-300 ">
+        <Typography fontSize={18} fontWeight={600} className="text-slate-700">
+          Check All the Items you have Submit
+        </Typography>
         <p className="font-[600] text-slate-600 text-[18px]">{storeDraftMinData && "#" + storeDraftMinData?.min_no}</p>
-      </CardHeader>
-      <CardContent className="h-[calc(100vh-180px)] overflow-y-auto grid grid-cols-[450px_1fr] p-0">
-        <div className="h-full overflow-y-auto border-r p-[20px]">
+      </div>
+      <div className="h-[calc(100vh-150px)] overflow-y-auto grid grid-cols-[450px_1fr] p-0">
+        <div className="h-full overflow-y-auto border-r p-[20px] ">
           <ul className="h-[calc(100vh-380px)]">
             <li className="flex items-center justify-between text-slate-500 py-[5px] border-b">
               <p className="text-slate-500 font-[600] text-[13px]">Vendor</p>
@@ -65,9 +66,10 @@ const DeviceMinStep3: React.FC<Props> = ({ setStep, step }) => {
             </li>
             <li className="flex items-center justify-between text-slate-500 py-[5px] border-b">
               <p className="text-slate-500 font-[600] text-[13px]">Qty</p>
-              <p className="text-[13px]">{getAllSubminInfo?.data?.headerData?.qty} {getAllSubminInfo?.data?.headerData?.unit}</p>
+              <p className="text-[13px]">
+                {getAllSubminInfo?.data?.headerData?.qty} {getAllSubminInfo?.data?.headerData?.unit}
+              </p>
             </li>
-            
           </ul>
           <div className="">
             <Card className="p-0 border-none shadow-none h-[150px]  ">
@@ -92,17 +94,16 @@ const DeviceMinStep3: React.FC<Props> = ({ setStep, step }) => {
             </Card>
           </div>
         </div>
-        <div className="border-t border-slate-300">
+        <div className="">
           <DeviceMinViewTable />
         </div>
-      </CardContent>
-      <CardFooter className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px]">
-        <Button type="button" onClick={() => setStep(step - 1)} variant={"outline"} className="flex items-center gap-[10px]">
-          <FaArrowLeftLong className="h-[18px] w-[18px]" />
+      </div>
+      <CardFooter className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px] border-t border-neutral-300">
+        <LoadingButton type="button" startIcon={<FaArrowLeftLong className="h-[18px] w-[18px]" />} onClick={() => setStep(step - 1)} variant={"outlined"} sx={{ background: "white" }}>
           Back
-        </Button>
-        <CustomButton
-        type="button"
+        </LoadingButton>
+        <LoadingButton
+          type="button"
           loading={finaSubmitLoading}
           onClick={() => {
             if (storeDraftMinData) {
@@ -117,15 +118,17 @@ const DeviceMinStep3: React.FC<Props> = ({ setStep, step }) => {
                   dispatch(resetAllSubmitInfo());
                 }
               });
+            } else {
+              showToast("MIN no not found", "error");
             }
           }}
-          icon={<IoMdCheckmark className="h-[18px] w-[18px]" />}
-          className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]"
+          startIcon={<IoMdCheckmark className="h-[18px] w-[18px]" />}
+          variant="contained"
         >
           Submit
-        </CustomButton>
+        </LoadingButton>
       </CardFooter>
-    </Card>
+    </div>
   );
 };
 
