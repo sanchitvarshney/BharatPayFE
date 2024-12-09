@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { CustomButton } from "@/components/reusable/CustomButton";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
@@ -280,7 +279,18 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                   render={({ field }) => (
                     <FormControl fullWidth error={!!errors.qty}>
                       <InputLabel id="demo-simple-select-label">Qty</InputLabel>
-                      <OutlinedInput label={"Qty"} {...field} endAdornment={<InputAdornment position="end">{unit}</InputAdornment>} />
+                      <OutlinedInput
+                        label="Qty"
+                        value={field.value}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+
+                          if (/^\d*$/.test(inputValue)) {
+                            field.onChange(inputValue);
+                          }
+                        }}
+                        endAdornment={<InputAdornment position="end">{unit}</InputAdornment>}
+                      />
                       {errors.qty && <FormHelperText id="outlined-weight-helper-text">{errors.qty.message}</FormHelperText>}
                     </FormControl>
                   )}
@@ -457,13 +467,15 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
           </div>
         </div>
         <div className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px] border-t border-neutral-300">
-         {
-          storeStep1formData ?<CustomButton type="button" onClick={() => setStep(2)} loading={createMinLoading} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
-          Next <FaArrowRightLong className="h-[18px] w-[18px]" />
-        </CustomButton>: <CustomButton type="submit" loading={createMinLoading} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]">
-          Next <FaArrowRightLong className="h-[18px] w-[18px]" />
-        </CustomButton>
-         }
+          {storeStep1formData ? (
+            <LoadingButton type="button" onClick={() => setStep(2)} loading={createMinLoading} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
+              Next <FaArrowRightLong className="h-[18px] w-[18px]" />
+            </LoadingButton>
+          ) : (
+            <LoadingButton  type="submit" loading={createMinLoading} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
+              Next
+            </LoadingButton>
+          )}
         </div>
       </div>
     </form>

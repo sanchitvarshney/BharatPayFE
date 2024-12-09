@@ -18,12 +18,14 @@ const Q3query: React.FC = () => {
   const dispatch = useAppDispatch();
   const { q3data, q3DataLoading } = useAppSelector((state) => state.query);
   return (
-    <div className="  h-[calc(100vh-100px)] bg-white">
+    <div className="  h-[calc(100vh-100px)] bg-white relative">
       <div className={` h-full flex   `}>
-        <div className={` transition-all h-full ${colapse ? "min-w-[16px] max-w-[0px]" : "min-w-[400px] max-w-[400px] "}  overflow-y-auto overflow-x-hidden border-r border-neutral-400/70 relative  `}>
-          <Button onClick={() => setcolapse(!colapse)} className={`right-0 w-[16px] p-0 bg-neutral-200 h-full top-0 bottom-0 absolute rounded-none hover:bg-neutral-300 text-slate-600 z-[10]`}>
-            {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
-          </Button>
+        <div className={` transition-all h-full ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}  overflow-y-auto overflow-x-hidden border-r border-neutral-400/70   `}>
+          <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
+            <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
+              {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+            </Button>
+          </div>
           <div className="p-[20px] ">
             <div className="flex flex-col gap-[30px]">
               <SelectComponent value={component} onChange={setComponent} />

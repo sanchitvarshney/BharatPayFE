@@ -41,7 +41,7 @@ const DeviceMinViewTable: React.FC = () => {
   }, []);
   return (
     <div>
-      <div className=" ag-theme-quartz h-[calc(100vh-182px)]">
+      <div className=" ag-theme-quartz h-[calc(100vh-150px)]">
         <AgGridReact
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           loading={getAllsubmitinfoLoading}

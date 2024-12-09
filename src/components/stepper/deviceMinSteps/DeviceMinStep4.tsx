@@ -1,7 +1,7 @@
-import { CustomButton } from "@/components/reusable/CustomButton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Icons } from "@/components/icons";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { Download } from "lucide-react";
+import { LoadingButton } from "@mui/lab";
+import { Typography } from "@mui/material";
 import React from "react";
 import { FaArrowRightLong } from "react-icons/fa6";
 import styled from "styled-components";
@@ -11,13 +11,15 @@ type Props = {
   step?: number;
 };
 const DeviceMinStep4: React.FC<Props> = ({ setStep }) => {
-  const {min_no} = useAppSelector(state=>state.divicemin)
+  const { min_no } = useAppSelector((state) => state.divicemin);
   return (
-    <Card className="h-[calc(100vh-70px)]">
-      <CardHeader className="p-0 bg-hbg h-[60px] justify-center px-[20px]">
-        <CardTitle>Confirm And Proceed</CardTitle>
-      </CardHeader>
-      <CardContent className="h-[calc(100vh-130px)] flex items-center justify-center">
+    <div className="h-[calc(100vh-50px)]">
+      <div className="p-0 bg-hbg h-[50px] flex items-center justify-between px-[20px] border-b border-neutral-300">
+        <Typography fontSize={18} fontWeight={600} className="text-slate-700">
+          MIN Complete
+        </Typography>
+      </div>
+      <div className="h-[calc(100vh-130px)] flex items-center justify-center">
         <div className="flex flex-col justify-center max-h-max max-w-max gap-[30px]">
           <Success>
             <div className="success-animation">
@@ -27,21 +29,21 @@ const DeviceMinStep4: React.FC<Props> = ({ setStep }) => {
               </svg>
             </div>
           </Success>
-         <div className="flex items-center gap-[20px] text-slate-600 justify-center">
-          <p className="text-[18px] font-[600]">MIN No.</p>
-          <p>{min_no&&min_no}</p>
-         </div>
+          <div className="flex items-center gap-[20px] text-slate-600 justify-center">
+            <p className="text-[18px] font-[600]">MIN No.</p>
+            <p>{min_no && min_no}</p>
+          </div>
           <div className="flex items-center gap-[10px]">
-            <CustomButton type="button" disabled variant={"outline"} icon={<Download className="h-[18px] w-[18px]" />}>
+            <LoadingButton type="button" disabled variant={"outlined"} startIcon={<Icons.download />}>
               Download
-            </CustomButton>
-            <CustomButton type="button" onClick={() => setStep(1)} className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[10px]">
-              Create New MIN <FaArrowRightLong className="h-[18px] w-[18px]" />
-            </CustomButton>
+            </LoadingButton>
+            <LoadingButton type="button" onClick={() => setStep(1)} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
+              Create New MIN
+            </LoadingButton>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 const Success = styled.div`

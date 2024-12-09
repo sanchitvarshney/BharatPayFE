@@ -1,15 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CustomButton } from "@/components/reusable/CustomButton";
+import { Card, CardContent } from "@/components/ui/card";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { showToast } from "@/utils/toastUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkSerial } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { CgSpinner } from "react-icons/cg";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import DeviceMinTable from "@/table/wearhouse/DeviceMinTable";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { CircularProgress, InputAdornment, TextField, Typography } from "@mui/material";
+import { Icons } from "@/components/icons";
+import { LoadingButton } from "@mui/lab";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 
 type Props = {
   setStep: (step: number) => void;
@@ -31,12 +30,10 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
   const [input, setInput] = useState<string>("");
   const [alert, setAlert] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const continueref = useRef<HTMLButtonElement>(null);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const dispatch = useAppDispatch();
   const { checkSerialLoading, updateMinData, storeDraftMinData } = useAppSelector((state) => state.divicemin);
   const isSerialUnique = (serial: string) => {
-    console.log(rowData.some((row) => row.serialno === serial));
     return !rowData.some((row) => row.serialno === serial);
   };
 
@@ -74,47 +71,36 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
 
   return (
     <>
-      <AlertDialog open={alert} onOpenChange={setAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>This Serial No. is not exiest in you uploaded file</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div>
-            <CardTitle className="text-slate-600">Is SIM Available</CardTitle>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => {
-                addRow(input, "", false, "N");
-                inputRef.current!.focus();
-              }}
-            >
-              No
-            </AlertDialogCancel>
-            <AlertDialogAction
-              ref={continueref}
-              className="bg-cyan-700 hover:bg-cyan-800"
-              onClick={() => {
-                addRow(input, "", false, "Y");
-                inputRef.current!.focus();
-              }}
-            >
-              Yes
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationModel
+        open={alert}
+        onClose={() => setAlert(false)}
+        cancelText="No"
+        confirmText={"Yes"}
+        title={"This Serial No. is not exiest in your uploaded file"}
+        content={"Is SIM Available?"}
+        color="primary"
+        startIcon={<Icons.check fontSize="small" />}
+        onConfirm={() => {
+          if (input) {
+            addRow(input, "", false, "Y");
+          }
+          inputRef.current!.focus();
+          setAlert(false);
+        }}
+      />
 
-      <Card className="h-[calc(100vh-70px)]">
-        <CardHeader className="p-0 bg-hbg h-[60px] items-center flex-row justify-between px-[20px]">
-          <CardTitle>Scan All Items</CardTitle>
+      <div className="h-[calc(100vh-50px)]">
+        <div className="h-[50px] flex items-center justify-between bg-hbg px-[20px] border-b border-neutral-300">
+          <Typography fontSize={18} fontWeight={600} className="text-slate-700">
+            Scan All Items
+          </Typography>
           <p className="font-[600] text-slate-600 text-[18px]">{storeDraftMinData && "#" + storeDraftMinData?.min_no}</p>
-        </CardHeader>
-        <CardContent className="h-[calc(100vh-180px)] p-0 grid grid-cols-[1fr_300px] ">
+        </div>
+        <div className="h-[calc(100vh-150px)] p-0 grid grid-cols-[1fr_300px] ">
           <div>
-            <div className=" clear-startgap-[50px] h-[70px] px-[20px] flex items-center ">
+            <div className=" clear-startgap-[50px] h-[70px] px-[20px] flex items-center border-b border-neutral-300 ">
               <div className="relative max-w-max ">
-                <Input
+                <TextField
                   value={input}
                   onChange={(e) => {
                     setInput(e.target.value);
@@ -151,19 +137,19 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
                   ref={inputRef}
                   className="w-[400px] focus-visible:bg-[#fffadb]"
                   placeholder="Scan an item to add"
+                  slotProps={{
+                    input: {
+                      endAdornment: <InputAdornment position="end">{checkSerialLoading ? <CircularProgress size={25} /> : <Icons.qrScan />}</InputAdornment>,
+                    },
+                  }}
                 />
-                {checkSerialLoading && (
-                  <span>
-                    <CgSpinner className="h-[30px] w-[30px] text-slate-400 animate-spin absolute top-[7%] right-[5px]" />
-                  </span>
-                )}
               </div>
             </div>
             <div className={`  relative `}>
               <DeviceMinTable rowData={rowData} setRowdata={setRowData} />
             </div>
           </div>
-          <div className="p-[10px] border-l">
+          <div className="p-[10px] border-l border-neutral-300">
             <Card className="p-0 border-none shadow-none">
               <CardContent className="p-0">
                 <div className="flex items-center justify-between text-slate-600">
@@ -185,14 +171,13 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
               </CardContent>
             </Card>
           </div>
-        </CardContent>
-        <CardFooter className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px]">
-          <Button type="button" onClick={() => setStep(step - 1)} variant={"outline"} className="flex items-center gap-[10px]">
-            <FaArrowLeftLong className="h-[18px] w-[18px]" />
+        </div>
+        <div className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px] border-t border-neutral-300">
+          <LoadingButton sx={{ background: "white" }} startIcon={<FaArrowLeftLong className="h-[18px] w-[18px]" />} type="button" onClick={() => setStep(step - 1)} variant={"outlined"} className="flex items-center gap-[10px]">
             Back
-          </Button>
-          <CustomButton
-          type="button"
+          </LoadingButton>
+          <LoadingButton
+            type="button"
             onClick={() => {
               let notsubmit: any[] | null = null;
               notsubmit = rowData?.filter((item) => item.isNew);
@@ -205,12 +190,13 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
                 setStep(step + 1);
               }
             }}
-            className="bg-cyan-700 hover:bg-cyan-800 flex items-center gap-[5px]"
+            variant="contained"
+            endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}
           >
-            Next <FaArrowRightLong className="h-[18px] w-[18px]" />
-          </CustomButton>
-        </CardFooter>
-      </Card>
+            Next
+          </LoadingButton>
+        </div>
+      </div>
     </>
   );
 };

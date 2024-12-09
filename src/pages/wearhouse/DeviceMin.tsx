@@ -30,7 +30,7 @@ const StepCard = ({ active, label, description, icon }: { active: boolean; label
 );
 
 const DeviceMin: React.FC = () => {
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState<number>(2);
 
   const handleStateChange = (state: number) => setStep(state);
 

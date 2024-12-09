@@ -26,11 +26,11 @@ const DeviceMinCellRener: React.FC<MaterialInvardCellRendererProps> = ({ props }
   const renderContent = () => {
     switch (colDef.field) {
       case "serialno":
-        return <Input disabled onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input disabled onChange={handleInputChange} value={value} type="number" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
       case "simAvailability":
         return (
           <Select
-            className="w-full"
+            className="w-full custom-select"
             value={value}
             defaultValue={value}
             onChange={(value) => handleChange(value)}
@@ -41,11 +41,11 @@ const DeviceMinCellRener: React.FC<MaterialInvardCellRendererProps> = ({ props }
           />
         );
       case "IMEI":
-        return data?.isAvailble ? <span>{value}</span> : <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return data?.isAvailble ? <span>{value}</span> : <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  custom-input" />;
       case "model":
-        return data?.isAvailble ? <span>{value}</span> : <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return data?.isAvailble ? <span>{value}</span> : <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
       case "remarks":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  custom-input" />;
 
         return (
           <div className="flex items-center justify-center h-full gap-[10px]">

@@ -17,9 +17,7 @@ const DownloadIndecator = () => {
   const [progress, setProgress] = React.useState<{ notificationId: string; percent: string } | null>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    
   };
-
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -38,8 +36,8 @@ const DownloadIndecator = () => {
   useEffect(() => {
     const handleDownloadReport = (data: { notificationId: string; percent: string }) => {
       setProgress(data);
-      console.log(data)
-      if(Number(data.percent) === 100){
+      console.log(data);
+      if (Number(data.percent) === 100) {
         showToast("Download completed", "success");
       }
     };
@@ -51,7 +49,6 @@ const DownloadIndecator = () => {
 
   return (
     <>
-      
       <MuiTooltip title="Download" placement="bottom">
         <IconButton
           sx={{
@@ -120,10 +117,12 @@ const DownloadIndecator = () => {
                       </Typography>
                     </div>
                     {item.status === "complete" && item.msg_type === "file" && (
-                      <IconButton size="small" color="success"
-                      onClick={()=>{
-                        window.location.href  = (`${import.meta.env.VITE_SOKET_URL}/${JSON.parse(item.other_data)?.fileUrl}`);
-                      }}
+                      <IconButton
+                        size="small"
+                        color="success"
+                        onClick={() => {
+                          window.location.href = `${import.meta.env.VITE_SOKET_URL}/${JSON.parse(item.other_data)?.fileUrl}`;
+                        }}
                       >
                         <Icons.download fontSize="small" />
                       </IconButton>
