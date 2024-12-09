@@ -1,8 +1,9 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { ComponentDetails, ComponentsApiResponse, ComponnetState, GroupApiResponse } from "./componentType";
+import { ComponentDetailApiResponse, ComponentDetails, ComponentsApiResponse, ComponnetState, GroupApiResponse, UpdateCompoenntProductionDetailPayload, UpdateComponentAdvanceDetail, UpdateComponentBasicDetailPayload } from "./componentType";
 import { UomCreateApiresponse } from "../UOM/UOMType";
+import { showToast } from "@/utils/toasterContext";
 
 const initialState: ComponnetState = {
   component: null,
@@ -10,6 +11,11 @@ const initialState: ComponnetState = {
   createComponentLoading: false,
   groupList: null,
   getGroupListLoading: false,
+  getComponentDetailLoading: false,
+  componentDetail: null,
+  updateCompoenntBasciDetailLoading: false,
+  updateCompoenntAdvanceDetailLoading: false,
+  updateCompoenntProductionDetailLoading: false,
 };
 
 export const getComponentsAsync = createAsyncThunk<AxiosResponse<ComponentsApiResponse>>("master/getcomponents", async () => {
@@ -24,7 +30,22 @@ export const getGroupsAsync = createAsyncThunk<AxiosResponse<GroupApiResponse>>(
   const response = await axiosInstance.get("/group/groupSelect2");
   return response;
 });
-
+export const getComponentDetailSlice = createAsyncThunk<AxiosResponse<ComponentDetailApiResponse>, string>("group/getComponentSlice", async (id) => {
+  const response = await axiosInstance.get(`/component/getComponentDetailsByCode/${id}`);
+  return response;
+});
+export const updateCompoenntBasicDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateComponentBasicDetailPayload>("group/updateCompoenntBasicDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(`/component/updateComponentBasicDetail`, payload);
+  return response;
+});
+export const updateCompoenntAdvanceDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateComponentAdvanceDetail>("group/updateCompoenntAdvanceDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(`/component/updateComponentAdvanceDetail`, payload);
+  return response;
+});
+export const updateCompoenntProductionDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateCompoenntProductionDetailPayload>("group/updateCompoenntProductionDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(`/component/updateComponentProductionDetail`, payload);
+  return response;
+});
 const componentSlice = createSlice({
   name: "component",
   initialState,
@@ -55,7 +76,6 @@ const componentSlice = createSlice({
       })
       .addCase(createComponentAsync.fulfilled, (state) => {
         state.createComponentLoading = false;
-       
       })
       .addCase(createComponentAsync.rejected, (state) => {
         state.createComponentLoading = false;
@@ -72,6 +92,54 @@ const componentSlice = createSlice({
       .addCase(getGroupsAsync.rejected, (state) => {
         state.getGroupListLoading = false;
       })
+      .addCase(getComponentDetailSlice.pending, (state) => {
+        state.getComponentDetailLoading = true;
+      })
+      .addCase(getComponentDetailSlice.fulfilled, (state, action) => {
+        state.getComponentDetailLoading = false;
+        if (action.payload.data.status === "success") {
+          state.componentDetail = action.payload.data.data;
+        }
+      })
+      .addCase(getComponentDetailSlice.rejected, (state) => {
+        state.getComponentDetailLoading = false;
+      })
+      .addCase(updateCompoenntBasicDetailAsync.pending, (state) => {
+        state.updateCompoenntBasciDetailLoading = true;
+      })
+      .addCase(updateCompoenntBasicDetailAsync.fulfilled, (state, action) => {
+        state.updateCompoenntBasciDetailLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateCompoenntBasicDetailAsync.rejected, (state) => {
+        state.updateCompoenntBasciDetailLoading = false;
+      })
+      .addCase(updateCompoenntAdvanceDetailAsync.pending, (state) => {
+        state.updateCompoenntAdvanceDetailLoading = true;
+      })
+      .addCase(updateCompoenntAdvanceDetailAsync.fulfilled, (state, action) => {
+        state.updateCompoenntAdvanceDetailLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateCompoenntAdvanceDetailAsync.rejected, (state) => {
+        state.updateCompoenntAdvanceDetailLoading = false;
+      })
+      .addCase(updateCompoenntProductionDetailAsync.pending, (state) => {
+        state.updateCompoenntProductionDetailLoading = true;
+      })
+      .addCase(updateCompoenntProductionDetailAsync.fulfilled, (state, action) => {
+        state.updateCompoenntProductionDetailLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateCompoenntProductionDetailAsync.rejected, (state) => {
+        state.updateCompoenntProductionDetailLoading = false;
+      });
   },
 });
 
