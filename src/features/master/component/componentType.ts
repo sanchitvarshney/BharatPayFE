@@ -10,11 +10,9 @@ export type Components = {
   approval_status: string;
 };
 export type ComponentDetails = {
-  component: string;
-  part: string;
+  name: string;
   uom: string;
-  group: string;
-  notes: string;
+  description: string;
 };
 
 type Approvers = string[];
