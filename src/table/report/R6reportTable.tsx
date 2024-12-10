@@ -110,6 +110,8 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
     },
     { field: "insertby", headerName: "Inserted By", sortable: true, filter: true },
+    { field: "category", headerName: "Category", sortable: true, filter: true },
+    { field: "subCategory", headerName: "Sub Category", sortable: true, filter: true },
   ];
   const defaultColDef = useMemo<ColDef>(() => {
     return {

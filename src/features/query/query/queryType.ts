@@ -29,6 +29,8 @@ export interface BodyItem {
   locIn: string;
   locOut: string;
   insertDate: string;
+  category: string;
+  subCategory: string;
 }
 
 interface Head {

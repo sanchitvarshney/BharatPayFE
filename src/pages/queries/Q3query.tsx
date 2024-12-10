@@ -82,8 +82,8 @@ const Q3query: React.FC = () => {
         {q3data ? (
           <div className="w-full">
             <div className="flex items-center px-[20px] h-[60px] justify-between">
-              <Typography variant="h1" fontWeight={500} fontSize={25} component={"div"} className="">
-                Component Locations
+              <Typography variant="h1" fontWeight={500} fontSize={18} component={"div"} className="">
+                Component Stock at locations as on  {dayjs(date).format("DD-MM-YYYY")}
               </Typography>
               <div className="flex items-center gap-[10px]">
                 <Typography>Total : </Typography>

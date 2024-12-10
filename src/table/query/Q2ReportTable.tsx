@@ -48,6 +48,8 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
     { headerName: "Vendor", field: "vendor", sortable: true, filter: true },
     { headerName: "Vendor Code", field: "vendorCode", sortable: true, filter: true },
     { headerName: "Inserted By", field: "insertBy", sortable: true, filter: true },
+    { field: "category", headerName: "Category", sortable: true, filter: true },
+    { field: "subCategory", headerName: "Sub Category", sortable: true, filter: true },
   ];
 
   return (

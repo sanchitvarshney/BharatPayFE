@@ -86,7 +86,7 @@ const SelectComponent: React.FC<Props> = ({ value, onChange, label = "Search Ite
       renderOption={(props, option) => (
         <li {...props}>
           <div>
-            <p className="text-[13px]">{`${option.part_code}-${option.text}`}</p>
+            <p className="text-[13px]">{`(${option.part_code})-${option.text}`}</p>
           </div>
         </li>
       )}
