@@ -9,7 +9,7 @@ import dayjs, { Dayjs } from "dayjs";
 import React, { useState } from "react";
 const { RangePicker } = DatePicker;
 const R7Report: React.FC = () => {
-  const { isConnectedg } = useSocketContext();
+  const { isConnected } = useSocketContext();
   const { emitDownloadReport } = useSocketContext();
   const [location, setLocation] = useState<LocationType | null>(null);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
@@ -48,7 +48,7 @@ const R7Report: React.FC = () => {
           value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
           format="DD/MM/YYYY" // Update with your desired format
         />
-        <Button disabled={isConnectedg} onClick={downloadReport} variant="contained" startIcon={<Icons.download fontSize="small" />}>
+        <Button disabled={!isConnected} onClick={downloadReport} variant="contained" startIcon={<Icons.download fontSize="small" />}>
           Download
         </Button>
       </Card>

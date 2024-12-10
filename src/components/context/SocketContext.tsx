@@ -54,16 +54,19 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log("clicked");
     socketService.emit("r7Download", payload);
   };
-
+  const emitGetNotification = () => {
+    socketService.emit("getNotification","");
+  };
   const onDownloadReport = (callback: (data: { notificationId: string; percent: string }) => void) => {
     socketService.on("progress", callback);
   };
   const onnotification = (callback: (data: NotificationData[]) => void) => {
-    socketService.on("notification", callback);
+    socketService.on("socket_receive_notification", callback);
   };
+  
   const off = (event: string) => {
     socketService.off(event);
   };
 
-  return <SocketContext.Provider value={{ emitDownloadReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification }}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ emitDownloadReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification,emitGetNotification }}>{children}</SocketContext.Provider>;
 };

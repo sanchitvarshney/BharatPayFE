@@ -31,7 +31,7 @@ const DownloadIndecator = () => {
     };
 
     onnotification(handlenotification);
-    return () => off("notification");
+    return () => off("socket_receive_notification");
   }, [onnotification]);
   useEffect(() => {
     const handleDownloadReport = (data: { notificationId: string; percent: string }) => {

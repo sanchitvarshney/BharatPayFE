@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { ComponentDetailApiResponse, ComponentDetails, ComponentsApiResponse, ComponnetState, GroupApiResponse, UpdateCompoenntProductionDetailPayload, UpdateComponentAdvanceDetail, UpdateComponentBasicDetailPayload } from "./componentType";
+import { ComponentDetailApiResponse, ComponentDetails, ComponentsApiResponse, ComponnetState, GroupApiResponse, UpdateCompoenntProductionDetailPayload, UpdateComponentAdvanceDetail, UpdateComponentBasicDetailPayload, UpdateTaxDetailPayload } from "./componentType";
 import { UomCreateApiresponse } from "../UOM/UOMType";
 import { showToast } from "@/utils/toasterContext";
 
@@ -16,6 +16,7 @@ const initialState: ComponnetState = {
   updateCompoenntBasciDetailLoading: false,
   updateCompoenntAdvanceDetailLoading: false,
   updateCompoenntProductionDetailLoading: false,
+  updateCompoenntTaxDetailLoading: false,
 };
 
 export const getComponentsAsync = createAsyncThunk<AxiosResponse<ComponentsApiResponse>>("master/getcomponents", async () => {
@@ -44,6 +45,10 @@ export const updateCompoenntAdvanceDetailAsync = createAsyncThunk<AxiosResponse<
 });
 export const updateCompoenntProductionDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateCompoenntProductionDetailPayload>("group/updateCompoenntProductionDetailAsync", async (payload) => {
   const response = await axiosInstance.put(`/component/updateComponentProductionDetail`, payload);
+  return response;
+});
+export const updateCompoenntTaxDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateTaxDetailPayload>("group/updateCompoenntTaxDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(`/component/updateComponentTaxDetail`, payload);
   return response;
 });
 const componentSlice = createSlice({
@@ -139,6 +144,18 @@ const componentSlice = createSlice({
       })
       .addCase(updateCompoenntProductionDetailAsync.rejected, (state) => {
         state.updateCompoenntProductionDetailLoading = false;
+      })
+      .addCase(updateCompoenntTaxDetailAsync.pending, (state) => {
+        state.updateCompoenntTaxDetailLoading = true;
+      })
+      .addCase(updateCompoenntTaxDetailAsync.fulfilled, (state, action) => {
+        state.updateCompoenntTaxDetailLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateCompoenntTaxDetailAsync.rejected, (state) => {
+        state.updateCompoenntTaxDetailLoading = false;
       });
   },
 });

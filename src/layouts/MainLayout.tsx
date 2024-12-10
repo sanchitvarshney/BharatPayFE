@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { FaCircleUser } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
@@ -20,7 +20,7 @@ import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
 import { useAppSelector } from "@/hooks/useReduxHook";
 function MainLayout(props: { children: React.ReactNode }) {
-  const { isConnected, refreshConnection, isLoading } = useSocketContext();
+  const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
   const { menu } = useAppSelector((state) => state.menu);
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
@@ -55,7 +55,11 @@ function MainLayout(props: { children: React.ReactNode }) {
     setSheet2Open(false);
     setFavoriteSheet(false);
   };
-
+  useEffect(() => {
+    if (isConnected) {
+      emitGetNotification();
+    }
+  }, [isConnected]);
   return (
     <Wrapper className="">
       {/* alert disalogs start=============== */}
