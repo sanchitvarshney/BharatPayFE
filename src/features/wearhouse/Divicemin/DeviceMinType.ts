@@ -46,9 +46,8 @@ export type UploadInvoiceFileApiResponse = {
   data: InvoiceFileData[];
 };
 
-
 export type Step1Form = {
-  vendorType:  string;
+  vendorType: string;
   vendor: VendorData | null;
   vendorBranch: string;
   vendorAddress: string;
@@ -113,30 +112,28 @@ export type CreateMinResponse = {
   data: CreateMinData;
 };
 
-
-
 export type UpateMINpayload = {
-  simExist:string;
-  serial:string;
-  fileReference:string;
-  min_no:string;
-  remark:string;
-  IMEI:string;
-  deviceModel:string;
-}
+  simExist: string;
+  serial: string;
+  fileReference: string;
+  min_no: string;
+  remark: string;
+  IMEI: string;
+  deviceModel: string;
+};
 
 export type UpdateMinData = {
-  total_remaining:string;
-  totalItems:string;
-  totalScanned:string;
-  total_additional:string;
-}
+  total_remaining: string;
+  totalItems: string;
+  totalScanned: string;
+  total_additional: string;
+};
 export type UpdateMinResponse = {
   success: boolean;
   status: string;
   message: string;
-  data:UpdateMinData
-}
+  data: UpdateMinData;
+};
 
 export type DeviceStatusResponse = {
   status: string;
@@ -157,7 +154,6 @@ export type DeviceStatusResponse = {
       totalItems: number;
       total_remaining: number;
       deviceModel: string;
-      
     };
     serialData: {
       slNo: string;
@@ -168,7 +164,16 @@ export type DeviceStatusResponse = {
     }[];
   };
 };
-
+export type NotExistSerialNo = {
+  remarks: string;
+  isNew?: boolean;
+  id: number;
+  simAvailability: string;
+  serialno: string;
+  IMEI: string;
+  model: string;
+  isAvailble: boolean;
+};
 export type DeviceMinSate = {
   getLocationLoading: boolean;
   locationData: Location[] | null;
@@ -190,15 +195,16 @@ export type DeviceMinSate = {
   checkserialData: CheckSerialResponse | null;
   createMinLoading: boolean;
   createMinData: CreateMinData | null;
-  updateMinLoading:boolean;
-  getAllsubmitinfoLoading:boolean;
-  getAllSubminInfo:DeviceStatusResponse |  null
-  finaSubmitLoading:boolean;
-  updateMinData:UpdateMinData | null
-  min_no:string | null
+  updateMinLoading: boolean;
+  getAllsubmitinfoLoading: boolean;
+  getAllSubminInfo: DeviceStatusResponse | null;
+  finaSubmitLoading: boolean;
+  updateMinData: UpdateMinData | null;
+  min_no: string | null;
   //stores==========================
   storeStep1formData: Step1Form | null;
   storeInvoiceFiles: InvoiceFileData[] | null;
   storeSerialFiles: UploadFileData | null;
-  storeDraftMinData:CreateMinData | null
+  storeDraftMinData: CreateMinData | null;
+  notExistsr: NotExistSerialNo[] | null;
 };

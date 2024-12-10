@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
-import { showToast } from "@/utils/toastUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { checkSerial } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { checkSerial, pustNotExistSr } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import DeviceMinTable from "@/table/wearhouse/DeviceMinTable";
 import { CircularProgress, InputAdornment, TextField, Typography } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+import { showToast } from "@/utils/toasterContext";
 
 type Props = {
   setStep: (step: number) => void;
@@ -40,11 +40,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
   const addRow = useCallback(
     (serial: string, imei: string, isAvailble: boolean, isSimAvaileble?: string, model?: string) => {
       if (rowData.filter((item) => item.isNew === true).length >= 10) {
-        showToast({
-          description: "First submit your all items before adding new item",
-          variant: "default",
-          className: "bg-amber-500 text-white",
-        });
+        showToast("First submit your all items before adding new item", "warning");
       } else {
         const newId = rowData.length + 1;
         const newRow: RowData = {
@@ -57,7 +53,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
           model: model || "",
           isAvailble: isAvailble,
         };
-        setRowData((prev) => [...prev, newRow]);
+        setRowData((prev) => [newRow,...prev]);
         setInput("");
       }
     },
@@ -82,7 +78,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
         startIcon={<Icons.check fontSize="small" />}
         onConfirm={() => {
           if (input) {
-            addRow(input, "", false, "Y");
+            addRow(input, "", false, "--");
           }
           inputRef.current!.focus();
           setAlert(false);
@@ -123,12 +119,11 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
                                 }
                               }
                             });
+                          } else {
+                            showToast("You din't complete your first step", "error");
                           }
                         } else {
-                          showToast({
-                            description: "Serial number already exists",
-                            variant: "destructive",
-                          });
+                          showToast("Serial number already exists", "error");
                           setInput("");
                         }
                       }
@@ -180,12 +175,13 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
             type="button"
             onClick={() => {
               let notsubmit: any[] | null = null;
-              notsubmit = rowData?.filter((item) => item.isNew);
+              const notavailble = rowData?.filter((item) => !item.isAvailble);
+              const availble = rowData?.filter((item) => item.isAvailble);
+              dispatch(pustNotExistSr(notavailble || []));
+              notsubmit = availble?.filter((item) => item.isNew);
+
               if (notsubmit?.length > 0) {
-                showToast({
-                  description: `Row no. ${notsubmit.map((item) => item.id).join(",")} items are not submitted`,
-                  variant: "destructive",
-                });
+                showToast(`Row no. ${notsubmit.map((item) => item.id).join(",")} items are not submitted`, "error");
               } else {
                 setStep(step + 1);
               }

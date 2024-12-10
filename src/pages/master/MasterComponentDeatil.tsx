@@ -8,9 +8,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getComponentDetailSlice } from "@/features/master/component/componentSlice";
 import { Skeleton } from "@/components/ui/skeleton";
-import UpdateComponentBasicDetail from "@/components/from/components/UpdateComponentBasicDetail";
-import UpdateComponentAdvanceDetail from "@/components/from/components/UpdateComponentAdvanceDetail";
-import UpdateComponentProductionDetail from "@/components/from/components/UpdateComponentProductionDetail";
+import UpdateComponentBasicDetail from "@/components/form/components/UpdateComponentBasicDetail";
+import UpdateComponentAdvanceDetail from "@/components/form/components/UpdateComponentAdvanceDetail";
+import UpdateComponentProductionDetail from "@/components/form/components/UpdateComponentProductionDetail";
+import UpdateComponentTaxDetail from "@/components/form/components/UpdateComponentTaxDetail";
 
 const MasterComponentDeatil: React.FC = () => {
   const { componentDetail, getComponentDetailLoading } = useAppSelector((state) => state.component);
@@ -18,6 +19,7 @@ const MasterComponentDeatil: React.FC = () => {
   const [updateBasicDetail, setUpdateBasicDetail] = React.useState<boolean>(false);
   const [updateComponentAdvanceDetail, setUpdateComponentAdvanceDetail] = React.useState<boolean>(false);
   const [updateComponentProductionDetail, setUpdateComponentProductionDetail] = React.useState<boolean>(false);
+  const [updateComponentTaxDetail, setUpdateComponentTaxDetail] = React.useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id } = useParams();
@@ -188,7 +190,6 @@ const MasterComponentDeatil: React.FC = () => {
                         { label: "Part Code", value: componentDetail?.[0]?.partcode },
                         { label: "Component Name", value: componentDetail?.[0]?.name },
                         { label: "UOM", value: componentDetail?.[0]?.uomname },
-                        { label: "Type", value: "--" },
                         { label: "MRP", value: componentDetail?.[0]?.mrp },
                         { label: "Status", value: componentDetail?.[0]?.enable_status === "Y" ? "Active" : "Inactive" },
                         { label: "Category", value: componentDetail?.[0]?.category?.name },
@@ -214,26 +215,35 @@ const MasterComponentDeatil: React.FC = () => {
                         Tax Details
                       </h2>
                       <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
-                      <button type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Add alternate UOM">
+                      <button
+                        onClick={() => setUpdateComponentTaxDetail(true)}
+                        type="button"
+                        className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        aria-label="Add alternate UOM"
+                      >
                         <Icons.edit fontSize="small" sx={{ fontSize: "15px" }} />
                         Edit Tax Details
                       </button>
                     </header>
-                    <div className="grid grid-cols-4 gap-6 mt-4">
-                      {[
-                        { label: "Tax Type", value: "GST" },
-                        { label: "Tax Rate (%)", value: "18" },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="py-5">
-                          <Typography variant="body2" color="textSecondary" className="text-gray-600">
-                            {label}:
-                          </Typography>
-                          <Typography variant="body1" fontWeight={500}>
-                            {value || "N/A"}
-                          </Typography>
-                        </div>
-                      ))}
-                    </div>
+                    {updateComponentTaxDetail ? (
+                      <UpdateComponentTaxDetail setUpdateTaxDetail={setUpdateComponentTaxDetail} detail={{ taxRate: componentDetail?.[0]?.gst_rate || 0, hsn: componentDetail?.[0]?.c_hsn || "" }} />
+                    ) : (
+                      <div className="grid grid-cols-4 gap-6 mt-4">
+                        {[
+                          { label: "HSN Code", value: componentDetail?.[0]?.c_hsn },
+                          { label: "GST Rate (%)", value: componentDetail?.[0]?.gst_rate },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="py-5">
+                            <Typography variant="body2" color="textSecondary" className="text-gray-600">
+                              {label}:
+                            </Typography>
+                            <Typography variant="body1" fontWeight={500}>
+                              {value || "N/A"}
+                            </Typography>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   <section id="attachments" aria-labelledby="attachments" className="mt-8">

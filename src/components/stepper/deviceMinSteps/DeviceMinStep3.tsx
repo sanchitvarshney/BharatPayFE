@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Card, CardContent, CardFooter,  } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { IoMdCheckmark } from "react-icons/io";
 import DeviceMinViewTable from "@/table/wearhouse/DeviceMinViewTable";
@@ -28,7 +28,7 @@ const DeviceMinStep3: React.FC<Props> = ({ setStep, step }) => {
       {getAllsubmitinfoLoading && (
         <div className="absolute top-0 bottom-0 left-0 right-0 z-50 flex items-center justify-center bg-white">
           <div className="flex items-center">
-            <CircularProgress size={50}/>
+            <CircularProgress size={50} />
           </div>
         </div>
       )}

@@ -16,7 +16,7 @@ import {
   UploadSerialFileResponse,
   VendorAddressApiResponse,
 } from "./DeviceMinType";
-import { showToast } from "@/utils/toastUtils";
+import { showToast } from "@/utils/toasterContext";
 
 const initialState: DeviceMinSate = {
   getLocationLoading: false,
@@ -49,6 +49,7 @@ const initialState: DeviceMinSate = {
   storeInvoiceFiles: null,
   storeDraftMinData: null,
   min_no: null,
+  notExistsr: [],
 };
 
 export const getLocationAsync = createAsyncThunk<AxiosResponse<LocationApiresponse>, string | null>("wearhouse/getLocation", async (params) => {
@@ -104,7 +105,7 @@ export const getAllSubmitInfo = createAsyncThunk<AxiosResponse<DeviceStatusRespo
   const response = await axiosInstance.get(`/deviceMin/fetchDeviceMinData?min_id=${min}`);
   return response;
 });
-export const submitFinalStage = createAsyncThunk<AxiosResponse<{ message: string; success: boolean;data:{min_no: string} }>, string>("/deviceMin/updateToFinal", async (min) => {
+export const submitFinalStage = createAsyncThunk<AxiosResponse<{ message: string; success: boolean; data: { min_no: string } }>, string>("/deviceMin/updateToFinal", async (min) => {
   const response = await axiosInstance.put(`/deviceMin/updateToFinal`, { min_id: min });
   return response;
 });
@@ -126,16 +127,15 @@ const DeviceMinSlice = createSlice({
       }
     },
     storeInvoiceFile: (state, action) => {
-      if(Array.isArray(action.payload)){
-        state.storeInvoiceFiles = action.payload
-        return
+      if (Array.isArray(action.payload)) {
+        state.storeInvoiceFiles = action.payload;
+        return;
       }
-      if(state.storeInvoiceFiles){
+      if (state.storeInvoiceFiles) {
         state.storeInvoiceFiles?.push(action.payload);
-      }else {
+      } else {
         state.storeInvoiceFiles = [action.payload];
       }
-      
     },
     resetInvoiceFile: (state) => {
       state.storeInvoiceFiles = null;
@@ -158,11 +158,17 @@ const DeviceMinSlice = createSlice({
       state.updateMinData = null;
     },
     crearLocation: (state) => {
-      state.locationData= null
+      state.locationData = null;
     },
     clearaddressdetail: (state) => {
       state.venderaddressdata = null;
       state.VendorBranchData = null;
+    },
+    pustNotExistSr: (state, action) => {
+      state.notExistsr = action.payload;
+    },
+    clearNotExistsr: (state) => {
+      state.notExistsr = [];
     },
   },
   extraReducers: (builder) => {
@@ -281,7 +287,6 @@ const DeviceMinSlice = createSlice({
       .addCase(createMinAsync.fulfilled, (state, action) => {
         state.createMinLoading = false;
         if (action.payload.data.success) {
-          
           state.createMinData = action.payload.data.data;
         }
       })
@@ -295,7 +300,6 @@ const DeviceMinSlice = createSlice({
         state.updateMinLoading = false;
         if (action.payload.data.success) {
           state.updateMinData = action.payload.data.data;
-        
         }
       })
       .addCase(UpdateDEviceMin.rejected, (state) => {
@@ -320,10 +324,7 @@ const DeviceMinSlice = createSlice({
         state.finaSubmitLoading = false;
         if (action.payload.data.success) {
           state.min_no = action.payload.data?.data?.min_no;
-          showToast({
-            description: action.payload.data?.message,
-            variant: "success",
-          });
+          showToast(action.payload.data?.message, "success");
         }
       })
       .addCase(submitFinalStage.rejected, (state) => {
@@ -332,5 +333,6 @@ const DeviceMinSlice = createSlice({
   },
 });
 
-export const { clearaddressdetail,storeDraftMin, storeInvoiceFile, storeSerialFile, storeStepFormdata, resetDraftMin, resetInvoiceFile, resetSerialFile, resetForm,resetAllSubmitInfo,reseAllupdateDeviceInfo ,crearLocation} = DeviceMinSlice.actions;
+export const { clearaddressdetail, storeDraftMin, storeInvoiceFile, storeSerialFile, storeStepFormdata, resetDraftMin, resetInvoiceFile, resetSerialFile, resetForm, resetAllSubmitInfo, reseAllupdateDeviceInfo, crearLocation, pustNotExistSr, clearNotExistsr } =
+  DeviceMinSlice.actions;
 export default DeviceMinSlice.reducer;

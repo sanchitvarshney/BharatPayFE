@@ -71,6 +71,8 @@ export type ComponentDetail = {
   location: string;
   description: string;
   mfgCode: string;
+  c_hsn: string;
+  gst_rate: string;
 };
 
 export type ComponentDetailApiResponse = {
@@ -110,6 +112,13 @@ export type UpdateCompoenntProductionDetailPayload = {
   otherCost: string;
 };
 
+
+export type UpdateTaxDetailPayload = {
+  componentKey: string;
+  taxRate: number ;
+  hsn: string;
+};
+
 export interface ComponnetState {
   component: ComponentData | null;
   getComponentLoading: boolean;
@@ -121,4 +130,5 @@ export interface ComponnetState {
   updateCompoenntBasciDetailLoading: boolean;
   updateCompoenntAdvanceDetailLoading: boolean;
   updateCompoenntProductionDetailLoading: boolean;
+  updateCompoenntTaxDetailLoading: boolean;
 }
