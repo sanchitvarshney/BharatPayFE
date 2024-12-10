@@ -183,8 +183,7 @@ export type MainR1ReportResponse = {
   data: MainR1Report[];
 };
 
-
-export type r6report =  {
+export type r6report = {
   txnId: string;
   partCode: string;
   componentName: string;
@@ -198,13 +197,14 @@ export type r6report =  {
   vendorAddress: string;
   insertDt: string; // Consider converting this to `Date` if you're handling it as a date object.
   insertby: string;
-}
+  subCategory: string;
+  category: string;
+};
 
-export type r6reportApiResponse ={
+export type r6reportApiResponse = {
   success: boolean;
   data: r6report[];
-}
-
+};
 
 export type ReportStateType = {
   r1Data: DocumentData | null;

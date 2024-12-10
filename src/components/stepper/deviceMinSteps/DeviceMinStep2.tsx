@@ -7,7 +7,6 @@ import DeviceMinTable from "@/table/wearhouse/DeviceMinTable";
 import { CircularProgress, InputAdornment, TextField, Typography } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
-import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { showToast } from "@/utils/toasterContext";
 
 type Props = {
@@ -28,7 +27,6 @@ interface RowData {
 
 const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
   const [input, setInput] = useState<string>("");
-  const [alert, setAlert] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const dispatch = useAppDispatch();
@@ -53,7 +51,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
           model: model || "",
           isAvailble: isAvailble,
         };
-        setRowData((prev) => [newRow,...prev]);
+        setRowData((prev) => [newRow, ...prev]);
         setInput("");
       }
     },
@@ -67,23 +65,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
 
   return (
     <>
-      <ConfirmationModel
-        open={alert}
-        onClose={() => setAlert(false)}
-        cancelText="No"
-        confirmText={"Yes"}
-        title={"This Serial No. is not exiest in your uploaded file"}
-        content={"Is SIM Available?"}
-        color="primary"
-        startIcon={<Icons.check fontSize="small" />}
-        onConfirm={() => {
-          if (input) {
-            addRow(input, "", false, "--");
-          }
-          inputRef.current!.focus();
-          setAlert(false);
-        }}
-      />
+      
 
       <div className="h-[calc(100vh-50px)]">
         <div className="h-[50px] flex items-center justify-between bg-hbg px-[20px] border-b border-neutral-300">
@@ -111,11 +93,15 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
                                 if (response.payload.data.data?.isAvailable) {
                                   addRow(input, response.payload.data.data?.imei, true, "Y", response.payload.data.data?.deviceModel);
                                 } else {
-                                  setAlert(true);
+                                  if (input) {
+                                    addRow(input, "", false, "--");
+                                  }
                                 }
                               } else {
                                 if (response.payload.data.data?.isAvailable === false) {
-                                  setAlert(true);
+                                  if (input) {
+                                    addRow(input, "", false, "--");
+                                  }
                                 }
                               }
                             });

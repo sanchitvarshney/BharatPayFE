@@ -67,7 +67,7 @@ const R6Report: React.FC = () => {
                 <RangePicker
                   required
                   placement="bottomRight"
-                  className="w-full h-[50px]"
+                  className="w-full h-[50px] border-[2px] rounded-sm"
                   format="DD-MM-YYYY"
                   disabledDate={(current) => current && current > dayjs()}
                   placeholder={["Start date", "End Date"]}

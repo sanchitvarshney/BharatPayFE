@@ -48,7 +48,7 @@ const MasterComponent: React.FC = () => {
     },
   });
   const { UOM, getUOMloading } = useAppSelector((state) => state.uom);
-  const { groupList, getGroupListLoading, createComponentLoading, component } = useAppSelector((state) => state.component);
+  const {  createComponentLoading, component } = useAppSelector((state) => state.component);
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.group !== null && data.uom !== null) {
@@ -90,13 +90,13 @@ const MasterComponent: React.FC = () => {
             <Typography className="text-slate-600" variant="h1" component={"div"} fontSize={20} fontWeight={500}>
               Add New Component
             </Typography>
-            <div className="grid grid-cols-2 gap-[30px] mt-[20px]">
+            <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
               <div>
                 <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
                 {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
               </div>
               <div>
-                <TextField fullWidth label="Part Code" {...register("part", { required: "Part Code Name is required" })} />
+                <TextField disabled placeholder="Part Code" fullWidth label="Part Code"/>
                 {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
               </div>
               <div>
@@ -119,7 +119,7 @@ const MasterComponent: React.FC = () => {
 
                 {errors.uom && <span className=" text-[12px] text-red-500">{errors.uom.message}</span>}
               </div>
-              <div>
+              {/* <div>
                 <Controller
                   name="group"
                   control={control}
@@ -137,7 +137,7 @@ const MasterComponent: React.FC = () => {
                   )}
                 />
                 {errors.group && <span className=" text-[12px] text-red-500">{errors.group.message}</span>}
-              </div>
+              </div> */}
             </div>
             <div className="mt-[30px]">
               <TextField label={"Description"} fullWidth multiline rows={3} className="h-[100px] resize-none" {...register("notes", { required: "Description Name is required" })} />
