@@ -60,7 +60,7 @@ const R2Report: React.FC = () => {
             </Button>
           </div>
 
-          <div className=" flex flex-col  p-[20px] gap-[20px] mr-[15px] mt-[20px] overflow-hidden ">
+          <div className=" flex flex-col  p-[20px] gap-[20px]  mt-[20px] overflow-hidden ">
             <RangePicker
               className="h-[50px] rounded-sm border-[2px]"
               value={[date ? dayjs(date.from, dateFormat) : null, date ? dayjs(date.to, dateFormat) : null]}

@@ -134,7 +134,7 @@ const R4Report: React.FC = () => {
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>
           </div>
-          <div className="flex  gap-[20px] flex-col  mr-[15px] p-[20px] overflow-hidden mt-[20px]">
+          <div className="flex  gap-[20px] flex-col   p-[20px] overflow-hidden mt-[20px]">
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">

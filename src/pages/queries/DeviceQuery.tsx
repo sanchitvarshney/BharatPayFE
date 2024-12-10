@@ -63,7 +63,7 @@ const DeviceQuery: React.FC = () => {
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>
           </div>
-          <div className="mr-[15px] h-full overflow-y-auto mt-[20px]">
+          <div className=" h-full overflow-y-auto mt-[20px]">
             <Paper elevation={0} className="rounded-md ">
               <CardContent className="relative">
                 <div className=" flex flex-col gap-[20px]">
