@@ -48,11 +48,11 @@ const MasterComponent: React.FC = () => {
     },
   });
   const { UOM, getUOMloading } = useAppSelector((state) => state.uom);
-  const {  createComponentLoading, component } = useAppSelector((state) => state.component);
+  const { createComponentLoading, component } = useAppSelector((state) => state.component);
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
-    if (data.group !== null && data.uom !== null) {
-      let newdata = { ...data, uom: data.uom?.units_id, group: data.group?.id };
+    if (data.uom !== null) {
+      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id };
       dispatch(createComponentAsync(newdata)).then((res: any) => {
         if (res.payload?.data?.success) {
           reset();
@@ -96,7 +96,7 @@ const MasterComponent: React.FC = () => {
                 {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
               </div>
               <div>
-                <TextField disabled placeholder="Part Code" fullWidth label="Part Code"/>
+                <TextField disabled placeholder="Part Code" fullWidth label="Part Code" />
                 {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
               </div>
               <div>

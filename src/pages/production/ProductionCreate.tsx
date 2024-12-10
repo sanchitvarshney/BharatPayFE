@@ -155,7 +155,7 @@ const ProductionCreate: React.FC = () => {
           </Typography>
           <SelectDevice size="medium"  required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
           <SelectLocation size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
-          <SelectLocation size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pic Location" helperText={"Location where the components will be picked up"} />
+          <SelectLocation size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pick Location" helperText={"Location where the components will be picked up"} />
         </div>
         <div>
           <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] ">
