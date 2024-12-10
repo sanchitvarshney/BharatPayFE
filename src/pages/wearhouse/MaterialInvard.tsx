@@ -312,7 +312,7 @@ const MaterialInvard: React.FC = () => {
                   )}
                 />
                 <TextField label="Document ID" error={!!errors.documentId} helperText={errors.documentId?.message} {...register("documentId", { required: "Invoice Id  is required" })} />
-                <div className=" flex flex-col gap-[20px] mt-[20px]">
+                <div className=" flex flex-col gap-[20px] py-[20px] border-t border-neutral-400">
                   <div>
                     <TextField fullWidth label="Document Name" value={filename} onChange={(e) => setFilename(e.target.value)} />
                   </div>

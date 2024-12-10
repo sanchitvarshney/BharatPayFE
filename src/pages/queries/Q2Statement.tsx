@@ -62,8 +62,8 @@ const Q2Statement: React.FC = () => {
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>
           </div>
-          <div className="mr-[15px] h-full overflow-y-auto ">
-            <Paper elevation={0} className="rounded-md ">
+          <div className="h-full overflow-y-auto ">
+            <Paper elevation={0}>
               <CardContent>
                 <div className="py-[20px] flex flex-col gap-[20px]">
                   <FormControl fullWidth>

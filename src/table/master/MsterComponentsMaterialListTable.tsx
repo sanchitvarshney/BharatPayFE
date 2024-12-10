@@ -36,7 +36,7 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
       width: 300,
       cellRenderer: (params: any) =>
         import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME" ? (
-          <Link className="text-cyan-500 flex items-center gap-[10px]" to={`/master-components/${params?.data?.c_part_no}`}>
+          <Link className="text-cyan-500 flex items-center gap-[10px]" to={`/master-components/${params?.data?.component_key}`}>
             {params?.value}
             <Icons.followLink sx={{ fontSize: "15px" }} />
           </Link>
@@ -63,6 +63,11 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
       field: "units_name",
       sortable: true,
       filter: true,
+    },
+    {
+      headerName: "key",
+      field: "component_key",
+     hide: true
     },
   ];
   const defaultColDef = useMemo<ColDef>(() => {

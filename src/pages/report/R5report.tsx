@@ -73,7 +73,7 @@ const R5report: React.FC = () => {
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>
           </div>
-          <div className="flex flex-col gap-[20px] mr-[15px] mt-[20px] p-[20px] overflow-hidden">
+          <div className="flex flex-col gap-[20px]  mt-[20px] p-[20px] overflow-hidden">
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">

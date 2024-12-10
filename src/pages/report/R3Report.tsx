@@ -47,7 +47,7 @@ const R3Report: React.FC = () => {
             {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
           </Button>
         </div>
-        <div className="flex flex-col gap-[20px] mr-[15px] p-[20px] mt-[20px] overflow-hidden">
+        <div className="flex flex-col gap-[20px]  p-[20px] mt-[20px] overflow-hidden">
           <RangePicker
             className="h-[50px]"
             presets={rangePresets}

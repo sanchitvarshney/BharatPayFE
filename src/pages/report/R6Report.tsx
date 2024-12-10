@@ -45,7 +45,7 @@ const R6Report: React.FC = () => {
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>
           </div>
-          <div className="flex flex-col   gap-[20px] p-[20px] mr-[15px]  mt-[20px] overflow-hidden">
+          <div className="flex flex-col   gap-[20px] p-[20px]   mt-[20px] overflow-hidden">
             <FormControl fullWidth>
               <Select value={type} defaultValue="min" onChange={(e) => setType(e.target.value)}>
                 {[
