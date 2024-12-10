@@ -112,7 +112,8 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
         const { storeSerialFiles, storeDraftMinData, updateMinLoading } = useAppSelector((state) => state.divicemin);
         return (
           <div key={data.id} className="flex items-center justify-center h-full gap-[10px]">
-            <IconButton
+            {
+              data?.isAvailble &&   <IconButton
               color="success"
               onClick={() => {
                 if (!data.simAvailability) {
@@ -147,6 +148,8 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
             >
               {updateMinLoading && id === data?.id ? <CircularProgress size={23} /> : <Icons.check />}
             </IconButton>
+            }
+          
             <IconButton onClick={() => setRowdata(rowData.filter((item) => item.id !== data?.id))} color="error">
               <Icons.delete />
             </IconButton>

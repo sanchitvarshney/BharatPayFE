@@ -73,7 +73,7 @@ const DeviceMinCellRener: React.FC<MaterialInvardCellRendererProps> = ({ props }
     }
   };
 
-  if (data.isNew) {
+  if (data.isNew && data.isAvailble) {
     return renderContent();
   }
 

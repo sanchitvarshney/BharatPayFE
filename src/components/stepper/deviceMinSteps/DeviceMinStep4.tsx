@@ -1,5 +1,7 @@
 import { Icons } from "@/components/icons";
-import { useAppSelector } from "@/hooks/useReduxHook";
+import { clearNotExistsr } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import NotAvailbleSrList from "@/table/wearhouse/NotAvailbleSrList";
 import { LoadingButton } from "@mui/lab";
 import { Typography } from "@mui/material";
 import React from "react";
@@ -12,6 +14,8 @@ type Props = {
 };
 const DeviceMinStep4: React.FC<Props> = ({ setStep }) => {
   const { min_no } = useAppSelector((state) => state.divicemin);
+  const dispatch = useAppDispatch();
+
   return (
     <div className="h-[calc(100vh-50px)]">
       <div className="p-0 bg-hbg h-[50px] flex items-center justify-between px-[20px] border-b border-neutral-300">
@@ -19,28 +23,48 @@ const DeviceMinStep4: React.FC<Props> = ({ setStep }) => {
           MIN Complete
         </Typography>
       </div>
-      <div className="h-[calc(100vh-130px)] flex items-center justify-center">
-        <div className="flex flex-col justify-center max-h-max max-w-max gap-[30px]">
-          <Success>
-            <div className="success-animation">
-              <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
-                <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
-              </svg>
+      <div className="grid grid-cols-2 h-[calc(100vh-100px)] ">
+        <div className="flex items-center justify-center h-full border-r border-neutral-300">
+          <div className="flex flex-col justify-center max-h-max max-w-max gap-[30px]">
+            <Success>
+              <div className="success-animation">
+                <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                  <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                  <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+              </div>
+            </Success>
+            <div className="flex items-center gap-[20px] text-slate-600 justify-center">
+              <p className="text-[18px] font-[600]">MIN No.</p>
+              <p>{min_no && min_no}</p>
             </div>
-          </Success>
-          <div className="flex items-center gap-[20px] text-slate-600 justify-center">
-            <p className="text-[18px] font-[600]">MIN No.</p>
-            <p>{min_no && min_no}</p>
+            <div className="flex items-center gap-[10px]">
+              <LoadingButton type="button" disabled variant={"outlined"} startIcon={<Icons.download />}>
+                Download
+              </LoadingButton>
+              <LoadingButton
+                type="button"
+                onClick={() => {
+                  setStep(1);
+                  dispatch(clearNotExistsr());
+                }}
+                variant="contained"
+                endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}
+              >
+                Create New MIN
+              </LoadingButton>
+            </div>
           </div>
-          <div className="flex items-center gap-[10px]">
-            <LoadingButton type="button" disabled variant={"outlined"} startIcon={<Icons.download />}>
-              Download
-            </LoadingButton>
-            <LoadingButton type="button" onClick={() => setStep(1)} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
-              Create New MIN
-            </LoadingButton>
+        </div>
+        <div>
+          <div className="h-[50px] flex items-center px-[10px] border-b border-neutral-300 bg-amber-50 gap-[10px]">
+            <Icons.outlineinfo color="warning" fontSize="small" />
+            <Typography fontWeight={600} variant="inherit">
+              List of not available serial numbers in uploaded file
+            </Typography>
           </div>
+          <NotAvailbleSrList />
+
         </div>
       </div>
     </div>
@@ -48,8 +72,8 @@ const DeviceMinStep4: React.FC<Props> = ({ setStep }) => {
 };
 const Success = styled.div`
   .checkmark {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     display: block;
     stroke-width: 2;
