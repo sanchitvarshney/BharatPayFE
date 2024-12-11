@@ -25,7 +25,7 @@ type CompType = {
 };
 const SimMin: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { minInfo, getMinInfoLoading,createSimMinLoading } = useAppSelector((state) => state.simmin);
+  const { minInfo, getMinInfoLoading, createSimMinLoading } = useAppSelector((state) => state.simmin);
   const [component, setComponent] = React.useState<CompType | null>(null);
   const [min, setMin] = React.useState<MinType | null>(null);
 
@@ -156,7 +156,21 @@ const SimMin: React.FC = () => {
           <SimMinTable rowData={rowdata} setRowdata={setRowdata} />
         </div>
       </div>
-      <div className="h-[50px] flex items-center justify-end px-[20px] border-t border-neutral-300">
+      <div className="h-[50px] flex items-center justify-end px-[20px] border-t border-neutral-300 gap-[10px]">
+        <LoadingButton
+          disabled={createSimMinLoading}
+          sx={{ background: "white", color: "red" }}
+          onClick={() => {
+            setMin(null);
+            setComponent(null);
+            dispatch(clearMinInfo());
+            setRowdata([]);
+          }}
+          variant="contained"
+          startIcon={<Icons.refreshv2 />}
+        >
+          Reset
+        </LoadingButton>
         <LoadingButton loading={createSimMinLoading} disabled={!component || rowdata.length !== Number(component?.quantity)} onClick={onsubmin} variant="contained" startIcon={<Icons.save />}>
           Save
         </LoadingButton>

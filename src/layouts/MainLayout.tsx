@@ -176,7 +176,7 @@ function MainLayout(props: { children: React.ReactNode }) {
               className="btn rotate-[270deg] border-[3px] border-yellow-600 bg-transparent rounded-full max-w-max"
             >
               <span></span>
-              All Modules
+              Menu
             </Button>
           </div>
           <div className="flex flex-col gap-[20px] items-center">
