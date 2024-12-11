@@ -4,8 +4,8 @@ import axiosInstance from "@/api/axiosInstance";
 import { Select } from "antd";
 
 export type SkuType = {
-  id: string;
-  text: string;
+  code: string;
+  name: string;
 };
 
 type Props = {
@@ -13,9 +13,10 @@ type Props = {
   value: { label: string; value: string } | null;
   label?: string;
   width?: string;
+  endpoint: string;
 };
 
-const AntLocationSelect: React.FC<Props> = ({ value, onChange, label = "Search Item", width = "100%" }) => {
+const AntLocationSelectAcordinttoModule: React.FC<Props> = ({ value, onChange, label = "Search Item", width = "100%", endpoint }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,7 +26,7 @@ const AntLocationSelect: React.FC<Props> = ({ value, onChange, label = "Search I
   const fetchItems = async (query: string | null) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/backend/search/location/${query}`);
+      const response = await axiosInstance.get(`${endpoint}?search=${query}`);
       if (response.data.success) {
         setItemList(response.data.data || []);
       }
@@ -59,14 +60,14 @@ const AntLocationSelect: React.FC<Props> = ({ value, onChange, label = "Search I
       }}
       placeholder={label}
       onChange={(selectedValue) => {
-        const selectedItem = itemList.find((item) => item.id === selectedValue);
-        onChange({ value: selectedItem!.id, label: `${selectedItem?.text}` });
+        const selectedItem = itemList.find((item) => item.code === selectedValue);
+        onChange({ value: selectedItem!.code, label: `${selectedItem?.name}` });
       }}
       options={
         itemList.length > 0
           ? itemList?.map((item) => ({
-              value: item.id,
-              label: `${item.text}`,
+              value: item.code,
+              label: `${item.name}`,
             }))
           : value
           ? [value]
@@ -76,4 +77,4 @@ const AntLocationSelect: React.FC<Props> = ({ value, onChange, label = "Search I
   );
 };
 
-export default AntLocationSelect;
+export default AntLocationSelectAcordinttoModule;

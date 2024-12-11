@@ -96,8 +96,8 @@ const ProductionCreate: React.FC = () => {
         const payload: CreateProductionPayload = {
           slNo: deviceDetailData?.sl_no || "",
           imeiNo: deviceDetailData?.device_imei || "",
-          productionLocation: picklocation.id,
-          dropLocation: droplocation.id,
+          productionLocation: picklocation.code,
+          dropLocation: droplocation.code,
           itemKey: rowData.map((row) => row.component),
           issueQty: rowData.map((row) => row.qty),
           remark: rowData.map((row) => row.remark),
@@ -121,6 +121,7 @@ const ProductionCreate: React.FC = () => {
   useEffect(() => {
     imeiInputRef.current?.focus();
   }, []);
+  console.log(droplocation)
 
   return (
     <>

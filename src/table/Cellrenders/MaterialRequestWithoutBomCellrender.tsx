@@ -1,5 +1,5 @@
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
-import AntLocationSelect from "@/components/reusable/antSelecters/AntLocationSelect";
+import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 import AntSkuSelect from "@/components/reusable/antSelecters/AntSkuSelect";
 import { getAvailbleQty } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -51,7 +51,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
           // <AntCompSelect
           //   getUom={(value) => {
           //     data.unit = value;
-             
+
           //     api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
           //     customFunction();
           //   }}
@@ -70,38 +70,38 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
           //   value={value.value}
           // />
           <AntCompSelect
-          getUom={(value) => {
-            data.unit = value;
-            api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
-            customFunction();
-          }}
-          onChange={(selectedValue) => {
-            const newValue = selectedValue;
-            data[colDef.field] = newValue; // update the data
+            getUom={(value) => {
+              data.unit = value;
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
+              customFunction();
+            }}
+            onChange={(selectedValue) => {
+              const newValue = selectedValue;
+              data[colDef.field] = newValue; // update the data
 
-            if (selectedValue && data?.pickLocation) {
-              dispatch(
-                getAvailbleQty({
-                  itemCode: selectedValue.value || "",
-                  type: "RM",
-                  location: data?.pickLocation,
-                })
-              );
-            }
-            api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
-          }}
-          value={value}
-        />
+              if (selectedValue && data?.pickLocation) {
+                dispatch(
+                  getAvailbleQty({
+                    itemCode: selectedValue.value || "",
+                    type: "RM",
+                    location: data?.pickLocation,
+                  })
+                );
+              }
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
+            }}
+            value={value}
+          />
         );
 
       case "pickLocation":
         return (
-          <AntLocationSelect
+          <AntLocationSelectAcordinttoModule
+            endpoint="/production/pickLocation"
             onChange={(value) => {
               const newValue = value;
               data[colDef.field] = newValue; // update the data
-  
-              
+
               if (value && data?.code) {
                 dispatch(
                   getAvailbleQty({
