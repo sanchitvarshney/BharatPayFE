@@ -1,18 +1,16 @@
 import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { StatusPanelDef } from "@ag-grid-community/core";
-import DeviceMinCellRener from "../Cellrenders/DeviceMinCellRener";
-
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
+import SIMMinCellRener from "../Cellrenders/SIMMinCellRener";
 
 interface RowData {
-  remarks: string;
-  isNew?: boolean;
+  remark: string;
+  isNew: boolean;
   id: string;
-  IMEI: string;
+  sr_no: string;
 }
 
 type Props = {
@@ -35,21 +33,9 @@ const SimMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     setRowdata(allData);
   };
 
-  const statusBar = useMemo<{
-    statusPanels: StatusPanelDef[];
-  }>(() => {
-    return {
-      statusPanels: [
-        { statusPanel: "agFilteredRowCountComponent", align: "right" },
-        { statusPanel: "agSelectedRowCountComponent", align: "right" },
-        { statusPanel: "agAggregationComponent", align: "right" },
-      ],
-    };
-  }, []);
-
   const components = useMemo(
     () => ({
-      textInputCellRenderer: (params: any) => <DeviceMinCellRener props={params} customFunction={getAllTableData} />,
+      textInputCellRenderer: (params: any) => <SIMMinCellRener props={params} customFunction={getAllTableData} />,
     }),
     []
   );
@@ -69,15 +55,16 @@ const SimMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     },
 
     {
-      headerName: "IMEI",
-      field: "IMEI",
+      headerName: "Serial No.",
+      field: "sr_no",
       minWidth: 270,
     },
 
     {
-      headerName: "Remarks",
-      field: "remarks",
+      headerName: "Remark",
+      field: "remark",
       cellRenderer: "textInputCellRenderer",
+      flex: 1,
       minWidth: 200,
     },
 
@@ -122,7 +109,6 @@ const SimMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
         animateRows
-        statusBar={statusBar}
         components={components}
         defaultColDef={{
           resizable: true,

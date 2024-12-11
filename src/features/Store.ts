@@ -7,6 +7,7 @@ import componentReducer from "@/features/master/component/componentSlice";
 import productReducer from "@/features/master/products/productSlice";
 import diviceminReducer from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import rawminReducer from "@/features/wearhouse/Rawmin/RawMinSlice";
+import simminReducer from "@/features/wearhouse/simmin/SimMinSlice";
 import locationReducer from "@/features/master/location/locationSlice";
 import queryReducer from "@/features/query/query/querySlice";
 import reportReducer from "@/features/report/report/reportSlice";
@@ -48,6 +49,7 @@ export const store = configureStore({
     menu: menuReducer,
     vendor: vendor,
     category,
+    simmin: simminReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

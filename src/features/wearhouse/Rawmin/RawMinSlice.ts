@@ -8,7 +8,7 @@ const initialState: RawminState = {
   createminLoading: false,
 };
 
-export const createRawMin = createAsyncThunk<AxiosResponse<CreateRawMinResponse>, CreateRawMinPayloadType>("master/getUOM", async (payload) => {
+export const createRawMin = createAsyncThunk<AxiosResponse<CreateRawMinResponse>, CreateRawMinPayloadType>("rawmin/createRawMin", async (payload) => {
   const response = await axiosInstance.post("/transaction/min_transaction", payload);
   return response;
 });
