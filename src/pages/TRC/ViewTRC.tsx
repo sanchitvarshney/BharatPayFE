@@ -13,6 +13,7 @@ import { Icons } from "@/components/icons";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 interface Issue {
   id: string;
   selectedPart: { lable: string; value: string } | null;
@@ -32,6 +33,7 @@ const ViewTRC: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
+  const [submitConfirm, setSubmitConfirm] = useState<boolean>(false);
 
   const [approved, setApproved] = useState<string[]>([]);
   const [device, setDevice] = useState<string>("");
@@ -42,7 +44,6 @@ const ViewTRC: React.FC = () => {
     const miss = data.map((item) => {
       const missingFields: string[] = [];
       requiredFields.forEach((field) => {
-        // Check if the required field is empty
         if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
           missingFields.push(field);
         }
@@ -58,11 +59,9 @@ const ViewTRC: React.FC = () => {
     }
     return hasErrors;
   };
-  const onSubmit = () => {
-    if (issues.length === 0) {
-      showToast("Issue not added", "error");
-    } else if (!checkRequiredFields(issues)) {
-      // TRCDetail?.txnId
+
+  const finalSubmit = () => {
+    if (!checkRequiredFields(issues)) {
       if (!location) return showToast("Please select location", "error");
       if (!consumplocation) return showToast("Please select consump location", "error");
       const consumpItem = issues.map((item) => item.selectedPart?.value || "");
@@ -98,6 +97,13 @@ const ViewTRC: React.FC = () => {
       });
     }
   };
+  const onSubmit = () => {
+    if (issues.length === 0) {
+      setSubmitConfirm(true);
+    } else {
+      finalSubmit();
+    }
+  };
 
   useEffect(() => {
     dispatch(getTrcList());
@@ -128,6 +134,18 @@ const ViewTRC: React.FC = () => {
 
   return (
     <>
+      <ConfirmationModel
+        open={submitConfirm}
+        title="Are you sure?"
+        content="Are you sure you want to submit without add any issue?"
+        onClose={() => setSubmitConfirm(false)}
+        onConfirm={() => {
+          finalSubmit();
+          setSubmitConfirm(false);
+        }}
+        cancelText="Cancel"
+        confirmText="Continue"
+      />
       <Drawer
         placement="bottom"
         styles={{
@@ -244,8 +262,8 @@ const ViewTRC: React.FC = () => {
                   </div>
                 </div>
                 <div className=" h-[60px]  grid grid-cols-2 items-center gap-[20px] px-[20px]">
-                  <SelectLocation value={location} onChange={setLocation} label="Drop Location" />
                   <SelectLocation value={consumplocation} onChange={setConsumplocation} label="Consump Location" />
+                  <SelectLocation value={location} onChange={setLocation} label="Drop Location" />
                 </div>
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
@@ -269,7 +287,7 @@ const ViewTRC: React.FC = () => {
                 <LoadingButton disabled={TrcFinalSubmitLoading} variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => setProcess(false)}>
                   Cancel
                 </LoadingButton>
-                <LoadingButton loadingPosition="start" disabled={!issues.length} variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.save fontSize="small" />}>
+                <LoadingButton loadingPosition="start"  variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.save fontSize="small" />}>
                   Submit
                 </LoadingButton>
               </div>
