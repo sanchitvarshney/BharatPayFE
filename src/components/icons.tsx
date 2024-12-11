@@ -29,23 +29,25 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EmailIcon from "@mui/icons-material/Email";
 import CallIcon from "@mui/icons-material/Call";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import FaxIcon from '@mui/icons-material/Fax';
-import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency';
-import TagIcon from '@mui/icons-material/Tag';
-import DateRangeIcon from '@mui/icons-material/DateRange';
-import QrCode2Icon from '@mui/icons-material/QrCode2';
-import StreetviewIcon from '@mui/icons-material/Streetview';
-import ApartmentIcon from '@mui/icons-material/Apartment';
-import PasswordIcon from '@mui/icons-material/Password';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SecurityUpdateGoodIcon from '@mui/icons-material/SecurityUpdateGood';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import ChatIcon from '@mui/icons-material/Chat';
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import FaxIcon from "@mui/icons-material/Fax";
+import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
+import TagIcon from "@mui/icons-material/Tag";
+import DateRangeIcon from "@mui/icons-material/DateRange";
+import QrCode2Icon from "@mui/icons-material/QrCode2";
+import StreetviewIcon from "@mui/icons-material/Streetview";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import PasswordIcon from "@mui/icons-material/Password";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SecurityUpdateGoodIcon from "@mui/icons-material/SecurityUpdateGood";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import ChatIcon from "@mui/icons-material/Chat";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import CheckIcon from '@mui/icons-material/Check';
+import CheckIcon from "@mui/icons-material/Check";
+import SimCardIcon from "@mui/icons-material/SimCard";
+import GridViewIcon from '@mui/icons-material/GridView';
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -78,8 +80,8 @@ export const Icons = {
   email: EmailIcon,
   call: CallIcon,
   down: KeyboardArrowDownIcon,
-  attachment:AttachFileIcon,
-  user:AccountCircleIcon,
+  attachment: AttachFileIcon,
+  user: AccountCircleIcon,
   fax: FaxIcon,
   idCard: ContactEmergencyIcon,
   tag: TagIcon,
@@ -87,12 +89,14 @@ export const Icons = {
   qrcode: QrCode2Icon,
   branch: StreetviewIcon,
   city: ApartmentIcon,
-  code:PasswordIcon,
-  logout:LogoutIcon,
-  mobile:SecurityUpdateGoodIcon,
-  right:KeyboardArrowRightIcon,
-  chat:ChatIcon,
-  visible:Visibility,
-  invisible:VisibilityOff,
-  check:CheckIcon
+  code: PasswordIcon,
+  logout: LogoutIcon,
+  mobile: SecurityUpdateGoodIcon,
+  right: KeyboardArrowRightIcon,
+  chat: ChatIcon,
+  visible: Visibility,
+  invisible: VisibilityOff,
+  check: CheckIcon,
+  sim: SimCardIcon,
+  grid:GridViewIcon
 };

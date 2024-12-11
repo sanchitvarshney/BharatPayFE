@@ -68,7 +68,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
             filterOption={false} // Disable default filtering as we are implementing a custom filter.
             showSearch
             loading={getPartCodeLoading}
-            className="w-full"
+            className="w-full custom-select"
             value={value}
             onSearch={(input) => dispatch(getPertCodesync(input ? input : null))} // Fetch data dynamically based on search input.
             placeholder={colDef.headerName}
@@ -86,7 +86,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
           <Select
             onKeyDown={(e) => e.preventDefault()}
             value={value}
-            className="w-full h-[35px]"
+            className="w-full h-[35px] custom-select"
             placeholder="Select gst type"
             onChange={(value) => handleChange(value)}
             options={[
@@ -96,9 +96,9 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
           />
         );
       case "location":
-        return <Select onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} value={value} className="w-full h-[35px]" defaultValue="" onChange={(value) => handleChange(value)} options={transformGroupSelectData(locationData)} />;
+        return <Select onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} value={value} className="w-full h-[35px] custom-select" defaultValue="" onChange={(value) => handleChange(value)} options={transformGroupSelectData(locationData)} />;
       case "autoConsump":
-        return <Select className="w-full h-[]" defaultValue="" onChange={(value) => handleChange(value)} options={[{ value: "N", label: "NO" }]} />;
+        return <Select className="w-full h-[] custom-select" defaultValue="" onChange={(value) => handleChange(value)} options={[{ value: "N", label: "NO" }]} />;
       case "currency":
         return (
           <div className="flex items-center gap-[5px]">
@@ -143,7 +143,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
                   <Input
                     disabled={currencyData?.find((item) => item.id === data.currency)?.text === "₹"}
                     value={currency}
-                    className="h-[40px]"
+                    className="h-[40px] custom-input"
                     type="number"
                     placeholder="Exchange Rate"
                     onChange={(e) => {
@@ -189,6 +189,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
         return (
           <div className="flex items-center gap-[5px]">
             <Input
+            
               min={0}
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
@@ -209,7 +210,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
               }}
               value={value}
               placeholder={colDef.headerName}
-              className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]"
+              className="w-[100%]  custom-input"
             />
           </div>
         );
@@ -224,7 +225,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
             }}
             value={value}
             placeholder={colDef.headerName}
-            className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]"
+            className="w-[100%] custom-input"
           />
         );
 
@@ -233,7 +234,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "foreignValue":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "hsnCode":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
       case "gstRate":
         return (
           <Input
@@ -245,7 +246,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
             }}
             value={value}
             placeholder={colDef.headerName}
-            className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]"
+            className="w-[100%]  custom-input"
           />
         );
       case "cgst":
@@ -255,7 +256,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "igst":
         return <span>{value % 1 == 0 ? value : value.toFixed(2)}</span>;
       case "remarks":
-        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%]  text-slate-600  border-slate-400 shadow-none mt-[2px]" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
     }
   };
 

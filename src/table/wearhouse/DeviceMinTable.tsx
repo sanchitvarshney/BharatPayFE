@@ -14,7 +14,7 @@ import { Icons } from "@/components/icons";
 interface RowData {
   remarks: string;
   isNew?: boolean;
-  id: number;
+  id: string;
   simAvailability: string;
   IMEI: string;
   model: string;
@@ -66,6 +66,13 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       headerName: "#",
       field: "id",
       width: 60,
+      hide: true,
+    },
+    {
+      headerName: "#",
+      field: "sr",
+      width: 60,
+      valueGetter: "node.rowIndex+1",
     },
     {
       headerName: "Serial No.",
