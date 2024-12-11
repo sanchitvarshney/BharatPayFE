@@ -27,7 +27,7 @@ interface RowData {
   id: number;
   currency: string;
   isNew?: boolean;
-  excRate: number,
+  excRate: number;
 }
 interface Totals {
   cgst: number;
@@ -212,7 +212,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-120px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-170px)]">
       <AgGridReact
         suppressCellFocus={false}
         ref={gridRef}

@@ -106,7 +106,7 @@ const MaterialInvard: React.FC = () => {
         return `${item.id}`;
       }
     });
-   
+
     if (miss.filter((item) => item !== undefined).length > 0) {
       showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
       hasErrors = true;
@@ -158,8 +158,7 @@ const MaterialInvard: React.FC = () => {
             dispatch(resetDocumentFile());
             setFilename("");
             setfile(null);
-            dispatch(clearaddressdetail())
-            
+            dispatch(clearaddressdetail());
           }
         });
       }
@@ -190,10 +189,11 @@ const MaterialInvard: React.FC = () => {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
       <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
-      <div className="h-[calc(100vh-50px)]  ">
-        <div className="h-[calc(100vh-50px)] grid grid-cols-[500px_1fr]">
+
+      <div className="h-[calc(100vh-100px)]  ">
+        <div className="h-full grid grid-cols-[500px_1fr]">
           <div className=" border-r border-neutral-300 h-full overflow-y-auto flex flex-col gap-[10px] relative bg-white ">
             <div>
               <CardContent className="mt-[20px] flex flex-col gap-[20px]">
@@ -249,7 +249,7 @@ const MaterialInvard: React.FC = () => {
                               field.onChange(e.target.value);
                               dispatch(getVendorAddress(e.target.value)).then((response: any) => {
                                 if (response.payload.data.success) {
-                                  setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) ||"");
+                                  setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) || "");
                                   setValue("gstin", response.payload.data?.data?.gstid);
                                 }
                               });

@@ -68,6 +68,8 @@ import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 import MobileVerifyPage from "./pages/commonPages/MobileVerifyPage";
 import VerifyMobileAndEmail from "./pages/commonPages/VerifyMobileAndEmail";
 import DocViewer from "./pages/commonPages/DocViewer";
+import MinLayout from "./layouts/MinLayout";
+import SimMin from "./pages/wearhouse/SimMin";
 
 export const router = createBrowserRouter([
   {
@@ -301,10 +303,22 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MaterialInvard />
+            <MinLayout>
+              <MaterialInvard />
+            </MinLayout>
           </MainLayout>
         ),
         path: "/raw-min",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MinLayout>
+              <SimMin />
+            </MinLayout>
+          </MainLayout>
+        ),
+        path: "/sim-min",
       },
       {
         element: (
