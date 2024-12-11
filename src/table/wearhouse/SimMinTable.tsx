@@ -1,33 +1,25 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import DeviceMinCellRener from "../Cellrenders/DeviceMinCellRener";
-import { showToast } from "@/utils/toastUtils";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { UpdateDEviceMin } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { UpateMINpayload } from "@/features/wearhouse/Divicemin/DeviceMinType";
+
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { CircularProgress, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 
 interface RowData {
   remarks: string;
   isNew?: boolean;
   id: string;
-  simAvailability: string;
   IMEI: string;
-  model: string;
-  serialno: string;
-  isAvailble: boolean;
 }
 
 type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
 };
-const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
-  const [id, setId] = useState<string>("");
+const SimMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -64,99 +56,39 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
-      field: "id",
+      field: "sr",
       width: 60,
-      hide: true,
+      valueGetter: (params: any) => params.node.rowIndex + 1,
     },
     {
       headerName: "#",
-      field: "sr",
+      field: "id",
       width: 60,
-      valueGetter: "node.rowIndex+1",
+
+      hide: true,
     },
-    {
-      headerName: "Serial No.",
-      field: "serialno",
-      minWidth: 200,
-    },
+
     {
       headerName: "IMEI",
       field: "IMEI",
-      cellRenderer: "textInputCellRenderer",
       minWidth: 270,
     },
-    {
-      headerName: "Model",
-      field: "model",
-      cellRenderer: "textInputCellRenderer",
-      minWidth: 200,
-    },
-    {
-      headerName: "SIM Availability",
-      field: "simAvailability",
-      cellRenderer: "textInputCellRenderer",
-    },
+
     {
       headerName: "Remarks",
       field: "remarks",
       cellRenderer: "textInputCellRenderer",
       minWidth: 200,
     },
-    {
-      headerName: "isAvailble",
-      field: "isAvailble",
-      cellRenderer: "textInputCellRenderer",
-      minWidth: 200,
-      hide: true,
-    },
+
     {
       headerName: "",
       field: "isNew",
       pinned: "right",
       cellRenderer: (params: any) => {
-        const dispatch = useAppDispatch();
-        const { data, api, column } = params;
-        const { storeSerialFiles, storeDraftMinData, updateMinLoading } = useAppSelector((state) => state.divicemin);
+        const { data } = params;
         return (
           <div key={data.id} className="flex items-center justify-center h-full gap-[10px]">
-            {
-              data?.isAvailble &&   <IconButton
-              color="success"
-              onClick={() => {
-                if (!data.simAvailability) {
-                  showToast({ title: "Please Select SIM Availability", variant: "destructive" });
-                } else {
-                  if (storeSerialFiles && storeDraftMinData) {
-                    setId(data?.id);
-                    const mindata: UpateMINpayload = {
-                      simExist: data.simAvailability,
-                      serial: data.serialno,
-                      remark: data.remarks,
-                      fileReference: storeSerialFiles?.fileReference,
-                      min_no: storeDraftMinData?.min_no,
-                      IMEI: data.IMEI,
-                      deviceModel: data.model,
-                    };
-                    dispatch(UpdateDEviceMin(mindata)).then((res: any) => {
-                      setId("");
-                      if (res.payload.data?.success) {
-                        data["isNew"] = false;
-                        api.refreshCells({ rowNodes: [params.node], columns: [column, "isNew", "action", "simAvailability", "serialno", "remarks", "id"] });
-                        setRowdata(rowData.filter((item) => item.isNew === true));
-                        api.refreshCells({ rowNodes: [params.node], columns: [column, "isNew", "action", "simAvailability", "serialno", "remarks", "id"] });
-                      }
-                    });
-                  } else {
-                    showToast({ description: "Please Complete First Step because you have lost you reference no or reference file", variant: "destructive" });
-                  }
-                }
-              }}
-              disabled={updateMinLoading && id === data?.id}
-            >
-              {updateMinLoading && id === data?.id ? <CircularProgress size={23} /> : <Icons.check />}
-            </IconButton>
-            }
-          
             <IconButton onClick={() => setRowdata(rowData.filter((item) => item.id !== data?.id))} color="error">
               <Icons.delete />
             </IconButton>
@@ -203,4 +135,4 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   );
 };
 
-export default DeviceMinTable;
+export default SimMinTable;

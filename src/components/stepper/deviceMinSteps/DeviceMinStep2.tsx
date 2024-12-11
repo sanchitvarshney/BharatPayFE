@@ -8,6 +8,7 @@ import { CircularProgress, InputAdornment, TextField, Typography } from "@mui/ma
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
+import { generateUniqueId } from "@/utils/uniqueid";
 
 type Props = {
   setStep: (step: number) => void;
@@ -17,7 +18,7 @@ type Props = {
 interface RowData {
   remarks: string;
   isNew?: boolean;
-  id: number;
+  id: string;
   simAvailability: string;
   serialno: string;
   IMEI: string;
@@ -40,7 +41,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
       if (rowData.filter((item) => item.isNew === true).length >= 10) {
         showToast("First submit your all items before adding new item", "warning");
       } else {
-        const newId = rowData.length + 1;
+        const newId = generateUniqueId();
         const newRow: RowData = {
           id: newId,
           serialno: serial,
