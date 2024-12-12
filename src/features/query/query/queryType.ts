@@ -101,6 +101,21 @@ export type Q4Apiresponse = {
   success: boolean;
 };
 
+type Q5Data = {
+  simNo: string;
+  insertDt: string;
+  insertBy: string;
+  sim_status: string;
+  txnID: string;
+  outDate: string;
+  outBy: string;
+  outTxn: string;
+};
+export type Q5Apiresponse = {
+  data: Q5Data[];
+  status: string;
+  success: boolean;
+};
 export type QueryStateType = {
   q1Data: Response | null;
   getQ1DataLoading: boolean;
@@ -112,4 +127,6 @@ export type QueryStateType = {
   q3DataLoading: boolean;
   q4Data: Q4Data | null;
   q4DataLoading: boolean;
+  q5Data: Q5Data[] | null;
+  q5DataLoading: boolean;
 };

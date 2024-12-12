@@ -3,12 +3,18 @@ import SelectMin, { MinType } from "@/components/reusable/SelectMin";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@mui/lab";
 import { FormControl, MenuItem, Select, TextField } from "@mui/material";
-
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { rangePresets } from "@/utils/rangePresets";
+import Q5StatementTable from "@/table/query/Q5StatementTable";
+import { AgGridReact } from "@ag-grid-community/react";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { getQ5Data } from "@/features/query/query/querySlice";
+import { showToast } from "@/utils/toasterContext";
 const Q5Report: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { q5Data, q5DataLoading } = useAppSelector((state) => state.query);
   const [dateRange, setDateRange] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
@@ -17,10 +23,17 @@ const Q5Report: React.FC = () => {
   const [filter, setFilter] = useState<string>("min");
   const [min, setMin] = React.useState<MinType | null>(null);
   const [sim, setSim] = useState<string>("");
+  const gridRef = useRef<AgGridReact<any>>(null);
   const handleDateChange = (dates: { from: Dayjs | null; to: Dayjs | null }) => {
     console.log("Selected Dates:", dates);
     setDateRange(dates);
   };
+
+  const onBtExport = useCallback(() => {
+    gridRef.current!.api.exportDataAsExcel({
+      sheetName: "Q5  ", // Set your desired sheet name here
+    });
+  }, []);
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
       <div className={` h-full flex relative   `}>
@@ -61,14 +74,59 @@ const Q5Report: React.FC = () => {
               )}
               {filter === "sim" && <TextField value={sim} onChange={(e) => setSim(e.target.value)} label="SIM No." />}
             </div>
-            <div className="mt-[20px]">
-              <LoadingButton loadingPosition="start" startIcon={<Icons.search fontSize="small" />} variant="contained">
+            <div className="mt-[20px] flex items-center justify-between">
+              <LoadingButton
+                onClick={() => {
+                  if (filter === "date") {
+                    if (dateRange.from && dateRange.to) {
+                      dispatch(getQ5Data({ type: "RANGE", data: `${dayjs(dateRange.from).format("DD-MM-YYYY")}-${dayjs(dateRange.to).format("DD-MM-YYYY")}` }));
+                    } else {
+                      showToast("Select search criteria", "error");
+                    }
+                  } else if (filter === "min") {
+                    if (min) {
+                      dispatch(getQ5Data({ type: "MIN", data: min.minNo || "" }));
+                    } else {
+                      showToast("Select the MIN", "error");
+                    }
+                  } else if (filter === "sim") {
+                    if (sim) {
+                      dispatch(getQ5Data({ type: "MIN", data: sim }));
+                    } else {
+                      showToast("Supply the SIM No.", "error");
+                    }
+                  }
+                }}
+                loading={q5DataLoading}
+                loadingPosition="start"
+                startIcon={<Icons.search fontSize="small" />}
+                variant="contained"
+              >
                 Search
+              </LoadingButton>
+              <LoadingButton
+                disabled={!q5Data}
+                variant="contained"
+                color="primary"
+                style={{
+                  borderRadius: "50%",
+                  width: 40,
+                  height: 40,
+                  minWidth: 0,
+                  padding: 0,
+                }}
+                onClick={() => onBtExport()}
+                size="small"
+                sx={{ zIndex: 1 }}
+              >
+                <Icons.download />
               </LoadingButton>
             </div>
           </div>
         </div>
-        <div className="w-full"></div>
+        <div className="w-full">
+          <Q5StatementTable gridRef={gridRef} />
+        </div>
       </div>
     </div>
   );
