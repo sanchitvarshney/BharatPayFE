@@ -4,8 +4,6 @@ import Box from "@mui/material/Box";
 import Tabs, { tabsClasses } from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { Typography } from "@mui/material";
-
-// Define the navigation slider data
 interface NavSliderData {
   path: string;
   name: string;
@@ -20,6 +18,7 @@ export const navSliderData: NavSliderData[] = [
   { path: "/report/R5", name: "R5", content: <p>Dispatch Report</p> },
   { path: "/report/R6", name: "R6", content: <p>Raw MIN Report</p> },
   { path: "/report/R7", name: "R7", content: <p>Date Wise RM Report</p> },
+  { path: "/report/R8", name: "R8", content: <p>Material Issue Report</p> },
 ];
 
 const NavSlider: React.FC = () => {
