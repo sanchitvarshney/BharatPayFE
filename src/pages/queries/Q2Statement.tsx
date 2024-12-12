@@ -153,7 +153,7 @@ const Q2Statement: React.FC = () => {
                       <ListItemText primary="Name" secondary={q2Data?.head?.name || "--"} />
                     </ListItem>
                     <ListItem>
-                      <ListItemText primary="SKU" secondary={q2Data?.head?.code || "--"} />
+                      <ListItemText primary="Part Code" secondary={q2Data?.head?.code || "--"} />
                     </ListItem>
                     <ListItem>
                       <ListItemText primary="UOM" secondary={q2Data?.head?.uom || "--"} />

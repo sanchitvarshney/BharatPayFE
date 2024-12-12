@@ -1,16 +1,14 @@
 import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { StatusPanelDef } from "@ag-grid-community/core";
 import CraeteBomCellRender from "../Cellrenders/CraeteBomCellRender";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
+import { Icons } from "@/components/icons";
 interface RowData {
-  id: number;
-  component: string;
+  id: string;
+  component: { lable: string; value: string } | null;
   qty: number;
   isNew: boolean;
   uom: string;
@@ -24,7 +22,7 @@ type Props = {
 const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
 
-  const handleDeleteRow = (id: number) => {
+  const handleDeleteRow = (id: string) => {
     setRowdata(rowData.filter((row) => row.id !== id));
   };
 
@@ -40,17 +38,6 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
     }
     setRowdata(allData);
   };
-  const statusBar = useMemo<{
-    statusPanels: StatusPanelDef[];
-  }>(() => {
-    return {
-      statusPanels: [
-        { statusPanel: "agFilteredRowCountComponent", align: "right" },
-        { statusPanel: "agSelectedRowCountComponent", align: "right" },
-        { statusPanel: "agAggregationComponent", align: "right" },
-      ],
-    };
-  }, []);
 
   const components = useMemo(
     () => ({
@@ -73,8 +60,21 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button className="bg-cyan-700 hover:bg-cyan-800 p-0 h-[30px] w-[30px]" onClick={addRow}>
-            <Plus className="h-[18px] w-[18px]" />
+          <Button
+            variant="contained"
+            color="primary"
+            style={{
+              borderRadius: "10%",
+              width: 25,
+              height: 25,
+              minWidth: 0,
+              padding: 0,
+            }}
+            onClick={addRow}
+            size="small"
+            sx={{ zIndex: 1 }}
+          >
+            <Icons.add fontSize="small" />
           </Button>
         </div>
       ),
@@ -85,12 +85,15 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       field: "component",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
+      minWidth: 200,
     },
     {
       headerName: "Quantity",
       field: "qty",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
     },
     {
       headerName: "Uom",
@@ -126,11 +129,9 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
         rowData={rowData}
         animateRows
         loading={false}
-        statusBar={statusBar}
         components={components}
         defaultColDef={{
           resizable: true,
-          suppressCellFlash: true,
           editable: false,
         }}
       />

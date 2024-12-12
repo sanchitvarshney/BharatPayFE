@@ -65,7 +65,7 @@ const R2Report: React.FC = () => {
               className="h-[50px] rounded-sm border-[2px]"
               value={[date ? dayjs(date.from, dateFormat) : null, date ? dayjs(date.to, dateFormat) : null]}
               onChange={(value) => {
-                // Ensure the value is not null and correctly formatted
+               
                 const newDate = convertDateRangev2(value!);
                 setDate(newDate);
               }}
