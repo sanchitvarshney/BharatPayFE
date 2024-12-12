@@ -3,7 +3,6 @@ import Grid from "@mui/material/Grid2";
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormHelperText, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
 import FileUploader from "@/components/reusable/FileUploader";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
@@ -15,6 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 import { clearFile, CreateDispatch, uploadFile } from "@/features/Dispatch/DispatchSlice";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 type RowData = {
   imei: string;
   srno: string;
@@ -63,6 +63,7 @@ const CraeteDispatchPage: React.FC = () => {
       remark: data.remark,
       deviceId: rowData.map((item) => item.imei),
       document: file || "",
+      pickLocation: data.location?.code || "",
     };
     dispatch(CreateDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -161,7 +162,7 @@ const CraeteDispatchPage: React.FC = () => {
                   name="location"
                   rules={{ required: { value: true, message: "Location is required" } }}
                   control={control}
-                  render={({ field }) => <SelectLocation error={!!errors.location} helperText={errors.location?.message} size="medium" label="Pick Location" varient="outlined" value={field.value} onChange={field.onChange} />}
+                  render={({ field }) => <SelectLocationAcordingModule endPoint="/dispatchDivice/pickLocation" error={!!errors.location} helperText={errors.location?.message} size="medium" label="Pick Location" varient="outlined" value={field.value} onChange={field.onChange} />}
                 />
               </Grid>
               <Grid size={12}>
@@ -214,7 +215,6 @@ const CraeteDispatchPage: React.FC = () => {
                     setImei(e.target.value);
                   }}
                   onKeyDown={(e) => {
-               
                     if (e.key === "Enter") {
                       e.preventDefault();
                       if (imei) {

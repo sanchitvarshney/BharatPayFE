@@ -6,6 +6,7 @@ export type DispatchItemPayload = {
   remark?: string; // optional
   deviceId: string[]; // required array of strings
   document: string; // required
+  pickLocation: string;
 };
 
 export type DispatchState = {
