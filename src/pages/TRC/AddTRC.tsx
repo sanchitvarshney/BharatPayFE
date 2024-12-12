@@ -12,12 +12,12 @@ import { getIsueeList } from "@/features/common/commonSlice";
 import { Button, CircularProgress, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
-import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { showToast } from "@/utils/toasterContext";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 
 interface RowData {
   remarks: string;
@@ -41,6 +41,7 @@ const AddTRC = () => {
   const [final, setFinal] = useState<boolean>(false);
   const { locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { addTrcLoading } = useAppSelector((state) => state.addTrc);
+  const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
 
   const dispatch = useAppDispatch();
 
@@ -104,8 +105,8 @@ const AddTRC = () => {
           device,
           remark,
           comment: data.remarks,
-          pickLocation: data.pickLocation?.id || "",
-          putLocation: data.putLocation?.id || "",
+          pickLocation: data.pickLocation?.code || "",
+          putLocation: data.putLocation?.code || "",
         };
         dispatch(addTrcAsync(payload)).then((response: any) => {
           if (response.payload.data?.success) {
@@ -123,7 +124,7 @@ const AddTRC = () => {
   }, []);
   useEffect(() => {
     if (location) {
-      const locationDetail = locationData?.find((item) => item.id === location?.id)?.specification;
+      const locationDetail = locationData?.find((item) => item.id === location?.code)?.specification;
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
@@ -174,7 +175,6 @@ const AddTRC = () => {
                         label="SKU"
                         onChange={(value) => {
                           field.onChange(value);
-                          setLocation(value);
                         }}
                       />
                     )}
@@ -185,7 +185,8 @@ const AddTRC = () => {
                       control={control}
                       rules={{ required: "Pick Location is required" }}
                       render={({ field }) => (
-                        <SelectLocation
+                        <SelectLocationAcordingModule
+                          endPoint="/trc/add/pickLocation"
                           error={!!errors.pickLocation}
                           helperText={errors.pickLocation?.message}
                           value={field.value}
@@ -204,7 +205,8 @@ const AddTRC = () => {
                       control={control}
                       rules={{ required: "Location Location is required" }}
                       render={({ field }) => (
-                        <SelectLocation
+                        <SelectLocationAcordingModule
+                          endPoint="/trc/add/putLocation"
                           error={!!errors.putLocation}
                           helperText={errors.putLocation?.message}
                           value={field.value}
@@ -271,7 +273,7 @@ const AddTRC = () => {
                       }
                     }
                   }}
-                  endAdornment={<InputAdornment position="end">{false ? <CircularProgress /> : <Icons.qrScan />}</InputAdornment>}
+                  endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={25} /> : <Icons.qrScan />}</InputAdornment>}
                   className="w-[400px]"
                   label="IMEI/Serial Number"
                 />

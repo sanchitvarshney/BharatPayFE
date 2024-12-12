@@ -1,4 +1,4 @@
-import { LocationType } from "@/components/reusable/SelectLocation";
+import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import { VendorData } from "@/components/reusable/SelectVendor";
 import { Dayjs } from "dayjs";

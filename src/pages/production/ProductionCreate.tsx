@@ -13,7 +13,6 @@ import { CreateProductionPayload } from "@/features/production/ManageProduction/
 import { clearDeviceDetail, getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { createProduction } from "@/features/production/ManageProduction/ManageProductionSlie";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
-import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import LoadingButton from "@mui/lab/LoadingButton";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import { Button, CircularProgress, IconButton, InputLabel, Tooltip, Typography } from "@mui/material";
@@ -21,6 +20,7 @@ import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import CheckIcon from "@mui/icons-material/Check";
 import CreateIcon from "@mui/icons-material/Create";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 type RowData = {
   remark: string;
   id: number;
@@ -96,8 +96,8 @@ const ProductionCreate: React.FC = () => {
         const payload: CreateProductionPayload = {
           slNo: deviceDetailData?.sl_no || "",
           imeiNo: deviceDetailData?.device_imei || "",
-          productionLocation: picklocation.id,
-          dropLocation: droplocation.id,
+          productionLocation: picklocation.code,
+          dropLocation: droplocation.code,
           itemKey: rowData.map((row) => row.component),
           issueQty: rowData.map((row) => row.qty),
           remark: rowData.map((row) => row.remark),
@@ -121,6 +121,7 @@ const ProductionCreate: React.FC = () => {
   useEffect(() => {
     imeiInputRef.current?.focus();
   }, []);
+  console.log(droplocation)
 
   return (
     <>
@@ -154,8 +155,8 @@ const ProductionCreate: React.FC = () => {
             Create Production
           </Typography>
           <SelectDevice size="medium"  required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
-          <SelectLocation size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
-          <SelectLocation size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pick Location" helperText={"Location where the components will be picked up"} />
+          <SelectLocationAcordingModule endPoint="/production/dropLocation"  size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
+          <SelectLocationAcordingModule endPoint="/production/pickLocation" size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pick Location" helperText={"Location where the components will be picked up"} />
         </div>
         <div>
           <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] ">

@@ -26,7 +26,6 @@ import { Icons } from "@/components/icons";
 import SelectVendor from "@/components/reusable/SelectVendor";
 import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 import SelectDevice from "@/components/reusable/SelectSku";
-import SelectLocation from "@/components/reusable/SelectLocation";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
@@ -34,6 +33,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
+import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 
 type Props = {
   setStep: (step: number) => void;
@@ -81,7 +81,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
       invoiceAttachment: storeInvoiceFiles!,
       fileReference: storeSerialFiles!.fileReference,
       vendorAddress: data.vendorAddress,
-      location: data.location!.id,
+      location: data.location!.code,
       minQty: data.qty,
       itemCode: data.sku!.id,
       unit: data.unit!,
@@ -297,7 +297,12 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                 />
               </div>
               <div>
-                <Controller name="location" control={control} rules={{ required: "Location is required" }} render={({ field }) => <SelectLocation {...field} error={!!errors.location} helperText={errors.location?.message} />} />
+                <Controller
+                  name="location"
+                  control={control}
+                  rules={{ required: "Location is required" }}
+                  render={({ field }) => <SelectLocationAcordingModule endPoint="/deviceMin/device-inward-location" {...field} error={!!errors.location} helperText={errors.location?.message} />}
+                />
               </div>
               <div>
                 <Controller
@@ -472,7 +477,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
               Next <FaArrowRightLong className="h-[18px] w-[18px]" />
             </LoadingButton>
           ) : (
-            <LoadingButton  type="submit" loading={createMinLoading} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
+            <LoadingButton type="submit" loading={createMinLoading} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
               Next
             </LoadingButton>
           )}

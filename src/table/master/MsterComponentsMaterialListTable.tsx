@@ -1,7 +1,6 @@
 import React, { RefObject, useMemo } from "react";
 import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
-
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -34,15 +33,12 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       width: 300,
-      cellRenderer: (params: any) =>
-        import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME" ? (
-          <Link className="text-cyan-500 flex items-center gap-[10px]" to={`/master-components/${params?.data?.component_key}`}>
-            {params?.value}
-            <Icons.followLink sx={{ fontSize: "15px" }} />
-          </Link>
-        ) : (
-          params?.value
-        ),
+      cellRenderer: (params: any) => (
+        <Link className="text-cyan-600 flex items-center gap-[10px]" to={`/master-components/${params?.data?.component_key}`}>
+          {params?.value}
+          <Icons.followLink sx={{ fontSize: "15px" }} />
+        </Link>
+      ),
     },
     {
       headerName: "Part Code",
@@ -67,7 +63,7 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
     {
       headerName: "key",
       field: "component_key",
-     hide: true
+      hide: true,
     },
   ];
   const defaultColDef = useMemo<ColDef>(() => {
@@ -97,4 +93,4 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
   );
 };
 
-export default MsterComponentsMaterialListTable;
+export default MsterComponentsMaterialListTable; 

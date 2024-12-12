@@ -4,8 +4,8 @@ import useDebounce from "@/hooks/useDebounce";
 import axiosInstance from "@/api/axiosInstance";
 import { useAppSelector } from "@/hooks/useReduxHook";
 export type LocationType = {
-  id: string;
-  text: string;
+  code: string;
+  name: string;
 };
 type Props = {
   onChange: (value: LocationType | null) => void;
@@ -18,19 +18,20 @@ type Props = {
   required?: boolean;
   size?: "small" | "medium";
   tabindex?: number;
+  endPoint: string;
 };
 
-const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium", tabindex = 0 }) => {
+const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium", tabindex = 0, endPoint }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
   const [locationList, setLocationList] = useState<LocationType[]>([]);
   const { locationData } = useAppSelector((state) => state.location);
   // Fetch locations based on search query
-  const fetchLocations = async (query: string | null) => {
+  const fetchLocations = async (query: string) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/backend/search/location/${query}`);
+      const response = await axiosInstance.get(`${endPoint}?search=${query}`);
       setLocationList(response.data.data); // Assuming response follows LocationApiresponse format
     } catch (error) {
       console.error("Error fetching locations:", error);
@@ -45,7 +46,7 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
     }
   }, [debouncedInputValue]);
   useEffect(() => {
-    fetchLocations(null);
+    fetchLocations("");
   }, [locationData]);
   return (
     <Autocomplete
@@ -53,13 +54,13 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
       value={value}
       size={size}
       options={locationList || []}
-      getOptionLabel={(option) => `${option.text}`}
+      getOptionLabel={(option) => `${option.name}`}
       filterSelectedOptions
       onChange={(_, value) => {
         onChange(value);
       }}
       loading={loading}
-      isOptionEqualToValue={(option, value) => option.id === value?.id}
+      isOptionEqualToValue={(option, value) => option.code === value?.code}
       onInputChange={(_, newInputValue, reason) => {
         (reason === "input" || reason === "clear") && setInputValue(newInputValue);
       }}
@@ -87,7 +88,7 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
       renderOption={(props, option) => (
         <li {...props}>
           <div>
-            <p className="text-[13px]">{`${option.text}`}</p>
+            <p className="text-[13px]">{`${option.name}`}</p>
           </div>
         </li>
       )}
@@ -96,4 +97,4 @@ const SelectLocation: React.FC<Props> = ({ value, onChange, label = "Search Loca
   );
 };
 
-export default SelectLocation;
+export default SelectLocationAcordingModule;

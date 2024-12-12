@@ -7,14 +7,14 @@ import { createProductRequest, getLocationAsync, getPertCodesync, getSkuAsync, s
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, ListItemButton, ListItemText, Radio, RadioGroup, TextField, Typography } from "@mui/material";
-import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 
 interface RowData {
-  code:  {lable:string, value:string} | null;
-  pickLocation:  {lable:string, value:string} | null;
+  code: { lable: string; value: string } | null;
+  pickLocation: { lable: string; value: string } | null;
   orderqty: string;
   remarks: string;
   id: string;
@@ -69,7 +69,7 @@ const MaterialReqWithoutBom = () => {
       isNew: true,
       availableqty: "--",
     };
-    setRowData((prev) => [newRow,...prev]);
+    setRowData((prev) => [newRow, ...prev]);
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
@@ -101,7 +101,7 @@ const MaterialReqWithoutBom = () => {
         const picLocation = rowData.map((row) => row.pickLocation?.value || "");
         const qty = rowData.map((row) => row.orderqty);
         const remark = rowData.map((row) => row.remarks);
-        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.id, comment: data.remarks })).then((res: any) => {
+        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.code, comment: data.remarks })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
@@ -119,7 +119,7 @@ const MaterialReqWithoutBom = () => {
   }, []);
   useEffect(() => {
     if (location) {
-      const locationDetail = locationData?.find((item) => item.id === location?.id)?.specification;
+      const locationDetail = locationData?.find((item) => item.id === location?.code)?.specification;
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
@@ -162,10 +162,14 @@ const MaterialReqWithoutBom = () => {
               <p className="text-green-600">{craeteRequestData && craeteRequestData.message}</p>
             </div>
             <div className="flex items-center justify-center">
-              <Button endIcon={<FaArrowRightLong />} onClick={() => {
-                setFinal(false)
-                setLocationdetail("--");
-              }} variant="contained">
+              <Button
+                endIcon={<FaArrowRightLong />}
+                onClick={() => {
+                  setFinal(false);
+                  setLocationdetail("--");
+                }}
+                variant="contained"
+              >
                 Create New Request
               </Button>
             </div>
@@ -221,7 +225,8 @@ const MaterialReqWithoutBom = () => {
                       control={control}
                       rules={{ required: "Location is required" }}
                       render={({ field }) => (
-                        <SelectLocation
+                        <SelectLocationAcordingModule
+                          endPoint="/req/without-bom/req-location"
                           error={!!errors.location}
                           helperText={errors.location?.message}
                           value={field.value}
