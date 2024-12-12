@@ -248,7 +248,7 @@ const AddTRC = () => {
             </form>
           </div>
           <div>
-            <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px]">
+            <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] border-b border-neutral-300">
               <FormControl>
                 <InputLabel htmlFor="outlined-adornment-IMEI/Serial">IMEI/Serial Number</InputLabel>
                 <OutlinedInput

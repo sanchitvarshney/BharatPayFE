@@ -10,10 +10,10 @@ import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
 import FixIssuesTable from "@/table/TRC/FixIssuesTable";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
-import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
 import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 interface Issue {
   id: string;
   selectedPart: { lable: string; value: string } | null;
@@ -73,9 +73,9 @@ const ViewTRC: React.FC = () => {
         consumpItem,
         consumpQty,
         remark,
-        putLocation: location?.id || "",
+        putLocation: location?.code || "",
         itemCode: device || "",
-        consumpLoc: consumplocation?.id || "",
+        consumpLoc: consumplocation?.code || "",
       };
       dispatch(trcFinalSubmit(payload)).then((res: any) => {
         if (res.payload.data.success) {
@@ -262,8 +262,8 @@ const ViewTRC: React.FC = () => {
                   </div>
                 </div>
                 <div className=" h-[60px]  grid grid-cols-2 items-center gap-[20px] px-[20px]">
-                  <SelectLocation value={consumplocation} onChange={setConsumplocation} label="Consump Location" />
-                  <SelectLocation value={location} onChange={setLocation} label="Drop Location" />
+                  <SelectLocationAcordingModule endPoint="/trc/view/pickLocation" value={consumplocation} onChange={setConsumplocation} label="Consump Location" />
+                  <SelectLocationAcordingModule endPoint="/trc/view/dropLocation" value={location} onChange={setLocation} label="Drop Location" />
                 </div>
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
@@ -287,7 +287,7 @@ const ViewTRC: React.FC = () => {
                 <LoadingButton disabled={TrcFinalSubmitLoading} variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => setProcess(false)}>
                   Cancel
                 </LoadingButton>
-                <LoadingButton loadingPosition="start"  variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.save fontSize="small" />}>
+                <LoadingButton loadingPosition="start" variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.save fontSize="small" />}>
                   Submit
                 </LoadingButton>
               </div>

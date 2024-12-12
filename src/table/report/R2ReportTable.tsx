@@ -1,7 +1,6 @@
 import React from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { Badge } from "@/components/ui/badge";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
@@ -22,14 +21,14 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
     { headerName: "Ref ID", field: "refId", sortable: true, filter: true },
     { headerName: "Device", field: "device", sortable: true, filter: true },
     { headerName: "Total Devices", field: "totalDevice", sortable: true, filter: true },
-    { headerName: "Requested Location", field: "pickLocation", sortable: true, filter: true },
+    { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true },
+    { headerName: "Put Location", field: "putLocation", sortable: true, filter: true },
     { headerName: "Requested Date", field: "insertDate", sortable: true, filter: true },
     {
       headerName: "Request Status",
       field: "status",
       sortable: true,
       filter: true,
-      cellRenderer: (params: any) => <div className="flex items-center h-full ">{params.value !== "COMPLETED" ? <Badge className="bg-amber-600 hover:bg-amber-700">{params.value}</Badge> : <Badge className="bg-emerald-600 hover:bg-emerald-700">{params.value}</Badge>}</div>,
     },
     {
       headerName: "Action",
