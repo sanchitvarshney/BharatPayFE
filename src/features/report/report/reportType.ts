@@ -206,6 +206,26 @@ export type r6reportApiResponse = {
   data: r6report[];
 };
 
+type R8ReportData = {
+  txnId: string;
+  partCode: string;
+  componentName: string;
+  category: string | null;
+  subCategory: string | null;
+  uom: string;
+  outQty: number;
+  locFrom: string;
+  locIn: string;
+  reqBy: string;
+  insertDt: string;
+  approvedBy: string;
+};
+
+export type R8ReportDataApiResponse = {
+  status: string;
+  success: boolean;
+  data: R8ReportData[];
+};
 export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
@@ -228,4 +248,6 @@ export type ReportStateType = {
   mainR1ReportLoading: boolean;
   r6Report: r6report[] | null;
   r6ReportLoading: boolean;
+  r8ReportLoading: boolean;
+  r8Report: R8ReportData[] | null;
 };

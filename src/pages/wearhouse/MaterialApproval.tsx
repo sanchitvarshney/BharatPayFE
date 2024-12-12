@@ -4,7 +4,7 @@ import { crearLocation, getLocationAsync } from "@/features/wearhouse/Divicemin/
 import { clearItemdetail, getPendingMaterialListsync, materialRequestCancel } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import PendingMrApprovalTable from "@/table/wearhouse/PendingMrApprovalTable";
-import {  Button, DialogActions, DialogContent, DialogContentText, DialogTitle,  TextField } from "@mui/material";
+import { Button, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Dialog from "@mui/material/Dialog";
 
@@ -20,7 +20,7 @@ const MaterialApproval: React.FC = () => {
   const [remarks, setRemarks] = useState<string>("");
   const { cancelItemLoading } = useAppSelector((state) => state.pendingMr);
   const [txnId, setTxnId] = useState<string>("");
- 
+
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(getPendingMaterialListsync());
@@ -35,7 +35,6 @@ const MaterialApproval: React.FC = () => {
   }, [approve]);
   return (
     <>
-     
       <Dialog
         open={alert}
         onClose={() => setAlert(false)}
@@ -63,10 +62,8 @@ const MaterialApproval: React.FC = () => {
         }}
       >
         <DialogTitle>Are you sure?</DialogTitle>
-        <DialogContent sx={{width:"600px"}}>
-          <DialogContentText>
-          do you want to cancel the material request?
-          </DialogContentText>
+        <DialogContent sx={{ width: "600px" }}>
+          <DialogContentText>do you want to cancel the material request?</DialogContentText>
           <TextField autoComplete="off" autoFocus margin="dense" id="name" name="remark" label="Remark (required)" fullWidth variant="standard" />
         </DialogContent>
         <DialogActions>

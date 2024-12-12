@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { componentApiResponse, Q1ApiResponse, Q3ApiResponse, Q4Apiresponse, QueryStateType } from "./queryType";
+import { componentApiResponse, Q1ApiResponse, Q3ApiResponse, Q4Apiresponse, Q5Apiresponse, QueryStateType } from "./queryType";
 
 const initialState: QueryStateType = {
   getQ1DataLoading: false,
@@ -14,6 +14,8 @@ const initialState: QueryStateType = {
   q3DataLoading: false,
   q4Data: null,
   q4DataLoading: false,
+  q5Data: null,
+  q5DataLoading: false,
 };
 
 export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null }>("query/getQ1", async (params) => {
@@ -37,7 +39,10 @@ export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, string>(
   const response = await axiosInstance.get(`/query/q4/${id}`);
   return response;
 });
-
+export const getQ5Data = createAsyncThunk<AxiosResponse<Q5Apiresponse>, { type: string; data: string }>("query/getQ5Data", async (payload) => {
+  const response = await axiosInstance.get(`/query/q5/sim/report?type=${payload.type}&data=${payload.data}`);
+  return response;
+});
 const querySlice = createSlice({
   name: "query",
   initialState,
@@ -97,6 +102,7 @@ const querySlice = createSlice({
       })
       .addCase(getQ4DatA.pending, (state) => {
         state.q4DataLoading = true;
+        state.q4Data = null;
       })
       .addCase(getQ4DatA.fulfilled, (state, action) => {
         state.q4DataLoading = false;
@@ -106,7 +112,21 @@ const querySlice = createSlice({
       })
       .addCase(getQ4DatA.rejected, (state) => {
         state.q4DataLoading = false;
-        state.q3data = null;
+        state.q4Data = null;
+      })
+      .addCase(getQ5Data.pending, (state) => {
+        state.q5DataLoading = true;
+        state.q5Data = null;
+      })
+      .addCase(getQ5Data.fulfilled, (state, action) => {
+        state.q5DataLoading = false;
+        if (action.payload.data.success) {
+          state.q5Data = action.payload.data.data;
+        }
+      })
+      .addCase(getQ5Data.rejected, (state) => {
+        state.q5DataLoading = false;
+        state.q5Data = null;
       });
   },
 });

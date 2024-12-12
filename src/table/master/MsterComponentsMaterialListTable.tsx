@@ -32,13 +32,14 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
       field: "c_name",
       sortable: true,
       filter: true,
-      width: 300,
+      minWidth: 300,
       cellRenderer: (params: any) => (
-        <Link className="text-cyan-600 flex items-center gap-[10px]" to={`/master-components/${params?.data?.component_key}`}>
-          {params?.value}
-          <Icons.followLink sx={{ fontSize: "15px" }} />
+        <Link className=" text-cyan-600" to={`/master-components/${params?.data?.component_key}`}>
+          <span className="whitespace-normal">{params?.value}</span>
+          <Icons.followLink sx={{ fontSize: "15px", mx: 1 }} />
         </Link>
       ),
+      autoHeight: true,
     },
     {
       headerName: "Part Code",
@@ -93,4 +94,4 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
   );
 };
 
-export default MsterComponentsMaterialListTable; 
+export default MsterComponentsMaterialListTable;

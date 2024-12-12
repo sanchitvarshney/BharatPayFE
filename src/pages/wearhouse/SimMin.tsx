@@ -40,10 +40,11 @@ const SimMin: React.FC = () => {
       const remarks = rowdata.filter((row) => row.remark).map((row) => row.remark);
       const sr_no = rowdata.filter((row) => row.sr_no).map((row) => row.sr_no);
       dispatch(createSiMMIN({ remarks, sr_no, component: component?.componentkey || "", txnID: min?.minNo || "" })).then((res: any) => {
-        if (res.payload.status === "success") {
+        if (res.payload.data.success) {
           setRowdata([]);
           setMin(null);
           setComponent(null);
+          dispatch(clearMinInfo());
         }
       });
     }
@@ -151,7 +152,11 @@ const SimMin: React.FC = () => {
                 }
               }}
             />
-            {component && <Typography fontWeight={600}>Scan only {component?.quantity} Serial No.</Typography>}
+            {component && (
+              <Typography fontWeight={600}>
+                Total Scan Qty : {rowdata.length} / {component?.quantity}
+              </Typography>
+            )}
           </div>
           <SimMinTable rowData={rowdata} setRowdata={setRowdata} />
         </div>
