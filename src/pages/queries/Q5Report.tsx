@@ -91,7 +91,7 @@ const Q5Report: React.FC = () => {
                     }
                   } else if (filter === "sim") {
                     if (sim) {
-                      dispatch(getQ5Data({ type: "MIN", data: sim }));
+                      dispatch(getQ5Data({ type: "SIM", data: sim }));
                     } else {
                       showToast("Supply the SIM No.", "error");
                     }
