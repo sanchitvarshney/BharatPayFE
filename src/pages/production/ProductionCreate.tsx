@@ -164,7 +164,7 @@ const ProductionCreate: React.FC = () => {
               </InputLabel>
               <OutlinedInput
                 disabled={disable}
-                label="IMEI/Serial No."
+                label="IMEI No."
                 placeholder="Scan or Enter QR Code"
                 id="standard-adornment-qty"
                 endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : deviceDetailData ? <CheckIcon color="success" /> : <QrCodeScannerIcon />}</InputAdornment>}
@@ -179,7 +179,7 @@ const ProductionCreate: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     if (imei) {
-                      dispatch(getDeviceDetail(imei)).then((res: any) => {
+                      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
                         if (res.payload.data.success) {
                           setEnabled(true);
                           setDisable(true);
