@@ -1,16 +1,15 @@
 import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import MaterialInvardCellRenderer from "../Cellrenders/MaterialInvardCellRenderer";
 import { calculateTotals } from "@/utils/calculateTotalMin";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
+import { generateUniqueId } from "@/utils/uniqueid";
 interface RowData {
-  partComponent: string;
+  partComponent: { lable: string; value: string } | null;
   qty: number;
   rate: string;
   taxableValue: number;
@@ -21,13 +20,14 @@ interface RowData {
   cgst: number;
   sgst: number;
   igst: number;
-  location: string;
+  location: { lable: string; value: string } | null;
   autoConsump: string;
   remarks: string;
-  id: number;
+  id: string;
   currency: string;
   isNew?: boolean;
   excRate: number;
+  uom: string;
 }
 interface Totals {
   cgst: number;
@@ -59,8 +59,8 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
   const handleAddRow = () => {
     getAllTableData();
     const newRow: RowData = {
-      id: rowData.length + 1,
-      partComponent: "",
+      id: generateUniqueId(),
+      partComponent: null,
       qty: 0,
       rate: "",
       taxableValue: 0,
@@ -71,17 +71,18 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       cgst: 0,
       sgst: 0,
       igst: 0,
-      location: "",
+      location: null,
       autoConsump: "",
       remarks: "",
       currency: "364907247",
       isNew: true,
       excRate: 0,
+      uom: "",
     };
     setRowData([newRow, ...rowData]);
   };
 
-  const handleDeleteRow = (id: number) => {
+  const handleDeleteRow = (id: string) => {
     setRowData(rowData.filter((row) => row.id !== id));
   };
   const statusBar = useMemo<{
@@ -115,15 +116,28 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       width: 100,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <IconButton onClick={() => handleDeleteRow(params.data.id)}>
-            <Icons.delete fontSize="small" color="error" />
+          <IconButton color="error" onClick={() => handleDeleteRow(params.data.id)}>
+            <Icons.delete fontSize="small" />
           </IconButton>
         </div>
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button type="button" className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={handleAddRow}>
-            <Plus className="h-[18px] w-[18px]" />
+          <Button
+            variant="contained"
+            color="primary"
+            style={{
+              borderRadius: "10%",
+              width: 25,
+              height: 25,
+              minWidth: 0,
+              padding: 0,
+            }}
+            onClick={handleAddRow}
+            size="small"
+            sx={{ zIndex: 1 }}
+          >
+            <Icons.add fontSize="small" />
           </Button>
         </div>
       ),
@@ -209,6 +223,12 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
       field: "remarks",
       cellRenderer: "textInputCellRenderer",
     },
+    {
+      headerName: "uom",
+      field: "uom",
+
+      hide: true,
+    },
   ];
 
   return (
@@ -232,7 +252,6 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
           return null; // Returning null prevents default focus movement
         }}
         columnDefs={columnDefs}
-       
         rowData={rowData}
         animateRows
         statusBar={statusBar}

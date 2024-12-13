@@ -1,6 +1,5 @@
 import React from "react";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, LinearProgress } from "@mui/material";
-import { Icons } from "../icons";
 
 interface SharedDialogProps {
   open: boolean;
@@ -28,7 +27,7 @@ const ConfirmationModel: React.FC<SharedDialogProps> = ({ open, title, content, 
         <Typography variant="inherit">{content}</Typography>
       </DialogContent>
       <DialogActions>
-        <Button size="small" disabled={loading} startIcon={<Icons.close fontSize="small" />} onClick={onClose} variant="contained" color="primary" sx={{ background: "white", color: "red" }}>
+        <Button size="small" disabled={loading} onClick={onClose} variant="contained" color="primary" sx={{ background: "white", color: "red" }}>
           {cancelText}
         </Button>
         {!showConfirm && (
