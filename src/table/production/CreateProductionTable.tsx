@@ -1,18 +1,17 @@
 import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { Button } from "@/components/ui/button";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import CreateProductionCellrenderer from "../Cellrenders/CreateProductionCellrenderer";
-import { Plus } from "lucide-react";
-import { IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { Icons } from "@/components/icons";
 interface RowData {
   remark: string;
-  id: number;
+  id: string;
   isNew: boolean;
-  component: string;
+  component: { lable: string; value: string } | null;
   qty: string;
   uom: string;
 }
@@ -55,7 +54,7 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
     }),
     []
   );
-  const handleDeleteRow = (id: number) => {
+  const handleDeleteRow = (id: string) => {
     setRowdata(rowData.filter((row) => row.id !== id));
   };
 
@@ -66,15 +65,29 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <IconButton onClick={() => handleDeleteRow(params.data.id)}>
+          <IconButton color="error" onClick={() => handleDeleteRow(params.data.id)}>
             <DeleteIcon fontSize="small" />
           </IconButton>
         </div>
       ),
       headerComponent: () => (
         <div className="flex items-center justify-center w-full h-full">
-          <Button disabled={!enabled} className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={addrow}>
-            <Plus className="h-[18px] w-[18px]" />
+          <Button
+            disabled={!enabled}
+            variant="contained"
+            color="primary"
+            style={{
+              borderRadius: "10%",
+              width: 25,
+              height: 25,
+              minWidth: 0,
+              padding: 0,
+            }}
+            onClick={addrow}
+            size="small"
+            sx={{ zIndex: 1 }}
+          >
+            <Icons.add fontSize="small" />
           </Button>
         </div>
       ),
@@ -117,7 +130,7 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
           }
         }}
         navigateToNextCell={() => {
-          return null; // Returning null prevents default focus movement
+          return null;
         }}
         ref={gridRef}
         columnDefs={columnDefs}
@@ -132,7 +145,6 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
           suppressCellFlash: true,
           editable: false,
         }}
-        onCellKeyDown={(e) => e.event?.preventDefault()}
       />
     </div>
   );

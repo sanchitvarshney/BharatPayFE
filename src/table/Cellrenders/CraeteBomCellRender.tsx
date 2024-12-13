@@ -33,6 +33,7 @@ const CraeteBomCellRender: React.FC<CraeteBomProps> = ({ props, customFunction }
             value={value}
           />
         );
+        
 
       case "qty":
         return (
