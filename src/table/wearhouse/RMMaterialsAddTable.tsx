@@ -232,7 +232,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
           return null; // Returning null prevents default focus movement
         }}
         columnDefs={columnDefs}
-        suppressRowClickSelection={false}
+       
         rowData={rowData}
         animateRows
         statusBar={statusBar}

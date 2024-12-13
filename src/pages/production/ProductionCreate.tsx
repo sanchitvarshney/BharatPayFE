@@ -1,10 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { InputRef } from "antd";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import CreateProductionTable from "@/table/production/CreateProductionTable";
 import SaveIcon from "@mui/icons-material/Save";
@@ -15,17 +10,20 @@ import { createProduction } from "@/features/production/ManageProduction/ManageP
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import LoadingButton from "@mui/lab/LoadingButton";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
-import { Button, CircularProgress, IconButton, InputLabel, Tooltip, Typography } from "@mui/material";
+import { Button, CircularProgress, IconButton, InputLabel, Typography } from "@mui/material";
 import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import CheckIcon from "@mui/icons-material/Check";
 import CreateIcon from "@mui/icons-material/Create";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import { generateUniqueId } from "@/utils/uniqueid";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
 type RowData = {
   remark: string;
-  id: number;
+  id: string;
   isNew: boolean;
-  component: string;
+  component: { lable: string; value: string } | null;
   qty: string;
   uom: string;
 };
@@ -45,20 +43,16 @@ const ProductionCreate: React.FC = () => {
   const dispatch = useAppDispatch();
   const { createProductionLaoding } = useAppSelector((state) => state.manageProduction);
   const addRow = useCallback(() => {
-    const newId = rowData.length + 1;
+    const newId = generateUniqueId();
     const newRow: RowData = {
       id: newId,
       remark: "",
       isNew: true,
-      component: "",
+      component: null,
       qty: "",
       uom: "",
     };
-    if (rowData.length === 0) {
-      setRowData([newRow]);
-    } else {
-      setRowData([newRow, ...rowData]);
-    }
+    setRowData([newRow, ...rowData]);
   }, [rowData]);
 
   const onsubmit = () => {
@@ -98,7 +92,7 @@ const ProductionCreate: React.FC = () => {
           imeiNo: deviceDetailData?.device_imei || "",
           productionLocation: picklocation.code,
           dropLocation: droplocation.code,
-          itemKey: rowData.map((row) => row.component),
+          itemKey: rowData.map((row) => row.component?.value || ""),
           issueQty: rowData.map((row) => row.qty),
           remark: rowData.map((row) => row.remark),
           sku: device?.id || "",
@@ -121,46 +115,42 @@ const ProductionCreate: React.FC = () => {
   useEffect(() => {
     imeiInputRef.current?.focus();
   }, []);
-  console.log(droplocation)
 
   return (
     <>
-      <Dialog open={resetAlert} onClose={setResetAlert} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{"Are you absolutely sure?"}</DialogTitle>
-        <DialogContent sx={{ width: "600px" }}>
-          <DialogContentText id="alert-dialog-description">Resetting the form will clear all entered data, including any selected device details, locations, and added components. This action cannot be undone.</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setResetAlert(false)}>Cancel</Button>
-          <Button
-            onClick={() => {
-              setRowData([]);
-              setResetAlert(false);
-              setImei("");
-              setPicklocation(null);
-              setDroplocation(null);
-              dispatch(clearDeviceDetail());
-              setEnabled(false);
-            }}
-            autoFocus
-          >
-            Continue
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmationModel
+        open={resetAlert}
+        title="Are you absolutely sure"
+        content="Resetting the form will clear all entered data, including any selected device details, locations, and added components. This action cannot be undone."
+        onClose={() => setResetAlert(false)}
+        cancelText="Cancel"
+        onConfirm={() => {
+          setRowData([]);
+          setResetAlert(false);
+          setImei("");
+          setPicklocation(null);
+          setDroplocation(null);
+          dispatch(clearDeviceDetail());
+          setEnabled(false);
+          setDevice(null);
+          imeiInputRef.current?.blur();
+          setDisable(false);
+        }}
+        confirmText="Continue"
+      />
 
       <div className="h-[calc(100vh-100px)] grid grid-cols-[400px_1fr]">
         <div className="bg-white p-[20px] border-r border-neutral-300 flex flex-col gap-[30px]">
           <Typography variant="h2" fontSize={20} fontWeight={500}>
             Create Production
           </Typography>
-          <SelectDevice size="medium"  required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
-          <SelectLocationAcordingModule endPoint="/production/dropLocation"  size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
+          <SelectDevice size="medium" required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
+          <SelectLocationAcordingModule endPoint="/production/dropLocation" size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
           <SelectLocationAcordingModule endPoint="/production/pickLocation" size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pick Location" helperText={"Location where the components will be picked up"} />
         </div>
         <div>
           <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] ">
-            <FormControl required sx={{ width: "400px" }} variant="outlined" >
+            <FormControl required sx={{ width: "400px" }} variant="outlined">
               <InputLabel
                 sx={{
                   color: "#a3a3a3", // Default label color
@@ -174,7 +164,7 @@ const ProductionCreate: React.FC = () => {
               </InputLabel>
               <OutlinedInput
                 disabled={disable}
-                label="IMEI/Serial No."
+                label="IMEI No."
                 placeholder="Scan or Enter QR Code"
                 id="standard-adornment-qty"
                 endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : deviceDetailData ? <CheckIcon color="success" /> : <QrCodeScannerIcon />}</InputAdornment>}
@@ -189,7 +179,7 @@ const ProductionCreate: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     if (imei) {
-                      dispatch(getDeviceDetail(imei)).then((res: any) => {
+                      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
                         if (res.payload.data.success) {
                           setEnabled(true);
                           setDisable(true);
@@ -214,30 +204,9 @@ const ProductionCreate: React.FC = () => {
                   },
                 }}
               />
-              {/* <FormHelperText id="standard-weight-helper-text">Enter the QR code or scan it for verify the device</FormHelperText> */}
             </FormControl>
             {disable && (
-              <Tooltip
-                sx={{
-                  "& .MuiTooltip-tooltip": {
-                    fontWeight: "300", // Adjust to "normal", "bold", "lighter", or a specific number (e.g., 500)
-                  },
-                }}
-                slotProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: "offset",
-                        options: {
-                          offset: [0, -8],
-                        },
-                      },
-                    ],
-                  },
-                }}
-                title={<Typography sx={{ fontSize: "10px", fontWeight: "400", letterSpacing: "1px" }}>Edit IMEI/Serial No.</Typography>}
-                arrow
-              >
+              <MuiTooltip title="Edit IMEI/Serial No." placement="bottom">
                 <IconButton
                   onClick={() => {
                     setDisable(false);
@@ -248,7 +217,7 @@ const ProductionCreate: React.FC = () => {
                 >
                   <CreateIcon fontSize="small" />
                 </IconButton>
-              </Tooltip>
+              </MuiTooltip>
             )}
           </div>
           <CreateProductionTable enabled={enabled} addrow={addRow} rowData={rowData} setRowdata={setRowData} />
@@ -257,7 +226,7 @@ const ProductionCreate: React.FC = () => {
       <div className="h-[50px] bg-white border-t border-neutral-300 flex items-center justify-end gap-[10px] px-[20px]">
         <Button
           sx={{ color: "red", backgroundColor: "white" }}
-          disabled={!rowData.length}
+          disabled={createProductionLaoding}
           onClick={() => {
             setResetAlert(true);
           }}
