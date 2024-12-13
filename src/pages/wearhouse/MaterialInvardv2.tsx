@@ -190,7 +190,7 @@ const MaterialInvardv2: React.FC = () => {
               showToast(response.payload?.data?.message, "success");
               resetall();
               handleNext();
-              resetFormData();
+              dispatch(resetFormData());
             }
           });
         }
@@ -245,6 +245,9 @@ const MaterialInvardv2: React.FC = () => {
         confirmText="Continue"
         onConfirm={() => {
           resetall();
+          dispatch(resetDocumentFile());
+          dispatch(resetFormData());
+          setActiveStep(0);
           setAlert(false);
         }}
       />
@@ -549,7 +552,7 @@ const MaterialInvardv2: React.FC = () => {
                   variant="contained"
                   startIcon={<Icons.refreshv2 />}
                   onClick={() => {
-                    handleBack();
+                    setAlert(true);
                   }}
                 >
                   Reset
