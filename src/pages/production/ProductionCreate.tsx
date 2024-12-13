@@ -160,7 +160,7 @@ const ProductionCreate: React.FC = () => {
                 }}
                 htmlFor="standard-adornment-qty"
               >
-                IMEI/Serial No.
+                IMEI No.
               </InputLabel>
               <OutlinedInput
                 disabled={disable}
