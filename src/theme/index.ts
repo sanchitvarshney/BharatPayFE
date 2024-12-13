@@ -2,7 +2,7 @@ import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   typography: {
-    fontFamily: 'MsCorpres EmberFont, sans-serif'
+    fontFamily: "MsCorpres EmberFont, sans-serif",
   },
   components: {
     MuiTextField: {
@@ -10,7 +10,6 @@ export const theme = createTheme({
         root: {
           "& .MuiInputLabel-root": {
             color: "gray", // Default label color
-           
           },
           "& .MuiOutlinedInput-root": {
             "&:focus-within": {
@@ -20,7 +19,6 @@ export const theme = createTheme({
           "& .MuiInputLabel-root.Mui-focused": {
             color: "#404040", // Focused label color
           },
-         
         },
       },
     },
@@ -29,13 +27,13 @@ export const theme = createTheme({
         listbox: {
           fontSize: "0.830rem", // Set your desired global font size for dropdown options
         },
-        root:{
+        root: {
           "& .MuiOutlinedInput-root": {
             "&:focus-within": {
               backgroundColor: "#fffbeb", // Background color on focus
             },
           },
-        }
+        },
       },
     },
     MuiMenuItem: {
@@ -61,13 +59,11 @@ export const theme = createTheme({
     },
     MuiInputBase: {
       styleOverrides: {
-        input: {
-          fontSize: "12px", // Global font size for placeholder
-        },
         root: {
-          '&.Mui-disabled': {
-            cursor: 'not-allowed !important',
-            backgroundColor: '#f0f0f0',
+          fontSize:"13px",
+          "&.Mui-disabled": {
+            cursor: "not-allowed !important",
+            backgroundColor: "#f0f0f0",
           },
         },
       },
@@ -88,7 +84,7 @@ export const theme = createTheme({
           "&:hover .MuiOutlinedInput-notchedOutline": {
             borderColor: "#a8a29e", // Change border color on hover
           },
-         "&.Mui-focused": {
+          "&.Mui-focused": {
             backgroundColor: "#fffbeb", // Background color on focus
           },
         },
@@ -104,9 +100,9 @@ export const theme = createTheme({
     MuiSelect: {
       styleOverrides: {
         root: {
+          fontSize:"13px",
           "&:focus-within": {
             backgroundColor: "#fffbebs", // Background color on focus
-           
           },
         },
       },

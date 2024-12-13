@@ -13,7 +13,7 @@ const MinLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/raw-min", "/sim-min"];
+  const tabRoutes = ["/raw-min", "/raw-min-v2", "/sim-min"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -25,7 +25,7 @@ const MinLayout: React.FC<Props> = ({ children }) => {
     <div className="h-full">
       <div className=" w-full h-[50px] border-b border-neutral-300 bg-white">
         <Tabs
-        selectionFollowsFocus
+          selectionFollowsFocus
           sx={{ padding: 0, width: "max-content" }}
           TabIndicatorProps={{
             style: {
@@ -45,6 +45,18 @@ const MinLayout: React.FC<Props> = ({ children }) => {
               </div>
             }
           />
+          {import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" && (
+            <Tab
+              sx={{ fontWeight: "500" }}
+              label={
+                <div className="flex items-center gap-[10px]">
+                  <Icons.grid fontSize="small" />
+                  RAW MIN V2
+                </div>
+              }
+            />
+          )}
+
           <Tab
             sx={{ fontWeight: "500" }}
             label={
