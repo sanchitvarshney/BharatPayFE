@@ -145,7 +145,7 @@ const MaterialInvardv2: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    if(!documnetFileData) return showToast("Please Upload Invoice Documents", "error");
+    if(!documnetFileData || documnetFileData.length === 0) return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
   };
