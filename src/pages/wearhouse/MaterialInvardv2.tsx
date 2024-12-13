@@ -145,6 +145,7 @@ const MaterialInvardv2: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
+    if(!documnetFileData) return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
   };
@@ -522,7 +523,7 @@ const MaterialInvardv2: React.FC = () => {
                   variant="contained"
                   startIcon={<Icons.refreshv2 />}
                   onClick={() => {
-                    handleBack();
+                    setAlert(true);
                   }}
                 >
                   Reset
