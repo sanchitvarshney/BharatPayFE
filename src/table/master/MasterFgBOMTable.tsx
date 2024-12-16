@@ -149,7 +149,7 @@ const MasterFgBOMTable: React.FC<Props> = ({
         <AgGridReact
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
-          rowData={fgBomList}
+          rowData={fgBomList||[]}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           pagination={true}
