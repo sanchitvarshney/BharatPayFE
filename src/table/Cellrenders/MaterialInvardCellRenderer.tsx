@@ -1,14 +1,12 @@
-import { Input } from "@/components/ui/input";
-import { Select } from "antd";
+import { Input, Select } from "antd";
 import { IoMdCheckmark } from "react-icons/io";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { transformGroupSelectData } from "@/utils/transformUtills";
-import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { useAppSelector } from "@/hooks/useReduxHook";
 import { transformSkuCode } from "../../utils/transformUtills";
 import { Button, Typography } from "@mui/material";
+import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
+import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 
 interface MaterialInvardCellRendererProps {
   props: any;
@@ -18,10 +16,6 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
   const { value, colDef, data, api, column } = props;
   const [currency, setCurrency] = useState<string>(data.excRate);
   const [open, setOpen] = useState<boolean>(false);
-
-  const dispatch = useAppDispatch();
-  const { getPartCodeLoading, partCodeData } = useAppSelector((state) => state.materialRequestWithoutBom);
-  const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const { currencyData, currencyLoaidng } = useAppSelector((state) => state.common);
 
   useEffect(() => {
@@ -64,21 +58,35 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
     switch (colDef.field) {
       case "partComponent":
         return (
-          <Select
-            filterOption={false} // Disable default filtering as we are implementing a custom filter.
-            showSearch
-            loading={getPartCodeLoading}
-            className="w-full custom-select"
-            value={value}
-            onSearch={(input) => dispatch(getPertCodesync(input ? input : null))} // Fetch data dynamically based on search input.
-            placeholder={colDef.headerName}
-            onChange={(selectedValue) => {
-              handleChange(selectedValue);
+          // <Select
+          //   filterOption={false}
+          //   showSearch
+          //   loading={getPartCodeLoading}
+          //   className="w-full custom-select"
+          //   value={value}
+          //   onSearch={(input) => dispatch(getPertCodesync(input ? input : null))}
+          //   placeholder={colDef.headerName}
+          //   onChange={(selectedValue) => {
+          //     handleChange(selectedValue);
+          //   }}
+          //   options={partCodeData?.map((item) => ({
+          //     value: item.id,
+          //     label: `${item.part_code}-${item.text}`,
+          //   }))}
+          // />
+          <AntCompSelect
+            getUom={(value) => {
+              data.uom = value;
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "component", "remark", "qty", "uom"] });
+              customFunction();
             }}
-            options={partCodeData?.map((item) => ({
-              value: item.id,
-              label: `${item.part_code}-${item.text}`, // Combines part_code and text for display.
-            }))}
+            onChange={(selectedValue) => {
+              const newValue = selectedValue;
+              data[colDef.field] = newValue;
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "component", "remark", "qty", "uom"] });
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
+            }}
+            value={value}
           />
         );
       case "gstType":
@@ -96,7 +104,17 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
           />
         );
       case "location":
-        return <Select onSearch={(value) => dispatch(getLocationAsync(value ? value : null))} loading={getLocationLoading} value={value} className="w-full h-[35px] custom-select" defaultValue="" onChange={(value) => handleChange(value)} options={transformGroupSelectData(locationData)} />;
+        return (
+          <AntLocationSelectAcordinttoModule
+            endpoint="/transaction/rm-inward-location"
+            onChange={(value) => {
+              const newValue = value;
+              data[colDef.field] = newValue; // update the data
+              api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
+            }}
+            value={value}
+          />
+        );
       case "autoConsump":
         return <Select className="w-full h-[] custom-select" defaultValue="" onChange={(value) => handleChange(value)} options={[{ value: "N", label: "NO" }]} />;
       case "currency":
@@ -187,9 +205,8 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
         );
       case "rate":
         return (
-          <div className="flex items-center gap-[5px]">
+          <div className="flex items-center gap-[5px] ">
             <Input
-            
               min={0}
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
@@ -217,7 +234,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
       case "qty":
         return (
           <Input
-            min={0}
+            suffix={data.uom}
             onChange={(e) => {
               if (/^-?\d*\.?\d*$/.test(e.target.value)) {
                 handleInputChange(e);
@@ -247,6 +264,7 @@ const MaterialInvardCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({
             value={value}
             placeholder={colDef.headerName}
             className="w-[100%]  custom-input"
+            suffix="%"
           />
         );
       case "cgst":

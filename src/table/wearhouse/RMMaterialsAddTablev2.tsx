@@ -40,7 +40,7 @@ type Props = {
   setRowData: React.Dispatch<React.SetStateAction<RowData[]>>;
   setTotal: React.Dispatch<React.SetStateAction<Totals>>;
 };
-const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal }) => {
+const RMMaterialsAddTablev2: React.FC<Props> = ({ rowData, setRowData, setTotal }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -232,7 +232,7 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-170px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-200px)]">
       <AgGridReact
         suppressCellFocus={false}
         ref={gridRef}
@@ -267,4 +267,4 @@ const RMMaterialsAddTable: React.FC<Props> = ({ rowData, setRowData, setTotal })
   );
 };
 
-export default RMMaterialsAddTable;
+export default RMMaterialsAddTablev2;

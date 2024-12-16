@@ -27,4 +27,15 @@ export type BOMState = {
   skuData:GetSkuDetail[]|null;
   getSkudetailLoading: boolean;
   createBomLoading: boolean;
+  fgBomList:any[]|null;
+  fgBomListLoading: boolean;
+  changeStatusLoading: boolean
+  bomItemList:any[]|null
+}
+
+export type FGBomResponse = {
+  success: boolean;
+  status: string;
+  message: string;
+  data: any;
 }

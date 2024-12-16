@@ -1,55 +1,48 @@
 import React, { useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaEdit } from "react-icons/fa";
 import { HiMiniViewfinderCircle } from "react-icons/hi2";
 import { Download } from "lucide-react";
-import { Switch } from "@/components/ui/switch"
+import { Switch } from "@/components/ui/switch";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-interface RowData {
-  id: number;
-  status: string;
-  product: string;
-  sku: string;
-  label: string;
-  createdDate: string;
-}
+import { useAppSelector } from "@/hooks/useReduxHook";
+import { useDispatch } from "react-redux";
+import { changeBomStatus, getFGBomList } from "@/features/master/BOM/BOMSlice";
+import { AppDispatch } from "@/features/Store";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 
 type Props = {
-  edit?:boolean;
-  setEdit?:React.Dispatch<React.SetStateAction<boolean>>;
-  view?:boolean;
-  setView?:React.Dispatch<React.SetStateAction<boolean>>;
-
-}
-const MasterFgBOMTable: React.FC<Props> = ({setEdit,setView}) => {
-  const rowData: RowData[] = [
-    {
-      id: 1,
-      status: "Active",
-      product: "Product 1",
-      sku: "SKU001",
-      label: "Label 1",
-      createdDate: "2024-08-01",
-    },
-    {
-      id: 2,
-      status: "Inactive",
-      product: "Product 2",
-      sku: "SKU002",
-      label: "Label 2",
-      createdDate: "2024-08-15",
-    },
-    // Add more rows as needed
-  ];
+  edit?: boolean;
+  setEdit?: React.Dispatch<React.SetStateAction<boolean>>;
+  view?: boolean;
+  setView?: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedProductId: React.Dispatch<React.SetStateAction<string | null>>;
+  setBomName: React.Dispatch<React.SetStateAction<string | null>>;
+};
+const MasterFgBOMTable: React.FC<Props> = ({
+  setEdit,
+  setView,
+  setSelectedProductId,
+  setBomName,
+}) => {
+  const { fgBomList, fgBomListLoading, changeStatusLoading } = useAppSelector(
+    (state) => state.bom
+  );
+  const dispatch = useDispatch<AppDispatch>();
 
   const columnDefs: ColDef[] = [
     {
       headerName: "Action",
       field: "action",
-      cellRenderer: () => (
+      cellRenderer: (params:any) => (
         <div className="flex items-center h-full">
           <DropdownMenu>
             <div className="flex items-center px-[20px] h-full">
@@ -57,16 +50,36 @@ const MasterFgBOMTable: React.FC<Props> = ({setEdit,setView}) => {
                 <BsThreeDotsVertical className="font-[600] text-[20px] text-slate-600" />
               </DropdownMenuTrigger>
             </div>
-            <DropdownMenuContent className="w-[170px]" side="bottom" align="start">
-              <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onSelect={()=>setEdit && setEdit(true)}>
+            <DropdownMenuContent
+              className="w-[170px]"
+              side="bottom"
+              align="start"
+            >
+              <DropdownMenuItem
+                className="flex items-center gap-[10px] text-slate-600"
+                disabled
+                onSelect={() => setEdit && setEdit(true)}
+              >
                 <FaEdit className="h-[18px] w-[18px] text-slate-500" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-[10px] text-slate-600" onSelect={()=>setView && setView(true)}>
+              <DropdownMenuItem
+                className="flex items-center gap-[10px] text-slate-600"
+                onSelect={() => setView && setView(true)}
+                onClick={() => {
+                  // Access the data for the row clicked
+                  const subjectKey = params.node.data.subjectKey; 
+                  setSelectedProductId(subjectKey); // Set the selected product ID
+                  setBomName(params.node.data.subjectName);
+                }}
+              >
                 <HiMiniViewfinderCircle className="h-[18px] w-[18px] text-slate-500" />
                 View
               </DropdownMenuItem>
-              <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600">
+              <DropdownMenuItem
+                disabled
+                className="flex items-center gap-[10px] text-slate-600"
+              >
                 <Download className="h-[18px] w-[18px] text-slate-500" />
                 Download
               </DropdownMenuItem>
@@ -76,48 +89,50 @@ const MasterFgBOMTable: React.FC<Props> = ({setEdit,setView}) => {
       ),
     },
     {
-      headerName: "ID",
-      field: "id",
-      sortable: true,
-      filter: true,
-      width: 70,
-    },
-    {
       headerName: "Status",
       field: "status",
       sortable: true,
       filter: true,
-      cellRenderer:()=>(
-        <div className="flex items-center h-full"><Switch id="airplane-mode" /></div>
-      )
+      cellRenderer: (row: any) => (
+        <div className="flex items-center h-full">
+          <Switch
+            id="airplane-mode"
+            checked={row?.data?.status === 1}
+            onCheckedChange={(e) => {
+              const newStatus = e ? 1 : 0;
+              const subject = row?.data?.subjectKey;
+              dispatch(
+                changeBomStatus({ status: newStatus, subject: subject })
+              ).then((res: any) => {
+                if (res.payload?.data?.success) {
+                  dispatch(getFGBomList("FG"));
+                }
+              });
+            }}
+          />
+        </div>
+      ),
     },
     {
-      headerName: "Product",
-      field: "product",
+      headerName: "BOM Name",
+      field: "subjectName",
       sortable: true,
       filter: true,
-      flex:1
+      flex: 1,
     },
     {
       headerName: "SKU",
-      field: "sku",
+      field: "skuCode",
       sortable: true,
       filter: true,
-      flex:1
-    },
-    {
-      headerName: "Label",
-      field: "label",
-      sortable: true,
-      filter: true,
-      flex:1
+      flex: 1,
     },
     {
       headerName: "Created Date",
-      field: "createdDate",
+      field: "insertDate",
       sortable: true,
       filter: true,
-      flex:1
+      flex: 1,
     },
   ];
   const defaultColDef = useMemo<ColDef>(() => {
@@ -128,7 +143,19 @@ const MasterFgBOMTable: React.FC<Props> = ({setEdit,setView}) => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-      <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+      {fgBomListLoading || changeStatusLoading ? (
+        <FullPageLoading />
+      ) : (
+        <AgGridReact
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
+          suppressCellFocus={true}
+          rowData={fgBomList}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          pagination={true}
+          paginationPageSize={20}
+        />
+      )}
     </div>
   );
 };

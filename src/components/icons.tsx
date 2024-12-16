@@ -48,6 +48,11 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CheckIcon from "@mui/icons-material/Check";
 import SimCardIcon from "@mui/icons-material/SimCard";
 import GridViewIcon from '@mui/icons-material/GridView';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import InsertPageBreakIcon from '@mui/icons-material/InsertPageBreak';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -98,5 +103,10 @@ export const Icons = {
   invisible: VisibilityOff,
   check: CheckIcon,
   sim: SimCardIcon,
-  grid:GridViewIcon
+  grid:GridViewIcon,
+  next:NavigateNextIcon,
+  previous:NavigateBeforeIcon,
+  files:FileCopyIcon,
+  documentDetail:InsertPageBreakIcon,
+  up:KeyboardArrowUpIcon
 };

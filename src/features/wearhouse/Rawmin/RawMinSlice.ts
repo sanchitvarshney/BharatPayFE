@@ -6,6 +6,7 @@ import axiosInstance from "@/api/axiosInstance";
 const initialState: RawminState = {
   documnetFileData: null,
   createminLoading: false,
+  formdata: null,
 };
 
 export const createRawMin = createAsyncThunk<AxiosResponse<CreateRawMinResponse>, CreateRawMinPayloadType>("rawmin/createRawMin", async (payload) => {
@@ -24,8 +25,20 @@ const RawMinSlice = createSlice({
         state.documnetFileData = [action.payload];
       }
     },
+    deletefile: (state, action) => {
+      if (state.documnetFileData) {
+        state.documnetFileData = state.documnetFileData.filter((f) => f.fileID !== action.payload);
+      }
+    },
     resetDocumentFile: (state) => {
       state.documnetFileData = null;
+    },
+    storeFormdata: (state, action) => {
+      console.log(action.payload)
+      state.formdata = action.payload;
+    },
+    resetFormData: (state) => {
+      state.formdata = null;
     },
   },
   extraReducers: (builder) => {
@@ -42,5 +55,5 @@ const RawMinSlice = createSlice({
   },
 });
 
-export const { storeDocumentFile, resetDocumentFile } = RawMinSlice.actions;
+export const { storeDocumentFile, resetDocumentFile, deletefile, storeFormdata, resetFormData } = RawMinSlice.actions;
 export default RawMinSlice.reducer;

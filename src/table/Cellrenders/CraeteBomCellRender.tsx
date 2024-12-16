@@ -6,13 +6,19 @@ interface CraeteBomProps {
   customFunction: () => void;
 }
 
-const CraeteBomCellRender: React.FC<CraeteBomProps> = ({ props, customFunction }) => {
+const CraeteBomCellRender: React.FC<CraeteBomProps> = ({
+  props,
+  customFunction,
+}) => {
   const { value, colDef, data, api, column } = props;
 
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
     data[colDef.field] = newValue;
-    api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "qty"] });
+    api.refreshCells({
+      rowNodes: [props.node],
+      columns: [column, "id", "component", "qty", "remark", "reference"],
+    });
   };
 
   const renderContent = () => {
@@ -22,18 +28,37 @@ const CraeteBomCellRender: React.FC<CraeteBomProps> = ({ props, customFunction }
           <AntCompSelect
             getUom={(value) => {
               data.uom = value;
-              api.refreshCells({ rowNodes: [props.node], columns: [column, "component", "remark", "qty", "uom"] });
+              api.refreshCells({
+                rowNodes: [props.node],
+                columns: [
+                  column,
+                  "component",
+                  "remark",
+                  "qty",
+                  "uom",
+                  "reference",
+                ],
+              });
               customFunction();
             }}
             onChange={(selectedValue) => {
               const newValue = selectedValue;
               data[colDef.field] = newValue;
-              api.refreshCells({ rowNodes: [props.node], columns: [column, "component", "remark", "qty", "uom"] });
+              api.refreshCells({
+                rowNodes: [props.node],
+                columns: [
+                  column,
+                  "component",
+                  "remark",
+                  "qty",
+                  "uom",
+                  "reference",
+                ],
+              });
             }}
             value={value}
           />
         );
-        
 
       case "qty":
         return (
@@ -51,6 +76,29 @@ const CraeteBomCellRender: React.FC<CraeteBomProps> = ({ props, customFunction }
             }}
           />
         );
+
+      case "reference":
+        return (
+          <Input
+            value={value}
+            placeholder={colDef.headerName}
+            className="custom-input"
+            onChange={(e) => {
+              handleInputChange(e);
+            }}
+          />
+        );
+        case "remark":
+          return (
+            <Input
+              value={value}
+              placeholder={colDef.headerName}
+              className="custom-input"
+              onChange={(e) => {
+                handleInputChange(e);
+              }}
+            />
+          );
     }
   };
 

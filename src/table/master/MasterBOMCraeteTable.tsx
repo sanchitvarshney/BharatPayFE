@@ -12,6 +12,8 @@ interface RowData {
   qty: number;
   isNew: boolean;
   uom: string;
+  remark: string;
+  reference:string;
 }
 type Props = {
   rowData: RowData[];
@@ -101,6 +103,22 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       cellRenderer: "textInputCellRenderer",
       flex: 1,
       hide: true,
+    },
+    {
+      headerName: "Reference",
+      field: "reference",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+    },
+    {
+      headerName: "Remark",
+      field: "remark",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
     },
   ];
 

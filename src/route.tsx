@@ -70,6 +70,7 @@ import VerifyMobileAndEmail from "./pages/commonPages/VerifyMobileAndEmail";
 import DocViewer from "./pages/commonPages/DocViewer";
 import MinLayout from "./layouts/MinLayout";
 import SimMin from "./pages/wearhouse/SimMin";
+import MaterialInvardv2 from "./pages/wearhouse/MaterialInvardv2";
 
 export const router = createBrowserRouter([
   {
@@ -195,7 +196,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterBOMLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection >
                 <MasterFGBOM />
               </CustomRedirection>
             </MasterBOMLayout>
@@ -319,6 +320,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/sim-min",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MinLayout>
+              <MaterialInvardv2 />
+            </MinLayout>
+          </MainLayout>
+        ),
+        path: "/raw-min-v2",
       },
       {
         element: (
