@@ -196,7 +196,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterBOMLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection >
                 <MasterFGBOM />
               </CustomRedirection>
             </MasterBOMLayout>
