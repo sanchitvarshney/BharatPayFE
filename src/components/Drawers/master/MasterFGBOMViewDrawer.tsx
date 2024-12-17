@@ -1,13 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CustomDrawer, CustomDrawerContent, CustomDrawerHeader, CustomDrawerTitle } from "@/components/reusable/CustomDrawer"; // Update with the correct path
 import MasterFGBOMViewTable from "@/table/master/MasterFGBOMViewTable";
+import { getBomItem } from "@/features/master/BOM/BOMSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/features/Store";
 
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bomName?: string|null;
+  selectedProductId?:string|null;
 };
-const MasterFGBOMViewDrawer: React.FC<Props> = ({ open, setOpen, bomName }) => {
+const MasterFGBOMViewDrawer: React.FC<Props> = ({ open, setOpen, bomName,selectedProductId }) => {
+  const dispatch = useDispatch<AppDispatch>();
+    useEffect(() => {
+      if (selectedProductId) {
+        dispatch(getBomItem(selectedProductId));
+      }
+    }, [dispatch, selectedProductId]);
   return (
     <div>
       <CustomDrawer open={open} onOpenChange={setOpen}>

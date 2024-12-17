@@ -57,8 +57,10 @@ const MasterFgBOMTable: React.FC<Props> = ({
             >
               <DropdownMenuItem
                 className="flex items-center gap-[10px] text-slate-600"
-                disabled
                 onSelect={() => setEdit && setEdit(true)}
+                onClick={() => {
+                  setSelectedProductId(params.node.data.subjectKey);
+                }}
               >
                 <FaEdit className="h-[18px] w-[18px] text-slate-500" />
                 Edit

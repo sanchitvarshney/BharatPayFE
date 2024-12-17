@@ -41,6 +41,16 @@ export const getBomItem = createAsyncThunk<AxiosResponse<FGBomResponse>, string>
   return response;
 });
 
+export const fetchBomProduct = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/detail", async (id:string) => {
+  const response = await axiosInstance.get(`/bom/${id}/detail`);  
+  return response;
+});
+
+export const UpdateBom = createAsyncThunk<AxiosResponse<any>, any>("master/updateBom", async (payload) => {
+  const response = await axiosInstance.put(`/bom/update/${payload.id}/${payload.sku}`, payload);
+  return response;
+});
+
 const BOMSlice = createSlice({
   name: "BOM",
   initialState,
@@ -92,6 +102,24 @@ const BOMSlice = createSlice({
           state.bomItemList = action.payload.data.data;
       })
       .addCase(getBomItem.rejected, (state) => {
+        state.fgBomListLoading = false;
+      })
+      .addCase(fetchBomProduct.pending, (state) => {
+        state.fgBomListLoading = true;
+      })
+      .addCase(fetchBomProduct.fulfilled, (state) => {
+        state.fgBomListLoading = false;
+      })
+      .addCase(fetchBomProduct.rejected, (state) => {
+        state.fgBomListLoading = false;
+      })
+      .addCase(UpdateBom.pending, (state) => {
+        state.fgBomListLoading = true;
+      })
+      .addCase(UpdateBom.fulfilled, (state) => {
+        state.fgBomListLoading = false;
+      })
+      .addCase(UpdateBom.rejected, (state) => {
         state.fgBomListLoading = false;
       })
       .addCase(createBomAsync.pending, (state) => {
