@@ -55,7 +55,7 @@ const MasterFGBOMEditDrawer: React.FC<Props> = ({ open, setOpen,selectedProductI
                   </CardContent>
               </Card>
             </div>
-            <MasterFGBOMEditTable data={data} />
+            <MasterFGBOMEditTable data={data} header={header} setOpen={setOpen}/>
           </div>
         </CustomDrawerContent>
       </CustomDrawer>
