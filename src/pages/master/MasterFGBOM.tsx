@@ -1,6 +1,6 @@
 import MasterFGBOMEditDrawer from "@/components/Drawers/master/MasterFGBOMEditDrawer";
 import MasterFGBOMViewDrawer from "@/components/Drawers/master/MasterFGBOMViewDrawer";
-import { getBomItem, getFGBomList } from "@/features/master/BOM/BOMSlice";
+import { getFGBomList } from "@/features/master/BOM/BOMSlice";
 import { AppDispatch } from "@/features/Store";
 import MasterFgBOMTable from "@/table/master/MasterFgBOMTable";
 import React, { useEffect, useState } from "react";
@@ -17,16 +17,10 @@ const MasterFGBOM: React.FC = () => {
     dispatch(getFGBomList("FG"))
   }, [dispatch])
 
-  useEffect(() => {
-    if (selectedProductId) {
-      dispatch(getBomItem(selectedProductId));
-    }
-  }, [dispatch, selectedProductId]);
-
   return (
     <>
-      <MasterFGBOMViewDrawer open={viewProduct} setOpen={setViwProduct} bomName={bomName}/>
-      <MasterFGBOMEditDrawer open={editProduct} setOpen={setEditProduct} />
+      <MasterFGBOMViewDrawer open={viewProduct} setOpen={setViwProduct} bomName={bomName} selectedProductId={selectedProductId}/>
+      <MasterFGBOMEditDrawer open={editProduct} setOpen={setEditProduct} selectedProductId={selectedProductId}/>
       <div className="h-[calc(100vh-100px)] grid">
         <div>
           <MasterFgBOMTable setEdit={setEditProduct} setView={setViwProduct} setSelectedProductId={setSelectedProductId} setBomName={setBomName}/>

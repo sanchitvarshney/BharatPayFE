@@ -41,6 +41,11 @@ export const getBomItem = createAsyncThunk<AxiosResponse<FGBomResponse>, string>
   return response;
 });
 
+export const fetchBomProduct = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/detail", async (id:string) => {
+  const response = await axiosInstance.get(`/bom/${id}/detail`);  
+  return response;
+});
+
 const BOMSlice = createSlice({
   name: "BOM",
   initialState,
@@ -92,6 +97,15 @@ const BOMSlice = createSlice({
           state.bomItemList = action.payload.data.data;
       })
       .addCase(getBomItem.rejected, (state) => {
+        state.fgBomListLoading = false;
+      })
+      .addCase(fetchBomProduct.pending, (state) => {
+        state.fgBomListLoading = true;
+      })
+      .addCase(fetchBomProduct.fulfilled, (state) => {
+        state.fgBomListLoading = false;
+      })
+      .addCase(fetchBomProduct.rejected, (state) => {
         state.fgBomListLoading = false;
       })
       .addCase(createBomAsync.pending, (state) => {

@@ -5,13 +5,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { useAppSelector } from "@/hooks/useReduxHook";
 
 const columnDefs: ColDef[] = [
-  {
-    headerName: "ID",
-    field: "cCode",
-    sortable: true,
-    filter: true,
-    width: 70,
-  },
+  { headerName: "ID", valueGetter: "node.rowIndex + 1", width: 70 },
   {
     headerName: "Component",
     field: "cName",

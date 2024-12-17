@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { HiMiniTrash } from "react-icons/hi2";
 import { Input } from "@/components/ui/input";
 import { Select } from "antd";
-import { IoCheckmark } from "react-icons/io5";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 interface RowData {
   components: string;
@@ -21,35 +19,41 @@ interface RowData {
   id: number;
 }
 
-const MasterFGBOMEditTable: React.FC = () => {
+const MasterFGBOMEditTable: React.FC<{ data: any }> = ({ data }) => {
   const [rowData, setRowData] = useState<RowData[]>([]);
 
-  const handleAddRow = () => {
-    const newRow: RowData = {
-      id: rowData.length + 1,
-      components: "component",
-      quantity: 0,
-      partCode: "partcode",
-      status: "",
-      priority: "",
-      qty: "",
-      category: "",
-      source: "",
-      smtMiLoc: "",
-    };
-    setRowData([...rowData, newRow]);
-  };
+  // const handleAddRow = () => {
+  //   const newRow: RowData = {
+  //     id: rowData.length + 1,
+  //     components: "component",
+  //     quantity: 0,
+  //     partCode: "partcode",
+  //     status: "",
+  //     priority: "",
+  //     qty: "",
+  //     category: "",
+  //     source: "",
+  //     smtMiLoc: "",
+  //   };
+  //   setRowData([...rowData, newRow]);
+  // };
+
+  useEffect(() => {
+    if (data) {
+      setRowData(data);
+    }
+  }, [data]);
 
   const handleDeleteRow = (id: number) => {
     setRowData(rowData.filter((row) => row.id !== id));
   };
 
-  const handleComponentChange = (id: number, value: string) => {
-    setRowData(rowData.map((row) => (row.id === id ? { ...row, component: value } : row)));
+  const handleCategoryChange = (id: number, value: string) => {
+    setRowData(rowData.map((row) => (row.id === id ? { ...row, category: value } : row)));
   };
 
   const handleQuantityChange = (id: number, value: number) => {
-    setRowData(rowData.map((row) => (row.id === id ? { ...row, quantity: value } : row)));
+    setRowData(rowData.map((row) => (row.id === id ? { ...row, requiredQty: value } : row)));
   };
 
   const columnDefs: ColDef[] = [
@@ -65,17 +69,17 @@ const MasterFGBOMEditTable: React.FC = () => {
           </Button>
         </div>
       ),
-      headerComponent: () => (
-        <div className="flex items-center justify-center w-full h-full">
-          <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={handleAddRow}>
-            <Plus className="h-[18px] w-[18px]" />
-          </Button>
-        </div>
-      ),
+      // headerComponent: () => (
+      //   <div className="flex items-center justify-center w-full h-full">
+      //     <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={handleAddRow}>
+      //       <Plus className="h-[18px] w-[18px]" />
+      //     </Button>
+      //   </div>
+      // ),
     },
     {
       headerName: "Components",
-      field: "components",
+      field: "componentName",
       sortable: false,
       filter: false,
     },
@@ -88,31 +92,31 @@ const MasterFGBOMEditTable: React.FC = () => {
 
     {
       headerName: "Status",
-      field: "status",
+      field: "bomstatus",
       cellRenderer: (params: any) => (
         <Select
           className="w-full"
-          defaultValue="lucy"
-          onChange={(value) => handleComponentChange(params.data.id, value)}
+          defaultValue={params.value}
+          onChange={(value) => handleCategoryChange(params.data.id, value)}
           options={[
-            { value: "jack", label: "Active" },
-            { value: "lucy", label: "Inactive" },
+            { value: "1", label: "Active" },
+            { value: "0", label: "Inactive" },
           ]}
         />
       ),
     },
-    {
-      headerName: "Priority",
-      field: "priority",
-      cellRenderer: (params: any) => (
-        <div className="flex items-center justify-center w-full h-full">
-          <Input type="number" className="border-slate-400 py-[4px]" value={params.value} onChange={(e) => handleQuantityChange(params.data.id, Number(e.target.value))} style={{ width: "100%" }} />
-        </div>
-      ),
-    },
+    // {
+    //   headerName: "Priority",
+    //   field: "priority",
+    //   cellRenderer: (params: any) => (
+    //     <div className="flex items-center justify-center w-full h-full">
+    //       <Input type="number" className="border-slate-400 py-[4px]" value={params.value} onChange={(e) => handleQuantityChange(params.data.id, Number(e.target.value))} style={{ width: "100%" }} />
+    //     </div>
+    //   ),
+    // },
     {
       headerName: "Qty",
-      field: "qty",
+      field: "requiredQty",
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
           <Input type="number" className="border-slate-400 py-[4px]" value={params.value} onChange={(e) => handleQuantityChange(params.data.id, Number(e.target.value))} style={{ width: "100%" }} />
@@ -125,50 +129,52 @@ const MasterFGBOMEditTable: React.FC = () => {
       cellRenderer: (params: any) => (
         <Select
           className="w-full"
-          defaultValue="lucy"
-          onChange={(value) => handleComponentChange(params.data.id, value)}
+          defaultValue="0"
+          onChange={(value) => {console.log(value ,params.data);handleCategoryChange(params.data.compKey, value)}}
           options={[
-            { value: "jack", label: "Active" },
-            { value: "lucy", label: "Inactive" },
+            { value: "0", label: "PART" },
+            { value: "1", label: "PCB" },
+            { value: "2", label: "OTHER" },
+            { value: "3", label: "PACKING" },
           ]}
         />
       ),
     },
-    {
-      headerName: "Source",
-      field: "source",
-      cellRenderer: (params: any) => (
-        <Select
-          className="w-full"
-          defaultValue="lucy"
-          onChange={(value) => handleComponentChange(params.data.id, value)}
-          options={[
-            { value: "jack", label: "Active" },
-            { value: "lucy", label: "Inactive" },
-          ]}
-        />
-      ),
-    },
-    {
-      headerName: "SMT/MI LOC",
-      field: "smtMiLoc",
-      cellRenderer: (params: any) => (
-        <div className="flex items-center justify-center w-full h-full">
-          <Input type="number" className="border-slate-400 py-[4px]" value={params.value} onChange={(e) => handleQuantityChange(params.data.id, Number(e.target.value))} style={{ width: "100%" }} />
-        </div>
-      ),
-    },
-    {
-      headerName: "",
-      field: "save",
-      cellRenderer: () => (
-        <div className="flex items-center justify-center w-full h-full">
-          <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center">
-            <IoCheckmark className="h-[18px] w-[18px] " />
-          </Button>
-        </div>
-      ),
-    },
+    // {
+    //   headerName: "Source",
+    //   field: "source",
+    //   cellRenderer: (params: any) => (
+    //     <Select
+    //       className="w-full"
+    //       defaultValue="lucy"
+    //       onChange={(value) => handleComponentChange(params.data.id, value)}
+    //       options={[
+    //         { value: "jack", label: "Active" },
+    //         { value: "lucy", label: "Inactive" },
+    //       ]}
+    //     />
+    //   ),
+    // },
+    // {
+    //   headerName: "SMT/MI LOC",
+    //   field: "smtMiLoc",
+    //   cellRenderer: (params: any) => (
+    //     <div className="flex items-center justify-center w-full h-full">
+    //       <Input type="number" className="border-slate-400 py-[4px]" value={params.value} onChange={(e) => handleQuantityChange(params.data.id, Number(e.target.value))} style={{ width: "100%" }} />
+    //     </div>
+    //   ),
+    // },
+    // {
+    //   headerName: "",
+    //   field: "save",
+    //   cellRenderer: () => (
+    //     <div className="flex items-center justify-center w-full h-full">
+    //       <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center">
+    //         <IoCheckmark className="h-[18px] w-[18px] " />
+    //       </Button>
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (
