@@ -94,16 +94,28 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
     },
     {
       headerName: "Component",
-      field: "component",
+      field: "componentName",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
     },
     {
       headerName: "Qty",
-      field: "qty",
+      field: "requiredQty",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
     },
+    {
+      headerName: "Category",
+      field: "category",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1,
+    },
+    // {
+    //   headerName: "Status",
+    //   field: "bomstatus",
+    //   cellRenderer: "textInputCellRenderer",
+    //   flex: 1,
+    // },
 
     {
       headerName: "Remark (If Needed)",

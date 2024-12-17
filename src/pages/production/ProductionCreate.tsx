@@ -5,20 +5,33 @@ import CreateProductionTable from "@/table/production/CreateProductionTable";
 import SaveIcon from "@mui/icons-material/Save";
 import { showToast } from "@/utils/toasterContext";
 import { CreateProductionPayload } from "@/features/production/ManageProduction/ManageProductionType";
-import { clearDeviceDetail, getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
+import {
+  clearDeviceDetail,
+  getDeviceDetail,
+} from "@/features/production/Batteryqc/BatteryQcSlice";
 import { createProduction } from "@/features/production/ManageProduction/ManageProductionSlie";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import LoadingButton from "@mui/lab/LoadingButton";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
-import { Button, CircularProgress, IconButton, InputLabel, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  IconButton,
+  InputLabel,
+  Typography,
+} from "@mui/material";
 import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import CheckIcon from "@mui/icons-material/Check";
 import CreateIcon from "@mui/icons-material/Create";
-import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import SelectLocationAcordingModule, {
+  LocationType,
+} from "@/components/reusable/SelectLocationAcordingModule";
 import { generateUniqueId } from "@/utils/uniqueid";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
+import SelectBom from "@/components/reusable/SelectBom";
+import { fetchBomProduct } from "@/features/master/BOM/BOMSlice";
 type RowData = {
   remark: string;
   id: string;
@@ -33,15 +46,20 @@ const ProductionCreate: React.FC = () => {
   const [picklocation, setPicklocation] = useState<LocationType | null>(null);
   const [droplocation, setDroplocation] = useState<LocationType | null>(null);
   const [device, setDevice] = useState<DeviceType | null>(null);
+  const [bom, setBom] = useState<any>(null);
   const [disable, setDisable] = useState<boolean>(false);
   //   const dispatch = useAppDispatch();
-  const { deviceDetailLoading, deviceDetailData } = useAppSelector((state) => state.batteryQcReducer);
+  const { deviceDetailLoading, deviceDetailData } = useAppSelector(
+    (state) => state.batteryQcReducer
+  );
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [resetAlert, setResetAlert] = useState<boolean>(false);
   const [imei, setImei] = useState<string>("");
   const imeiInputRef = useRef<InputRef>(null);
   const dispatch = useAppDispatch();
-  const { createProductionLaoding } = useAppSelector((state) => state.manageProduction);
+  const { createProductionLaoding } = useAppSelector(
+    (state) => state.manageProduction
+  );
   const addRow = useCallback(() => {
     const newId = generateUniqueId();
     const newRow: RowData = {
@@ -54,7 +72,7 @@ const ProductionCreate: React.FC = () => {
     };
     setRowData([newRow, ...rowData]);
   }, [rowData]);
-
+  console.log(device);
   const onsubmit = () => {
     if (rowData.length === 0) {
       showToast("Please Add Material Details", "error");
@@ -81,7 +99,10 @@ const ProductionCreate: React.FC = () => {
         }
 
         if (missingFields.length > 0) {
-          showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
+          showToast(
+            `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
+            "error"
+          );
           hasErrors = true;
         }
       });
@@ -116,6 +137,16 @@ const ProductionCreate: React.FC = () => {
     imeiInputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (bom) {
+      dispatch(fetchBomProduct(bom.code)).then((response: any) => {
+        if (response.payload.data.success) {
+          setRowData(response.payload.data.data.data);
+        }
+      });
+    }
+  }, [bom]);
+
   return (
     <>
       <ConfirmationModel
@@ -144,9 +175,45 @@ const ProductionCreate: React.FC = () => {
           <Typography variant="h2" fontSize={20} fontWeight={500}>
             Create Production
           </Typography>
-          <SelectDevice size="medium" required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
-          <SelectLocationAcordingModule endPoint="/production/dropLocation" size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
-          <SelectLocationAcordingModule endPoint="/production/pickLocation" size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pick Location" helperText={"Location where the components will be picked up"} />
+          <SelectDevice
+            size="medium"
+            required
+            varient="outlined"
+            helperText={"Select the device to be produced"}
+            onChange={setDevice}
+            value={device}
+            label="Select Device"
+          />
+          <SelectBom
+            size="medium"
+            required
+            varient="outlined"
+            helperText={"Select the BOM"}
+            onChange={setBom}
+            value={bom}
+            label="Select BOM"
+            id={device?.id}
+          />
+          <SelectLocationAcordingModule
+            endPoint="/production/dropLocation"
+            size="medium"
+            required
+            varient="outlined"
+            onChange={setDroplocation}
+            value={droplocation}
+            label="Drop Location"
+            helperText={"Location where the device will be dropped"}
+          />
+          <SelectLocationAcordingModule
+            endPoint="/production/pickLocation"
+            size="medium"
+            required
+            varient="outlined"
+            onChange={setPicklocation}
+            value={picklocation}
+            label="Pick Location"
+            helperText={"Location where the components will be picked up"}
+          />
         </div>
         <div>
           <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] ">
@@ -167,7 +234,17 @@ const ProductionCreate: React.FC = () => {
                 label="IMEI No."
                 placeholder="Scan or Enter QR Code"
                 id="standard-adornment-qty"
-                endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : deviceDetailData ? <CheckIcon color="success" /> : <QrCodeScannerIcon />}</InputAdornment>}
+                endAdornment={
+                  <InputAdornment position="end">
+                    {deviceDetailLoading ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : deviceDetailData ? (
+                      <CheckIcon color="success" />
+                    ) : (
+                      <QrCodeScannerIcon />
+                    )}
+                  </InputAdornment>
+                }
                 aria-describedby="standard-weight-helper-text"
                 inputProps={{
                   "aria-label": "weight",
@@ -179,16 +256,18 @@ const ProductionCreate: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     if (imei) {
-                      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
-                        if (res.payload.data.success) {
-                          setEnabled(true);
-                          setDisable(true);
-                        } else {
-                          showToast(res.payload.data.message, "error");
-                          setEnabled(false);
-                          setDisable(false);
+                      dispatch(getDeviceDetail(imei.slice(0, 15))).then(
+                        (res: any) => {
+                          if (res.payload.data.success) {
+                            setEnabled(true);
+                            setDisable(true);
+                          } else {
+                            showToast(res.payload.data.message, "error");
+                            setEnabled(false);
+                            setDisable(false);
+                          }
                         }
-                      });
+                      );
                     }
                   }
                 }}
@@ -220,7 +299,12 @@ const ProductionCreate: React.FC = () => {
               </MuiTooltip>
             )}
           </div>
-          <CreateProductionTable enabled={enabled} addrow={addRow} rowData={rowData} setRowdata={setRowData} />
+          <CreateProductionTable
+            enabled={enabled}
+            addrow={addRow}
+            rowData={rowData}
+            setRowdata={setRowData}
+          />
         </div>
       </div>
       <div className="h-[50px] bg-white border-t border-neutral-300 flex items-center justify-end gap-[10px] px-[20px]">
