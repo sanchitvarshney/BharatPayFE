@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { Button } from "@/components/ui/button";
-import { HiMiniTrash } from "react-icons/hi2";
+// import { Button } from "@/components/ui/button";
+// import { HiMiniTrash } from "react-icons/hi2";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import EditBomCellRenderer from "@/table/Cellrenders/EditBomCellRenderer";
 import { useDispatch } from "react-redux";
@@ -41,9 +41,9 @@ const MasterFGBOMEditTable: React.FC<{ data: any; header: any; setOpen: any}> = 
     }
   }, [data]);
 
-  const handleDeleteRow = (id: number) => {
-    setRowData(rowData.filter((row) => row.id !== id));
-  };
+  // const handleDeleteRow = (id: number) => {
+  //   setRowData(rowData.filter((row) => row.id !== id));
+  // };
 
   const handleSubmit = () => {
     const payload = {
@@ -69,35 +69,36 @@ const MasterFGBOMEditTable: React.FC<{ data: any; header: any; setOpen: any}> = 
     })
   };
   const columnDefs: ColDef[] = [
-    {
-      headerName: "Action",
-      field: "action",
-      width: 120,
-      cellRenderer: (params: any) => (
-        <div className="flex items-center justify-center w-full h-full">
-          {" "}
-          <Button
-            variant={"outline"}
-            className="border shadow-none p-0 h-[30px] w-[30px]"
-            onClick={() => handleDeleteRow(params.data.id)}
-          >
-            <HiMiniTrash className="h-[18px] w-[18px] text-red-500" />
-          </Button>
-        </div>
-      ),
-      // headerComponent: () => (
-      //   <div className="flex items-center justify-center w-full h-full">
-      //     <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={handleAddRow}>
-      //       <Plus className="h-[18px] w-[18px]" />
-      //     </Button>
-      //   </div>
-      // ),
-    },
+    // {
+    //   headerName: "Action",
+    //   field: "action",
+    //   width: 120,
+    //   cellRenderer: (params: any) => (
+    //     <div className="flex items-center justify-center w-full h-full">
+    //       {" "}
+    //       <Button
+    //         variant={"outline"}
+    //         className="border shadow-none p-0 h-[30px] w-[30px]"
+    //         onClick={() => handleDeleteRow(params.data.id)}
+    //       >
+    //         <HiMiniTrash className="h-[18px] w-[18px] text-red-500" />
+    //       </Button>
+    //     </div>
+    //   ),
+    //   // headerComponent: () => (
+    //   //   <div className="flex items-center justify-center w-full h-full">
+    //   //     <Button className="bg-cyan-700 hover:bg-cyan-800 h-[30px] w-[30px] p-0 flex justify-center items-center" onClick={handleAddRow}>
+    //   //       <Plus className="h-[18px] w-[18px]" />
+    //   //     </Button>
+    //   //   </div>
+    //   // ),
+    // },
     {
       headerName: "Components",
       field: "componentName",
       sortable: false,
       filter: false,
+      cellStyle: { textAlign: "center" },
     },
     {
       headerName: "Part Code",
