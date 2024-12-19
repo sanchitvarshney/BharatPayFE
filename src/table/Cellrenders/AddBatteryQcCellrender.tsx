@@ -23,6 +23,8 @@ const AddBatteryQcCellrender: React.FC<MaterialInvardCellRendererProps> = ({ pro
         return <span>{value}</span>;
       case "remark":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-full custom-input" />;
+      case "batteryID":
+          return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-full custom-input" />;
       case "IR":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-full custom-input" />;
       case "voltage":

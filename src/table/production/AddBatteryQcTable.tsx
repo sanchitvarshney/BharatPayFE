@@ -14,6 +14,7 @@ interface RowData {
   IR: string;
   voltage: string;
   serialNo: string;
+  batteryID: string;
 }
 type Props = {
   rowData: RowData[];
@@ -92,7 +93,11 @@ const AddBatteryQcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       headerName: "Voltage",
       field: "voltage",
       cellRenderer: "textInputCellRenderer",
-     
+    },
+    {
+      headerName: "Battery ID",
+      field: "batteryID",
+      cellRenderer: "textInputCellRenderer",
     },
 
     {

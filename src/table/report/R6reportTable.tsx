@@ -91,7 +91,7 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
     { field: "uom", headerName: "Unit", sortable: true, filter: true },
     { field: "qty", headerName: "QTY", sortable: true, filter: true },
     { field: "location", headerName: "Location", sortable: true, filter: true },
-    { field: "rate", headerName: "Rate", sortable: true, filter: true },
+    // { field: "rate", headerName: "Rate", sortable: true, filter: true },
     { field: "hsn", headerName: "HSN", sortable: true, filter: true },
     { field: "vendorCode", headerName: "Vendor Code", sortable: true, filter: true },
     { field: "vendorName", headerName: "Vendor Name", sortable: true, filter: true, minWidth: 300 },

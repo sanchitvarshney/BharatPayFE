@@ -18,6 +18,7 @@ type RowData = {
   IR: string;
   voltage: string;
   serialNo: string;
+  batteryID: string;
 };
 
 
@@ -41,6 +42,7 @@ const BatteryQC: React.FC = () => {
         IR: "",
         voltage: "",
         serialNo: sr,
+        batteryID: "",
       };
 
       setRowData((prev) => [...prev, newRow].reverse());
@@ -90,6 +92,7 @@ const BatteryQC: React.FC = () => {
           ir: rowData.map((row) => row.IR),
           volt: rowData.map((row) => row.voltage),
           remark: rowData.map((row) => row.remark),
+          batteryID: rowData.map((row) => row.batteryID),
         };
         dispatch(batteryQcSave(payload)).then((res: any) => {
           if (res.payload.data.success) {
