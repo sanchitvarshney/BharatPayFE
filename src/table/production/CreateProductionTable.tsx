@@ -6,6 +6,7 @@ import { StatusPanelDef } from "@ag-grid-community/core";
 import CreateProductionCellrenderer from "../Cellrenders/CreateProductionCellrenderer";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CategoryFilter from "@/table/production/CategoryFilter";
 interface RowData {
   remark: string;
   id: string;
@@ -110,7 +111,7 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
       field: "category",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
-      filter: true,
+      filter: CategoryFilter, // Use the custom filter we created
     },
     // {
     //   headerName: "Status",
