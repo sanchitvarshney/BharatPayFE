@@ -14,6 +14,7 @@ interface RowData {
   IR: string;
   voltage: string;
   serialNo: string;
+  batteryID: string;
 }
 type Props = {
   rowData: RowData[];

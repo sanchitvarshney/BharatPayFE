@@ -42,6 +42,7 @@ const BatteryQC: React.FC = () => {
         IR: "",
         voltage: "",
         serialNo: sr,
+        batteryID: "",
       };
 
       setRowData((prev) => [...prev, newRow].reverse());
