@@ -4,9 +4,8 @@ import { ColDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { StatusPanelDef } from "@ag-grid-community/core";
 import CreateProductionCellrenderer from "../Cellrenders/CreateProductionCellrenderer";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Icons } from "@/components/icons";
 interface RowData {
   remark: string;
   id: string;
@@ -37,7 +36,7 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
     }
     setRowdata(allData);
   };
-
+ console.log(addrow,enabled)
   const statusBar = useMemo<{
     statusPanels: StatusPanelDef[];
   }>(() => {
@@ -72,27 +71,27 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
           </IconButton>
         </div>
       ),
-      headerComponent: () => (
-        <div className="flex items-center justify-center w-full h-full">
-          <Button
-            disabled={!enabled}
-            variant="contained"
-            color="primary"
-            style={{
-              borderRadius: "10%",
-              width: 25,
-              height: 25,
-              minWidth: 0,
-              padding: 0,
-            }}
-            onClick={addrow}
-            size="small"
-            sx={{ zIndex: 1 }}
-          >
-            <Icons.add fontSize="small" />
-          </Button>
-        </div>
-      ),
+      // headerComponent: () => (
+      //   <div className="flex items-center justify-center w-full h-full">
+      //     <Button
+      //       disabled={!enabled}
+      //       variant="contained"
+      //       color="primary"
+      //       style={{
+      //         borderRadius: "10%",
+      //         width: 25,
+      //         height: 25,
+      //         minWidth: 0,
+      //         padding: 0,
+      //       }}
+      //       onClick={addrow}
+      //       size="small"
+      //       sx={{ zIndex: 1 }}
+      //     >
+      //       <Icons.add fontSize="small" />
+      //     </Button>
+      //   </div>
+      // ),
     },
     {
       headerName: "Component",
