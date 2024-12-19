@@ -19,6 +19,7 @@ const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen }) => {
   const dispatch = useAppDispatch();
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
+    { headerName: "Production ID", field: "prodductionId", sortable: true, filter: true },
     { headerName: "SR No.", field: "productSrlNo", sortable: true, filter: true },
     { headerName: "IMEI", field: "productImei", sortable: true, filter: true },
     { headerName: "Requested Date", field: "insertDate", sortable: true, filter: true },

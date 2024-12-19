@@ -14,6 +14,7 @@ export type bateryqcSavePayload =  {
   ir: string[];
   volt: string[];
   remark: string[];
+  batteryID: string[]
 }
 
 

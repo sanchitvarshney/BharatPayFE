@@ -92,7 +92,11 @@ const AddBatteryQcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       headerName: "Voltage",
       field: "voltage",
       cellRenderer: "textInputCellRenderer",
-     
+    },
+    {
+      headerName: "Battery ID",
+      field: "batteryID",
+      cellRenderer: "textInputCellRenderer",
     },
 
     {

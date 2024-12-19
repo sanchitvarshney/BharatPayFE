@@ -110,6 +110,7 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
       field: "category",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
+      filter: true,
     },
     // {
     //   headerName: "Status",
