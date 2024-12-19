@@ -212,9 +212,6 @@ input:-webkit-autofill {
     background-color: #74828e;
     border-radius: 4px;
   }
-
-  
-
   -webkit-scrollbar-thumb:hover {
     background-color: #3c4d60; /* Darker shade when hovering */
   }
