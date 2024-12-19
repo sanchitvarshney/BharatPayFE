@@ -7,6 +7,7 @@ export type CreateProductionPayload = {
   itemKey: string[]; // Array of strings for item keys, required
   issueQty: string[]; // Array of strings for issue quantities, required
   remark: string[]; // Array of strings for remarks, required
+  bom: string;
 }
 export type CommonResponse ={
   status: string;

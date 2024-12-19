@@ -14,6 +14,8 @@ interface RowData {
   component: { lable: string; value: string } | null;
   qty: string;
   uom: string;
+  requiredQty: string;
+  compKey: string;
 }
 type Props = {
   rowData: RowData[];
@@ -55,7 +57,7 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
     []
   );
   const handleDeleteRow = (id: string) => {
-    setRowdata(rowData.filter((row) => row.id !== id));
+    setRowdata(rowData.filter((row) => row.compKey !== id));
   };
 
   const columnDefs: ColDef[] = [
@@ -65,7 +67,7 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
       width: 120,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
-          <IconButton color="error" onClick={() => handleDeleteRow(params.data.id)}>
+          <IconButton color="error" onClick={() => handleDeleteRow(params.data.compKey)}>
             <DeleteIcon fontSize="small" />
           </IconButton>
         </div>

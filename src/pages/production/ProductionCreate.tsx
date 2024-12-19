@@ -18,6 +18,7 @@ import {
   CircularProgress,
   IconButton,
   InputLabel,
+  LinearProgress,
   Typography,
 } from "@mui/material";
 import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
@@ -39,6 +40,8 @@ type RowData = {
   component: { lable: string; value: string } | null;
   qty: string;
   uom: string;
+  requiredQty: string;
+  compKey: string;
 };
 
 const ProductionCreate: React.FC = () => {
@@ -60,6 +63,9 @@ const ProductionCreate: React.FC = () => {
   const { createProductionLaoding } = useAppSelector(
     (state) => state.manageProduction
   );
+  const { fgBomListLoading } = useAppSelector(
+    (state) => state.bom
+  );
   const addRow = useCallback(() => {
     const newId = generateUniqueId();
     const newRow: RowData = {
@@ -69,6 +75,8 @@ const ProductionCreate: React.FC = () => {
       component: null,
       qty: "",
       uom: "",
+      requiredQty: "",
+      compKey: "",
     };
     setRowData([newRow, ...rowData]);
   }, [rowData]);
@@ -80,6 +88,9 @@ const ProductionCreate: React.FC = () => {
     } else if (!picklocation) {
       showToast("Please Select Pick Location", "error");
       return;
+    } else if (!bom) {
+      showToast("Please Select BOM", "error");
+      return;
     } else if (!droplocation) {
       showToast("Please Select Drop Location", "error");
       return;
@@ -90,11 +101,12 @@ const ProductionCreate: React.FC = () => {
       let hasErrors = false;
 
       rowData.forEach((row) => {
+        console.log(row);
         const missingFields: string[] = [];
-        if (!row.component) {
+        if (!row.compKey) {
           missingFields.push("Component");
         }
-        if (!row.qty) {
+        if (!row.requiredQty) {
           missingFields.push("QTY");
         }
 
@@ -113,10 +125,11 @@ const ProductionCreate: React.FC = () => {
           imeiNo: deviceDetailData?.device_imei || "",
           productionLocation: picklocation.code,
           dropLocation: droplocation.code,
-          itemKey: rowData.map((row) => row.component?.value || ""),
-          issueQty: rowData.map((row) => row.qty),
+          itemKey: rowData.map((row) => row.compKey || ""),
+          issueQty: rowData.map((row) => row.requiredQty || ""),
           remark: rowData.map((row) => row.remark),
           sku: device?.id || "",
+          bom: bom.code || "",
         };
         dispatch(createProduction(payload)).then((response: any) => {
           if (response.payload.data.success) {
@@ -141,7 +154,14 @@ const ProductionCreate: React.FC = () => {
     if (bom) {
       dispatch(fetchBomProduct(bom.code)).then((response: any) => {
         if (response.payload.data.success) {
-          setRowData(response.payload.data.data.data);
+          // Modify the data to add `isNew: true` in every row
+          const updatedData = response.payload.data.data.data.map(
+            (row: any) => ({
+              ...row,
+              isNew: true,
+            })
+          );
+          setRowData(updatedData); // Set the modified data to state
         }
       });
     }
@@ -149,6 +169,7 @@ const ProductionCreate: React.FC = () => {
 
   return (
     <>
+    {fgBomListLoading && <LinearProgress />}
       <ConfirmationModel
         open={resetAlert}
         title="Are you absolutely sure"
@@ -324,7 +345,7 @@ const ProductionCreate: React.FC = () => {
           onClick={() => {
             onsubmit();
           }}
-          disabled={!rowData.length}
+          disabled={!rowData.length || !disable}
           startIcon={<SaveIcon fontSize="small" />}
           variant="contained"
           loadingPosition="start"
