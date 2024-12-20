@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { getTrcRequestDetail } from "@/features/trc/ViewTrc/viewTrcSlice";
 import {
-  getTrcRequestDetail,
-} from "@/features/trc/ViewTrc/viewTrcSlice";
-import { Button, CircularProgress, TextField } from "@mui/material";
+  Button,
+  CircularProgress,
+  Divider,
+  Popover,
+  TextField,
+} from "@mui/material";
 import {
   clearTrcDetail,
   getTrcList,
@@ -30,6 +34,7 @@ import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule, {
   LocationType,
 } from "@/components/reusable/SelectLocationAcordingModule";
+import { Add, Remove } from "@mui/icons-material";
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -148,10 +153,20 @@ const ViewTRCTable: React.FC<Props> = () => {
   const [consumplocation, setConsumplocation] = useState<LocationType | null>(
     null
   );
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [issues, setIssues] = useState<any[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
-  // const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Function to open the drawer
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget); // Set the element that triggers the popover
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null); // Close the popover
+  };
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [data, setData] = useState<any>();
   const [approved, setApproved] = useState<string[]>([]);
@@ -271,18 +286,22 @@ const ViewTRCTable: React.FC<Props> = () => {
   });
 
   useEffect(() => {
-    device&&dispatch(
-      getTrcRequestDetail({
-        txnid: data?.txnId,
-        itemCode: data?.itemCode,
-      })
-    );
+    device &&
+      dispatch(
+        getTrcRequestDetail({
+          txnid: data?.txnId,
+          itemCode: data?.itemCode,
+        })
+      );
   }, [device]);
 
-  // const handleToggleDrawer = () => {
-  //   setIsDrawerOpen(!isDrawerOpen);
-  // };
-  
+  const resetFeilds = () => {
+    setDevice("");
+    setLocation(null);
+    setConsumplocation(null);
+    setIssues([]);
+  };
+  console.log(device);
   return (
     <div>
       {/* <div className="ag-theme-quartz h-[calc(100vh-100px)]">
@@ -301,7 +320,6 @@ const ViewTRCTable: React.FC<Props> = () => {
       <div className="h-[calc(100vh-50px)] grid grid-cols-[500px_1fr] bg-white">
         <div className="border-r border-neutral-300">
           <div className="bg-hbg h-[40px] flex items-center px-[10px] border-b border-neutral-300 gap-[10px]">
-            <Chip label="1" />
             <Typography fontWeight={600} fontSize={16}>
               Device List
             </Typography>
@@ -322,7 +340,7 @@ const ViewTRCTable: React.FC<Props> = () => {
             </Button>
           </div>
 
-          <div className="p-4">
+          {/* <div className="p-4">
             <TextField
               label="Search"
               variant="outlined"
@@ -330,6 +348,20 @@ const ViewTRCTable: React.FC<Props> = () => {
               fullWidth
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div> */}
+          <div className="flex items-center justify-center">
+            <TextField
+              label="Search"
+              variant="outlined"
+              size="medium"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                margin: "10px", // Add spacing around the text field
+                maxWidth: 500, // Optional: to limit the width
+              }}
             />
           </div>
 
@@ -352,6 +384,7 @@ const ViewTRCTable: React.FC<Props> = () => {
                         // disabled={approved!.includes(item.device)}
                         key={index}
                         onClick={() => {
+                          resetFeilds();
                           setDevice(item.itemCode);
                           setData(item);
                         }}
@@ -402,37 +435,148 @@ const ViewTRCTable: React.FC<Props> = () => {
                 </RadioGroup>
               )}
             </div>
-            <div className=" h-[150px] border-t border-neutral-300 p-[10px]">
-              <div className="flex items-center gap-[10px]">
-                <p className="font-[500]">Requested By : </p>
-                <p>{data ? data?.requestBy || "--" : "--"} </p>
-              </div>
-              <div className="flex items-center gap-[10px]">
-                <p className="font-[500]">Reference ID: </p>
-                <p>{data ? data?.txnId : "--"} </p>
-              </div>
-              <div className="flex items-center gap-[10px]">
-                <p className="font-[500]">From Location: </p>
-                <p>{data ? data?.putLocation : "--"} </p>
-              </div>
-              <div className="flex items-center gap-[10px]">
-                <p className="font-[500]">Insert Date: </p>
-                <p>{data ? data?.insertDate : "--"} </p>
-              </div>
-              <div className="flex items-center gap-[10px]">
-                <p className="font-[500]">Total Device </p>
-                <p>{data ? data?.totalDevice : "--"} </p>
-              </div>
+            <div>
+              {/* Popover */}
+              <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom", // Position the popover below the button
+                  horizontal: "left", // Align with the left edge of the button
+                }}
+                transformOrigin={{
+                  vertical: "top", // Align above the anchor
+                  horizontal: "left", // Align to the left of the anchor
+                }}
+                sx={{
+                  "& .MuiPopover-paper": {
+                    borderRadius: "10px", // Rounded corners for popover
+                    padding: "20px", // Padding inside popover
+                    width: "300px", // Set a fixed width
+                    boxShadow: 4, // Soft shadow around the popover
+                    backgroundColor: "#fff", // White background
+                    border: "1px solid #e0e0e0", // Light border to separate content
+                  },
+                }}
+              >
+                {/* Popover Content */}
+                <div>
+                  <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                    Details
+                  </Typography>
+
+                  <div className="flex flex-col gap-3">
+                    {/* Requested By */}
+                    <div className="flex items-center justify-between">
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
+                        Requested By:
+                      </Typography>
+                      <Typography variant="body2">
+                        {data ? data?.requestBy || "--" : "--"}
+                      </Typography>
+                    </div>
+
+                    {/* Reference ID */}
+                    <div className="flex items-center justify-between">
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
+                        Reference ID:
+                      </Typography>
+                      <Typography variant="body2">
+                        {data ? data?.txnId : "--"}
+                      </Typography>
+                    </div>
+
+                    {/* From Location */}
+                    <div className="flex items-center justify-between">
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
+                        From Location:
+                      </Typography>
+                      <Typography variant="body2">
+                        {data ? data?.putLocation : "--"}
+                      </Typography>
+                    </div>
+
+                    {/* Insert Date */}
+                    <div className="flex items-center justify-between">
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
+                        Insert Date:
+                      </Typography>
+                      <Typography variant="body2">
+                        {data ? data?.insertDate : "--"}
+                      </Typography>
+                    </div>
+
+                    {/* Total Devices */}
+                    <div className="flex items-center justify-between">
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
+                        Total Devices:
+                      </Typography>
+                      <Typography variant="body2">
+                        {data ? data?.totalDevice : "--"}
+                      </Typography>
+                    </div>
+                  </div>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  {/* Close Button */}
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    startIcon={<Remove />}
+                    onClick={handleClose}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </Popover>
             </div>
           </div>
         </div>
         {device && (
           <div>
-            <div className="bg-hbg h-[40px] flex items-center px-[10px] border-b border-neutral-300 gap-[10px]">
-              <Chip label="2" />
+            <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
               <Typography fontWeight={600} fontSize={16}>
                 Fix Issues
               </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Add />}
+                onClick={handleClick}
+                sx={{
+                  borderRadius: "30px", // Rounded corners
+                  boxShadow: 2, // Subtle shadow
+                  "&:hover": {
+                    boxShadow: 6, // More prominent shadow on hover
+                    backgroundColor: "#1976d2", // Darker blue on hover
+                  },
+                  fontSize: "14px",
+                }}
+              >
+                Open Details
+              </Button>
             </div>
             <div className="h-[calc(100vh-100px)] overflow-y-auto ">
               <div className="h-[calc(100vh-150px)] ">
