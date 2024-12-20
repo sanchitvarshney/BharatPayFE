@@ -5,6 +5,7 @@ export type TrcList = {
   totalDeviceL: number | string;
   insertDate: string;
   putLocation: string;
+  itemCode: string;
 };
 export type TcDetail = {
   requestedBy: string;
