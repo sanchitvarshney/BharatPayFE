@@ -234,6 +234,7 @@ const ViewTRCTable: React.FC<Props> = () => {
           setLocation(null);
           setConsumplocation(null);
           setIssues([]);
+          dispatch(getTrcList());
           if (approved?.length === trcRequestDetail!.body.length) {
             setProcess(false);
             dispatch(getTrcList());
