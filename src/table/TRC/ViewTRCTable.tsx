@@ -79,7 +79,7 @@ const ViewTRCTable: React.FC<Props> = ({ setOpen }) => {
                 totalDevice: params?.data?.totalDevice,
               };
               dispatch(setTrcDetail(payload));
-              dispatch(getTrcRequestDetail(params?.data?.txnId));
+              dispatch(getTrcRequestDetail({ txnid: params?.data?.txnId, itemCode: params?.data?.itemCode }));
             }}
             startIcon={<Icons.refreshv2 />}
             variant="contained"
