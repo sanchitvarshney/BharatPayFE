@@ -141,6 +141,7 @@ const ProductionCreate: React.FC = () => {
             setEnabled(false);
             setDisable(false);
             setDevice(null);
+            setBom(null);
           }
         });
       }
@@ -187,6 +188,7 @@ const ProductionCreate: React.FC = () => {
           setDevice(null);
           imeiInputRef.current?.blur();
           setDisable(false);
+          setBom(null);
         }}
         confirmText="Continue"
       />
