@@ -356,6 +356,7 @@ const ViewTRCTable: React.FC<any> = () => {
             margin: "10px", // Adjust spacing around the text field
             maxWidth: 500, // Optional: limit width
           }}
+          inputProps={{ maxLength: 15 }}
         />
       </div>
       </div>
