@@ -111,7 +111,7 @@ const AddTRC = () => {
         dispatch(addTrcAsync(payload)).then((response: any) => {
           if (response.payload.data?.success) {
             showToast(`TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`, "success");
-            reset();
+            // reset();
             setRowData([]);
           }
         });
