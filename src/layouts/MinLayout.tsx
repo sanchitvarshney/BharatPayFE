@@ -13,7 +13,8 @@ const MinLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/raw-min", "/raw-min-v2", "/sim-min"];
+  // const tabRoutes = ["/raw-min", "/raw-min-v2", "/sim-min"];
+  const tabRoutes = [ "/raw-min", "/sim-min"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -36,7 +37,7 @@ const MinLayout: React.FC<Props> = ({ children }) => {
           onChange={handleChange}
           centered
         >
-          <Tab
+          {/* <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
@@ -44,18 +45,18 @@ const MinLayout: React.FC<Props> = ({ children }) => {
                 RAW MIN
               </div>
             }
-          />
-          {import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" && (
+          /> */}
+          {/* {import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" && ( */}
             <Tab
               sx={{ fontWeight: "500" }}
               label={
                 <div className="flex items-center gap-[10px]">
                   <Icons.grid fontSize="small" />
-                  RAW MIN V2
+                  RAW MIN 
                 </div>
               }
             />
-          )}
+          {/* )} */}
 
           <Tab
             sx={{ fontWeight: "500" }}

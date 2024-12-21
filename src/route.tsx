@@ -309,7 +309,7 @@ export const router = createBrowserRouter([
             </MinLayout>
           </MainLayout>
         ),
-        path: "/raw-min",
+        path: "/raw-min-v2",
       },
       {
         element: (
@@ -329,7 +329,7 @@ export const router = createBrowserRouter([
             </MinLayout>
           </MainLayout>
         ),
-        path: "/raw-min-v2",
+        path: "/raw-min",
       },
       {
         element: (
