@@ -67,6 +67,7 @@ const MaterialInvardv2: React.FC = () => {
   const [filename, setFilename] = useState<string>("");
   const [alert, setAlert] = useState<boolean>(false);
   const [file, setfile] = useState<File[] | null>(null);
+  const [minNo, setMinno] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
@@ -192,6 +193,7 @@ const MaterialInvardv2: React.FC = () => {
               resetall();
               handleNext();
               dispatch(resetFormData());
+              setMinno(response.payload?.data?.data.transaction_id);
             }
           });
         }
@@ -471,7 +473,7 @@ const MaterialInvardv2: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Min No. : 1234567890WERTYUIOP
+                  Min No. : {minNo}
                 </Typography>
                 <LoadingButton onClick={() => setActiveStep(0)} variant="contained">
                   Create New MIN
