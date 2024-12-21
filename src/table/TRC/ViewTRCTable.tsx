@@ -14,8 +14,8 @@ import {
   trcFinalSubmit,
 } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+// import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+// import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
 import FixIssuesTable from "@/table/TRC/FixIssuesTable";
 import { LoadingButton } from "@mui/lab";
@@ -35,10 +35,10 @@ import SelectLocationAcordingModule, {
   LocationType,
 } from "@/components/reusable/SelectLocationAcordingModule";
 import { Add, Remove } from "@mui/icons-material";
-type Props = {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
+// type Props = {
+//   open: boolean;
+//   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+// };
 
 interface Issue {
   id: string;
@@ -50,7 +50,7 @@ interface Issue {
   isNew: boolean;
 }
 
-const ViewTRCTable: React.FC<Props> = () => {
+const ViewTRCTable: React.FC<any> = () => {
   const dispatch = useAppDispatch();
   const { trcList, getTrcListLoading } = useAppSelector(
     (state) => state.viewTrc
@@ -251,8 +251,8 @@ const ViewTRCTable: React.FC<Props> = () => {
 
   useEffect(() => {
     dispatch(getTrcList());
-    dispatch(getLocationAsync(null));
-    dispatch(getPertCodesync(null));
+    // dispatch(getLocationAsync(null));
+    // dispatch(getPertCodesync(null));
   }, []);
 
   useEffect(() => {
@@ -304,7 +304,7 @@ const ViewTRCTable: React.FC<Props> = () => {
   };
   console.log(device);
   return (
-    <div>
+    <div className="h-full flex flex-col">
       {/* <div className="ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -318,68 +318,61 @@ const ViewTRCTable: React.FC<Props> = () => {
           paginationPageSize={20}
         />
       </div> */}
-      <div className="h-[calc(100vh-50px)] grid grid-cols-[500px_1fr] bg-white">
+       <div className="flex-1 grid grid-cols-[500px_1fr] bg-white">
+        <div className="border-r border-neutral-300 h-[calc(100vh-100px)]">
         <div className="border-r border-neutral-300">
-          <div className="bg-hbg h-[40px] flex items-center px-[10px] border-b border-neutral-300 gap-[10px]">
-            <Typography fontWeight={600} fontSize={16}>
-              Device List
-            </Typography>
-            <Button
-              onClick={() => {
-                dispatch(getTrcList());
-                setSearchTerm("");
-                setDevice("");
-              }}
-              variant="text"
-              style={{ marginLeft: "auto" }}
-            >
-              {getTrcListLoading ? (
-                <CircularProgress size={24} />
-              ) : (
-                <Icons.refresh className="cursor-pointer" />
-              )}
-            </Button>
-          </div>
+      <div className="bg-hbg h-[40px] flex items-center px-[10px] border-b border-neutral-300 gap-[10px]">
+        <Typography fontWeight={600} fontSize={16}>
+          Device List
+        </Typography>
+        <Button
+          onClick={() => {
+            dispatch(getTrcList());
+            setSearchTerm("");
+            setDevice("");
+          }}
+          variant="text"
+          style={{ marginLeft: "auto" }}
+        >
+          {getTrcListLoading ? (
+            <CircularProgress size={24} />
+          ) : (
+            <Icons.refresh className="cursor-pointer" />
+          )}
+        </Button>
+      </div>
 
-          {/* <div className="p-4">
-            <TextField
-              label="Search"
-              variant="outlined"
-              size="medium"
-              fullWidth
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div> */}
-          <div className="flex items-center justify-center">
-            <TextField
-              label="Search"
-              variant="outlined"
-              size="medium"
-              fullWidth
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{
-                margin: "10px", // Add spacing around the text field
-                maxWidth: 500, // Optional: to limit the width
-              }}
-            />
-          </div>
+      {/* Search Field */}
+      <div className="flex items-center justify-center p-2">
+        <TextField
+          label="Search"
+          variant="outlined"
+          size="medium"
+          fullWidth
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{
+            margin: "10px", // Adjust spacing around the text field
+            maxWidth: 500, // Optional: limit width
+          }}
+        />
+      </div>
+      </div>
 
-          <div className="h-[calc(100vh-150px)] ">
-            <div className=" h-[calc(100vh-290px)] overflow-y-auto">
-              {getTrcRequestDetailLoading || getTrcListLoading ? (
-                <div className="flex flex-col gap-[5px] p-[10px]">
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                </div>
-              ) : (
+      <div className="flex-1 h-[calc(100vh-230px)]"> {/* Use flex-1 to allow this section to take available space */}
+        <div className="h-[calc(100vh-290px)] overflow-y-auto">
+          {getTrcRequestDetailLoading || getTrcListLoading ? (
+            <div className="flex flex-col gap-[5px] p-[10px]">
+              <Skeleton className="h-[30px] w-full" />
+              <Skeleton className="h-[30px] w-full" />
+              <Skeleton className="h-[30px] w-full" />
+              <Skeleton className="h-[30px] w-full" />
+              <Skeleton className="h-[30px] w-full" />
+              <Skeleton className="h-[30px] w-full" />
+            </div>
+          ) : (
                 <RadioGroup value={device}>
-                  <List className="">
+                  <List className="overflow-y-auto">
                     {filteredTrcList?.map((item: any, index) => (
                       <ListItemButton
                         // disabled={approved!.includes(item.device)}
@@ -580,9 +573,9 @@ const ViewTRCTable: React.FC<Props> = () => {
               </Button>
             </div>
             <div className="h-[calc(100vh-100px)] overflow-y-auto ">
-              <div className="h-[calc(100vh-150px)] ">
+              <div className="h-[calc(100vh-150px)]">
                 <div className="p-[20px]  h-[70px]">
-                  <div className="grid grid-cols-[1fr_1fr] gap-[20px]">
+                  <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
                     <div className="flex items-center gap-[10px]">
                       <p>IMEI : </p>
                       <p>
@@ -643,8 +636,6 @@ const ViewTRCTable: React.FC<Props> = () => {
                       />
                     )}
                   </div>
-                </div>
-              </div>
               <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-neutral-300">
                 <LoadingButton
                   disabled={TrcFinalSubmitLoading}
@@ -664,6 +655,8 @@ const ViewTRCTable: React.FC<Props> = () => {
                 >
                   Submit
                 </LoadingButton>
+              </div>
+                </div>
               </div>
             </div>
           </div>

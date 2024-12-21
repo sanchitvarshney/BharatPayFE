@@ -1,140 +1,140 @@
 import ViewTRCTable from "@/table/TRC/ViewTRCTable";
-import React, { useCallback, useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { clearTrcDetail, getTrcList, trcFinalSubmit } from "@/features/trc/ViewTrc/viewTrcSlice";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { Drawer } from "antd";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
-import FixIssuesTable from "@/table/TRC/FixIssuesTable";
-import { LoadingButton } from "@mui/lab";
-import { Icons } from "@/components/icons";
-import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
-import { showToast } from "@/utils/toasterContext";
-import ConfirmationModel from "@/components/reusable/ConfirmationModel";
-import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
-interface Issue {
-  id: string;
-  selectedPart: { lable: string; value: string } | null;
-  quantity: number | string;
-  remarks: string;
-  code: string;
-  UOM: string;
-  isNew: boolean;
-}
+// import React, { useCallback, useEffect, useState } from "react";
+// import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+// import { clearTrcDetail, getTrcList, trcFinalSubmit } from "@/features/trc/ViewTrc/viewTrcSlice";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+// import { Drawer } from "antd";
+// import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+// import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
+// import FixIssuesTable from "@/table/TRC/FixIssuesTable";
+// import { LoadingButton } from "@mui/lab";
+// import { Icons } from "@/components/icons";
+// import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
+// import { showToast } from "@/utils/toasterContext";
+// import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+// import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+// interface Issue {
+//   id: string;
+//   selectedPart: { lable: string; value: string } | null;
+//   quantity: number | string;
+//   remarks: string;
+//   code: string;
+//   UOM: string;
+//   isNew: boolean;
+// }
 
 const ViewTRC: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { TRCDetail, getTrcRequestDetailLoading, trcRequestDetail, TrcFinalSubmitLoading } = useAppSelector((state) => state.viewTrc);
-  const [process, setProcess] = useState<boolean>(false);
-  const [location, setLocation] = useState<LocationType | null>(null);
-  const [consumplocation, setConsumplocation] = useState<LocationType | null>(null);
-  const [issues, setIssues] = useState<Issue[]>([
-    // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
-  ]);
-  const [submitConfirm, setSubmitConfirm] = useState<boolean>(false);
+  // const dispatch = useAppDispatch();
+  // const { TRCDetail, getTrcRequestDetailLoading, trcRequestDetail, TrcFinalSubmitLoading } = useAppSelector((state) => state.viewTrc);
+  // const [process, setProcess] = useState<boolean>(false);
+  // const [location, setLocation] = useState<LocationType | null>(null);
+  // const [consumplocation, setConsumplocation] = useState<LocationType | null>(null);
+  // const [issues, setIssues] = useState<Issue[]>([
+  //   // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
+  // ]);
+  // const [submitConfirm, setSubmitConfirm] = useState<boolean>(false);
 
-  const [approved, setApproved] = useState<string[]>([]);
-  const [device, setDevice] = useState<string>("");
-  const checkRequiredFields = (data: Issue[]) => {
-    let hasErrors = false;
+  // const [approved, setApproved] = useState<string[]>([]);
+  // const [device, setDevice] = useState<string>("");
+  // const checkRequiredFields = (data: Issue[]) => {
+  //   let hasErrors = false;
 
-    const requiredFields: Array<keyof Issue> = ["selectedPart", "quantity"];
-    const miss = data.map((item) => {
-      const missingFields: string[] = [];
-      requiredFields.forEach((field) => {
-        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
-          missingFields.push(field);
-        }
-      });
-      if (missingFields.length > 0) {
-        return `${item.id}`;
-      }
-    });
+  //   const requiredFields: Array<keyof Issue> = ["selectedPart", "quantity"];
+  //   const miss = data.map((item) => {
+  //     const missingFields: string[] = [];
+  //     requiredFields.forEach((field) => {
+  //       if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
+  //         missingFields.push(field);
+  //       }
+  //     });
+  //     if (missingFields.length > 0) {
+  //       return `${item.id}`;
+  //     }
+  //   });
 
-    if (miss.filter((item) => item !== undefined).length > 0) {
-      showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
-      hasErrors = true;
-    }
-    return hasErrors;
-  };
+  //   if (miss.filter((item) => item !== undefined).length > 0) {
+  //     showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
+  //     hasErrors = true;
+  //   }
+  //   return hasErrors;
+  // };
 
-  const finalSubmit = () => {
-    if (!checkRequiredFields(issues)) {
-      if (!location) return showToast("Please select location", "error");
-      if (!consumplocation) return showToast("Please select consump location", "error");
-      const consumpItem = issues.map((item) => item.selectedPart?.value || "");
-      const consumpQty = issues.map((item) => item.quantity);
-      const remark = issues.map((item) => item.remarks);
+  // const finalSubmit = () => {
+  //   if (!checkRequiredFields(issues)) {
+  //     if (!location) return showToast("Please select location", "error");
+  //     if (!consumplocation) return showToast("Please select consump location", "error");
+  //     const consumpItem = issues.map((item) => item.selectedPart?.value || "");
+  //     const consumpQty = issues.map((item) => item.quantity);
+  //     const remark = issues.map((item) => item.remarks);
 
-      const payload: TrcFinalSubmitPayload = {
-        txnId: TRCDetail?.txnId || "",
-        consumpItem,
-        consumpQty,
-        remark,
-        putLocation: location?.code || "",
-        itemCode: device || "",
-        consumpLoc: consumplocation?.code || "",
-      };
-      dispatch(trcFinalSubmit(payload)).then((res: any) => {
-        if (res.payload.data.success) {
-          showToast(res.payload.data.message, "success");
-          if (!approved) {
-            setApproved([device]);
-          } else {
-            setApproved([...approved, device]);
-          }
-          setDevice("");
-          setLocation(null);
-          setConsumplocation(null);
-          setIssues([]);
-          if (approved?.length === trcRequestDetail!.body.length) {
-            setProcess(false);
-            dispatch(getTrcList());
-          }
-        }
-      });
-    }
-  };
-  const onSubmit = () => {
-    if (issues.length === 0) {
-      setSubmitConfirm(true);
-    } else {
-      finalSubmit();
-    }
-  };
+  //     const payload: TrcFinalSubmitPayload = {
+  //       txnId: TRCDetail?.txnId || "",
+  //       consumpItem,
+  //       consumpQty,
+  //       remark,
+  //       putLocation: location?.code || "",
+  //       itemCode: device || "",
+  //       consumpLoc: consumplocation?.code || "",
+  //     };
+  //     dispatch(trcFinalSubmit(payload)).then((res: any) => {
+  //       if (res.payload.data.success) {
+  //         showToast(res.payload.data.message, "success");
+  //         if (!approved) {
+  //           setApproved([device]);
+  //         } else {
+  //           setApproved([...approved, device]);
+  //         }
+  //         setDevice("");
+  //         setLocation(null);
+  //         setConsumplocation(null);
+  //         setIssues([]);
+  //         if (approved?.length === trcRequestDetail!.body.length) {
+  //           setProcess(false);
+  //           dispatch(getTrcList());
+  //         }
+  //       }
+  //     });
+  //   }
+  // };
+  // const onSubmit = () => {
+  //   if (issues.length === 0) {
+  //     setSubmitConfirm(true);
+  //   } else {
+  //     finalSubmit();
+  //   }
+  // };
 
-  useEffect(() => {
-    dispatch(getTrcList());
-    dispatch(getLocationAsync(null));
-    dispatch(getPertCodesync(null));
-  }, []);
-  useEffect(() => {
-    if (!process) {
-      dispatch(clearTrcDetail());
-      setDevice("");
-      setIssues([]);
-    }
-  }, [process]);
+  // useEffect(() => {
+  //   dispatch(getTrcList());
+  //   dispatch(getLocationAsync(null));
+  //   dispatch(getPertCodesync(null));
+  // }, []);
+  // useEffect(() => {
+  //   if (!process) {
+  //     dispatch(clearTrcDetail());
+  //     setDevice("");
+  //     setIssues([]);
+  //   }
+  // }, [process]);
 
-  const addRow = useCallback(() => {
-    const newId = crypto.randomUUID();
-    const newRow: Issue = {
-      id: newId,
-      selectedPart: null,
-      quantity: "",
-      remarks: "",
-      code: "",
-      UOM: "",
-      isNew: true,
-    };
-    setIssues((prev) => [newRow, ...prev]);
-  }, [issues]);
+  // const addRow = useCallback(() => {
+  //   const newId = crypto.randomUUID();
+  //   const newRow: Issue = {
+  //     id: newId,
+  //     selectedPart: null,
+  //     quantity: "",
+  //     remarks: "",
+  //     code: "",
+  //     UOM: "",
+  //     isNew: true,
+  //   };
+  //   setIssues((prev) => [newRow, ...prev]);
+  // }, [issues]);
 
   return (
     <>
-      <ConfirmationModel
+      {/* <ConfirmationModel
         open={submitConfirm}
         title="Are you sure?"
         content="Are you sure you want to submit without add any issue?"
@@ -145,8 +145,8 @@ const ViewTRC: React.FC = () => {
         }}
         cancelText="Cancel"
         confirmText="Continue"
-      />
-      <Drawer
+      /> */}
+      {/* <Drawer
         placement="bottom"
         styles={{
           body: {
@@ -294,8 +294,8 @@ const ViewTRC: React.FC = () => {
             </div>
           </div>
         </div>
-      </Drawer>
-      <ViewTRCTable open={process} setOpen={setProcess} />
+      </Drawer> */}
+      <ViewTRCTable  />
     </>
   );
 };
