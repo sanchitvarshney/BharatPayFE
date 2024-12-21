@@ -14,6 +14,7 @@ import {
   trcFinalSubmit,
 } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Skeleton } from "@/components/ui/skeleton";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 // import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
@@ -34,7 +35,7 @@ import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule, {
   LocationType,
 } from "@/components/reusable/SelectLocationAcordingModule";
-import { Add, Remove } from "@mui/icons-material";
+import { Remove } from "@mui/icons-material";
 // type Props = {
 //   open: boolean;
 //   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -557,7 +558,7 @@ const ViewTRCTable: React.FC<any> = () => {
               <Button
                 variant="contained"
                 color="primary"
-                startIcon={<Add />}
+                startIcon={<KeyboardArrowDownIcon />}
                 onClick={handleClick}
                 sx={{
                   borderRadius: "30px", // Rounded corners
