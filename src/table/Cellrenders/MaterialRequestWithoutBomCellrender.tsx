@@ -97,7 +97,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
       case "pickLocation":
         return (
           <AntLocationSelectAcordinttoModule
-            endpoint="/production/pickLocation"
+            endpoint="/req/without-bom/pick-location"
             onChange={(value) => {
               const newValue = value;
               data[colDef.field] = newValue; // update the data
@@ -105,7 +105,7 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
               if (value && data?.code) {
                 dispatch(
                   getAvailbleQty({
-                    itemCode: data?.code,
+                    itemCode: data?.code?.value? data.code.value : data?.code,
                     type: type === "device" ? "SKU" : "RM",
                     location: value.value,
                   })
@@ -139,15 +139,54 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
       case "remarks":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="custom-input" />;
       case "availableqty":
-        const [availbleQty, setAvailbleQty] = useState("--");
-        useEffect(() => {
-          if (availbleQtyData) {
-            setAvailbleQty(availbleQtyData.find((item) => item.location === data?.pickLocation && item.item === data?.code)?.Stock.toString() || "--");
-            api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code", "availableqty"] });
-          }
-        }, [availbleQtyData]);
+        // const [availbleQty, setAvailbleQty] = useState("--");
+        // useEffect(() => {
+        //   console.log(availbleQtyData);
+        //   if (availbleQtyData) {
+        //     setAvailbleQty(availbleQtyData.find((item) => console.log(item,data), (item) => item.location === data?.pickLocation?.value && item.item === data?.code?.value)?.Stock.toString() || "--");
+        //     api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code", "availableqty"] });
+        //   }
+        // }, [availbleQtyData]);
 
-        return availbleQty;
+        // return availbleQty;
+        const [availbleQty, setAvailbleQty] = useState("--");
+
+useEffect(() => {
+  if (availbleQtyData && data) {
+    // Find the matching item based on location and item code
+    const matchingItem = availbleQtyData.find(
+      (item) =>
+        item.location === data?.pickLocation?.value &&
+        item.item === data?.code?.value
+    );
+
+    // If a matching item is found, set its Stock value; otherwise, set it to "--"
+    if (matchingItem) {
+      setAvailbleQty(matchingItem.Stock.toString() || "--");
+    } else {
+      setAvailbleQty("--");
+    }
+
+    // Refresh the AG Grid cells
+    api.refreshCells({
+      rowNodes: [props.node],
+      columns: [
+        column,
+        "id",
+        "component",
+        "pickLocation",
+        "orderqty",
+        "remarks",
+        "unit",
+        "code",
+        "availableqty",
+      ],
+    });
+  }
+}, [availbleQtyData, data, props.node, api, column]);
+
+return availbleQty;
+
     }
   };
 

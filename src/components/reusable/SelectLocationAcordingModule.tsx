@@ -21,7 +21,7 @@ type Props = {
   endPoint: string;
 };
 
-const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label = "Search Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium", tabindex = 0, endPoint }) => {
+const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label = "Drop Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium", tabindex = 0, endPoint }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
