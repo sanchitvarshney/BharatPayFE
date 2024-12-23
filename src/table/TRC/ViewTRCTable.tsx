@@ -5,6 +5,10 @@ import {
   Button,
   CircularProgress,
   Divider,
+  FormControl,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Popover,
   TextField,
 } from "@mui/material";
@@ -158,7 +162,7 @@ const ViewTRCTable: React.FC<any> = () => {
   const [issues, setIssues] = useState<any[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
-
+const [partCode, setPartCode] = useState<string>("");
   // Function to open the drawer
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget); // Set the element that triggers the popover
@@ -278,6 +282,20 @@ const ViewTRCTable: React.FC<any> = () => {
     setIssues((prev) => [newRow, ...prev]);
   }, [issues]);
 
+  const addRow2 = useCallback((partCode:string) => {
+    const newId = crypto.randomUUID();
+    const newRow: Issue = {
+      id: newId,
+      selectedPart: { lable: partCode, value: partCode },
+      quantity: 1,
+      remarks: "",
+      code: "",
+      UOM: "",
+      isNew: true,
+    };
+    setIssues((prev) => [newRow, ...prev]);
+  }, [issues]);
+
   const filteredTrcList = trcList?.filter((item) => {
     const search = searchTerm.toLowerCase();
     return (
@@ -303,7 +321,6 @@ const ViewTRCTable: React.FC<any> = () => {
     setConsumplocation(null);
     setIssues([]);
   };
-  console.log(device);
   return (
     <div className="h-full flex flex-col">
       {/* <div className="ag-theme-quartz h-[calc(100vh-100px)]">
@@ -598,7 +615,30 @@ const ViewTRCTable: React.FC<any> = () => {
                     </div>
                   </div>
                 </div>
-                <div className=" h-[60px]  grid grid-cols-2 items-center gap-[20px] px-[20px]">
+                <div className=" h-[60px]  grid grid-cols-3 items-center gap-[20px] px-[20px]">
+                <FormControl className="w-full sm:w-[200px] md:w-[400px]">
+                  <InputLabel htmlFor="outlined-adornment-barcode">
+                    Scan PartCode
+                  </InputLabel>
+                  <OutlinedInput
+                    id="outlined-adornment-barcode"
+                    value={partCode}
+                    onChange={(e) => setPartCode(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        addRow2(partCode); // Add barcode directly to the table
+                        setPartCode(""); // Clear input after adding
+                      }
+                    }}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <Icons.qrScan />
+                      </InputAdornment>
+                    }
+                    className="w-[90%]"
+                    label="Barcode"
+                  />
+                </FormControl>
                   <SelectLocationAcordingModule
                     endPoint="/trc/view/pickLocation"
                     value={consumplocation}
