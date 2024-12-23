@@ -135,12 +135,12 @@ const ProductionCreate: React.FC = () => {
           if (response.payload.data.success) {
             setRowData([]);
             setImei("");
-            setPicklocation(null);
-            setDroplocation(null);
             dispatch(clearDeviceDetail());
             setEnabled(false);
             setDisable(false);
-            setDevice(null);
+            // setDroplocation(null);
+            // setPicklocation(null);
+            // setDevice(null);
             setBom(null);
           }
         });
@@ -181,14 +181,14 @@ const ProductionCreate: React.FC = () => {
           setRowData([]);
           setResetAlert(false);
           setImei("");
-          setPicklocation(null);
-          setDroplocation(null);
           dispatch(clearDeviceDetail());
           setEnabled(false);
-          setDevice(null);
+          // setPicklocation(null);
+          // setDroplocation(null);
+          // setDevice(null);
+          setBom(null);
           imeiInputRef.current?.blur();
           setDisable(false);
-          setBom(null);
         }}
         confirmText="Continue"
       />

@@ -33,8 +33,8 @@ export const getLocationAsync = createAsyncThunk<AxiosResponse<LocationApirespon
   const response = await axiosInstance.get(`/backend/search/location/${params}`);
   return response;
 });
-export const getAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: string }>("wearhouse/getAvailbleQty", async (params) => {
-  const response = await axiosInstance.get(`/backend/stock/${params.type}/${params.itemCode}/${params.location}`);
+export const getAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: any }>("wearhouse/getAvailbleQty", async (params) => {
+  const response = await axiosInstance.get(`/backend/stock/${params.type}/${params.itemCode}/${params.location.value?params.location.value:params.location}`);
   return response;
 });
 
