@@ -9,7 +9,19 @@ import AddtrcTable from "@/table/TRC/AddtrcTable";
 import { addTrcAsync } from "@/features/trc/AddTrc/addtrcSlice";
 import { AddtrcPayloadType } from "@/features/trc/AddTrc/addtrcType";
 import { getIsueeList } from "@/features/common/commonSlice";
-import { Button, CircularProgress, FormControl, FormControlLabel, InputAdornment, InputLabel, OutlinedInput, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  FormControl,
+  FormControlLabel,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
@@ -17,7 +29,9 @@ import { DeviceType } from "@/components/reusable/SelectSku";
 import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
-import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import SelectLocationAcordingModule, {
+  LocationType,
+} from "@/components/reusable/SelectLocationAcordingModule";
 
 interface RowData {
   remarks: string;
@@ -35,15 +49,20 @@ type Formstate = {
 
 const AddTRC = () => {
   const [imei, setImei] = useState<string>("");
-  const [barcode, setBarcode] = useState<string>("");  // State for Barcode
+  const [barcode, setBarcode] = useState<string>(""); // State for Barcode
   const [inputType, setInputType] = useState<"IMEI" | "Barcode" | "">("IMEI");
   const [rowData, setRowData] = useState<RowData[]>([]);
+  const [barcodeLoading , setBarcodeLoading] = useState<boolean>(false);
   const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
   const [final, setFinal] = useState<boolean>(false);
-  const { locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { locationData, craeteRequestData } = useAppSelector(
+    (state) => state.materialRequestWithoutBom
+  );
   const { addTrcLoading } = useAppSelector((state) => state.addTrc);
-  const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
+  const { deviceDetailLoading } = useAppSelector(
+    (state) => state.batteryQcReducer
+  );
 
   const dispatch = useAppDispatch();
 
@@ -92,7 +111,10 @@ const AddTRC = () => {
         }
 
         if (missingFields.length > 0) {
-          showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
+          showToast(
+            `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
+            "error"
+          );
           hasErrors = true;
         }
       });
@@ -112,7 +134,10 @@ const AddTRC = () => {
         };
         dispatch(addTrcAsync(payload)).then((response: any) => {
           if (response.payload.data?.success) {
-            showToast(`TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`, "success");
+            showToast(
+              `TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`,
+              "success"
+            );
             // reset();
             setRowData([]);
           }
@@ -126,10 +151,48 @@ const AddTRC = () => {
   }, []);
   useEffect(() => {
     if (location) {
-      const locationDetail = locationData?.find((item) => item.id === location?.code)?.specification;
+      const locationDetail = locationData?.find(
+        (item) => item.id === location?.code
+      )?.specification;
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
+
+  const addIssueToRow = (barcode: string) => {  
+    const updatedRows = rowData.map((row) => {
+      // Add the barcode as an issue to the issues array, but only if it's not already there
+      if (!row.issues.includes(barcode)) {
+        const issuesArray = JSON.parse(barcode);
+        // Extract the 'id' values into an array
+        const idsArray = issuesArray.map((issue:any) => issue.id);
+        row.issues.push(...idsArray);
+      }
+      return row;
+    });
+    setRowData(updatedRows); // Update the state with the new rows
+  };
+  
+  
+  const sanitizeData = (data: string) => {
+    // Clean up data if needed (e.g., removing extraneous characters)
+    return data.replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, '');  // Example regex, adjust as necessary
+  };
+  
+  const onScanComplete = (scannedData: string) => {
+    try {
+      // Sanitize and parse the data
+      const parsedData = sanitizeData(scannedData);
+      if (parsedData) {
+        addIssueToRow(parsedData);  // Handle parsed data
+      } else {
+        console.error("Failed to parse QR data.");
+      }
+    } catch (error) {
+      console.error("Error parsing QR data:", error);
+    }
+  };
+  
+  
   return (
     <div>
       {final ? (
@@ -293,7 +356,9 @@ const AddTRC = () => {
                 <OutlinedInput
                   id="outlined-adornment-IMEI/Serial"
                   value={imei}
-                  onChange={(e) => {setImei(e.target.value);console.log(e.target.value)}}
+                  onChange={(e) => 
+                    setImei(e.target.value)
+                  }
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       if (imei) {
@@ -339,17 +404,21 @@ const AddTRC = () => {
                   <OutlinedInput
                     id="outlined-adornment-barcode"
                     value={barcode}
-                    onChange={(e) => setBarcode(e.target.value)}
+                    onChange={(e) => {setBarcode(e.target.value);console.log(e.target.value);setBarcodeLoading(true)}}
                     onKeyDown={(e) => {
-                      console.log(barcode)
                       if (e.key === "Enter" && barcode) {
-                        addRow(barcode); // Add barcode directly to the table
                         setBarcode(""); // Clear input after adding
+                        onScanComplete(barcode);
+                        setBarcodeLoading(false);
                       }
                     }}
                     endAdornment={
                       <InputAdornment position="end">
+                        {barcodeLoading ? (
+                        <CircularProgress size={25} />
+                      ) : (
                         <Icons.qrScan />
+                      )}
                       </InputAdornment>
                     }
                     className="w-full"
@@ -409,7 +478,8 @@ const Success = styled.div`
     stroke: #4bb71b;
     stroke-miterlimit: 10;
     box-shadow: inset 0px 0px 0px #4bb71b;
-    animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+    animation: fill 0.4s ease-in-out 0.4s forwards,
+      scale 0.3s ease-in-out 0.9s both;
     position: relative;
     top: 5px;
     right: 5px;
