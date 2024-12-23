@@ -409,7 +409,7 @@ const AddTRC = () => {
               {inputType === "Barcode" && (
                 <FormControl className="w-full sm:w-[250px] md:w-[400px] mt-4 sm:mt-0">
                   <InputLabel htmlFor="outlined-adornment-barcode">
-                    Barcode
+                    Issues Barcode
                   </InputLabel>
                   <OutlinedInput
                     id="outlined-adornment-barcode"
@@ -459,7 +459,7 @@ const AddTRC = () => {
                   <FormControlLabel
                     value="IMEI"
                     control={<Radio />}
-                    label="IMEI"
+                    label="Manual"
                   />
                   <FormControlLabel
                     value="Barcode"
