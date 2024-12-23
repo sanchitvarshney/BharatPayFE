@@ -50,6 +50,9 @@ const CreateProductionCellrenderer: React.FC<MaterialInvardCellRendererProps> = 
       case "componentName":
         return <Input className=" border-0" value={value} type="text" placeholder={colDef.headerName} readOnly/>;
 
+        case "partCode":
+          return <Input className=" border-0" value={value} type="text" placeholder={colDef.headerName} readOnly/>;
+
       case "category":
         return <Input className=" border-0" value={value} type="text" placeholder={colDef.headerName} readOnly/>;
 

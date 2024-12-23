@@ -616,7 +616,7 @@ const [partCode, setPartCode] = useState<string>("");
                   </div>
                 </div>
                 <div className=" h-[60px]  grid grid-cols-3 items-center gap-[20px] px-[20px]">
-                <FormControl className="w-full sm:w-[200px] md:w-[400px]">
+                <FormControl className="w-full">
                   <InputLabel htmlFor="outlined-adornment-barcode">
                     Scan PartCode
                   </InputLabel>
@@ -635,7 +635,7 @@ const [partCode, setPartCode] = useState<string>("");
                         <Icons.qrScan />
                       </InputAdornment>
                     }
-                    className="w-[90%]"
+                    className="w-[100%]"
                     label="Barcode"
                   />
                 </FormControl>

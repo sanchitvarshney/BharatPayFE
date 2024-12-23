@@ -50,7 +50,7 @@ type Formstate = {
 const AddTRC = () => {
   const [imei, setImei] = useState<string>("");
   const [barcode, setBarcode] = useState<string>(""); // State for Barcode
-  const [inputType, setInputType] = useState<"IMEI" | "Barcode" | "">("IMEI");
+  const [inputType, setInputType] = useState<"IMEI" | "Barcode" | "">("Barcode");
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [barcodeLoading , setBarcodeLoading] = useState<boolean>(false);
   const [location, setLocation] = useState<LocationType | null>(null);
@@ -160,17 +160,26 @@ const AddTRC = () => {
 
   const addIssueToRow = (barcode: string) => {  
     const updatedRows = rowData.map((row) => {
-      // Add the barcode as an issue to the issues array, but only if it's not already there
+      // Check if the barcode is already included in the issues array
       if (!row.issues.includes(barcode)) {
-        const issuesArray = JSON.parse(barcode);
-        // Extract the 'id' values into an array
-        const idsArray = issuesArray.map((issue:any) => issue.id);
-        row.issues.push(...idsArray);
+        try {
+          // Try to parse the barcode assuming it’s a JSON string
+          const issuesArray = JSON.parse(barcode);
+  
+          // Extract the 'id' values into an array
+          const idsArray = issuesArray.map((issue: any) => issue.id);
+  
+          // Add the unique ids to the row's issues array if not already included
+          row.issues.push(...idsArray.filter((id: string) => !row.issues.includes(id)));
+        } catch (e) {
+          console.error("Invalid barcode JSON", e);
+        }
       }
       return row;
     });
     setRowData(updatedRows); // Update the state with the new rows
   };
+  
   
   
   const sanitizeData = (data: string) => {
@@ -184,6 +193,7 @@ const AddTRC = () => {
       const parsedData = sanitizeData(scannedData);
       if (parsedData) {
         addIssueToRow(parsedData);  // Handle parsed data
+        handleSubmit(onSubmit)(); 
       } else {
         console.error("Failed to parse QR data.");
       }
@@ -404,7 +414,7 @@ const AddTRC = () => {
                   <OutlinedInput
                     id="outlined-adornment-barcode"
                     value={barcode}
-                    onChange={(e) => {setBarcode(e.target.value);console.log(e.target.value);setBarcodeLoading(true)}}
+                    onChange={(e) => {setBarcode(e.target.value);setBarcodeLoading(true)}}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && barcode) {
                         setBarcode(""); // Clear input after adding
