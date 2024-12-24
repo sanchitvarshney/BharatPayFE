@@ -217,8 +217,7 @@ const BatteryQC: React.FC = () => {
         </div>
         <div className="bg-white p-[20px] border-l border-neutral-300">
           <Steps
-           
-            current={4}
+            current={5}
             direction="vertical"
             items={[
               {
@@ -240,10 +239,16 @@ const BatteryQC: React.FC = () => {
                 icon: <div className="custom-step-icon">3</div>,
               },
               {
+                title: "Enter Battary Id",
+                description:
+                  "Enter the battery ID of the device. This is a unique identifier associated with the battery used in the device. Ensure it is accurate and up-to-date.",
+                icon: <div className="custom-step-icon">4</div>,
+              },
+              {
                 title: "Enter Remarks (If Needed)",
                 description:
                   "Add any additional notes or observations related to the device. This field is optional but useful for recording specific conditions or requirements. Keep it concise and relevant.",
-                icon: <div className="custom-step-icon">4</div>,
+                icon: <div className="custom-step-icon">5</div>,
               },
             ]}
           />
