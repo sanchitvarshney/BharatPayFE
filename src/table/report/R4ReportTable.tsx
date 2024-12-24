@@ -22,6 +22,8 @@ const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen }) => {
     { headerName: "Production ID", field: "prodductionId", sortable: true, filter: true },
     { headerName: "SR No.", field: "productSrlNo", sortable: true, filter: true },
     { headerName: "IMEI", field: "productImei", sortable: true, filter: true },
+    { headerName: "SKU", field: "sku", sortable: true, filter: true },
+    { headerName: "SKU Name", field: "skuName", sortable: true, filter: true },
     { headerName: "Requested Date", field: "insertDate", sortable: true, filter: true },
     { headerName: "Requested By", field: "insertBy", sortable: true, filter: true },
     { headerName: "Pick Location", field: "productionLocation", sortable: true, filter: true },
