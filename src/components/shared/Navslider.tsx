@@ -3,7 +3,7 @@ import { useNavigate, useParams, NavLink, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Tabs, { tabsClasses } from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { Typography } from "@mui/material";
+import { Tooltip, Typography } from "@mui/material";
 interface NavSliderData {
   path: string;
   name: string;
@@ -73,6 +73,7 @@ const NavSlider: React.FC = () => {
             component={NavLink}
             to={link.path}
             label={
+              <Tooltip title={link.content} placement="top">
               <div className="flex items-center gap-[10px]">
                 <Typography fontWeight={500}>{link.name}</Typography>
                 {value === index && (
@@ -81,6 +82,7 @@ const NavSlider: React.FC = () => {
                   </Typography>
                 )}
               </div>
+              </Tooltip>
             }
           />
         ))}

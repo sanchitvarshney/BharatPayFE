@@ -3,7 +3,7 @@ import { useParams, NavLink, useNavigate, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Tabs, { tabsClasses } from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { Typography } from "@mui/material";
+import { Tooltip, Typography } from "@mui/material";
 
 interface NavSliderData {
   path: string;
@@ -66,6 +66,7 @@ const QueryNavSlider: React.FC = () => {
             component={NavLink}
             to={`/queries/${link.name}`}
             label={
+              <Tooltip title={link.content} placement="top" arrow>
               <div className="flex items-center gap-[10px]">
                 <Typography fontWeight={500}>{link.name}</Typography>
                 {value === index && (
@@ -74,6 +75,7 @@ const QueryNavSlider: React.FC = () => {
                   </Typography>
                 )}
               </div>
+              </Tooltip>
             }
             wrapped
             onFocus={() => setValue(index)} // Update value on focus
