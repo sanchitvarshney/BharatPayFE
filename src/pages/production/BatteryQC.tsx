@@ -103,6 +103,39 @@ const BatteryQC: React.FC = () => {
   useEffect(() => {
     imeiInputRef.current?.focus();
   }, []);
+  useEffect(() => {
+    if (imei && imei.length === 15) {
+      const isUnique = !rowData.some((row) => row.IMEI === imei);
+      const issrunique = !rowData.some((row) => row.serialNo === imei);
+
+      if (!isUnique) {
+        showToast({
+          description: "Duplicate IMEI found",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!issrunique) {
+        showToast({
+          description: "Duplicate Serial Number found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
+        if (res.payload.data.success) {
+          addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
+          setImei("");
+        } else {
+          showToast({
+            description: res.payload.data.message,
+            variant: "destructive",
+          });
+        }
+      });
+    }
+  }, [imei]);
 
   return (
     <>
@@ -129,7 +162,7 @@ const BatteryQC: React.FC = () => {
 
       <div className="h-[calc(100vh-50px)] grid grid-cols-[1fr_400px]">
         <div>
-          <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px]">
+          <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] border-b border-neutral-300">
             <FormControl>
               <InputLabel htmlFor="outlined-adornment-IMEI/Serial">IMEI/Serial Number</InputLabel>
               <OutlinedInput
@@ -138,42 +171,6 @@ const BatteryQC: React.FC = () => {
                 value={imei}
                 onChange={(e) => {
                   setImei(e.target.value);
-              
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    if (imei) {
-                      const isUnique = !rowData.some((row) => row.IMEI === imei);
-                      const issrunique = !rowData.some((row) => row.serialNo === imei);
-
-                      if (!isUnique) {
-                        showToast({
-                          description: "Duplicate IMEI found",
-                          variant: "destructive",
-                        });
-                        return;
-                      }
-                      if (!issrunique) {
-                        showToast({
-                          description: "Duplicate Serial Number found",
-                          variant: "destructive",
-                        });
-                        return;
-                      }
-
-                      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
-                        if (res.payload.data.success) {
-                          addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
-                          setImei("");
-                        } else {
-                          showToast({
-                            description: res.payload.data.message,
-                            variant: "destructive",
-                          });
-                        }
-                      });
-                    }
-                  }
                 }}
                 endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} /> : <Icons.qrScan />}</InputAdornment>}
                 className="w-[400px]"
