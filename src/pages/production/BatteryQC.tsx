@@ -138,37 +138,7 @@ const BatteryQC: React.FC = () => {
                 value={imei}
                 onChange={(e) => {
                   setImei(e.target.value);
-                  if (e.target.value && e.target.value.length === 15) {
-                    const isUnique = !rowData.some((row) => row.IMEI === e.target.value);
-                    const issrunique = !rowData.some((row) => row.serialNo === e.target.value);
-
-                    if (!isUnique) {
-                      showToast({
-                        description: "Duplicate IMEI found",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (!issrunique) {
-                      showToast({
-                        description: "Duplicate Serial Number found",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-
-                    dispatch(getDeviceDetail(e.target.value.slice(0, 15))).then((res: any) => {
-                      if (res.payload.data.success) {
-                        addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
-                        setImei("");
-                      } else {
-                        showToast({
-                          description: res.payload.data.message,
-                          variant: "destructive",
-                        });
-                      }
-                    });
-                  }
+              
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
