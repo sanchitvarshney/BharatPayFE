@@ -27,12 +27,12 @@ const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label 
   const [loading, setLoading] = useState<boolean>(false);
   const [locationList, setLocationList] = useState<LocationType[]>([]);
   const { locationData } = useAppSelector((state) => state.location);
-  // Fetch locations based on search query
+
   const fetchLocations = async (query: string) => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`${endPoint}?search=${query}`);
-      setLocationList(response.data.data); // Assuming response follows LocationApiresponse format
+      setLocationList(response.data.data);
     } catch (error) {
       console.error("Error fetching locations:", error);
     } finally {
@@ -50,7 +50,6 @@ const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label 
   }, [locationData]);
   return (
     <Autocomplete
-      tabIndex={tabindex}
       value={value}
       size={size}
       options={locationList || []}
@@ -66,6 +65,7 @@ const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label 
       }}
       renderInput={(params) => (
         <TextField
+          tabIndex={tabindex}
           required={required}
           error={error}
           helperText={helperText}
