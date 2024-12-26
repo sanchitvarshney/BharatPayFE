@@ -27,6 +27,7 @@ type RowData = {
 const BatteryQC: React.FC = () => {
   const dispatch = useAppDispatch();
   const { deviceDetailLoading, batteryQcSaveLoading } = useAppSelector((state) => state.batteryQcReducer);
+  const [batteryStatus, setBatteryStatus] = useState<string>("");
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [resetAlert, setResetAlert] = useState<boolean>(false);
   const [imei, setImei] = useState<string>("");
@@ -93,6 +94,7 @@ const BatteryQC: React.FC = () => {
           volt: rowData.map((row) => row.voltage),
           remark: rowData.map((row) => row.remark),
           batteryID: rowData.map((row) => row.batteryID),
+          status:batteryStatus,
         };
         dispatch(batteryQcSave(payload)).then((res: any) => {
           if (res.payload.data.success) {
@@ -187,7 +189,7 @@ const BatteryQC: React.FC = () => {
               />
             </FormControl>
           </div>
-          <AddBatteryQcTable rowData={rowData} setRowdata={setRowData} />
+          <AddBatteryQcTable rowData={rowData} setRowdata={setRowData} batteryStatus={batteryStatus} setBatteryStatus={setBatteryStatus} />
           <div className="h-[50px] bg-white border-t border-neutral-300 flex items-center justify-end gap-[10px] px-[20px]">
             <LoadingButton
               disabled={!rowData.length}
