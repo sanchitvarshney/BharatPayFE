@@ -88,6 +88,9 @@ const reportSlice = createSlice({
     clearR1data(state) {
       state.r1Data = null;
     },
+    clearR6data(state) {
+      state.r6Report = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -244,6 +247,6 @@ const reportSlice = createSlice({
   },
 });
 
-export const { setRefId, clearRefId, clearR1data } = reportSlice.actions;
+export const { setRefId, clearRefId, clearR1data,clearR6data } = reportSlice.actions;
 
 export default reportSlice.reducer;

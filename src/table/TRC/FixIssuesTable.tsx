@@ -149,7 +149,7 @@ const FixIssuesTable: React.FC<Props> = ({ rowData, setRowData, addRow }) => {
   }, []);
   return (
     <div>
-      <div className="ag-theme-quartz h-[calc(100vh-320px)]">
+      <div className="ag-theme-quartz h-[calc(100vh-360px)]">
         <AgGridReact
           onCellFocused={(event: any) => {
             const { rowIndex, column } = event;

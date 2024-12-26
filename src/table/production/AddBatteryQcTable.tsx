@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useState } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { Button } from "@/components/ui/button";
@@ -21,12 +21,12 @@ interface RowData {
 type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
+  setBatteryStatus: React.Dispatch<React.SetStateAction<string>>;
+  batteryStatus: string;
 };
 
-const AddBatteryQcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
+const AddBatteryQcTable: React.FC<Props> = ({ rowData, setRowdata, setBatteryStatus, batteryStatus }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
-
-  const [batteryStatus, setBatteryStatus] = useState<string>("");
 
   // Helper function to get the battery status based on IR and voltage
   const getStatus = (ir: number, volt: number): string => {

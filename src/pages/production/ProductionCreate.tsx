@@ -275,6 +275,7 @@ const ProductionCreate: React.FC = () => {
                 value={imei}
                 onChange={(e) => {
                   setImei(e.target.value);
+                  
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {

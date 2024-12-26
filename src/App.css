@@ -213,9 +213,19 @@ input:-webkit-autofill {
     border-radius: 4px;
   }
   -webkit-scrollbar-thumb:hover {
-    background-color: #3c4d60; /* Darker shade when hovering */
+    background-color: #3c4d60; 
   }
 }
 
+.custom-steps .ant-steps-item-title {
+  font-size: 15px; 
+  font-weight: bold; 
+}
+
+.custom-steps .ant-steps-item-description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #666;
+}
 
 

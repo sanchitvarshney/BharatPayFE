@@ -1,45 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getTrcRequestDetail } from "@/features/trc/ViewTrc/viewTrcSlice";
-import {
-  Button,
-  CircularProgress,
-  Divider,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  Popover,
-  TextField,
-} from "@mui/material";
-import {
-  clearTrcDetail,
-  getTrcList,
-  trcFinalSubmit,
-} from "@/features/trc/ViewTrc/viewTrcSlice";
+import { Button, CircularProgress, Divider, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Popover, TextField } from "@mui/material";
+import { clearTrcDetail, getTrcList, trcFinalSubmit } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Skeleton } from "@/components/ui/skeleton";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 // import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 // import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
 import FixIssuesTable from "@/table/TRC/FixIssuesTable";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
-import {
-  Chip,
-  FormControlLabel,
-  List,
-  ListItemButton,
-  ListItemText,
-  Radio,
-  RadioGroup,
-  Typography,
-} from "@mui/material";
+import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
-import SelectLocationAcordingModule, {
-  LocationType,
-} from "@/components/reusable/SelectLocationAcordingModule";
-import { Remove } from "@mui/icons-material";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 // type Props = {
 //   open: boolean;
 //   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -57,9 +31,7 @@ interface Issue {
 
 const ViewTRCTable: React.FC<any> = () => {
   const dispatch = useAppDispatch();
-  const { trcList, getTrcListLoading } = useAppSelector(
-    (state) => state.viewTrc
-  );
+  const { trcList, getTrcListLoading } = useAppSelector((state) => state.viewTrc);
   // const columnDefs: ColDef[] = [
   //   {
   //     headerName: "#",
@@ -148,21 +120,15 @@ const ViewTRCTable: React.FC<any> = () => {
   //   };
   // }, []);
 
-  const {
-    getTrcRequestDetailLoading,
-    trcRequestDetail,
-    TrcFinalSubmitLoading,
-  } = useAppSelector((state) => state.viewTrc);
+  const { getTrcRequestDetailLoading, trcRequestDetail, TrcFinalSubmitLoading } = useAppSelector((state) => state.viewTrc);
   const [process, setProcess] = useState<boolean>(false);
   const [location, setLocation] = useState<LocationType | null>(null);
-  const [consumplocation, setConsumplocation] = useState<LocationType | null>(
-    null
-  );
+  const [consumplocation, setConsumplocation] = useState<LocationType | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [issues, setIssues] = useState<any[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
   ]);
-const [partCode, setPartCode] = useState<string>("");
+  const [partCode, setPartCode] = useState<string>("");
   // Function to open the drawer
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget); // Set the element that triggers the popover
@@ -183,12 +149,7 @@ const [partCode, setPartCode] = useState<string>("");
     const miss = data.map((item) => {
       const missingFields: string[] = [];
       requiredFields.forEach((field) => {
-        if (
-          item[field] === "" ||
-          item[field] === 0 ||
-          item[field] === undefined ||
-          item[field] === null
-        ) {
+        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
           missingFields.push(field);
         }
       });
@@ -198,12 +159,7 @@ const [partCode, setPartCode] = useState<string>("");
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
-      showToast(
-        `Some required fields are missing: line no. ${miss
-          .filter((item) => item !== undefined)
-          .join(", ")}`,
-        "error"
-      );
+      showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
       hasErrors = true;
     }
     return hasErrors;
@@ -212,8 +168,7 @@ const [partCode, setPartCode] = useState<string>("");
   const finalSubmit = () => {
     if (!checkRequiredFields(issues)) {
       if (!location) return showToast("Please select location", "error");
-      if (!consumplocation)
-        return showToast("Please select consump location", "error");
+      if (!consumplocation) return showToast("Please select consump location", "error");
       const consumpItem = issues.map((item) => item.selectedPart?.value || "");
       const consumpQty = issues.map((item) => item.quantity);
       const remark = issues.map((item) => item.remarks);
@@ -282,27 +237,26 @@ const [partCode, setPartCode] = useState<string>("");
     setIssues((prev) => [newRow, ...prev]);
   }, [issues]);
 
-  const addRow2 = useCallback((partCode:string) => {
-    const newId = crypto.randomUUID();
-    const newRow: Issue = {
-      id: newId,
-      selectedPart: { lable: partCode, value: partCode },
-      quantity: 1,
-      remarks: "",
-      code: "",
-      UOM: "",
-      isNew: true,
-    };
-    setIssues((prev) => [newRow, ...prev]);
-  }, [issues]);
+  const addRow2 = useCallback(
+    (partCode: string) => {
+      const newId = crypto.randomUUID();
+      const newRow: Issue = {
+        id: newId,
+        selectedPart: { lable: partCode, value: partCode },
+        quantity: 1,
+        remarks: "",
+        code: "",
+        UOM: "",
+        isNew: true,
+      };
+      setIssues((prev) => [newRow, ...prev]);
+    },
+    [issues]
+  );
 
   const filteredTrcList = trcList?.filter((item) => {
     const search = searchTerm.toLowerCase();
-    return (
-      item?.itemCode?.toLowerCase().includes(search) ||
-      item?.txnId?.toLowerCase().includes(search) ||
-      item?.requestBy?.toLowerCase().includes(search)
-    );
+    return item?.itemCode?.toLowerCase().includes(search) || item?.txnId?.toLowerCase().includes(search) || item?.requestBy?.toLowerCase().includes(search);
   });
 
   useEffect(() => {
@@ -322,7 +276,7 @@ const [partCode, setPartCode] = useState<string>("");
     setIssues([]);
   };
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col h-full">
       {/* <div className="ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -336,60 +290,57 @@ const [partCode, setPartCode] = useState<string>("");
           paginationPageSize={20}
         />
       </div> */}
-       <div className="flex-1 grid grid-cols-[500px_1fr] bg-white">
+      <div className="flex-1 grid grid-cols-[500px_1fr] bg-white">
         <div className="border-r border-neutral-300 h-[calc(100vh-100px)]">
-        <div className="border-r border-neutral-300">
-      <div className="bg-hbg h-[40px] flex items-center px-[10px] border-b border-neutral-300 gap-[10px]">
-        <Typography fontWeight={600} fontSize={16}>
-          Device List
-        </Typography>
-        <Button
-          onClick={() => {
-            dispatch(getTrcList());
-            setSearchTerm("");
-            setDevice("");
-          }}
-          variant="text"
-          style={{ marginLeft: "auto" }}
-        >
-          {getTrcListLoading ? (
-            <CircularProgress size={24} />
-          ) : (
-            <Icons.refresh className="cursor-pointer" />
-          )}
-        </Button>
-      </div>
-
-      {/* Search Field */}
-      <div className="flex items-center justify-center p-2">
-        <TextField
-          label="Search"
-          variant="outlined"
-          size="medium"
-          fullWidth
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{
-            margin: "10px", // Adjust spacing around the text field
-            maxWidth: 500, // Optional: limit width
-          }}
-          inputProps={{ maxLength: 15 }}
-        />
-      </div>
-      </div>
-
-      <div className="flex-1 h-[calc(100vh-230px)]"> {/* Use flex-1 to allow this section to take available space */}
-        <div className="h-[calc(100vh-290px)] overflow-y-auto">
-          {getTrcRequestDetailLoading || getTrcListLoading ? (
-            <div className="flex flex-col gap-[5px] p-[10px]">
-              <Skeleton className="h-[30px] w-full" />
-              <Skeleton className="h-[30px] w-full" />
-              <Skeleton className="h-[30px] w-full" />
-              <Skeleton className="h-[30px] w-full" />
-              <Skeleton className="h-[30px] w-full" />
-              <Skeleton className="h-[30px] w-full" />
+          <div className=" border-neutral-300">
+            <div className="bg-hbg h-[40px] flex items-center justify-between px-[10px] border-b border-neutral-300 gap-[10px]">
+              <Typography fontWeight={600} fontSize={16}>
+                Device List
+              </Typography>
+              <IconButton
+              size="small"
+                onClick={() => {
+                  dispatch(getTrcList());
+                  setSearchTerm("");
+                  setDevice("");
+                }}
+              >
+                {getTrcListLoading ? <CircularProgress size={20} /> : <Icons.refresh className="cursor-pointer" fontSize="small" />}
+              </IconButton>
             </div>
-          ) : (
+
+            {/* Search Field */}
+            <div className="flex items-center justify-center p-2">
+              <TextField
+                label="Search"
+                variant="outlined"
+                size="medium"
+                fullWidth
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{
+                  margin: "10px", // Adjust spacing around the text field
+                  maxWidth: 500, // Optional: limit width
+                }}
+                inputProps={{ maxLength: 15 }}
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 h-[calc(100vh-230px)]">
+            {" "}
+            {/* Use flex-1 to allow this section to take available space */}
+            <div className="h-[calc(100vh-290px)] overflow-y-auto">
+              {getTrcRequestDetailLoading || getTrcListLoading ? (
+                <div className="flex flex-col gap-[5px] p-[10px]">
+                  <Skeleton className="h-[30px] w-full" />
+                  <Skeleton className="h-[30px] w-full" />
+                  <Skeleton className="h-[30px] w-full" />
+                  <Skeleton className="h-[30px] w-full" />
+                  <Skeleton className="h-[30px] w-full" />
+                  <Skeleton className="h-[30px] w-full" />
+                </div>
+              ) : (
                 <RadioGroup value={device}>
                   <List className="overflow-y-auto">
                     {filteredTrcList?.map((item: any, index) => (
@@ -403,8 +354,7 @@ const [partCode, setPartCode] = useState<string>("");
                         }}
                         selected={device === item.itemCode}
                         sx={{
-                          backgroundColor:
-                            device === item.itemCode ? "lightblue" : "inherit",
+                          backgroundColor: device === item.itemCode ? "lightblue" : "inherit",
                           display: "flex",
                           justifyContent: "space-between",
                         }}
@@ -427,20 +377,9 @@ const [partCode, setPartCode] = useState<string>("");
                           sx={{ width: "100%", margin: 0 }}
                         />
                         {approved?.includes(item?.device) ? (
-                          <Chip
-                            size="small"
-                            label="Approved"
-                            color="success"
-                            icon={<Icons.checkcircle fontSize="small" />}
-                          />
+                          <Chip size="small" label="Approved" color="success" icon={<Icons.checkcircle fontSize="small" />} />
                         ) : (
-                          <Chip
-                            size="small"
-                            sx={{ background: "#d97706" }}
-                            label="Pending"
-                            color="info"
-                            icon={<Icons.time fontSize="small" />}
-                          />
+                          <Chip size="small" sx={{ background: "#d97706" }} label="Pending" color="info" icon={<Icons.time fontSize="small" />} />
                         )}
                       </ListItemButton>
                     ))}
@@ -454,6 +393,7 @@ const [partCode, setPartCode] = useState<string>("");
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
                 onClose={handleClose}
+                
                 anchorOrigin={{
                   vertical: "bottom", // Position the popover below the button
                   horizontal: "left", // Align with the left edge of the button
@@ -463,6 +403,7 @@ const [partCode, setPartCode] = useState<string>("");
                   horizontal: "left", // Align to the left of the anchor
                 }}
                 sx={{
+                
                   "& .MuiPopover-paper": {
                     borderRadius: "10px", // Rounded corners for popover
                     padding: "20px", // Padding inside popover
@@ -482,84 +423,49 @@ const [partCode, setPartCode] = useState<string>("");
                   <div className="flex flex-col gap-3">
                     {/* Requested By */}
                     <div className="flex items-center justify-between">
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        fontWeight={600}
-                      >
+                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
                         Requested By:
                       </Typography>
-                      <Typography variant="body2">
-                        {data ? data?.requestBy || "--" : "--"}
-                      </Typography>
+                      <Typography variant="body2">{data ? data?.requestBy || "--" : "--"}</Typography>
                     </div>
 
                     {/* Reference ID */}
                     <div className="flex items-center justify-between">
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        fontWeight={600}
-                      >
+                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
                         Reference ID:
                       </Typography>
-                      <Typography variant="body2">
-                        {data ? data?.txnId : "--"}
-                      </Typography>
+                      <Typography variant="body2">{data ? data?.txnId : "--"}</Typography>
                     </div>
 
                     {/* From Location */}
                     <div className="flex items-center justify-between">
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        fontWeight={600}
-                      >
+                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
                         From Location:
                       </Typography>
-                      <Typography variant="body2">
-                        {data ? data?.putLocation : "--"}
-                      </Typography>
+                      <Typography variant="body2">{data ? data?.putLocation : "--"}</Typography>
                     </div>
 
                     {/* Insert Date */}
                     <div className="flex items-center justify-between">
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        fontWeight={600}
-                      >
+                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
                         Insert Date:
                       </Typography>
-                      <Typography variant="body2">
-                        {data ? data?.insertDate : "--"}
-                      </Typography>
+                      <Typography variant="body2">{data ? data?.insertDate : "--"}</Typography>
                     </div>
 
                     {/* Total Devices */}
                     <div className="flex items-center justify-between">
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        fontWeight={600}
-                      >
+                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
                         Total Devices:
                       </Typography>
-                      <Typography variant="body2">
-                        {data ? data?.totalDevice : "--"}
-                      </Typography>
+                      <Typography variant="body2">{data ? data?.totalDevice : "--"}</Typography>
                     </div>
                   </div>
 
                   <Divider sx={{ my: 2 }} />
 
                   {/* Close Button */}
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    startIcon={<Remove />}
-                    onClick={handleClose}
-                  >
+                  <Button variant="outlined" color="error" size="small" startIcon={<Icons.close />} onClick={handleClose}>
                     Close
                   </Button>
                 </div>
@@ -569,11 +475,12 @@ const [partCode, setPartCode] = useState<string>("");
         </div>
         {device && (
           <div>
-            <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
+            <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between  border-b border-neutral-300">
               <Typography fontWeight={600} fontSize={16}>
                 Fix Issues
               </Typography>
               <Button
+                size="small"
                 variant="contained"
                 color="primary"
                 startIcon={<KeyboardArrowDownIcon />}
@@ -583,7 +490,6 @@ const [partCode, setPartCode] = useState<string>("");
                   boxShadow: 2, // Subtle shadow
                   "&:hover": {
                     boxShadow: 6, // More prominent shadow on hover
-                    backgroundColor: "#1976d2", // Darker blue on hover
                   },
                   fontSize: "14px",
                 }}
@@ -591,113 +497,73 @@ const [partCode, setPartCode] = useState<string>("");
                 Open Details
               </Button>
             </div>
-            <div className="h-[calc(100vh-100px)] overflow-y-auto ">
-              <div className="h-[calc(100vh-150px)]">
+            <div className="h-[calc(100vh-140px)] overflow-y-auto ">
+              <div className="h-[calc(100vh-140px)]">
                 <div className="p-[20px]  h-[70px]">
                   <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
                     <div className="flex items-center gap-[10px]">
                       <p>IMEI : </p>
-                      <p>
-                        {trcRequestDetail &&
-                          trcRequestDetail.body.find(
-                            (item) => item.device === device
-                          )?.deviceDetail?.imei}{" "}
-                      </p>
+                      <p>{trcRequestDetail && trcRequestDetail.body.find((item) => item.device === device)?.deviceDetail?.imei} </p>
                     </div>
                     <div className="flex items-center gap-[10px]">
                       <p>Model No. : </p>
-                      <p>
-                        {trcRequestDetail &&
-                          trcRequestDetail.body.find(
-                            (item) => item.device === device
-                          )?.deviceDetail?.model}{" "}
-                      </p>
+                      <p>{trcRequestDetail && trcRequestDetail.body.find((item) => item.device === device)?.deviceDetail?.model} </p>
                     </div>
                   </div>
                 </div>
                 <div className=" h-[60px]  grid grid-cols-3 items-center gap-[20px] px-[20px]">
-                <FormControl className="w-full">
-                  <InputLabel htmlFor="outlined-adornment-barcode">
-                    Scan PartCode
-                  </InputLabel>
-                  <OutlinedInput
-                    id="outlined-adornment-barcode"
-                    value={partCode}
-                    onChange={(e) => setPartCode(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        addRow2(partCode); // Add barcode directly to the table
-                        setPartCode(""); // Clear input after adding
+                  <FormControl fullWidth className="w-full">
+                    <InputLabel htmlFor="outlined-adornment-barcode">Scan PartCode</InputLabel>
+                    <OutlinedInput
+                      id="outlined-adornment-barcode"
+                      value={partCode}
+                      onChange={(e) => setPartCode(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          addRow2(partCode); // Add barcode directly to the table
+                          setPartCode(""); // Clear input after adding
+                        }
+                      }}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <Icons.qrScan />
+                        </InputAdornment>
                       }
-                    }}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <Icons.qrScan />
-                      </InputAdornment>
-                    }
-                    className="w-[100%]"
-                    label="Barcode"
-                  />
-                </FormControl>
-                  <SelectLocationAcordingModule
-                    endPoint="/trc/view/pickLocation"
-                    value={consumplocation}
-                    onChange={setConsumplocation}
-                    label="Consump Location"
-                  />
-                  <SelectLocationAcordingModule
-                    endPoint="/trc/view/dropLocation"
-                    value={location}
-                    onChange={setLocation}
-                    label="Drop Location"
-                  />
+                      className="w-[100%]"
+                      label="Scan PartCode"
+                    />
+                  </FormControl>
+                  <SelectLocationAcordingModule endPoint="/trc/view/pickLocation" value={consumplocation} onChange={setConsumplocation} label="Consump Location" />
+                  <SelectLocationAcordingModule endPoint="/trc/view/dropLocation" value={location} onChange={setLocation} label="Drop Location" />
                 </div>
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
                     <Typography fontWeight={600} fontSize={16}>
                       Consumable Components
                     </Typography>
-                    <p className="text-slate-600 font-[600]">
-                      Total fix issues: {issues.length.toString()}
-                    </p>
+                    <p className="text-slate-600 font-[600]">Total fix issues: {issues.length.toString()}</p>
                   </div>
-                  <div className="h-[calc(100vh-320px)]  overflow-y-auto overflow-x-auto">
+                  <div className="h-[calc(100vh-360px)]  overflow-y-auto overflow-x-auto">
                     {!device ? (
                       <div className="flex items-center justify-center h-[100%]">
-                        <img
-                          src="/empty.png"
-                          alt=""
-                          className="h-[100px] w-[100px]"
-                        />
+                        <img src="/empty.png" alt="" className="h-[100px] w-[100px]" />
                       </div>
                     ) : (
-                      <FixIssuesTable
-                        addRow={addRow}
-                        rowData={issues}
-                        setRowData={setIssues}
-                      />
+                      <FixIssuesTable addRow={addRow} rowData={issues} setRowData={setIssues} />
                     )}
                   </div>
-              <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-neutral-300">
-                <LoadingButton
-                  disabled={TrcFinalSubmitLoading}
-                  variant={"contained"}
-                  startIcon={<Icons.close fontSize="small" />}
-                  sx={{ background: "white", color: "red" }}
-                  onClick={() => setProcess(false)}
-                >
-                  Cancel
-                </LoadingButton>
-                <LoadingButton
-                  loadingPosition="start"
-                  variant="contained"
-                  onClick={onSubmit}
-                  loading={TrcFinalSubmitLoading}
-                  startIcon={<Icons.save fontSize="small" />}
-                >
-                  Submit
-                </LoadingButton>
-              </div>
+                  <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-neutral-300">
+                    <LoadingButton disabled={TrcFinalSubmitLoading} variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => {
+                      setIssues([]);
+                      setConsumplocation(null);
+                      setLocation(null);
+                    }}>
+                      reset
+                    </LoadingButton>
+                    <LoadingButton loadingPosition="start" variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.save fontSize="small" />}>
+                      Submit
+                    </LoadingButton>
+                  </div>
                 </div>
               </div>
             </div>

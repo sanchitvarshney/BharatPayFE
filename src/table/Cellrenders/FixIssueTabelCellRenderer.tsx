@@ -1,6 +1,6 @@
 import { Input } from "antd";
 import React from "react";
-import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
+import AntPartCodeSelect from "@/components/reusable/antSelecters/AntPartCodeSelect";
 
 interface MaterialInvardCellRendererProps {
   props: any;
@@ -21,7 +21,7 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
     switch (colDef.field) {
       case "selectedPart":
         return (
-          <AntCompSelect
+          <AntPartCodeSelect
             getUom={(value) => {
               data.UOM = value;
               api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
@@ -40,7 +40,6 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
         return (
           <div className="flex items-center h-full">
             <Input
-          
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
                   if (Number(e.target.value) >= 0) {
@@ -53,12 +52,11 @@ const FixIssueTabelCellRenderer: React.FC<MaterialInvardCellRendererProps> = ({ 
               placeholder={"00"}
               className="w-[100%] custom-input"
               suffix={data?.UOM}
-              
             />
           </div>
         );
       case "remarks":
-        return <Input  onChange={handleInputChange} value={value} type="text" placeholder={"--"} className="w-[100%] custom-input" />;
+        return <Input onChange={handleInputChange} value={value} type="text" placeholder={"--"} className="w-[100%] custom-input" />;
       default:
         return <span>{value}</span>;
     }
