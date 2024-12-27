@@ -116,6 +116,21 @@ export type Q5Apiresponse = {
   status: string;
   success: boolean;
 };
+type TransactionData = {
+  transactionType: string;
+  refId: string;
+  minNo: string;
+  time: string;
+  location: string | null;
+  user: string | null;
+};
+
+export type R6ApiResponse = {
+  status: "success";
+  success: boolean;
+  data: TransactionData[];
+};
+
 export type QueryStateType = {
   q1Data: Response | null;
   getQ1DataLoading: boolean;
@@ -129,4 +144,6 @@ export type QueryStateType = {
   q4DataLoading: boolean;
   q5Data: Q5Data[] | null;
   q5DataLoading: boolean;
+  q6StatementLoading: boolean;
+  q6Statement: TransactionData[] | null;
 };

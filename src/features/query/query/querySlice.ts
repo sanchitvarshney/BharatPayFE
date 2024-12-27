@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { componentApiResponse, Q1ApiResponse, Q3ApiResponse, Q4Apiresponse, Q5Apiresponse, QueryStateType } from "./queryType";
+import { componentApiResponse, Q1ApiResponse, Q3ApiResponse, Q4Apiresponse, Q5Apiresponse, QueryStateType, R6ApiResponse } from "./queryType";
 
 const initialState: QueryStateType = {
   getQ1DataLoading: false,
@@ -16,6 +16,8 @@ const initialState: QueryStateType = {
   q4DataLoading: false,
   q5Data: null,
   q5DataLoading: false,
+  q6StatementLoading: false,
+  q6Statement: null,
 };
 
 export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null }>("query/getQ1", async (params) => {
@@ -41,6 +43,10 @@ export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, string>(
 });
 export const getQ5Data = createAsyncThunk<AxiosResponse<Q5Apiresponse>, { type: string; data: string }>("query/getQ5Data", async (payload) => {
   const response = await axiosInstance.get(`/query/q5/sim/report?type=${payload.type}&data=${payload.data}`);
+  return response;
+});
+export const getQ6Data = createAsyncThunk<AxiosResponse<R6ApiResponse>, string>("query/getQ6Data", async (id) => {
+  const response = await axiosInstance.get(`/query/q6/devicetimeline?srlOrImei=${id}`);
   return response;
 });
 const querySlice = createSlice({
@@ -127,6 +133,20 @@ const querySlice = createSlice({
       .addCase(getQ5Data.rejected, (state) => {
         state.q5DataLoading = false;
         state.q5Data = null;
+      })
+      .addCase(getQ6Data.pending, (state) => {
+        state.q6StatementLoading = true;
+        state.q6Statement = null;
+      })
+      .addCase(getQ6Data.fulfilled, (state, action) => {
+        state.q6StatementLoading = false;
+        if (action.payload.data.success) {
+          state.q6Statement = action.payload.data.data;
+        }
+      })
+      .addCase(getQ6Data.rejected, (state) => {
+        state.q6StatementLoading = false;
+        state.q6Statement = null;
       });
   },
 });

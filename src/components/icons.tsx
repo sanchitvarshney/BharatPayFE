@@ -53,6 +53,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import InsertPageBreakIcon from '@mui/icons-material/InsertPageBreak';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import CircleIcon from '@mui/icons-material/Circle';
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -108,5 +109,6 @@ export const Icons = {
   previous:NavigateBeforeIcon,
   files:FileCopyIcon,
   documentDetail:InsertPageBreakIcon,
-  up:KeyboardArrowUpIcon
+  up:KeyboardArrowUpIcon,
+  circule:CircleIcon
 };

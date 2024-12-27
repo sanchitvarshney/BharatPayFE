@@ -1,11 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { FaEdit } from "react-icons/fa";
-import { HiMiniViewfinderCircle } from "react-icons/hi2";
-import { Download } from "lucide-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { useDispatch } from "react-redux";
@@ -13,6 +8,7 @@ import { changeBomStatus, getFGBomList } from "@/features/master/BOM/BOMSlice";
 import { AppDispatch } from "@/features/Store";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { CircularProgress, Switch } from "@mui/material";
+import { Link } from "react-router-dom";
 type Props = {
   edit?: boolean;
   setEdit?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,56 +17,12 @@ type Props = {
   setSelectedProductId: React.Dispatch<React.SetStateAction<string | null>>;
   setBomName: React.Dispatch<React.SetStateAction<string | null>>;
 };
-const MasterFgBOMTable: React.FC<Props> = ({ setEdit, setView, setSelectedProductId, setBomName }) => {
+const MasterFgBOMTable: React.FC<Props> = () => {
   const { fgBomList, fgBomListLoading, changeStatusLoading } = useAppSelector((state) => state.bom);
   const dispatch = useDispatch<AppDispatch>();
   const [id, setId] = useState<string>("");
 
   const columnDefs: ColDef[] = [
-    {
-      headerName: "Action",
-      field: "action",
-      cellRenderer: (params: any) => (
-        <div className="flex items-center h-full">
-          <DropdownMenu>
-            <div className="flex items-center px-[20px] h-full">
-              <DropdownMenuTrigger className="p-[5px] focus-visible::ring-slate-300 h-full flex items-center">
-                <BsThreeDotsVertical className="font-[600] text-[20px] text-slate-600" />
-              </DropdownMenuTrigger>
-            </div>
-            <DropdownMenuContent className="w-[170px]" side="bottom" align="start">
-              <DropdownMenuItem
-                className="flex items-center gap-[10px] text-slate-600"
-                onSelect={() => setEdit && setEdit(true)}
-                onClick={() => {
-                  setSelectedProductId(params.node.data.subjectKey);
-                }}
-              >
-                <FaEdit className="h-[18px] w-[18px] text-slate-500" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="flex items-center gap-[10px] text-slate-600"
-                onSelect={() => setView && setView(true)}
-                onClick={() => {
-                  // Access the data for the row clicked
-                  const subjectKey = params.node.data.subjectKey;
-                  setSelectedProductId(subjectKey); // Set the selected product ID
-                  setBomName(params.node.data.subjectName);
-                }}
-              >
-                <HiMiniViewfinderCircle className="h-[18px] w-[18px] text-slate-500" />
-                View
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled className="flex items-center gap-[10px] text-slate-600">
-                <Download className="h-[18px] w-[18px] text-slate-500" />
-                Download
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      ),
-    },
     {
       headerName: "Status",
       field: "status",
@@ -110,6 +62,11 @@ const MasterFgBOMTable: React.FC<Props> = ({ setEdit, setView, setSelectedProduc
       sortable: true,
       filter: true,
       flex: 1,
+      cellRenderer: (params: any) => (
+        <Link className="text-cyan-600" to={`/master-fg-bom/${params?.data?.subjectKey}`}>
+          {params?.value}
+        </Link>
+      ),
     },
     {
       headerName: "SKU",

@@ -1,9 +1,8 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { BOMState, CreateBomPayload, CreateBomResponse, FGBomResponse, GetSkudetailResponse } from "./BOMType";
+import { BOMState, CreateBomPayload, CreateBomResponse, FGBomDetailResponse, FGBomResponse, GetSkudetailResponse } from "./BOMType";
 import { showToast } from "@/utils/toasterContext";
-
 const initialState: BOMState = {
   skuData: null,
   getSkudetailLoading: false,
@@ -12,6 +11,9 @@ const initialState: BOMState = {
   fgBomListLoading: false,
   changeStatusLoading: false,
   bomItemList: null,
+  bomDetail: null,
+  bomDetailLoading: false,
+  updateBomLoading: false,
 };
 
 export const getskudeatilAsync = createAsyncThunk<AxiosResponse<GetSkudetailResponse>, string>("master/getSkudeatil", async (skucode) => {
@@ -42,7 +44,10 @@ export const fetchBomProduct = createAsyncThunk<AxiosResponse<FGBomResponse>, st
   const response = await axiosInstance.get(`/bom/${id}/detail`);
   return response;
 });
-
+export const fetchBomDetail = createAsyncThunk<AxiosResponse<FGBomDetailResponse>, string>("bom/fetchBomDetail", async (id: string) => {
+  const response = await axiosInstance.get(`/bom/${id}/detail`);
+  return response;
+});
 export const UpdateBom = createAsyncThunk<AxiosResponse<any>, any>("master/updateBom", async (payload) => {
   const response = await axiosInstance.put(`/bom/update/${payload.id}/${payload.sku}`, payload);
   return response;
@@ -107,14 +112,24 @@ const BOMSlice = createSlice({
       .addCase(fetchBomProduct.rejected, (state) => {
         state.fgBomListLoading = false;
       })
+      .addCase(fetchBomDetail.pending, (state) => {
+        state.bomDetailLoading = true;
+      })
+      .addCase(fetchBomDetail.fulfilled, (state, action) => {
+        state.bomDetailLoading = false;
+        state.bomDetail = action.payload.data;
+      })
+      .addCase(fetchBomDetail.rejected, (state) => {
+        state.bomDetailLoading = false;
+      })
       .addCase(UpdateBom.pending, (state) => {
-        state.fgBomListLoading = true;
+        state.updateBomLoading = true;
       })
       .addCase(UpdateBom.fulfilled, (state) => {
-        state.fgBomListLoading = false;
+        state.updateBomLoading = false;
       })
       .addCase(UpdateBom.rejected, (state) => {
-        state.fgBomListLoading = false;
+        state.updateBomLoading = false;
       })
       .addCase(createBomAsync.pending, (state) => {
         state.createBomLoading = true;

@@ -5,6 +5,7 @@ import Q2Statement from "./Q2Statement";
 import Q3query from "./Q3query";
 import Q4query from "./Q4query";
 import Q5Report from "./Q5Report";
+import Q6Statement from "./Q6Statement";
 
 const Query: React.FC = () => {
   const { id } = useParams();
@@ -23,6 +24,9 @@ const Query: React.FC = () => {
   }
   if (id === "Q5") {
     return <Q5Report />;
+  }
+  if (id === "Q6") {
+    return <Q6Statement />;
   }
   return <div>this is {id} query</div>;
 };

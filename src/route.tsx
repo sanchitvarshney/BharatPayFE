@@ -71,6 +71,7 @@ import DocViewer from "./pages/commonPages/DocViewer";
 import MinLayout from "./layouts/MinLayout";
 import SimMin from "./pages/wearhouse/SimMin";
 import MaterialInvardv2 from "./pages/wearhouse/MaterialInvardv2";
+import MasterBomDetailPage from "./pages/master/MasterBomDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -196,13 +197,21 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterBOMLayout>
-              <CustomRedirection >
+              <CustomRedirection>
                 <MasterFGBOM />
               </CustomRedirection>
             </MasterBOMLayout>
           </MainLayout>
         ),
         path: "/master-fg-bom",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MasterBomDetailPage />
+          </MainLayout>
+        ),
+        path: "/master-fg-bom/:id",
       },
       {
         element: (
