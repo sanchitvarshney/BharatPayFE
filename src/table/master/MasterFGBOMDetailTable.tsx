@@ -1,61 +1,57 @@
-import React, { useEffect, useState } from "react";
-import { AgGridReact } from "ag-grid-react";
-import { ColDef } from "ag-grid-community";
-
+import React, { RefObject, useEffect, useState } from "react";
+import { AgGridReact } from "@ag-grid-community/react";
+import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import EditBomCellRenderer from "@/table/Cellrenders/EditBomCellRenderer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/features/Store";
-import { getFGBomList, UpdateBom } from "@/features/master/BOM/BOMSlice";
+import { fetchBomDetail,  UpdateBom } from "@/features/master/BOM/BOMSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { showToast } from "@/utils/toastUtils";
 import { Icons } from "@/components/icons";
+import { useAppSelector } from "@/hooks/useReduxHook";
+import EditBomDetailCellRenderer from "../Cellrenders/EditBomDetailCellRenderer";
+import { showToast } from "@/utils/toasterContext";
+import { useParams } from "react-router-dom";
 interface RowData {
-  components: string;
-  quantity: number;
-  partCode: string;
-  status: string;
-  priority: string;
-  qty: string;
-  category: string;
-  source: string;
-  smtMiLoc: string;
-  id: number;
-  compKey: string;
-  requiredQty: string;
-  bomstatus: string;
+  requiredQty: string; // Quantity required (as a string)
+  bomstatus: string; // Bill of Materials status (as a string)
+  category: string; // Category of the component
+  compKey: string; // Unique key for the component
+  componentName: string; // Name of the component
+  partCode: string; // Part code identifier
+  componentDesc: string; // Description of the component
+  unit: string; // Unit of measurement
 }
+type Props = {
+  gridRef: RefObject<AgGridReact<any>>;
+};
 
-const MasterFGBOMEditTable: React.FC<{ data: any; header?: any; setOpen?: any }> = ({ data, header, setOpen }) => {
+const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [rowData, setRowData] = useState<RowData[]>([]);
-
+  const { bomDetail, updateBomLoading } = useAppSelector((state) => state.bom);
+  const { id } = useParams();
   useEffect(() => {
-    if (data) {
-      setRowData(data);
+    if (bomDetail) {
+      setRowData(bomDetail?.data?.data.map((item: any) => ({ ...item })));
     }
-  }, [data]);
+  }, [bomDetail]);
 
   const handleSubmit = () => {
+    console.log("click");
     const payload = {
       items: {
-        component: rowData.map((row) => row.compKey), // Array of component names
-        qty: rowData.map((row) => Number(row.requiredQty)), // Array of quantities (converted to number)
-        status: rowData.map((row) => Number(row.bomstatus)), // Array of status values (converted to number)
+        component: rowData.map((row) => row.compKey),
+        qty: rowData.map((row) => Number(row.requiredQty)), 
+        status: rowData.map((row) => Number(row.bomstatus)),
         category: rowData.map((row) => row.category), // Array of categories
       },
-      id: header.subjectKey,
-      sku: header?.skukey,
+      id: bomDetail?.data?.header?.subjectKey || "",
+      sku: bomDetail?.data?.header?.skukey || "",
     };
     dispatch(UpdateBom(payload)).then((res: any) => {
       if (res.payload.data.success) {
-        dispatch(getFGBomList("FG"));
-        setRowData([]);
-        showToast({
-          variant: "success",
-          description: res.payload.data?.message,
-        });
-        setOpen(false);
+        showToast(res.payload.data?.message, "success");
+        dispatch(fetchBomDetail(id || ""));
       }
     });
   };
@@ -101,7 +97,7 @@ const MasterFGBOMEditTable: React.FC<{ data: any; header?: any; setOpen?: any }>
     {
       headerName: "Status",
       field: "bomstatus",
-      cellRenderer: EditBomCellRenderer,
+      cellRenderer: "EditBomCellRenderer",
       // (params: any) => (
       //   <Select
       //     className="w-full"
@@ -127,12 +123,12 @@ const MasterFGBOMEditTable: React.FC<{ data: any; header?: any; setOpen?: any }>
       headerName: "Quantity",
       field: "requiredQty",
       // editable: true,
-      cellRenderer: EditBomCellRenderer, // Use the same renderer for quantity
+      cellRenderer: "EditBomCellRenderer", // Use the same renderer for quantity
     },
     {
       headerName: "Category",
       field: "category",
-      cellRenderer: EditBomCellRenderer,
+      cellRenderer: "EditBomCellRenderer",
       // (params: any) => (
       //   <Select
       //     className="w-full"
@@ -185,25 +181,19 @@ const MasterFGBOMEditTable: React.FC<{ data: any; header?: any; setOpen?: any }>
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
+    <div className=" ag-theme-quartz h-[calc(100vh-201px)]">
       <AgGridReact
+      ref={gridRef}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         suppressCellFocus={true}
         rowData={rowData}
         columnDefs={columnDefs}
         components={{
-          EditBomCellRenderer: EditBomCellRenderer, // Register the custom renderer
+          EditBomCellRenderer: EditBomDetailCellRenderer,
         }}
       />
       <div className="flex items-center justify-end  px-[20px] h-[50px] border-t border-neutral-300">
-        <LoadingButton
-          loadingPosition="start"
-          type="submit"
-          variant="contained"
-          // loading={createBomLoading}
-          startIcon={<Icons.save fontSize="small" />}
-          onClick={handleSubmit}
-        >
+        <LoadingButton loading={updateBomLoading} loadingPosition="start" type="submit" variant="contained" startIcon={<Icons.save fontSize="small" />} onClick={handleSubmit}>
           Submit
         </LoadingButton>
       </div>
@@ -211,4 +201,4 @@ const MasterFGBOMEditTable: React.FC<{ data: any; header?: any; setOpen?: any }>
   );
 };
 
-export default MasterFGBOMEditTable;
+export default MasterFGBOMDetailTable;

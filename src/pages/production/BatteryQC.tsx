@@ -127,11 +127,8 @@ const BatteryQC: React.FC = () => {
         if (res.payload.data.success) {
           addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
           setImei("");
-        } else {
-          showToast({
-            description: res.payload.data.message,
-            variant: "destructive",
-          });
+        } else {  setImei("");
+        console.log( res.payload.data.message)
         }
       });
     }

@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-
 import { FaCircleUser } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
 import styled from "styled-components";
@@ -19,7 +18,9 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
 import { useAppSelector } from "@/hooks/useReduxHook";
+
 function MainLayout(props: { children: React.ReactNode }) {
+ 
   const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
   const { menu } = useAppSelector((state) => state.menu);
   const navigate = useNavigate();
@@ -60,6 +61,7 @@ function MainLayout(props: { children: React.ReactNode }) {
       emitGetNotification();
     }
   }, [isConnected]);
+
   return (
     <Wrapper className="">
       {/* alert disalogs start=============== */}
@@ -186,11 +188,7 @@ function MainLayout(props: { children: React.ReactNode }) {
               </IconButton>
             </MuiTooltip>
 
-            {/* <MuiTooltip title="Explore All Features" placement="right">
-              <IconButton disabled>
-                <FaLightbulb className="h-[25px] w-[25px] " />
-              </IconButton>
-            </MuiTooltip> */}
+         
             <MuiTooltip title="Account" placement="right">
               <IconButton
                 onClick={() => {
@@ -204,7 +202,11 @@ function MainLayout(props: { children: React.ReactNode }) {
             </MuiTooltip>
           </div>
         </div>
-        <main className="ml-[60px]  bg-[#f1f1f1] h-full">{props.children}</main>
+        <main className="ml-[60px]  bg-[#f1f1f1] h-full">
+          {
+            props.children
+          }
+        </main>
       </div>
     </Wrapper>
   );
