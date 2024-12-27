@@ -14,6 +14,7 @@ import { getMenuData } from "@/features/menu/menuSlice";
 import { Menu } from "@/features/menu/menuType";
 import DynamicIcon from "../reusable/DynamicIcon";
 import { Box, CircularProgress, circularProgressClasses, CircularProgressProps } from "@mui/material";
+import { Icons } from "../icons";
 function FacebookCircularProgress(props: CircularProgressProps) {
   return (
     <Box sx={{ position: "relative" }}>
@@ -93,6 +94,9 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
 
   return (
     <div ref={modalRef} className={` absolute  h-[100vh] w-[300px] z-[60] top-0 bg-cyan-800 transition-all duration-500 ${sheetOpen ? "left-[60px]" : "left-[-300px]"}`}>
+      <Button disabled={menuLoading} onClick={() => dispatch(getMenuData())} variant={"outline"}  className="cursor-pointer absolute top-[10px] right-[50px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white">
+        <Icons.refresh />
+      </Button>
       <Button variant={"outline"} onClick={() => setSheetOpen(false)} className="cursor-pointer absolute top-[10px] right-[10px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white">
         <FaArrowLeftLong className="text-[20px] " />
       </Button>

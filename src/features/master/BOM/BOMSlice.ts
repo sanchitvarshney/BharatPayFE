@@ -2,7 +2,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { BOMState, CreateBomPayload, CreateBomResponse, FGBomResponse, GetSkudetailResponse } from "./BOMType";
-import { showToast } from "@/utils/toastUtils";
+import { showToast } from "@/utils/toasterContext";
 
 const initialState: BOMState = {
   skuData: null,
@@ -11,7 +11,7 @@ const initialState: BOMState = {
   fgBomList: null,
   fgBomListLoading: false,
   changeStatusLoading: false,
-  bomItemList: null
+  bomItemList: null,
 };
 
 export const getskudeatilAsync = createAsyncThunk<AxiosResponse<GetSkudetailResponse>, string>("master/getSkudeatil", async (skucode) => {
@@ -23,26 +23,23 @@ export const createBomAsync = createAsyncThunk<AxiosResponse<CreateBomResponse>,
   return response;
 });
 
-export const getFGBomList = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/list", async (type:string) => {
-  const response = await axiosInstance.get(`/bom/list/${type}`);  
+export const getFGBomList = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/list", async (type: string) => {
+  const response = await axiosInstance.get(`/bom/list/${type}`);
   return response;
 });
 
-export const changeBomStatus = createAsyncThunk<AxiosResponse<FGBomResponse>, { status: number, subject: string }>(
-  "bom/changeStatus",
-  async ({ status, subject }) => {
-    const response = await axiosInstance.put(`/bom/change/${status}/${subject}`);
-    return response;
-  }
-);
-
-export const getBomItem = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/items", async (id:string) => {
-  const response = await axiosInstance.get(`/bom/items/${id}`);  
+export const changeBomStatus = createAsyncThunk<AxiosResponse<FGBomResponse>, { status: number; subject: string }>("bom/changeStatus", async ({ status, subject }) => {
+  const response = await axiosInstance.put(`/bom/change/${status}/${subject}`);
   return response;
 });
 
-export const fetchBomProduct = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/detail", async (id:string) => {
-  const response = await axiosInstance.get(`/bom/${id}/detail`);  
+export const getBomItem = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/items", async (id: string) => {
+  const response = await axiosInstance.get(`/bom/items/${id}`);
+  return response;
+});
+
+export const fetchBomProduct = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/detail", async (id: string) => {
+  const response = await axiosInstance.get(`/bom/${id}/detail`);
   return response;
 });
 
@@ -86,10 +83,7 @@ const BOMSlice = createSlice({
       })
       .addCase(changeBomStatus.fulfilled, (state, action) => {
         state.changeStatusLoading = false;
-       showToast({
-         variant: "success",
-         description: action.payload.data?.message,
-       })
+        showToast(action.payload.data?.message, "success");
       })
       .addCase(changeBomStatus.rejected, (state) => {
         state.changeStatusLoading = false;
@@ -99,7 +93,7 @@ const BOMSlice = createSlice({
       })
       .addCase(getBomItem.fulfilled, (state, action) => {
         state.fgBomListLoading = false;
-          state.bomItemList = action.payload.data.data;
+        state.bomItemList = action.payload.data.data;
       })
       .addCase(getBomItem.rejected, (state) => {
         state.fgBomListLoading = false;
@@ -128,10 +122,7 @@ const BOMSlice = createSlice({
       .addCase(createBomAsync.fulfilled, (state, action) => {
         state.createBomLoading = false;
         if (action.payload.data.success) {
-          showToast({
-            variant: "success",
-            description: action.payload.data?.message,
-          });
+          showToast(action.payload.data?.message, "success");
         }
       })
       .addCase(createBomAsync.rejected, (state) => {
