@@ -76,7 +76,13 @@ const Q6Statement: React.FC = () => {
                     {item.transactionType}
                   </Typography>
                   <Typography>
-                    {item.minNo} - {item.user || "Unknown User"}
+                  TXN ID:   {item.minNo} 
+                  </Typography>
+                  <Typography>
+                    User:  {item.user || ""} 
+                  </Typography>
+                  <Typography>
+                    Location:  {item.location || ""} 
                   </Typography>
                 </TimelineContent>
               </TimelineItem>
