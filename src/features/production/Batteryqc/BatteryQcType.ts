@@ -8,15 +8,17 @@ export type DeviceApiResponse = {
   success: boolean;
   data: DeviceData[];
 };
-export type bateryqcSavePayload =  {
+export type bateryqcSavePayload = {
   slNo: string[];
   imeiNo: string[];
   ir: string[];
   volt: string[];
   remark: string[];
-  batteryID: string[]
+  batteryID: string[];
   status: string;
-}
+  newVolt?: string[];
+  newIR?: string[];
+};
 
 
 export type BatteryQcState = {

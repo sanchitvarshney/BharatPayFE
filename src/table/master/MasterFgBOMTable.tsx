@@ -9,6 +9,7 @@ import { AppDispatch } from "@/features/Store";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { CircularProgress, Switch } from "@mui/material";
 import { Link } from "react-router-dom";
+import { Icons } from "@/components/icons";
 type Props = {
   edit?: boolean;
   setEdit?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -64,7 +65,7 @@ const MasterFgBOMTable: React.FC<Props> = () => {
       flex: 1,
       cellRenderer: (params: any) => (
         <Link className="text-cyan-600" to={`/master-fg-bom/${params?.data?.subjectKey}`}>
-          {params?.value}
+          {params?.value} <Icons.followLink fontSize="small" sx={{ fontSize: "15px", mx: 1 }} />
         </Link>
       ),
     },

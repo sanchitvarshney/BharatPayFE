@@ -65,7 +65,9 @@ const LogningV2: React.FC = () => {
           className="mySwiper"
         >
           <SwiperSlide>
+         
             <div className="h-[50vh] bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center ">
+          
               <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
                 Welcome to the Future of ERP
               </Typography>
@@ -94,6 +96,7 @@ const LogningV2: React.FC = () => {
             </div>
           </SwiperSlide>
           <SwiperSlide>
+       
             <div className="h-[50vh]  bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center">
               <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
                 Powering Smarter Operations

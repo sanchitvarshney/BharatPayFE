@@ -1,134 +1,24 @@
-import AddBatteryQcTable from "@/table/production/AddBatteryQcTable";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Steps, InputRef } from "antd";
-import { showToast } from "@/utils/toastUtils";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import React, { useEffect, useRef, useState } from "react";
+import { Steps } from "antd";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { batteryQcSave, getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
-import { bateryqcSavePayload } from "@/features/production/Batteryqc/BatteryQcType";
-import { LoadingButton } from "@mui/lab";
+import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { Icons } from "@/components/icons";
 import { CircularProgress, FormControl, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
-
-type RowData = {
-  remark: string;
-  id: number;
-  isNew: boolean;
-  IMEI: string;
-  IR: string;
-  voltage: string;
-  serialNo: string;
-  batteryID: string;
-};
+import AddBatterQcForm from "@/components/form/AddBatterQcForm";
 
 const BatteryQC: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { deviceDetailLoading, batteryQcSaveLoading } = useAppSelector((state) => state.batteryQcReducer);
-  const [batteryStatus, setBatteryStatus] = useState<string>("");
-  const [rowData, setRowData] = useState<RowData[]>([]);
-  const [resetAlert, setResetAlert] = useState<boolean>(false);
+  const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
   const [imei, setImei] = useState<string>("");
-  const imeiInputRef = useRef<InputRef>(null);
-  const addRow = useCallback(
-    (id: string, sr: string) => {
-      const newId = rowData.length + 1;
-      const newRow: RowData = {
-        id: newId,
-        remark: "",
-        isNew: true,
-        IMEI: id,
-        IR: "",
-        voltage: "",
-        serialNo: sr,
-        batteryID: "",
-      };
-
-      setRowData((prev) => [...prev, newRow].reverse());
-    },
-    [rowData]
-  );
-
-  const onsubmit = () => {
-    if (rowData.length === 0) {
-      showToast({
-        description: "Please Add Material Details",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      let hasErrors = false;
-
-      rowData.forEach((row) => {
-        const missingFields: string[] = [];
-        if (!row.IMEI) {
-          missingFields.push("IMEI");
-        }
-        if (!row.IR) {
-          missingFields.push("IR");
-        }
-        if (!row.serialNo) {
-          missingFields.push("serialNo");
-        }
-        if (!row.voltage) {
-          missingFields.push("voltage");
-        }
-
-        if (missingFields.length > 0) {
-          showToast({
-            description: `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
-            variant: "destructive",
-          });
-          hasErrors = true;
-        }
-      });
-
-      if (!hasErrors) {
-        const payload: bateryqcSavePayload = {
-          slNo: rowData.map((row) => row.serialNo),
-          imeiNo: rowData.map((row) => row.IMEI),
-          ir: rowData.map((row) => row.IR),
-          volt: rowData.map((row) => row.voltage),
-          remark: rowData.map((row) => row.remark),
-          batteryID: rowData.map((row) => row.batteryID),
-          status: batteryStatus,
-        };
-        dispatch(batteryQcSave(payload)).then((res: any) => {
-          if (res.payload.data.success) {
-            setRowData([]);
-          }
-        });
-      }
-    }
-  };
-  useEffect(() => {
-    imeiInputRef.current?.focus();
-  }, []);
+  const imeiInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (imei && imei.length === 15) {
-      const isUnique = !rowData.some((row) => row.IMEI === imei);
-      const issrunique = !rowData.some((row) => row.serialNo === imei);
-
-      if (!isUnique) {
-        showToast({
-          description: "Duplicate IMEI found",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (!issrunique) {
-        showToast({
-          description: "Duplicate Serial Number found",
-          variant: "destructive",
-        });
-        return;
-      }
-
       dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
         if (res.payload.data.success) {
-          addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
           setImei("");
-        } else {  setImei("");
-        console.log( res.payload.data.message)
+        } else {
+          setImei("");
+          console.log(res.payload.data.message);
         }
       });
     }
@@ -136,35 +26,16 @@ const BatteryQC: React.FC = () => {
 
   return (
     <>
-      <AlertDialog open={resetAlert} onOpenChange={setResetAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This will reset the data.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700"
-              onClick={() => {
-                setRowData([]);
-                setResetAlert(false);
-              }}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <div className="h-[calc(100vh-50px)] grid grid-cols-[1fr_400px]">
         <div>
           <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] border-b border-neutral-300">
             <FormControl>
               <InputLabel htmlFor="outlined-adornment-IMEI/Serial">IMEI/Serial Number</InputLabel>
               <OutlinedInput
+                autoFocus
                 id="outlined-adornment-IMEI/Serial"
-                ref={imeiInputRef}
+               
+                inputRef={imeiInputRef}
                 value={imei}
                 onChange={(e) => {
                   setImei(e.target.value);
@@ -175,33 +46,8 @@ const BatteryQC: React.FC = () => {
               />
             </FormControl>
           </div>
-          <AddBatteryQcTable rowData={rowData} setRowdata={setRowData} batteryStatus={batteryStatus} setBatteryStatus={setBatteryStatus} />
-          <div className="h-[50px] bg-white border-t border-neutral-300 flex items-center justify-end gap-[10px] px-[20px]">
-            <LoadingButton
-              disabled={!rowData.length}
-              onClick={() => {
-                setResetAlert(true);
-              }}
-              className="text-red-600 hover:text-red-600"
-              variant={"contained"}
-              sx={{ color: "red", background: "white" }}
-              startIcon={<Icons.refresh fontSize="small" />}
-            >
-              Reset
-            </LoadingButton>
-            <LoadingButton
-              loading={batteryQcSaveLoading}
-              onClick={() => {
-                onsubmit();
-              }}
-              disabled={!rowData.length}
-              className="bg-cyan-700 hover:bg-cyan-800"
-              startIcon={<Icons.save fontSize="small" />}
-              variant="contained"
-            >
-              Submit
-            </LoadingButton>
-          </div>
+          {/* <AddBatteryQcTable rowData={rowData} setRowdata={setRowData} batteryStatus={batteryStatus} setBatteryStatus={setBatteryStatus} /> */}
+          <AddBatterQcForm inputRef={imeiInputRef} />
         </div>
         <div className="bg-white p-[20px] border-l border-neutral-300 h-[calc(100vh-50px)] overflow-y-auto">
           <Steps
