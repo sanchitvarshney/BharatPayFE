@@ -284,7 +284,7 @@ const AddTRC = () => {
                           error={!!errors.pickLocation}
                           helperText={errors.pickLocation?.message}
                           value={field.value}
-                          label="Pick Location"
+                          label="From Location"
                           onChange={(value) => {
                             field.onChange(value);
                             setLocation(value);
@@ -438,7 +438,7 @@ const AddTRC = () => {
               )}
 
               {/* Input Type Selector (IMEI / Barcode Radio Buttons) */}
-              <FormControl className="w-full sm:w-auto mt-4 sm:mt-0">
+              <FormControl className="w-full mt-4 sm:w-auto sm:mt-0">
                 <RadioGroup
                   row
                   aria-labelledby="input-type-group"

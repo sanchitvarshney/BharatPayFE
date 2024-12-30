@@ -41,6 +41,7 @@ function App() {
     } else {
       return (
         <>
+          {/* <FestivalEffct /> */}
           <InternetStatusBar />
           <div className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}>
             <Outlet />

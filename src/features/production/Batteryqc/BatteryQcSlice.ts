@@ -2,7 +2,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { bateryqcSavePayload, BatteryQcState, DeviceApiResponse } from "./BatteryQcType";
-import { showToast } from "@/utils/toastUtils";
+import { showToast } from "@/utils/toasterContext";
 
 const initialState: BatteryQcState = {
   batteryQcSaveLoading: false,
@@ -23,9 +23,9 @@ const batteryQcSlice = createSlice({
   name: "batteryQc",
   initialState,
   reducers: {
-    clearDeviceDetail:(state) =>{
-      state.deviceDetailData = null
-    }
+    clearDeviceDetail: (state) => {
+      state.deviceDetailData = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -47,10 +47,7 @@ const batteryQcSlice = createSlice({
       .addCase(batteryQcSave.fulfilled, (state, action) => {
         state.batteryQcSaveLoading = false;
         if (action.payload.data.success) {
-          showToast({
-            variant: "success",
-            description: action.payload.data?.message,
-          });
+          showToast(action.payload.data?.message, "success");
         }
       })
       .addCase(batteryQcSave.rejected, (state) => {
