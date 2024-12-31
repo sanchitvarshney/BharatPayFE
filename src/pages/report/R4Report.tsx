@@ -32,6 +32,7 @@ import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
+import { useSocketContext } from "@/components/context/SocketContext";
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<unknown>;
@@ -49,6 +50,7 @@ const R4Report: React.FC = () => {
   const { r4reportLoading, r4ReportDetail, r4ReportDetailLoading, r4report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DEVICE");
   const [device, setDevice] = useState<DeviceType | null>(null);
+  const { emitDownloadR4Report } = useSocketContext();
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
@@ -65,6 +67,16 @@ const R4Report: React.FC = () => {
       setDate({ from: range[0], to: range[1] });
     } else {
       setDate({ from: null, to: null });
+    }
+  };
+  const downloadr4report = () => {
+  
+    if (filter === "DEVICE") {
+      if(!device) return showToast("Please select a device", "error");
+      emitDownloadR4Report({ type: "DEVICE", deviceId: device?.id });
+    } else {
+      if (!date.from || !date.to) return showToast("Please select a date", "error");
+      emitDownloadR4Report({ type: "DATE", fromDate: date.from?.format("DD-MM-YYYY"), toDate: date.to?.format("DD-MM-YYYY") });
     }
   };
   const onBtExport = useCallback(() => {
@@ -155,30 +167,35 @@ const R4Report: React.FC = () => {
               />
             )}
             <div className="flex justify-between itesms-center">
-              <LoadingButton
-                loading={r4reportLoading}
-                variant="contained"
-                startIcon={<Icons.search fontSize="small" />}
-                loadingPosition="start"
-                onClick={() => {
-                  if (filter === "DEVICE") {
-                    if (!device) {
-                      showToast("Please select a device", "error");
-                    } else {
-                      dispatch(getr4Report({ type: "DEVICE", device: device?.id }));
+              <div className="flex gap-[10px]">
+                <LoadingButton
+                  loading={r4reportLoading}
+                  variant="contained"
+                  startIcon={<Icons.search fontSize="small" />}
+                  loadingPosition="start"
+                  onClick={() => {
+                    if (filter === "DEVICE") {
+                      if (!device) {
+                        showToast("Please select a device", "error");
+                      } else {
+                        dispatch(getr4Report({ type: "DEVICE", device: device?.id }));
+                      }
                     }
-                  }
-                  if (filter === "DATE") {
-                    if (!date.from || !date.to) {
-                      showToast("Please select a date", "error");
-                    } else {
-                      dispatch(getr4Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                    if (filter === "DATE") {
+                      if (!date.from || !date.to) {
+                        showToast("Please select a date", "error");
+                      } else {
+                        dispatch(getr4Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                      }
                     }
-                  }
-                }}
-              >
-                Search
-              </LoadingButton>
+                  }}
+                >
+                  Search
+                </LoadingButton>
+                <LoadingButton onClick={downloadr4report} variant="contained" startIcon={<Icons.download fontSize="small" />} >
+                  Download Report
+                </LoadingButton>
+              </div>
               <MuiTooltip title="Download" placement="right">
                 <LoadingButton
                   variant="contained"
