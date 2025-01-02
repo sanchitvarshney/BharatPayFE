@@ -72,6 +72,7 @@ import MinLayout from "./layouts/MinLayout";
 import SimMin from "./pages/wearhouse/SimMin";
 import MaterialInvardv2 from "./pages/wearhouse/MaterialInvardv2";
 import MasterBomDetailPage from "./pages/master/MasterBomDetailPage";
+import MasterClient from "./pages/master/MasterClient";
 
 export const router = createBrowserRouter([
   {
@@ -256,6 +257,16 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <CustomRedirection UnderDevelopment={false}>
+              <MasterClient />
+            </CustomRedirection>
+          </MainLayout>
+        ),
+        path: "/master-client",
+      },
+      {
+        element: (
+          <MainLayout>
             <MasterVenderLayout>
               <CustomRedirection UnderDevelopment={false}>
                 <MsterVendorDetail />
@@ -269,7 +280,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterAddressLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 <MasterBillingAddress />
               </CustomRedirection>
             </MasterAddressLayout>
@@ -281,7 +292,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterAddressLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 <MasterShippingaddress />
               </CustomRedirection>
             </MasterAddressLayout>

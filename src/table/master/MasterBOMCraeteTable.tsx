@@ -13,7 +13,9 @@ interface RowData {
   isNew: boolean;
   uom: string;
   remark: string;
-  reference:string;
+  reference: string;
+  category: { lable: string; value: string } | null;
+  status: string;
 }
 type Props = {
   rowData: RowData[];
@@ -87,8 +89,9 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       field: "component",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
-      minWidth: 200,
+      minWidth: 300,
     },
+   
     {
       headerName: "Quantity",
       field: "qty",
@@ -111,6 +114,20 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       flex: 1,
       minWidth: 200,
       maxWidth: 200,
+    },
+    {
+      headerName: "Category",
+      field: "category",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 200,
+    },
+    {
+      headerName: "Status",
+      field: "status",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 200,
     },
     {
       headerName: "Remark",

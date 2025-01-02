@@ -47,13 +47,21 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import CheckIcon from "@mui/icons-material/Check";
 import SimCardIcon from "@mui/icons-material/SimCard";
-import GridViewIcon from '@mui/icons-material/GridView';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import InsertPageBreakIcon from '@mui/icons-material/InsertPageBreak';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import CircleIcon from '@mui/icons-material/Circle';
+import GridViewIcon from "@mui/icons-material/GridView";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
+import InsertPageBreakIcon from "@mui/icons-material/InsertPageBreak";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import CircleIcon from "@mui/icons-material/Circle";
+import { GiReceiveMoney } from "react-icons/gi";
+import { FaIdCard } from "react-icons/fa6";
+import { CgWebsite } from "react-icons/cg";
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import BusinessIcon from '@mui/icons-material/Business';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
+import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
+
 export const Icons = {
   save: SaveIcon,
   refresh: RefreshIcon,
@@ -104,11 +112,18 @@ export const Icons = {
   invisible: VisibilityOff,
   check: CheckIcon,
   sim: SimCardIcon,
-  grid:GridViewIcon,
-  next:NavigateNextIcon,
-  previous:NavigateBeforeIcon,
-  files:FileCopyIcon,
-  documentDetail:InsertPageBreakIcon,
-  up:KeyboardArrowUpIcon,
-  circule:CircleIcon
+  grid: GridViewIcon,
+  next: NavigateNextIcon,
+  previous: NavigateBeforeIcon,
+  files: FileCopyIcon,
+  documentDetail: InsertPageBreakIcon,
+  up: KeyboardArrowUpIcon,
+  circule: CircleIcon,
+  tax: GiReceiveMoney,
+  idcard2: FaIdCard,
+  website: CgWebsite,
+  warehouse: WarehouseIcon,
+  building: BusinessIcon,
+  city2: LocationCityIcon,
+  userAddress: PersonPinCircleIcon
 };

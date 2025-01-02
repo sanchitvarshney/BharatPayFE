@@ -16,6 +16,10 @@ export type CreateBomPayload = {
   items: {
     component: string[];
     qty: string[];
+    remark: string[];
+    reference: string[];
+    category: string[];
+    status: string[];
   };
 };
 export type CreateBomResponse = {

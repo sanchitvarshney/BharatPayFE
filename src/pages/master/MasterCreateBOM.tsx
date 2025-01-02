@@ -1,6 +1,7 @@
 import MasterBOMCraeteTable from "@/table/master/MasterBOMCraeteTable";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import React, { useCallback, useEffect, useState } from "react";
 import MasterBomCraeteFileTable from "@/table/master/MasterBomCraeteFileTable";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -9,24 +10,19 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { getSkuAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { createBomAsync } from "@/features/master/BOM/BOMSlice";
 import { showToast } from "@/utils/toastUtils";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import LoadingButton from "@mui/lab/LoadingButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SaveIcon from "@mui/icons-material/Save";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { generateUniqueId } from "@/utils/uniqueid";
+import FileUploader from "@/components/reusable/FileUploader";
 interface RowData {
   id: string;
   component: { lable: string; value: string } | null;
+  category: { lable: string; value: string } | null;
+  status: string;
   qty: number;
   isNew: boolean;
   uom: string;
@@ -42,7 +38,7 @@ type FormState = {
   reference: string;
 };
 const MasterCraeteBOM: React.FC = () => {
-  const [option, setOption] = useState<string>("option-manual");
+  const [option, setOption] = useState<string>("manual");
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [alert, setAlert] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -73,6 +69,8 @@ const MasterCraeteBOM: React.FC = () => {
       uom: "",
       remark: "",
       reference: "",
+      category: null,
+      status: "1",
     };
     setRowData((prev) => [newRow, ...prev]);
   }, [rowData]);
@@ -84,12 +82,7 @@ const MasterCraeteBOM: React.FC = () => {
       const missingFields: string[] = [];
       requiredFields.forEach((field) => {
         // Check if the required field is empty
-        if (
-          item[field] === "" ||
-          item[field] === 0 ||
-          item[field] === undefined ||
-          item[field] === null
-        ) {
+        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
           missingFields.push(field);
         }
       });
@@ -126,7 +119,9 @@ const MasterCraeteBOM: React.FC = () => {
         const qty = rowData.map((item) => item.qty.toString());
         const reference = rowData.map((item) => item.reference || "");
         const remark = rowData.map((item) => item.remark || "");
-        const items = { component, qty, remark, reference };
+        const category = rowData.map((item) => item.category?.value || "");
+        const status = rowData.map((item) => item.status);
+        const items = { component, qty, remark, reference, category, status };
         dispatch(
           createBomAsync({
             sku: data.sku!.id,
@@ -144,6 +139,10 @@ const MasterCraeteBOM: React.FC = () => {
       }
     }
   };
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setOption((event.target as HTMLInputElement).value);
+  };
+
   useEffect(() => {
     dispatch(getPertCodesync(null));
     dispatch(getSkuAsync(null));
@@ -166,59 +165,21 @@ const MasterCraeteBOM: React.FC = () => {
       <div className="h-[calc(100vh-100px)] grid grid-cols-[500px_1fr]  bg-white">
         <div className="h-full overflow-y-auto border-r border-neutral-300 ">
           <form onSubmit={handleSubmit(onSubmit)} className="p-[20px]">
-            <Typography
-              className="text-slate-600 "
-              fontSize={20}
-              fontWeight={500}
-            >
+            <Typography className="text-slate-600 " fontSize={20} fontWeight={500}>
               Add New BOM (Bill of Materials)
             </Typography>
-            <div className="py-[20px]">
-              <RadioGroup
-                defaultValue={option}
-                className="flex flex-row gap-[20px]"
-                onValueChange={(e) => setOption(e)}
-                value={option}
-              >
-                <div
-                  className="flex items-center space-x-2 cursor-not-allowed pointer-events-none "
-                  title="disabled"
-                >
-                  <RadioGroupItem
-                    value="option-file"
-                    id="option-file"
-                    className="opacity-50"
-                  />
-                  <Label
-                    htmlFor="option-file"
-                    className="opacity-50 text-slate-500"
-                  >
-                    File
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="option-manual" id="option-manual" />
-                  <Label
-                    htmlFor="option-manual"
-                    className="cursor-pointer text-slate-500"
-                  >
-                    Manual
-                  </Label>
-                </div>
-              </RadioGroup>
+            <div className="">
+              <FormControl>
+                <RadioGroup value={option} onChange={handleChange} row aria-labelledby="demo-row-radio-buttons-group-label" name="row-radio-buttons-group">
+                  <FormControlLabel value="file" control={<Radio />} label="File" />
+                  <FormControlLabel value="manual" control={<Radio />} label="Manual" />
+                </RadioGroup>
+              </FormControl>
             </div>
             <div className="grid grid-cols-2 gap-[20px] mt-[10px]">
               <div>
-                <TextField
-                  fullWidth
-                  label="BOM Name"
-                  {...register("subject", { required: "BOM Name is required" })}
-                />
-                {errors.subject && (
-                  <p className="text-red-500 text-[12px]">
-                    {errors.subject.message}
-                  </p>
-                )}
+                <TextField fullWidth label="BOM Name" {...register("subject", { required: "BOM Name is required" })} />
+                {errors.subject && <p className="text-red-500 text-[12px]">{errors.subject.message}</p>}
               </div>
               <div>
                 <Controller
@@ -227,64 +188,37 @@ const MasterCraeteBOM: React.FC = () => {
                   rules={{ required: "Product Type is required" }}
                   render={({ field }) => (
                     <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">
-                        Product Type
-                      </InputLabel>
-                      <Select
-                        {...field}
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        label="Product Type"
-                      >
+                      <InputLabel id="demo-simple-select-label">Product Type</InputLabel>
+                      <Select {...field} labelId="demo-simple-select-label" id="demo-simple-select" label="Product Type">
                         <MenuItem value={"SFG"}>Semi Finished Goods</MenuItem>
                         <MenuItem value={"FG"}>Finished Goods</MenuItem>
                       </Select>
                     </FormControl>
                   )}
                 />
-                {errors.type && (
-                  <p className="text-red-500 text-[12px]">
-                    {errors.type.message}
-                  </p>
-                )}
+                {errors.type && <p className="text-red-500 text-[12px]">{errors.type.message}</p>}
               </div>
               <div className="col-span-2">
-                <Controller
-                  name="sku"
-                  control={control}
-                  rules={{ required: "SKU is required" }}
-                  render={({ field }) => (
-                    <SelectSku
-                      varient="outlined"
-                      size="medium"
-                      value={field.value}
-                      onChange={(selectedOption) =>
-                        field.onChange(selectedOption)
-                      }
-                    />
-                  )}
-                />
-                {errors.sku && (
-                  <span className=" text-[12px] text-red-500">
-                    {errors.sku.message}
-                  </span>
-                )}
+                <Controller name="sku" control={control} rules={{ required: "SKU is required" }} render={({ field }) => <SelectSku varient="outlined" size="medium" value={field.value} onChange={(selectedOption) => field.onChange(selectedOption)} />} />
+                {errors.sku && <span className=" text-[12px] text-red-500">{errors.sku.message}</span>}
               </div>
             </div>
             <div className="mt-[30px]">
-              <TextField
-                multiline
-                rows={3}
-                fullWidth
-                label="Remark"
-                {...register("remark")}
-              />
-              {errors.subject && (
-                <p className="text-red-500 text-[12px]">
-                  {errors.subject.message}
-                </p>
-              )}
+              <TextField multiline rows={3} fullWidth label="Remark" {...register("remark")} />
+              {errors.subject && <p className="text-red-500 text-[12px]">{errors.subject.message}</p>}
             </div>
+            {option === "file" && (
+              <div className="grid gap-[20px] mt-[30px]">
+                <p className="text-muted-foreground text-[13px]">
+                  <strong>Note:</strong>
+                  Kindly don't do any changes with columns of the sample file, it can lead to errors.
+                </p>
+                <a href="https://media.mscorpres.net/oakterIms/other/BOM%20UPLOAD.csv" className="underline text-cyan-600">
+                  Sample File
+                </a>
+                <FileUploader />
+              </div>
+            )}
             <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end mt-[30px]">
               <Button
                 onClick={() => {
@@ -297,16 +231,11 @@ const MasterCraeteBOM: React.FC = () => {
               >
                 Reset
               </Button>
-              <LoadingButton
-                loadingPosition="start"
-                type="submit"
-                variant="contained"
-                loading={createBomLoading}
-                startIcon={<SaveIcon fontSize="small" />}
-              >
+              <LoadingButton loadingPosition="start" type="submit" variant="contained" loading={createBomLoading} startIcon={<SaveIcon fontSize="small" />}>
                 Submit
               </LoadingButton>
             </div>
+
             {/* <Card className="rounded-md">
             <CardHeader className="h-[60px] p-0 flex flex-col justify-center px-[20px] bg-hbg"></CardHeader>
             <CardContent className="mt-[20px]"></CardContent>
@@ -326,17 +255,7 @@ const MasterCraeteBOM: React.FC = () => {
           </Card> */}
           </form>
         </div>
-        <div>
-          {option === "option-manual" ? (
-            <MasterBOMCraeteTable
-              addRow={addRow}
-              rowData={rowData}
-              setRowdata={setRowData}
-            />
-          ) : (
-            <MasterBomCraeteFileTable />
-          )}
-        </div>
+        <div>{option === "manual" ? <MasterBOMCraeteTable addRow={addRow} rowData={rowData} setRowdata={setRowData} /> : <MasterBomCraeteFileTable />}</div>
       </div>
     </>
   );
