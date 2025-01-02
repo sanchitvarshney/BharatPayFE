@@ -21,7 +21,7 @@ import { showToast } from "@/utils/toasterContext";
 interface RowData {
   id: string;
   component: { lable: string; value: string } | null;
-  category: { lable: string; value: string } | null;
+  category: string;
   status: string;
   qty: number;
   isNew: boolean;
@@ -70,7 +70,7 @@ const MasterCraeteBOM: React.FC = () => {
       uom: "",
       remark: "",
       reference: "",
-      category: null,
+      category: "",
       status: "1",
     };
     setRowData((prev) => [newRow, ...prev]);
@@ -135,7 +135,7 @@ const MasterCraeteBOM: React.FC = () => {
           const qty = rowData.map((item) => item.qty.toString());
           const reference = rowData.map((item) => item.reference || "");
           const remark = rowData.map((item) => item.remark || "");
-          const category = rowData.map((item) => item.category?.value || "");
+          const category = rowData.map((item) => item.category );
           const status = rowData.map((item) => item.status);
           const items = { component, qty, remark, reference, category, status };
           dispatch(
@@ -252,7 +252,7 @@ const MasterCraeteBOM: React.FC = () => {
                   <strong>Note:</strong>
                   Kindly don't do any changes with columns of the sample file, it can lead to errors.
                 </p>
-                <a href="https://media.mscorpres.net/oakterIms/other/BOM%20UPLOAD.csv" className="underline text-cyan-600">
+                <a href={`${import.meta.env.VITE_REACT_APP_API_BASE_URL}/files/bomComponent.csv`} className="underline text-cyan-600">
                   Sample File
                 </a>
                 <FileUploader

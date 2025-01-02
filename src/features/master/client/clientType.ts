@@ -1,4 +1,4 @@
- export type CraeteClientPayload = {
+export type CraeteClientPayload = {
   name: string;
   gst: string;
   country: string;
@@ -31,6 +31,23 @@
   };
 };
 
+type CustomerData = {
+  code: string;
+  c_id: string;
+  name: string;
+  gst: string;
+  mobile: string;
+  email: string;
+  city: string;
+};
+
+export type CustomerApiResponse = {
+  success: boolean;
+  data: CustomerData[];
+};
+
 export type ClientState = {
   createClientLoading: boolean;
-}
+  clientdata: CustomerData[] | null;
+  getClientLoading: boolean;
+};

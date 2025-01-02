@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { BOMState, CreateBomPayload, CreateBomResponse, FGBomDetailResponse, FGBomResponse, GetSkudetailResponse, UploadFileApiResponse } from "./BOMType";
+import { AddBomPayload, BOMState, CreateBomPayload, CreateBomResponse, FGBomDetailResponse, FGBomResponse, GetSkudetailResponse, UploadFileApiResponse } from "./BOMType";
 import { showToast } from "@/utils/toasterContext";
 const initialState: BOMState = {
   skuData: null,
@@ -16,6 +16,7 @@ const initialState: BOMState = {
   updateBomLoading: false,
   uploadFileData: null,
   uploadFileLoading: false,
+  addBomLoading: false,
 };
 
 export const getskudeatilAsync = createAsyncThunk<AxiosResponse<GetSkudetailResponse>, string>("master/getSkudeatil", async (skucode) => {
@@ -52,6 +53,10 @@ export const fetchBomDetail = createAsyncThunk<AxiosResponse<FGBomDetailResponse
 });
 export const UpdateBom = createAsyncThunk<AxiosResponse<any>, any>("master/updateBom", async (payload) => {
   const response = await axiosInstance.put(`/bom/update/${payload.id}/${payload.sku}`, payload);
+  return response;
+});
+export const addComponentInBom = createAsyncThunk<AxiosResponse<{ status: number; message: string,success:boolean }>, AddBomPayload>("master/addComponentInBom", async (payload) => {
+  const response = await axiosInstance.put(`/bom/addComponent`, payload);
   return response;
 });
 export const uploadfile = createAsyncThunk<AxiosResponse<UploadFileApiResponse>, FormData>("master/bom/uploadfile", async (payload) => {
@@ -169,6 +174,21 @@ const BOMSlice = createSlice({
       .addCase(uploadfile.rejected, (state) => {
         state.uploadFileLoading = false;
         state.uploadFileData = [];
+      })
+      .addCase(addComponentInBom.pending, (state) => {
+        state.addBomLoading = true;
+        
+      })
+      .addCase(addComponentInBom.fulfilled, (state, action) => {
+        state.addBomLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+          
+        }
+      })
+      .addCase(addComponentInBom.rejected, (state) => {
+        state.addBomLoading = false;
+       
       });
   },
 });

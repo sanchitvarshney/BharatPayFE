@@ -1,5 +1,4 @@
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
-import AntSelectCategory from "@/components/reusable/antSelecters/AntSelectCategory";
 import { Input, Select } from "antd";
 import React from "react";
 
@@ -8,6 +7,12 @@ interface CraeteBomProps {
   customFunction: () => void;
 }
 
+const categoryOptions = [
+  { value: "PART", label: "PART" },
+  { value: "PCB", label: "PCB" },
+  { value: "OTHER", label: "OTHER" },
+  { value: "PACKING", label: "PACKING" },
+];
 const CraeteBomCellRender: React.FC<CraeteBomProps> = ({ props, customFunction }) => {
   const { value, colDef, data, api, column } = props;
 
@@ -46,17 +51,19 @@ const CraeteBomCellRender: React.FC<CraeteBomProps> = ({ props, customFunction }
         );
       case "category":
         return (
-          <AntSelectCategory
-            onChange={(selectedValue) => {
-              const newValue = selectedValue;
-              data[colDef.field] = newValue;
-              api.refreshCells({
-                rowNodes: [props.node],
-                columns: [column, "component", "remark", "qty", "uom", "reference"],
-              });
-            }}
-            value={value}
-          />
+           <Select
+                  value={value}
+                  style={{ width: "100%" }}
+                  onChange={(value) => {
+                    data[colDef.field] = value;
+                    api.refreshCells({
+                      rowNodes: [props.node],
+                      columns: [column, "component", "remark", "qty", "uom", "reference"],
+                    });
+                  }}
+                  options={categoryOptions}
+                  className="custom-select"
+                />
         );
       case "status":
         return (

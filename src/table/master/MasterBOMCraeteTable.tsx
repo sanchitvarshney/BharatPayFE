@@ -9,13 +9,13 @@ import { Icons } from "@/components/icons";
 interface RowData {
   id: string;
   component: { lable: string; value: string } | null;
+  category: string;
+  status: string;
   qty: number;
   isNew: boolean;
   uom: string;
   remark: string;
   reference: string;
-  category: { lable: string; value: string } | null;
-  status: string;
 }
 type Props = {
   rowData: RowData[];

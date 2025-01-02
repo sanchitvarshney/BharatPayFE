@@ -13,14 +13,13 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { Icons } from "@/components/icons";
 import { InputAdornment, TextField } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getVendor } from "@/features/master/vendor/vedorSlice";
 import { LoadingButton } from "@mui/lab";
 import { Controller, useForm } from "react-hook-form";
 import SelectState, { StateData } from "@/components/reusable/SelectState";
 import MasterClientDetailTable from "@/table/master/MasterClientDetailTable";
 import SelectCountry, { CountryData } from "@/components/reusable/SelectCountry";
 import { CraeteClientPayload } from "@/features/master/client/clientType";
-import { createClient } from "@/features/master/client/clientSlice";
+import { createClient, getClient } from "@/features/master/client/clientSlice";
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<unknown>;
@@ -118,7 +117,7 @@ const MasterClient: React.FC = () => {
     setOpen(false);
   };
   useEffect(() => {
-    dispatch(getVendor());
+    dispatch(getClient());
   }, []);
   const onSubmit = (data: FormData2Type) => {
     const payload: CraeteClientPayload = {
@@ -157,6 +156,7 @@ const MasterClient: React.FC = () => {
       if (res.payload.data.success) {
         handleClose();
         reset();
+        dispatch(getClient());
       }
     });
   };
@@ -725,7 +725,7 @@ const MasterClient: React.FC = () => {
             </MuiTooltip>
           </div>
           <div className="flex items-center gap-[20px]">
-            <IconButton onClick={() => dispatch(getVendor())}>
+            <IconButton onClick={() => dispatch(getClient())}>
               <Icons.refresh />
             </IconButton>
             <Button variant="contained" startIcon={<Icons.add />} onClick={handleClickOpen}>

@@ -77,6 +77,15 @@ type UploadFileData = {
   data: UploadFileData[];
 };
 
+export type AddBomPayload = {
+  bomID: string;
+  componentKey: string;
+  quantity: number;
+  category: string;
+  reference: string;
+};
+
+
 export type BOMState = {
   skuData: GetSkuDetail[] | null;
   getSkudetailLoading: boolean;
@@ -90,4 +99,5 @@ export type BOMState = {
   updateBomLoading: boolean;
   uploadFileLoading: boolean;
   uploadFileData: UploadFileData[] | null;
+  addBomLoading: boolean;
 };
