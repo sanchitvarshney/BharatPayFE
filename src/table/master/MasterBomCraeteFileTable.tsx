@@ -2,114 +2,58 @@ import React, { useMemo } from "react";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-interface RowData {
-    id: number;
-    partCode: string;
-    priority: string;
-    qty: number;
-    category: string;
-    status: string;
-    vendor: string;
-    process: string;
-    source: string;
-    smyMiLoc: string;
-  }
-  
+import { useAppSelector } from "@/hooks/useReduxHook";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 
+const MasterBomCraeteFileTable: React.FC = () => {
+  const { uploadFileLoading, uploadFileData } = useAppSelector((state) => state.bom);
   const columnDefs: ColDef[] = [
     {
-      headerName: 'ID',
-      field: 'id',
+      headerName: "#",
+      field: "id",
       sortable: true,
       filter: false,
       width: 70,
+      valueGetter: (params: any) => params.node.rowIndex + 1,
     },
     {
-      headerName: 'Part Code',
-      field: 'partCode',
+      headerName: "Part Code",
+      field: "partCode",
       sortable: true,
       filter: true,
     },
     {
-      headerName: 'Priority',
-      field: 'priority',
+      headerName: "Component Name",
+      field: "componentName",
       sortable: true,
       filter: true,
     },
     {
-      headerName: 'Qty',
-      field: 'qty',
+      headerName: "Component key",
+      field: "compKey",
       sortable: true,
       filter: true,
       editable: true,
-      valueParser: (params) => Number(params.newValue),
     },
     {
-      headerName: 'Category',
-      field: 'category',
+      headerName: "QTY",
+      field: "quantity",
       sortable: true,
       filter: true,
     },
     {
-      headerName: 'Status',
-      field: 'status',
+      headerName: "Ref",
+      field: "ref",
       sortable: true,
       filter: true,
     },
     {
-      headerName: 'Vendor',
-      field: 'vendor',
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: 'Process',
-      field: 'process',
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: 'Source',
-      field: 'source',
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: 'SMY_MI_LOC',
-      field: 'smyMiLoc',
+      headerName: "Remark",
+      field: "remark",
       sortable: true,
       filter: true,
     },
   ];
-
-const MasterBomCraeteFileTable: React.FC = () => {
-  const rowData: RowData[] = [
-    {
-      id: 1,
-      partCode: 'PC001',
-      priority: 'High',
-      qty: 100,
-      category: 'Category 1',
-      status: 'Active',
-      vendor: 'Vendor 1',
-      process: 'Process 1',
-      source: 'Source 1',
-      smyMiLoc: 'Location 1',
-    },
-    {
-      id: 2,
-      partCode: 'PC002',
-      priority: 'Medium',
-      qty: 200,
-      category: 'Category 2',
-      status: 'Inactive',
-      vendor: 'Vendor 2',
-      process: 'Process 2',
-      source: 'Source 2',
-      smyMiLoc: 'Location 2',
-    },
-    // Add more rows as needed
-  ]
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
@@ -118,8 +62,18 @@ const MasterBomCraeteFileTable: React.FC = () => {
   }, []);
   return (
     <div>
-      <div className=" ag-theme-quartz h-[calc(100vh-100px)]" >
-        <AgGridReact  overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true}  rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+      <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
+        <AgGridReact
+          loading={uploadFileLoading}
+          loadingOverlayComponent={CustomLoadingOverlay}
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
+          suppressCellFocus={true}
+          rowData={uploadFileData || []}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          pagination={true}
+          paginationPageSize={20}
+        />
       </div>
     </div>
   );

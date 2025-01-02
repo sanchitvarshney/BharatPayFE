@@ -18,8 +18,8 @@ export type CreateBomPayload = {
     qty: string[];
     remark: string[];
     reference: string[];
-    category: string[];
-    status: string[];
+    category?: string[];
+    status?: string[];
   };
 };
 export type CreateBomResponse = {
@@ -63,6 +63,20 @@ export type FGBomDetailResponse = {
   };
 };
 
+type UploadFileData = {
+  partCode: string;
+  componentName: string;
+  compKey: string;
+  quantity: number;
+  ref: string;
+  remarks: string;
+};
+
+ export type UploadFileApiResponse = {
+  success: boolean;
+  data: UploadFileData[];
+};
+
 export type BOMState = {
   skuData: GetSkuDetail[] | null;
   getSkudetailLoading: boolean;
@@ -74,4 +88,6 @@ export type BOMState = {
   bomDetail: FGBomDetailResponse | null;
   bomDetailLoading: boolean;
   updateBomLoading: boolean;
+  uploadFileLoading: boolean;
+  uploadFileData: UploadFileData[] | null;
 };

@@ -61,6 +61,7 @@ import WarehouseIcon from '@mui/icons-material/Warehouse';
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
+import LabelIcon from '@mui/icons-material/Label';
 
 export const Icons = {
   save: SaveIcon,
@@ -125,5 +126,6 @@ export const Icons = {
   warehouse: WarehouseIcon,
   building: BusinessIcon,
   city2: LocationCityIcon,
-  userAddress: PersonPinCircleIcon
+  userAddress: PersonPinCircleIcon,
+  label: LabelIcon,
 };

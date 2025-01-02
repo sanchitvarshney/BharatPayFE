@@ -8,8 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { getSkuAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { createBomAsync } from "@/features/master/BOM/BOMSlice";
-import { showToast } from "@/utils/toastUtils";
+import { createBomAsync, resetUploadFileData, uploadfile } from "@/features/master/BOM/BOMSlice";
 import { Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -18,6 +17,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { generateUniqueId } from "@/utils/uniqueid";
 import FileUploader from "@/components/reusable/FileUploader";
+import { showToast } from "@/utils/toasterContext";
 interface RowData {
   id: string;
   component: { lable: string; value: string } | null;
@@ -41,8 +41,9 @@ const MasterCraeteBOM: React.FC = () => {
   const [option, setOption] = useState<string>("manual");
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [alert, setAlert] = useState<boolean>(false);
+  const [methodchange, setMethodChange] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { createBomLoading } = useAppSelector((state) => state.bom);
+  const { createBomLoading, uploadFileLoading, uploadFileData } = useAppSelector((state) => state.bom);
   const {
     register,
     handleSubmit,
@@ -93,14 +94,10 @@ const MasterCraeteBOM: React.FC = () => {
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
-      showToast({
-        description: `Some required fields are empty: line no. ${miss
+     showToast(`Some required fields are empty: line no. ${miss
           .filter((item) => item !== undefined)
           .reverse()
-          .join(", ")}`,
-        variant: "destructive",
-        duration: 3000,
-      });
+          .join(", ")}`,"error")
       hasErrors = true;
     }
 
@@ -108,39 +105,65 @@ const MasterCraeteBOM: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    if (rowData.length === 0) {
-      showToast({
-        description: "Please Add Material Details",
-        variant: "destructive",
+    if(uploadFileData){
+      const component = uploadFileData.map((item) => item.compKey);
+      const qty = uploadFileData.map((item) => item.quantity.toString());
+      const reference = uploadFileData.map((item) => item.ref);
+      const remark = uploadFileData.map((item) => item.remarks);
+      const items = { component, qty, remark, reference};
+      dispatch(
+        createBomAsync({
+          sku: data.sku!.id,
+          type: data.type || "",
+          remark: data.remark,
+          subject: data.subject,
+          items,
+        })
+      ).then((res: any) => {
+        if (res.payload.data.success) {
+          setRowData([]);
+          reset();
+          dispatch(resetUploadFileData());
+        }
       });
-    } else {
-      if (!checkRequiredFields(rowData)) {
-        const component = rowData.map((item) => item.component?.value || "");
-        const qty = rowData.map((item) => item.qty.toString());
-        const reference = rowData.map((item) => item.reference || "");
-        const remark = rowData.map((item) => item.remark || "");
-        const category = rowData.map((item) => item.category?.value || "");
-        const status = rowData.map((item) => item.status);
-        const items = { component, qty, remark, reference, category, status };
-        dispatch(
-          createBomAsync({
-            sku: data.sku!.id,
-            type: data.type || "",
-            remark: data.remark,
-            subject: data.subject,
-            items,
-          })
-        ).then((res: any) => {
-          if (res.payload.data.success) {
-            setRowData([]);
-            reset();
-          }
-        });
+    }else{
+      if (rowData.length === 0) {
+        showToast("Add Material Details","error")
+      } else {
+        if (!checkRequiredFields(rowData)) {
+          const component = rowData.map((item) => item.component?.value || "");
+          const qty = rowData.map((item) => item.qty.toString());
+          const reference = rowData.map((item) => item.reference || "");
+          const remark = rowData.map((item) => item.remark || "");
+          const category = rowData.map((item) => item.category?.value || "");
+          const status = rowData.map((item) => item.status);
+          const items = { component, qty, remark, reference, category, status };
+          dispatch(
+            createBomAsync({
+              sku: data.sku!.id,
+              type: data.type || "",
+              remark: data.remark,
+              subject: data.subject,
+              items,
+            })
+          ).then((res: any) => {
+            if (res.payload.data.success) {
+              setRowData([]);
+              reset();
+            }
+          });
+        }
       }
     }
+   
   };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setOption((event.target as HTMLInputElement).value);
+    if(rowData.length > 0 || uploadFileData){
+      setMethodChange(true);
+    }else{
+      setOption((event.target as HTMLInputElement).value);
+    }
+   
   };
 
   useEffect(() => {
@@ -158,6 +181,22 @@ const MasterCraeteBOM: React.FC = () => {
           reset();
           setRowData([]);
           setAlert(false);
+          dispatch(resetUploadFileData());
+        }}
+        confirmText="Continue"
+        cancelText="Cancel"
+      />
+        <ConfirmationModel
+        open={methodchange}
+        onClose={() => setMethodChange(false)}
+        title="Are you sure?"
+        content="Are you sure you want to reset all the fields ?"
+        onConfirm={() => {
+          reset();
+          setRowData([]);
+          setMethodChange(false);
+          dispatch(resetUploadFileData());
+          setOption(option === "manual"? "file":"manual")
         }}
         confirmText="Continue"
         cancelText="Cancel"
@@ -216,13 +255,23 @@ const MasterCraeteBOM: React.FC = () => {
                 <a href="https://media.mscorpres.net/oakterIms/other/BOM%20UPLOAD.csv" className="underline text-cyan-600">
                   Sample File
                 </a>
-                <FileUploader />
+                <FileUploader
+                  loading={uploadFileLoading}
+                  success={!!uploadFileData}
+                  
+                  onFileChange={(file) => {
+                    console.log(file[0])
+                    const formData = new FormData();
+                    formData.append("file", file[0]);
+                    dispatch(uploadfile(formData));
+                  }}
+                />
               </div>
             )}
             <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end mt-[30px]">
               <Button
                 onClick={() => {
-                  rowData.length > 0 ? setAlert(true) : reset();
+                  rowData.length > 0 || uploadFileData ? setAlert(true) : reset();
                 }}
                 type="button"
                 startIcon={<RefreshIcon fontSize="small" />}
