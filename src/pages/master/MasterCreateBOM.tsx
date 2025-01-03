@@ -94,10 +94,13 @@ const MasterCraeteBOM: React.FC = () => {
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
-     showToast(`Some required fields are empty: line no. ${miss
+      showToast(
+        `Some required fields are empty: line no. ${miss
           .filter((item) => item !== undefined)
           .reverse()
-          .join(", ")}`,"error")
+          .join(", ")}`,
+        "error"
+      );
       hasErrors = true;
     }
 
@@ -105,12 +108,12 @@ const MasterCraeteBOM: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    if(uploadFileData){
+    if (uploadFileData) {
       const component = uploadFileData.map((item) => item.compKey);
       const qty = uploadFileData.map((item) => item.quantity.toString());
       const reference = uploadFileData.map((item) => item.ref);
       const remark = uploadFileData.map((item) => item.remarks);
-      const items = { component, qty, remark, reference};
+      const items = { component, qty, remark, reference };
       dispatch(
         createBomAsync({
           sku: data.sku!.id,
@@ -126,16 +129,16 @@ const MasterCraeteBOM: React.FC = () => {
           dispatch(resetUploadFileData());
         }
       });
-    }else{
+    } else {
       if (rowData.length === 0) {
-        showToast("Add Material Details","error")
+        showToast("Add Material Details", "error");
       } else {
         if (!checkRequiredFields(rowData)) {
           const component = rowData.map((item) => item.component?.value || "");
           const qty = rowData.map((item) => item.qty.toString());
           const reference = rowData.map((item) => item.reference || "");
           const remark = rowData.map((item) => item.remark || "");
-          const category = rowData.map((item) => item.category );
+          const category = rowData.map((item) => item.category);
           const status = rowData.map((item) => item.status);
           const items = { component, qty, remark, reference, category, status };
           dispatch(
@@ -155,15 +158,13 @@ const MasterCraeteBOM: React.FC = () => {
         }
       }
     }
-   
   };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if(rowData.length > 0 || uploadFileData){
+    if (rowData.length > 0 || uploadFileData) {
       setMethodChange(true);
-    }else{
+    } else {
       setOption((event.target as HTMLInputElement).value);
     }
-   
   };
 
   useEffect(() => {
@@ -186,7 +187,7 @@ const MasterCraeteBOM: React.FC = () => {
         confirmText="Continue"
         cancelText="Cancel"
       />
-        <ConfirmationModel
+      <ConfirmationModel
         open={methodchange}
         onClose={() => setMethodChange(false)}
         title="Are you sure?"
@@ -196,7 +197,7 @@ const MasterCraeteBOM: React.FC = () => {
           setRowData([]);
           setMethodChange(false);
           dispatch(resetUploadFileData());
-          setOption(option === "manual"? "file":"manual")
+          setOption(option === "manual" ? "file" : "manual");
         }}
         confirmText="Continue"
         cancelText="Cancel"
@@ -258,9 +259,8 @@ const MasterCraeteBOM: React.FC = () => {
                 <FileUploader
                   loading={uploadFileLoading}
                   success={!!uploadFileData}
-                  
                   onFileChange={(file) => {
-                    console.log(file[0])
+                    console.log(file[0]);
                     const formData = new FormData();
                     formData.append("file", file[0]);
                     dispatch(uploadfile(formData));
@@ -270,6 +270,7 @@ const MasterCraeteBOM: React.FC = () => {
             )}
             <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end mt-[30px]">
               <Button
+                disabled={createBomLoading}
                 onClick={() => {
                   rowData.length > 0 || uploadFileData ? setAlert(true) : reset();
                 }}

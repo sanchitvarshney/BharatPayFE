@@ -73,6 +73,7 @@ import SimMin from "./pages/wearhouse/SimMin";
 import MaterialInvardv2 from "./pages/wearhouse/MaterialInvardv2";
 import MasterBomDetailPage from "./pages/master/MasterBomDetailPage";
 import MasterClient from "./pages/master/MasterClient";
+import MasterClientDetail from "./pages/master/MasterClientDetail";
 
 export const router = createBrowserRouter([
   {
@@ -263,6 +264,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-client",
+      },
+      {
+        element: (
+          <MainLayout>
+            <CustomRedirection UnderDevelopment={false}>
+              <MasterClientDetail />
+            </CustomRedirection>
+          </MainLayout>
+        ),
+        path: "/master-client/:id",
       },
       {
         element: (

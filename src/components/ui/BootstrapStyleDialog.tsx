@@ -16,9 +16,8 @@ type Props = {
 };
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialogContent-root": {
-    padding: theme.spacing(2),
-  },
+  padding: 0,
+
   "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
   },
@@ -27,13 +26,13 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const BootstrapStyleDialog: React.FC<Props> = ({ open, handleClose, content, title, loading }) => {
   return (
     <React.Fragment>
-      <BootstrapDialog maxWidth="md"  onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+      <BootstrapDialog maxWidth="lg" sx={{ p: 0 }} onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
         {loading && (
           <div className="absolute top-0 left-0 right-0">
             <LinearProgress />
           </div>
         )}
-        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+        <DialogTitle sx={{ m: 0, p: 0, height: "50px", display: "flex", alignItems: "center", px: "20px" }} className="bg-hbg" id="customized-dialog-title">
           {title}
         </DialogTitle>
         <IconButton
@@ -48,7 +47,9 @@ const BootstrapStyleDialog: React.FC<Props> = ({ open, handleClose, content, tit
         >
           <CloseIcon />
         </IconButton>
-        <DialogContent  dividers>{content}</DialogContent>
+        <DialogContent sx={{ p: 0, m: 0 }} dividers>
+          {content}
+        </DialogContent>
       </BootstrapDialog>
     </React.Fragment>
   );

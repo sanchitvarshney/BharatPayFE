@@ -4,13 +4,31 @@ import { AgGridReact } from "ag-grid-react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { Typography } from "@mui/material";
+import { Link } from "react-router-dom";
+import { Icons } from "@/components/icons";
 
 const MasterClientDetailTable: React.FC = () => {
   const { clientdata, getClientLoading } = useAppSelector((state) => state.client);
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", sortable: true, filter: false, valueGetter: "node.rowIndex+1", maxWidth: 80 },
     { headerName: "Client ID", field: "c_id", sortable: true, filter: false },
-    { headerName: "Client Name", field: "name", sortable: true, filter: false },
+    {
+      headerName: "Client Name",
+      field: "name",
+      sortable: true,
+      filter: false,
+      cellRenderer: (params: any) => (
+        <div className="flex items-center justify-center h-[50px] ">
+          <Link to={`/master-client/${params.data.c_id}`} className=" hover:bg-white   rounded-md   flex items-center justify-between text-cyan-600  gap-[20px]  whitespace-pre-wrap  w-full px-[5px] ">
+            <Typography fontSize={14} textAlign={"start"}>
+              {params.value}
+            </Typography>
+            <Icons.followLink sx={{ fontSize: "16px" }} />
+          </Link>
+        </div>
+      ),
+    },
     // {
     //   headerName: "Name",
     //   field: "vendor_name",

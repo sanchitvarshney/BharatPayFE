@@ -70,9 +70,10 @@ type UploadFileData = {
   quantity: number;
   ref: string;
   remarks: string;
+  category: string;
 };
 
- export type UploadFileApiResponse = {
+export type UploadFileApiResponse = {
   success: boolean;
   data: UploadFileData[];
 };
@@ -84,7 +85,6 @@ export type AddBomPayload = {
   category: string;
   reference: string;
 };
-
 
 export type BOMState = {
   skuData: GetSkuDetail[] | null;

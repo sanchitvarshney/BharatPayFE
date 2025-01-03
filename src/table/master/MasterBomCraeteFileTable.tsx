@@ -48,6 +48,12 @@ const MasterBomCraeteFileTable: React.FC = () => {
       filter: true,
     },
     {
+      headerName: "Category",
+      field: "category",
+      sortable: true,
+      filter: true,
+    },
+    {
       headerName: "Remark",
       field: "remark",
       sortable: true,

@@ -173,7 +173,7 @@ const MasterClient: React.FC = () => {
                 Add Client
               </Typography>
               <div className="flex items-center gap-3">
-                <LoadingButton onClick={() => reset()} loadingPosition="start" disabled={createClientLoading} type="submit" startIcon={<Icons.refresh />} variant="contained" sx={{ background: "white", color: "red" }} autoFocus color="inherit">
+                <LoadingButton onClick={() => reset()} loadingPosition="start" disabled={createClientLoading} type="button" startIcon={<Icons.refresh />} variant="contained" sx={{ background: "white", color: "red" }} autoFocus color="inherit">
                   reset
                 </LoadingButton>
                 <LoadingButton loadingPosition="start" loading={createClientLoading} type="submit" startIcon={<Icons.save />} variant="contained" sx={{ background: "white", color: "black" }} autoFocus color="inherit">
@@ -315,7 +315,7 @@ const MasterClient: React.FC = () => {
                 rules={{ required: "Country is required" }}
                 control={control}
                 name="country"
-                render={({ field }) => <SelectCountry error={!!errors.billToCountry} varient="filled" helperText={errors.billToCountry?.message} onChange={field.onChange} value={field.value} />}
+                render={({ field }) => <SelectCountry error={!!errors.country} varient="filled" helperText={errors.country?.message} onChange={field.onChange} value={field.value} />}
               />
               <Controller rules={{ required: "State is required" }} control={control} name="state" render={({ field }) => <SelectState error={!!errors.state} varient="filled" helperText={errors.state?.message} onChange={field.onChange} value={field.value} />} />
               <TextField
@@ -614,9 +614,9 @@ const MasterClient: React.FC = () => {
                   rules={{ required: "Country is required" }}
                   control={control}
                   name="shipToCountry"
-                  render={({ field }) => <SelectCountry error={!!errors.billToCountry} varient="filled" helperText={errors.billToCountry?.message} onChange={field.onChange} value={field.value} />}
+                  render={({ field }) => <SelectCountry error={!!errors.shipToCountry} varient="filled" helperText={errors.shipToCountry?.message} onChange={field.onChange} value={field.value} />}
                 />
-                <Controller rules={{ required: "State is required" }} control={control} name="shipToState" render={({ field }) => <SelectState error={!!errors.state} varient="filled" helperText={errors.state?.message} onChange={field.onChange} value={field.value} />} />
+                <Controller rules={{ required: "State is required" }} control={control} name="shipToState" render={({ field }) => <SelectState error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />} />
                 <TextField
                   {...register("shipToPincode", { required: "Pincode is required" })}
                   error={!!errors.shipToPincode}

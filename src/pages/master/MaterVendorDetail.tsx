@@ -4,7 +4,7 @@ import { IconButton, LinearProgress, Tab, Tabs, Typography } from "@mui/material
 import React, { useEffect } from "react";
 import Divider from "@mui/material/Divider";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {  useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getVendorBranch } from "@/features/master/vendor/vedorSlice";
 import { replaceBrWithNewLine } from "@/utils/replacebrtag";
@@ -365,7 +365,7 @@ const MaterVendorDetail: React.FC = () => {
                       )
                     )}
 
-                  <section id="attachments" aria-labelledby="attachments" className="mt-8">
+                  {/* <section id="attachments" aria-labelledby="attachments" className="mt-8">
                     <header className="flex items-center w-full gap-3">
                       <h2 className="text-lg font-semibold">Documents</h2>
                       <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
@@ -424,7 +424,7 @@ const MaterVendorDetail: React.FC = () => {
                         </IconButton>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </section>
               </div>
             </div>
