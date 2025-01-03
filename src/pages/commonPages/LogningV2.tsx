@@ -175,7 +175,7 @@ const LogningV2: React.FC = () => {
                   />
                   {errors.password && <FormHelperText id="component-error-text">{errors.password.message}</FormHelperText>}
                 </FormControl>
-                <Link href="#" fontSize={12} className="">
+                <Link href="/forgot-password" fontSize={12} className="">
                   Forgot Password
                 </Link>
               </div>

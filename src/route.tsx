@@ -2,7 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
-import AuthLayout from "./layouts/AuthLayout";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import Custom404Page from "./pages/commonPages/Custom404Page";
 import NotPermissionPage from "./pages/commonPages/NotPermissionPage";
@@ -625,9 +624,9 @@ export const router = createBrowserRouter([
   {
     element: (
       <Protected authentication={false}>
-        <AuthLayout>
+        {/* <AuthLayout> */}
           <ForgotPassword />
-        </AuthLayout>
+        {/* </AuthLayout> */}
       </Protected>
     ),
     path: "/forgot-password",
