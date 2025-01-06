@@ -34,7 +34,6 @@ const RawMinSlice = createSlice({
       state.documnetFileData = null;
     },
     storeFormdata: (state, action) => {
-      console.log(action.payload)
       state.formdata = action.payload;
     },
     resetFormData: (state) => {

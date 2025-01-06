@@ -16,6 +16,10 @@ export type CreateBomPayload = {
   items: {
     component: string[];
     qty: string[];
+    remark: string[];
+    reference: string[];
+    category?: string[];
+    status?: string[];
   };
 };
 export type CreateBomResponse = {
@@ -59,6 +63,57 @@ export type FGBomDetailResponse = {
   };
 };
 
+type UploadFileData = {
+  partCode: string;
+  componentName: string;
+  compKey: string;
+  quantity: number;
+  ref: string;
+  remarks: string;
+  category: string;
+};
+
+export type UploadFileApiResponse = {
+  success: boolean;
+  data: UploadFileData[];
+};
+
+export type AddBomPayload = {
+  bomID: string;
+  componentKey: string;
+  quantity: number;
+  category: string;
+  reference: string;
+};
+
+export interface BomDetailApiResponse {
+  success: boolean;
+  status: string;
+  data: {
+    data: BomCompData[];
+    header: BomHaederData;
+  };
+}
+
+interface BomCompData {
+  requiredQty: string;
+  bomstatus: string;
+  category: string;
+  compKey: string;
+  componentName: string;
+  partCode: string;
+  componentDesc: string;
+  unit: string;
+}
+
+interface BomHaederData {
+  skuCode: string;
+  skukey: string;
+  productName: string;
+  subjectName: string;
+  subjectKey: string;
+}
+
 export type BOMState = {
   skuData: GetSkuDetail[] | null;
   getSkudetailLoading: boolean;
@@ -70,4 +125,8 @@ export type BOMState = {
   bomDetail: FGBomDetailResponse | null;
   bomDetailLoading: boolean;
   updateBomLoading: boolean;
+  uploadFileLoading: boolean;
+  uploadFileData: UploadFileData[] | null;
+  addBomLoading: boolean;
+  bomCompDetail: BomDetailApiResponse | null;
 };

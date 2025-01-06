@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { BOMState, CreateBomPayload, CreateBomResponse, FGBomDetailResponse, FGBomResponse, GetSkudetailResponse } from "./BOMType";
+import { AddBomPayload, BomDetailApiResponse, BOMState, CreateBomPayload, CreateBomResponse, FGBomDetailResponse, FGBomResponse, GetSkudetailResponse, UploadFileApiResponse } from "./BOMType";
 import { showToast } from "@/utils/toasterContext";
 const initialState: BOMState = {
   skuData: null,
@@ -14,6 +14,10 @@ const initialState: BOMState = {
   bomDetail: null,
   bomDetailLoading: false,
   updateBomLoading: false,
+  uploadFileData: null,
+  uploadFileLoading: false,
+  addBomLoading: false,
+  bomCompDetail: null,
 };
 
 export const getskudeatilAsync = createAsyncThunk<AxiosResponse<GetSkudetailResponse>, string>("master/getSkudeatil", async (skucode) => {
@@ -40,7 +44,7 @@ export const getBomItem = createAsyncThunk<AxiosResponse<FGBomResponse>, string>
   return response;
 });
 
-export const fetchBomProduct = createAsyncThunk<AxiosResponse<FGBomResponse>, string>("bom/detail", async (id: string) => {
+export const fetchBomProduct = createAsyncThunk<AxiosResponse<BomDetailApiResponse>, string>("bom/detail", async (id: string) => {
   const response = await axiosInstance.get(`/bom/${id}/detail`);
   return response;
 });
@@ -52,11 +56,29 @@ export const UpdateBom = createAsyncThunk<AxiosResponse<any>, any>("master/updat
   const response = await axiosInstance.put(`/bom/update/${payload.id}/${payload.sku}`, payload);
   return response;
 });
-
+export const addComponentInBom = createAsyncThunk<AxiosResponse<{ status: number; message: string; success: boolean }>, AddBomPayload>("master/addComponentInBom", async (payload) => {
+  const response = await axiosInstance.put(`/bom/addComponent`, payload);
+  return response;
+});
+export const uploadfile = createAsyncThunk<AxiosResponse<UploadFileApiResponse>, FormData>("master/bom/uploadfile", async (payload) => {
+  const response = await axiosInstance.post(`/bom/bomUpload`, payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response;
+});
 const BOMSlice = createSlice({
   name: "BOM",
   initialState,
-  reducers: {},
+  reducers: {
+    resetUploadFileData: (state) => {
+      state.uploadFileData = null;
+    },
+    resetBomDetail: (state) => {
+      state.bomCompDetail = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getskudeatilAsync.pending, (state) => {
@@ -106,8 +128,11 @@ const BOMSlice = createSlice({
       .addCase(fetchBomProduct.pending, (state) => {
         state.fgBomListLoading = true;
       })
-      .addCase(fetchBomProduct.fulfilled, (state) => {
+      .addCase(fetchBomProduct.fulfilled, (state, action) => {
         state.fgBomListLoading = false;
+        if (action.payload.data.success) {
+          state.bomCompDetail = action.payload.data;
+        }
       })
       .addCase(fetchBomProduct.rejected, (state) => {
         state.fgBomListLoading = false;
@@ -142,8 +167,35 @@ const BOMSlice = createSlice({
       })
       .addCase(createBomAsync.rejected, (state) => {
         state.createBomLoading = false;
+      })
+      .addCase(uploadfile.pending, (state) => {
+        state.uploadFileLoading = true;
+        state.uploadFileData = [];
+      })
+      .addCase(uploadfile.fulfilled, (state, action) => {
+        state.uploadFileLoading = false;
+        if (action.payload.data.success) {
+          state.uploadFileData = action.payload.data.data;
+        }
+      })
+      .addCase(uploadfile.rejected, (state) => {
+        state.uploadFileLoading = false;
+        state.uploadFileData = [];
+      })
+      .addCase(addComponentInBom.pending, (state) => {
+        state.addBomLoading = true;
+      })
+      .addCase(addComponentInBom.fulfilled, (state, action) => {
+        state.addBomLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(addComponentInBom.rejected, (state) => {
+        state.addBomLoading = false;
       });
   },
 });
 
+export const { resetUploadFileData,resetBomDetail } = BOMSlice.actions;
 export default BOMSlice.reducer;

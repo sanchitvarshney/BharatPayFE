@@ -2,6 +2,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { AvailbleQtyResponse, CreateProductRequestResponse, CreateProductRequestType, LocationApiresponse, MrRequestWithoutBom, PartCodeDataresponse, SkuCodeDataresponse } from "./MRRequestWithoutBomType";
+import { showToast } from "@/utils/toasterContext";
 
 const initialState: MrRequestWithoutBom = {
   getPartCodeLoading: false,
@@ -34,7 +35,7 @@ export const getLocationAsync = createAsyncThunk<AxiosResponse<LocationApirespon
   return response;
 });
 export const getAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: any }>("wearhouse/getAvailbleQty", async (params) => {
-  const response = await axiosInstance.get(`/backend/stock/${params.type}/${params.itemCode}/${params.location.value?params.location.value:params.location}`);
+  const response = await axiosInstance.get(`/backend/stock/${params.type}/${params.itemCode}/${params.location.value ? params.location.value : params.location}`);
   return response;
 });
 
@@ -83,6 +84,7 @@ const materialRequestSlice = createSlice({
         state.createProductRequestLoading = false;
         if (action.payload.data.success) {
           state.craeteRequestData = action.payload.data;
+          showToast(action.payload.data.message, "success");
         }
       })
       .addCase(createProductRequest.rejected, (state) => {
@@ -106,9 +108,9 @@ const materialRequestSlice = createSlice({
       .addCase(getAvailbleQty.fulfilled, (state, action) => {
         state.getAvailbleQtyLoading = false;
         if (action.payload.data.success) {
-          if(!state.availbleQtyData){
+          if (!state.availbleQtyData) {
             state.availbleQtyData = [action.payload.data.data];
-          }else{
+          } else {
             state.availbleQtyData.push(action.payload.data.data);
           }
         }

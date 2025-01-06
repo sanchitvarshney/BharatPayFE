@@ -25,6 +25,7 @@ import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import RMMaterialsAddTablev2 from "@/table/wearhouse/RMMaterialsAddTablev2";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
+import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -62,6 +63,7 @@ type FormData = {
   gstin: string;
   doucmentDate: Dayjs | null;
   documentId: string;
+  cc: CostCenterType | null;
 };
 const MaterialInvardv2: React.FC = () => {
   const [filename, setFilename] = useState<string>("");
@@ -93,6 +95,7 @@ const MaterialInvardv2: React.FC = () => {
       gstin: "",
       doucmentDate: null,
       documentId: "",
+      cc: null,
     },
   });
 
@@ -146,13 +149,11 @@ const MaterialInvardv2: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    if(!documnetFileData || documnetFileData.length === 0) return showToast("Please Upload Invoice Documents", "error");
+    if (!documnetFileData || documnetFileData.length === 0) return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
   };
   const finalSubmit = () => {
-    console.log("clicked");
-    console.log(formdata);
     if (formdata) {
       if (rowData.length === 0) {
         showToast("Please Add Material Details", "error");
@@ -186,6 +187,7 @@ const MaterialInvardv2: React.FC = () => {
             doc_date: dayjs(formdata.doucmentDate).format("DD-MM-YYYY") || "",
             vendortype: formdata.vendorType || "",
             invoiceAttachment: documnetFileData || [],
+            cc: formdata?.cc?.id || "",
           };
           dispatch(createRawMin(payload)).then((response: any) => {
             if (response.payload.data.success) {
@@ -340,6 +342,24 @@ const MaterialInvardv2: React.FC = () => {
                       </Select>
                       {errors.vendorBranch && <FormHelperText>{errors.vendorBranch.message}</FormHelperText>}
                     </FormControl>
+                  )}
+                />
+                <Controller
+                  name="cc"
+                  control={control}
+                  rules={{ required: "Cost Center  is required" }}
+                  render={({ field }) => (
+                    <SelectCostCenter
+                      variant="filled"
+                      error={!!errors.cc}
+                      helperText={errors.cc?.message}
+                      value={field.value}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        dispatch(getVendorBranchAsync(e!.id));
+                      }}
+                      label="Cost Center"
+                    />
                   )}
                 />
                 <div className="flex items-center gap-[10px] text-slate-600 sm:col-span-1 md:col-span-2 ">

@@ -41,7 +41,20 @@ const EditBomDetailCellRenderer: React.FC<any> = ({ value, colDef, data, api, co
   }
 
   if (colDef.field === "requiredQty") {
-    return <Input className="custom-input" value={value} onChange={(e) => handleChange(e.target.value)} style={{ width: "100%" }} />;
+    return (
+      <Input
+        className="custom-input"
+        value={value}
+        onChange={(e) => {
+          if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+            if (Number(e.target.value) >= 0) {
+              handleChange(e.target.value);
+            }
+          }
+        }}
+        style={{ width: "100%" }}
+      />
+    );
   }
 
   if (colDef.field === "category") {

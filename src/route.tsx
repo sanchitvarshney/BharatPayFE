@@ -2,7 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
-import AuthLayout from "./layouts/AuthLayout";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import Custom404Page from "./pages/commonPages/Custom404Page";
 import NotPermissionPage from "./pages/commonPages/NotPermissionPage";
@@ -22,7 +21,6 @@ import MasterVenderLayout from "./layouts/MasterVenderLayout";
 import MasterAddVender from "./pages/master/MasterAddVender";
 import MsterVendorDetail from "./pages/master/MsterVendorDetail";
 import ProductionMaterialRequisitionLayout from "./layouts/ProductionMaterialRequisitionLayout";
-import ProductionReqWithBOM from "./pages/production/ProductionReqWithBOM";
 import MaterialReqWithoutBom from "./pages/production/MaterialReqWithoutBom";
 import MaterialApprovalLayout from "./layouts/MaterialApprovalLayout";
 import MaterialApproval from "./pages/wearhouse/MaterialApproval";
@@ -72,6 +70,9 @@ import MinLayout from "./layouts/MinLayout";
 import SimMin from "./pages/wearhouse/SimMin";
 import MaterialInvardv2 from "./pages/wearhouse/MaterialInvardv2";
 import MasterBomDetailPage from "./pages/master/MasterBomDetailPage";
+import MasterClient from "./pages/master/MasterClient";
+import MasterClientDetail from "./pages/master/MasterClientDetail";
+import MaterialRequestWithBom from "./pages/production/MaterialRequestWithBom";
 
 export const router = createBrowserRouter([
   {
@@ -256,6 +257,26 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <CustomRedirection UnderDevelopment={false}>
+              <MasterClient />
+            </CustomRedirection>
+          </MainLayout>
+        ),
+        path: "/master-client",
+      },
+      {
+        element: (
+          <MainLayout>
+            <CustomRedirection UnderDevelopment={false}>
+              <MasterClientDetail />
+            </CustomRedirection>
+          </MainLayout>
+        ),
+        path: "/master-client/:id",
+      },
+      {
+        element: (
+          <MainLayout>
             <MasterVenderLayout>
               <CustomRedirection UnderDevelopment={false}>
                 <MsterVendorDetail />
@@ -269,7 +290,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterAddressLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 <MasterBillingAddress />
               </CustomRedirection>
             </MasterAddressLayout>
@@ -281,7 +302,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <MasterAddressLayout>
-              <CustomRedirection UnderDevelopment={true}>
+              <CustomRedirection UnderDevelopment={false}>
                 <MasterShippingaddress />
               </CustomRedirection>
             </MasterAddressLayout>
@@ -353,8 +374,8 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <ProductionMaterialRequisitionLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <ProductionReqWithBOM />
+              <CustomRedirection UnderDevelopment={false}>
+                <MaterialRequestWithBom />
               </CustomRedirection>
             </ProductionMaterialRequisitionLayout>
           </MainLayout>
@@ -603,9 +624,9 @@ export const router = createBrowserRouter([
   {
     element: (
       <Protected authentication={false}>
-        <AuthLayout>
+        {/* <AuthLayout> */}
           <ForgotPassword />
-        </AuthLayout>
+        {/* </AuthLayout> */}
       </Protected>
     ),
     path: "/forgot-password",

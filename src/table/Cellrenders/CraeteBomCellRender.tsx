@@ -1,15 +1,19 @@
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
-import { Input } from "antd";
+import { Input, Select } from "antd";
 import React from "react";
+
 interface CraeteBomProps {
   props: any;
   customFunction: () => void;
 }
 
-const CraeteBomCellRender: React.FC<CraeteBomProps> = ({
-  props,
-  customFunction,
-}) => {
+const categoryOptions = [
+  { value: "PART", label: "PART" },
+  { value: "PCB", label: "PCB" },
+  { value: "OTHER", label: "OTHER" },
+  { value: "PACKING", label: "PACKING" },
+];
+const CraeteBomCellRender: React.FC<CraeteBomProps> = ({ props, customFunction }) => {
   const { value, colDef, data, api, column } = props;
 
   const handleInputChange = (e: any) => {
@@ -30,14 +34,7 @@ const CraeteBomCellRender: React.FC<CraeteBomProps> = ({
               data.uom = value;
               api.refreshCells({
                 rowNodes: [props.node],
-                columns: [
-                  column,
-                  "component",
-                  "remark",
-                  "qty",
-                  "uom",
-                  "reference",
-                ],
+                columns: [column, "component", "remark", "qty", "uom", "reference"],
               });
               customFunction();
             }}
@@ -46,17 +43,46 @@ const CraeteBomCellRender: React.FC<CraeteBomProps> = ({
               data[colDef.field] = newValue;
               api.refreshCells({
                 rowNodes: [props.node],
-                columns: [
-                  column,
-                  "component",
-                  "remark",
-                  "qty",
-                  "uom",
-                  "reference",
-                ],
+                columns: [column, "component", "remark", "qty", "uom", "reference"],
               });
             }}
             value={value}
+          />
+        );
+      case "category":
+        return (
+           <Select
+                  value={value}
+                  style={{ width: "100%" }}
+                  onChange={(value) => {
+                    data[colDef.field] = value;
+                    api.refreshCells({
+                      rowNodes: [props.node],
+                      columns: [column, "component", "remark", "qty", "uom", "reference"],
+                    });
+                  }}
+                  options={categoryOptions}
+                  className="custom-select"
+                />
+        );
+      case "status":
+        return (
+          <Select
+          className="w-full custom-select"
+            defaultValue="1"
+            
+            onChange={(selectedValue) => {
+              const newValue = selectedValue;
+              data[colDef.field] = newValue;
+              api.refreshCells({
+                rowNodes: [props.node],
+                columns: [column, "component", "remark", "qty", "uom", "reference"],
+              });
+            }}
+            options={[
+              { label: "Active", value: "1" },
+              { label: "Inactive", value: "0" },
+            ]}
           />
         );
 
@@ -88,17 +114,17 @@ const CraeteBomCellRender: React.FC<CraeteBomProps> = ({
             }}
           />
         );
-        case "remark":
-          return (
-            <Input
-              value={value}
-              placeholder={colDef.headerName}
-              className="custom-input"
-              onChange={(e) => {
-                handleInputChange(e);
-              }}
-            />
-          );
+      case "remark":
+        return (
+          <Input
+            value={value}
+            placeholder={colDef.headerName}
+            className="custom-input"
+            onChange={(e) => {
+              handleInputChange(e);
+            }}
+          />
+        );
     }
   };
 

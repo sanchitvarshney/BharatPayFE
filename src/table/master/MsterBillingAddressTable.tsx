@@ -44,7 +44,7 @@ const MsterBillingAddressTable: React.FC = () => {
   }, []);
   return (
     <div>
-      <div className=" ag-theme-quartz h-[calc(100vh-150px)]">
+      <div className=" ag-theme-quartz h-[calc(100vh-190px)]">
         <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </div>

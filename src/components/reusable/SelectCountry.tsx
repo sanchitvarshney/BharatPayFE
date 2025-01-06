@@ -1,14 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import axiosInstance from "@/api/axiosInstance";
 
-export type Bomtype = {
-  code: string;
-  name: string;
+export type CountryData = {
+  text: string;
+  code: number;
 };
+
+type CountryApiResponse = {
+  status: string;
+  message: string;
+  success: boolean;
+  data: CountryData[];
+};
+
 type Props = {
-  onChange: (value: Bomtype | null) => void;
-  value: Bomtype | null | any;
+  onChange: (value: CountryData | null) => void;
+  value: CountryData | null | undefined;
   label?: string;
   width?: string;
   error?: boolean;
@@ -16,44 +24,55 @@ type Props = {
   varient?: "outlined" | "standard" | "filled";
   required?: boolean;
   size?: "small" | "medium";
-  id?:string;
 };
 
-const SelectBom: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" ,id }) => {
-//   const [inputValue, setInputValue] = useState("");
-//   const debouncedInputValue = useDebounce(inputValue, 300);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [bomList, setBomList] = useState<Bomtype[]>([]);
+const SelectCountry: React.FC<Props> = ({
+  value,
+  onChange,
+  label = "Select Country",
+  width = "100%",
+  error,
+  helperText,
+  varient = "outlined",
+  required = false,
+  size = "medium",
+}) => {
+  const [countryList, setCountryList] = useState<CountryData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch devices based on SKU query
-  const fetchDevices = async () => {
+  // Fetch countries on mount
+  const fetchCountries = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/bom/productBoms/${id}`);
-      setBomList(response.data.data); // Response is based on the LocationApiresponse type
+      const response = await axiosInstance.get<CountryApiResponse>(`/backend/country`);
+      if (response.data.success) {
+        setCountryList(response.data.data || []);
+      } else {
+        setCountryList([]);
+        console.warn("Failed to fetch countries:", response.data.message);
+      }
     } catch (error) {
-      console.error("Error fetching devices:", error);
+      console.error("Error fetching countries:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
   return (
     <Autocomplete
-      onFocus={() => fetchDevices()}
       value={value}
       size={size}
-      options={bomList || []}
-      getOptionLabel={(option) => `${option.name}`}
-      filterSelectedOptions
+      options={countryList || []}
+      getOptionLabel={(option) => `${option.text} (${option.code})`}
       onChange={(_, value) => {
         onChange(value);
       }}
       loading={loading}
       isOptionEqualToValue={(option, value) => option.code === value?.code}
-      onInputChange={(_, reason) => {
-        (reason === "input" || reason === "clear");
-      }}
       renderInput={(params) => (
         <TextField
           required={required}
@@ -76,7 +95,7 @@ const SelectBom: React.FC<Props> = ({ value, onChange, label = "Search Device", 
       renderOption={(props, option) => (
         <li {...props}>
           <div>
-            <p className="text-[13px]">{`${option.name}`}</p>
+            <p className="text-[13px]">{`${option.text} (${option.code})`}</p>
           </div>
         </li>
       )}
@@ -85,4 +104,4 @@ const SelectBom: React.FC<Props> = ({ value, onChange, label = "Search Device", 
   );
 };
 
-export default SelectBom;
+export default SelectCountry;

@@ -1,7 +1,6 @@
 import React, { useCallback, useRef, useState } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-
 import dayjs, { Dayjs } from "dayjs";
 import { AgGridReact } from "@ag-grid-community/react";
 import R4ReportTable from "@/table/report/R4ReportTable";
@@ -50,7 +49,7 @@ const R4Report: React.FC = () => {
   const { r4reportLoading, r4ReportDetail, r4ReportDetailLoading, r4report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DEVICE");
   const [device, setDevice] = useState<DeviceType | null>(null);
-  const { emitDownloadR4Report } = useSocketContext();
+  const { emitDownloadR4Report,isConnected } = useSocketContext();
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
@@ -192,7 +191,7 @@ const R4Report: React.FC = () => {
                 >
                   Search
                 </LoadingButton>
-                <LoadingButton onClick={downloadr4report} variant="contained" startIcon={<Icons.download fontSize="small" />} >
+                <LoadingButton disabled={!isConnected} onClick={downloadr4report} variant="contained" startIcon={<Icons.download fontSize="small" />} >
                   Download Report
                 </LoadingButton>
               </div>

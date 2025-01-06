@@ -34,6 +34,7 @@ import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
+import SelectCostCenter from "@/components/reusable/SelectCostCenter";
 
 type Props = {
   setStep: (step: number) => void;
@@ -67,6 +68,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
       unit: "",
       docId: "",
       docType: "",
+      cc: null,
     },
   });
 
@@ -88,6 +90,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
       docId: data.docId,
       docType: data.docType,
       docDate: dayjs(data.docDate).format("DD-MM-YYYY"),
+      cc: data.cc?.id || "",
     };
 
     dispatch(createMinAsync(updateddata)).then((response: any) => {
@@ -304,6 +307,24 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                   render={({ field }) => <SelectLocationAcordingModule endPoint="/deviceMin/device-inward-location" {...field} error={!!errors.location} helperText={errors.location?.message} />}
                 />
               </div>
+              <Controller
+                name="cc"
+                control={control}
+                rules={{ required: "Cost Center  is required" }}
+                render={({ field }) => (
+                  <SelectCostCenter
+                    variant="outlined"
+                    error={!!errors.cc}
+                    helperText={errors.cc?.message}
+                    value={field.value}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      dispatch(getVendorBranchAsync(e!.id));
+                    }}
+                    label="Cost Center"
+                  />
+                )}
+              />
               <div>
                 <Controller
                   name="docType"

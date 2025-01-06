@@ -23,6 +23,7 @@ import qrslice from "@/features/production/QRCode/QRCodeSlice";
 import menuReducer from "@/features/menu/menuSlice";
 import vendor from "@/features/master/vendor/vedorSlice";
 import category from "@/features/master/Category/CategorySlice";
+import client from "@/features/master/client/clientSlice";
 
 export const store = configureStore({
   reducer: {
@@ -50,6 +51,7 @@ export const store = configureStore({
     vendor: vendor,
     category,
     simmin: simminReducer,
+    client: client,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -57,6 +59,5 @@ export const store = configureStore({
     }),
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
