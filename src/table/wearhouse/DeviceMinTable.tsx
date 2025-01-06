@@ -78,29 +78,34 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       headerName: "Serial No.",
       field: "serialno",
       minWidth: 200,
+      lockVisible: true,
     },
     {
       headerName: "IMEI",
       field: "IMEI",
       cellRenderer: "textInputCellRenderer",
       minWidth: 270,
+      lockVisible: true,
     },
     {
       headerName: "Model",
       field: "model",
       cellRenderer: "textInputCellRenderer",
       minWidth: 200,
+      lockVisible: true,
     },
     {
       headerName: "SIM Availability",
       field: "simAvailability",
       cellRenderer: "textInputCellRenderer",
+      lockVisible: true,
     },
     {
       headerName: "Remarks",
       field: "remarks",
       cellRenderer: "textInputCellRenderer",
       minWidth: 200,
+      lockVisible: true,
     },
     {
       headerName: "isAvailble",
@@ -108,6 +113,7 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       cellRenderer: "textInputCellRenderer",
       minWidth: 200,
       hide: true,
+      lockVisible: true,
     },
     {
       headerName: "",
@@ -164,6 +170,8 @@ const DeviceMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
         );
       },
       width: 120,
+      hide:false,
+      lockVisible: true,
     },
   ];
 
