@@ -8,6 +8,7 @@ export type CreateProductionPayload = {
   issueQty: string[]; // Array of strings for issue quantities, required
   remark: string[]; // Array of strings for remarks, required
   bom: string;
+  cc: string;
 }
 export type CommonResponse ={
   status: string;

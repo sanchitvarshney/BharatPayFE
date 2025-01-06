@@ -1,3 +1,4 @@
+import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import { VendorData } from "@/components/reusable/SelectVendor";
 import { Dayjs } from "dayjs";
 
@@ -22,6 +23,7 @@ export type CreateRawMinPayloadType = {
   location: string[];
   hsnCode: string[];
   remarks: string[];
+  cc: string; // required
 };
 export type CreateRawMinResponse = {
   status: string;
@@ -41,10 +43,11 @@ export type RawMINFormData = {
   gstin: string;
   doucmentDate: Dayjs | null;
   documentId: string;
+  cc: CostCenterType | null;
 };
 
 export type RawminState = {
   documnetFileData: DocumentFileData[] | null;
   createminLoading: boolean;
-  formdata:RawMINFormData  | null
+  formdata: RawMINFormData | null;
 };

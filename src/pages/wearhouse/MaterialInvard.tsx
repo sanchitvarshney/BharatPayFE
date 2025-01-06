@@ -164,6 +164,7 @@ const MaterialInvard: React.FC = () => {
           doc_date: dayjs(data.doucmentDate).format("DD-MM-YYYY") || "",
           vendortype: data.vendorType || "",
           invoiceAttachment: documnetFileData || [],
+          cc: "",
         };
         dispatch(createRawMin(payload)).then((response: any) => {
           if (response.payload.data.success) {

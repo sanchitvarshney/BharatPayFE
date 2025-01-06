@@ -21,7 +21,6 @@ import MasterVenderLayout from "./layouts/MasterVenderLayout";
 import MasterAddVender from "./pages/master/MasterAddVender";
 import MsterVendorDetail from "./pages/master/MsterVendorDetail";
 import ProductionMaterialRequisitionLayout from "./layouts/ProductionMaterialRequisitionLayout";
-import ProductionReqWithBOM from "./pages/production/ProductionReqWithBOM";
 import MaterialReqWithoutBom from "./pages/production/MaterialReqWithoutBom";
 import MaterialApprovalLayout from "./layouts/MaterialApprovalLayout";
 import MaterialApproval from "./pages/wearhouse/MaterialApproval";
@@ -73,6 +72,7 @@ import MaterialInvardv2 from "./pages/wearhouse/MaterialInvardv2";
 import MasterBomDetailPage from "./pages/master/MasterBomDetailPage";
 import MasterClient from "./pages/master/MasterClient";
 import MasterClientDetail from "./pages/master/MasterClientDetail";
+import MaterialRequestWithBom from "./pages/production/MaterialRequestWithBom";
 
 export const router = createBrowserRouter([
   {
@@ -374,8 +374,8 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <ProductionMaterialRequisitionLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <ProductionReqWithBOM />
+              <CustomRedirection UnderDevelopment={false}>
+                <MaterialRequestWithBom />
               </CustomRedirection>
             </ProductionMaterialRequisitionLayout>
           </MainLayout>

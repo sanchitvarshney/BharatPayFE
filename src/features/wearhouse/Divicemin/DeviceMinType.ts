@@ -1,3 +1,4 @@
+import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import { VendorData } from "@/components/reusable/SelectVendor";
@@ -58,6 +59,7 @@ export type Step1Form = {
   unit: string;
   docId: string;
   docType: string;
+  cc: CostCenterType | null;
 };
 interface UomDetail {
   product_name: string;
@@ -99,6 +101,7 @@ export type CreateMinPayload = {
   docId: string;
   docDate: string;
   docType: string;
+  cc: string;
 };
 
 export type CreateMinData = {

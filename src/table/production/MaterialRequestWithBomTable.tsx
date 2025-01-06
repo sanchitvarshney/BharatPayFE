@@ -7,23 +7,28 @@ import CreateProductionCellrenderer from "../Cellrenders/CreateProductionCellren
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CategoryFilter from "@/table/production/CategoryFilter";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { useAppSelector } from "@/hooks/useReduxHook";
 interface RowData {
-  remark: string;
-  id: string;
-  isNew: boolean;
-  component: { lable: string; value: string } | null;
-  qty: string;
-  uom: string;
   requiredQty: string;
+  bomstatus: string;
+  category: string;
   compKey: string;
+  componentName: string;
+  partCode: string;
+  componentDesc: string;
+  unit: string;
+  isNew?: boolean;
+  remark: string;
 }
 type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
-  addrow: () => void;
-  enabled: boolean;
+  addrow?: () => void;
+  enabled?: boolean;
 };
-const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, enabled }) => {
+const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata }) => {
+  const { fgBomListLoading } = useAppSelector((state) => state.bom);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -37,7 +42,6 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
     }
     setRowdata(allData);
   };
- console.log(addrow,enabled)
   const statusBar = useMemo<{
     statusPanels: StatusPanelDef[];
   }>(() => {
@@ -107,18 +111,19 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
       flex: 1,
     },
     {
-      headerName: "Qty",
-      field: "requiredQty",
-      cellRenderer: "textInputCellRenderer",
-      flex: 1,
-    },
-    {
       headerName: "Category",
       field: "category",
       cellRenderer: "textInputCellRenderer",
       flex: 1,
       filter: CategoryFilter, // Use the custom filter we created
     },
+    {
+      headerName: "Qty",
+      field: "requiredQty",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1,
+    },
+
     // {
     //   headerName: "Status",
     //   field: "bomstatus",
@@ -154,11 +159,12 @@ const CreateProductionTable: React.FC<Props> = ({ rowData, setRowdata, addrow, e
           return null;
         }}
         ref={gridRef}
+        loadingOverlayComponent={CustomLoadingOverlay}
         columnDefs={columnDefs}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         rowData={rowData}
         animateRows
-        loading={false}
+        loading={fgBomListLoading}
         statusBar={statusBar}
         components={components}
         defaultColDef={{

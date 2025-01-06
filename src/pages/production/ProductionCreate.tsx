@@ -5,34 +5,23 @@ import CreateProductionTable from "@/table/production/CreateProductionTable";
 import SaveIcon from "@mui/icons-material/Save";
 import { showToast } from "@/utils/toasterContext";
 import { CreateProductionPayload } from "@/features/production/ManageProduction/ManageProductionType";
-import {
-  clearDeviceDetail,
-  getDeviceDetail,
-} from "@/features/production/Batteryqc/BatteryQcSlice";
+import { clearDeviceDetail, getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { createProduction } from "@/features/production/ManageProduction/ManageProductionSlie";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import LoadingButton from "@mui/lab/LoadingButton";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
-import {
-  Button,
-  CircularProgress,
-  IconButton,
-  InputLabel,
-  LinearProgress,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress, IconButton, InputLabel, LinearProgress, Typography } from "@mui/material";
 import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import CheckIcon from "@mui/icons-material/Check";
 import CreateIcon from "@mui/icons-material/Create";
-import SelectLocationAcordingModule, {
-  LocationType,
-} from "@/components/reusable/SelectLocationAcordingModule";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import { generateUniqueId } from "@/utils/uniqueid";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import SelectBom from "@/components/reusable/SelectBom";
 import { fetchBomProduct } from "@/features/master/BOM/BOMSlice";
+import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
 type RowData = {
   remark: string;
   id: string;
@@ -51,21 +40,16 @@ const ProductionCreate: React.FC = () => {
   const [device, setDevice] = useState<DeviceType | null>(null);
   const [bom, setBom] = useState<any>(null);
   const [disable, setDisable] = useState<boolean>(false);
+  const [cc, setCC] = useState<CostCenterType | null>(null);
   //   const dispatch = useAppDispatch();
-  const { deviceDetailLoading, deviceDetailData } = useAppSelector(
-    (state) => state.batteryQcReducer
-  );
+  const { deviceDetailLoading, deviceDetailData } = useAppSelector((state) => state.batteryQcReducer);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [resetAlert, setResetAlert] = useState<boolean>(false);
   const [imei, setImei] = useState<string>("");
   const imeiInputRef = useRef<InputRef>(null);
   const dispatch = useAppDispatch();
-  const { createProductionLaoding } = useAppSelector(
-    (state) => state.manageProduction
-  );
-  const { fgBomListLoading } = useAppSelector(
-    (state) => state.bom
-  );
+  const { createProductionLaoding } = useAppSelector((state) => state.manageProduction);
+  const { fgBomListLoading } = useAppSelector((state) => state.bom);
   const addRow = useCallback(() => {
     const newId = generateUniqueId();
     const newRow: RowData = {
@@ -97,6 +81,9 @@ const ProductionCreate: React.FC = () => {
     } else if (!device) {
       showToast("Please Select Device", "error");
       return;
+    } else if (!cc) {
+      showToast("Please Select Cost Center", "error");
+      return;
     } else {
       let hasErrors = false;
 
@@ -111,10 +98,7 @@ const ProductionCreate: React.FC = () => {
         }
 
         if (missingFields.length > 0) {
-          showToast(
-            `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
-            "error"
-          );
+          showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
           hasErrors = true;
         }
       });
@@ -130,6 +114,7 @@ const ProductionCreate: React.FC = () => {
           remark: rowData.map((row) => row.remark),
           sku: device?.id || "",
           bom: bom.code || "",
+          cc: cc?.id || "",
         };
         dispatch(createProduction(payload)).then((response: any) => {
           if (response.payload.data.success) {
@@ -142,6 +127,7 @@ const ProductionCreate: React.FC = () => {
             // setPicklocation(null);
             // setDevice(null);
             setBom(null);
+            setCC(null);
           }
         });
       }
@@ -156,12 +142,10 @@ const ProductionCreate: React.FC = () => {
       dispatch(fetchBomProduct(bom.code)).then((response: any) => {
         if (response.payload.data.success) {
           // Modify the data to add `isNew: true` in every row
-          const updatedData = response.payload.data.data.data.map(
-            (row: any) => ({
-              ...row,
-              isNew: true,
-            })
-          );
+          const updatedData = response.payload.data.data.data.map((row: any) => ({
+            ...row,
+            isNew: true,
+          }));
           setRowData(updatedData); // Set the modified data to state
         }
       });
@@ -170,7 +154,7 @@ const ProductionCreate: React.FC = () => {
 
   return (
     <>
-    {fgBomListLoading && <LinearProgress />}
+      {fgBomListLoading && <LinearProgress />}
       <ConfirmationModel
         open={resetAlert}
         title="Are you absolutely sure"
@@ -189,58 +173,26 @@ const ProductionCreate: React.FC = () => {
           setBom(null);
           imeiInputRef.current?.blur();
           setDisable(false);
+          setCC(null);
         }}
         confirmText="Continue"
       />
 
-      <div className="h-[calc(100vh-100px)] grid grid-cols-[400px_1fr]">
+      <div className="h-[calc(100vh-50px)] grid grid-cols-[400px_1fr]">
         <div className="bg-white p-[20px] border-r border-neutral-300 flex flex-col gap-[30px]">
           <Typography variant="h2" fontSize={20} fontWeight={500}>
             Create Production
           </Typography>
-          <SelectDevice
-            size="medium"
-            required
-            varient="outlined"
-            helperText={"Select the device to be produced"}
-            onChange={setDevice}
-            value={device}
-            label="Select Device"
-          />
-          <SelectBom
-            size="medium"
-            required
-            varient="outlined"
-            helperText={"Select the BOM"}
-            onChange={setBom}
-            value={bom}
-            label="Select BOM"
-            id={device?.id}
-          />
-          <SelectLocationAcordingModule
-            endPoint="/production/dropLocation"
-            size="medium"
-            required
-            varient="outlined"
-            onChange={setDroplocation}
-            value={droplocation}
-            label="Drop Location"
-            helperText={"Location where the device will be dropped"}
-          />
-          <SelectLocationAcordingModule
-            endPoint="/production/pickLocation"
-            size="medium"
-            required
-            varient="outlined"
-            onChange={setPicklocation}
-            value={picklocation}
-            label="Pick Location"
-            helperText={"Location where the components will be picked up"}
-          />
+          <SelectDevice size="medium" required varient="outlined" helperText={"Select the device to be produced"} onChange={setDevice} value={device} label="Select Device" />
+          <SelectBom size="medium" required varient="outlined" helperText={"Select the BOM"} onChange={setBom} value={bom} label="Select BOM" id={device?.id} />
+          <SelectLocationAcordingModule endPoint="/production/dropLocation" size="medium" required varient="outlined" onChange={setDroplocation} value={droplocation} label="Drop Location" helperText={"Location where the device will be dropped"} />
+          <SelectLocationAcordingModule endPoint="/production/pickLocation" size="medium" required varient="outlined" onChange={setPicklocation} value={picklocation} label="Pick Location" helperText={"Location where the components will be picked up"} />
+          <SelectCostCenter value={cc} onChange={setCC} size="medium" variant="outlined" required />
         </div>
         <div>
-          <div className="h-[100px] bg-white flex items-center px-[20px] gap-[20px] ">
-            <FormControl required sx={{ width: "400px" }} variant="outlined">
+          <div className="h-[100px] bg-white flex items-center justify-between px-[20px] gap-[20px]  border-b border-neutral-300">
+        <div>
+        <FormControl required sx={{ width: "400px" }} variant="outlined">
               <InputLabel
                 sx={{
                   color: "#a3a3a3", // Default label color
@@ -257,17 +209,7 @@ const ProductionCreate: React.FC = () => {
                 label="IMEI No."
                 placeholder="Scan or Enter QR Code"
                 id="standard-adornment-qty"
-                endAdornment={
-                  <InputAdornment position="end">
-                    {deviceDetailLoading ? (
-                      <CircularProgress size={20} color="inherit" />
-                    ) : deviceDetailData ? (
-                      <CheckIcon color="success" />
-                    ) : (
-                      <QrCodeScannerIcon />
-                    )}
-                  </InputAdornment>
-                }
+                endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : deviceDetailData ? <CheckIcon color="success" /> : <QrCodeScannerIcon />}</InputAdornment>}
                 aria-describedby="standard-weight-helper-text"
                 inputProps={{
                   "aria-label": "weight",
@@ -275,23 +217,20 @@ const ProductionCreate: React.FC = () => {
                 value={imei}
                 onChange={(e) => {
                   setImei(e.target.value);
-                  
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     if (imei) {
-                      dispatch(getDeviceDetail(imei.slice(0, 15))).then(
-                        (res: any) => {
-                          if (res.payload.data.success) {
-                            setEnabled(true);
-                            setDisable(true);
-                          } else {
-                            showToast(res.payload.data.message, "error");
-                            setEnabled(false);
-                            setDisable(false);
-                          }
+                      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
+                        if (res.payload.data.success) {
+                          setEnabled(true);
+                          setDisable(true);
+                        } else {
+                          showToast(res.payload.data.message, "error");
+                          setEnabled(false);
+                          setDisable(false);
                         }
-                      );
+                      });
                     }
                   }
                 }}
@@ -322,16 +261,8 @@ const ProductionCreate: React.FC = () => {
                 </IconButton>
               </MuiTooltip>
             )}
-          </div>
-          <CreateProductionTable
-            enabled={enabled}
-            addrow={addRow}
-            rowData={rowData}
-            setRowdata={setRowData}
-          />
         </div>
-      </div>
-      <div className="h-[50px] bg-white border-t border-neutral-300 flex items-center justify-end gap-[10px] px-[20px]">
+        <div className="flex items-center gap-[10px]">
         <Button
           sx={{ color: "red", backgroundColor: "white" }}
           disabled={createProductionLaoding}
@@ -355,7 +286,12 @@ const ProductionCreate: React.FC = () => {
         >
           Submit
         </LoadingButton>
+        </div>
+          </div>
+          <CreateProductionTable enabled={enabled} addrow={addRow} rowData={rowData} setRowdata={setRowData} />
+        </div>
       </div>
+      
     </>
   );
 };

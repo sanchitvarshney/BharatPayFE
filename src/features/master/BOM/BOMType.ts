@@ -86,6 +86,34 @@ export type AddBomPayload = {
   reference: string;
 };
 
+export interface BomDetailApiResponse {
+  success: boolean;
+  status: string;
+  data: {
+    data: BomCompData[];
+    header: BomHaederData;
+  };
+}
+
+interface BomCompData {
+  requiredQty: string;
+  bomstatus: string;
+  category: string;
+  compKey: string;
+  componentName: string;
+  partCode: string;
+  componentDesc: string;
+  unit: string;
+}
+
+interface BomHaederData {
+  skuCode: string;
+  skukey: string;
+  productName: string;
+  subjectName: string;
+  subjectKey: string;
+}
+
 export type BOMState = {
   skuData: GetSkuDetail[] | null;
   getSkudetailLoading: boolean;
@@ -100,4 +128,5 @@ export type BOMState = {
   uploadFileLoading: boolean;
   uploadFileData: UploadFileData[] | null;
   addBomLoading: boolean;
+  bomCompDetail: BomDetailApiResponse | null;
 };

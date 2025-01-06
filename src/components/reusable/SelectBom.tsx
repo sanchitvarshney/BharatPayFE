@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import axiosInstance from "@/api/axiosInstance";
 
-export type DeviceType = {
-  id: string;
-  text: string;
+export type Bomtype = {
+  code: string;
+  name: string;
 };
 type Props = {
-  onChange: (value: DeviceType | null) => void;
-  value: DeviceType | null | any;
+  onChange: (value: Bomtype | null) => void;
+  value: Bomtype | null | any;
   label?: string;
   width?: string;
   error?: boolean;
@@ -23,7 +23,7 @@ const SelectBom: React.FC<Props> = ({ value, onChange, label = "Search Device", 
 //   const [inputValue, setInputValue] = useState("");
 //   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
-  const [bomList, setBomList] = useState<DeviceType[]>([]);
+  const [bomList, setBomList] = useState<Bomtype[]>([]);
 
   // Fetch devices based on SKU query
   const fetchDevices = async () => {
