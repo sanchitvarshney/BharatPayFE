@@ -1,5 +1,6 @@
 import { Icons } from "@/components/icons";
 import SelectBom, { Bomtype } from "@/components/reusable/SelectBom";
+import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import { fetchBomProduct, resetBomDetail } from "@/features/master/BOM/BOMSlice";
@@ -18,6 +19,7 @@ type FormData = {
   bom: Bomtype | null;
   quantity: number;
   remark: string;
+  cc: CostCenterType | null;
 };
 type RowData = {
   requiredQty: string;
@@ -51,6 +53,7 @@ const MaterialRequestWithBom: React.FC = () => {
       bom: null,
       quantity: 1,
       remark: "",
+      cc: null,
     },
   });
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -64,8 +67,8 @@ const MaterialRequestWithBom: React.FC = () => {
       const itemKey = rowData.map((row) => row.compKey);
       const picLocation = rowData.map(() => data.pickLocation?.code || "");
       const qty = rowData.map((row) => row.requiredQty);
-      const remark = rowData.map((row) => row.remark ||"");
-      dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: "PART", putLocation: data.siftLocation?.code || "", comment: data.remark })).then((res: any) => {
+      const remark = rowData.map((row) => row.remark || "");
+      dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: "PART", putLocation: data.siftLocation?.code || "", comment: data.remark, cc: data.cc?.id || "" })).then((res: any) => {
         if (res.payload?.data.success) {
           reset();
           setRowData([]);
@@ -152,6 +155,23 @@ const MaterialRequestWithBom: React.FC = () => {
                 }
               }}
             />
+            <Controller
+              name="cc"
+              control={control}
+              rules={{ required: "Cost Center  is required" }}
+              render={({ field }) => (
+                <SelectCostCenter
+                  variant="outlined"
+                  error={!!errors.cc}
+                  helperText={errors.cc?.message}
+                  value={field.value}
+                  onChange={(e) => {
+                    field.onChange(e);
+                  }}
+                  label="Cost Center"
+                />
+              )}
+            />
             <TextField fullWidth multiline rows={2} label="Remark" />
           </div>
           <div className="w-full">
@@ -159,7 +179,16 @@ const MaterialRequestWithBom: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center justify-end gap-[10px] h-[50px] border-t border-neutral-300 px-[20px]">
-          <LoadingButton disabled={createProductRequestLoading} startIcon={<Icons.refreshv2 />} variant="contained" sx={{ background: "white", color: "red" }}>
+          <LoadingButton
+            onClick={() => {
+              reset();
+              setRowData([]);
+            }}
+            disabled={createProductRequestLoading}
+            startIcon={<Icons.refreshv2 />}
+            variant="contained"
+            sx={{ background: "white", color: "red" }}
+          >
             Reset
           </LoadingButton>
           <LoadingButton loading={createProductRequestLoading} startIcon={<Icons.save />} variant="contained" type="submit">

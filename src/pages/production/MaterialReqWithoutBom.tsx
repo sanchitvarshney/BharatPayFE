@@ -11,6 +11,7 @@ import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
 
 interface RowData {
   code: { lable: string; value: string } | null;
@@ -24,6 +25,7 @@ interface RowData {
 type Formstate = {
   location: LocationType | null;
   remarks: string;
+  cc: CostCenterType | null;
 };
 
 const MaterialReqWithoutBom = () => {
@@ -101,7 +103,7 @@ const MaterialReqWithoutBom = () => {
         const picLocation = rowData.map((row) => row.pickLocation?.value || "");
         const qty = rowData.map((row) => row.orderqty);
         const remark = rowData.map((row) => row.remarks);
-        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.code, comment: data.remarks })).then((res: any) => {
+        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.code, comment: data.remarks, cc: data.cc?.id || "" })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
@@ -242,6 +244,23 @@ const MaterialReqWithoutBom = () => {
                     <Typography>Location Details :</Typography>
                     <span className="text-[14px] text-slate-600">{locationdetail}</span>
                   </div>
+                  <Controller
+                    name="cc"
+                    control={control}
+                    rules={{ required: "Cost Center  is required" }}
+                    render={({ field }) => (
+                      <SelectCostCenter
+                        variant="outlined"
+                        error={!!errors.cc}
+                        helperText={errors.cc?.message}
+                        value={field.value}
+                        onChange={(e) => {
+                          field.onChange(e);
+                        }}
+                        label="Cost Center"
+                      />
+                    )}
+                  />
                   <div>
                     <TextField fullWidth multiline rows={4} label="Remark (if any)" {...register("remarks")} />
                   </div>

@@ -34,6 +34,7 @@ export type CreateProductRequestType = {
   qty: string[];
   remark: string[];
   comment: string;
+  cc: string;
 };
 export type CreateProductRequestResponse = {
   status: string;
@@ -59,11 +60,11 @@ export type AvailbleQtyResponse = {
     item: string;
   };
 };
-export type AvaibleQtyData ={
+export type AvaibleQtyData = {
   Stock: number;
   location: string;
   item: string;
-}
+};
 
 export type MrRequestWithoutBom = {
   getPartCodeLoading: boolean;
@@ -76,5 +77,5 @@ export type MrRequestWithoutBom = {
   getLocationDataLoading: boolean;
   craeteRequestData: CreateProductRequestResponse | null;
   getAvailbleQtyLoading: boolean;
-  availbleQtyData: AvaibleQtyData[]|null;
+  availbleQtyData: AvaibleQtyData[] | null;
 };

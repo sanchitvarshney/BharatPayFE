@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Dialog from "@mui/material/Dialog";
 import Divider from "@mui/material/Divider";
 import AppBar from "@mui/material/AppBar";
@@ -9,7 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import { Icons } from "@/components/icons";
-import { InputAdornment, TextField } from "@mui/material";
+import { Checkbox, FormControlLabel, InputAdornment, TextField } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { LoadingButton } from "@mui/lab";
 import { Controller, useForm } from "react-hook-form";
@@ -54,12 +54,18 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
   const dispatch = useAppDispatch();
   const { id } = useParams();
   const { addBranchLoading } = useAppSelector((state) => state.client);
+  const [checked, setChecked] = React.useState(false);
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
   const {
     register,
     handleSubmit,
     control,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData2Type>({
     mode: "all",
@@ -109,12 +115,36 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
       if (res.payload?.data?.success) {
         reset();
         handleClose();
+        setChecked(false);
         if (id) {
           dispatch(getClientDetail(id));
         }
       }
     });
   };
+  useEffect(() => {
+    if (checked) {
+      setValue("shipToAddress1", watch("billToAddresLine1"));
+      setValue("shipToAddress2", watch("billToAddresLine2"));
+      setValue("shipToPincode", watch("billToPincode"));
+      setValue("shipToLabel", watch("billToLabel"));
+      setValue("shipToCompany", watch("billToLabel"));
+      setValue("shipToCountry", watch("billToCountry"));
+      setValue("shipToState", watch("billToState"));
+      setValue("shipToGst", watch("billToGst"));
+      setValue("shipToPan", watch("billToGst"));
+    } else {
+      setValue("shipToAddress1", "");
+      setValue("shipToAddress2", "");
+      setValue("shipToPincode", "");
+      setValue("shipToLabel", "");
+      setValue("shipToCompany", "");
+      setValue("shipToCountry", null);
+      setValue("shipToState", null);
+      setValue("shipToGst", "");
+      setValue("shipToPan", "");
+    }
+  }, [checked]);
   return (
     <>
       <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
@@ -128,7 +158,20 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
                 Add Branch
               </Typography>
               <div className="flex items-center gap-3">
-                <LoadingButton onClick={() => reset()} loadingPosition="start" disabled={addBranchLoading} type="button" startIcon={<Icons.refresh />} variant="contained" sx={{ background: "white", color: "red" }} autoFocus color="inherit">
+                <LoadingButton
+                  onClick={() => {
+                    reset();
+                    setChecked(false);
+                  }}
+                  loadingPosition="start"
+                  disabled={addBranchLoading}
+                  type="button"
+                  startIcon={<Icons.refresh />}
+                  variant="contained"
+                  sx={{ background: "white", color: "red" }}
+                  autoFocus
+                  color="inherit"
+                >
                   reset
                 </LoadingButton>
                 <LoadingButton loadingPosition="start" loading={addBranchLoading} type="submit" startIcon={<Icons.save />} variant="contained" sx={{ background: "white", color: "black" }} autoFocus color="inherit">
@@ -271,8 +314,12 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
               <h2 className="text-lg font-semibold">Shipping Address Address</h2>
               <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
             </div>
+            <div className="px-[10px]">
+              <FormControlLabel control={<Checkbox checked={checked} onChange={handleChange} />} label="Shipping address same as Billing address" />
+            </div>
             <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-[30px] overflow-x-hidden  ">
               <TextField
+                focused={!!watch("shipToLabel")}
                 {...register("shipToLabel", { required: "Label is required" })}
                 error={!!errors.shipToLabel}
                 helperText={errors.shipToLabel?.message}
@@ -289,6 +336,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
                 }}
               />
               <TextField
+                focused={!!watch("shipToPan")}
                 {...register("shipToPan", { required: "Pan Number is required" })}
                 error={!!errors.shipToPan}
                 helperText={errors.shipToPan?.message}
@@ -312,6 +360,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
               />
               <Controller rules={{ required: "State is required" }} control={control} name="shipToState" render={({ field }) => <SelectState error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />} />
               <TextField
+                focused={!!watch("shipToPincode")}
                 {...register("shipToPincode", { required: "Pincode is required" })}
                 error={!!errors.shipToPincode}
                 helperText={errors.shipToPincode?.message}
@@ -328,6 +377,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
                 }}
               />
               <TextField
+                focused={!!watch("shipToCompany")}
                 {...register("shipToCompany", { required: "Company is required" })}
                 error={!!errors.shipToCompany}
                 helperText={errors.shipToCompany?.message}
@@ -344,6 +394,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
                 }}
               />
               <TextField
+                focused={!!watch("shipToGst")}
                 {...register("shipToGst", { required: "GST is required" })}
                 error={!!errors.shipToGst}
                 helperText={errors.shipToGst?.message}
@@ -361,6 +412,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
               />
               <div className="lg:col-span-2">
                 <TextField
+                  focused={!!watch("shipToAddress1")}
                   fullWidth
                   {...register("shipToAddress1", { required: "Address Line 1 is required" })}
                   error={!!errors.shipToAddress1}
@@ -382,6 +434,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
               </div>
               <div className="lg:col-span-2">
                 <TextField
+                  focused={!!watch("shipToAddress2")}
                   fullWidth
                   {...register("shipToAddress2", { required: "Address Line 2 is required" })}
                   error={!!errors.shipToAddress2}
