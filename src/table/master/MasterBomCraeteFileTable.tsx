@@ -34,6 +34,7 @@ const MasterBomCraeteFileTable: React.FC = () => {
       sortable: true,
       filter: true,
       editable: true,
+      hide: true,
     },
     {
       headerName: "QTY",

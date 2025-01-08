@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
+import useDebounce from "@/hooks/useDebounce";
 import axiosInstance from "@/api/axiosInstance";
 
 export type CountryData = {
   text: string;
   code: number;
-};
-
-type CountryApiResponse = {
-  status: string;
-  message: string;
-  success: boolean;
-  data: CountryData[];
 };
 
 type Props = {
@@ -21,36 +15,23 @@ type Props = {
   width?: string;
   error?: boolean;
   helperText?: string | null;
-  varient?: "outlined" | "standard" | "filled";
   required?: boolean;
+  varient?: "outlined" | "standard" | "filled";
   size?: "small" | "medium";
 };
 
-const SelectCountry: React.FC<Props> = ({
-  value,
-  onChange,
-  label = "Select Country",
-  width = "100%",
-  error,
-  helperText,
-  varient = "outlined",
-  required = false,
-  size = "medium",
-}) => {
+const SelectCountry: React.FC<Props> = ({ value, onChange, label = "Search Country", width = "100%", error, helperText, required = false, varient = "outlined", size = "medium" }) => {
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 300);
+  const [loading, setLoading] = useState<boolean>(false);
   const [countryList, setCountryList] = useState<CountryData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch countries on mount
-  const fetchCountries = async () => {
+  const fetchCountries = async (query: string | null) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get<CountryApiResponse>(`/backend/country`);
-      if (response.data.success) {
-        setCountryList(response.data.data || []);
-      } else {
-        setCountryList([]);
-        console.warn("Failed to fetch countries:", response.data.message);
-      }
+      const endpoint = query ? `/backend/country?search=${query}` : `/backend/country`;
+      const response = await axiosInstance.get(endpoint);
+      setCountryList(response.data.data);
     } catch (error) {
       console.error("Error fetching countries:", error);
     } finally {
@@ -59,20 +40,31 @@ const SelectCountry: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    fetchCountries();
+    if (debouncedInputValue) {
+      fetchCountries(debouncedInputValue);
+    }
+  }, [debouncedInputValue]);
+
+  useEffect(() => {
+    fetchCountries(null);
   }, []);
 
   return (
     <Autocomplete
+      onFocus={() => fetchCountries(null)}
       value={value}
       size={size}
       options={countryList || []}
       getOptionLabel={(option) => `${option.text} (${option.code})`}
+      filterSelectedOptions
       onChange={(_, value) => {
         onChange(value);
       }}
       loading={loading}
       isOptionEqualToValue={(option, value) => option.code === value?.code}
+      onInputChange={(_, newInputValue, reason) => {
+        (reason === "input" || reason === "clear") && setInputValue(newInputValue);
+      }}
       renderInput={(params) => (
         <TextField
           required={required}
@@ -81,21 +73,23 @@ const SelectCountry: React.FC<Props> = ({
           {...params}
           label={label}
           variant={varient}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            },
           }}
         />
       )}
       renderOption={(props, option) => (
         <li {...props}>
           <div>
-            <p className="text-[13px]">{`${option.text} (${option.code})`}</p>
+            <p className="text-[13px]">{`${option.text}`}</p>
           </div>
         </li>
       )}

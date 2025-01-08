@@ -125,7 +125,7 @@ const MaterialRequestWithBom: React.FC = () => {
               render={({ field }) => (
                 <SelectLocationAcordingModule
                   label="Pick Location"
-                  endPoint="/req/without-bom/req-location"
+                  endPoint="/req/without-bom/pick-location"
                   error={!!errors.pickLocation}
                   helperText={errors.pickLocation?.message}
                   value={field.value}

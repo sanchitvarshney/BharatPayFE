@@ -285,7 +285,6 @@ const MaterialReqWithoutBom = () => {
               </div>
             </form>
           </div>
-
           <MaterialReqWithoutBomTable addRow={addRow} setRowdata={setRowData} rowData={rowData} />
         </div>
       )}
