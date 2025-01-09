@@ -9,19 +9,7 @@ import AddtrcTable from "@/table/TRC/AddtrcTable";
 import { addTrcAsync } from "@/features/trc/AddTrc/addtrcSlice";
 import { AddtrcPayloadType } from "@/features/trc/AddTrc/addtrcType";
 import { getIsueeList } from "@/features/common/commonSlice";
-import {
-  Button,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress, FormControl, FormControlLabel, InputAdornment, InputLabel, OutlinedInput, Radio, RadioGroup, TextField, Typography } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
@@ -29,9 +17,8 @@ import { DeviceType } from "@/components/reusable/SelectSku";
 import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
-import SelectLocationAcordingModule, {
-  LocationType,
-} from "@/components/reusable/SelectLocationAcordingModule";
+import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
 
 interface RowData {
   remarks: string;
@@ -45,6 +32,7 @@ type Formstate = {
   putLocation: LocationType | null;
   remarks: string;
   sku: DeviceType | null;
+  cc: CostCenterType | null;
 };
 
 const AddTRC = () => {
@@ -52,17 +40,11 @@ const AddTRC = () => {
   const [barcode, setBarcode] = useState<string>(""); // State for Barcode
   const [inputType, setInputType] = useState<"IMEI" | "Barcode" | "">("Barcode");
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [barcodeLoading , setBarcodeLoading] = useState<boolean>(false);
-  const [location, setLocation] = useState<LocationType | null>(null);
-  const [locationdetail, setLocationdetail] = useState<string>("--");
+  const [barcodeLoading] = useState<boolean>(false);
   const [final, setFinal] = useState<boolean>(false);
-  const { locationData, craeteRequestData } = useAppSelector(
-    (state) => state.materialRequestWithoutBom
-  );
+  const { craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { addTrcLoading } = useAppSelector((state) => state.addTrc);
-  const { deviceDetailLoading } = useAppSelector(
-    (state) => state.batteryQcReducer
-  );
+  const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
 
   const dispatch = useAppDispatch();
 
@@ -77,6 +59,7 @@ const AddTRC = () => {
       pickLocation: null,
       putLocation: null,
       remarks: "",
+      cc: null,
     },
   });
   const addRow = useCallback(
@@ -111,10 +94,7 @@ const AddTRC = () => {
         }
 
         if (missingFields.length > 0) {
-          showToast(
-            `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
-            "error"
-          );
+          showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
           hasErrors = true;
         }
       });
@@ -131,13 +111,11 @@ const AddTRC = () => {
           comment: data.remarks,
           pickLocation: data.pickLocation?.code || "",
           putLocation: data.putLocation?.code || "",
+          cc: data.cc?.id || "",
         };
         dispatch(addTrcAsync(payload)).then((response: any) => {
           if (response.payload.data?.success) {
-            showToast(
-              `TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`,
-              "success"
-            );
+            showToast(`TRC Request Added Successfully -\n Txn ID : ${response.payload.data?.data?.refID}`, "success");
             // reset();
             setRowData([]);
           }
@@ -149,27 +127,14 @@ const AddTRC = () => {
     dispatch(getLocationAsync(null));
     dispatch(getIsueeList(null));
   }, []);
-  useEffect(() => {
-    if (location) {
-      const locationDetail = locationData?.find(
-        (item) => item.id === location?.code
-      )?.specification;
-      setLocationdetail(locationDetail || "");
-    }
-  }, [location]);
 
-  const addIssueToRow = (barcode: string) => {  
+  const addIssueToRow = (barcode: string) => {
     const updatedRows = rowData.map((row) => {
-      // Check if the barcode is already included in the issues array
       if (!row.issues.includes(barcode)) {
         try {
-          // Try to parse the barcode assuming it’s a JSON string
           const issuesArray = JSON.parse(barcode);
-  
-          // Extract the 'id' values into an array
+
           const idsArray = issuesArray.map((issue: any) => issue.id);
-  
-          // Add the unique ids to the row's issues array if not already included
           row.issues.push(...idsArray.filter((id: string) => !row.issues.includes(id)));
         } catch (e) {
           console.error("Invalid barcode JSON", e);
@@ -177,23 +142,19 @@ const AddTRC = () => {
       }
       return row;
     });
-    setRowData(updatedRows); // Update the state with the new rows
+    setRowData(updatedRows);
   };
-  
-  
-  
+
   const sanitizeData = (data: string) => {
-    // Clean up data if needed (e.g., removing extraneous characters)
-    return data.replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, '');  // Example regex, adjust as necessary
+    return data.replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, "");
   };
-  
+
   const onScanComplete = (scannedData: string) => {
     try {
-      // Sanitize and parse the data
       const parsedData = sanitizeData(scannedData);
       if (parsedData) {
-        addIssueToRow(parsedData);  // Handle parsed data
-        handleSubmit(onSubmit)(); 
+        addIssueToRow(parsedData);
+        handleSubmit(onSubmit)();
       } else {
         console.error("Failed to parse QR data.");
       }
@@ -201,8 +162,7 @@ const AddTRC = () => {
       console.error("Error parsing QR data:", error);
     }
   };
-  
-  
+
   return (
     <div>
       {final ? (
@@ -210,36 +170,17 @@ const AddTRC = () => {
           <div className="max-h-max max-w-max flex flex-col gap-[30px]">
             <Success>
               <div className="success-animation">
-                <svg
-                  className="checkmark"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 52 52"
-                >
-                  <circle
-                    className="checkmark__circle"
-                    cx="26"
-                    cy="26"
-                    r="25"
-                    fill="none"
-                  />
-                  <path
-                    className="checkmark__check"
-                    fill="none"
-                    d="M14.1 27.2l7.1 7.2 16.7-16.8"
-                  />
+                <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                  <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                  <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
                 </svg>
               </div>
             </Success>
             <div className="flex items-center gap-[10px]">
-              <p className="text-green-600">
-                {craeteRequestData && craeteRequestData.message}
-              </p>
+              <p className="text-green-600">{craeteRequestData && craeteRequestData.message}</p>
             </div>
             <div className="flex items-center justify-center">
-              <CustomButton
-                onClick={() => setFinal(false)}
-                className="flex items-center gap-[10px] bg-cyan-700 hover:bg-cyan-800"
-              >
+              <CustomButton onClick={() => setFinal(false)} className="flex items-center gap-[10px] bg-cyan-700 hover:bg-cyan-800">
                 Create New Request
                 <FaArrowRightLong />
               </CustomButton>
@@ -249,7 +190,14 @@ const AddTRC = () => {
       ) : (
         <div className="h-[calc(100vh-100px)] overflow-y-hidden grid grid-cols-[450px_1fr]">
           <div className="h-full overflow-y-auto bg-white border-r border-neutral-300">
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                }
+              }}
+            >
               <div>
                 <div className="h-[41px] p-0 flex flex-col justify-center px-[20px] bg-hbg border-b border-neutral-300">
                   <Typography className="text-slate-600 " fontWeight={500}>
@@ -287,7 +235,6 @@ const AddTRC = () => {
                           label="From Location"
                           onChange={(value) => {
                             field.onChange(value);
-                            setLocation(value);
                           }}
                         />
                       )}
@@ -307,27 +254,31 @@ const AddTRC = () => {
                           label="Drop Location"
                           onChange={(value) => {
                             field.onChange(value);
-                            setLocation(value);
                           }}
                         />
                       )}
                     />
                   </div>
-                  <div className="flex gap-[10px] items-center">
-                    <Typography>Location Details :</Typography>
-                    <span className="text-[14px] text-slate-600">
-                      {locationdetail}
-                    </span>
-                  </div>
+                  <Controller
+                    name="cc"
+                    control={control}
+                    rules={{ required: "Cost Center  is required" }}
+                    render={({ field }) => (
+                      <SelectCostCenter
+                        variant="outlined"
+                        error={!!errors.cc}
+                        helperText={errors.cc?.message}
+                        value={field.value}
+                        onChange={(e) => {
+                          field.onChange(e);
+                        }}
+                        label="Cost Center"
+                      />
+                    )}
+                  />
+
                   <div>
-                    <TextField
-                      multiline
-                      rows={3}
-                      fullWidth
-                      label="Remarks"
-                      className="h-[100px] resize-none"
-                      {...register("remarks")}
-                    />
+                    <TextField multiline rows={3} fullWidth label="Remarks" className="h-[100px] resize-none" {...register("remarks")} />
                   </div>
                 </div>
                 <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end">
@@ -343,13 +294,7 @@ const AddTRC = () => {
                   >
                     Reset
                   </Button>
-                  <LoadingButton
-                    loadingPosition="start"
-                    loading={addTrcLoading}
-                    startIcon={<Icons.save />}
-                    variant="contained"
-                    type="submit"
-                  >
+                  <LoadingButton loadingPosition="start" loading={addTrcLoading} startIcon={<Icons.save />} variant="contained" type="submit">
                     Submit
                   </LoadingButton>
                 </div>
@@ -360,79 +305,54 @@ const AddTRC = () => {
             <div className="h-[100px] bg-white flex flex-col sm:flex-row items-center px-4 gap-4 sm:gap-8 border-b border-neutral-300">
               {/* IMEI/Serial Number Input */}
               <FormControl className="w-full sm:w-[250px] md:w-[400px]">
-                <InputLabel htmlFor="outlined-adornment-IMEI/Serial">
-                  IMEI/Serial Number
-                </InputLabel>
+                <InputLabel htmlFor="outlined-adornment-IMEI/Serial">IMEI/Serial Number</InputLabel>
                 <OutlinedInput
                   id="outlined-adornment-IMEI/Serial"
                   value={imei}
-                  onChange={(e) => 
-                    setImei(e.target.value)
-                  }
+                  onChange={(e) => setImei(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       if (imei) {
-                        const isUnique = !rowData.some(
-                          (row) => row.IMEI === imei
-                        );
+                        const isUnique = !rowData.some((row) => row.IMEI === imei);
 
                         if (!isUnique) {
                           showToast("Duplicate IMEI found", "warning");
                           return;
                         }
-                        dispatch(getDeviceDetail(imei.slice(0, 15))).then(
-                          (res: any) => {
-                            if (res.payload.data.success) {
-                              addRow(res.payload.data?.data[0]?.device_imei);
-                              setImei("");
-                            }
+                        dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
+                          if (res.payload.data.success) {
+                            addRow(res.payload.data?.data[0]?.device_imei);
+                            setImei("");
                           }
-                        );
+                        });
                       }
                     }
                   }}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      {deviceDetailLoading ? (
-                        <CircularProgress size={25} />
-                      ) : (
-                        <Icons.qrScan />
-                      )}
-                    </InputAdornment>
-                  }
+                  endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={25} /> : <Icons.qrScan />}</InputAdornment>}
                   className="w-full"
                   label="IMEI/Serial Number"
                 />
               </FormControl>
 
-              {/* Barcode Input (Only shown when `inputType` is "Barcode") */}
               {inputType === "Barcode" && (
                 <FormControl className="w-full sm:w-[250px] md:w-[400px] mt-4 sm:mt-0">
-                  <InputLabel htmlFor="outlined-adornment-barcode">
-                    Issues Barcode
-                  </InputLabel>
+                  <InputLabel htmlFor="outlined-adornment-barcode">Issues Barcode</InputLabel>
                   <OutlinedInput
                     id="outlined-adornment-barcode"
                     value={barcode}
-                    onChange={(e) => {setBarcode(e.target.value);setBarcodeLoading(true)}}
+                    onChange={(e) => {
+                      setBarcode(e.target.value);
+                    }}
                     onKeyDown={(e) => {
+                      e.preventDefault();
                       if (e.key === "Enter" && barcode) {
-                        setBarcode(""); // Clear input after adding
+                        setBarcode("");
                         onScanComplete(barcode);
-                        setBarcodeLoading(false);
                       }
                     }}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        {barcodeLoading ? (
-                        <CircularProgress size={25} />
-                      ) : (
-                        <Icons.qrScan />
-                      )}
-                      </InputAdornment>
-                    }
+                    endAdornment={<InputAdornment position="end">{barcodeLoading ? <CircularProgress size={25} /> : <Icons.qrScan />}</InputAdornment>}
                     className="w-full"
-                    label="Barcode"
+                    label="Issues Barcode"
                   />
                 </FormControl>
               )}
@@ -456,16 +376,8 @@ const AddTRC = () => {
                   }}
                   className="w-full"
                 >
-                  <FormControlLabel
-                    value="IMEI"
-                    control={<Radio />}
-                    label="Manual"
-                  />
-                  <FormControlLabel
-                    value="Barcode"
-                    control={<Radio />}
-                    label="Barcode"
-                  />
+                  <FormControlLabel value="IMEI" control={<Radio />} label="Manual" />
+                  <FormControlLabel value="Barcode" control={<Radio />} label="Barcode" />
                 </RadioGroup>
               </FormControl>
             </div>
@@ -488,8 +400,7 @@ const Success = styled.div`
     stroke: #4bb71b;
     stroke-miterlimit: 10;
     box-shadow: inset 0px 0px 0px #4bb71b;
-    animation: fill 0.4s ease-in-out 0.4s forwards,
-      scale 0.3s ease-in-out 0.9s both;
+    animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
     position: relative;
     top: 5px;
     right: 5px;
