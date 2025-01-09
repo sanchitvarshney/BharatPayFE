@@ -196,7 +196,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
         }}
       />
       <div className="flex items-center justify-end  px-[20px] h-[50px] border-t border-neutral-300">
-        <LoadingButton disabled={updateBomLoading} loadingPosition="start" type="submit" variant="contained" startIcon={<Icons.save fontSize="small" />} onClick={handleSubmit}>
+        <LoadingButton loading={updateBomLoading}  loadingPosition="start" type="submit" variant="contained" startIcon={<Icons.save fontSize="small" />} onClick={handleSubmit}>
           Submit
         </LoadingButton>
       </div>
