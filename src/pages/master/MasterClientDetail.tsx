@@ -7,13 +7,11 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import AddVendorBranch from "@/components/featureModels/AddVendorBranch";
 import { getClientDetail } from "@/features/master/client/clientSlice";
 import MasterClientBranchDetailTable from "@/table/master/MasterClientBranchDetailTable";
 import AddClientBranch from "@/components/featureModels/AddClientBranch";
 import EditClientBasicDetail from "@/components/featureModels/EditClientBasicDetail";
 const MasterClientDetail: React.FC = () => {
-  const [addvendor, setAddVendor] = React.useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { clientDetailLoading, clientDetail } = useAppSelector((state) => state.client);
   const [addbranch, setAddBranch] = React.useState<boolean>(false);
@@ -33,9 +31,7 @@ const MasterClientDetail: React.FC = () => {
     scrollToSection(newValue);
   };
 
-  const handleclose = () => {
-    setAddVendor(false);
-  };
+ 
   useEffect(() => {
     if (id) {
       dispatch(getClientDetail(id));
@@ -45,7 +41,6 @@ const MasterClientDetail: React.FC = () => {
     <>
     <EditClientBasicDetail open={editBasicDetail} handleClose={() => setEditBasicDetail(false)} />
       <AddClientBranch open={addbranch} handleClose={()=>setAddBranch(false)} />
-      <AddVendorBranch open={addvendor} handleClose={handleclose} />
       <div className="relative bg-white">
         <div className="absolute top-0 left-0 right-0">{clientDetailLoading && <LinearProgress />}</div>
 

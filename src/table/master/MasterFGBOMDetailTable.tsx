@@ -11,7 +11,7 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import EditBomDetailCellRenderer from "../Cellrenders/EditBomDetailCellRenderer";
 import { showToast } from "@/utils/toasterContext";
 import { useParams } from "react-router-dom";
-import { Button, TextField } from "@mui/material";
+import { Button, Divider, TextField } from "@mui/material";
 import BootstrapStyleDialog from "@/components/ui/BootstrapStyleDialog";
 import SelectComponent, { ComponentType } from "@/components/reusable/SelectComponent";
 import MuiSelect from "@/components/reusable/MuiSelect";
@@ -38,7 +38,7 @@ type Props = {
 const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const { bomDetail, updateBomLoading,addBomLoading } = useAppSelector((state) => state.bom);
+  const { bomDetail, updateBomLoading, addBomLoading } = useAppSelector((state) => state.bom);
   const { id } = useParams();
   const [open, setOpen] = useState(false);
   const [component, setComponent] = useState<ComponentType | null>(null);
@@ -137,24 +137,17 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
         handleClose={() => setOpen(false)}
         title="Add New Component"
         content={
-          <div>
+          <div className="">
             <form action="">
-              <div className="grid grid-cols-2 gap-[20px]">
+              <div className="grid grid-cols-2 gap-[20px] p-[20px]">
                 <SelectComponent label="Select Component" varient="filled" width="300px" value={component} onChange={(value) => setComponent(value)} />
                 <TextField type="number" label="QTY" variant="filled" value={qty} onChange={(e) => setQty(e.target.value)} />
 
-                <MuiSelect
-                  onChange={(value) => setCategory(value)}
-                  value={category}
-                  variant="filled"
-                  options={categoryOptions}
-                  label="Category"
-                  fullWidth
-                />               
+                <MuiSelect onChange={(value) => setCategory(value)} value={category} variant="filled" options={categoryOptions} label="Category" fullWidth />
                 <TextField label="Reference" variant="filled" value={ref} onChange={(e) => setRef(e.target.value)} />
               </div>
-
-              <div className="mt-[20px] h-[60px] flex items-center justify-end gap-[10px]">
+              <Divider />
+              <div className=" h-[60px] flex items-center justify-end gap-[10px] px-[20px]">
                 <Button
                   onClick={() => {
                     if (!component) return showToast("Please select component", "error");
@@ -165,7 +158,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
                       componentKey: component.id,
                       bomID: id || "",
                       quantity: Number(qty),
-                      category: category ||"",
+                      category: category || "",
                       reference: ref,
                     };
                     dispatch(addComponentInBom(payload)).then((res: any) => {
@@ -176,7 +169,6 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
                         setQty("");
                         setComponent(null);
                         setCategory(undefined);
-                     
                       }
                     });
                   }}
@@ -204,7 +196,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
         }}
       />
       <div className="flex items-center justify-end  px-[20px] h-[50px] border-t border-neutral-300">
-        <LoadingButton disabled={updateBomLoading} loadingPosition="start" type="submit" variant="contained" startIcon={<Icons.save fontSize="small" />} onClick={handleSubmit}>
+        <LoadingButton loading={updateBomLoading}  loadingPosition="start" type="submit" variant="contained" startIcon={<Icons.save fontSize="small" />} onClick={handleSubmit}>
           Submit
         </LoadingButton>
       </div>

@@ -73,6 +73,7 @@ import MasterBomDetailPage from "./pages/master/MasterBomDetailPage";
 import MasterClient from "./pages/master/MasterClient";
 import MasterClientDetail from "./pages/master/MasterClientDetail";
 import MaterialRequestWithBom from "./pages/production/MaterialRequestWithBom";
+import StockDetailPage from "./pages/StockDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -90,6 +91,10 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/",
+      },
+      {
+        element: <StockDetailPage />,
+        path: "/stockdetail",
       },
       {
         element: (
@@ -625,7 +630,7 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication={false}>
         {/* <AuthLayout> */}
-          <ForgotPassword />
+        <ForgotPassword />
         {/* </AuthLayout> */}
       </Protected>
     ),

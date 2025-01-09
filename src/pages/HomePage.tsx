@@ -1,10 +1,11 @@
 import { BiLinkExternal } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import { Card, FormControl, IconButton, InputAdornment, OutlinedInput, Typography } from "@mui/material";
+import { Button, Card, FormControl, IconButton, InputAdornment, OutlinedInput, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import SendIcon from "@mui/icons-material/Send";
+import { Icons } from "@/components/icons";
+import { fnOpenNewWindow } from "@/utils/fnOpenNewWindow";
 const HomePage = () => {
-
   return (
     <div className="h-[calc(100vh-50px)] overflow-y-auto bg-white">
       <div className="w-full h-[calc(100vh-250px)] px-[200px]  py-[10px] flex items-center justify-center">
@@ -46,6 +47,11 @@ const HomePage = () => {
               </Link>
             </Card>
           </div>
+          <div className="flex items-center py-[10px] justify-center hidden">
+            <Button onClick={()=>fnOpenNewWindow("/stockdetail")}  size="large" variant="contained" sx={{fontSize:"15px"}} endIcon={<Icons.followLink fontSize="small"  />}>
+              View Detailed Summary
+            </Button>
+          </div>
         </div>
       </div>
       <div className="h-[200px] bg-zinc-100 px-[200px] flex items justify-between py-[20px]">
@@ -56,7 +62,7 @@ const HomePage = () => {
               MsCorpres Automation Pvt Ltd
             </Typography>
             <Typography fontSize={13} className=" text-zinc-500">
-            Office No. 1 and 2, 3rd Floor, Plot number B-88 Sector 83, Noida, Gautam Buddha Nagar, 201305
+              Office No. 1 and 2, 3rd Floor, Plot number B-88 Sector 83, Noida, Gautam Buddha Nagar, 201305
             </Typography>
             <Typography fontSize={13} className=" text-zinc-500">
               Phone 2: +91 88 26 788880{" "}

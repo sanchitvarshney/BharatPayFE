@@ -11,7 +11,7 @@ import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { Icons } from "@/components/icons";
-import { InputAdornment, TextField } from "@mui/material";
+import { Checkbox, FormControlLabel, InputAdornment, TextField } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { LoadingButton } from "@mui/lab";
 import { Controller, useForm } from "react-hook-form";
@@ -65,12 +65,18 @@ const MasterClient: React.FC = () => {
   const dispatch = useAppDispatch();
   const { createClientLoading } = useAppSelector((state) => state.client);
   const [open, setOpen] = React.useState(false);
+  const [checked, setChecked] = React.useState(false);
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
   const {
     register,
     handleSubmit,
     control,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData2Type>({
     mode: "all",
@@ -119,6 +125,30 @@ const MasterClient: React.FC = () => {
   useEffect(() => {
     dispatch(getClient());
   }, []);
+
+  useEffect(() => {
+    if (checked) {
+      setValue("shipToAddress1", watch("billToAddresLine1"));
+      setValue("shipToAddress2", watch("billToAddresLine2"));
+      setValue("shipToPincode", watch("billToPincode"));
+      setValue("shipToLabel", watch("billToLabel"));
+      setValue("shipToCompany", watch("billToLabel"));
+      setValue("shipToCountry", watch("billToCountry"));
+      setValue("shipToState", watch("billToState"));
+      setValue("shipToGst", watch("billToGst"));
+      setValue("shipToPan", watch("billToGst"));
+    } else {
+      setValue("shipToAddress1", "");
+      setValue("shipToAddress2", "");
+      setValue("shipToPincode", "");
+      setValue("shipToLabel", "");
+      setValue("shipToCompany", "");
+      setValue("shipToCountry", null);
+      setValue("shipToState", null);
+      setValue("shipToGst", "");
+      setValue("shipToPan", "");
+    }
+  }, [checked]);
   const onSubmit = (data: FormData2Type) => {
     const payload: CraeteClientPayload = {
       name: data.clientName,
@@ -157,6 +187,7 @@ const MasterClient: React.FC = () => {
         handleClose();
         reset();
         dispatch(getClient());
+        setChecked(false);
       }
     });
   };
@@ -173,7 +204,20 @@ const MasterClient: React.FC = () => {
                 Add Client
               </Typography>
               <div className="flex items-center gap-3">
-                <LoadingButton onClick={() => reset()} loadingPosition="start" disabled={createClientLoading} type="button" startIcon={<Icons.refresh />} variant="contained" sx={{ background: "white", color: "red" }} autoFocus color="inherit">
+                <LoadingButton
+                  onClick={() => {
+                    reset();
+                    setChecked(false);
+                  }}
+                  loadingPosition="start"
+                  disabled={createClientLoading}
+                  type="button"
+                  startIcon={<Icons.refresh />}
+                  variant="contained"
+                  sx={{ background: "white", color: "red" }}
+                  autoFocus
+                  color="inherit"
+                >
                   reset
                 </LoadingButton>
                 <LoadingButton loadingPosition="start" loading={createClientLoading} type="submit" startIcon={<Icons.save />} variant="contained" sx={{ background: "white", color: "black" }} autoFocus color="inherit">
@@ -311,12 +355,7 @@ const MasterClient: React.FC = () => {
                   />
                 )}
               />
-              <Controller
-                rules={{ required: "Country is required" }}
-                control={control}
-                name="country"
-                render={({ field }) => <SelectCountry error={!!errors.country} varient="filled" helperText={errors.country?.message} onChange={field.onChange} value={field.value} />}
-              />
+              <Controller rules={{ required: "Country is required" }} control={control} name="country" render={({ field }) => <SelectCountry error={!!errors.country} varient="filled" helperText={errors.country?.message} onChange={field.onChange} value={field.value} />} />
               <Controller rules={{ required: "State is required" }} control={control} name="state" render={({ field }) => <SelectState error={!!errors.state} varient="filled" helperText={errors.state?.message} onChange={field.onChange} value={field.value} />} />
               <TextField
                 {...register("city", { required: "City is required" })}
@@ -334,27 +373,27 @@ const MasterClient: React.FC = () => {
                   },
                 }}
               />
-               <div className="lg:col-span-2">
-                  <TextField
-                    fullWidth
-                    {...register("address", { required: "Address  is required" })}
-                    error={!!errors.address}
-                    helperText={errors.address?.message}
-                    label="Address Line 2"
-                    multiline
-                    rows={3}
-                    variant="filled"
-                    slotProps={{
-                      input: {
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <Icons.userAddress />
-                          </InputAdornment>
-                        ),
-                      },
-                    }}
-                  />
-                </div>
+              <div className="lg:col-span-2">
+                <TextField
+                  fullWidth
+                  {...register("address", { required: "Address  is required" })}
+                  error={!!errors.address}
+                  helperText={errors.address?.message}
+                  label="Address Line 2"
+                  multiline
+                  rows={3}
+                  variant="filled"
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Icons.userAddress />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </div>
             </div>
             <div className="flex items-center w-full py-[20px] gap-3 mt-[20px]">
               <h2 className="text-lg font-semibold">Tax Details</h2>
@@ -366,7 +405,6 @@ const MasterClient: React.FC = () => {
                 name="gstNumber"
                 rules={{
                   required: "GST Number is required",
-
                 }}
                 render={({ field }) => (
                   <TextField
@@ -374,7 +412,6 @@ const MasterClient: React.FC = () => {
                     error={!!errors.gstNumber}
                     helperText={errors.gstNumber?.message}
                     label="GST Number "
-                   
                     variant="filled"
                     slotProps={{
                       input: {
@@ -384,7 +421,6 @@ const MasterClient: React.FC = () => {
                           </InputAdornment>
                         ),
                       },
-                     
                     }}
                   />
                 )}
@@ -507,7 +543,7 @@ const MasterClient: React.FC = () => {
                   {...register("billToGst", { required: "GST is required" })}
                   error={!!errors.billToGst}
                   helperText={errors.billToGst?.message}
-                  label="GST Number" 
+                  label="GST Number"
                   variant="filled"
                   slotProps={{
                     input: {
@@ -517,7 +553,6 @@ const MasterClient: React.FC = () => {
                         </InputAdornment>
                       ),
                     },
-                    
                   }}
                 />
                 <div></div>
@@ -577,8 +612,12 @@ const MasterClient: React.FC = () => {
                   }}
                 />
               </header>
+              <div className="px-[10px]">
+                <FormControlLabel control={<Checkbox checked={checked} onChange={handleChange} />} label="Shipping address same as Billing address" />
+              </div>
               <div className="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-[30px] overflow-x-hidden  ">
                 <TextField
+                  focused={!!watch("shipToLabel")}
                   {...register("shipToLabel", { required: "Label is required" })}
                   error={!!errors.shipToLabel}
                   helperText={errors.shipToLabel?.message}
@@ -595,6 +634,7 @@ const MasterClient: React.FC = () => {
                   }}
                 />
                 <TextField
+                  focused={!!watch("shipToPan")}
                   {...register("shipToPan", { required: "Pan Number is required" })}
                   error={!!errors.shipToPan}
                   helperText={errors.shipToPan?.message}
@@ -616,8 +656,14 @@ const MasterClient: React.FC = () => {
                   name="shipToCountry"
                   render={({ field }) => <SelectCountry error={!!errors.shipToCountry} varient="filled" helperText={errors.shipToCountry?.message} onChange={field.onChange} value={field.value} />}
                 />
-                <Controller rules={{ required: "State is required" }} control={control} name="shipToState" render={({ field }) => <SelectState error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />} />
+                <Controller
+                  rules={{ required: "State is required" }}
+                  control={control}
+                  name="shipToState"
+                  render={({ field }) => <SelectState error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />}
+                />
                 <TextField
+                  focused={!!watch("shipToPincode")}
                   {...register("shipToPincode", { required: "Pincode is required" })}
                   error={!!errors.shipToPincode}
                   helperText={errors.shipToPincode?.message}
@@ -634,6 +680,7 @@ const MasterClient: React.FC = () => {
                   }}
                 />
                 <TextField
+                  focused={!!watch("shipToCompany")}
                   {...register("shipToCompany", { required: "Company is required" })}
                   error={!!errors.shipToCompany}
                   helperText={errors.shipToCompany?.message}
@@ -650,7 +697,7 @@ const MasterClient: React.FC = () => {
                   }}
                 />
                 <TextField
-              
+                  focused={!!watch("shipToGst")}
                   {...register("shipToGst", { required: "GST is required" })}
                   error={!!errors.shipToGst}
                   helperText={errors.shipToGst?.message}
@@ -664,11 +711,11 @@ const MasterClient: React.FC = () => {
                         </InputAdornment>
                       ),
                     },
-                  
                   }}
                 />
                 <div className="lg:col-span-2">
                   <TextField
+                    focused={!!watch("shipToAddress1")}
                     fullWidth
                     {...register("shipToAddress1", { required: "Address Line 1 is required" })}
                     error={!!errors.shipToAddress1}
@@ -690,6 +737,7 @@ const MasterClient: React.FC = () => {
                 </div>
                 <div className="lg:col-span-2">
                   <TextField
+                    focused={!!watch("shipToAddress2")}
                     fullWidth
                     {...register("shipToAddress2", { required: "Address Line 2 is required" })}
                     error={!!errors.shipToAddress2}

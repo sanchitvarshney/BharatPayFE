@@ -30,7 +30,7 @@ const SelectState: React.FC<Props> = ({ value, onChange, label = "Select State",
   const [stateList, setStateList] = useState<StateData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch states on mount
+  
   const fetchStates = async () => {
     setLoading(true);
     try {

@@ -117,6 +117,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
       setValue("docDate", storeStep1formData?.docDate);
       setValue("docId", storeStep1formData?.docId);
       setValue("docType", storeStep1formData?.docType);
+      setValue("cc", storeStep1formData?.cc);
       setUnit(storeStep1formData?.unit);
     }
   }, []);
@@ -319,7 +320,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
                     value={field.value}
                     onChange={(e) => {
                       field.onChange(e);
-                      dispatch(getVendorBranchAsync(e!.id));
+                      
                     }}
                     label="Cost Center"
                   />
@@ -495,7 +496,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
         <div className="p-0 h-[50px] flex items-center bg-hbg justify-end px-[20px] gap-[10px] border-t border-neutral-300">
           {storeStep1formData ? (
             <LoadingButton type="button" onClick={() => setStep(2)} loading={createMinLoading} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
-              Next <FaArrowRightLong className="h-[18px] w-[18px]" />
+              Next 
             </LoadingButton>
           ) : (
             <LoadingButton type="submit" loading={createMinLoading} variant="contained" endIcon={<FaArrowRightLong className="h-[18px] w-[18px]" />}>
