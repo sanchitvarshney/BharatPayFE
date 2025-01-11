@@ -47,9 +47,12 @@ const HomePage = () => {
               </Link>
             </Card>
           </div>
-          <div className="flex items-center py-[10px] justify-center hidden">
-            <Button onClick={()=>fnOpenNewWindow("/stockdetail")}  size="large" variant="contained" sx={{fontSize:"15px"}} endIcon={<Icons.followLink fontSize="small"  />}>
-              View Detailed Summary
+          {
+            
+          }
+          <div className="flex items-center py-[10px] justify-center ">
+            <Button onClick={() => fnOpenNewWindow("/stockdetail")} size="large" variant="contained" sx={{ fontSize: "15px" }} endIcon={<Icons.followLink fontSize="small" />}>
+              View Report
             </Button>
           </div>
         </div>

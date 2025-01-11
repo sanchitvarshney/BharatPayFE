@@ -24,6 +24,7 @@ import menuReducer from "@/features/menu/menuSlice";
 import vendor from "@/features/master/vendor/vedorSlice";
 import category from "@/features/master/Category/CategorySlice";
 import client from "@/features/master/client/clientSlice";
+import dashboard from "@/features/Dashboard/Dashboard";
 
 export const store = configureStore({
   reducer: {
@@ -52,6 +53,7 @@ export const store = configureStore({
     category,
     simmin: simminReducer,
     client: client,
+    dashboard,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
