@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { IconButton, LinearProgress, Tab, Tabs, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import Divider from "@mui/material/Divider";
-import MuiTooltip from "@/components/reusable/MuiTooltip";
 import {  useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getVendorBranch } from "@/features/master/vendor/vedorSlice";
@@ -72,11 +71,7 @@ const MaterVendorDetail: React.FC = () => {
                   <Typography variant="h1" fontSize={17} fontWeight={600}>
                     {vendorDetail?.vendor?.name}
                   </Typography>
-                  <MuiTooltip title="Copy" placement="right">
-                    <IconButton size="small">
-                      <Icons.copy fontSize="small" />
-                    </IconButton>
-                  </MuiTooltip>
+                 
                 </div>
                 <Typography variant="body2" color="text.secondary" gutterBottom fontSize={13}>
                   {vendorDetail?.vendor?.cinNo}
@@ -262,7 +257,7 @@ const MaterVendorDetail: React.FC = () => {
                     <header className="flex items-center w-full gap-3">
                       <h2 className="text-lg font-semibold">GST Details</h2>
                       <Divider sx={{ borderBottomWidth: 2, borderColor: "#d4d4d4", flexGrow: 1 }} />
-                      <button type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Add attachments">
+                      <button disabled type="button" className="flex items-center gap-1 p-1 px-3 text-sm bg-transparent rounded-md shadow-none hover:bg-gray-100 text-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-500" aria-label="Add attachments">
                         <Icons.edit fontSize="small" sx={{ fontSize: "15px" }} />
                         Edit GST Detail
                       </button>

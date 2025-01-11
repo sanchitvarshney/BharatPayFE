@@ -26,6 +26,7 @@ interface RowData {
   isNew: boolean;
   issues: string[];
   IMEI: string;
+  slNo: string;
 }
 type Formstate = {
   pickLocation: LocationType | null;
@@ -63,7 +64,7 @@ const AddTRC = () => {
     },
   });
   const addRow = useCallback(
-    (imei: string) => {
+    (imei: string, slNo: string) => {
       const newId = generateUniqueId();
       const newRow: RowData = {
         id: newId,
@@ -71,6 +72,7 @@ const AddTRC = () => {
         isNew: true,
         IMEI: imei,
         issues: [],
+        slNo,
       };
       setRowData((prev) => [newRow, ...prev]);
     },
@@ -101,17 +103,19 @@ const AddTRC = () => {
 
       if (!hasErrors) {
         const issue = rowData.map((row) => row.issues);
-        const device = rowData.map((row) => row.IMEI);
+        const imeiNo = rowData.map((row) => row.IMEI);
+        const srlNo = rowData.map((row) => row.slNo);
         const remark = rowData.map((row) => row.remarks);
         const payload: AddtrcPayloadType = {
           sku: data.sku?.id || "",
           issue,
-          device,
+          imeiNo,
           remark,
           comment: data.remarks,
           pickLocation: data.pickLocation?.code || "",
           putLocation: data.putLocation?.code || "",
           cc: data.cc?.id || "",
+          srlNo,
         };
         dispatch(addTrcAsync(payload)).then((response: any) => {
           if (response.payload.data?.success) {
@@ -321,7 +325,7 @@ const AddTRC = () => {
                         }
                         dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
                           if (res.payload.data.success) {
-                            addRow(res.payload.data?.data[0]?.device_imei);
+                            addRow(res.payload.data?.data[0]?.device_imei, res.payload.data?.data[0]?.sl_no);
                             setImei("");
                           }
                         });

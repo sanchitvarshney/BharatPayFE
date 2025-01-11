@@ -1,9 +1,8 @@
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Chip, IconButton, LinearProgress, Tab, Tabs, Typography } from "@mui/material";
+import { Chip, LinearProgress, Tab, Tabs, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import Divider from "@mui/material/Divider";
-import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getComponentDetailSlice } from "@/features/master/component/componentSlice";
@@ -57,11 +56,6 @@ const MasterComponentDeatil: React.FC = () => {
                 <Typography variant="h1" fontSize={17} fontWeight={600}>
                   {componentDetail?.[0]?.name}
                 </Typography>
-                <MuiTooltip title="Copy" placement="right">
-                  <IconButton size="small">
-                    <Icons.copy fontSize="small" />
-                  </IconButton>
-                </MuiTooltip>
               </div>
               <Chip label={componentDetail?.[0]?.partcode} size="small" variant="filled" sx={{ maxWidth: "max-content", px: "10px", background: "black", color: "white", fontWeight: 500 }} />
             </div>

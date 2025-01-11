@@ -12,6 +12,7 @@ interface RowData {
   isNew: boolean;
   issues: string[];
   IMEI: string;
+  slNo: string;
 }
 type Props = {
   rowData: RowData[];
@@ -69,22 +70,26 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     },
 
     {
-      headerName: "IMEI/Serial No.",
+      headerName: "IMEI",
       field: "IMEI",
-
-      flex: 1,
+      width:200,
+    },
+    {
+      headerName: "Serial No.",
+      field: "slNo",
+      width:200,
     },
     {
       headerName: "Issues",
       field: "issues",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+     width:300
     },
     {
       headerName: "Remarks",
       field: "remarks",
       cellRenderer: "textInputCellRenderer",
-      flex: 1,
+    
     },
   ];
 
