@@ -8,7 +8,7 @@ const initialState: AddTrcState = {
 };
 
 export const addTrcAsync = createAsyncThunk<AxiosResponse<AddtrcResponse>, AddtrcPayloadType>("trc/add", async (payload) => {
-  const response = await axiosInstance.post("/trc/add", payload);
+  const response = await axiosInstance.post("/trc/addProductionToTrc", payload);
   return response;
 });
 
