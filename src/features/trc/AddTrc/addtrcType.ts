@@ -3,9 +3,10 @@ export type AddtrcPayloadType = {
   pickLocation: string;
   putLocation: string;
   comment: string;
-  remark: string[];
+  srlNo: string[];
+  imeiNo: string[];
   issue: string[][];
-  device: string[];
+  remark: string[];
   cc: string;
 };
 
