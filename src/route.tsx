@@ -74,6 +74,7 @@ import MasterClient from "./pages/master/MasterClient";
 import MasterClientDetail from "./pages/master/MasterClientDetail";
 import MaterialRequestWithBom from "./pages/production/MaterialRequestWithBom";
 import StockDetailPage from "./pages/StockDetailPage";
+import StoreTRC from "@/pages/TRC/StoreTRC";
 
 export const router = createBrowserRouter([
   {
@@ -444,6 +445,18 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/add-trc",
+      },
+      {
+        element: (
+          <MainLayout>
+            <TRCLayout>
+              <CustomRedirection UnderDevelopment={false}>
+                <StoreTRC />
+              </CustomRedirection>
+            </TRCLayout>
+          </MainLayout>
+        ),
+        path: "/production/store-trc",
       },
       {
         element: (

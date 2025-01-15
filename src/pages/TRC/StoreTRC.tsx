@@ -5,11 +5,10 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getLocationAsync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
-import AddtrcTable from "@/table/TRC/AddtrcTable";
-import { addTrcAsync } from "@/features/trc/AddTrc/addtrcSlice";
-import { AddtrcPayloadType } from "@/features/trc/AddTrc/addtrcType";
+import {addTrcToStoreAsync } from "@/features/trc/AddTrc/addtrcSlice";
+import { AddtrcToStorePayloadType } from "@/features/trc/AddTrc/addtrcType";
 import { getIsueeList } from "@/features/common/commonSlice";
-import { Button, CircularProgress, FormControl, FormControlLabel, InputAdornment, InputLabel, OutlinedInput, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import { Button, CircularProgress, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
@@ -18,13 +17,13 @@ import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import AddStoreToTRC from "@/table/TRC/AddStoreToTRC";
 
 interface RowData {
   remarks: string;
   id: string;
   isNew: boolean;
-  issues: string[];
   IMEI: string;
   slNo: string;
 }
@@ -36,12 +35,9 @@ type Formstate = {
   cc: CostCenterType | null;
 };
 
-const AddTRC = () => {
+const StoreTRC = () => {
   const [imei, setImei] = useState<string>("");
-  const [barcode, setBarcode] = useState<string>(""); // State for Barcode
-  const [inputType, setInputType] = useState<"IMEI" | "Barcode" | "">("Barcode");
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [barcodeLoading] = useState<boolean>(false);
   const [final, setFinal] = useState<boolean>(false);
   const { craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const { addTrcLoading } = useAppSelector((state) => state.addTrc);
@@ -71,7 +67,6 @@ const AddTRC = () => {
         remarks: "",
         isNew: true,
         IMEI: imei,
-        issues: [],
         slNo,
       };
       setRowData((prev) => [newRow, ...prev]);
@@ -91,9 +86,6 @@ const AddTRC = () => {
         if (!row.IMEI) {
           missingFields.push("IMEI");
         }
-        if (!row.issues.length) {
-          missingFields.push("issues");
-        }
 
         if (missingFields.length > 0) {
           showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
@@ -102,13 +94,11 @@ const AddTRC = () => {
       });
 
       if (!hasErrors) {
-        const issue = rowData.map((row) => row.issues);
         const imeiNo = rowData.map((row) => row.IMEI);
         const srlNo = rowData.map((row) => row.slNo);
         const remark = rowData.map((row) => row.remarks);
-        const payload: AddtrcPayloadType = {
+        const payload: AddtrcToStorePayloadType = {
           sku: data.sku?.id || "",
-          issue,
           imeiNo,
           remark,
           comment: data.remarks,
@@ -117,9 +107,9 @@ const AddTRC = () => {
           cc: data.cc?.id || "",
           srlNo,
         };
-        dispatch(addTrcAsync(payload)).then((response: any) => {
+        dispatch(addTrcToStoreAsync(payload)).then((response: any) => {
           if (response.payload.data?.success) {
-            showToast(`TRC Request Added Successfully`, "success");
+            showToast(response.payload.data.message, "success");
             // reset();
             setRowData([]);
           }
@@ -131,41 +121,6 @@ const AddTRC = () => {
     dispatch(getLocationAsync(null));
     dispatch(getIsueeList(null));
   }, []);
-
-  const addIssueToRow = (barcode: string) => {
-    const updatedRows = rowData.map((row) => {
-      if (!row.issues.includes(barcode)) {
-        try {
-          const issuesArray = JSON.parse(barcode);
-
-          const idsArray = issuesArray.map((issue: any) => issue.id);
-          row.issues.push(...idsArray.filter((id: string) => !row.issues.includes(id)));
-        } catch (e) {
-          console.error("Invalid barcode JSON", e);
-        }
-      }
-      return row;
-    });
-    setRowData(updatedRows);
-  };
-
-  const sanitizeData = (data: string) => {
-    return data.replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, "");
-  };
-
-  const onScanComplete = (scannedData: string) => {
-    try {
-      const parsedData = sanitizeData(scannedData);
-      if (parsedData) {
-        addIssueToRow(parsedData);
-        handleSubmit(onSubmit)();
-      } else {
-        console.error("Failed to parse QR data.");
-      }
-    } catch (error) {
-      console.error("Error parsing QR data:", error);
-    }
-  };
 
   return (
     <div>
@@ -232,7 +187,7 @@ const AddTRC = () => {
                       rules={{ required: "Pick Location is required" }}
                       render={({ field }) => (
                         <SelectLocationAcordingModule
-                          endPoint="/trc/add/pickLocation"
+                          endPoint="/trc/storeTrc/pickLocation"
                           error={!!errors.pickLocation}
                           helperText={errors.pickLocation?.message}
                           value={field.value}
@@ -251,7 +206,7 @@ const AddTRC = () => {
                       rules={{ required: "Location Location is required" }}
                       render={({ field }) => (
                         <SelectLocationAcordingModule
-                          endPoint="/trc/add/putLocation"
+                          endPoint="/trc/storeTrc/putLocation"
                           error={!!errors.putLocation}
                           helperText={errors.putLocation?.message}
                           value={field.value}
@@ -263,7 +218,7 @@ const AddTRC = () => {
                       )}
                     />
                   </div>
-                  <Controller
+                  {/* <Controller
                     name="cc"
                     control={control}
                     rules={{ required: "Cost Center  is required" }}
@@ -279,7 +234,7 @@ const AddTRC = () => {
                         label="Cost Center"
                       />
                     )}
-                  />
+                  /> */}
 
                   <div>
                     <TextField multiline rows={3} fullWidth label="Remarks" className="h-[100px] resize-none" {...register("remarks")} />
@@ -337,56 +292,11 @@ const AddTRC = () => {
                   label="IMEI/Serial Number"
                 />
               </FormControl>
-
-              {inputType === "Barcode" && (
-                <FormControl className="w-full sm:w-[250px] md:w-[400px] mt-4 sm:mt-0">
-                  <InputLabel htmlFor="outlined-adornment-barcode">Issues Barcode</InputLabel>
-                  <OutlinedInput
-                    id="outlined-adornment-barcode"
-                    value={barcode}
-                    onChange={(e) => {
-                      setBarcode(e.target.value);
-                    }}
-                    onKeyDown={(e) => {
-                      e.preventDefault();
-                      if (e.key === "Enter" && barcode) {
-                        setBarcode("");
-                        onScanComplete(barcode);
-                      }
-                    }}
-                    endAdornment={<InputAdornment position="end">{barcodeLoading ? <CircularProgress size={25} /> : <Icons.qrScan />}</InputAdornment>}
-                    className="w-full"
-                    label="Issues Barcode"
-                  />
-                </FormControl>
-              )}
-
               {/* Input Type Selector (IMEI / Barcode Radio Buttons) */}
-              <FormControl className="w-full mt-4 sm:w-auto sm:mt-0">
-                <RadioGroup
-                  row
-                  aria-labelledby="input-type-group"
-                  name="inputType"
-                  value={inputType}
-                  onChange={(e) => {
-                    const type = e.target.value;
-                    if (type === "IMEI") {
-                      setBarcode(""); // Clear barcode
-                      setInputType("IMEI");
-                    } else if (type === "Barcode") {
-                      setImei(""); // Clear IMEI
-                      setInputType("Barcode");
-                    }
-                  }}
-                  className="w-full"
-                >
-                  <FormControlLabel value="IMEI" control={<Radio />} label="Manual" />
-                  <FormControlLabel value="Barcode" control={<Radio />} label="Barcode" />
-                </RadioGroup>
-              </FormControl>
+            
             </div>
 
-            <AddtrcTable setRowdata={setRowData} rowData={rowData} />
+            <AddStoreToTRC setRowdata={setRowData} rowData={rowData} />
           </div>
         </div>
       )}
@@ -451,4 +361,4 @@ const Success = styled.div`
   }
 `;
 
-export default AddTRC;
+export default StoreTRC;

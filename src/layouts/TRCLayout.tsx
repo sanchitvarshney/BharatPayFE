@@ -14,7 +14,7 @@ const TRCLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/production/add-trc", "/production/view-trc"];
+  const tabRoutes = ["/production/store-trc","/production/add-trc", "/production/view-trc"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -37,6 +37,15 @@ const TRCLayout: React.FC<Props> = ({ children }) => {
           onChange={handleChange}
           centered
         >
+           <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <Icons.add fontSize="small" />
+                Store
+              </div>
+            }
+          />
           <Tab
             sx={{ fontWeight: "500" }}
             label={
