@@ -13,6 +13,11 @@ export const getDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>
   return response;
 });
 
+export const getRawMaterialDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, { from: string; to: string }>("dashboard/rmLocation", async (payload) => {
+  const response = await axiosInstance.get(`/dashboard/rmLocation?startDate=${payload.from}&endDate=${payload.to}`);
+  return response;
+});
+
 const dashBoardSlice = createSlice({
   name: "dashboard",
   initialState,
@@ -34,6 +39,20 @@ const dashBoardSlice = createSlice({
         }
       })
       .addCase(getDeviceDetail.rejected, (state) => {
+        state.devicedataLoading = false;
+        state.deviceData = null;
+      })
+      .addCase(getRawMaterialDetail.pending, (state) => {
+        state.devicedataLoading = true;
+        state.deviceData = null;
+      })
+      .addCase(getRawMaterialDetail.fulfilled, (state, action) => {
+        state.devicedataLoading = false;
+        if (action.payload.data.success) {
+          state.deviceData = action.payload.data.data;
+        }
+      })
+      .addCase(getRawMaterialDetail.rejected, (state) => {
         state.devicedataLoading = false;
         state.deviceData = null;
       });

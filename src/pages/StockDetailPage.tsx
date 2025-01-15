@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import StockDetailDynamicTable from "@/table/StockDetailDynamicTable";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
-import { clearStoredDeviceData, getDeviceDetail } from "@/features/Dashboard/Dashboard";
+import { clearStoredDeviceData, getDeviceDetail, getRawMaterialDetail } from "@/features/Dashboard/Dashboard";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -45,7 +45,7 @@ const StockDetailPage: React.FC = () => {
                 {[
                   { value: "location", label: "Location", isDisabled: true },
                   { value: "device", label: "Device", isDisabled: false },
-                  { value: "raw-material", label: "Raw Material", isDisabled: true },
+                  { value: "raw-material", label: "Raw Material", isDisabled: false },
                 ].map((item) => (
                   <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
                     {item.label}
@@ -86,7 +86,12 @@ const StockDetailPage: React.FC = () => {
                     showToast("Please select date range");
                     return;
                   }
-                  dispatch(getDeviceDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  if(type === "device"){
+                    dispatch(getDeviceDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  }
+                  else if(type === "raw-material"){
+                    dispatch(getRawMaterialDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  }
                 }}
                 variant="contained"
                 startIcon={<Icons.search />}
