@@ -104,7 +104,7 @@ const StockDetailPage: React.FC = () => {
         <div className="w-full relative h-[100vh] overflow-y-auto bg-neutral-100 ">
           <div className=" sticky top-0 z-[10] bg-white py-[10px] px-[20px] border-b border-neutral-300">
             <Typography fontWeight={600} fontSize={25} className="text-slate-600">
-              Location Wise Device Stock Detail
+              Location Wise {type==="device" ? "Device" : "Raw Material" } Stock Detail
             </Typography>
           </div>
 
