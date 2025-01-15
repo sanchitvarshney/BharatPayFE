@@ -98,7 +98,7 @@ const R2Report: React.FC = () => {
               <MuiTooltip title="Download" placement="right">
                 <LoadingButton
                   variant="contained"
-                  disabled
+                  // disabled
                   loading={loading}
                   onClick={handleDownload}
                   color="primary"
