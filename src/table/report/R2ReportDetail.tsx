@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
@@ -12,87 +12,39 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { useAppSelector } from "@/hooks/useReduxHook";
 ModuleRegistry.registerModules([ClientSideRowModelModule, ColumnsToolPanelModule, MasterDetailModule, MenuModule]);
 const R2ReportDetail: React.FC = () => {
-  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
-  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const { r2ReportDetail, r2ReportDetailLoading } = useAppSelector((state) => state.report);
-  const [rowData, setRowData] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (r2ReportDetail) {
-      const transformedData = r2ReportDetail.data.map((item: any) => ({
-        device: item.device,
-        imei: item.device,
-        model: item.deviceModel,
-        dropLocation: item.putLocation,
-        children: item.deviceIssues.map((issue: any) => ({
-          issueName: issue.issueLabel,
-          isIssueValid: issue.name || "No",
-          usedPartcode: issue.partNo || "--",
-          partcodeQty: issue.qty || 0,
-          remark: issue.remark || "--",
-        })),
-      }));
-      setRowData(transformedData);
-    }
-  }, [r2ReportDetail]);
-  const [columnDefs] = useState<ColDef[]>([
-    { field: "device", headerName: "Device", cellRenderer: "agGroupCellRenderer" },
-    { field: "imei", headerName: "IMEI Number" },
-    { field: "model", headerName: "Model Number" },
-    { field: "dropLocation", headerName: "Drop Location" },
-  ]);
+ const columnDefs: ColDef[] = [
+    { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
+    { headerName: "Part Code", field: "partNo", sortable: true, filter: true, width:200 },
+    { headerName: "Part Name", field: "name", sortable: true, filter: true, flex: 1 },
+    { headerName: "Qty", field: "qty", sortable: true, filter: true, width:100 },
+    { headerName: "Location", field: "consumelocation", sortable: true, filter: true, flex: 1 },
+    { headerName: "Remark", field: "remark", sortable: true, filter: true, flex: 1 },
+  ];
 
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      flex: 1,
-    }),
-    []
-  );
 
-  const detailCellRendererParams = useMemo<any>(
-    () => ({
-      detailGridOptions: {
-        columnDefs: [
-          { field: "usedPartcode", headerName: "Used Partcode" },
-          { field: "partcodeQty", headerName: "Partcode Qty" },
-          { field: "remark", headerName: "Remark" },
-        ],
-        defaultColDef: {
-          flex: 1,
-        },
-        overlayNoRowsTemplate: OverlayNoRowsTemplate,
-        domLayout: "autoHeight",
-      },
-      getDetailRowData: (params: any) => {
-        params.successCallback(params.data.children);
-      },
-    }),
-    []
-  );
-
-  const rowClassRules = useMemo(
-    () => ({
-      "row-opened": (params: any) => params.node.expanded, 
-    }),
-    []
-  );
+ 
+  const defaultColDef = useMemo<ColDef>(() => {
+    return {
+      filter: true,
+      sortable: true,
+    };
+  }, []);
 
   return (
-    <div style={containerStyle}>
-      <div style={gridStyle} className={"ag-theme-quartz"}>
+    <div>
+      <div className="relative ag-theme-quartz h-[calc(100vh-50px)]">
         <AgGridReact
+          loadingOverlayComponent={CustomLoadingOverlay}
           loading={r2ReportDetailLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
-          loadingOverlayComponent={CustomLoadingOverlay}
           suppressCellFocus={true}
-          rowData={rowData}
+          rowData={r2ReportDetail ? r2ReportDetail.data : []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          groupDefaultExpanded={0} 
-          masterDetail={true}
-          detailCellRendererParams={detailCellRendererParams}
           pagination={true}
-          rowClassRules={rowClassRules}
+          paginationPageSize={20}
         />
       </div>
     </div>

@@ -15,6 +15,8 @@ import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
+
+
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -42,7 +44,7 @@ const R2Report: React.FC = () => {
   return (
     <>
       <CustomDrawer open={open} onOpenChange={setOpen}>
-        <CustomDrawerContent side="right" className="min-w-[70%] p-0" onInteractOutside={(e) => e.preventDefault()}>
+        <CustomDrawerContent side="right" className="min-w-[80%] p-0" onInteractOutside={(e) => e.preventDefault()}>
           <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] space-y-0 bg-zinc-200 gap-0">
             <CustomDrawerTitle className="text-slate-600 font-[500] p-0">Ref ID: {"#" + refId}</CustomDrawerTitle>
           </CustomDrawerHeader>

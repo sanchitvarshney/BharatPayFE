@@ -41,8 +41,8 @@ export const getR2Data = createAsyncThunk<AxiosResponse<R2Response>, { from: str
   const response = await axiosInstance.get(`report/r2?from=${date.from}&to=${date.to}`);
   return response;
 });
-export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApiResponse>, string>("report/getR2ReportDetail", async (refid) => {
-  const response = await axiosInstance.get(`/report/r2/detail/${refid}`);
+export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApiResponse>,any>("report/getR2ReportDetail", async (payload) => {
+  const response = await axiosInstance.get(`/report/r2/detail/${payload.refId}/${payload.srlno}`);
   return response;
 });
 export const getr3Report = createAsyncThunk<AxiosResponse<r3reportResponse>, { from: string; to: string }>("report/getr3Report", async (date) => {
