@@ -25,13 +25,13 @@ const R2Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [open, setOpen] = useState(false);
-  const { emitDownloadReport, onDownloadReport } = useSocketContext();
+  const { emitDownloadR2Report, onDownloadReport } = useSocketContext();
 
   const dispatch = useAppDispatch();
   const { getR2DataLoading, refId } = useAppSelector((state) => state.report);
   const [loading, setLoading] = useState(false);
   const handleDownload = () => {
-    emitDownloadReport({ from: date?.from || "", to: date?.to || "" });
+    emitDownloadR2Report({ from: date?.from || "", to: date?.to || "" });
     setLoading(true);
   };
   useEffect(() => {
