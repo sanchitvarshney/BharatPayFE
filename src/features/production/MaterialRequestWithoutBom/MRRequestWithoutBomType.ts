@@ -35,7 +35,7 @@ export type CreateProductRequestType = {
   remark: string[];
   comment: string;
   cc: string;
-  forTrc: string;
+  forTrc?: string;
 };
 export type CreateProductRequestResponse = {
   status: string;
