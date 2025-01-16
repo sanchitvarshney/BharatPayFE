@@ -16,7 +16,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 const StockDetailPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { deviceData, devicedataLoading, issueData, issueDataLoading } =
+  const { deviceData=[], devicedataLoading, issueData=[], issueDataLoading } =
     useAppSelector((state) => state.dashboard);
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("device");
@@ -132,7 +132,7 @@ const StockDetailPage: React.FC = () => {
           </div>
 
           <div className="p-[20px] flex flex-col gap-[20px] h-full">
-            {devicedataLoading || !deviceData ? (
+            {devicedataLoading || !deviceData || deviceData.length === 0 ? (
               <div className="flex items-center justify-center w-full h-full">
                 <img src="/empty.png" className="w-[110px]" alt="No Data" />
               </div>
@@ -147,7 +147,7 @@ const StockDetailPage: React.FC = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <div className="table w-full border border-neutral-300">
-                        <StockDetailDynamicTable data={item.products} />
+                        <StockDetailDynamicTable data={item.products||[]} />
                       </div>
                     </AccordionDetails>
                   </Accordion>

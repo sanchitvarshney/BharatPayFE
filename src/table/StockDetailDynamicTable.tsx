@@ -32,21 +32,29 @@ const StockDetailDynamicTable: React.FC<StockDetailDynamicTableProps> = ({
       .replace(/^./, (str) => str.toUpperCase());
   };
   useEffect(() => {
-    setRowData(data);
-    const dynamicColumnDefs: ColDef[] = Object.keys(data[0]).map((key) => ({
-      field: key,
-      headerName: formatHeaderName(key),
-      sortable: true,
-      filter: true,
-      resizable: true,
-    }));
-    setColumnDefs(dynamicColumnDefs);
-  }, []);
+    if (data && data.length > 0) {
+      setRowData(data);
+      
+      const dynamicColumnDefs: ColDef[] = Object.keys(data[0]).map((key) => ({
+        field: key,
+        headerName: formatHeaderName(key),
+        sortable: true,
+        filter: true,
+        resizable: true,
+      }));
+
+      setColumnDefs(dynamicColumnDefs);
+    } else {
+      // Handle case where data is empty or undefined
+      setRowData([]);
+      setColumnDefs([]);
+    }
+  }, [data]);
 
   return (
     <div className="ag-theme-quartz ">
       <AgGridReact
-        rowData={rowData}
+        rowData={rowData||[]}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
         pagination={false}
