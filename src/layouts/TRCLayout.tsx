@@ -42,7 +42,7 @@ const TRCLayout: React.FC<Props> = ({ children }) => {
             label={
               <div className="flex items-center gap-[10px]">
                 <Icons.add fontSize="small" />
-                Store
+                Store To TRC
               </div>
             }
           />
