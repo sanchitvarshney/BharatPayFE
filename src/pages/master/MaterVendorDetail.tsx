@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton, LinearProgress, Tab, Tabs, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import Divider from "@mui/material/Divider";
-import {  useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getVendorBranch } from "@/features/master/vendor/vedorSlice";
 import { replaceBrWithNewLine } from "@/utils/replacebrtag";
@@ -71,7 +71,6 @@ const MaterVendorDetail: React.FC = () => {
                   <Typography variant="h1" fontSize={17} fontWeight={600}>
                     {vendorDetail?.vendor?.name}
                   </Typography>
-                 
                 </div>
                 <Typography variant="body2" color="text.secondary" gutterBottom fontSize={13}>
                   {vendorDetail?.vendor?.cinNo}

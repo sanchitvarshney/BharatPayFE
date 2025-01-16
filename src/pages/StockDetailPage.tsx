@@ -1,38 +1,58 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { AgGridReact } from "@ag-grid-community/react";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import StockDetailDynamicTable from "@/table/StockDetailDynamicTable";
-import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
-import SelectComponent, { ComponentType } from "@/components/reusable/SelectComponent";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { showToast } from "@/utils/toasterContext";
+import { clearStoredDeviceData, getDeviceDetail, getRawMaterialDetail } from "@/features/Dashboard/Dashboard";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 const StockDetailPage: React.FC = () => {
-  const [device, setDevice] = useState<DeviceType | null>(null);
-  const [compselect, setcompselect] = useState<ComponentType | null>(null);
+  const dispatch = useAppDispatch();
+  const { deviceData, devicedataLoading } = useAppSelector((state) => state.dashboard);
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("device");
-  const [location, setLocation] = useState<string>("");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
   });
   dayjs.extend(customParseFormat);
-  const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
+
+  useEffect(() => {
+    dispatch(clearStoredDeviceData());
+  }, []);
   return (
     <>
-      <div className="h-[100vh] flex bg-white relative">
-        <div className={`transition-all flex flex-col gap-[10px] h-[100vh]  border-r border-neutral-300   ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}`}>
+      <div className="h-[100vh] flex bg-white relative overflow-y-hidden">
+        <div className={`transition-all flex flex-col gap-[10px] h-[100vh]  border-r border-neutral-300 overflow-hidden   ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}`}>
           <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
             <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>
           </div>
           <div className="flex flex-col   gap-[20px] p-[20px]   mt-[20px] overflow-hidden">
+            <FormControl fullWidth>
+              <InputLabel>Select Type</InputLabel>
+              <Select label="Select Type" value={type} defaultValue="device" onChange={(e) => setType(e.target.value)}>
+                {[
+                  { value: "location", label: "Location", isDisabled: true },
+                  { value: "device", label: "Device", isDisabled: false },
+                  { value: "raw-material", label: "Raw Material", isDisabled: false },
+                ].map((item) => (
+                  <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <RangePicker
               required
               placement="bottomRight"
@@ -56,46 +76,62 @@ const StockDetailPage: React.FC = () => {
                 { label: "Current Month", value: [dayjs().startOf("month"), dayjs()] },
               ]}
             />
-            <FormControl fullWidth>
-              <InputLabel>Select Type</InputLabel>
-              <Select label="Select Type" value={type} defaultValue="device" onChange={(e) => setType(e.target.value)}>
-                {[
-                  { value: "location", label: "Location", isDisabled: false },
-                  { value: "device", label: "Device", isDisabled: false },
-                  { value: "raw-material", label: "Raw Material", isDisabled: false },
-                ].map((item) => (
-                  <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {type === "device" && <SelectDevice value={device} onChange={(value) => setDevice(value)} />}
-            {type === "raw-material" && <SelectComponent value={compselect} onChange={(value) => setcompselect(value)} />}
-            <FormControl fullWidth>
-              <InputLabel>Select Location</InputLabel>
-              <Select label="Select Location" value={location} defaultValue="trc" onChange={(e) => setLocation(e.target.value)}>
-                {[
-                  { value: "trc", label: "TRC", isDisabled: false },
-                  { value: "Assembly", label: "Assembly", isDisabled: false },
-                  { value: "Inward Store", label: "Inward Store", isDisabled: false },
-                  { value: "FG Store", label: " FG Store", isDisabled: false },
-                ].map((item) => (
-                  <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+
             <div className="flex items-center justify-end">
-              <LoadingButton variant="contained" startIcon={<Icons.search />}>
+              <LoadingButton
+                loadingPosition="start"
+                loading={devicedataLoading}
+                onClick={() => {
+                  if (!date.from || !date.to) {
+                    showToast("Please select date range");
+                    return;
+                  }
+                  if(type === "device"){
+                    dispatch(getDeviceDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  }
+                  else if(type === "raw-material"){
+                    dispatch(getRawMaterialDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  }
+                }}
+                variant="contained"
+                startIcon={<Icons.search />}
+              >
                 Search
               </LoadingButton>
             </div>
           </div>
         </div>
-        <div className="w-full">
-          <StockDetailDynamicTable gridRef={gridRef} />
+        <div className="w-full relative h-[100vh] overflow-y-auto bg-neutral-100 ">
+          <div className=" sticky top-0 z-[10] bg-white py-[10px] px-[20px] border-b border-neutral-300">
+            <Typography fontWeight={600} fontSize={25} className="text-slate-600">
+              Location Wise {type==="device" ? "Device" : "Raw Material" } Stock Detail
+            </Typography>
+          </div>
+
+          <div className="p-[20px] flex flex-col gap-[20px] h-full">
+            {devicedataLoading || !deviceData ? (
+              <div className="flex items-center justify-center w-full h-full">
+                <img src="/empty.png" className="w-[110px]" alt="No Data" />
+              </div>
+            ) : (
+              deviceData?.map((item, i) => (
+                <div>
+                  <Accordion defaultExpanded={i === 0}>
+                    <AccordionSummary expandIcon={<ArrowDropDownIcon />} aria-controls="panel2-content" id="panel2-header">
+                      <Typography fontWeight={600} fontSize={20} className="text-slate-600">
+                        {item.locationName}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <div className="table w-full border border-neutral-300">
+                        <StockDetailDynamicTable data={item.products} />
+                      </div>
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </>
