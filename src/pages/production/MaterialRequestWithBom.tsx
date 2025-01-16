@@ -155,7 +155,7 @@ const MaterialRequestWithBom: React.FC = () => {
                 }
               }}
             />
-            <Controller
+            {/* <Controller
               name="cc"
               control={control}
               rules={{ required: "Cost Center  is required" }}
@@ -171,7 +171,7 @@ const MaterialRequestWithBom: React.FC = () => {
                   label="Cost Center"
                 />
               )}
-            />
+            /> */}
             <TextField fullWidth multiline rows={2} label="Remark" />
           </div>
           <div className="w-full">
