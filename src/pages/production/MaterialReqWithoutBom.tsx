@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { createProductRequest, getLocationAsync, getPertCodesync, getSkuAsync, setType } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, ListItemButton, ListItemText, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, ListItemButton, ListItemText, Radio, RadioGroup, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
@@ -26,6 +26,7 @@ type Formstate = {
   location: LocationType | null;
   remarks: string;
   cc: CostCenterType | null;
+  checkbox: boolean;
 };
 
 const MaterialReqWithoutBom = () => {
@@ -58,6 +59,7 @@ const MaterialReqWithoutBom = () => {
     defaultValues: {
       location: null,
       remarks: "",
+      checkbox: false,
     },
   });
   const addRow = useCallback(() => {
@@ -75,6 +77,7 @@ const MaterialReqWithoutBom = () => {
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
+    console.log(data)
     if (rowData.length === 0) {
       showToast("Please Add Material Details", "error");
       return;
@@ -103,7 +106,7 @@ const MaterialReqWithoutBom = () => {
         const picLocation = rowData.map((row) => row.pickLocation?.value || "");
         const qty = rowData.map((row) => row.orderqty);
         const remark = rowData.map((row) => row.remarks);
-        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.code, comment: data.remarks, cc: data.cc?.id || "" })).then((res: any) => {
+        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.code, comment: data.remarks, cc: data.cc?.id || "",forTrc :data.checkbox?"1":"0" })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
@@ -246,7 +249,7 @@ const MaterialReqWithoutBom = () => {
                   </div>
                   <Controller
                     name="cc"
-                    control={control}
+                    control={control} 
                     rules={{ required: "Cost Center  is required" }}
                     render={({ field }) => (
                       <SelectCostCenter
@@ -263,6 +266,12 @@ const MaterialReqWithoutBom = () => {
                   />
                   <div>
                     <TextField fullWidth multiline rows={4} label="Remark (if any)" {...register("remarks")} />
+                  </div>
+                  <div className="flex items-center ">
+                    <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" {...register("checkbox")} />
+                      <label htmlFor="terms" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
+                        Directly Move To TRC
+                      </label>
                   </div>
                 </CardContent>
                 <CardFooter className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">

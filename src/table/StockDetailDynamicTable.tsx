@@ -13,7 +13,9 @@ type StockDetailDynamicTableProps = {
   }[];
 };
 
-const StockDetailDynamicTable: React.FC<StockDetailDynamicTableProps> = ({ data }) => {
+const StockDetailDynamicTable: React.FC<StockDetailDynamicTableProps> = ({
+  data,
+}) => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const defaultColDef = useMemo<ColDef>(() => {
@@ -43,7 +45,14 @@ const StockDetailDynamicTable: React.FC<StockDetailDynamicTableProps> = ({ data 
 
   return (
     <div className="ag-theme-quartz ">
-      <AgGridReact rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={false} paginationPageSize={10} domLayout="autoHeight" />
+      <AgGridReact
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        pagination={false}
+        paginationPageSize={10}
+        domLayout="autoHeight"
+      />
     </div>
   );
 };
