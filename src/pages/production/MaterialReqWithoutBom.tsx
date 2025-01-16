@@ -11,7 +11,7 @@ import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 
 interface RowData {
   code: { lable: string; value: string } | null;
@@ -247,7 +247,8 @@ const MaterialReqWithoutBom = () => {
                     <Typography>Location Details :</Typography>
                     <span className="text-[14px] text-slate-600">{locationdetail}</span>
                   </div>
-                  <Controller
+                  {/* cost center commented for future use */}
+                  {/* <Controller
                     name="cc"
                     control={control} 
                     rules={{ required: "Cost Center  is required" }}
@@ -263,7 +264,7 @@ const MaterialReqWithoutBom = () => {
                         label="Cost Center"
                       />
                     )}
-                  />
+                  /> */}
                   <div>
                     <TextField fullWidth multiline rows={4} label="Remark (if any)" {...register("remarks")} />
                   </div>
