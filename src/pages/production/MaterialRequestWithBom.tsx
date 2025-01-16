@@ -1,6 +1,6 @@
 import { Icons } from "@/components/icons";
 import SelectBom, { Bomtype } from "@/components/reusable/SelectBom";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import  { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import { fetchBomProduct, resetBomDetail } from "@/features/master/BOM/BOMSlice";
