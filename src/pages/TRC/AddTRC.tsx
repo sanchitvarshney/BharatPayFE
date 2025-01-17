@@ -335,6 +335,7 @@ const AddTRC = () => {
                   endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={25} /> : <Icons.qrScan />}</InputAdornment>}
                   className="w-full"
                   label="IMEI/Serial Number"
+                  inputProps={{ maxLength: 15 }}
                 />
               </FormControl>
 
