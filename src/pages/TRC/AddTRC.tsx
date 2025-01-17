@@ -263,7 +263,7 @@ const AddTRC = () => {
                       )}
                     />
                   </div>
-                  <Controller
+                  {/* <Controller
                     name="cc"
                     control={control}
                     rules={{ required: "Cost Center  is required" }}
@@ -279,7 +279,7 @@ const AddTRC = () => {
                         label="Cost Center"
                       />
                     )}
-                  />
+                  /> */}
 
                   <div>
                     <TextField multiline rows={3} fullWidth label="Remarks" className="h-[100px] resize-none" {...register("remarks")} />
