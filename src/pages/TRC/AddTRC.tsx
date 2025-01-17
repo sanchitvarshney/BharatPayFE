@@ -18,7 +18,7 @@ import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 
 interface RowData {
   remarks: string;
@@ -263,7 +263,7 @@ const AddTRC = () => {
                       )}
                     />
                   </div>
-                  <Controller
+                  {/* <Controller
                     name="cc"
                     control={control}
                     rules={{ required: "Cost Center  is required" }}
@@ -279,7 +279,7 @@ const AddTRC = () => {
                         label="Cost Center"
                       />
                     )}
-                  />
+                  /> */}
 
                   <div>
                     <TextField multiline rows={3} fullWidth label="Remarks" className="h-[100px] resize-none" {...register("remarks")} />
@@ -335,6 +335,7 @@ const AddTRC = () => {
                   endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={25} /> : <Icons.qrScan />}</InputAdornment>}
                   className="w-full"
                   label="IMEI/Serial Number"
+                  inputProps={{ maxLength: 15 }}
                 />
               </FormControl>
 

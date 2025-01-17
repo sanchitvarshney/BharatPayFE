@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -10,11 +10,17 @@ import {
   InputAdornment,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import { IoMdMail } from "react-icons/io";
+import { IoMdEye, IoMdEyeOff, IoMdMail } from "react-icons/io";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { MdSecurity } from "react-icons/md";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/features/Store";
+import { getPasswordOtp, updatePassword } from "@/features/authentication/authSlice";
+import { useAppSelector } from "@/hooks/useReduxHook";
+import { useNavigate } from "react-router-dom";
 // import { AppDispatch } from "@/store";
 // import { useDispatch } from "react-redux";
 // import { getPasswordOtp, verifyOtp } from "@/features/authentication/authSlice";
@@ -58,9 +64,13 @@ const SecurityImage = styled(Box)({
 
 const ForgotPassword = () => {
   const theme = useTheme();
-  // const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const {otpLoading} = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     verificationCode: "",
@@ -93,6 +103,10 @@ const ForgotPassword = () => {
     }
   };
 
+  useEffect(() => {
+    setLoading(otpLoading);
+  }, [otpLoading]);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
@@ -101,24 +115,23 @@ const ForgotPassword = () => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       if (step === 1) {
-        // dispatch(getPasswordOtp(formData.email)).then((res: any) => {
-        //   if (res?.payload?.success) {
-        //     setStep(2);
-        //   } 
-        // });
-        setStep(2);
+        dispatch(getPasswordOtp({ emailId:formData.email })).then((res: any) => { 
+          if (res?.payload?.data?.success) {
+            setStep(2);
+          } 
+        });
       } else if (step === 2) {
-        // const payload = {
-        //   emailId: formData.email,
-        //   otp: formData.verificationCode, 
-        //   password: formData.confirmPassword                                                                       
-        // }
-        // dispatch(verifyOtp(payload as any)).then((res: any) => {
-        //     console.log(res)
-        //     if(res?.payload?.success){
-        //       setStep(3);
-        //     }
-        // })
+        const payload = {
+          emailId: formData.email,
+          otp: formData.verificationCode, 
+          password: formData.confirmPassword                                                                       
+        }
+        dispatch(updatePassword(payload as any)).then((res: any) => {
+            console.log(res)
+            if(res?.payload?.data?.success){
+              navigate("/login")
+            }
+        })
       }
     } catch (error) {
       console.error("Error:", error);
@@ -195,10 +208,10 @@ const ForgotPassword = () => {
                       ),
                     }}
                   />
-                    <StyledTextField
+                   <StyledTextField
                       fullWidth
                       label="New Password"
-                      type="password"
+                      type={showPassword ? "text" : "password"} // Conditionally set type based on showPassword
                       value={formData.newPassword}
                       onChange={handleChange("newPassword")}
                       required
@@ -209,12 +222,22 @@ const ForgotPassword = () => {
                             <RiLockPasswordLine />
                           </InputAdornment>
                         ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+                              edge="end"
+                            >
+                              {showPassword ? <IoMdEyeOff /> : <IoMdEye />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
                       }}
                     />
                     <StyledTextField
                       fullWidth
                       label="Confirm Password"
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"} // Same for confirm password
                       value={formData.confirmPassword}
                       onChange={handleChange("confirmPassword")}
                       error={Boolean(errors.confirmPassword)}
@@ -225,6 +248,16 @@ const ForgotPassword = () => {
                         startAdornment: (
                           <InputAdornment position="start">
                             <RiLockPasswordLine />
+                          </InputAdornment>
+                        ),
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)} // Toggle password visibility
+                              edge="end"
+                            >
+                              {showConfirmPassword ? <IoMdEyeOff /> : <IoMdEye />}
+                            </IconButton>
                           </InputAdornment>
                         ),
                       }}

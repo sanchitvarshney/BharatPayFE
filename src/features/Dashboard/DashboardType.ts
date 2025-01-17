@@ -22,4 +22,6 @@ export type DeviceApiResponse = {
 export type DashBoardType = {
   deviceData: Location[]  | null;
   devicedataLoading: boolean;
+  issueData: Location[] | null;
+  issueDataLoading: boolean;
 };

@@ -6,6 +6,8 @@ import { DashBoardType, DeviceApiResponse } from "./DashboardType";
 const initialState: DashBoardType = {
   deviceData: null,
   devicedataLoading: false,
+  issueData: null,
+  issueDataLoading: false,
 };
 
 export const getDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, { from: string; to: string }>("dashboard/getDeviceDetail", async (payload) => {
@@ -18,12 +20,20 @@ export const getRawMaterialDetail = createAsyncThunk<AxiosResponse<DeviceApiResp
   return response;
 });
 
+export const getIssueDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, { from: string; to: string }>("dashboard/issueDetail", async (payload) => {
+  const response = await axiosInstance.get(`/dashboard/deviceIssue?startDate=${payload.from}&endDate=${payload.to}`);
+  return response;
+});
+
 const dashBoardSlice = createSlice({
   name: "dashboard",
   initialState,
   reducers: {
     clearStoredDeviceData: (state) => {
       state.deviceData = null;
+    },
+    clearStoredIssueData: (state) => {
+      state.issueData = null;
     },
   },
   extraReducers: (builder) => {
@@ -42,6 +52,20 @@ const dashBoardSlice = createSlice({
         state.devicedataLoading = false;
         state.deviceData = null;
       })
+      .addCase(getIssueDetail.pending, (state) => {
+        state.issueDataLoading = true;
+        state.issueData = null;
+      })
+      .addCase(getIssueDetail.fulfilled, (state, action) => {
+        state.issueDataLoading = false;
+        if (action.payload.data.success) {
+          state.issueData = action.payload.data.data;
+        }
+      })
+      .addCase(getIssueDetail.rejected, (state) => {
+        state.issueDataLoading = false;
+        state.issueData = null;
+      })
       .addCase(getRawMaterialDetail.pending, (state) => {
         state.devicedataLoading = true;
         state.deviceData = null;
@@ -59,5 +83,5 @@ const dashBoardSlice = createSlice({
   },
 });
 
-export const { clearStoredDeviceData } = dashBoardSlice.actions;
+export const { clearStoredDeviceData, clearStoredIssueData } = dashBoardSlice.actions;
 export default dashBoardSlice.reducer;

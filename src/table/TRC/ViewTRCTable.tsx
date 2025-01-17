@@ -256,7 +256,7 @@ const ViewTRCTable: React.FC<any> = () => {
 
   const filteredTrcList = trcList?.filter((item) => {
     const search = searchTerm.toLowerCase();
-    return item?.itemCode?.toLowerCase().includes(search) || item?.txnId?.toLowerCase().includes(search) || item?.requestBy?.toLowerCase().includes(search);
+    return item?.itemCode?.toLowerCase().includes(search) || item?.txnId?.toLowerCase().includes(search) || item?.requestBy?.toLowerCase().includes(search)|| item?.imeiNo?.toLowerCase().includes(search);
   });
 
   useEffect(() => {
@@ -275,6 +275,7 @@ const ViewTRCTable: React.FC<any> = () => {
     setConsumplocation(null);
     setIssues([]);
   };
+  
   return (
     <div className="flex flex-col h-full">
       {/* <div className="ag-theme-quartz h-[calc(100vh-100px)]">
@@ -369,6 +370,8 @@ const ViewTRCTable: React.FC<any> = () => {
                                 <>
                                   <span>Reference ID: {item?.txnId}</span>
                                   <br />
+                                  <span>IMEI No : {item?.imeiNo}</span>
+                                  <br/>
                                   <span>Requested By: {item?.requestBy}</span>
                                 </>
                               }
