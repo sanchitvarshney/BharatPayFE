@@ -18,7 +18,7 @@ import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 
 interface RowData {
   remarks: string;
