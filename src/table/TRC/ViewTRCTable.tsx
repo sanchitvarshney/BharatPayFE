@@ -182,10 +182,13 @@ const ViewTRCTable: React.FC<any> = () => {
         UOM: "",
         isNew: true,
       };
+  
+      // Add new row to the issues array
       setIssues((prev) => [newRow, ...prev]);
     },
-    [issues]
+    [issues] // You can also optimize this by removing issues from dependency array
   );
+  
 
   useEffect(() => {
     device &&
@@ -207,6 +210,14 @@ const ViewTRCTable: React.FC<any> = () => {
     setIssues([]);
     setValidateDevice(false);
   };
+
+  const sanitizeData = (data: string) => {
+    return data
+      .replace(/[\u00A0]/g, '') // Remove non-breaking spaces
+      .replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, ""); // Remove unwanted characters
+  };
+  
+  
 
   return (
     <div className="flex flex-col h-full">
@@ -409,10 +420,24 @@ const ViewTRCTable: React.FC<any> = () => {
                       onChange={(e) => setPartCode(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                          addRow2(partCode); // Add barcode directly to the table
-                          setPartCode(""); // Clear input after adding
+                          const data = sanitizeData(partCode); // Sanitize input
+                            const parsedPartCode = JSON.parse(data); // Parse part code input
+                      
+                            // Check if parsedPartCode has 'Value' property
+                            if (parsedPartCode && parsedPartCode.Value) {
+                              const partCodeValue = parsedPartCode.Value; // Get the Value
+                      
+                              // Add row to issues with the partCode value
+                              addRow2(partCodeValue);
+                              setPartCode(""); // Clear input after adding
+                            } else {
+                              console.error("Invalid partCode format", parsedPartCode);
+                              showToast("Invalid JSON format: 'Value' key missing.", "error");
+                            }
+                          
                         }
                       }}
+                      
                       endAdornment={
                         <InputAdornment position="end">
                           <Icons.qrScan />
@@ -445,7 +470,7 @@ const ViewTRCTable: React.FC<any> = () => {
                     </p>
                   </div>
                   <div className="h-[calc(100vh-360px)]  overflow-y-auto overflow-x-auto">
-                    {!device ? (
+                    {device ? (
                       <div className="flex items-center justify-center h-[100%]">
                         <img
                           src="/empty.png"
