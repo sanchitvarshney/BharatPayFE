@@ -349,8 +349,8 @@ const AddTRC = () => {
                       setBarcode(e.target.value);
                     }}
                     onKeyDown={(e) => {
-                      e.preventDefault();
                       if (e.key === "Enter" && barcode) {
+                        e.preventDefault();
                         setBarcode("");
                         onScanComplete(barcode);
                       }
