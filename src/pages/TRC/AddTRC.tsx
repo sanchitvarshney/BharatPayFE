@@ -105,12 +105,12 @@ const AddTRC = () => {
         const issue = rowData.map((row) => row.issues);
         const imeiNo = rowData.map((row) => row.IMEI);
         const srlNo = rowData.map((row) => row.slNo);
-        const remark = rowData.map((row) => row.remarks);
+        // const remark = rowData.map((row) => row.remarks);
         const payload: AddtrcPayloadType = {
-          sku: data.sku?.id || "",
+          // sku: data.sku?.id || "",
           issue,
           imeiNo,
-          remark,
+          // remark,
           comment: data.remarks,
           pickLocation: data.pickLocation?.code || "",
           putLocation: data.putLocation?.code || "",
@@ -221,7 +221,7 @@ const AddTRC = () => {
                   </Typography>
                 </div>
                 <div className="flex flex-col gap-[20px] p-[20px]">
-                  <Controller
+                  {/* <Controller
                     name="sku"
                     control={control}
                     rules={{ required: "SKU is required" }}
@@ -236,7 +236,7 @@ const AddTRC = () => {
                         }}
                       />
                     )}
-                  />
+                  /> */}
                   <div>
                     <Controller
                       name="pickLocation"

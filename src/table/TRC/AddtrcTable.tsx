@@ -85,12 +85,6 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       cellRenderer: "textInputCellRenderer",
      width:300
     },
-    {
-      headerName: "Remarks",
-      field: "remarks",
-      cellRenderer: "textInputCellRenderer",
-    
-    },
   ];
 
 

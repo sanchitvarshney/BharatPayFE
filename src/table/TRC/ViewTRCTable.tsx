@@ -470,7 +470,7 @@ const ViewTRCTable: React.FC<any> = () => {
                     </p>
                   </div>
                   <div className="h-[calc(100vh-360px)]  overflow-y-auto overflow-x-auto">
-                    {device ? (
+                    {/* {device ? (
                       <div className="flex items-center justify-center h-[100%]">
                         <img
                           src="/empty.png"
@@ -478,13 +478,13 @@ const ViewTRCTable: React.FC<any> = () => {
                           className="h-[100px] w-[100px]"
                         />
                       </div>
-                    ) : (
+                    ) : ( */}
                       <FixIssuesTable
                         addRow={addRow}
                         rowData={issues}
                         setRowData={setIssues}
                       />
-                    )}
+                    {/* )} */}
                   </div>
                   <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-neutral-300">
                     <LoadingButton
