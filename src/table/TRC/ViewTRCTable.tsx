@@ -95,7 +95,6 @@ const ViewTRCTable: React.FC<any> = () => {
     }
     return hasErrors;
   };
-
   const finalSubmit = () => {
     if (!checkRequiredFields(issues)) {
       if (!location) return showToast("Please select location", "error");
@@ -111,7 +110,7 @@ const ViewTRCTable: React.FC<any> = () => {
         consumpQty,
         remark,
         putLocation: location?.code || "",
-        itemCode: device || "",
+        itemCode: trcRequestDetail?.body[0]?.device || "",
         consumpLoc: consumplocation?.code || "",
       };
       dispatch(trcFinalSubmit(payload)).then((res: any) => {
@@ -124,8 +123,7 @@ const ViewTRCTable: React.FC<any> = () => {
             setApproved([...approved, device]);
           }
           setDevice("");
-          setLocation(null);
-          setConsumplocation(null);
+          setImeiNo("");
           setIssues([]);
           dispatch(getTrcList());
           if (approved?.length === trcRequestDetail!.body.length) {
@@ -137,9 +135,9 @@ const ViewTRCTable: React.FC<any> = () => {
     }
   };
   const onSubmit = () => {
-    if (issues.length !== 0) {
+    // if (issues.length !== 0) {
       finalSubmit();
-    }
+    // }
   };
 
   useEffect(() => {
@@ -205,8 +203,8 @@ const ViewTRCTable: React.FC<any> = () => {
 
   const resetFeilds = () => {
     setDevice("");
-    setLocation(null);
-    setConsumplocation(null);
+    // setLocation(null);
+    // setConsumplocation(null);
     setIssues([]);
     setValidateDevice(false);
   };
