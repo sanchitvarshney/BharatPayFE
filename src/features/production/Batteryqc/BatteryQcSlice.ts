@@ -14,6 +14,11 @@ export const getDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>
   const response = await axiosInstance.get(`/qc/battery/getDeviceDetail/${imei}`);
   return response;
 });
+
+export const getQcDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, string>("batteryqc/getQcDeviceDetail", async (imei) => {
+  const response = await axiosInstance.get(`/backend/getDeviceDetail/${imei}`);
+  return response;
+});
 export const batteryQcSave = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, bateryqcSavePayload>("batteryqc/batteryQcSave", async (payload) => {
   const response = await axiosInstance.post(`/qc/battery/saveBatteryQc`, payload);
   return response;
@@ -39,6 +44,18 @@ const batteryQcSlice = createSlice({
         }
       })
       .addCase(getDeviceDetail.rejected, (state) => {
+        state.deviceDetailLoading = false;
+      })
+      .addCase(getQcDeviceDetail.pending, (state) => {
+        state.deviceDetailLoading = true;
+      })
+      .addCase(getQcDeviceDetail.fulfilled, (state, action) => {
+        state.deviceDetailLoading = false;
+        if (action.payload.data.success) {
+          state.deviceDetailData = action.payload?.data?.data[0];
+        }
+      })
+      .addCase(getQcDeviceDetail.rejected, (state) => {
         state.deviceDetailLoading = false;
       })
       .addCase(batteryQcSave.pending, (state) => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Steps } from "antd";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
+import {  getQcDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { Icons } from "@/components/icons";
 import { CircularProgress, FormControl, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
 import AddBatterQcForm from "@/components/form/AddBatterQcForm";
@@ -13,7 +13,7 @@ const BatteryQC: React.FC = () => {
   const imeiInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (imei && imei.length === 15) {
-      dispatch(getDeviceDetail(imei.slice(0, 15))).then((res: any) => {
+      dispatch(getQcDeviceDetail(imei.slice(0, 15))).then((res: any) => {
         if (res.payload.data.success) {
           setImei("");
         } else {
