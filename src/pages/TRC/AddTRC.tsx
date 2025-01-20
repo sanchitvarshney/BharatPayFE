@@ -14,7 +14,6 @@ import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
 import { DeviceType } from "@/components/reusable/SelectSku";
-import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
