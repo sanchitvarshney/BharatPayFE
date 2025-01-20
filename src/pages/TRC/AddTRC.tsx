@@ -133,22 +133,34 @@ const AddTRC = () => {
   }, []);
 
   const addIssueToRow = (barcode: string) => {
-    const updatedRows = rowData.map((row) => {
-      if (!row.issues.includes(barcode)) {
-        try {
-          const issuesArray = JSON.parse(barcode);
-
-          const idsArray = issuesArray.map((issue: any) => issue.id);
-          row.issues.push(...idsArray.filter((id: string) => !row.issues.includes(id)));
-        } catch (e) {
-          console.error("Invalid barcode JSON", e);
+    try {
+      // Parse the barcode string into an object
+      const barcodeObject = JSON.parse(barcode);
+  
+      // Check if there are any rows available
+      if (rowData.length > 0) {
+        const updatedRows = [...rowData]; // Create a copy of the rows array
+  
+        // Get the first row
+        const firstRow = updatedRows[0];
+  
+        // Check if the issue is not already in the first row
+        if (!firstRow.issues.includes(barcodeObject.Value)) {
+          // Push the barcode value (in this case 'Value') into the issues array of the first row
+          firstRow.issues.push(barcodeObject.Value);
         }
+  
+        setRowData(updatedRows); // Update the state with the modified rows
+      } else {
+        console.error("No rows available to add issues.");
       }
-      return row;
-    });
-    setRowData(updatedRows);
+    } catch (e) {
+      console.error("Invalid barcode format", e);
+    }
   };
-
+  
+  
+  
   const sanitizeData = (data: string) => {
     return data.replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, "");
   };
@@ -158,7 +170,7 @@ const AddTRC = () => {
       const parsedData = sanitizeData(scannedData);
       if (parsedData) {
         addIssueToRow(parsedData);
-        handleSubmit(onSubmit)();
+        // handleSubmit(onSubmit)();
       } else {
         console.error("Failed to parse QR data.");
       }
