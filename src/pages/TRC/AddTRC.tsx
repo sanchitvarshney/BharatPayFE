@@ -14,7 +14,6 @@ import { Icons } from "@/components/icons";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
 import { DeviceType } from "@/components/reusable/SelectSku";
-import SelectSku from "@/components/reusable/SelectSku";
 import { generateUniqueId } from "@/utils/uniqueid";
 import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
@@ -105,12 +104,12 @@ const AddTRC = () => {
         const issue = rowData.map((row) => row.issues);
         const imeiNo = rowData.map((row) => row.IMEI);
         const srlNo = rowData.map((row) => row.slNo);
-        const remark = rowData.map((row) => row.remarks);
+        // const remark = rowData.map((row) => row.remarks);
         const payload: AddtrcPayloadType = {
-          sku: data.sku?.id || "",
+          // sku: data.sku?.id || "",
           issue,
           imeiNo,
-          remark,
+          // remark,
           comment: data.remarks,
           pickLocation: data.pickLocation?.code || "",
           putLocation: data.putLocation?.code || "",
@@ -133,22 +132,34 @@ const AddTRC = () => {
   }, []);
 
   const addIssueToRow = (barcode: string) => {
-    const updatedRows = rowData.map((row) => {
-      if (!row.issues.includes(barcode)) {
-        try {
-          const issuesArray = JSON.parse(barcode);
-
-          const idsArray = issuesArray.map((issue: any) => issue.id);
-          row.issues.push(...idsArray.filter((id: string) => !row.issues.includes(id)));
-        } catch (e) {
-          console.error("Invalid barcode JSON", e);
+    try {
+      // Parse the barcode string into an object
+      const barcodeObject = JSON.parse(barcode);
+  
+      // Check if there are any rows available
+      if (rowData.length > 0) {
+        const updatedRows = [...rowData]; // Create a copy of the rows array
+  
+        // Get the first row
+        const firstRow = updatedRows[0];
+  
+        // Check if the issue is not already in the first row
+        if (!firstRow.issues.includes(barcodeObject.Value)) {
+          // Push the barcode value (in this case 'Value') into the issues array of the first row
+          firstRow.issues.push(barcodeObject.Value);
         }
+  
+        setRowData(updatedRows); // Update the state with the modified rows
+      } else {
+        console.error("No rows available to add issues.");
       }
-      return row;
-    });
-    setRowData(updatedRows);
+    } catch (e) {
+      console.error("Invalid barcode format", e);
+    }
   };
-
+  
+  
+  
   const sanitizeData = (data: string) => {
     return data.replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, "");
   };
@@ -158,7 +169,7 @@ const AddTRC = () => {
       const parsedData = sanitizeData(scannedData);
       if (parsedData) {
         addIssueToRow(parsedData);
-        handleSubmit(onSubmit)();
+        // handleSubmit(onSubmit)();
       } else {
         console.error("Failed to parse QR data.");
       }
@@ -209,7 +220,7 @@ const AddTRC = () => {
                   </Typography>
                 </div>
                 <div className="flex flex-col gap-[20px] p-[20px]">
-                  <Controller
+                  {/* <Controller
                     name="sku"
                     control={control}
                     rules={{ required: "SKU is required" }}
@@ -224,7 +235,7 @@ const AddTRC = () => {
                         }}
                       />
                     )}
-                  />
+                  /> */}
                   <div>
                     <Controller
                       name="pickLocation"
@@ -349,8 +360,8 @@ const AddTRC = () => {
                       setBarcode(e.target.value);
                     }}
                     onKeyDown={(e) => {
-                      e.preventDefault();
                       if (e.key === "Enter" && barcode) {
+                        e.preventDefault();
                         setBarcode("");
                         onScanComplete(barcode);
                       }

@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getTrcRequestDetail } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Button, CircularProgress, Divider, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Popover, TextField } from "@mui/material";
 import { clearTrcDetail, getTrcList, trcFinalSubmit } from "@/features/trc/ViewTrc/viewTrcSlice";
-import { Skeleton } from "@/components/ui/skeleton";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 // import { getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 // import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
@@ -11,9 +10,10 @@ import { TrcFinalSubmitPayload } from "@/features/trc/ViewTrc/viewTrcType";
 import FixIssuesTable from "@/table/TRC/FixIssuesTable";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
-import { Chip, FormControlLabel, List, ListItemButton, ListItemText, Radio, RadioGroup, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 // type Props = {
 //   open: boolean;
 //   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,99 +31,20 @@ interface Issue {
 
 const ViewTRCTable: React.FC<any> = () => {
   const dispatch = useAppDispatch();
-  const { trcList, getTrcListLoading } = useAppSelector((state) => state.viewTrc);
-  // const columnDefs: ColDef[] = [
-  //   {
-  //     headerName: "#",
-  //     field: "id",
-  //     sortable: true,
-  //     filter: true,
-  //     flex: 1,
-  //     maxWidth: 80,
-  //     valueGetter: "node.rowIndex + 1",
-  //   },
-  //   {
-  //     headerName: "Requested By",
-  //     field: "requestBy",
-  //     sortable: true,
-  //     filter: true,
-  //     flex: 1,
-  //     cellRenderer: (params: any) => (params?.value ? params?.value : "--"),
-  //   },
-  //   {
-  //     headerName: "Reference ID",
-  //     field: "txnId",
-  //     sortable: true,
-  //     filter: true,
-  //     flex: 1,
-  //   },
-  //   {
-  //     headerName: "From Location",
-  //     field: "putLocation",
-  //     sortable: true,
-  //     filter: true,
-  //     flex: 1,
-  //   },
-  //   {
-  //     headerName: "Insert Date",
-  //     field: "insertDate",
-  //     sortable: true,
-  //     filter: true,
-  //     flex: 1,
-  //   },
-  //   {
-  //     headerName: "Total Device",
-  //     field: "totalDevice",
-  //     sortable: true,
-  //     filter: true,
-  //     flex: 1,
-  //   },
-  //   {
-  //     headerName: "Action",
-  //     field: "action",
-  //     cellRenderer: (params: any) => (
-  //       <div className="flex items-center justify-center h-full">
-  //         <Button
-  //           onClick={() => {
-  //             setOpen(true);
-  //             const payload: TcDetail = {
-  //               txnId: params?.data?.txnId,
-  //               location: params?.data?.putLocation,
-  //               requestedBy: params?.data?.requestBy,
-  //               insertDate: params?.data?.insertDate,
-  //               totalDevice: params?.data?.totalDevice,
-  //             };
-  //             dispatch(setTrcDetail(payload));
-  //             dispatch(
-  //               getTrcRequestDetail({
-  //                 txnid: params?.data?.txnId,
-  //                 itemCode: params?.data?.itemCode,
-  //               })
-  //             );
-  //           }}
-  //           startIcon={<Icons.refreshv2 />}
-  //           variant="contained"
-  //           size="small"
-  //         >
-  //           Process
-  //         </Button>
-  //       </div>
-  //     ),
-  //     flex: 1,
-  //     maxWidth: 100,
-  //   },
-  // ];
+  const { getTrcListLoading } = useAppSelector(
+    (state) => state.viewTrc
+  );
 
-  // const defaultColDef = useMemo<ColDef>(() => {
-  //   return {
-  //     filter: true,
-  //   };
-  // }, []);
-
-  const { getTrcRequestDetailLoading, trcRequestDetail, TrcFinalSubmitLoading } = useAppSelector((state) => state.viewTrc);
+  const {
+    trcRequestDetail,
+    TrcFinalSubmitLoading,
+    getTrcRequestDetailLoading
+  } = useAppSelector((state) => state.viewTrc);
   const [process, setProcess] = useState<boolean>(false);
   const [location, setLocation] = useState<LocationType | null>(null);
-  const [consumplocation, setConsumplocation] = useState<LocationType | null>(null);
+  const [consumplocation, setConsumplocation] = useState<LocationType | null>(
+    null
+  );
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [issues, setIssues] = useState<any[]>([
     // { id: 1, issue: "Issue1", selectedPart: null, quantity: 0, remarks: "", isChecked: false },
@@ -138,10 +59,10 @@ const ViewTRCTable: React.FC<any> = () => {
     setAnchorEl(null); // Close the popover
   };
 
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [data, setData] = useState<any>();
   const [approved, setApproved] = useState<string[]>([]);
   const [device, setDevice] = useState<string>("");
+  const [imeiNo, setImeiNo] = useState<string>("");
+  const [validateDevice, setValidateDevice] = useState<boolean>(false);
   const checkRequiredFields = (data: any[]) => {
     let hasErrors = false;
 
@@ -149,7 +70,12 @@ const ViewTRCTable: React.FC<any> = () => {
     const miss = data.map((item) => {
       const missingFields: string[] = [];
       requiredFields.forEach((field) => {
-        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
+        if (
+          item[field] === "" ||
+          item[field] === 0 ||
+          item[field] === undefined ||
+          item[field] === null
+        ) {
           missingFields.push(field);
         }
       });
@@ -159,40 +85,45 @@ const ViewTRCTable: React.FC<any> = () => {
     });
 
     if (miss.filter((item) => item !== undefined).length > 0) {
-      showToast(`Some required fields are missing: line no. ${miss.filter((item) => item !== undefined).join(", ")}`, "error");
+      showToast(
+        `Some required fields are missing: line no. ${miss
+          .filter((item) => item !== undefined)
+          .join(", ")}`,
+        "error"
+      );
       hasErrors = true;
     }
     return hasErrors;
   };
-
   const finalSubmit = () => {
     if (!checkRequiredFields(issues)) {
       if (!location) return showToast("Please select location", "error");
-      if (!consumplocation) return showToast("Please select consump location", "error");
+      if (!consumplocation)
+        return showToast("Please select consump location", "error");
       const consumpItem = issues.map((item) => item.selectedPart?.value || "");
       const consumpQty = issues.map((item) => item.quantity);
       const remark = issues.map((item) => item.remarks);
 
       const payload: TrcFinalSubmitPayload = {
-        txnId: data?.txnId || "",
+        txnId: trcRequestDetail?.header?.txnId || "",
         consumpItem,
         consumpQty,
         remark,
         putLocation: location?.code || "",
-        itemCode: device || "",
+        itemCode: trcRequestDetail?.body[0]?.device || "",
         consumpLoc: consumplocation?.code || "",
       };
       dispatch(trcFinalSubmit(payload)).then((res: any) => {
         if (res.payload.data.success) {
           showToast(res.payload.data.message, "success");
+          resetFeilds();
           if (!approved) {
             setApproved([device]);
           } else {
             setApproved([...approved, device]);
           }
           setDevice("");
-          setLocation(null);
-          setConsumplocation(null);
+          setImeiNo("");
           setIssues([]);
           dispatch(getTrcList());
           if (approved?.length === trcRequestDetail!.body.length) {
@@ -204,9 +135,9 @@ const ViewTRCTable: React.FC<any> = () => {
     }
   };
   const onSubmit = () => {
-    if (issues.length !== 0) {
+    // if (issues.length !== 0) {
       finalSubmit();
-    }
+    // }
   };
 
   useEffect(() => {
@@ -249,64 +180,65 @@ const ViewTRCTable: React.FC<any> = () => {
         UOM: "",
         isNew: true,
       };
+  
+      // Add new row to the issues array
       setIssues((prev) => [newRow, ...prev]);
     },
-    [issues]
+    [issues] // You can also optimize this by removing issues from dependency array
   );
-
-  const filteredTrcList = trcList?.filter((item) => {
-    const search = searchTerm.toLowerCase();
-    return item?.itemCode?.toLowerCase().includes(search) || item?.txnId?.toLowerCase().includes(search) || item?.requestBy?.toLowerCase().includes(search)|| item?.imeiNo?.toLowerCase().includes(search);
-  });
+  
 
   useEffect(() => {
     device &&
       dispatch(
         getTrcRequestDetail({
-          txnid: data?.txnId,
-          itemCode: data?.itemCode,
+          itemCode: device,
         })
-      );
+      ).then((res: any) => {
+        if (res.payload.data.success) {
+          setValidateDevice(true);
+        }
+      })
   }, [device]);
 
   const resetFeilds = () => {
     setDevice("");
-    setLocation(null);
-    setConsumplocation(null);
+    // setLocation(null);
+    // setConsumplocation(null);
     setIssues([]);
+    setValidateDevice(false);
+  };
+
+  const sanitizeData = (data: string) => {
+    return data
+      .replace(/[\u00A0]/g, '') // Remove non-breaking spaces
+      .replace(/[^a-zA-Z0-9\s,.{}[\]":]/g, ""); // Remove unwanted characters
   };
   
+  
+
   return (
     <div className="flex flex-col h-full">
-      {/* <div className="ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact
-          loadingOverlayComponent={CustomLoadingOverlay}
-          loading={getTrcListLoading}
-          overlayNoRowsTemplate={OverlayNoRowsTemplate}
-          suppressCellFocus={true}
-          rowData={trcList ? trcList : []}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          pagination={true}
-          paginationPageSize={20}
-        />
-      </div> */}
+      {getTrcRequestDetailLoading && <FullPageLoading />}
       <div className="flex-1 grid grid-cols-[500px_1fr] bg-white">
         <div className="border-r border-neutral-300 h-[calc(100vh-100px)]">
           <div className=" border-neutral-300">
             <div className="bg-hbg h-[40px] flex items-center justify-between px-[10px] border-b border-neutral-300 gap-[10px]">
               <Typography fontWeight={600} fontSize={16}>
-                Device List
+                Enter Device
               </Typography>
               <IconButton
-              size="small"
+                size="small"
                 onClick={() => {
                   dispatch(getTrcList());
-                  setSearchTerm("");
                   setDevice("");
                 }}
               >
-                {getTrcListLoading ? <CircularProgress size={20} /> : <Icons.refresh className="cursor-pointer" fontSize="small" />}
+                {getTrcListLoading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <Icons.refresh className="cursor-pointer" fontSize="small" />
+                )}
               </IconButton>
             </div>
 
@@ -317,8 +249,13 @@ const ViewTRCTable: React.FC<any> = () => {
                 variant="outlined"
                 size="medium"
                 fullWidth
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={imeiNo}
+                onChange={(e) => setImeiNo(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                   setDevice(imeiNo);
+                  }
+                }}
                 sx={{
                   margin: "10px", // Adjust spacing around the text field
                   maxWidth: 500, // Optional: limit width
@@ -329,74 +266,12 @@ const ViewTRCTable: React.FC<any> = () => {
           </div>
 
           <div className="flex-1 h-[calc(100vh-230px)]">
-            {" "}
-            {/* Use flex-1 to allow this section to take available space */}
-            <div className="h-[calc(100vh-290px)] overflow-y-auto">
-              {getTrcRequestDetailLoading || getTrcListLoading ? (
-                <div className="flex flex-col gap-[5px] p-[10px]">
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                  <Skeleton className="h-[30px] w-full" />
-                </div>
-              ) : (
-                <RadioGroup value={device}>
-                  <List className="overflow-y-auto">
-                    {filteredTrcList?.map((item: any, index) => (
-                      <ListItemButton
-                        // disabled={approved!.includes(item.device)}
-                        key={index}
-                        onClick={() => {
-                          resetFeilds();
-                          setDevice(item.itemCode);
-                          setData(item);
-                        }}
-                        selected={device === item.itemCode}
-                        sx={{
-                          backgroundColor: device === item.itemCode ? "lightblue" : "inherit",
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <FormControlLabel
-                          value={item?.itemCode}
-                          control={<Radio />}
-                          label={
-                            <ListItemText
-                              primary={item?.itemCode}
-                              secondary={
-                                <>
-                                  <span>Reference ID: {item?.txnId}</span>
-                                  <br />
-                                  <span>IMEI No : {item?.imeiNo}</span>
-                                  <br/>
-                                  <span>Requested By: {item?.requestBy}</span>
-                                </>
-                              }
-                            />
-                          }
-                          sx={{ width: "100%", margin: 0 }}
-                        />
-                        {approved?.includes(item?.device) ? (
-                          <Chip size="small" label="Approved" color="success" icon={<Icons.checkcircle fontSize="small" />} />
-                        ) : (
-                          <Chip size="small" sx={{ background: "#d97706" }} label="Pending" color="info" icon={<Icons.time fontSize="small" />} />
-                        )}
-                      </ListItemButton>
-                    ))}
-                  </List>
-                </RadioGroup>
-              )}
-            </div>
             <div>
               {/* Popover */}
               <Popover
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
                 onClose={handleClose}
-                
                 anchorOrigin={{
                   vertical: "bottom", // Position the popover below the button
                   horizontal: "left", // Align with the left edge of the button
@@ -406,7 +281,6 @@ const ViewTRCTable: React.FC<any> = () => {
                   horizontal: "left", // Align to the left of the anchor
                 }}
                 sx={{
-                
                   "& .MuiPopover-paper": {
                     borderRadius: "10px", // Rounded corners for popover
                     padding: "20px", // Padding inside popover
@@ -426,49 +300,58 @@ const ViewTRCTable: React.FC<any> = () => {
                   <div className="flex flex-col gap-3">
                     {/* Requested By */}
                     <div className="flex items-center justify-between">
-                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
                         Requested By:
                       </Typography>
-                      <Typography variant="body2">{data ? data?.requestBy || "--" : "--"}</Typography>
+                      <Typography variant="body2">
+                        {trcRequestDetail ? trcRequestDetail?.header?.requestBy || "--" : "--"}
+                      </Typography>
                     </div>
 
                     {/* Reference ID */}
                     <div className="flex items-center justify-between">
-                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
                         Reference ID:
                       </Typography>
-                      <Typography variant="body2">{data ? data?.txnId : "--"}</Typography>
+                      <Typography variant="body2">
+                        {trcRequestDetail ? trcRequestDetail?.header?.txnId : "--"}
+                      </Typography>
                     </div>
 
-                    {/* From Location */}
-                    <div className="flex items-center justify-between">
-                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
-                        From Location:
-                      </Typography>
-                      <Typography variant="body2">{data ? data?.putLocation : "--"}</Typography>
-                    </div>
 
                     {/* Insert Date */}
                     <div className="flex items-center justify-between">
-                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        fontWeight={600}
+                      >
                         Insert Date:
                       </Typography>
-                      <Typography variant="body2">{data ? data?.insertDate : "--"}</Typography>
-                    </div>
-
-                    {/* Total Devices */}
-                    <div className="flex items-center justify-between">
-                      <Typography variant="body2" color="textSecondary" fontWeight={600}>
-                        Total Devices:
+                      <Typography variant="body2">
+                        {trcRequestDetail ? trcRequestDetail?.header?.insertDt : "--"}
                       </Typography>
-                      <Typography variant="body2">{data ? data?.totalDevice : "--"}</Typography>
                     </div>
                   </div>
 
                   <Divider sx={{ my: 2 }} />
 
                   {/* Close Button */}
-                  <Button variant="outlined" color="error" size="small" startIcon={<Icons.close />} onClick={handleClose}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    startIcon={<Icons.close />}
+                    onClick={handleClose}
+                  >
                     Close
                   </Button>
                 </div>
@@ -476,7 +359,7 @@ const ViewTRCTable: React.FC<any> = () => {
             </div>
           </div>
         </div>
-        {device && (
+        {validateDevice && (
           <div>
             <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between  border-b border-neutral-300">
               <Typography fontWeight={600} fontSize={16}>
@@ -506,27 +389,53 @@ const ViewTRCTable: React.FC<any> = () => {
                   <div className="grid grid-cols-[1fr_1fr] gap-[10px]">
                     <div className="flex items-center gap-[10px]">
                       <p>IMEI : </p>
-                      <p>{trcRequestDetail && trcRequestDetail.body.find((item) => item.device === device)?.deviceDetail?.imei} </p>
+                      <p>
+                        {trcRequestDetail &&
+                          trcRequestDetail.body.find(
+                            (item) => item.device === device
+                          )?.deviceDetail?.imei}{" "}
+                      </p>
                     </div>
                     <div className="flex items-center gap-[10px]">
                       <p>Model No. : </p>
-                      <p>{trcRequestDetail && trcRequestDetail.body.find((item) => item.device === device)?.deviceDetail?.model} </p>
+                      <p>
+                        {trcRequestDetail &&
+                          trcRequestDetail.body.find(
+                            (item) => item.device === device
+                          )?.deviceDetail?.model}{" "}
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div className=" h-[60px]  grid grid-cols-3 items-center gap-[20px] px-[20px]">
                   <FormControl fullWidth className="w-full">
-                    <InputLabel htmlFor="outlined-adornment-barcode">Scan PartCode</InputLabel>
+                    <InputLabel htmlFor="outlined-adornment-barcode">
+                      Scan PartCode
+                    </InputLabel>
                     <OutlinedInput
                       id="outlined-adornment-barcode"
                       value={partCode}
                       onChange={(e) => setPartCode(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                          addRow2(partCode); // Add barcode directly to the table
-                          setPartCode(""); // Clear input after adding
+                          const data = sanitizeData(partCode); // Sanitize input
+                            const parsedPartCode = JSON.parse(data); // Parse part code input
+                      
+                            // Check if parsedPartCode has 'Value' property
+                            if (parsedPartCode && parsedPartCode.Value) {
+                              const partCodeValue = parsedPartCode.Value; // Get the Value
+                      
+                              // Add row to issues with the partCode value
+                              addRow2(partCodeValue);
+                              setPartCode(""); // Clear input after adding
+                            } else {
+                              console.error("Invalid partCode format", parsedPartCode);
+                              showToast("Invalid JSON format: 'Value' key missing.", "error");
+                            }
+                          
                         }
                       }}
+                      
                       endAdornment={
                         <InputAdornment position="end">
                           <Icons.qrScan />
@@ -536,34 +445,66 @@ const ViewTRCTable: React.FC<any> = () => {
                       label="Scan PartCode"
                     />
                   </FormControl>
-                  <SelectLocationAcordingModule endPoint="/trc/view/pickLocation" value={consumplocation} onChange={setConsumplocation} label="Consump Location" />
-                  <SelectLocationAcordingModule endPoint="/trc/view/dropLocation" value={location} onChange={setLocation} label="Drop Location" />
+                  <SelectLocationAcordingModule
+                    endPoint="/trc/view/pickLocation"
+                    value={consumplocation}
+                    onChange={setConsumplocation}
+                    label="Consump Location"
+                  />
+                  <SelectLocationAcordingModule
+                    endPoint="/trc/view/dropLocation"
+                    value={location}
+                    onChange={setLocation}
+                    label="Drop Location"
+                  />
                 </div>
                 <div>
                   <div className="h-[40px] bg-hbg flex items-center px-[10px] justify-between border-t border-b border-neutral-300">
                     <Typography fontWeight={600} fontSize={16}>
                       Consumable Components
                     </Typography>
-                    <p className="text-slate-600 font-[600]">Total fix issues: {issues.length.toString()}</p>
+                    <p className="text-slate-600 font-[600]">
+                      Total fix issues: {issues.length.toString()}
+                    </p>
                   </div>
                   <div className="h-[calc(100vh-360px)]  overflow-y-auto overflow-x-auto">
-                    {!device ? (
+                    {/* {device ? (
                       <div className="flex items-center justify-center h-[100%]">
-                        <img src="/empty.png" alt="" className="h-[100px] w-[100px]" />
+                        <img
+                          src="/empty.png"
+                          alt=""
+                          className="h-[100px] w-[100px]"
+                        />
                       </div>
-                    ) : (
-                      <FixIssuesTable addRow={addRow} rowData={issues} setRowData={setIssues} />
-                    )}
+                    ) : ( */}
+                      <FixIssuesTable
+                        addRow={addRow}
+                        rowData={issues}
+                        setRowData={setIssues}
+                      />
+                    {/* )} */}
                   </div>
                   <div className="h-[50px] flex items-center justify-end px-[10px] gap-[10px] border-t  border-neutral-300">
-                    <LoadingButton disabled={TrcFinalSubmitLoading} variant={"contained"} startIcon={<Icons.close fontSize="small" />} sx={{ background: "white", color: "red" }} onClick={() => {
-                      setIssues([]);
-                      setConsumplocation(null);
-                      setLocation(null);
-                    }}>
+                    <LoadingButton
+                      disabled={TrcFinalSubmitLoading}
+                      variant={"contained"}
+                      startIcon={<Icons.close fontSize="small" />}
+                      sx={{ background: "white", color: "red" }}
+                      onClick={() => {
+                        setIssues([]);
+                        setConsumplocation(null);
+                        setLocation(null);
+                      }}
+                    >
                       reset
                     </LoadingButton>
-                    <LoadingButton loadingPosition="start" variant="contained" onClick={onSubmit} loading={TrcFinalSubmitLoading} startIcon={<Icons.save fontSize="small" />}>
+                    <LoadingButton
+                      loadingPosition="start"
+                      variant="contained"
+                      onClick={onSubmit}
+                      loading={TrcFinalSubmitLoading}
+                      startIcon={<Icons.save fontSize="small" />}
+                    >
                       Submit
                     </LoadingButton>
                   </div>

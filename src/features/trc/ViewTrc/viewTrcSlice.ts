@@ -19,8 +19,8 @@ export const getTrcList = createAsyncThunk<AxiosResponse<TrcListResponse>>("trc/
 export const getTrcRequestDetail = createAsyncThunk<
   AxiosResponse<TRCRequestApiResponse>, 
   any // Payload type is now an object
->('trc/getTrcRequestDetail', async ({ txnid, itemCode }) => {
-  const response = await axiosInstance.get(`/trc/detail/${txnid}/${itemCode}`);
+>('trc/getTrcRequestDetail', async ({ itemCode }) => {
+  const response = await axiosInstance.get(`/trc/detail/${itemCode}`);
   return response;
 });
 export const trcFinalSubmit = createAsyncThunk<AxiosResponse<TrcfinalSubmitResponse>, TrcFinalSubmitPayload>("trc/trcFinalSubmit", async (payload) => {
