@@ -19,7 +19,7 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
     { headerName: "#", field: "srNo", sortable: true, filter: true, valueGetter: "node.rowIndex + 1", maxWidth: 80 },
     { headerName: "Requested By", field: "requestBy", sortable: true, filter: true },
     { headerName: "Ref ID", field: "refId", sortable: true, filter: true },
-    { headerName: "Device", field: "device", sortable: true, filter: true },
+    { headerName: "Serial No", field: "srlNo", sortable: true, filter: true },
     { headerName: "Total Devices", field: "totalDevice", sortable: true, filter: true },
     { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true },
     { headerName: "Put Location", field: "putLocation", sortable: true, filter: true },
@@ -40,7 +40,7 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
             loading={r2ReportDetailLoading}
             onClick={() => {
               setOpen(true);
-              dispatch(getR2ReportDetail(params?.data?.refId));
+              dispatch(getR2ReportDetail({refId:params?.data?.refId, srlno:params?.data?.srlNo}));
               dispatch(setRefId(params?.data?.refId));
             }}
             size="small"

@@ -15,6 +15,8 @@ import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
+
+
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -23,13 +25,13 @@ const R2Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [open, setOpen] = useState(false);
-  const { emitDownloadReport, onDownloadReport } = useSocketContext();
+  const { emitDownloadR2Report, onDownloadReport } = useSocketContext();
 
   const dispatch = useAppDispatch();
   const { getR2DataLoading, refId } = useAppSelector((state) => state.report);
   const [loading, setLoading] = useState(false);
   const handleDownload = () => {
-    emitDownloadReport({ from: date?.from || "", to: date?.to || "" });
+    emitDownloadR2Report({ from: date?.from || "", to: date?.to || "" });
     setLoading(true);
   };
   useEffect(() => {
@@ -42,7 +44,7 @@ const R2Report: React.FC = () => {
   return (
     <>
       <CustomDrawer open={open} onOpenChange={setOpen}>
-        <CustomDrawerContent side="right" className="min-w-[70%] p-0" onInteractOutside={(e) => e.preventDefault()}>
+        <CustomDrawerContent side="right" className="min-w-[80%] p-0" onInteractOutside={(e) => e.preventDefault()}>
           <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] space-y-0 bg-zinc-200 gap-0">
             <CustomDrawerTitle className="text-slate-600 font-[500] p-0">Ref ID: {"#" + refId}</CustomDrawerTitle>
           </CustomDrawerHeader>
@@ -96,7 +98,7 @@ const R2Report: React.FC = () => {
               <MuiTooltip title="Download" placement="right">
                 <LoadingButton
                   variant="contained"
-                  disabled
+                  // disabled
                   loading={loading}
                   onClick={handleDownload}
                   color="primary"

@@ -46,5 +46,5 @@ export type DashBoardType = {
   rawMaterialData: RawMaterialLocation[] | null;
   rawMaterialLoading: boolean;
   issuedataLoading: boolean;
-  issuedata:any[] | null
+  issueData:any[] | null
 };

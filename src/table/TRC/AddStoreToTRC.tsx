@@ -10,7 +10,6 @@ interface RowData {
   remarks: string;
   id: string;
   isNew: boolean;
-  issues: string[];
   IMEI: string;
   slNo: string;
 }
@@ -18,7 +17,7 @@ type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
 };
-const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
+const AddStoreToTRC: React.FC<Props> = ({ rowData, setRowdata }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -80,10 +79,10 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       width:200,
     },
     {
-      headerName: "Issues",
-      field: "issues",
+      headerName: "Remarks",
+      field: "remarks",
       cellRenderer: "textInputCellRenderer",
-     width:300
+    
     },
   ];
 
@@ -125,4 +124,4 @@ const AddtrcTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   );
 };
 
-export default AddtrcTable;
+export default AddStoreToTRC;

@@ -7,6 +7,7 @@ import InternetStatusBar from "./components/shared/InternetStatusBar";
 import BugAndChat from "./components/shared/BugAndChat";
 import { useUser } from "./hooks/useUser";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
+import ChangePassword from "@/pages/commonPages/ChangePassword";
 
 dayjs.extend(customParseFormat);
 function App() {
@@ -35,9 +36,12 @@ function App() {
       window.removeEventListener("online", handleOnline);
     };
   }, []);
+
   if (user) {
     if (!user.other.e_v) {
       return <MailVerifyPage />;
+    } else if(!user.other.c_p){
+      return <ChangePassword />
     } else {
       return (
         <>

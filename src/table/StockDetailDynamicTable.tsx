@@ -13,7 +13,9 @@ type StockDetailDynamicTableProps = {
   }[];
 };
 
-const StockDetailDynamicTable: React.FC<StockDetailDynamicTableProps> = ({ data }) => {
+const StockDetailDynamicTable: React.FC<StockDetailDynamicTableProps> = ({
+  data,
+}) => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
   const defaultColDef = useMemo<ColDef>(() => {
@@ -30,20 +32,35 @@ const StockDetailDynamicTable: React.FC<StockDetailDynamicTableProps> = ({ data 
       .replace(/^./, (str) => str.toUpperCase());
   };
   useEffect(() => {
-    setRowData(data);
-    const dynamicColumnDefs: ColDef[] = Object.keys(data[0]).map((key) => ({
-      field: key,
-      headerName: formatHeaderName(key),
-      sortable: true,
-      filter: true,
-      resizable: true,
-    }));
-    setColumnDefs(dynamicColumnDefs);
-  }, []);
+    if (data && data.length > 0) {
+      setRowData(data);
+      
+      const dynamicColumnDefs: ColDef[] = Object.keys(data[0]).map((key) => ({
+        field: key,
+        headerName: formatHeaderName(key),
+        sortable: true,
+        filter: true,
+        resizable: true,
+      }));
+
+      setColumnDefs(dynamicColumnDefs);
+    } else {
+      // Handle case where data is empty or undefined
+      setRowData([]);
+      setColumnDefs([]);
+    }
+  }, [data]);
 
   return (
     <div className="ag-theme-quartz ">
-      <AgGridReact rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={false} paginationPageSize={10} domLayout="autoHeight" />
+      <AgGridReact
+        rowData={rowData||[]}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        pagination={false}
+        paginationPageSize={10}
+        domLayout="autoHeight"
+      />
     </div>
   );
 };

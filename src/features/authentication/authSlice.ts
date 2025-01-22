@@ -18,6 +18,7 @@ const initialState: AuthState = {
   emailOtpLoading: false,
   updateEmailLoading: false,
   verifyMailLoading: false,
+  otpLoading: false,
 };
 
 export const loginUserAsync = createAsyncThunk<AxiosResponse<LoginResponse>, LoginCredentials>("auth/loginUser", async (loginCredential) => {
@@ -37,6 +38,24 @@ export const updateEmailAsync = createAsyncThunk<AxiosResponse<{ success: boolea
   const response = await axiosInstance.put("/user/verify-email-otp", paylaod);
   return response;
 });
+
+export const getPasswordOtp = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { emailId: string }>(
+  "auth/getPasswordOtp", 
+  async (payload) => {
+    const response = await axiosInstance.get("/user/get-password-otp/", {
+      params: {
+        emailId: payload.emailId, // Send emailId as a query param
+      }
+    });
+    return response;
+  }
+);
+
+export const updatePassword = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, PasswordChangePayload>("auth/updatePassword", async (paylaod) => {
+  const response = await axiosInstance.put("/user/update-password", paylaod);
+  return response;
+});
+
 export const verifyMailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { otp: string }>("auth/verifyMailAsync", async (paylaod) => {
   const response = await axiosInstance.put("/user/verify-mail", paylaod);
   return response;
@@ -103,6 +122,30 @@ const authSlice = createSlice({
       })
       .addCase(updateEmailAsync.rejected, (state) => {
         state.updateEmailLoading = false;
+      })
+      .addCase(getPasswordOtp.pending, (state) => {
+        state.otpLoading = true;
+      })
+      .addCase(getPasswordOtp.fulfilled, (state, action) => {
+        state.otpLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(getPasswordOtp.rejected, (state) => {
+        state.otpLoading = false;
+      })
+      .addCase(updatePassword.pending, (state) => {
+        state.otpLoading = true;
+      })
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.otpLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updatePassword.rejected, (state) => {
+        state.otpLoading = false;
       })
       .addCase(verifyMailAsync.pending, (state) => {
         state.verifyMailLoading = true;

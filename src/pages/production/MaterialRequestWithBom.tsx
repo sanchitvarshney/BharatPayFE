@@ -1,6 +1,6 @@
 import { Icons } from "@/components/icons";
 import SelectBom, { Bomtype } from "@/components/reusable/SelectBom";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import  { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import { fetchBomProduct, resetBomDetail } from "@/features/master/BOM/BOMSlice";
@@ -155,7 +155,7 @@ const MaterialRequestWithBom: React.FC = () => {
                 }
               }}
             />
-            <Controller
+            {/* <Controller
               name="cc"
               control={control}
               rules={{ required: "Cost Center  is required" }}
@@ -171,7 +171,7 @@ const MaterialRequestWithBom: React.FC = () => {
                   label="Cost Center"
                 />
               )}
-            />
+            /> */}
             <TextField fullWidth multiline rows={2} label="Remark" />
           </div>
           <div className="w-full">

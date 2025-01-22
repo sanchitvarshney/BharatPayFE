@@ -9,7 +9,7 @@ const initialState: DashBoardType = {
   rawMaterialData: null,
   rawMaterialLoading: false,
   issuedataLoading: false,
-  issuedata: null,
+  issueData: null,
 };
 
 export const getDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, { from: string; to: string }>("dashboard/getDeviceDetail", async (payload) => {
@@ -34,7 +34,10 @@ const dashBoardSlice = createSlice({
     clearAllData: (state) => {
       state.deviceData = null;
       state.rawMaterialData = null;
-      state.issuedata = null;
+      state.issueData = null;
+    },
+    clearStoredIssueData: (state) => {
+      state.issueData = null;
     },
   },
   extraReducers: (builder) => {
@@ -69,20 +72,20 @@ const dashBoardSlice = createSlice({
       })
       .addCase(getIssueDetail.pending, (state) => {
         state.issuedataLoading = true;
-        state.issuedata = null;
+        state.issueData = null;
       })
       .addCase(getIssueDetail.fulfilled, (state, action) => {
         state.issuedataLoading = false;
         if (action.payload.data.success) {
-          state.issuedata = action.payload.data.data;
+          state.issueData = action.payload.data.data;
         }
       })
       .addCase(getIssueDetail.rejected, (state) => {
         state.issuedataLoading = false;
-        state.issuedata = null;
+        state.issueData = null;
       });
   },
 });
 
-export const { clearStoredDeviceData, clearAllData } = dashBoardSlice.actions;
+export const { clearStoredDeviceData, clearAllData,clearStoredIssueData } = dashBoardSlice.actions;
 export default dashBoardSlice.reducer;

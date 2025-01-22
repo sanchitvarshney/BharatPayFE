@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import StockDetailDynamicTable from "@/table/StockDetailDynamicTable";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
-import { clearAllData, getDeviceDetail, getIssueDetail, getRawMaterialDetail } from "@/features/Dashboard/Dashboard";
+import { clearAllData, getDeviceDetail, getIssueDetail, getRawMaterialDetail, clearStoredIssueData } from '@/features/Dashboard/Dashboard';
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -18,7 +18,7 @@ import RAWMaterialDetailDynamicTable from "@/table/RAWMaterialDetailDynamicTable
 import IssueReportDataTable from "@/table/IssueReportDataTable";
 const StockDetailPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { deviceData, devicedataLoading, rawMaterialData, rawMaterialLoading, issuedata, issuedataLoading } = useAppSelector((state) => state.dashboard);
+  const { deviceData, devicedataLoading, rawMaterialData, rawMaterialLoading, issueData, issuedataLoading } = useAppSelector((state) => state.dashboard);
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("device");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
@@ -31,6 +31,7 @@ const StockDetailPage: React.FC = () => {
   useEffect(() => {
     dispatch(clearAllData());
   }, []);
+
   return (
     <>
       <div className="h-[100vh] flex bg-white relative overflow-y-hidden">
@@ -43,7 +44,7 @@ const StockDetailPage: React.FC = () => {
           <div className="flex flex-col   gap-[20px] p-[20px]   mt-[20px] overflow-hidden">
             <FormControl fullWidth>
               <InputLabel>Select Type</InputLabel>
-              <Select label="Select Type" value={type} defaultValue="device" onChange={(e) => setType(e.target.value)}>
+              <Select label="Select Type" value={type} defaultValue="device" onChange={(e) => {setType(e.target.value);dispatch(clearStoredIssueData());}}>
                 {[
                   { value: "location", label: "Location", isDisabled: true },
                   { value: "device", label: "Device", isDisabled: false },
@@ -108,13 +109,18 @@ const StockDetailPage: React.FC = () => {
         </div>
         <div className="w-full relative h-[100vh] overflow-y-auto bg-neutral-100 ">
           <div className=" sticky top-0 z-[10] bg-white py-[10px] px-[20px] border-b border-neutral-300">
-            <Typography fontWeight={600} fontSize={25} className="text-slate-600">
-              Location Wise Device Stock Detail
+            <Typography
+              fontWeight={600}
+              fontSize={25}
+              className="text-slate-600"
+            >
+              Location Wise {type === "device" ? "Device" : "Raw Material"}{" "}
+              Stock Detail
             </Typography>
           </div>
 
           <div className="p-[20px] flex flex-col gap-[20px] h-full">
-            {!rawMaterialData && !deviceData && !issuedata && (
+            {!rawMaterialData && !deviceData && !issueData && (
               <div className="flex items-center justify-center w-full h-full">
                 <img src="/empty.png" className="w-[110px]" alt="No Data" />
               </div>
@@ -151,7 +157,7 @@ const StockDetailPage: React.FC = () => {
                 </Accordion>
               </div>
             ))}
-            {issuedata?.map((item, i) => (
+            {issueData?.map((item, i) => (
               <div>
                 <Accordion defaultExpanded={i === 0}>
                   <AccordionSummary expandIcon={<ArrowDropDownIcon />} aria-controls="panel2-content" id="panel2-header">

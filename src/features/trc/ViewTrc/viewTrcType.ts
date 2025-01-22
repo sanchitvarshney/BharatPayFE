@@ -6,6 +6,7 @@ export type TrcList = {
   insertDate: string;
   putLocation: string;
   itemCode: string;
+  imeiNo: string;
 };
 export type TcDetail = {
   requestedBy: string;
