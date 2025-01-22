@@ -226,6 +226,27 @@ export type R8ReportDataApiResponse = {
   success: boolean;
   data: R8ReportData[];
 };
+
+interface Issue {
+  issueName: string;
+  issuePrice: string;
+}
+
+interface ProductDetails {
+  vendorAddress: string;
+  awbNo: string;
+  serial: string;
+  imei: string;
+  quantity: string;
+  product: string;
+  totalDebit: string;
+  issues: Issue[];
+}
+export type R9reportResponse = {
+  status: string;
+  success: boolean;
+  data: ProductDetails[];
+};
 export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
@@ -250,4 +271,6 @@ export type ReportStateType = {
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;
   r8Report: R8ReportData[] | null;
+  r9report: ProductDetails[] | null;
+  r9ReportLoading: boolean;
 };

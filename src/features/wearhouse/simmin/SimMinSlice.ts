@@ -25,7 +25,7 @@ const SimMinSlice = createSlice({
   reducers: {
     clearMinInfo(state) {
       state.minInfo = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -56,5 +56,5 @@ const SimMinSlice = createSlice({
   },
 });
 
-  export const {clearMinInfo} = SimMinSlice.actions;
+export const { clearMinInfo } = SimMinSlice.actions;
 export default SimMinSlice.reducer;

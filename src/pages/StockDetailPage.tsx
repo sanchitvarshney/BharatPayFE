@@ -9,14 +9,16 @@ import { Button } from "@/components/ui/button";
 import StockDetailDynamicTable from "@/table/StockDetailDynamicTable";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
-import { clearStoredDeviceData, getDeviceDetail } from "@/features/Dashboard/Dashboard";
+import { clearAllData, getDeviceDetail, getIssueDetail, getRawMaterialDetail } from "@/features/Dashboard/Dashboard";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import RAWMaterialDetailDynamicTable from "@/table/RAWMaterialDetailDynamicTable";
+import IssueReportDataTable from "@/table/IssueReportDataTable";
 const StockDetailPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { deviceData, devicedataLoading } = useAppSelector((state) => state.dashboard);
+  const { deviceData, devicedataLoading, rawMaterialData, rawMaterialLoading, issuedata, issuedataLoading } = useAppSelector((state) => state.dashboard);
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("device");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
@@ -27,7 +29,7 @@ const StockDetailPage: React.FC = () => {
   const { RangePicker } = DatePicker;
 
   useEffect(() => {
-    dispatch(clearStoredDeviceData());
+    dispatch(clearAllData());
   }, []);
   return (
     <>
@@ -45,7 +47,8 @@ const StockDetailPage: React.FC = () => {
                 {[
                   { value: "location", label: "Location", isDisabled: true },
                   { value: "device", label: "Device", isDisabled: false },
-                  { value: "raw-material", label: "Raw Material", isDisabled: true },
+                  { value: "issue", label: "Issues", isDisabled: false },
+                  { value: "raw-material", label: "Raw Material", isDisabled: false },
                 ].map((item) => (
                   <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
                     {item.label}
@@ -80,13 +83,20 @@ const StockDetailPage: React.FC = () => {
             <div className="flex items-center justify-end">
               <LoadingButton
                 loadingPosition="start"
-                loading={devicedataLoading}
+                loading={devicedataLoading || rawMaterialLoading || issuedataLoading}
                 onClick={() => {
                   if (!date.from || !date.to) {
                     showToast("Please select date range");
                     return;
                   }
-                  dispatch(getDeviceDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  dispatch(clearAllData());
+                  if (type === "device") {
+                    dispatch(getDeviceDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  } else if (type === "raw-material") {
+                    dispatch(getRawMaterialDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  } else if (type === "issue") {
+                    dispatch(getIssueDetail({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  }
                 }}
                 variant="contained"
                 startIcon={<Icons.search />}
@@ -104,28 +114,59 @@ const StockDetailPage: React.FC = () => {
           </div>
 
           <div className="p-[20px] flex flex-col gap-[20px] h-full">
-            {devicedataLoading || !deviceData ? (
+            {!rawMaterialData && !deviceData && !issuedata && (
               <div className="flex items-center justify-center w-full h-full">
                 <img src="/empty.png" className="w-[110px]" alt="No Data" />
               </div>
-            ) : (
-              deviceData?.map((item, i) => (
-                <div>
-                  <Accordion defaultExpanded={i === 0}>
-                    <AccordionSummary expandIcon={<ArrowDropDownIcon />} aria-controls="panel2-content" id="panel2-header">
-                      <Typography fontWeight={600} fontSize={20} className="text-slate-600">
-                        {item.locationName}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div className="table w-full border border-neutral-300">
-                        <StockDetailDynamicTable data={item.products} />
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
-                </div>
-              ))
             )}
+            {deviceData?.map((item, i) => (
+              <div>
+                <Accordion defaultExpanded={i === 0}>
+                  <AccordionSummary expandIcon={<ArrowDropDownIcon />} aria-controls="panel2-content" id="panel2-header">
+                    <Typography fontWeight={600} fontSize={20} className="text-slate-600">
+                      {item.locationName}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <div className="table w-full border border-neutral-300">
+                      <StockDetailDynamicTable data={item.products} />
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              </div>
+            ))}
+            {rawMaterialData?.map((item, i) => (
+              <div>
+                <Accordion defaultExpanded={i === 0}>
+                  <AccordionSummary expandIcon={<ArrowDropDownIcon />} aria-controls="panel2-content" id="panel2-header">
+                    <Typography fontWeight={600} fontSize={20} className="text-slate-600">
+                      {item.locationName}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <div className="table w-full border border-neutral-300">
+                      <RAWMaterialDetailDynamicTable rowData={item.products} />
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              </div>
+            ))}
+            {issuedata?.map((item, i) => (
+              <div>
+                <Accordion defaultExpanded={i === 0}>
+                  <AccordionSummary expandIcon={<ArrowDropDownIcon />} aria-controls="panel2-content" id="panel2-header">
+                    <Typography fontWeight={600} fontSize={20} className="text-slate-600">
+                      {item?.device_name}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <div className="table w-full border border-neutral-300">
+                      <IssueReportDataTable rowData={item?.issues} />
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              </div>
+            ))}
           </div>
         </div>
       </div>
