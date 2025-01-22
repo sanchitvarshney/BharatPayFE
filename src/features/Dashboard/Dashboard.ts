@@ -23,7 +23,7 @@ export const getRawMaterialDetail = createAsyncThunk<AxiosResponse<DeviceApiResp
 export const getIssueDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, { from: string; to: string }>("dashboard/issueDetail", async (payload) => {
   const response = await axiosInstance.get(`/dashboard/deviceIssue?startDate=${payload.from}&endDate=${payload.to}`);
   return response;
-}); 
+});
 
 const dashBoardSlice = createSlice({
   name: "dashboard",
