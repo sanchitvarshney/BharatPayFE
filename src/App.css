@@ -30,7 +30,7 @@
 
 /* Applies the thumb color */
 .ag-theme-quartz .ag-body-horizontal-scroll-container::-webkit-scrollbar-thumb {
-  background-color: #155e75; /* Equivalent to cyan-800 */
+  background-color: #155e75; 
 }
 
 .ag-theme-quartz .ag-row {
