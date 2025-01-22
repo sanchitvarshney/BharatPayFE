@@ -75,6 +75,7 @@ import MasterClientDetail from "./pages/master/MasterClientDetail";
 import MaterialRequestWithBom from "./pages/production/MaterialRequestWithBom";
 import StockDetailPage from "./pages/StockDetailPage";
 import StoreTRC from "@/pages/TRC/StoreTRC";
+import ChangePassword from "@/pages/commonPages/ChangePassword";
 
 export const router = createBrowserRouter([
   {
@@ -675,5 +676,13 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/verify-mobile-mail",
+  },
+  {
+    element: (
+      <Protected authentication={true}>
+        <ChangePassword />
+      </Protected>
+    ),
+    path: "/change-password",
   },
 ]);
