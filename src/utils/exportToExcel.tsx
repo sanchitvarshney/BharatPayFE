@@ -59,7 +59,7 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
   worksheet["!cols"] = [{ wch: 15 }, { wch: 20 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 10 }];
 
   const workbook: XLSX.WorkBook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Vendor Data");
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Device MIN V2");
 
   XLSX.writeFile(workbook, `${fileName}.xlsx`);
 };
