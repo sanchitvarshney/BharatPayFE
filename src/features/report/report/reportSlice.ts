@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, MainR1ReportResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, ReportStateType } from "./reportType";
+import { DeviceRequestApiResponse, MainR1ReportResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, R9reportResponse, ReportStateType } from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -27,6 +27,8 @@ const initialState: ReportStateType = {
   r6ReportLoading: false,
   r8ReportLoading: false,
   r8Report: null,
+  r9report: null,
+  r9ReportLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -75,6 +77,10 @@ export const getr8Report = createAsyncThunk<AxiosResponse<R8ReportDataApiRespons
   return response;
 });
 
+export const getr9Report = createAsyncThunk<AxiosResponse<R9reportResponse>, { from: string; to: string; partner: string }>("report/getr9Report", async (payload) => {
+  const response = await axiosInstance.get(`/deviceMinV2/deviceInwardReport?fromDt=${payload.from}&toDt=${payload.to}&partner=${payload.partner}`);
+  return response;
+});
 const reportSlice = createSlice({
   name: "report",
   initialState,
@@ -90,7 +96,7 @@ const reportSlice = createSlice({
     },
     clearR6data(state) {
       state.r6Report = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -243,10 +249,24 @@ const reportSlice = createSlice({
       .addCase(getr8Report.rejected, (state) => {
         state.r8ReportLoading = false;
         state.r8Report = null;
+      })
+      .addCase(getr9Report.pending, (state) => {
+        state.r9ReportLoading = true;
+        state.r9report = null;
+      })
+      .addCase(getr9Report.fulfilled, (state, action) => {
+        state.r9ReportLoading = false;
+        if (action.payload.data.success) {
+          state.r9report = action.payload.data.data;
+        }
+      })
+      .addCase(getr9Report.rejected, (state) => {
+        state.r9ReportLoading = false;
+        state.r9report = null;
       });
   },
 });
 
-export const { setRefId, clearRefId, clearR1data,clearR6data } = reportSlice.actions;
+export const { setRefId, clearRefId, clearR1data, clearR6data } = reportSlice.actions;
 
 export default reportSlice.reducer;

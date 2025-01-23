@@ -25,3 +25,4 @@ export type DashBoardType = {
   issueData: Location[] | null;
   issueDataLoading: boolean;
 };
+
