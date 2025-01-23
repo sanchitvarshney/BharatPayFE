@@ -17,6 +17,8 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
 
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
+    { headerName: "Vendor Code", field: "vendorCode",  },
+    { headerName: "Vendor Name", field: "vendorName", minWidth:300 },
     { headerName: "Vendor Address", field: "vendorAddress", minWidth: 400 },
     { headerName: "AWB No", field: "awbNo" },
     { headerName: "Serial", field: "serial" },
