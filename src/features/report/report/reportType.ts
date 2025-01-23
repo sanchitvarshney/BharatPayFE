@@ -233,6 +233,8 @@ interface Issue {
 }
 
 interface ProductDetails {
+  vendorCode: string;
+  vendorName: string;
   vendorAddress: string;
   awbNo: string;
   serial: string;
