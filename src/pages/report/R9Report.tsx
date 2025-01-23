@@ -50,7 +50,11 @@ const R9Report: React.FC = () => {
             <div className="flex flex-col gap-[20px]">
               <FormControl fullWidth>
                 <Select value={partner} defaultValue="min" onChange={(e) => setpartner(e.target.value)}>
-                  {[{ value: "eCOM", label: "eCOM", isDisabled: false }].map((item) => (
+                  {[
+                    { value: "eCOM", label: "eCOM", isDisabled: false },
+                    { value: "dVery", label: "dVery", isDisabled: false },
+
+                  ].map((item) => (
                     <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
                       {item.label}
                     </MenuItem>
