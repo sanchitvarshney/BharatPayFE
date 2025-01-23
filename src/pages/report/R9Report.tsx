@@ -10,6 +10,7 @@ import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import R9ReportTable from "@/table/report/R9ReportTable";
 import { showToast } from "@/utils/toasterContext";
 import { getr9Report } from "@/features/report/report/reportSlice";
+import { exportToExcel } from "@/utils/exportToExcel";
 
 const R9Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
@@ -19,7 +20,7 @@ const R9Report: React.FC = () => {
     to: null,
   });
   const dispatch = useAppDispatch();
-  const { r9ReportLoading } = useAppSelector((state) => state.report);
+  const { r9ReportLoading, r9report } = useAppSelector((state) => state.report);
   const handleDateChange = (dates: { from: Dayjs | null; to: Dayjs | null }) => {
     console.log("Selected Dates:", dates);
     setDateRange(dates);
@@ -31,7 +32,11 @@ const R9Report: React.FC = () => {
   //       sheetName: "R1 Report", // Set your desired sheet name here
   //     });
   // }, [mainR1Report]);
-
+  const handleExport = () => {
+    if (r9report) {
+      exportToExcel(r9report, "R9 Report");
+    }
+  };
   return (
     <>
       <div className="flex bg-white h-[calc(100vh-100px)] relative">
@@ -88,7 +93,8 @@ const R9Report: React.FC = () => {
                 Search
               </LoadingButton>
               <LoadingButton
-                disabled={true}
+                disabled={!r9report}
+                onClick={handleExport}
                 variant="contained"
                 color="primary"
                 style={{
