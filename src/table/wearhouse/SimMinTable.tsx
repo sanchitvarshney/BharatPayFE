@@ -55,7 +55,7 @@ const SimMinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     },
 
     {
-      headerName: "Serial No.",
+      headerName: "Sim No.",
       field: "sr_no",
       minWidth: 270,
     },
