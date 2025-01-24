@@ -22,13 +22,14 @@ type CompType = {
   quantity: number;
   unit: string;
   hsn: string;
+  usedQuantity?: number;
 };
 const SimMin: React.FC = () => {
   const dispatch = useAppDispatch();
   const { minInfo, getMinInfoLoading, createSimMinLoading } = useAppSelector((state) => state.simmin);
   const [component, setComponent] = React.useState<CompType | null>(null);
   const [min, setMin] = React.useState<MinType | null>(null);
-
+  const [qty, setQty] = React.useState<number>(0);
   const [rowdata, setRowdata] = React.useState<RowData[]>([]);
   const [input, setInput] = React.useState<string>("");
   const isIMEIUnique = (sr_no: string) => {
@@ -54,6 +55,14 @@ const SimMin: React.FC = () => {
       dispatch(getMinInfo(min.minNo));
     }
   }, [min]);
+
+  useEffect(() => {
+   setQty(component?.usedQuantity || 0);
+  }, [component]);
+  
+  useEffect(() => {
+     setQty((component?.usedQuantity||0)+rowdata?.length);
+  }, [rowdata]);
 
   return (
     <div className="h-[calc(100vh-100px)] bg-white  ">
@@ -143,18 +152,22 @@ const SimMin: React.FC = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   //verify deuplicate IMEI
+                  if (input?.length === 20 && input?.endsWith("U")) {
                   if (isIMEIUnique(input)) {
                     setRowdata([{ id: generateUniqueId(), sr_no: input, isNew: true, remark: "" }, ...rowdata]);
                     setInput("");
                   } else {
                     showToast("Serial No. already exists", "error");
                   }
+                }else {
+                  showToast("SIM No. must be 20 characters long and end with 'U'", "error");
+                }
                 }
               }}
             />
             {component && (
               <Typography fontWeight={600}>
-                Total Scan Qty : {rowdata.length} / {component?.quantity}
+                Total Scan Qty : {qty} / {component?.quantity}
               </Typography>
             )}
           </div>
@@ -176,7 +189,7 @@ const SimMin: React.FC = () => {
         >
           Reset
         </LoadingButton>
-        <LoadingButton loading={createSimMinLoading} disabled={!component || rowdata.length !== Number(component?.quantity)} onClick={onsubmin} variant="contained" startIcon={<Icons.save />}>
+        <LoadingButton loading={createSimMinLoading} disabled={!component} onClick={onsubmin} variant="contained" startIcon={<Icons.save />}>
           Save
         </LoadingButton>
       </div>
