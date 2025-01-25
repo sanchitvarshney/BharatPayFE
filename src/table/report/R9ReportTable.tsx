@@ -11,7 +11,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
 };
-
 const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
   const { r9report, r9ReportLoading } = useAppSelector((state) => state.report);
 
