@@ -69,7 +69,7 @@ export type R2Response = {
 export type DeviceIssue = {
   issueCode: string;
   issueLabel: string;
-  partNo: string | null; // partNo can be null
+  partNo: string | null;
   name: string | null; // name can be null
   qty: number | null; // qty can be null
   remark: string | null; // remark can be null
