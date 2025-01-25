@@ -36,37 +36,24 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
             <Sheet>
               <SheetTrigger asChild>
                 <Button startIcon={<Icons.documentDetail />} className="btn-primary">
-                  Iissue Detail
+                  Item Detail
                 </Button>
               </SheetTrigger>
-              <SheetContent className="p-0 min-w-[80%]">
+              <SheetContent className="p-0 min-w-[40%]">
                 <SheetHeader className="h-[50px] flex flex-row items-center px-[10px] bg-hbg border-b border-neutral-300">
-                  <SheetTitle>Device Issue Detail</SheetTitle>
+                  <SheetTitle>Item Detail</SheetTitle>
                 </SheetHeader>
-                <div className="h-[calc(100vh-50px)] ag-theme-quartz">
-                  <AgGridReact
-                    ref={gridRef}
-                    loadingOverlayComponent={CustomLoadingOverlay}
-                    loading={r9ReportLoading}
-                    overlayNoRowsTemplate={OverlayNoRowsTemplate}
-                    suppressCellFocus={true}
-                    rowData={[params.value]}
-                    columnDefs={[
-                      { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
-                      { headerName: "Device ID", field: "Device ID" },
-                      { headerName: "Charger", field: "Charger" },
-                      { headerName: "SIM", field: "SIM" },
-                      { headerName: "Sound Check - OK", field: "Sound Check - OK" },
-                      { headerName: "Bracket", field: "Bracket" },
-                      { headerName: "No Physical Damage", field: "No Physical Damage" },
-                      { headerName: "No Internal Damage", field: "No Internal Damage" },
-                      { headerName: "Box", field: "Box" },
-                      { headerName: "Standee", field: "Standee" },
-                    ]}
-                    defaultColDef={defaultColDef}
-                    pagination={true}
-                    paginationPageSize={20}
-                  />
+                <div className="h-[calc(100vh-50px)] ag-theme-quartz p-[20px] space-y-2">
+                  <table className="w-full text-left border border-collapse border-gray-300">
+                    <tbody>
+                      {Object.entries(params.value).map(([key, value]) => (
+                        <tr key={key}>
+                          <td className="border border-gray-300 p-2 text-[17px] font-[500]">{key}</td>
+                          <td className="border border-gray-300 p-2 text-[17px] font-[500]"> {String(value)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </SheetContent>
             </Sheet>
