@@ -1,8 +1,15 @@
 import * as XLSX from "xlsx";
 
 interface Issue {
-  issueName: string;
-  issuePrice: string;
+  "Device ID": string;
+  Charger: string;
+  SIM: string;
+  "Sound Check - OK": string;
+  Bracket: string;
+  "No Physical Damage": string;
+  "No Internal Damage": string;
+  Box: string;
+  Standee: string;
 }
 
 interface VendorData {
@@ -15,48 +22,51 @@ interface VendorData {
   quantity: string;
   product: string;
   totalDebit: string;
-  issues: Issue[];
+  issues: Issue; // Changed to a single object
 }
 
 export const exportToExcel = (data: VendorData[], fileName: string): void => {
   const formattedData: any[] = [];
 
   data.forEach((item) => {
-    if (item.issues.length > 0) {
-      item.issues.forEach((issue, index) => {
-        formattedData.push({
-          VendorCode: index === 0 ? item.vendorCode : "",
-          VendorName: index === 0 ? item.vendorName : "",
-          VendorAddress: index === 0 ? item.vendorAddress : "",
-          AWBNo: index === 0 ? item.awbNo : "",
-          Serial: index === 0 ? item.serial : "",
-          IMEI: index === 0 ? item.imei : "",
-          Quantity: index === 0 ? item.quantity : "",
-          Product: index === 0 ? item.product : "",
-          TotalDebit: index === 0 ? item.totalDebit : "",
-          IssueName: issue.issueName,
-          IssuePrice: issue.issuePrice,
-        });
-      });
-    } else {
-      formattedData.push({
-        VendorCode: item.vendorCode,
-        VendorName: item.vendorName,
-        VendorAddress: item.vendorAddress,
-        AWBNo: item.awbNo,
-        Serial: item.serial,
-        IMEI: item.imei,
-        Quantity: item.quantity,
-        Product: item.product,
-        TotalDebit: item.totalDebit,
-        IssueName: "",
-        IssuePrice: "",
-      });
-    }
+    const issue = item.issues;
+
+    formattedData.push({
+      VendorCode: item.vendorCode,
+      VendorName: item.vendorName,
+      VendorAddress: item.vendorAddress,
+      AWBNo: item.awbNo,
+      Serial: item.serial,
+      IMEI: item.imei,
+      Quantity: item.quantity,
+      Product: item.product,
+      TotalDebit: item.totalDebit,
+      DeviceID: issue["Device ID"] || "",
+      Charger: issue.Charger || "",
+      SIM: issue.SIM || "",
+      "Sound Check - OK": issue["Sound Check - OK"] || "",
+      Bracket: issue.Bracket || "",
+      "No Physical Damage": issue["No Physical Damage"] || "",
+      "No Internal Damage": issue["No Internal Damage"] || "",
+      Box: issue.Box || "",
+      Standee: issue.Standee || "",
+    });
   });
 
   const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(formattedData);
-  worksheet["!cols"] = [{ wch: 15 }, { wch: 20 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 10 }];
+  worksheet["!cols"] = [
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 30 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 10 },
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 10 },
+  ];
 
   const workbook: XLSX.WorkBook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Device MIN V2");
