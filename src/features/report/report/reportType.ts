@@ -228,8 +228,15 @@ export type R8ReportDataApiResponse = {
 };
 
 interface Issue {
-  issueName: string;
-  issuePrice: string;
+  "Device ID": string;
+  Charger: string;
+  SIM: string;
+  "Sound Check - OK": string;
+  Bracket: string;
+  "No Physical Damage": string;
+  "No Internal Damage": string;
+  Box: string;
+  Standee: string;
 }
 
 interface ProductDetails {
@@ -242,7 +249,7 @@ interface ProductDetails {
   quantity: string;
   product: string;
   totalDebit: string;
-  issues: Issue[];
+  issues: Issue;
 }
 export type R9reportResponse = {
   status: string;

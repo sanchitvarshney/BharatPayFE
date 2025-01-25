@@ -17,8 +17,8 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
 
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
-    { headerName: "Vendor Code", field: "vendorCode",  },
-    { headerName: "Vendor Name", field: "vendorName", minWidth:300 },
+    { headerName: "Vendor Code", field: "vendorCode" },
+    { headerName: "Vendor Name", field: "vendorName", minWidth: 300 },
     { headerName: "Vendor Address", field: "vendorAddress", minWidth: 400 },
     { headerName: "AWB No", field: "awbNo" },
     { headerName: "Serial", field: "serial" },
@@ -39,7 +39,7 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
                   Iissue Detail
                 </Button>
               </SheetTrigger>
-              <SheetContent className="p-0 min-w-[40%]">
+              <SheetContent className="p-0 min-w-[80%]">
                 <SheetHeader className="h-[50px] flex flex-row items-center px-[10px] bg-hbg border-b border-neutral-300">
                   <SheetTitle>Device Issue Detail</SheetTitle>
                 </SheetHeader>
@@ -50,11 +50,18 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
                     loading={r9ReportLoading}
                     overlayNoRowsTemplate={OverlayNoRowsTemplate}
                     suppressCellFocus={true}
-                    rowData={params.value || []}
+                    rowData={[params.value]}
                     columnDefs={[
                       { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
-                      { headerName: "Issue Name", field: "issueName",flex:1 },
-                      { headerName: "Issue Price", field: "issuePrice",flex:1 },
+                      { headerName: "Device ID", field: "Device ID" },
+                      { headerName: "Charger", field: "Charger" },
+                      { headerName: "SIM", field: "SIM" },
+                      { headerName: "Sound Check - OK", field: "Sound Check - OK" },
+                      { headerName: "Bracket", field: "Bracket" },
+                      { headerName: "No Physical Damage", field: "No Physical Damage" },
+                      { headerName: "No Internal Damage", field: "No Internal Damage" },
+                      { headerName: "Box", field: "Box" },
+                      { headerName: "Standee", field: "Standee" },
                     ]}
                     defaultColDef={defaultColDef}
                     pagination={true}

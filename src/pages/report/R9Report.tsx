@@ -53,7 +53,6 @@ const R9Report: React.FC = () => {
                   {[
                     { value: "eCOM", label: "eCOM", isDisabled: false },
                     { value: "dVery", label: "dVery", isDisabled: false },
-
                   ].map((item) => (
                     <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
                       {item.label}
