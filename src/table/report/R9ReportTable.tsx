@@ -44,7 +44,14 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
                 </SheetHeader>
                 <div className="h-[calc(100vh-50px)] ag-theme-quartz p-[20px] space-y-2">
                   <table className="w-full text-left border border-collapse border-gray-300">
+                  <thead>
+                        <tr>
+                          <th className="border border-gray-300 p-2  text-[17px] font-bold">Items</th>
+                          <th className="border border-gray-300 p-2  text-[17px] font-bold">Status</th>
+                        </tr>
+                      </thead>
                     <tbody>
+                     
                       {Object.entries(params.value).map(([key, value]) => (
                         <tr key={key}>
                           <td className="border border-gray-300 p-2 text-[17px] font-[500]">{key}</td>
