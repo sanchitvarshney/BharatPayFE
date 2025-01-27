@@ -467,7 +467,6 @@ const MaterialInvardv2: React.FC = () => {
                               size="small"
                               color="error"
                               onClick={() => {
-                                console.log("clicked");
                                 dispatch(deletefile(item.fileID));
                               }}
                             >
