@@ -116,7 +116,6 @@ const CreateDispatchPage: React.FC = () => {
     reset,
     setValue,
     watch,
-
     formState: { errors },
   } = useForm<FormDataType>({
     defaultValues: {
@@ -133,7 +132,7 @@ const CreateDispatchPage: React.FC = () => {
   const formValues = watch();
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Form Details", "Add Component Details", "Review & Submit"];
-
+  const formdata = new FormData();
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
@@ -149,6 +148,7 @@ const CreateDispatchPage: React.FC = () => {
     setFilename("");
     setfile(null);
     dispatch(clearaddressdetail());
+    formdata.delete('document')
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
@@ -189,6 +189,7 @@ const CreateDispatchPage: React.FC = () => {
         reset();
         setRowData([]);
         handleNext();
+        resetall();
         //  dispatch(clearFile());
       }
     });
@@ -635,7 +636,7 @@ const CreateDispatchPage: React.FC = () => {
                           multiple
                           value={field.value}
                           onFileChange={(value) => {
-                            const formdata = new FormData();
+                            
                             value?.forEach((file: File) => {
                               formdata.append("document", file);
                             });
