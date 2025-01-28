@@ -46,7 +46,7 @@ import SelectClient, {
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import { CreateDispatch, getClientBranch, uploadFile } from "@/features/Dispatch/DispatchSlice";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
-import { getDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
+import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
 import { SaveIcon } from "lucide-react";
 import { getClientAddressDetail } from "@/features/master/client/clientSlice";
@@ -91,11 +91,10 @@ const CreateDispatchPage: React.FC = () => {
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
    const [imei, setImei] = React.useState<string>("");
+   const [dispatchNo, setDispatchNo] = useState<string>("");
   const dispatch = useAppDispatch();
       const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
-  const { createminLoading, formdata } = useAppSelector(
-    (state) => state.rawmin
-  );
+ 
   const {
     dispatchCreateLoading,
     uploadFileLoading,
@@ -155,8 +154,8 @@ const CreateDispatchPage: React.FC = () => {
   console.log(rowData)
   const finalSubmit = () => {
     const data = formValues;
-    if (formdata) {
-      if (rowData.length !== Number(data.qty)) return showToast("Please Add All Devices", "error");
+    // if (formdata) {
+      if (rowData.length !== Number(data.qty)) return showToast("Total Devices should be equal to Quantity you have entered", "error");
          const payload: DispatchItemPayload = {
            docNo: data.docNo,
            sku: data.sku?.id || "",
@@ -171,12 +170,14 @@ const CreateDispatchPage: React.FC = () => {
          };
          dispatch(CreateDispatch(payload)).then((res: any) => {
            if (res.payload.data.success) {
+            setDispatchNo(res?.payload?.data?.data?.refID);
              reset();
              setRowData([]);
+             handleNext();
             //  dispatch(clearFile());
            }
          });
-       };
+      //  };
   };
 
   const InvoiceFileUpload = () => {
@@ -696,14 +697,25 @@ const handleShipToChange = (value: any) => {
                           showToast("IMEI already added", "error");
                           return;
                         }
-                        dispatch(getDeviceDetail(imei)).then((res: any) => {
+                        const payload={
+                          data: imei
+                        }
+                        dispatch(getDeviceDetails(payload)).then((res: any) => {
                           if (res.payload.data.success) {
                             setImei("");
-                            const newdata: RowData = {
-                              imei: res.payload.data?.data[0].device_imei || "",
-                              srno: res.payload.data?.data[0].sl_no || "",
-                            };
-                            setRowData([newdata, ...rowData]);
+                            // const newdata: RowData = {
+                            //   imei: res.payload.data?.data[0].device_imei || "",
+                            //   srno: res.payload.data?.data[0].sl_no || "",
+                            // };
+                            const newRowData = res?.payload?.data?.data?.map((device:any) => {
+                              return {
+                                imei: device.device_imei || "",
+                                srno: device.sl_no || "",
+                              };
+                            });
+                      
+                            // Update rowData by appending newRowData to the existing rowData
+                            setRowData((prevRowData) => [...newRowData, ...prevRowData]);
                           } else {
                             showToast(res.payload.data.message, "error");
                           }
@@ -721,7 +733,7 @@ const handleShipToChange = (value: any) => {
               </div>
             </div>
 
-            <div className="h-[calc(100vh-190px)]">
+            <div className="h-[calc(100vh-250px)]">
               <ImeiTable setRowdata={setRowData} rowData={rowData} />
             </div>
           </div>
@@ -732,13 +744,13 @@ const handleShipToChange = (value: any) => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Min No.
+                  Dispatch Number - {dispatchNo?dispatchNo:""}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}
                   variant="contained"
                 >
-                  Create New MIN
+                  Create New Dispatch
                 </LoadingButton>
               </div>
             </div>
@@ -751,6 +763,7 @@ const handleShipToChange = (value: any) => {
                   type="submit"
                   variant="contained"
                   endIcon={<Icons.next />}
+                  onClick={handleNext}
                 >
                   Next
                 </LoadingButton>
@@ -759,7 +772,7 @@ const handleShipToChange = (value: any) => {
             {activeStep === 1 && (
               <>
                 <LoadingButton
-                  disabled={createminLoading}
+                  disabled={dispatchCreateLoading}
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
                   startIcon={<Icons.previous />}
@@ -769,7 +782,7 @@ const handleShipToChange = (value: any) => {
                 >
                   Back
                 </LoadingButton>
-                <LoadingButton
+                {/* <LoadingButton
                   disabled={createminLoading}
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
@@ -779,9 +792,9 @@ const handleShipToChange = (value: any) => {
                   }}
                 >
                   Reset
-                </LoadingButton>
+                </LoadingButton> */}
                 <LoadingButton
-                  loading={createminLoading}
+                  loading={dispatchCreateLoading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}
