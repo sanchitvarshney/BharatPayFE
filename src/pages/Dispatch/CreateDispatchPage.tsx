@@ -69,6 +69,7 @@ type FormDataType = {
   file: File[] | null;
   sku: DeviceType | null;
   docNo: string;
+  document: string;
 };
 
 type clientDetailType = {
@@ -103,7 +104,6 @@ const CreateDispatchPage: React.FC = () => {
   const {
     dispatchCreateLoading,
     uploadFileLoading,
-    file: file2,
     clientBranchList,
   } = useAppSelector((state) => state.dispatch);
 
@@ -123,6 +123,7 @@ const CreateDispatchPage: React.FC = () => {
       shipToDetails: null,
       invoice: "",
       qty: "",
+      document: "",
       location: null,
       remark: "",
       file: null,
@@ -152,7 +153,7 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
-    if (!data.docNo)
+    if (!data.document)
       return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
@@ -173,7 +174,7 @@ const CreateDispatchPage: React.FC = () => {
       remark: data.remark,
       imeis: rowData.map((item) => item.imei),
       srlnos: rowData.map((item) => item.srno),
-      document: file2 || "",
+      document: data.document || "",
       pickLocation: data.location?.code || "",
       clientDetail: data.clientDetail
         ? {
@@ -597,6 +598,31 @@ const CreateDispatchPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
+                 <Controller
+                  name="docNo"
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Document is required" },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.docNo}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="docNo">Document No</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.docNo}
+                        id="docNo"
+                        type="text"
+                      />
+                      {errors.docNo && (
+                        <FormHelperText>{errors.docNo.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
                 <Controller
                   name="location"
                   rules={{
@@ -643,7 +669,7 @@ const CreateDispatchPage: React.FC = () => {
                             dispatch(uploadFile(formdata)).then((res: any) => {
                               if (res.payload.data.success) {
                                 const docNos = res.payload.data?.data;
-                                setValue("docNo", docNos);
+                                setValue("document", docNos);
                               }
                             });
                           }}
