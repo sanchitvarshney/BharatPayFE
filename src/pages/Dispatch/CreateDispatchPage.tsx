@@ -148,7 +148,7 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
-    console.log(data)
+   if(!data.docNo) return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
   };
@@ -212,7 +212,7 @@ const CreateDispatchPage: React.FC = () => {
 
   const handleClientBranchChange = (value: any) => {
     if (value) {
-        setValue("clientDetail.branchId", value.addressID);
+      setValue("clientDetail.branchId", value.addressID);
       setValue("clientDetail.address1", value.addressLine1); // Update addressLine1
       setValue("clientDetail.address2", value.addressLine2); // Update addressLine2
       setValue("clientDetail.pincode", value.pinCode); // Update pincode
@@ -228,7 +228,21 @@ const handleShipToChange = (value: any) => {
       setValue("shipToDetails.mobileNo", value.phoneNo);
    }
 }
-console.log(formValues)
+
+// useEffect(() => {
+//   if(formValues.clientDetail?.client){
+//     setValue("clientDetail.branchId","");
+//     setValue("clientDetail.address1","");
+//     setValue("clientDetail.address2","");
+//     setValue("clientDetail.pincode","");
+//     setValue("shipToDetails.shipTo","");
+//     setValue("shipToDetails.address1","");
+//     setValue("shipToDetails.address2","");
+//     setValue("shipToDetails.pincode","");
+//     setValue("shipToDetails.mobileNo","");
+//   }
+// },[formValues.clientDetail?.client])
+
   return (
     <>
       <ConfirmationModel
@@ -314,7 +328,7 @@ console.log(formValues)
                   control={control}
                   render={({ field }) => (
                     <Autocomplete
-                      value={field.value}
+                      value={clientBranchList?.find((branch:any) => branch.addressID === field.value) || null}
                       onChange={(_, newValue) =>
                         handleClientBranchChange(newValue)
                       }
@@ -380,7 +394,7 @@ console.log(formValues)
                     fullWidth
                     label="Address 2"
                     className="h-[100px] resize-none"
-                    {...register("clientDetail.address1", {
+                    {...register("clientDetail.address2", {
                       required: "Address 2 is required",
                     })}
                   />
@@ -411,7 +425,10 @@ console.log(formValues)
                   control={control}
                   render={({ field }) => (
                     <Autocomplete
-                      value={field.value}
+                      // value={field.value}
+                      value={addressDetail?.data?.shippingAddress?.find(
+                        (address:any) => address.shipId === field.value
+                      ) || null}
                       onChange={(_, newValue) =>
                         handleShipToChange(newValue)
                       }
