@@ -755,6 +755,8 @@ const CreateDispatchPage: React.FC = () => {
                                         return {
                                           imei: device.device_imei || "",
                                           srno: device.sl_no || "",
+                                          modalNo: device?.productDetail?.p_name||"",
+                                          deviceSku: device?.productDetail?.device_sku||"",
                                         };
                                       }
                                     );
