@@ -44,17 +44,20 @@ import SelectClient, {
   LocationType,
 } from "@/components/reusable/editor/SelectClient";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
-import { CreateDispatch, getClientBranch, uploadFile } from "@/features/Dispatch/DispatchSlice";
+import {
+  CreateDispatch,
+  getClientBranch,
+  uploadFile,
+} from "@/features/Dispatch/DispatchSlice";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
-import { SaveIcon } from "lucide-react";
 import { getClientAddressDetail } from "@/features/master/client/clientSlice";
 import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 type RowData = {
-    imei: string;
-    srno: string;
-  };
+  imei: string;
+  srno: string;
+};
 
 type FormDataType = {
   clientDetail: clientDetailType | null;
@@ -90,11 +93,13 @@ const CreateDispatchPage: React.FC = () => {
   const [file, setfile] = useState<File[] | null>(null);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
-   const [imei, setImei] = React.useState<string>("");
-   const [dispatchNo, setDispatchNo] = useState<string>("");
+  const [imei, setImei] = React.useState<string>("");
+  const [dispatchNo, setDispatchNo] = useState<string>("");
   const dispatch = useAppDispatch();
-      const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
- 
+  const { deviceDetailLoading } = useAppSelector(
+    (state) => state.batteryQcReducer
+  );
+
   const {
     dispatchCreateLoading,
     uploadFileLoading,
@@ -102,7 +107,7 @@ const CreateDispatchPage: React.FC = () => {
     clientBranchList,
   } = useAppSelector((state) => state.dispatch);
 
-  const {addressDetail} = useAppSelector((state) => state.client) as any;
+  const { addressDetail } = useAppSelector((state) => state.client) as any;
 
   const {
     register,
@@ -147,37 +152,47 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
-   if(!data.docNo) return showToast("Please Upload Invoice Documents", "error");
+    if (!data.docNo)
+      return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
   };
-  console.log(rowData)
+  console.log(rowData);
   const finalSubmit = () => {
     const data = formValues;
     // if (formdata) {
-      if (rowData.length !== Number(data.qty)) return showToast("Total Devices should be equal to Quantity you have entered", "error");
-         const payload: DispatchItemPayload = {
-           docNo: data.docNo,
-           sku: data.sku?.id || "",
-           dispatchQty: Number(data.qty),
-           remark: data.remark,
-           imeis: rowData.map((item) => item.imei),
-           srlnos: rowData.map((item) => item.srno),
-           document: file2 || "",
-           pickLocation: data.location?.code || "",
-           clientDetail: data.clientDetail ? { ...data.clientDetail,client: ((data.clientDetail?.client as any)?.code) } : null,
-           shipToDetails: data.shipToDetails || null
-         };
-         dispatch(CreateDispatch(payload)).then((res: any) => {
-           if (res.payload.data.success) {
-            setDispatchNo(res?.payload?.data?.data?.refID);
-             reset();
-             setRowData([]);
-             handleNext();
-            //  dispatch(clearFile());
-           }
-         });
-      //  };
+    if (rowData.length !== Number(data.qty))
+      return showToast(
+        "Total Devices should be equal to Quantity you have entered",
+        "error"
+      );
+    const payload: DispatchItemPayload = {
+      docNo: data.docNo,
+      sku: data.sku?.id || "",
+      dispatchQty: Number(data.qty),
+      remark: data.remark,
+      imeis: rowData.map((item) => item.imei),
+      srlnos: rowData.map((item) => item.srno),
+      document: file2 || "",
+      pickLocation: data.location?.code || "",
+      clientDetail: data.clientDetail
+        ? {
+            ...data.clientDetail,
+            client: (data.clientDetail?.client as any)?.code,
+          }
+        : null,
+      shipToDetails: data.shipToDetails || null,
+    };
+    dispatch(CreateDispatch(payload)).then((res: any) => {
+      if (res.payload.data.success) {
+        setDispatchNo(res?.payload?.data?.data?.refID);
+        reset();
+        setRowData([]);
+        handleNext();
+        //  dispatch(clearFile());
+      }
+    });
+    //  };
   };
 
   const InvoiceFileUpload = () => {
@@ -220,29 +235,29 @@ const CreateDispatchPage: React.FC = () => {
       dispatch(getClientAddressDetail(value.addressID));
     }
   };
-const handleShipToChange = (value: any) => {
-   if(value){
-    setValue("shipToDetails.shipTo", value.shipId);
+  const handleShipToChange = (value: any) => {
+    if (value) {
+      setValue("shipToDetails.shipTo", value.shipId);
       setValue("shipToDetails.address1", value.addressLine1); // Update addressLine1
       setValue("shipToDetails.address2", value.addressLine2); // Update addressLine2
       setValue("shipToDetails.pincode", value.pinCode); // Update pincode
       setValue("shipToDetails.mobileNo", value.phoneNo);
-   }
-}
+    }
+  };
 
-// useEffect(() => {
-//   if(formValues.clientDetail?.client){
-//     setValue("clientDetail.branchId","");
-//     setValue("clientDetail.address1","");
-//     setValue("clientDetail.address2","");
-//     setValue("clientDetail.pincode","");
-//     setValue("shipToDetails.shipTo","");
-//     setValue("shipToDetails.address1","");
-//     setValue("shipToDetails.address2","");
-//     setValue("shipToDetails.pincode","");
-//     setValue("shipToDetails.mobileNo","");
-//   }
-// },[formValues.clientDetail?.client])
+  // useEffect(() => {
+  //   if(formValues.clientDetail?.client){
+  //     setValue("clientDetail.branchId","");
+  //     setValue("clientDetail.address1","");
+  //     setValue("clientDetail.address2","");
+  //     setValue("clientDetail.pincode","");
+  //     setValue("shipToDetails.shipTo","");
+  //     setValue("shipToDetails.address1","");
+  //     setValue("shipToDetails.address2","");
+  //     setValue("shipToDetails.pincode","");
+  //     setValue("shipToDetails.mobileNo","");
+  //   }
+  // },[formValues.clientDetail?.client])
 
   return (
     <>
@@ -329,7 +344,11 @@ const handleShipToChange = (value: any) => {
                   control={control}
                   render={({ field }) => (
                     <Autocomplete
-                      value={clientBranchList?.find((branch:any) => branch.addressID === field.value) || null}
+                      value={
+                        clientBranchList?.find(
+                          (branch: any) => branch.addressID === field.value
+                        ) || null
+                      }
                       onChange={(_, newValue) =>
                         handleClientBranchChange(newValue)
                       }
@@ -360,46 +379,41 @@ const handleShipToChange = (value: any) => {
                   rows={3}
                   fullWidth
                   label="PinCode"
-                  className="h-[100px] resize-none"
+                  className="h-[10px] resize-none"
                   {...register("clientDetail.pincode", {
                     required: "PinCode is required",
                   })}
                 />
-
-                <div className="col-span-2">
-                  <TextField
-                    variant="filled"
-                    sx={{ mb: 1 }}
-                    error={!!errors.clientDetail?.address1}
-                    helperText={errors?.clientDetail?.address1?.message}
-                    focused={!!watch("clientDetail.address1")}
-                    multiline
-                    rows={3}
-                    fullWidth
-                    label="Address 1"
-                    className="h-[100px] resize-none"
-                    {...register("clientDetail.address1", {
-                      required: "Address 1 is required",
-                    })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <TextField
-                    variant="filled"
-                    sx={{ mb: 1 }}
-                    error={!!errors.clientDetail?.address2}
-                    helperText={errors?.clientDetail?.address2?.message}
-                    focused={!!watch("clientDetail.address2")}
-                    multiline
-                    rows={3}
-                    fullWidth
-                    label="Address 2"
-                    className="h-[100px] resize-none"
-                    {...register("clientDetail.address2", {
-                      required: "Address 2 is required",
-                    })}
-                  />
-                </div>
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.clientDetail?.address1}
+                  helperText={errors?.clientDetail?.address1?.message}
+                  focused={!!watch("clientDetail.address1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("clientDetail.address1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.clientDetail?.address2}
+                  helperText={errors?.clientDetail?.address2?.message}
+                  focused={!!watch("clientDetail.address2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Address 2"
+                  className="h-[100px] resize-none"
+                  {...register("clientDetail.address2", {
+                    required: "Address 2 is required",
+                  })}
+                />
               </div>
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
@@ -415,7 +429,7 @@ const handleShipToChange = (value: any) => {
                 />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-              <Controller
+                <Controller
                   name="shipToDetails.shipTo"
                   rules={{
                     required: {
@@ -427,15 +441,15 @@ const handleShipToChange = (value: any) => {
                   render={({ field }) => (
                     <Autocomplete
                       // value={field.value}
-                      value={addressDetail?.data?.shippingAddress?.find(
-                        (address:any) => address.shipId === field.value
-                      ) || null}
-                      onChange={(_, newValue) =>
-                        handleShipToChange(newValue)
+                      value={
+                        addressDetail?.data?.shippingAddress?.find(
+                          (address: any) => address.shipId === field.value
+                        ) || null
                       }
+                      onChange={(_, newValue) => handleShipToChange(newValue)}
                       disablePortal
                       id="combo-box-demo"
-                      options={ addressDetail?.data?.shippingAddress|| []}
+                      options={addressDetail?.data?.shippingAddress || []}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -480,40 +494,36 @@ const handleShipToChange = (value: any) => {
                   })}
                 />
 
-                <div className="col-span-2">
-                  <TextField
-                    variant="filled"
-                    sx={{ mb: 1 }}
-                    error={!!errors.shipToDetails?.address1}
-                    helperText={errors?.shipToDetails?.address1?.message}
-                    focused={!!watch("shipToDetails.address1")}
-                    multiline
-                    rows={3}
-                    fullWidth
-                    label="Ship To Address 1"
-                    className="h-[100px] resize-none"
-                    {...register("shipToDetails.address1", {
-                      required: "Address 1 is required",
-                    })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <TextField
-                    variant="filled"
-                    sx={{ mb: 1 }}
-                    error={!!errors.shipToDetails?.address2}
-                    helperText={errors?.shipToDetails?.address2?.message}
-                    focused={!!watch("shipToDetails.address2")}
-                    multiline
-                    rows={3}
-                    fullWidth
-                    label="Ship To Address 2"
-                    className="h-[100px] resize-none"
-                    {...register("shipToDetails.address2", {
-                      required: "Address 2 is required",
-                    })}
-                  />
-                </div>
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.address1}
+                  helperText={errors?.shipToDetails?.address1?.message}
+                  focused={!!watch("shipToDetails.address1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Ship To Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("shipToDetails.address1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.address2}
+                  helperText={errors?.shipToDetails?.address2?.message}
+                  focused={!!watch("shipToDetails.address2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Ship To Address 2"
+                  className="h-[100px] resize-none"
+                  {...register("shipToDetails.address2", {
+                    required: "Address 2 is required",
+                  })}
+                />
               </div>
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
@@ -622,21 +632,21 @@ const handleShipToChange = (value: any) => {
                               [".docx"],
                             "image/*": [],
                           }}
+                          multiple
                           value={field.value}
                           onFileChange={(value) => {
                             const formdata = new FormData();
-                            formdata.append("document", value[0]);
+                            value?.forEach((file: File) => {
+                              formdata.append("document", file);
+                            });
                             dispatch(uploadFile(formdata)).then((res: any) => {
                               if (res.payload.data.success) {
-                                const docNo = res.payload.data?.data;
-                                console.log(docNo,res.payload.data.data)
-                                setValue("docNo", docNo);
-                                // field.onChange(docNo);
-                                // field.onChange(field.value);
+                                const docNos = res.payload.data?.data;
+                                setValue("docNo", docNos);
                               }
                             });
                           }}
-                          label="Upload Attachments (Optional)"
+                          label="Upload Attachments"
                         />
                       )}
                     />
@@ -655,14 +665,14 @@ const handleShipToChange = (value: any) => {
                   </div>
                 </div>
                 <div className=" pl-10 pt-10">
-                <TextField
-                  {...register("remark")}
-                  fullWidth
-                  label={"Remarks (If any)"}
-                  variant="outlined"
-                  multiline
-                  rows={5}
-                />
+                  <TextField
+                    {...register("remark")}
+                    fullWidth
+                    label={"Remarks (If any)"}
+                    variant="outlined"
+                    multiline
+                    rows={5}
+                  />
                 </div>
               </div>
             </div>
@@ -674,69 +684,89 @@ const handleShipToChange = (value: any) => {
                 setRowData={setRowData}
                 setTotal={setTotal}
               /> */}
-                <div>
-            <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
-              <FormControl sx={{ width: "400px" }} variant="outlined">
-                <InputLabel>IMEI/SR No.</InputLabel>
-                <OutlinedInput
-                  value={imei}
-                  label="IMEI/SR No."
-                  id="standard-adornment-qty"
-                  aria-describedby="standard-weight-helper-text"
-                  inputProps={{
-                    "aria-label": "weight",
-                  }}
-                  onChange={(e) => {
-                    setImei(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      if (imei) {
-                        if (rowData.some((row) => row.srno === imei || row.imei === imei)) {
-                          showToast("IMEI already added", "error");
-                          return;
-                        }
-                        const payload={
-                          data: imei
-                        }
-                        dispatch(getDeviceDetails(payload)).then((res: any) => {
-                          if (res.payload.data.success) {
-                            setImei("");
-                            // const newdata: RowData = {
-                            //   imei: res.payload.data?.data[0].device_imei || "",
-                            //   srno: res.payload.data?.data[0].sl_no || "",
-                            // };
-                            const newRowData = res?.payload?.data?.data?.map((device:any) => {
-                              return {
-                                imei: device.device_imei || "",
-                                srno: device.sl_no || "",
-                              };
-                            });
-                      
-                            // Update rowData by appending newRowData to the existing rowData
-                            setRowData((prevRowData) => [...newRowData, ...prevRowData]);
-                          } else {
-                            showToast(res.payload.data.message, "error");
+              <div>
+                <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
+                  <FormControl sx={{ width: "400px" }} variant="outlined">
+                    <InputLabel>IMEI/SR No.</InputLabel>
+                    <OutlinedInput
+                      value={imei}
+                      label="IMEI/SR No."
+                      id="standard-adornment-qty"
+                      aria-describedby="standard-weight-helper-text"
+                      inputProps={{
+                        "aria-label": "weight",
+                      }}
+                      onChange={(e) => {
+                        setImei(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (imei) {
+                            if (
+                              rowData.some(
+                                (row) => row.srno === imei || row.imei === imei
+                              )
+                            ) {
+                              showToast("IMEI already added", "error");
+                              return;
+                            }
+                            const payload = {
+                              data: imei,
+                            };
+                            dispatch(getDeviceDetails(payload)).then(
+                              (res: any) => {
+                                if (res.payload.data.success) {
+                                  setImei("");
+                                  // const newdata: RowData = {
+                                  //   imei: res.payload.data?.data[0].device_imei || "",
+                                  //   srno: res.payload.data?.data[0].sl_no || "",
+                                  // };
+                                  const newRowData =
+                                    res?.payload?.data?.data?.map(
+                                      (device: any) => {
+                                        return {
+                                          imei: device.device_imei || "",
+                                          srno: device.sl_no || "",
+                                        };
+                                      }
+                                    );
+
+                                  // Update rowData by appending newRowData to the existing rowData
+                                  setRowData((prevRowData) => [
+                                    ...newRowData,
+                                    ...prevRowData,
+                                  ]);
+                                } else {
+                                  showToast(res.payload.data.message, "error");
+                                }
+                              }
+                            );
                           }
-                        });
+                        }
+                      }}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          {deviceDetailLoading ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : (
+                            <QrCodeScannerIcon />
+                          )}
+                        </InputAdornment>
                       }
-                    }
-                  }}
-                  endAdornment={<InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : <QrCodeScannerIcon />}</InputAdornment>}
-                />
-              </FormControl>
-              <div className="flex items-center gap-[10px]">
+                    />
+                  </FormControl>
+                  {/* <div className="flex items-center gap-[10px]">
                 <LoadingButton loadingPosition="start" loading={dispatchCreateLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
                   Submit
                 </LoadingButton>
-              </div>
-            </div>
+              </div> */}
+                </div>
 
-            <div className="h-[calc(100vh-250px)]">
-              <ImeiTable setRowdata={setRowData} rowData={rowData} />
-            </div>
-          </div>
+                <div className="h-[calc(100vh-250px)]">
+                  <ImeiTable setRowdata={setRowData} rowData={rowData} />
+                </div>
+              </div>
             </div>
           )}
           {activeStep === 2 && (
@@ -744,7 +774,7 @@ const handleShipToChange = (value: any) => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Dispatch Number - {dispatchNo?dispatchNo:""}
+                  Dispatch Number - {dispatchNo ? dispatchNo : ""}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}
@@ -756,14 +786,13 @@ const handleShipToChange = (value: any) => {
             </div>
           )}
           <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
-
             {activeStep === 0 && (
               <>
                 <LoadingButton
                   type="submit"
                   variant="contained"
                   endIcon={<Icons.next />}
-                  onClick={handleNext}
+                  // onClick={handleNext}
                 >
                   Next
                 </LoadingButton>
