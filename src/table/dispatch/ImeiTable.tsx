@@ -7,6 +7,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 interface RowData {
   imei: string;
   srno: string;
+  productKey: string;
+  serialNo: number;
+  modalNo:string;
+  deviceSku:string
 }
 
 type Props = {

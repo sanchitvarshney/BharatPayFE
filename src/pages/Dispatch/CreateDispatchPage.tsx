@@ -43,7 +43,7 @@ import Success from "@/components/reusable/Success";
 import SelectClient, {
   LocationType,
 } from "@/components/reusable/editor/SelectClient";
-import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
+import { DeviceType } from "@/components/reusable/SelectSku";
 import {
   CreateDispatch,
   getClientBranch,
@@ -57,6 +57,10 @@ import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 type RowData = {
   imei: string;
   srno: string;
+  productKey: string;
+  serialNo: number;
+  modalNo:string;
+  deviceSku:string
 };
 
 type FormDataType = {
@@ -169,7 +173,8 @@ const CreateDispatchPage: React.FC = () => {
       );
     const payload: DispatchItemPayload = {
       docNo: data.docNo,
-      sku: data.sku?.id || "",
+      // sku: data.sku?.id || "",
+      sku: rowData.map((item) => item.productKey),
       dispatchQty: Number(data.qty),
       remark: data.remark,
       imeis: rowData.map((item) => item.imei),
@@ -544,25 +549,6 @@ const CreateDispatchPage: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="sku"
-                  rules={{
-                    required: { value: true, message: "Device is required" },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <SelectDevice
-                      error={!!errors.sku}
-                      helperText={errors.sku?.message}
-                      size="medium"
-                      label="Select Device"
-                      varient="filled"
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-
-                <Controller
                   name="qty"
                   control={control}
                   rules={{
@@ -757,6 +743,7 @@ const CreateDispatchPage: React.FC = () => {
                                           srno: device.sl_no || "",
                                           modalNo: device?.productDetail?.p_name||"",
                                           deviceSku: device?.productDetail?.device_sku||"",
+                                          productKey: device?.productDetail?.product_key||"",
                                         };
                                       }
                                     );
@@ -785,6 +772,22 @@ const CreateDispatchPage: React.FC = () => {
                       }
                     />
                   </FormControl>
+                
+
+                <div className="bg-white p-4 rounded-lg  flex space-x-6 items-center">
+                  <p className="text-lg font-semibold text-blue-600">Total Devices: 
+                    <span className="text-gray-800 pl-1">{rowData.length}</span>
+                  </p>
+                  <p className="text-lg font-semibold text-green-600">Total L Devices: 
+                    <span className="text-gray-800 pl-1">{rowData.filter((item: any) => item.modalNo.includes("(L)")).length}</span>
+                  </p>
+                  <p className="text-lg font-semibold text-red-600">Total E Devices: 
+                    <span className="text-gray-800 pl-1">{rowData.filter((item: any) => item.modalNo.includes("(E)")).length}</span>
+                  </p>
+                </div>
+
+
+
                   {/* <div className="flex items-center gap-[10px]">
                 <LoadingButton loadingPosition="start" loading={dispatchCreateLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
                   Submit

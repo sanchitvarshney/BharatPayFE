@@ -1,6 +1,6 @@
 export type DispatchItemPayload = {
   docNo: string; // required
-  sku: string; // required
+  sku: string[]; // required
   dispatchQty: number; // required
   remark?: string; // optional
   imeis: string[]; // required array of strings
