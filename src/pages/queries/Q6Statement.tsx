@@ -93,7 +93,7 @@ const Q6Statement: React.FC = () => {
                 secondaryTypographyProps={{ fontSize: "1rem", color: "gray" }} // Increase secondary text size
               />
               <ListItemText
-                primary={"Seral No."}
+                primary={"Serial No."}
                 secondary={q6Statement[0]?.serial}
                 primaryTypographyProps={{ fontSize: "1.5rem", fontWeight: "bold" }} // Increase primary text size
                 secondaryTypographyProps={{ fontSize: "1rem", color: "gray" }} // Increase secondary text size
