@@ -237,6 +237,8 @@ interface Issue {
   "No Internal Damage": string;
   Box: string;
   Standee: string;
+  Adaptor: string;
+  Cable: string;
 }
 
 interface ProductDetails {
