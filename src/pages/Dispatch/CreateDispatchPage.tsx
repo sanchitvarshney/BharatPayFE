@@ -252,20 +252,6 @@ const CreateDispatchPage: React.FC = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if(formValues.clientDetail?.client){
-  //     setValue("clientDetail.branchId","");
-  //     setValue("clientDetail.address1","");
-  //     setValue("clientDetail.address2","");
-  //     setValue("clientDetail.pincode","");
-  //     setValue("shipToDetails.shipTo","");
-  //     setValue("shipToDetails.address1","");
-  //     setValue("shipToDetails.address2","");
-  //     setValue("shipToDetails.pincode","");
-  //     setValue("shipToDetails.mobileNo","");
-  //   }
-  // },[formValues.clientDetail?.client])
-
   return (
     <>
       <ConfirmationModel

@@ -353,6 +353,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
                               }}
                               error={!!errors.picLocation}
+                              label="Pick Location"
                             />
                           )}
                         />
