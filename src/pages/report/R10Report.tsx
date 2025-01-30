@@ -23,7 +23,7 @@ const R10Report: React.FC = () => {
   };
   const downloadReport = () => {
     if (!date.from || !date.to) return showToast("Please select location and date range", "error");
-    const reportPayload = { type: "date", fromDate: date.from?.format("DD-MM-YYYY"), toDate: date.to?.format("DD-MM-YYYY") };
+    const reportPayload = { type: "DATE", fromDate: date.from?.format("DD-MM-YYYY"), toDate: date.to?.format("DD-MM-YYYY") };
     emitDownloadR10Report(reportPayload);
     showToast("Start downloading ", "success");
   };
