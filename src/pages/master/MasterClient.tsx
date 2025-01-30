@@ -60,6 +60,7 @@ type FormData2Type = {
   shipToPan: string;
   shipToAddress1: string;
   shipToAddress2: string;
+  shipToCity: string;
 };
 const MasterClient: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -110,6 +111,7 @@ const MasterClient: React.FC = () => {
       shipToPincode: "",
       shipToGst: "",
       shipToPan: "",
+      shipToCity: "",
       shipToAddress1: "",
       shipToAddress2: "",
     },
@@ -178,6 +180,7 @@ const MasterClient: React.FC = () => {
         shipToPincode: data.shipToPincode,
         shipToGst: data.shipToGst,
         shipToPan: data.shipToPan,
+        shipToCity: data.shipToCity,
         shipToAddress1: data.shipToAddress1,
         shipToAddress2: data.shipToAddress2,
       },
@@ -661,6 +664,23 @@ const MasterClient: React.FC = () => {
                   control={control}
                   name="shipToState"
                   render={({ field }) => <SelectState error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />}
+                />
+                 <TextField
+                  focused={!!watch("shipToCity")}
+                  {...register("shipToCity", { required: "City is required" })}
+                  error={!!errors.shipToCity}
+                  helperText={errors.shipToCity?.message}
+                  label="City"
+                  variant="filled"
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Icons.city2 />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                 />
                 <TextField
                   focused={!!watch("shipToPincode")}

@@ -133,8 +133,8 @@ const MasterClientDetail: React.FC = () => {
                 <div className="grid w-[80%] grid-cols-4 gap-[20px] ">
                   {[
                     { label: "Name", value: clientDetail?.client?.name },
-                    { label: "City", value: clientDetail?.client?.city },
                     { label: "Mobile", value: clientDetail?.client?.mobile },
+                    { label: "City", value: clientDetail?.client?.city },
                     { label: "Email", value: clientDetail?.client?.email },
                     { label: "GST Number", value: clientDetail?.client?.gst },
                     { label: "PAN Number", value: clientDetail?.client?.panno },
