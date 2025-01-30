@@ -123,6 +123,8 @@ type TransactionData = {
   time: string;
   location: string | null;
   user: string | null;
+  serial: string;
+  imei: string;
 };
 
 export type R6ApiResponse = {
