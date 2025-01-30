@@ -10,6 +10,8 @@ interface Issue {
   "No Internal Damage": string;
   Box: string;
   Standee: string;
+  Adaptor: string;
+  Cable: string;
 }
 
 interface VendorData {
@@ -42,7 +44,9 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
       Product: item.product,
       TotalDebit: item.totalDebit,
       DeviceID: issue["Device ID"] || "",
-      Charger: issue.Charger || "",
+      Adopter: issue.Adaptor || "",
+      Cable: issue.Cable || "",
+      // Charger: issue.Charger || "",
       SIM: issue.SIM || "",
       "Sound Check - OK": issue["Sound Check - OK"] || "",
       Bracket: issue.Bracket || "",
