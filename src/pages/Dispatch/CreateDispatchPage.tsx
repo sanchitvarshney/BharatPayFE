@@ -59,8 +59,8 @@ type RowData = {
   srno: string;
   productKey: string;
   serialNo: number;
-  modalNo:string;
-  deviceSku:string
+  modalNo: string;
+  deviceSku: string;
 };
 
 type FormDataType = {
@@ -90,6 +90,7 @@ type shipToDetailsType = {
   address2: string;
   pincode: string;
   mobileNo: string;
+  city: string;
 };
 
 const CreateDispatchPage: React.FC = () => {
@@ -105,11 +106,8 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer
   );
 
-  const {
-    dispatchCreateLoading,
-    uploadFileLoading,
-    clientBranchList,
-  } = useAppSelector((state) => state.dispatch);
+  const { dispatchCreateLoading, uploadFileLoading, clientBranchList } =
+    useAppSelector((state) => state.dispatch);
 
   const { addressDetail } = useAppSelector((state) => state.client) as any;
 
@@ -153,7 +151,7 @@ const CreateDispatchPage: React.FC = () => {
     setFilename("");
     setfile(null);
     dispatch(clearaddressdetail());
-    formdata.delete('document')
+    formdata.delete("document");
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
@@ -249,6 +247,7 @@ const CreateDispatchPage: React.FC = () => {
       setValue("shipToDetails.address2", value.addressLine2); // Update addressLine2
       setValue("shipToDetails.pincode", value.pinCode); // Update pincode
       setValue("shipToDetails.mobileNo", value.phoneNo);
+      setValue("shipToDetails.city", value.city);
     }
   };
 
@@ -490,6 +489,19 @@ const CreateDispatchPage: React.FC = () => {
                 <TextField
                   variant="filled"
                   sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.city}
+                  helperText={errors?.shipToDetails?.city?.message}
+                  focused={!!watch("shipToDetails.city")}
+                  rows={3}
+                  fullWidth
+                  label="City"
+                  className="h-[100px] resize-none"
+                  {...register("shipToDetails.city")}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
                   error={!!errors.shipToDetails?.address1}
                   helperText={errors?.shipToDetails?.address1?.message}
                   focused={!!watch("shipToDetails.address1")}
@@ -570,7 +582,7 @@ const CreateDispatchPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="docNo"
                   control={control}
                   rules={{
@@ -634,7 +646,6 @@ const CreateDispatchPage: React.FC = () => {
                           multiple
                           value={field.value}
                           onFileChange={(value) => {
-                            
                             value?.forEach((file: File) => {
                               formdata.append("document", file);
                             });
@@ -727,9 +738,14 @@ const CreateDispatchPage: React.FC = () => {
                                         return {
                                           imei: device.device_imei || "",
                                           srno: device.sl_no || "",
-                                          modalNo: device?.productDetail?.p_name||"",
-                                          deviceSku: device?.productDetail?.device_sku||"",
-                                          productKey: device?.productDetail?.product_key||"",
+                                          modalNo:
+                                            device?.productDetail?.p_name || "",
+                                          deviceSku:
+                                            device?.productDetail?.device_sku ||
+                                            "",
+                                          productKey:
+                                            device?.productDetail
+                                              ?.product_key || "",
                                         };
                                       }
                                     );
@@ -758,21 +774,35 @@ const CreateDispatchPage: React.FC = () => {
                       }
                     />
                   </FormControl>
-                
 
-                <div className="bg-white p-4 rounded-lg  flex space-x-6 items-center">
-                  <p className="text-lg font-semibold text-blue-600">Total Devices: 
-                    <span className="text-gray-800 pl-1">{rowData.length}</span>
-                  </p>
-                  <p className="text-lg font-semibold text-green-600">Total L Devices: 
-                    <span className="text-gray-800 pl-1">{rowData.filter((item: any) => item.modalNo.includes("(L)")).length}</span>
-                  </p>
-                  <p className="text-lg font-semibold text-red-600">Total E Devices: 
-                    <span className="text-gray-800 pl-1">{rowData.filter((item: any) => item.modalNo.includes("(E)")).length}</span>
-                  </p>
-                </div>
-
-
+                  <div className="bg-white p-4 rounded-lg  flex space-x-6 items-center">
+                    <p className="text-lg font-semibold text-blue-600">
+                      Total Devices:
+                      <span className="text-gray-800 pl-1">
+                        {rowData.length}
+                      </span>
+                    </p>
+                    <p className="text-lg font-semibold text-green-600">
+                      Total L Devices:
+                      <span className="text-gray-800 pl-1">
+                        {
+                          rowData.filter((item: any) =>
+                            item.modalNo.includes("(L)")
+                          ).length
+                        }
+                      </span>
+                    </p>
+                    <p className="text-lg font-semibold text-red-600">
+                      Total E Devices:
+                      <span className="text-gray-800 pl-1">
+                        {
+                          rowData.filter((item: any) =>
+                            item.modalNo.includes("(E)")
+                          ).length
+                        }
+                      </span>
+                    </p>
+                  </div>
 
                   {/* <div className="flex items-center gap-[10px]">
                 <LoadingButton loadingPosition="start" loading={dispatchCreateLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
