@@ -426,7 +426,7 @@ const CreateDispatchPage: React.FC = () => {
                   rules={{
                     required: {
                       value: true,
-                      message: "Ship To Client is required",
+                      message: "Ship To Client Branch is required",
                     },
                   }}
                   control={control}
@@ -465,7 +465,7 @@ const CreateDispatchPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="PinCode"
-                  className="h-[100px] resize-none"
+                  className="h-[10px] resize-none"
                   {...register("shipToDetails.pincode", {
                     required: "PinCode is required",
                   })}
@@ -480,7 +480,7 @@ const CreateDispatchPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="Mobile No"
-                  className="h-[100px] resize-none"
+                  className="h-[10px] resize-none"
                   {...register("shipToDetails.mobileNo", {
                     required: "Mobile No is required",
                   })}
@@ -523,7 +523,7 @@ const CreateDispatchPage: React.FC = () => {
                   multiline
                   rows={3}
                   fullWidth
-                  label="Ship To Address 2"
+                  label="Ship To Addrests 2"
                   className="h-[100px] resize-none"
                   {...register("shipToDetails.address2", {
                     required: "Address 2 is required",
