@@ -92,7 +92,7 @@ const DeviceMinStep2: React.FC<Props> = ({ setStep, step }) => {
                             dispatch(checkSerial({ fileref: storeDraftMinData.fileReference, serials: input })).then((response: any) => {
                               if (response.payload.data.success) {
                                 if (response.payload.data.data?.isAvailable) {
-                                  addRow(input, response.payload.data.data?.imei, true, "Y", response.payload.data.data?.deviceModel);
+                                  addRow(input, response.payload.data.data?.imei, true, "N", response.payload.data.data?.deviceModel);
                                 } else {
                                   if (input) {
                                     addRow(input, "", false, "--");

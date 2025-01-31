@@ -7,6 +7,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 interface RowData {
   imei: string;
   srno: string;
+  productKey: string;
+  serialNo: number;
+  modalNo:string;
+  deviceSku:string
 }
 
 type Props = {
@@ -16,6 +20,8 @@ type Props = {
 const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "serialNo", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 100 },
+    {headerName:"Modal Name",field:"modalNo",sortable:true,filter:true,flex:1},
+    {headerName:"Device SKU",field:"deviceSku",sortable:true,filter:true,flex:1},
     { headerName: "IMEI", field: "imei", sortable: true, filter: true, flex: 1 },
     { headerName: "SR No.", field: "srno", sortable: true, filter: true, flex: 1 },
     {
@@ -37,7 +43,7 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-190px)] ">
+    <div className=" ag-theme-quartz h-[calc(100vh-250px)] ">
       <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
     </div>
   );

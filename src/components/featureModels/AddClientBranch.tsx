@@ -45,6 +45,7 @@ type FormData2Type = {
   shipToPan: string;
   shipToAddress1: string;
   shipToAddress2: string;
+  shipToCity: string;
 };
 type Props = {
   open: boolean;
@@ -87,6 +88,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
       shipToPan: "",
       shipToAddress1: "",
       shipToAddress2: "",
+      shipToCity: "",
     },
   });
 
@@ -110,6 +112,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
       shipToPan: data.shipToPan,
       shipToAddress1: data.shipToAddress1,
       shipToAddress2: data.shipToAddress2,
+      shipToCity: data.shipToCity,
     };
     dispatch(addClientBranch(payload)).then((res: any) => {
       if (res.payload?.data?.success) {
@@ -241,7 +244,7 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
                   input: {
                     endAdornment: (
                       <InputAdornment position="end">
-                        <Icons.call />
+                        <Icons.tag />
                       </InputAdornment>
                     ),
                   },
@@ -359,6 +362,23 @@ const AddClientBranch: React.FC<Props> = ({ open, handleClose }) => {
                 render={({ field }) => <SelectCountry error={!!errors.shipToCountry} varient="filled" helperText={errors.shipToCountry?.message} onChange={field.onChange} value={field.value} />}
               />
               <Controller rules={{ required: "State is required" }} control={control} name="shipToState" render={({ field }) => <SelectState error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />} />
+              <TextField
+                focused={!!watch("shipToCity")}
+                {...register("shipToCity", { required: "City is required" })}
+                error={!!errors.shipToCity}
+                helperText={errors.shipToCity?.message}
+                label="City"
+                variant="filled"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Icons.city2 />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
               <TextField
                 focused={!!watch("shipToPincode")}
                 {...register("shipToPincode", { required: "Pincode is required" })}

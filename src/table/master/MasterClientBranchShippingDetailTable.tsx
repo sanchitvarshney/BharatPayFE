@@ -57,6 +57,13 @@ const MasterClientBranchShippingDetailTable: React.FC = () => {
       resizable: true,
     },
     {
+      headerName: "City",
+      field: "city",
+      sortable: true,
+      filter: true,
+      resizable: true,
+    },
+    {
       headerName: "State Code",
       field: "state.stateCode",
       sortable: true,

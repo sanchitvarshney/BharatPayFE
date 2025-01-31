@@ -8,6 +8,10 @@ const initialState: DispatchState = {
   dispatchCreateLoading: false,
   uploadFileLoading: false,
   file: null,
+  clientList: null,
+  clientLoading: false,
+  clientBranchList: null,
+  clientBranchLoading: false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -18,6 +22,16 @@ export const uploadFile = createAsyncThunk<AxiosResponse<{ success: boolean; mes
   const response = await axiosInstance.post(`/dispatchDivice/upload`, formdata, { headers: { "Content-Type": "multipart/form-data" } });
   return response;
 });
+export const getClient = createAsyncThunk<AxiosResponse<any>>("master/client/getclient", async () => {
+  const response = await axiosInstance.get(`/backend/client`);
+  return response;
+});
+
+export const getClientBranch = createAsyncThunk<AxiosResponse<any>, string>("master/client/getClientBranch", async (id) => {
+  const response = await axiosInstance.get(`/client/viewBranch?client=${id}`);
+  return response;
+});
+
 const dispatchSlice = createSlice({
   name: "dispatch",
   initialState,
@@ -39,6 +53,30 @@ const dispatchSlice = createSlice({
       })
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
+      })
+      .addCase(getClient.pending, (state) => {
+        state.clientLoading = true;
+      })
+      .addCase(getClient.fulfilled, (state, action) => {
+        state.clientLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(getClient.rejected, (state) => {
+        state.clientLoading = false;
+      })
+      .addCase(getClientBranch.pending, (state) => {
+        state.clientBranchLoading = true;
+      })
+      .addCase(getClientBranch.fulfilled, (state, action) => {
+        state.clientBranchLoading = false;
+        if (action.payload.data.success) {
+          state.clientBranchList = action.payload.data.data;
+        }
+      })
+      .addCase(getClientBranch.rejected, (state) => {
+        state.clientBranchLoading = false;
       })
       .addCase(uploadFile.pending, (state) => {
         state.uploadFileLoading = true;
