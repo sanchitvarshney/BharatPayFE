@@ -391,18 +391,14 @@ const ViewTRCTable: React.FC<any> = () => {
                       <p>IMEI : </p>
                       <p>
                         {trcRequestDetail &&
-                          trcRequestDetail.body.find(
-                            (item) => item.device === device
-                          )?.deviceDetail?.imei}{" "}
+                          trcRequestDetail.body?.[0]?.deviceDetail?.imei}
                       </p>
                     </div>
                     <div className="flex items-center gap-[10px]">
                       <p>Model No. : </p>
                       <p>
                         {trcRequestDetail &&
-                          trcRequestDetail.body.find(
-                            (item) => item.device === device
-                          )?.deviceDetail?.model}{" "}
+                          trcRequestDetail?.body?.[0]?.deviceDetail?.model}
                       </p>
                     </div>
                   </div>
