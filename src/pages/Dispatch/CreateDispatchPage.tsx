@@ -6,12 +6,10 @@ import {
   clearaddressdetail,
   getLocationAsync,
   getVendorAsync,
-  uploadInvoiceFile,
 } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetDocumentFile,
   resetFormData,
-  storeDocumentFile,
   storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
@@ -24,8 +22,10 @@ import {
   FilledInput,
   FormControl,
   FormHelperText,
+  IconButton,
   InputAdornment,
   InputLabel,
+  ListItem,
   OutlinedInput,
   Step,
   StepLabel,
@@ -35,7 +35,6 @@ import {
 } from "@mui/material";
 import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
@@ -54,6 +53,7 @@ import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice
 import ImeiTable from "@/table/dispatch/ImeiTable";
 import { getClientAddressDetail } from "@/features/master/client/clientSlice";
 import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
+import DeleteIcon from "@mui/icons-material/Delete";
 type RowData = {
   imei: string;
   srno: string;
@@ -96,7 +96,6 @@ type shipToDetailsType = {
 const CreateDispatchPage: React.FC = () => {
   const [filename, setFilename] = useState<string>("");
   const [alert, setAlert] = useState<boolean>(false);
-  const [file, setfile] = useState<File[] | null>(null);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [imei, setImei] = React.useState<string>("");
@@ -149,7 +148,6 @@ const CreateDispatchPage: React.FC = () => {
     reset();
     dispatch(resetDocumentFile());
     setFilename("");
-    setfile(null);
     dispatch(clearaddressdetail());
     formdata.delete("document");
   };
@@ -160,7 +158,7 @@ const CreateDispatchPage: React.FC = () => {
     dispatch(storeFormdata(data));
     handleNext();
   };
-  console.log(rowData);
+  
   const finalSubmit = () => {
     const data = formValues;
     // if (formdata) {
@@ -200,24 +198,6 @@ const CreateDispatchPage: React.FC = () => {
     //  };
   };
 
-  const InvoiceFileUpload = () => {
-    if (file && filename) {
-      const formdata = new FormData();
-      formdata.append("file", file[0]);
-      formdata.append("fileName", filename);
-      dispatch(uploadInvoiceFile(formdata)).then((res: any) => {
-        if (res.payload.data.success) {
-          dispatch(storeDocumentFile(res.payload.data?.data[0]));
-
-          showToast(res.payload.data.message, "success");
-          setfile(null);
-          setFilename("");
-        }
-      });
-    } else {
-      showToast("File and Document Name Required", "error");
-    }
-  };
   useEffect(() => {
     dispatch(getVendorAsync(null));
     dispatch(getLocationAsync(null));
@@ -426,7 +406,7 @@ const CreateDispatchPage: React.FC = () => {
                   rules={{
                     required: {
                       value: true,
-                      message: "Ship To Client is required",
+                      message: "Ship To Client Branch is required",
                     },
                   }}
                   control={control}
@@ -465,7 +445,7 @@ const CreateDispatchPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="PinCode"
-                  className="h-[100px] resize-none"
+                  className="h-[10px] resize-none"
                   {...register("shipToDetails.pincode", {
                     required: "PinCode is required",
                   })}
@@ -480,7 +460,7 @@ const CreateDispatchPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="Mobile No"
-                  className="h-[100px] resize-none"
+                  className="h-[10px] resize-none"
                   {...register("shipToDetails.mobileNo", {
                     required: "Mobile No is required",
                   })}
@@ -523,7 +503,7 @@ const CreateDispatchPage: React.FC = () => {
                   multiline
                   rows={3}
                   fullWidth
-                  label="Ship To Address 2"
+                  label="Ship To Addrests 2"
                   className="h-[100px] resize-none"
                   {...register("shipToDetails.address2", {
                     required: "Address 2 is required",
@@ -643,35 +623,53 @@ const CreateDispatchPage: React.FC = () => {
                               [".docx"],
                             "image/*": [],
                           }}
-                          multiple
+                          multiple={false}
                           value={field.value}
                           onFileChange={(value) => {
-                            value?.forEach((file: File) => {
+                            if (value && value.length > 0) {
+                              formdata.delete("document");
+                              const file = value[0]; // Get the first file (if there's one)
+                              setFilename(value[0].name);
                               formdata.append("document", file);
-                            });
-                            dispatch(uploadFile(formdata)).then((res: any) => {
-                              if (res.payload.data.success) {
-                                const docNos = res.payload.data?.data;
-                                setValue("document", docNos);
-                              }
-                            });
+                              dispatch(uploadFile(formdata)).then(
+                                (res: any) => {
+                                  if (res.payload.data.success) {
+                                    const docNos = res.payload.data?.data;
+                                    setValue("document", docNos); // Update the document field in the form
+                                  }
+                                }
+                              );
+                            }
                           }}
-                          label="Upload Attachments"
+                          label="Upload Attachment"
                         />
                       )}
                     />
-                  </div>
-                  <div className="flex items-center ">
-                    <LoadingButton
-                      variant="contained"
-                      loadingPosition="start"
-                      loading={uploadFileLoading}
-                      type="button"
-                      startIcon={<FileUploadIcon fontSize="small" />}
-                      onClick={InvoiceFileUpload}
+                    <ListItem
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        p: 0,
+                      }}
                     >
-                      Upload
-                    </LoadingButton>
+                      <Typography variant="body2" noWrap>
+                        {filename}
+                      </Typography>
+                      {filename && (
+                        <IconButton
+                          type="button"
+                          sx={{ paddingX: "10px", paddingY: "5px" }}
+                          onClick={() => {
+                            formdata.delete("document");
+                            setFilename("");
+                            setValue("document", "");
+                          }}
+                          color="error"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </ListItem>
                   </div>
                 </div>
                 <div className=" pl-10 pt-10">

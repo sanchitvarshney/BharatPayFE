@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
-import SettingsIcon from '@mui/icons-material/Settings';
+// import SettingsIcon from '@mui/icons-material/Settings';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 type Props = {
   children: React.ReactNode;
@@ -45,7 +45,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
               </div>
             }
           />
-          <Tab
+          {/* <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
@@ -53,7 +53,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
                 Manage
               </div>
             }
-          />
+          /> */}
         </Tabs>
       </div>
       <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
