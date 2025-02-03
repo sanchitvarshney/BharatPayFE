@@ -208,7 +208,7 @@ const R6Report: React.FC = () => {
               <Select value={partner} defaultValue="eCOM" onChange={(e) => setPartner(e.target.value)}>
                 {[
                   { value: "eCOM", label: "eCOM", isDisabled: false },
-                  { value: "delhivery", label: "Delhivery", isDisabled: false },
+                  { value: "dVery", label: "Delhivery", isDisabled: false },
                 ].map((item) => (
                   <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
                     {item.label}
