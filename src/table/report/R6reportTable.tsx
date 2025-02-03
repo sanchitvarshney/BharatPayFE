@@ -166,7 +166,17 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
                   {params.value} {/* Display MINNo value */}
                 </div>
               );
-            } else {
+            }
+            //photo section will be done later 
+            // if (col === "Photo" && params.data.Photo) {
+            //   console.log(params)
+            //   return (
+            //     <a href={params.data.Photo} target="_blank" rel="noopener noreferrer">
+            //       View Photo
+            //     </a>
+            //   );
+            // } 
+            else {
               return params.value; // Display value for other columns
             }
           },
