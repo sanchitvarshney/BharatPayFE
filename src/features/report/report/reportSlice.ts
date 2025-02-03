@@ -24,11 +24,13 @@ const initialState: ReportStateType = {
   mainR1Report: null,
   mainR1ReportLoading: false,
   r6Report: null,
+  wrongDeviceReport:null,
   r6ReportLoading: false,
   r8ReportLoading: false,
   r8Report: null,
   r9report: null,
   r9ReportLoading: false,
+  wrongDeviceReportLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -70,6 +72,10 @@ export const getr5ReportDetail = createAsyncThunk<AxiosResponse<{ data: { slNo: 
 });
 export const getr6Report = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: "MINNO" | "DATE"; data: string; from: string; to: string }>("report/getr6Report", async (payload) => {
   const response = await axiosInstance.get(payload.type === "MINNO" ? `/report/r6/MINNO?data=${payload.data}` : `/report/r6/DATE?startDate=${payload.from}&endDate=${payload.to}`);
+  return response;
+});
+export const getWrongDeviceReport = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: string; from: string; to: string }>("report/getWrongDeviceReport", async (payload) => {
+  const response = await axiosInstance.get( `/wrongDevice/getWrongDevice/?fromDate=${payload.from}&toDate=${payload.to}&partner=${payload.type}`);
   return response;
 });
 export const getr8Report = createAsyncThunk<AxiosResponse<R8ReportDataApiResponse>, { from: string; to: string }>("report/getr8Report", async (payload) => {
@@ -234,6 +240,20 @@ const reportSlice = createSlice({
       })
       .addCase(getr6Report.rejected, (state) => {
         state.r6ReportLoading = false;
+        state.r6Report = null;
+      })
+      .addCase(getWrongDeviceReport.pending, (state) => {
+        state.wrongDeviceReportLoading = true;
+        state.r6Report = null;
+      })
+      .addCase(getWrongDeviceReport.fulfilled, (state, action) => {
+        state.wrongDeviceReportLoading = false;
+        if (action.payload.data.success) {
+          state.r6Report = action.payload.data.data;
+        }
+      })
+      .addCase(getWrongDeviceReport.rejected, (state) => {
+        state.wrongDeviceReportLoading = false;
         state.r6Report = null;
       })
       .addCase(getr8Report.pending, (state) => {
