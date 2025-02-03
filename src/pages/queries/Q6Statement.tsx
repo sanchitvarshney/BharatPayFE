@@ -33,6 +33,7 @@ const Q6Statement: React.FC = () => {
               }
             }
           }}
+          inputProps={{ maxLength: 15 }}
         />
         <LoadingButton
           loadingPosition="start"

@@ -50,7 +50,6 @@ import ProductionCreate from "./pages/production/ProductionCreate";
 import ProductionManage from "./pages/production/ProductionManage";
 import DispatchLayout from "./layouts/DispatchLayout";
 import ManageDispatch from "./pages/Dispatch/ManageDispatch";
-import CraeteDispatchPage from "./pages/Dispatch/CraeteDispatchPage";
 import SopPage from "./pages/fileupload/SopPage";
 import QrLayout from "./layouts/QrLayout";
 import MasterQrGenerator from "./pages/production/MasterQrGenerater";
@@ -76,6 +75,8 @@ import MaterialRequestWithBom from "./pages/production/MaterialRequestWithBom";
 import StockDetailPage from "./pages/StockDetailPage";
 import StoreTRC from "@/pages/TRC/StoreTRC";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
+import CreateDispatchPage from "@/pages/Dispatch/CreateDispatchPage";
+import PendingTRCListTable from "@/table/master/PendingTRCListTable";
 
 export const router = createBrowserRouter([
   {
@@ -474,6 +475,18 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <TRCLayout>
+              <CustomRedirection UnderDevelopment={false}>
+                <PendingTRCListTable />
+              </CustomRedirection>
+            </TRCLayout>
+          </MainLayout>
+        ),
+        path: "/production/trc-list",
+      },
+      {
+        element: (
+          <MainLayout>
             <BatteryQC />
           </MainLayout>
         ),
@@ -548,7 +561,7 @@ export const router = createBrowserRouter([
           <MainLayout>
             <DispatchLayout>
               <CustomRedirection UnderDevelopment={false}>
-                <CraeteDispatchPage />
+                <CreateDispatchPage />
               </CustomRedirection>
             </DispatchLayout>
           </MainLayout>

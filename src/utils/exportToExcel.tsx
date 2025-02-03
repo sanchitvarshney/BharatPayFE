@@ -30,50 +30,53 @@ interface VendorData {
 export const exportToExcel = (data: VendorData[], fileName: string): void => {
   const formattedData: any[] = [];
 
+  // Get all dynamic columns from the first item in the data
+  const dynamicColumns = [
+    "VendorCode",
+    "VendorName",
+    "VendorAddress",
+    "AWBNo",
+    "Serial",
+    "IMEI",
+    "Quantity",
+    "Product",
+    "TotalDebit",
+    ...Object.keys(data[0]?.issues)  // Extracting issue fields dynamically
+  ];
+
   data.forEach((item) => {
     const issue = item.issues;
 
-    formattedData.push({
-      VendorCode: item.vendorCode,
-      VendorName: item.vendorName,
-      VendorAddress: item.vendorAddress,
-      AWBNo: item.awbNo,
-      Serial: item.serial,
-      IMEI: item.imei,
-      Quantity: item.quantity,
-      Product: item.product,
-      TotalDebit: item.totalDebit,
-      DeviceID: issue["Device ID"] || "",
-      Adopter: issue.Adaptor || "",
-      Cable: issue.Cable || "",
-      // Charger: issue.Charger || "",
-      SIM: issue.SIM || "",
-      "Sound Check - OK": issue["Sound Check - OK"] || "",
-      Bracket: issue.Bracket || "",
-      "No Physical Damage": issue["No Physical Damage"] || "",
-      "No Internal Damage": issue["No Internal Damage"] || "",
-      Box: issue.Box || "",
-      Standee: issue.Standee || "",
-    });
+    // Push the values in the right structure
+    const row: any = {
+      VendorCode: item?.vendorCode,
+      VendorName: item?.vendorName,
+      VendorAddress: item?.vendorAddress,
+      AWBNo: item?.awbNo,
+      Serial: item?.serial,
+      IMEI: item?.imei,
+      Quantity: item?.quantity,
+      Product: item?.product,
+      TotalDebit: item?.totalDebit,
+      ...issue,  // Spread the issue object into the row
+    };
+
+    // Push the row data into the formattedData
+    formattedData.push(row);
   });
 
-  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(formattedData);
-  worksheet["!cols"] = [
-    { wch: 15 },
-    { wch: 20 },
-    { wch: 30 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 10 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 20 },
-    { wch: 10 },
-  ];
+  // Convert the data to a sheet
+  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(formattedData, { header: dynamicColumns });
 
+  // Set column widths dynamically (adjust based on the column name length or content)
+  worksheet["!cols"] = dynamicColumns?.map((col) => ({
+    wch: Math.max(col?.length, 15), // Ensure at least 15 characters wide
+  }));
+
+  // Create a workbook and append the sheet
   const workbook: XLSX.WorkBook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Device MIN V2");
 
+  // Write the file to disk
   XLSX.writeFile(workbook, `${fileName}.xlsx`);
 };

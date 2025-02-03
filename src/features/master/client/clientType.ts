@@ -23,6 +23,7 @@ export type CraeteClientPayload = {
     shipToCompany: string;
     shipToCountry: string;
     shipToState: string;
+    shipToCity: string;
     shipToPincode: string;
     shipToGst: string;
     shipToPan: string;
@@ -133,6 +134,7 @@ type AddressDetail = {
   label: string;
   company?: string; // Optional as it appears only in shippingAddress
   panno?: string; // Optional as it appears only in shippingAddress
+  city?: string;
 };
 
 export type AddressDetailApiResponse = {
@@ -154,6 +156,7 @@ export type AddShipToAddressPayload = {
   shipToGst: string;
   shipToPan: string;
   shipToCountry: string;
+  shipToCity: string;
 };
 
 export type AddBranchPayload = {
@@ -173,6 +176,7 @@ export type AddBranchPayload = {
   shipToPincode: string;
   shipToGst: string;
   shipToPan: string;
+  shipToCity: string;
   shipToAddress1: string;
   shipToAddress2: string;
 };
@@ -188,6 +192,7 @@ export type UpdateShipToPayload = {
   shipToGst: string;
   shipToPan: string;
   shipToCountry: string;
+  shipToCity: string;
 };
 export type UpdateBillingAddressPayload = {
   addressID: string;

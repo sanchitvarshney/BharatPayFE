@@ -23,6 +23,7 @@ type FormData2Type = {
   shipToPan: string;
   shipToAddress1: string;
   shipToAddress2: string;
+  shipToCity: string;
 };
 const EditClientShippingAddress: React.FC<Props> = ({ open, handleClose }) => {
   const dispatch = useAppDispatch();
@@ -47,6 +48,7 @@ const EditClientShippingAddress: React.FC<Props> = ({ open, handleClose }) => {
       shipToPan: "",
       shipToAddress1: "",
       shipToAddress2: "",
+      shipToCity: "",
     },
   });
   const onSubmit = (data: FormData2Type) => {
@@ -61,6 +63,7 @@ const EditClientShippingAddress: React.FC<Props> = ({ open, handleClose }) => {
       shipToGst: data.shipToGst,
       shipToPan: data.shipToPan,
       shipToCountry: data.shipToCountry?.code.toString() || "",
+      shipToCity: data.shipToCity,
     };
 
     dispatch(updateShipToDetail(paylaod)).then((res: any) => {
@@ -85,6 +88,7 @@ const EditClientShippingAddress: React.FC<Props> = ({ open, handleClose }) => {
         setValue("shipToAddress2", data.addressLine2);
         setValue("shipToState", { Code: data.state?.stateCode, Name: data?.state.stateName || "" });
         setValue("shipToCountry", { code: Number(data?.country?.countryID), text: data?.country?.countryName || "" });
+        setValue("shipToCity", data.city || "");
       }
     }
   }, [shipId, addressDetail]);
@@ -146,6 +150,23 @@ const EditClientShippingAddress: React.FC<Props> = ({ open, handleClose }) => {
                 control={control}
                 name="shipToState"
                 render={({ field }) => <SelectState size="small" error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />}
+              />
+                <TextField
+                focused={!!watch("shipToCity")}
+                {...register("shipToCity", { required: "City is required" })}
+                error={!!errors.shipToCity}
+                helperText={errors.shipToCity?.message}
+                label="City"
+                variant="filled"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Icons.city2 />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
               />
               <TextField
                 focused={!!watch("shipToPincode")}

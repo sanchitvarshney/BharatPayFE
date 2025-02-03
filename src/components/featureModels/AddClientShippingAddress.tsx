@@ -24,6 +24,7 @@ type FormData2Type = {
   shipToPan: string;
   shipToAddress1: string;
   shipToAddress2: string;
+  shipToCity: string;
 };
 const AddClientShippingAddress: React.FC<Props> = ({ open, handleClose, addressId }) => {
   const dispatch = useAppDispatch();
@@ -46,6 +47,7 @@ const AddClientShippingAddress: React.FC<Props> = ({ open, handleClose, addressI
       shipToPan: "",
       shipToAddress1: "",
       shipToAddress2: "",
+      shipToCity: "",
     },
   });
   const onSubmit = (data: FormData2Type) => {
@@ -59,6 +61,7 @@ const AddClientShippingAddress: React.FC<Props> = ({ open, handleClose, addressI
       shipToState: data.shipToState?.Code || "",
       shipToGst: data.shipToGst,
       shipToPan: data.shipToPan,
+      shipToCity: data.shipToCity || "",
       shipToCountry: data.shipToCountry?.code.toString() || "",
     };
 
@@ -123,6 +126,23 @@ const AddClientShippingAddress: React.FC<Props> = ({ open, handleClose, addressI
                 render={({ field }) => <SelectCountry    size="small" error={!!errors.shipToCountry} varient="filled" helperText={errors.shipToCountry?.message} onChange={field.onChange} value={field.value} />}
               />
               <Controller rules={{ required: "State is required" }} control={control} name="shipToState" render={({ field }) => <SelectState    size="small" error={!!errors.shipToState} varient="filled" helperText={errors.shipToState?.message} onChange={field.onChange} value={field.value} />} />
+              <TextField
+                 size="small"
+                {...register("shipToCity", { required: "City is required" })}
+                error={!!errors.shipToCity}
+                helperText={errors.shipToCity?.message}
+                label="City"
+                variant="filled"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Icons.city2 />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
               <TextField
                  size="small"
                 {...register("shipToPincode", { required: "Pincode is required" })}

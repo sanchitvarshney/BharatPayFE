@@ -279,9 +279,11 @@ export type ReportStateType = {
   mainR1Report: MainR1Report[] | null;
   mainR1ReportLoading: boolean;
   r6Report: r6report[] | null;
+  wrongDeviceReport:any|null;
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;
   r8Report: R8ReportData[] | null;
   r9report: ProductDetails[] | null;
   r9ReportLoading: boolean;
+  wrongDeviceReportLoading: boolean;
 };
