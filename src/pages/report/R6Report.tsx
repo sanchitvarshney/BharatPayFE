@@ -17,9 +17,13 @@ import { Button } from "@/components/ui/button";
 const R6Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("min");
-  const [partner, setPartner] = useState<string>("");
+  const [partner, setPartner] = useState<string>("eCOM");
   const [min, setMin] = useState<string>("");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+    from: null,
+    to: null,
+  });
+  const [reportDate, setReportDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
   });
@@ -44,7 +48,6 @@ const R6Report: React.FC = () => {
         sheetName: "R6 Report",
       });
   }, [r6Report]);
-
   return (
     <>
       <div className="h-[calc(100vh-100px)] flex bg-white relative">
@@ -90,7 +93,7 @@ const R6Report: React.FC = () => {
                   }}
                   presets={rangePresets}
                 />
-                <div className="flex justify-between mt-[20px]">
+              { (date.from || date.to)&& <div className="flex justify-between mt-[20px]">
                   <LoadingButton
                     loadingPosition="start"
                     onClick={() => {
@@ -126,13 +129,13 @@ const R6Report: React.FC = () => {
                       <Icons.download />
                     </LoadingButton>
                   </MuiTooltip>
-                </div>
+                </div>}
               </div>
             ) : type === "min" ? (
               <div className="flex flex-col gap-[20px] ">
                 <TextField label="MIN" value={min} onChange={(e) => setMin(e.target.value)} />
 
-                <div className="flex items-center justify-between">
+                {(min) && <div className="flex items-center justify-between">
                   <LoadingButton
                     className="max-w-max"
                     variant="contained"
@@ -170,7 +173,7 @@ const R6Report: React.FC = () => {
                       <Icons.download fontSize="small" />
                     </LoadingButton>
                   </MuiTooltip>
-                </div>
+                </div>}
               </div>
             ) : null}
           </div>
@@ -188,12 +191,12 @@ const R6Report: React.FC = () => {
                   format="DD-MM-YYYY"
                   disabledDate={(current) => current && current > dayjs()}
                   placeholder={["Start date", "End Date"]}
-                  value={date.from && date.to ? [date.from, date.to] : null}
+                  value={reportDate.from && reportDate.to ? [reportDate.from, reportDate.to] : null}
                   onChange={(range: [Dayjs | null, Dayjs | null] | null) => {
                     if (range) {
-                      setDate({ from: range[0], to: range[1] });
+                      setReportDate({ from: range[0], to: range[1] });
                     } else {
-                      setDate({ from: null, to: null });
+                      setReportDate({ from: null, to: null });
                     }
                   }}
                   presets={rangePresets}
@@ -201,16 +204,26 @@ const R6Report: React.FC = () => {
               </div>
       
               <div className="flex flex-col gap-[20px] ">
-                <TextField label="Partner" value={partner} onChange={(e) => setPartner(e.target.value)} />
-
-                <div className="flex items-center justify-between">
+              <FormControl fullWidth>
+              <Select value={partner} defaultValue="eCOM" onChange={(e) => setPartner(e.target.value)}>
+                {[
+                  { value: "eCOM", label: "eCOM", isDisabled: false },
+                  { value: "delhivery", label: "Delhivery", isDisabled: false },
+                ].map((item) => (
+                  <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+              {(reportDate.from || reportDate.to)&&  <div className="flex items-center justify-between">
                   <LoadingButton
                     className="max-w-max"
                     variant="contained"
                     loading={wrongDeviceReportLoading}
                     onClick={() => {
                       if (partner) {
-                        dispatch(getWrongDeviceReport({ type: partner, from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") })).then((response: any) => {
+                        dispatch(getWrongDeviceReport({ type: partner, from: dayjs(reportDate.from).format("DD-MM-YYYY"), to: dayjs(reportDate.to).format("DD-MM-YYYY") })).then((response: any) => {
                           if (response.payload?.data?.success) {
                           }
                         });
@@ -224,7 +237,7 @@ const R6Report: React.FC = () => {
                   </LoadingButton>
                   <MuiTooltip title="Download" placement="right">
                     <LoadingButton
-                      disabled={!r6Report}
+                      // disabled={!r6Report}
                       variant="contained"
                       color="primary"
                       style={{
@@ -241,7 +254,7 @@ const R6Report: React.FC = () => {
                       <Icons.download fontSize="small" />
                     </LoadingButton>
                   </MuiTooltip>
-                </div>
+                </div>}
               </div>
           
             </div>
