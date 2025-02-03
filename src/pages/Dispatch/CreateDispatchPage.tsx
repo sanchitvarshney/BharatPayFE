@@ -616,7 +616,7 @@ const CreateDispatchPage: React.FC = () => {
                 <Controller
                   name="dispatchDate"
                   control={control}
-                  rules={{ required: " Document Date is required" }}
+                  rules={{ required: " Dispatch Date is required" }}
                   render={({ field }) => (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -635,7 +635,7 @@ const CreateDispatchPage: React.FC = () => {
                         value={field.value}
                         onChange={(value) => field.onChange(value)}
                         sx={{ width: "100%" }}
-                        label="Document Date"
+                        label="Dispatch Date"
                         name="startDate"
                       />
                     </LocalizationProvider>
