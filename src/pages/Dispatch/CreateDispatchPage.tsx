@@ -54,6 +54,10 @@ import ImeiTable from "@/table/dispatch/ImeiTable";
 import { getClientAddressDetail } from "@/features/master/client/clientSlice";
 import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs, { Dayjs } from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 type RowData = {
   imei: string;
   srno: string;
@@ -74,6 +78,7 @@ type FormDataType = {
   sku: DeviceType | null;
   docNo: string;
   document: string;
+  dispatchDate :Dayjs | null;
 };
 
 type clientDetailType = {
@@ -176,6 +181,7 @@ const CreateDispatchPage: React.FC = () => {
       imeis: rowData.map((item) => item.imei),
       srlnos: rowData.map((item) => item.srno),
       document: data.document || "",
+      dispatchDate:dayjs(data.dispatchDate).format("DD-MM-YYYY"),
       pickLocation: data.location?.code || "",
       clientDetail: data.clientDetail
         ? {
@@ -606,6 +612,36 @@ const CreateDispatchPage: React.FC = () => {
                     />
                   )}
                 />
+                <div>
+                <Controller
+                  name="dispatchDate"
+                  control={control}
+                  rules={{ required: " Document Date is required" }}
+                  render={({ field }) => (
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        format="DD-MM-YYYY"
+                        slots={{
+                          textField: TextField,
+                        }}
+                        maxDate={dayjs()}
+                        slotProps={{
+                          textField: {
+                            variant: "filled",
+                            error: !!errors.dispatchDate,
+                            helperText: errors.dispatchDate?.message,
+                          },
+                        }}
+                        value={field.value}
+                        onChange={(value) => field.onChange(value)}
+                        sx={{ width: "100%" }}
+                        label="Document Date"
+                        name="startDate"
+                      />
+                    </LocalizationProvider>
+                  )}
+                />
+              </div>
               </div>
               <div className="grid grid-cols-2">
                 <div className=" flex flex-col gap-[20px] py-[20px] ">

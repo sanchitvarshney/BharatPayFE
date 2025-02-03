@@ -76,6 +76,7 @@ import StockDetailPage from "./pages/StockDetailPage";
 import StoreTRC from "@/pages/TRC/StoreTRC";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
 import CreateDispatchPage from "@/pages/Dispatch/CreateDispatchPage";
+import PendingTRCListTable from "@/table/master/PendingTRCListTable";
 
 export const router = createBrowserRouter([
   {
@@ -470,6 +471,18 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/view-trc",
+      },
+      {
+        element: (
+          <MainLayout>
+            <TRCLayout>
+              <CustomRedirection UnderDevelopment={false}>
+                <PendingTRCListTable />
+              </CustomRedirection>
+            </TRCLayout>
+          </MainLayout>
+        ),
+        path: "/production/trc-list",
       },
       {
         element: (
