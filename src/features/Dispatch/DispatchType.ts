@@ -8,7 +8,8 @@ export type DispatchItemPayload = {
   document: string; // required
   pickLocation: string;
   clientDetail: any;
-  shipToDetails: any
+  shipToDetails: any;
+  dispatchDate: string;
 };
 
 export type DispatchState = {
