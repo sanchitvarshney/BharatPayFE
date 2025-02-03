@@ -48,7 +48,6 @@ const R6Report: React.FC = () => {
         sheetName: "R6 Report",
       });
   }, [r6Report]);
-
   return (
     <>
       <div className="h-[calc(100vh-100px)] flex bg-white relative">
@@ -94,7 +93,7 @@ const R6Report: React.FC = () => {
                   }}
                   presets={rangePresets}
                 />
-                <div className="flex justify-between mt-[20px]">
+              { (date.from || date.to)&& <div className="flex justify-between mt-[20px]">
                   <LoadingButton
                     loadingPosition="start"
                     onClick={() => {
@@ -130,13 +129,13 @@ const R6Report: React.FC = () => {
                       <Icons.download />
                     </LoadingButton>
                   </MuiTooltip>
-                </div>
+                </div>}
               </div>
             ) : type === "min" ? (
               <div className="flex flex-col gap-[20px] ">
                 <TextField label="MIN" value={min} onChange={(e) => setMin(e.target.value)} />
 
-                <div className="flex items-center justify-between">
+                {(min) && <div className="flex items-center justify-between">
                   <LoadingButton
                     className="max-w-max"
                     variant="contained"
@@ -174,7 +173,7 @@ const R6Report: React.FC = () => {
                       <Icons.download fontSize="small" />
                     </LoadingButton>
                   </MuiTooltip>
-                </div>
+                </div>}
               </div>
             ) : null}
           </div>
@@ -217,7 +216,7 @@ const R6Report: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-                <div className="flex items-center justify-between">
+              {(reportDate.from || reportDate.to)&&  <div className="flex items-center justify-between">
                   <LoadingButton
                     className="max-w-max"
                     variant="contained"
@@ -238,7 +237,7 @@ const R6Report: React.FC = () => {
                   </LoadingButton>
                   <MuiTooltip title="Download" placement="right">
                     <LoadingButton
-                      disabled={!r6Report}
+                      // disabled={!r6Report}
                       variant="contained"
                       color="primary"
                       style={{
@@ -255,7 +254,7 @@ const R6Report: React.FC = () => {
                       <Icons.download fontSize="small" />
                     </LoadingButton>
                   </MuiTooltip>
-                </div>
+                </div>}
               </div>
           
             </div>

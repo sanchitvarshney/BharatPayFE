@@ -22,7 +22,7 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
   const [current, setCurrent] = React.useState<string>("");
   const [rowData, setRowData] = useState<any[]>([]); // Holds the row data
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]); // Holds the column definitions
-  const { r6Report, r6ReportLoading } = useAppSelector((state) => state.report);
+  const { r6Report, r6ReportLoading,wrongDeviceReportLoading } = useAppSelector((state) => state.report);
   const generateprint = async (min: string) => {
     setLoading(true);
 
@@ -202,7 +202,7 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
-          loading={r6ReportLoading}
+          loading={r6ReportLoading||wrongDeviceReportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           rowData={rowData}
