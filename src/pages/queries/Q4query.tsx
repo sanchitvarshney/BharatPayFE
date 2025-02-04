@@ -1,11 +1,11 @@
 import { Icons } from "@/components/icons";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 import { Button } from "@/components/ui/button";
-import { getQ4DatA } from "@/features/query/query/querySlice";
+import { downloadQ4Data, getQ4DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { LoadingButton } from "@mui/lab";
-import { List, ListItem, ListItemText, Skeleton, Typography } from "@mui/material";
+import { IconButton, List, ListItem, ListItemText, Skeleton, Typography } from "@mui/material";
 
 import React, { useState } from "react";
 const Q4query: React.FC = () => {
@@ -13,6 +13,12 @@ const Q4query: React.FC = () => {
   const [component, setComponent] = React.useState<DeviceType | null>(null);
   const dispatch = useAppDispatch();
   const { q4Data, q4DataLoading } = useAppSelector((state) => state.query);
+
+  const handleDownload = (locationKey:string,productKey:  string) => {
+    dispatch(downloadQ4Data({locationKey:locationKey,productKey:productKey})).then((res: any) => {
+      console.log(res.payload.data)
+    })
+  };
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
       <div className={` h-full flex relative   `}>
@@ -69,13 +75,29 @@ const Q4query: React.FC = () => {
             <div className="p-[20px] flex flex-wrap gap-[10px]">
               {q4DataLoading
                 ? Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="w-[150px] min-h-[150px] " />)
-                : q4Data?.locationQty.map((item, index) => (
-                    <div key={index} className="  h-[100px] max-w-max px-[50px]  rounded border bg-slate-50 flex flex-col gap-[5px] justify-center items-center">
-                      <Typography fontWeight={500}>{item.locationName}</Typography>
-                      <Typography fontWeight={500} className="text-slate-500">
-                        {item.closeQty}
-                      </Typography>
-                    </div>
+                : q4Data?.locationQty.map((item:any, index) => (
+                  <div
+                  key={index}
+                  className="h-[100px] max-w-max px-[50px] rounded border bg-slate-50 flex flex-col gap-[5px] justify-center items-center"
+                >
+                  <div className="flex justify-between w-full items-center gap-2">
+                    <Typography fontWeight={500}>{item.locationName}</Typography>
+                    <IconButton
+                      size="small"
+                      color="success"
+                      onClick={() => {
+                        handleDownload(item.location.location_key, item.product.key);
+                      }}
+                    >
+                      <Icons.download fontSize="small" />
+                    </IconButton>
+                  </div>
+                
+                  <Typography fontWeight={500} className="text-slate-500">
+                    {item.closeQty}
+                  </Typography>
+                </div>
+                
                   ))}
             </div>
           </div>

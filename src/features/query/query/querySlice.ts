@@ -41,6 +41,12 @@ export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, string>(
   const response = await axiosInstance.get(`/query/q4/${id}`);
   return response;
 });
+
+export const downloadQ4Data = createAsyncThunk<AxiosResponse<Q4Apiresponse>,  { locationKey: string; productKey: string }>("query/downloadQ4Data", async (payload) => {
+  const response = await axiosInstance.get(`/query/q4/download/${payload.productKey}/${payload.locationKey}`);
+  return response;
+});
+
 export const getQ5Data = createAsyncThunk<AxiosResponse<Q5Apiresponse>, { type: string; data: string }>("query/getQ5Data", async (payload) => {
   const response = await axiosInstance.get(`/query/q5/sim/report?type=${payload.type}&data=${payload.data}`);
   return response;
