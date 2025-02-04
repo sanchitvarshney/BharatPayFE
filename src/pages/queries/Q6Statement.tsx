@@ -13,7 +13,6 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getQ6Data } from "@/features/query/query/querySlice";
-
 const Q6Statement: React.FC = () => {
   const [input, setInput] = useState("");
   const { q6Statement, q6StatementLoading } = useAppSelector((state) => state.query);
