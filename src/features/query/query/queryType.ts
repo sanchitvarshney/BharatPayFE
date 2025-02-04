@@ -148,4 +148,5 @@ export type QueryStateType = {
   q5DataLoading: boolean;
   q6StatementLoading: boolean;
   q6Statement: TransactionData[] | null;
+  q4DownloadLoading: boolean;
 };

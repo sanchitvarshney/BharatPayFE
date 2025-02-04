@@ -18,6 +18,7 @@ const initialState: QueryStateType = {
   q5DataLoading: false,
   q6StatementLoading: false,
   q6Statement: null,
+  q4DownloadLoading: false
 };
 
 export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null }>("query/getQ1", async (params) => {
@@ -125,6 +126,15 @@ const querySlice = createSlice({
       .addCase(getQ4DatA.rejected, (state) => {
         state.q4DataLoading = false;
         state.q4Data = null;
+      })
+      .addCase(downloadQ4Data.pending, (state) => {
+        state.q4DownloadLoading = true;
+      })
+      .addCase(downloadQ4Data.fulfilled, (state) => {
+        state.q4DownloadLoading = false;
+      })
+      .addCase(downloadQ4Data.rejected, (state) => {
+        state.q4DownloadLoading = false;
       })
       .addCase(getQ5Data.pending, (state) => {
         state.q5DataLoading = true;

@@ -48,6 +48,7 @@ const R6Report: React.FC = () => {
         sheetName: "R6 Report",
       });
   }, [r6Report]);
+  
   return (
     <>
       <div className="h-[calc(100vh-100px)] flex bg-white relative">
@@ -57,7 +58,11 @@ const R6Report: React.FC = () => {
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>
           </div>
+          
           <div className="flex flex-col   gap-[20px] p-[20px]   mt-[20px] overflow-hidden">
+            <div className="text-[20px] font-bold text-center">
+              Raw MIN Report
+            </div>
             <FormControl fullWidth>
               <Select value={type} defaultValue="min" onChange={(e) => setType(e.target.value)}>
                 {[

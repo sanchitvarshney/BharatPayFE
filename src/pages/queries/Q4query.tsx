@@ -1,5 +1,6 @@
 import { Icons } from "@/components/icons";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 import { Button } from "@/components/ui/button";
 import { downloadQ4Data, getQ4DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -12,15 +13,22 @@ const Q4query: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [component, setComponent] = React.useState<DeviceType | null>(null);
   const dispatch = useAppDispatch();
-  const { q4Data, q4DataLoading } = useAppSelector((state) => state.query);
+  const { q4Data, q4DataLoading,q4DownloadLoading } = useAppSelector((state) => state.query);
 
   const handleDownload = (locationKey:string,productKey:  string) => {
     dispatch(downloadQ4Data({locationKey:locationKey,productKey:productKey})).then((res: any) => {
       console.log(res.payload.data)
+      const filePath = res?.payload?.data?.data?.filePath;
+      if (filePath) {
+        window.open(filePath, '_blank');
+      } else {
+        console.error('Issue Occurred, File path not found');
+      }
     })
   };
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
+      {q4DownloadLoading && <FullPageLoading />}
       <div className={` h-full flex relative   `}>
         <div className={` transition-all h-full ${colapse ? "min-w-0 max-w-[0px]" : "min-w-[400px] max-w-[400px] "}  overflow-y-auto overflow-x-hidden border-r border-neutral-400/70   `}>
           <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
