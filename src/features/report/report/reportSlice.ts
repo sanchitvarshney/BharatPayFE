@@ -75,7 +75,7 @@ export const getr6Report = createAsyncThunk<AxiosResponse<r6reportApiResponse>, 
   return response;
 });
 export const getWrongDeviceReport = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: string; from: string; to: string }>("report/getWrongDeviceReport", async (payload) => {
-  const response = await axiosInstance.get( `/wrongDevice/getWrongDevice/?fromDate=${payload.from}&toDate=${payload.to}&partner=${payload.type}`);
+  const response = await axiosInstance.get( `/wrongDevice/fetch/?fromDate=${payload.from}&toDate=${payload.to}&deliveryPartner=${payload.type}`);
   return response;
 });
 export const getr8Report = createAsyncThunk<AxiosResponse<R8ReportDataApiResponse>, { from: string; to: string }>("report/getr8Report", async (payload) => {

@@ -133,7 +133,7 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
       const r6Data: any = r6Report;
       const header = r6Data?.header; // Headers from API response
       const data = r6Data?.data; // Row data from API response
-      const filteredHeader = header?.filter((col: string) => col !== "Print");
+      const filteredHeader = header?.filter((col: string) => col !== "Print"&& col !== "Transaction ID");
       // Dynamically create column definitions based on the header
       const dynamicColumnDefs: ColDef[] = filteredHeader?.map(
         (col: string) => ({
