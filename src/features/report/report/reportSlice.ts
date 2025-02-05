@@ -67,7 +67,7 @@ export const getr5Report = createAsyncThunk<AxiosResponse<R5reportResponse>, { f
   return response;
 });
 export const getr5ReportDetail = createAsyncThunk<AxiosResponse<{ data: { slNo: string }[]; success: boolean; message: string }>, string>("report/getr5ReportDetail", async (query) => {
-  const response = await axiosInstance.get(`/report/r5/device/${query}`);
+  const response = await axiosInstance.post(`/report/r5/deviceSerial`, { txnId: query });
   return response;
 });
 export const getr6Report = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: "MINNO" | "DATE"; data: string; from: string; to: string }>("report/getr6Report", async (payload) => {
