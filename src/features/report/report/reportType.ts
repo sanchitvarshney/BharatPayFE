@@ -251,6 +251,7 @@ interface ProductDetails {
   quantity: string;
   product: string;
   totalDebit: string;
+  inDate: string;
   issues: Issue;
 }
 export type R9reportResponse = {
