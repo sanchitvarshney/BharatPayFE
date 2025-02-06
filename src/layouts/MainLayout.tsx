@@ -10,19 +10,16 @@ import FavoriteSidebar from "@/components/shared/FavoriteSidebar";
 import ProfileSidebar from "@/components/shared/ProfileSidebar";
 import MainLayoutPopovers from "../components/shared/MainLayoutPopovers";
 import DownloadIndecator from "@/components/shared/DownloadIndecator";
-import QuickLink from "@/components/shared/QuickLink";
 import { SiSocketdotio } from "react-icons/si";
 import { FormControl, IconButton, MenuItem, Select } from "@mui/material";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
-import { useAppSelector } from "@/hooks/useReduxHook";
 
 function MainLayout(props: { children: React.ReactNode }) {
  
   const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
-  const { menu } = useAppSelector((state) => state.menu);
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
@@ -110,7 +107,6 @@ function MainLayout(props: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-[20px]">
             <div className="toggle"></div>
-            <div className="search">{menu && <QuickLink />}</div>
             <div className="download">
               <DownloadIndecator />
             </div>
