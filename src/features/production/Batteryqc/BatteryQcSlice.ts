@@ -24,8 +24,8 @@ export const batteryQcSave = createAsyncThunk<AxiosResponse<{ success: boolean; 
   return response;
 });
 
-export const getDeviceDetails = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, {}>("dispatch/getDeviceDetails", async (payload) => {
-  const response = await axiosInstance.post(`/backend/getDeviceDetails`, payload);
+export const getDeviceDetails = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, string>("dispatch/getDeviceDetails", async (payload) => {
+  const response = await axiosInstance.get(`/backend/getDeviceDetail/${encodeURIComponent(payload)}`);
   return response;
 });
 

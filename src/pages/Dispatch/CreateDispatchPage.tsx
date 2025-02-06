@@ -2,52 +2,21 @@ import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import {
-  clearaddressdetail,
-  getLocationAsync,
-  getVendorAsync,
-} from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import {
-  resetDocumentFile,
-  resetFormData,
-  storeFormdata,
-} from "@/features/wearhouse/Rawmin/RawMinSlice";
+import { clearaddressdetail, getLocationAsync, getVendorAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { resetDocumentFile, resetFormData, storeFormdata } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { getCurrency } from "@/features/common/commonSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import {
-  Autocomplete,
-  CircularProgress,
-  Divider,
-  FilledInput,
-  FormControl,
-  FormHelperText,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  ListItem,
-  OutlinedInput,
-  Step,
-  StepLabel,
-  Stepper,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Autocomplete, Button, CircularProgress, Divider, FilledInput, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, ListItem, ListItemText, OutlinedInput, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
 import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import Success from "@/components/reusable/Success";
-import SelectClient, {
-  LocationType,
-} from "@/components/reusable/editor/SelectClient";
+import SelectClient, { LocationType } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
-import {
-  CreateDispatch,
-  getClientBranch,
-  uploadFile,
-} from "@/features/Dispatch/DispatchSlice";
+import { CreateDispatch, getClientBranch, uploadFile } from "@/features/Dispatch/DispatchSlice";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
@@ -58,6 +27,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 type RowData = {
   imei: string;
   srno: string;
@@ -78,7 +52,7 @@ type FormDataType = {
   sku: DeviceType | null;
   docNo: string;
   document: string;
-  dispatchDate :Dayjs | null;
+  dispatchDate: Dayjs | null;
 };
 
 type clientDetailType = {
@@ -106,12 +80,10 @@ const CreateDispatchPage: React.FC = () => {
   const [imei, setImei] = React.useState<string>("");
   const [dispatchNo, setDispatchNo] = useState<string>("");
   const dispatch = useAppDispatch();
-  const { deviceDetailLoading } = useAppSelector(
-    (state) => state.batteryQcReducer
-  );
+  const [open, setOpen] = useState<boolean>(false);
+  const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
 
-  const { dispatchCreateLoading, uploadFileLoading, clientBranchList } =
-    useAppSelector((state) => state.dispatch);
+  const { dispatchCreateLoading, uploadFileLoading, clientBranchList } = useAppSelector((state) => state.dispatch);
 
   const { addressDetail } = useAppSelector((state) => state.client) as any;
 
@@ -158,20 +130,15 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
-    if (!data.document)
-      return showToast("Please Upload Invoice Documents", "error");
+    if (!data.document) return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
   };
-  
+
   const finalSubmit = () => {
     const data = formValues;
     // if (formdata) {
-    if (rowData.length !== Number(data.qty))
-      return showToast(
-        "Total Devices should be equal to Quantity you have entered",
-        "error"
-      );
+    if (rowData.length !== Number(data.qty)) return showToast("Total Devices should be equal to Quantity you have entered", "error");
     const payload: DispatchItemPayload = {
       docNo: data.docNo,
       // sku: data.sku?.id || "",
@@ -181,7 +148,7 @@ const CreateDispatchPage: React.FC = () => {
       imeis: rowData.map((item) => item.imei),
       srlnos: rowData.map((item) => item.srno),
       document: data.document || "",
-      dispatchDate:dayjs(data.dispatchDate).format("DD-MM-YYYY"),
+      dispatchDate: dayjs(data.dispatchDate).format("DD-MM-YYYY"),
       pickLocation: data.location?.code || "",
       clientDetail: data.clientDetail
         ? {
@@ -236,9 +203,64 @@ const CreateDispatchPage: React.FC = () => {
       setValue("shipToDetails.city", value.city);
     }
   };
-
+  const onImeiSubmit = (imei: string) => {
+    const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
+    console.log(imeiArray.filter((num) => num.trim() !== "").length);
+    if (imeiArray.filter((num) => num.trim() !== "").length === 30) {
+      console.log("open");
+      setOpen(true);
+    }
+  };
+  console.log(open);
   return (
     <>
+      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <div className="absolute font-[500]  right-[10px] top-[10px]">Total Devices: {imei.split("\n").length}</div>
+        <DialogTitle id="alert-dialog-title">{"Dispatch Devices"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description" className="grid grid-cols-5 gap-[10px] ">
+            {imei.split("\n").map((no) => (
+              <ListItemText key={no} primary={no} />
+            ))}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button color="error" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              
+              dispatch(getDeviceDetails(imei)).then((res: any) => {
+                if (res.payload.data.success) {
+                  setImei("");
+                  // const newdata: RowData = {
+                  //   imei: res.payload.data?.data[0].device_imei || "",
+                  //   srno: res.payload.data?.data[0].sl_no || "",
+                  // };
+                  const newRowData = res?.payload?.data?.data?.map((device: any) => {
+                    return {
+                      imei: device.device_imei || "",
+                      srno: device.sl_no || "",
+                      modalNo: device?.productDetail?.p_name || "",
+                      deviceSku: device?.productDetail?.device_sku || "",
+                      productKey: device?.productDetail?.product_key || "",
+                    };
+                  });
+
+                  // Update rowData by appending newRowData to the existing rowData
+                  setRowData((prevRowData) => [...newRowData, ...prevRowData]);
+                  setOpen(false)
+                } else {
+                  showToast(res.payload.data.message, "error");
+                }
+              });
+            }}
+          >
+            Continue
+          </Button>
+        </DialogActions>
+      </Dialog>
       <ConfirmationModel
         open={alert}
         onClose={() => setAlert(false)}
@@ -270,16 +292,10 @@ const CreateDispatchPage: React.FC = () => {
 
           {activeStep === 0 && (
             <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
-              <div
-                id="primary-item-details"
-                className="flex items-center w-full gap-3"
-              >
+              <div id="primary-item-details" className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.user />
-                  <h2
-                    id="primary-item-details"
-                    className="text-lg font-semibold"
-                  >
+                  <h2 id="primary-item-details" className="text-lg font-semibold">
                     Client Details
                   </h2>
                 </div>
@@ -298,18 +314,7 @@ const CreateDispatchPage: React.FC = () => {
                     required: { value: true, message: "Client is required" },
                   }}
                   control={control}
-                  render={({ field }) => (
-                    <SelectClient
-                      endPoint="/backend/client"
-                      error={!!errors.clientDetail?.client}
-                      helperText={errors.clientDetail?.client?.message}
-                      size="medium"
-                      label="Select Client"
-                      varient="filled"
-                      value={field.value as any}
-                      onChange={field.onChange}
-                    />
-                  )}
+                  render={({ field }) => <SelectClient endPoint="/backend/client" error={!!errors.clientDetail?.client} helperText={errors.clientDetail?.client?.message} size="medium" label="Select Client" varient="filled" value={field.value as any} onChange={field.onChange} />}
                 />
                 <Controller
                   name="clientDetail.branchId"
@@ -322,26 +327,12 @@ const CreateDispatchPage: React.FC = () => {
                   control={control}
                   render={({ field }) => (
                     <Autocomplete
-                      value={
-                        clientBranchList?.find(
-                          (branch: any) => branch.addressID === field.value
-                        ) || null
-                      }
-                      onChange={(_, newValue) =>
-                        handleClientBranchChange(newValue)
-                      }
+                      value={clientBranchList?.find((branch: any) => branch.addressID === field.value) || null}
+                      onChange={(_, newValue) => handleClientBranchChange(newValue)}
                       disablePortal
                       id="combo-box-demo"
                       options={clientBranchList || []}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Client Branch"
-                          error={!!errors.clientDetail?.branchId}
-                          helperText={errors.clientDetail?.branchId?.message}
-                          variant="filled"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} label="Client Branch" error={!!errors.clientDetail?.branchId} helperText={errors.clientDetail?.branchId?.message} variant="filled" />}
                     />
                   )}
                 />
@@ -419,24 +410,12 @@ const CreateDispatchPage: React.FC = () => {
                   render={({ field }) => (
                     <Autocomplete
                       // value={field.value}
-                      value={
-                        addressDetail?.data?.shippingAddress?.find(
-                          (address: any) => address.shipId === field.value
-                        ) || null
-                      }
+                      value={addressDetail?.data?.shippingAddress?.find((address: any) => address.shipId === field.value) || null}
                       onChange={(_, newValue) => handleShipToChange(newValue)}
                       disablePortal
                       id="combo-box-demo"
                       options={addressDetail?.data?.shippingAddress || []}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Client Branch"
-                          error={!!errors.shipToDetails?.shipTo}
-                          helperText={errors.shipToDetails?.shipTo?.message}
-                          variant="filled"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} label="Client Branch" error={!!errors.shipToDetails?.shipTo} helperText={errors.shipToDetails?.shipTo?.message} variant="filled" />}
                     />
                   )}
                 />
@@ -519,9 +498,7 @@ const CreateDispatchPage: React.FC = () => {
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.files />
-                  <h2 className="text-lg font-semibold">
-                    Dispatch Details and Attachments
-                  </h2>
+                  <h2 className="text-lg font-semibold">Dispatch Details and Attachments</h2>
                 </div>
                 <Divider
                   sx={{
@@ -547,24 +524,10 @@ const CreateDispatchPage: React.FC = () => {
                     },
                   }}
                   render={({ field }) => (
-                    <FormControl
-                      error={!!errors.qty}
-                      fullWidth
-                      variant="filled"
-                    >
+                    <FormControl error={!!errors.qty} fullWidth variant="filled">
                       <InputLabel htmlFor="qty">Dispatch Quantity</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.qty}
-                        id="qty"
-                        type="number"
-                        endAdornment={
-                          <InputAdornment position="end">NOS</InputAdornment>
-                        }
-                      />
-                      {errors.qty && (
-                        <FormHelperText>{errors.qty.message}</FormHelperText>
-                      )}
+                      <FilledInput {...field} error={!!errors.qty} id="qty" type="number" endAdornment={<InputAdornment position="end">NOS</InputAdornment>} />
+                      {errors.qty && <FormHelperText>{errors.qty.message}</FormHelperText>}
                     </FormControl>
                   )}
                 />
@@ -575,21 +538,10 @@ const CreateDispatchPage: React.FC = () => {
                     required: { value: true, message: "Document is required" },
                   }}
                   render={({ field }) => (
-                    <FormControl
-                      error={!!errors.docNo}
-                      fullWidth
-                      variant="filled"
-                    >
+                    <FormControl error={!!errors.docNo} fullWidth variant="filled">
                       <InputLabel htmlFor="docNo">Document No</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.docNo}
-                        id="docNo"
-                        type="text"
-                      />
-                      {errors.docNo && (
-                        <FormHelperText>{errors.docNo.message}</FormHelperText>
-                      )}
+                      <FilledInput {...field} error={!!errors.docNo} id="docNo" type="text" />
+                      {errors.docNo && <FormHelperText>{errors.docNo.message}</FormHelperText>}
                     </FormControl>
                   )}
                 />
@@ -600,48 +552,39 @@ const CreateDispatchPage: React.FC = () => {
                   }}
                   control={control}
                   render={({ field }) => (
-                    <SelectLocationAcordingModule
-                      endPoint="/dispatchDivice/pickLocation"
-                      error={!!errors.location}
-                      helperText={errors.location?.message}
-                      size="medium"
-                      label="Pick Location"
-                      varient="filled"
-                      value={field.value as any}
-                      onChange={field.onChange}
-                    />
+                    <SelectLocationAcordingModule endPoint="/dispatchDivice/pickLocation" error={!!errors.location} helperText={errors.location?.message} size="medium" label="Pick Location" varient="filled" value={field.value as any} onChange={field.onChange} />
                   )}
                 />
                 <div>
-                <Controller
-                  name="dispatchDate"
-                  control={control}
-                  rules={{ required: " Dispatch Date is required" }}
-                  render={({ field }) => (
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        format="DD-MM-YYYY"
-                        slots={{
-                          textField: TextField,
-                        }}
-                        maxDate={dayjs()}
-                        slotProps={{
-                          textField: {
-                            variant: "filled",
-                            error: !!errors.dispatchDate,
-                            helperText: errors.dispatchDate?.message,
-                          },
-                        }}
-                        value={field.value}
-                        onChange={(value) => field.onChange(value)}
-                        sx={{ width: "100%" }}
-                        label="Dispatch Date"
-                        name="startDate"
-                      />
-                    </LocalizationProvider>
-                  )}
-                />
-              </div>
+                  <Controller
+                    name="dispatchDate"
+                    control={control}
+                    rules={{ required: " Dispatch Date is required" }}
+                    render={({ field }) => (
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          format="DD-MM-YYYY"
+                          slots={{
+                            textField: TextField,
+                          }}
+                          maxDate={dayjs()}
+                          slotProps={{
+                            textField: {
+                              variant: "filled",
+                              error: !!errors.dispatchDate,
+                              helperText: errors.dispatchDate?.message,
+                            },
+                          }}
+                          value={field.value}
+                          onChange={(value) => field.onChange(value)}
+                          sx={{ width: "100%" }}
+                          label="Dispatch Date"
+                          name="startDate"
+                        />
+                      </LocalizationProvider>
+                    )}
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2">
                 <div className=" flex flex-col gap-[20px] py-[20px] ">
@@ -655,8 +598,7 @@ const CreateDispatchPage: React.FC = () => {
                           acceptedFileTypes={{
                             "application/pdf": [".pdf"],
                             "application/msword": [".doc"],
-                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                              [".docx"],
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
                             "image/*": [],
                           }}
                           multiple={false}
@@ -667,14 +609,12 @@ const CreateDispatchPage: React.FC = () => {
                               const file = value[0]; // Get the first file (if there's one)
                               setFilename(value[0].name);
                               formdata.append("document", file);
-                              dispatch(uploadFile(formdata)).then(
-                                (res: any) => {
-                                  if (res.payload.data.success) {
-                                    const docNos = res.payload.data?.data;
-                                    setValue("document", docNos); // Update the document field in the form
-                                  }
+                              dispatch(uploadFile(formdata)).then((res: any) => {
+                                if (res.payload.data.success) {
+                                  const docNos = res.payload.data?.data;
+                                  setValue("document", docNos); // Update the document field in the form
                                 }
-                              );
+                              });
                             }
                           }}
                           label="Upload Attachment"
@@ -708,15 +648,8 @@ const CreateDispatchPage: React.FC = () => {
                     </ListItem>
                   </div>
                 </div>
-                <div className=" pl-10 pt-10">
-                  <TextField
-                    {...register("remark")}
-                    fullWidth
-                    label={"Remarks (If any)"}
-                    variant="outlined"
-                    multiline
-                    rows={5}
-                  />
+                <div className="pt-10 pl-10 ">
+                  <TextField {...register("remark")} fullWidth label={"Remarks (If any)"} variant="outlined" multiline rows={5} />
                 </div>
               </div>
             </div>
@@ -731,8 +664,9 @@ const CreateDispatchPage: React.FC = () => {
               <div>
                 <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
                   <FormControl sx={{ width: "400px" }} variant="outlined">
-                    <InputLabel>IMEI/SR No.</InputLabel>
-                    <OutlinedInput
+                    <TextField
+                      multiline
+                      rows={2}
                       value={imei}
                       label="IMEI/SR No."
                       id="standard-adornment-qty"
@@ -745,96 +679,29 @@ const CreateDispatchPage: React.FC = () => {
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                          e.preventDefault();
-                          if (imei) {
-                            if (
-                              rowData.some(
-                                (row) => row.srno === imei || row.imei === imei
-                              )
-                            ) {
-                              showToast("IMEI already added", "error");
-                              return;
-                            }
-                            const payload = {
-                              data: imei,
-                            };
-                            dispatch(getDeviceDetails(payload)).then(
-                              (res: any) => {
-                                if (res.payload.data.success) {
-                                  setImei("");
-                                  // const newdata: RowData = {
-                                  //   imei: res.payload.data?.data[0].device_imei || "",
-                                  //   srno: res.payload.data?.data[0].sl_no || "",
-                                  // };
-                                  const newRowData =
-                                    res?.payload?.data?.data?.map(
-                                      (device: any) => {
-                                        return {
-                                          imei: device.device_imei || "",
-                                          srno: device.sl_no || "",
-                                          modalNo:
-                                            device?.productDetail?.p_name || "",
-                                          deviceSku:
-                                            device?.productDetail?.device_sku ||
-                                            "",
-                                          productKey:
-                                            device?.productDetail
-                                              ?.product_key || "",
-                                        };
-                                      }
-                                    );
-
-                                  // Update rowData by appending newRowData to the existing rowData
-                                  setRowData((prevRowData) => [
-                                    ...newRowData,
-                                    ...prevRowData,
-                                  ]);
-                                } else {
-                                  showToast(res.payload.data.message, "error");
-                                }
-                              }
-                            );
-                          }
+                          onImeiSubmit(imei);
                         }
                       }}
-                      endAdornment={
-                        <InputAdornment position="end">
-                          {deviceDetailLoading ? (
-                            <CircularProgress size={20} color="inherit" />
-                          ) : (
-                            <QrCodeScannerIcon />
-                          )}
-                        </InputAdornment>
-                      }
+                      slotProps={{
+                        input: {
+                          endAdornment: <InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : <QrCodeScannerIcon />}</InputAdornment>,
+                        },
+                      }}
                     />
                   </FormControl>
 
-                  <div className="bg-white p-4 rounded-lg  flex space-x-6 items-center">
+                  <div className="flex items-center p-4 space-x-6 bg-white rounded-lg">
                     <p className="text-lg font-semibold text-blue-600">
                       Total Devices:
-                      <span className="text-gray-800 pl-1">
-                        {rowData.length}
-                      </span>
+                      <span className="pl-1 text-gray-800">{rowData.length}</span>
                     </p>
                     <p className="text-lg font-semibold text-green-600">
                       Total L Devices:
-                      <span className="text-gray-800 pl-1">
-                        {
-                          rowData.filter((item: any) =>
-                            item.modalNo.includes("(L)")
-                          ).length
-                        }
-                      </span>
+                      <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(L)")).length}</span>
                     </p>
                     <p className="text-lg font-semibold text-red-600">
                       Total E Devices:
-                      <span className="text-gray-800 pl-1">
-                        {
-                          rowData.filter((item: any) =>
-                            item.modalNo.includes("(E)")
-                          ).length
-                        }
-                      </span>
+                      <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(E)")).length}</span>
                     </p>
                   </div>
 
@@ -858,10 +725,7 @@ const CreateDispatchPage: React.FC = () => {
                 <Typography variant="inherit" fontWeight={500}>
                   Dispatch Number - {dispatchNo ? dispatchNo : ""}
                 </Typography>
-                <LoadingButton
-                  onClick={() => setActiveStep(0)}
-                  variant="contained"
-                >
+                <LoadingButton onClick={() => setActiveStep(0)} variant="contained">
                   Create New Dispatch
                 </LoadingButton>
               </div>
@@ -870,12 +734,7 @@ const CreateDispatchPage: React.FC = () => {
           <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
             {activeStep === 0 && (
               <>
-                <LoadingButton
-                  type="submit"
-                  variant="contained"
-                  endIcon={<Icons.next />}
-                  // onClick={handleNext}
-                >
+                <LoadingButton type="submit" variant="contained" endIcon={<Icons.next />} onClick={handleNext}>
                   Next
                 </LoadingButton>
               </>
