@@ -24,7 +24,7 @@ const initialState: ReportStateType = {
   mainR1Report: null,
   mainR1ReportLoading: false,
   r6Report: null,
-  wrongDeviceReport:null,
+  wrongDeviceReport: null,
   r6ReportLoading: false,
   r8ReportLoading: false,
   r8Report: null,
@@ -45,7 +45,7 @@ export const getR2Data = createAsyncThunk<AxiosResponse<R2Response>, { from: str
   const response = await axiosInstance.get(`report/r2?from=${date.from}&to=${date.to}`);
   return response;
 });
-export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApiResponse>,any>("report/getR2ReportDetail", async (payload) => {
+export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApiResponse>, any>("report/getR2ReportDetail", async (payload) => {
   const response = await axiosInstance.get(`/report/r2/detail/${payload.refId}/${payload.srlno}`);
   return response;
 });
@@ -66,8 +66,25 @@ export const getr5Report = createAsyncThunk<AxiosResponse<R5reportResponse>, { f
   const response = await axiosInstance.get(query.type === "DEVICE" ? `/report/r5/DEVICE?deviceId=${query.device}` : `/report/r5/DATE?from=${query.from}&to=${query.to}`);
   return response;
 });
-export const getr5ReportDetail = createAsyncThunk<AxiosResponse<{ data: { slNo: string }[]; success: boolean; message: string }>, string>("report/getr5ReportDetail", async (query) => {
-  const response = await axiosInstance.get(`/report/r5/device/${query}`);
+export const getr5ReportDetail = createAsyncThunk<
+  AxiosResponse<{
+    data: {
+      slNo: string;
+      insert_dt: string;
+      shipLabel: string;
+      shipToCity: string;
+      p_name: string;
+      imei: string;
+      nfc_enable: string | null;
+      iccid: string | null;
+      qr_url: string | null;
+    }[];
+    success: boolean;
+    message: string;
+  }>,
+  string
+>("report/getr5ReportDetail", async (query) => {
+  const response = await axiosInstance.post(`/report/r5/deviceSerial`, { txnId: query });
   return response;
 });
 export const getr6Report = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: "MINNO" | "DATE"; data: string; from: string; to: string }>("report/getr6Report", async (payload) => {
@@ -75,7 +92,7 @@ export const getr6Report = createAsyncThunk<AxiosResponse<r6reportApiResponse>, 
   return response;
 });
 export const getWrongDeviceReport = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: string; from: string; to: string }>("report/getWrongDeviceReport", async (payload) => {
-  const response = await axiosInstance.get( `/wrongDevice/fetch/?fromDate=${payload.from}&toDate=${payload.to}&deliveryPartner=${payload.type}`);
+  const response = await axiosInstance.get(`/wrongDevice/fetch/?fromDate=${payload.from}&toDate=${payload.to}&deliveryPartner=${payload.type}`);
   return response;
 });
 export const getr8Report = createAsyncThunk<AxiosResponse<R8ReportDataApiResponse>, { from: string; to: string }>("report/getr8Report", async (payload) => {

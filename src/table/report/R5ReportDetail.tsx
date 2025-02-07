@@ -8,11 +8,21 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 // Define new column definitions
 
 // Generate dummy data according to pagination needs
+
+
+
 const R5ReportDetail: React.FC = () => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", sortable: false, filter: false, width: 100, valueGetter: "node.rowIndex+1" },
-
-    { headerName: "IMEI/SR No.", field: "slNo", sortable: false, filter: false ,flex:1},
+    { headerName: " Date ", field: "insert_dt", sortable: false, filter: false },
+    { headerName: "Shipment Lable", field: "shipLabel", sortable: false, filter: false },
+    { headerName: "Shipment City", field: "shipToCity", sortable: false, filter: false },
+    { headerName: "Model Name", field: "p_name", sortable: false, filter: false },
+    { headerName: "IMEI", field: "imei", sortable: false, filter: false },
+    { headerName: "SR No.", field: "slNo", sortable: false, filter: false },
+    { headerName: "NFC Enable ", field: "nfc_enable", sortable: false, filter: false },
+    { headerName: "SIM ", field: "iccid", sortable: false, filter: false },
+    { headerName: "QR URL ", field: "qr_url", sortable: false, filter: false },
   ];
   const { r5reportDetail, r5reportDetailLoading } = useAppSelector((state) => state.report);
 
