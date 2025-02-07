@@ -7,7 +7,7 @@ import { resetDocumentFile, resetFormData, storeFormdata } from "@/features/wear
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { getCurrency } from "@/features/common/commonSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import { Autocomplete, Button, CircularProgress, Divider, FilledInput, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, ListItem, ListItemText, OutlinedInput, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, Divider, FilledInput, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, LinearProgress, ListItem, ListItemText, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
 import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -33,7 +33,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 type RowData = {
-  imei: string;
+  imei: string;  
   srno: string;
   productKey: string;
   serialNo: number;
@@ -136,6 +136,7 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const finalSubmit = () => {
+    console.log(rowData)
     const data = formValues;
     // if (formdata) {
     if (rowData.length !== Number(data.qty)) return showToast("Total Devices should be equal to Quantity you have entered", "error");
@@ -212,9 +213,18 @@ const CreateDispatchPage: React.FC = () => {
     }
   };
   console.log(open);
+  const handleClose = (_: object, reason: string) => {
+    if (reason === "backdropClick") return; // Prevent closing on outside click
+    setOpen(false);
+  };
   return (
     <>
-      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+      <Dialog open={open} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+      <div className="absolute top-0 left-0 right-0">
+      {
+        deviceDetailLoading &&  <LinearProgress/>
+      } 
+      </div>
         <div className="absolute font-[500]  right-[10px] top-[10px]">Total Devices: {imei.split("\n").length}</div>
         <DialogTitle id="alert-dialog-title">{"Dispatch Devices"}</DialogTitle>
         <DialogContent>
@@ -225,10 +235,11 @@ const CreateDispatchPage: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button color="error" onClick={() => setOpen(false)}>
+          <Button disabled={deviceDetailLoading} color="error" onClick={() => setOpen(false)}>
             Cancel
           </Button>
           <Button
+          disabled={deviceDetailLoading}
             onClick={() => {
               
               dispatch(getDeviceDetails(imei)).then((res: any) => {
@@ -239,15 +250,16 @@ const CreateDispatchPage: React.FC = () => {
                   //   srno: res.payload.data?.data[0].sl_no || "",
                   // };
                   const newRowData = res?.payload?.data?.data?.map((device: any) => {
+                    console.log(device)
                     return {
                       imei: device.device_imei || "",
                       srno: device.sl_no || "",
-                      modalNo: device?.productDetail?.p_name || "",
-                      deviceSku: device?.productDetail?.device_sku || "",
-                      productKey: device?.productDetail?.product_key || "",
+                      modalNo: device?.p_name || "",
+                      deviceSku: device?.device_sku || "",
+                      productKey: device?.product_key || "",
                     };
                   });
-
+                    console.log(newRowData)
                   // Update rowData by appending newRowData to the existing rowData
                   setRowData((prevRowData) => [...newRowData, ...prevRowData]);
                   setOpen(false)
@@ -734,7 +746,7 @@ const CreateDispatchPage: React.FC = () => {
           <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
             {activeStep === 0 && (
               <>
-                <LoadingButton type="submit" variant="contained" endIcon={<Icons.next />} onClick={handleNext}>
+                <LoadingButton type="submit" variant="contained" endIcon={<Icons.next />} >
                   Next
                 </LoadingButton>
               </>
