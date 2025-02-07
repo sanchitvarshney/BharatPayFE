@@ -239,6 +239,7 @@ const CreateDispatchPage: React.FC = () => {
             Cancel
           </Button>
           <Button
+          autoFocus
           disabled={deviceDetailLoading}
             onClick={() => {
               
