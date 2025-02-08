@@ -16,6 +16,7 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
+import SelectEndPoint from "@/components/shared/SelectEndPoint";
 
 function MainLayout(props: { children: React.ReactNode }) {
  
@@ -106,7 +107,7 @@ function MainLayout(props: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-[20px]">
-            <div className="toggle"></div>
+            <SelectEndPoint/>
             <div className="download">
               <DownloadIndecator />
             </div>

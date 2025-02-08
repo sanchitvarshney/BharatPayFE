@@ -18,8 +18,8 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkPermissions } from "@/helper/checkPermissions";
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
+import SelectEndPoint from "@/components/shared/SelectEndPoint";
 const LogningV2: React.FC = () => {
-  
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -37,7 +37,6 @@ const LogningV2: React.FC = () => {
   } = useForm<LoginCredentials>();
   const { loading } = useAppSelector((state) => state.auth);
 
-  
   const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
     dispatch(loginUserAsync(data)).then((response: any) => {
       if (response.payload?.data?.success) {
@@ -65,9 +64,7 @@ const LogningV2: React.FC = () => {
           className="mySwiper"
         >
           <SwiperSlide>
-         
             <div className="h-[50vh] bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center ">
-          
               <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
                 Welcome to the Future of ERP
               </Typography>
@@ -96,7 +93,6 @@ const LogningV2: React.FC = () => {
             </div>
           </SwiperSlide>
           <SwiperSlide>
-       
             <div className="h-[50vh]  bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center">
               <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
                 Powering Smarter Operations
@@ -127,7 +123,8 @@ const LogningV2: React.FC = () => {
           </SwiperSlide>
         </Swiper>
       </div>
-      <div className="relative flex items-center justify-center w-full h-full">
+      <div className="relative flex flex-col items-center gap-[20px] justify-center w-full h-full">
+        <SelectEndPoint />
         <Card elevation={4} sx={{ width: "500px", padding: "20px" }}>
           <Typography color="primary" variant="h1" component={"div"} className="flex items-center justify-center  text-slate-600 gap-[5px]" fontSize={35} fontWeight={500}>
             <PhonelinkLockRoundedIcon fontSize="large" />

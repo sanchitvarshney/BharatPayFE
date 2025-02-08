@@ -15,10 +15,9 @@ const getFingerprint = async () => {
   }
 };
 
-
 // Create Axios instance
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_REACT_APP_API_BASE_URL,
+  baseURL: localStorage.getItem("currentUrl") || import.meta.env.VITE_REACT_APP_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -26,7 +25,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getToken();
- 
+
   if (token) {
     const uniqueid = uuidv4();
     const fingerprint = await getFingerprint();
@@ -35,11 +34,8 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers["authorization"] = token;
     config.headers["session"] = "2024-2025";
     config.headers["x-click-token"] = uniqueid;
-    config.headers["x-location"] = location ||"";
+    config.headers["x-location"] = location || "";
     config.headers["x-fingerprint"] = fingerprint || "unknown";
-   
-    
-  
   }
   return config;
 });
@@ -49,7 +45,6 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-   
     if (error.response?.status === 401) {
       localStorage.clear();
       window.location.href = "/login";
