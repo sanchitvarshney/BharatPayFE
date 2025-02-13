@@ -53,6 +53,7 @@ const MaterialReqWithoutBom = () => {
     handleSubmit,
     reset,
     control,
+    watch,
 
     formState: { errors },
   } = useForm<Formstate>({
@@ -269,7 +270,8 @@ const MaterialReqWithoutBom = () => {
                     <TextField fullWidth multiline rows={4} label="Remark (if any)" {...register("remarks")} />
                   </div>
                   <div className="flex items-center ">
-                    <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" {...register("checkbox")} readOnly checked /> {/*checked marked permanently  for move to trc*/ }
+                    <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" {...register("checkbox")}  checked={type === "device" || !!watch("checkbox")} // Always checked when type is "SKU"
+    disabled={type === "device"}/>
                       <label htmlFor="terms" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
                         Directly Move To TRC
                       </label>

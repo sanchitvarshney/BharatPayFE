@@ -251,6 +251,7 @@ interface ProductDetails {
   quantity: string;
   product: string;
   totalDebit: string;
+  inDate: string;
   issues: Issue;
 }
 export type R9reportResponse = {
@@ -275,7 +276,17 @@ export type ReportStateType = {
   r5report: R5report[] | null;
   r5reportLoading: boolean;
   r5reportDetailLoading: boolean;
-  r5reportDetail: { slNo: string }[] | null;
+  r5reportDetail: {
+    slNo: string;
+    insert_dt: string;
+    shipLabel: string;
+    shipToCity: string;
+    p_name: string;
+    imei: string;
+    nfc_enable: string | null;
+    iccid: string | null;
+    qr_url: string | null;
+  }[] | null;
   mainR1Report: MainR1Report[] | null;
   mainR1ReportLoading: boolean;
   r6Report: r6report[] | null;
@@ -287,3 +298,4 @@ export type ReportStateType = {
   r9ReportLoading: boolean;
   wrongDeviceReportLoading: boolean;
 };
+

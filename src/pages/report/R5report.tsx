@@ -24,10 +24,53 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 
+import * as XLSX from "xlsx";
+
+interface DataItem {
+  slNo: string;
+  insert_dt: string;
+  shipLabel: string;
+  shipToCity: string;
+  p_name: string;
+  imei: string;
+  nfc_enable: string | null;
+  iccid: string | null;
+  qr_url: string | null;
+}
+
+const downloadExcel = (data: DataItem[]): void => {
+  const columns = [
+    { header: "Date", field: "insert_dt" },
+    { header: "Shipment Label", field: "shipLabel" },
+    { header: "Shipment City", field: "shipToCity" },
+    { header: "Model Name", field: "p_name" },
+    { header: "IMEI/SR No.", field: "imei" },
+    { header: "SR No.", field: "imei" },
+    { header: "NFC Enable", field: "nfc_enable" },
+    { header: "SIM", field: "iccid" },
+    { header: "QR URL", field: "qr_url" },
+  ];
+
+  // Map data to match column headers
+  const formattedData = data?.map((item) => {
+    return columns.reduce((acc: Record<string, string>, col) => {
+      acc[col.header] = item[col.field as keyof DataItem] ?? ""; // Handle null/undefined values
+      return acc;
+    }, {});
+  });
+
+  // Create worksheet and workbook
+  const worksheet = XLSX.utils.json_to_sheet(formattedData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+  // Download the Excel file
+  XLSX.writeFile(workbook, "DisatchReport.xlsx");
+};
 const R5report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { r5reportLoading, r5report } = useAppSelector((state) => state.report);
+  const { r5reportLoading, r5report, r5reportDetail } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DATE");
   const [txn, setTxn] = useState<string>("");
   const [device, setDevice] = useState<DeviceType | null>(null);
@@ -54,21 +97,31 @@ const R5report: React.FC = () => {
       sheetName: "R5 Report", // Set your desired sheet name here
     });
   }, []);
+  const onBtExportDetail = () => {
+    if (r5reportDetail) {
+      downloadExcel(r5reportDetail);
+    }
+  };
   return (
     <>
       <Drawer anchor="right" open={open} onClose={handleClose}>
-        <div className="h-[50px] w-[400px] flex items-center px-[10px] gap-[5px]">
-          <IconButton onClick={handleClose} size="small">
-            <CloseIcon fontSize="small" />
+        <div className="h-[50px] min-w-[80vw]  flex items-center justify-between px-[10px] gap-[5px]">
+          <div>
+            <IconButton onClick={handleClose} size="small">
+              <CloseIcon fontSize="small" />
+            </IconButton>
+            #{txn}
+          </div>
+          <IconButton disabled={!r5reportDetail} onClick={onBtExportDetail}>
+            <Icons.download/>
           </IconButton>
-          #{txn}
         </div>
         <Divider />
         <R5ReportDetail />
       </Drawer>
       <div className="bg-white h-[calc(100vh-100px)] overflow-x-hidden relative flex">
         <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}`}>
-        <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
+          <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
             <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
               {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
             </Button>

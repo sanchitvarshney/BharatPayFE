@@ -25,6 +25,7 @@ interface VendorData {
   product: string;
   totalDebit: string;
   issues: Issue; // Changed to a single object
+  inDate: string
 }
 
 export const exportToExcel = (data: VendorData[], fileName: string): void => {
@@ -41,6 +42,7 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
     "Quantity",
     "Product",
     "TotalDebit",
+    "inDate",
     ...Object.keys(data[0]?.issues)  // Extracting issue fields dynamically
   ];
 
@@ -58,6 +60,7 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
       Quantity: item?.quantity,
       Product: item?.product,
       TotalDebit: item?.totalDebit,
+      inDate: item?.inDate,
       ...issue,  // Spread the issue object into the row
     };
 

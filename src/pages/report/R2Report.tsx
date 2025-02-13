@@ -34,10 +34,11 @@ const R2Report: React.FC = () => {
     emitDownloadR2Report({ from: date?.from || "", to: date?.to || "" });
     setLoading(true);
   };
+  
   useEffect(() => {
     onDownloadReport((_: any) => {
       setLoading(false);
-      showToast("Report downloaded successfully", "success");
+      // showToast("Report downloaded successfully", "success");
     });
   }, [onDownloadReport]);
 
