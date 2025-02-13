@@ -69,6 +69,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("r10Download", payload);
   };
   const emitDownloadr5Report = (payload: any) => {
+    console.log(payload)
     socketService.emit("r5Download", payload);
   };
   const emitGetNotification = () => {

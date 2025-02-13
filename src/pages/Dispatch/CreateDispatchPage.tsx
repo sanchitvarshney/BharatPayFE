@@ -710,11 +710,15 @@ const CreateDispatchPage: React.FC = () => {
                     </p>
                     <p className="text-lg font-semibold text-green-600">
                       Total L Devices:
-                      <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(L)")).length}</span>
+                      <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(L)"))?.length}</span>
                     </p>
                     <p className="text-lg font-semibold text-red-600">
                       Total E Devices:
-                      <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(E)")).length}</span>
+                      <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(E)"))?.length}</span>
+                    </p>
+                    <p className="text-lg font-semibold text-yellow-700">
+                      Total F Devices:
+                      <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(F)"))?.length}</span>
                     </p>
                   </div>
 

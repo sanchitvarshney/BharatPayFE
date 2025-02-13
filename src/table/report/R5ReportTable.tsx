@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Button } from "@mui/material";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import { getr5ReportDetail } from "@/features/report/report/reportSlice";
+import { useSocketContext } from "@/components/context/SocketContext";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,6 +18,7 @@ type Props = {
 
 // Generate dummy data according to pagination needs
 const R5ReportTable: React.FC<Props> = ({ gridRef, setOpen, setTxn }) => {
+    const { emitDownloadr5Report } = useSocketContext();
   const dispatch = useAppDispatch();
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
@@ -37,9 +39,10 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setOpen, setTxn }) => {
       cellRenderer: (params: any) => (
         <Button
           onClick={() => {
-            setOpen(true);
+            setOpen(true); 
             dispatch(getr5ReportDetail(params.data.txnId));
             setTxn(params.data.txnId);
+            emitDownloadr5Report(params?.data?.txnId);
           }}
           variant="contained"
           size="small"
