@@ -70,7 +70,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   };
   const emitDownloadr5Report = (payload: any) => {
     console.log(payload)
-    socketService.emit("r5Download", payload);
+    socketService.emit("r5DeviceSerial", payload);
   };
   const emitGetNotification = () => {
     socketService.emit("getNotification","");
