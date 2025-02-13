@@ -42,7 +42,8 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setOpen, setTxn }) => {
             setOpen(true); 
             dispatch(getr5ReportDetail(params.data.txnId));
             setTxn(params.data.txnId);
-            emitDownloadr5Report(params?.data?.txnId);
+            const id = params.data.txnId;
+            emitDownloadr5Report({txnId:id});
           }}
           variant="contained"
           size="small"
