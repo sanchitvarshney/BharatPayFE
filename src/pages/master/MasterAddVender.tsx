@@ -123,7 +123,7 @@ const MasterAddVender: React.FC = () => {
       msme_id: data.msme_id,
       msme_type: data.msme_type,
       msme_activity: data.msme_activity,
-      dateOfApplicability: data.dateOfApplicability,
+      dateOfApplicability: data.dateOfApplicability||"14-02-2025",
     };
     const branch: Branch = {
       branch: data.branch,
