@@ -221,10 +221,31 @@ type R8ReportData = {
   approvedBy: string;
 };
 
+type R11ReportData = {
+  imei: string;
+  issue: string;
+  resDt: string;
+  resRemark: string;
+  resolveStatus: string;
+  serial: string;
+  submitDt: string;
+  submitRemark: string;
+  txnID: string;
+};
+
 export type R8ReportDataApiResponse = {
   status: string;
   success: boolean;
   data: R8ReportData[];
+};
+
+export type R11ReportDataApiResponse = {
+  status: string;
+  success: boolean;
+  data: R11ReportData[];
+  totalApprove: number;
+  totalPending: number;
+  totalReject: number;
 };
 
 interface Issue {
@@ -297,5 +318,6 @@ export type ReportStateType = {
   r9report: ProductDetails[] | null;
   r9ReportLoading: boolean;
   wrongDeviceReportLoading: boolean;
+  r11ReportLoading: boolean;
+  r11Report: R11ReportDataApiResponse | null;
 };
-
