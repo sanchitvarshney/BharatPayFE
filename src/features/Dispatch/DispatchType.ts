@@ -12,6 +12,17 @@ export type DispatchItemPayload = {
   dispatchDate: string;
 };
 
+export type DispatchWrongItemPayload = {
+  docNo: string; // required
+  dispatchQty: number; // required
+  remark?: string; // optional
+  awb: string[];
+  document: string;
+  clientDetail: any;
+  shipToDetails: any;
+  dispatchDate: string;
+};
+
 export type DispatchState = {
   dispatchCreateLoading: boolean;
   uploadFileLoading: boolean;
@@ -20,4 +31,5 @@ export type DispatchState = {
   clientLoading: boolean;
   clientBranchList: any;
   clientBranchLoading: boolean;
+  wrongDispatchLoading: boolean;
 };

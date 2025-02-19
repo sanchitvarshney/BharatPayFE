@@ -77,6 +77,8 @@ import StoreTRC from "@/pages/TRC/StoreTRC";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
 import CreateDispatchPage from "@/pages/Dispatch/CreateDispatchPage";
 import PendingTRCListTable from "@/table/master/PendingTRCListTable";
+import WrongDeviceDispatch from "@/pages/Dispatch/WrongDeviceDispatch";
+import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
 
 export const router = createBrowserRouter([
   {
@@ -567,6 +569,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/dispatch/create",
+      },
+      {
+        element: (
+          <MainLayout>
+            <WrongDispatchLayout>
+              <WrongDeviceDispatch />
+            </WrongDispatchLayout>
+          </MainLayout>
+        ),
+        path: "/dispatch/wrong-device",
       },
 
       //dispatch===========================================
