@@ -45,8 +45,8 @@ const DeviceQueryRepoTable: React.FC<Props> = ({ gridRef }) => {
     { headerName: "Qty Out", field: "qtyOut", sortable: true, filter: true, width: 150 },
     { headerName: "Location In", field: "locIn", sortable: true, filter: true },
     { headerName: "Location Out", field: "locOut", sortable: true, filter: true },
-    { headerName: "Vendor", field: "vendor", sortable: true, filter: true },
-    { headerName: "Vendor Code", field: "vendorCode", sortable: true, filter: true },
+    // { headerName: "Vendor", field: "vendor", sortable: true, filter: true },
+    // { headerName: "Vendor Code", field: "vendorCode", sortable: true, filter: true },
     { headerName: "Inserted By", field: "insertBy", sortable: true, filter: true },
   ];
 
