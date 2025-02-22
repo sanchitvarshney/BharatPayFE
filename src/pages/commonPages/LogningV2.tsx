@@ -1,5 +1,5 @@
 import { Card, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, Link, OutlinedInput, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -18,9 +18,11 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkPermissions } from "@/helper/checkPermissions";
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
+
 const LogningV2: React.FC = () => {
-  
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null); // Add state to track the reCAPTCHA value
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   useEffect(() => {
@@ -39,6 +41,11 @@ const LogningV2: React.FC = () => {
 
   
   const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
+    if (!recaptchaValue) {
+      showToast("Please verify the reCAPTCHA", "error");
+      // return;
+    }
+
     dispatch(loginUserAsync(data)).then((response: any) => {
       if (response.payload?.data?.success) {
         showToast(response.payload?.data?.message, "success");
@@ -47,6 +54,10 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "error");
       }
     });
+  };
+
+  const handleRecaptchaChange = (value: string | null) => {
+    setRecaptchaValue(value);
   };
 
   return (
@@ -65,9 +76,7 @@ const LogningV2: React.FC = () => {
           className="mySwiper"
         >
           <SwiperSlide>
-         
             <div className="h-[50vh] bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center ">
-          
               <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
                 Welcome to the Future of ERP
               </Typography>
@@ -96,7 +105,6 @@ const LogningV2: React.FC = () => {
             </div>
           </SwiperSlide>
           <SwiperSlide>
-       
             <div className="h-[50vh]  bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center">
               <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
                 Powering Smarter Operations
@@ -179,6 +187,9 @@ const LogningV2: React.FC = () => {
                   Forgot Password
                 </Link>
               </div>
+            <div className="mt-[30px] flex justify-center">
+              <ReCAPTCHA sitekey="6LeVBd8qAAAAADGg0s37NSPQWsQ3k5UBO19u24FG" onChange={handleRecaptchaChange} />
+            </div>
               <LoadingButton loading={loading} size="large" variant="contained" fullWidth type="submit">
                 Login
               </LoadingButton>
