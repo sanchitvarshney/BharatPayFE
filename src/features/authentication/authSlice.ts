@@ -19,6 +19,8 @@ const initialState: AuthState = {
   updateEmailLoading: false,
   verifyMailLoading: false,
   otpLoading: false,
+  qrStatus: null,
+  qrCodeLoading: false
 };
 
 export const loginUserAsync = createAsyncThunk<AxiosResponse<LoginResponse>, LoginCredentials>("auth/loginUser", async (loginCredential) => {
@@ -36,6 +38,11 @@ export const getEmailOtpAsync = createAsyncThunk<AxiosResponse<{ success: boolea
 
 export const updateEmailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { emailId: string; otp: string }>("auth/updateEmailAsync", async (paylaod) => {
   const response = await axiosInstance.put("/user/verify-email-otp", paylaod);
+  return response;
+});
+
+export const getQRStatus = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { crnId: string }>("auth/getQRStatus", async (paylaod) => {
+  const response = await axiosInstance.get(`auth/qrCode?custId=${paylaod.crnId}`);
   return response;
 });
 
@@ -60,6 +67,11 @@ export const verifyMailAsync = createAsyncThunk<AxiosResponse<{ success: boolean
   const response = await axiosInstance.put("/user/verify-mail", paylaod);
   return response;
 });
+export const verifyOtpAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { otp: string,custId:string }>("auth/verifyOtpAsync", async (paylaod) => {
+  const response = await axiosInstance.post("/auth/verify", paylaod);
+  return response;
+})
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -82,10 +94,22 @@ const authSlice = createSlice({
 
           localStorage.setItem("loggedinUser", btoa(JSON.stringify(action.payload.data.data)));
         }
+        if(!action.payload.data.data){
+          state.qrStatus = action.payload.data;
+        }
         state.loading = false;
       })
       .addCase(loginUserAsync.rejected, (state) => {
         state.loading = false;
+      })
+      .addCase(verifyOtpAsync.pending, (state) => {
+        state.qrCodeLoading = true;
+      })
+      .addCase(verifyOtpAsync.fulfilled, (state) => {
+        state.qrCodeLoading = false;
+      })
+      .addCase(verifyOtpAsync.rejected, (state) => {
+        state.qrCodeLoading = false;
       })
       .addCase(changePasswordAsync.pending, (state) => {
         state.changepasswordloading = true;
