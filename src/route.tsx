@@ -79,6 +79,7 @@ import CreateDispatchPage from "@/pages/Dispatch/CreateDispatchPage";
 import PendingTRCListTable from "@/table/master/PendingTRCListTable";
 import WrongDeviceDispatch from "@/pages/Dispatch/WrongDeviceDispatch";
 import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
+import OtpPage from "@/pages/commonPages/otpPage";
 
 export const router = createBrowserRouter([
   {
@@ -683,6 +684,14 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/verify-mail",
+  },
+  {
+    element: (
+      <Protected authentication={true}>
+        <OtpPage />
+      </Protected>
+    ),
+    path: "/verify-otp",
   },
   {
     element: (
