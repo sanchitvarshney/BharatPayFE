@@ -43,7 +43,7 @@ const LogningV2: React.FC = () => {
   const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
     if (!recaptchaValue) {
       showToast("Please verify the reCAPTCHA", "error");
-      // return;
+      return;
     }
 
     dispatch(loginUserAsync(data)).then((response: any) => {
