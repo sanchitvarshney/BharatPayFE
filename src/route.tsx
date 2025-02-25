@@ -80,6 +80,7 @@ import PendingTRCListTable from "@/table/master/PendingTRCListTable";
 import WrongDeviceDispatch from "@/pages/Dispatch/WrongDeviceDispatch";
 import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
 import OtpPage from "@/pages/commonPages/otpPage";
+import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
 
 export const router = createBrowserRouter([
   {
@@ -664,6 +665,17 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/login",
+  },
+
+  {
+    element: (
+      <Protected authentication={false}>
+        {/* <AuthLayout> */}
+        <RecoveryPassword />
+        {/* </AuthLayout> */}
+      </Protected>
+    ),
+    path: "/password-recovery",
   },
 
   {

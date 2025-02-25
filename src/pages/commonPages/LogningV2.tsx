@@ -40,7 +40,7 @@ const LogningV2: React.FC = () => {
   const { loading } = useAppSelector((state) => state.auth);
 
   
-  const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
+  const onSubmit: SubmitHandler<LoginCredentials> = (data:any) => {
     if (!recaptchaValue) {
       showToast("Please verify the reCAPTCHA", "error");
       return;
@@ -51,7 +51,7 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        showToast(response.payload?.data?.message, "error");
+        response.payload?.data?.message?showToast(response.payload?.data?.message, "error"):showToast(response.payload, "error"); 
       }
     });
   };
@@ -183,9 +183,13 @@ const LogningV2: React.FC = () => {
                   />
                   {errors.password && <FormHelperText id="component-error-text">{errors.password.message}</FormHelperText>}
                 </FormControl>
+                <div className="flex gap-[20px]">
                 <Link href="/forgot-password" fontSize={12} className="">
                   Forgot Password
                 </Link>
+                <Link href="/password-recovery" fontSize={12} className="">
+                   Password Recovery
+                </Link></div>
               </div>
             <div className=" flex justify-center">
               <ReCAPTCHA sitekey="6LfnCN8qAAAAAGEKq5Biwbq4OqdpP6zwY1uuRiTE" onChange={handleRecaptchaChange} />
