@@ -133,6 +133,7 @@ const OtpPage: React.FC = () => {
               placeholder="Enter OTP"
               id="otp-input"
               endAdornment={<InputAdornment position="end"></InputAdornment>}
+              inputProps={{ maxLength: 6 }}
             />
           </FormControl>
 
