@@ -66,7 +66,7 @@ export const updateEmailAsync = createAsyncThunk<AxiosResponse<{ success: boolea
   return response;
 });
 
-export const getQRStatus = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { crnId: string }>("auth/getQRStatus", async (paylaod) => {
+export const getQRStatus = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { crnId: string }>("auth/getQRStatus", async () => {
   const response = await axiosInstance.get(`auth/qrCode`);
   return response;
 });
