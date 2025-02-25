@@ -34,8 +34,8 @@ const OtpPage: React.FC = () => {
   // Fetch the QR code for 2FA if it's not enabled
   useEffect(() => {
     if (qrStatus?.isTwoStep==="Y") {
-        qrStatus?.crnID &&
-        dispatch(getQRStatus({ crnId: qrStatus?.crnID ?? "" })).then(
+      localStorage.setItem("token", qrStatus?.token ?? "");
+        dispatch(getQRStatus({ crnId: qrStatus?.token ?? "" })).then(
           (res: any) => {
             console.log(res.payload.data.data);
             if (res.payload.data.code === 200) {
@@ -45,17 +45,17 @@ const OtpPage: React.FC = () => {
           }
         );
     }
-  }, [dispatch, qrStatus?.crnID]);
+  }, [dispatch, qrStatus]);
 
   // Handle OTP submission
   const handleOtpSubmit = () => {
     if (!otp) return showToast("Please enter the OTP", "error");
+    dispatch(verifyOtpAsync({ otp: otp, secret: secretKey })).then((res: any) => {
 
-    dispatch(verifyOtpAsync({ otp: otp, custId: qrStatus?.crnID })).then((res: any) => {
       if (res.payload.data.success) {
         showToast("OTP Verified Successfully", "success");
-        window.location.reload();
-        window.location.replace("/dashboard"); // Assuming "/dashboard" is the user landing page
+        // window.location.reload();
+        window.location.replace("/"); // Assuming "/dashboard" is the user landing page
       } else {
         showToast("Invalid OTP, please try again", "error");
       }
@@ -93,17 +93,6 @@ const OtpPage: React.FC = () => {
           </div>
         )}
 
-        {isShowQr && (
-          <Typography
-            variant="inherit"
-            fontSize={18}
-            gutterBottom
-            className="mt-4 text-center"
-          >
-            SecretKey: {secretKey}
-          </Typography>
-        )}
-
         <Typography
           variant="inherit"
           fontSize={15}
@@ -118,6 +107,7 @@ const OtpPage: React.FC = () => {
         {/* OTP input field */}
         <div className="flex flex-col gap-[20px] mt-[20px] justify-start items-center">
           <FormControl fullWidth variant="outlined">
+        
             <OutlinedInput
               value={otp}
               onChange={(e) => setOtp(e.target.value)}

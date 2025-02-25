@@ -67,7 +67,7 @@ export const updateEmailAsync = createAsyncThunk<AxiosResponse<{ success: boolea
 });
 
 export const getQRStatus = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { crnId: string }>("auth/getQRStatus", async (paylaod) => {
-  const response = await axiosInstance.get(`auth/qrCode?custId=${paylaod.crnId}`);
+  const response = await axiosInstance.get(`auth/qrCode`);
   return response;
 });
 
@@ -97,7 +97,7 @@ export const verifyMailAsync = createAsyncThunk<AxiosResponse<{ success: boolean
   const response = await axiosInstance.put("/user/verify-mail", paylaod);
   return response;
 });
-export const verifyOtpAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { otp: string,custId:string }>("auth/verifyOtpAsync", async (paylaod) => {
+export const verifyOtpAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { otp: string,secret:string }>("auth/verifyOtpAsync", async (paylaod) => {
   const response = await axiosInstance.post("/auth/verify", paylaod);
   return response;
 })
@@ -136,7 +136,16 @@ const authSlice = createSlice({
       .addCase(verifyOtpAsync.pending, (state) => {
         state.qrCodeLoading = true;
       })
-      .addCase(verifyOtpAsync.fulfilled, (state) => {
+      .addCase(verifyOtpAsync.fulfilled, (state, action:any) => {
+        console.log(action.payload);
+        if (action.payload.data.success) {
+          setToken(action.payload.data.data?.token);
+
+          localStorage.setItem("loggedinUser", btoa(JSON.stringify(action.payload.data.data)));
+        }
+        if(!action.payload.data.data){
+          state.qrStatus = action.payload.data;
+        }
         state.qrCodeLoading = false;
       })
       .addCase(verifyOtpAsync.rejected, (state) => {
