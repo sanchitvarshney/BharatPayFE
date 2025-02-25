@@ -8,7 +8,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useUser } from "@/hooks/useUser";
-// import { getOtpAsync, verifyOtpAsync, getQrCodeAsync } from "@/features/authentication/authSlice";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
 import { getQRStatus, verifyOtpAsync } from "@/features/authentication/authSlice";
@@ -46,7 +45,7 @@ const OtpPage: React.FC = () => {
           }
         );
     }
-  }, [dispatch, qrStatus?.crn_id]);
+  }, [dispatch, qrStatus?.crnID]);
 
   // Handle OTP submission
   const handleOtpSubmit = () => {
@@ -56,7 +55,6 @@ const OtpPage: React.FC = () => {
       if (res.payload.data.success) {
         showToast("OTP Verified Successfully", "success");
         window.location.reload();
-        // Redirect to the main UI or the authenticated area
         window.location.replace("/dashboard"); // Assuming "/dashboard" is the user landing page
       } else {
         showToast("Invalid OTP, please try again", "error");
@@ -65,7 +63,7 @@ const OtpPage: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center h-[100vh] bg-white relative">
+    <div className="flex justify-center items-center h-[100vh] bg-white relative">
       <div className="absolute top-[30px] right-[20px]">
         <Button
           onClick={() => {
@@ -79,7 +77,8 @@ const OtpPage: React.FC = () => {
           Logout <Icons.logout />
         </Button>
       </div>
-      <div className="w-[650px] h-full py-[50px] px-[20px]">
+
+      <div className={`w-[650px] py-[50px] px-[20px] ${isShowQr ? "h-auto" : "h-[calc(100vh-250px)]"}`}>
         <Typography variant="inherit" fontSize={17} gutterBottom>
           MsCorpres Automation
         </Typography>
@@ -94,14 +93,16 @@ const OtpPage: React.FC = () => {
           </div>
         )}
 
-       {isShowQr && <Typography
-          variant="inherit"
-          fontSize={18}
-          gutterBottom
-          className="mt-4 align-center text-center "
-        >
-          SecretKey : {secretKey}
-        </Typography>}
+        {isShowQr && (
+          <Typography
+            variant="inherit"
+            fontSize={18}
+            gutterBottom
+            className="mt-4 text-center"
+          >
+            SecretKey: {secretKey}
+          </Typography>
+        )}
 
         <Typography
           variant="inherit"
@@ -124,18 +125,14 @@ const OtpPage: React.FC = () => {
               sx={{
                 borderRadius: "15px",
                 "& .MuiInputBase-input::placeholder": {
-                  fontSize: "16px", // Font size for the placeholder
-                  fontWeight: "bold", // Font weight for the placeholder
-                  color: "gray", // Optional: Change placeholder color
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  color: "gray",
                 },
               }}
               placeholder="Enter OTP"
               id="otp-input"
-              endAdornment={
-                <InputAdornment position="end">
-                  {/* <Icons.security /> */}
-                </InputAdornment>
-              }
+              endAdornment={<InputAdornment position="end"></InputAdornment>}
             />
           </FormControl>
 

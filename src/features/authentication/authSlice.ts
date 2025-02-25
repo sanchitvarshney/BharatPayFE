@@ -27,6 +27,31 @@ export const loginUserAsync = createAsyncThunk<AxiosResponse<LoginResponse>, Log
   const response = await axiosInstance.post<LoginResponse>("/auth/signin", loginCredential);
   return response;
 });
+
+// export const loginUserAsync = createAsyncThunk<
+//   // LoginResponse,  // The expected response type (the data returned on success)
+//   // LoginCredentials,  // The type for the argument passed into the thunk
+//   // { rejectValue: string }  // The type of the value that will be returned on error
+//   any
+// >(
+//   'auth/loginUser',
+//   async (loginCredential, { rejectWithValue }) => {
+//     try {
+//       const response = await axiosInstance.post<LoginResponse>('/auth/signin', loginCredential);
+//       console.log(response)
+//       return response;  // Return the data directly
+//     } catch (error:any) {
+//       // Here, you use rejectWithValue to pass the error details
+//       if (error.response) {
+//         // If the server responds with an error status, return that error message
+//         showToast(error.response.data.message, "error");
+//         return rejectWithValue(error.response.data.message || 'Something went wrong');
+//       }
+//       return rejectWithValue('Network error or server is down');
+//     }
+//   }
+// );
+
 export const changePasswordAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, PasswordChangePayload>("auth/changePassword", async (payload) => {
   const response = await axiosInstance.put("/user/change-my-password", payload);
   return response;
@@ -58,6 +83,11 @@ export const getPasswordOtp = createAsyncThunk<AxiosResponse<{ success: boolean;
   }
 );
 
+export const recoveryAccount = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { email: string }>("auth/verifyPasswordOtpAsync", async (paylaod) => {
+  const response = await axiosInstance.get(`auth/reacative-login?email=${paylaod.email}`);
+  return response;
+});
+
 export const updatePassword = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, PasswordChangePayload>("auth/updatePassword", async (paylaod) => {
   const response = await axiosInstance.put("/user/update-password", paylaod);
   return response;
@@ -88,7 +118,8 @@ const authSlice = createSlice({
       .addCase(loginUserAsync.pending, (state) => {
         state.loading = true;
       })
-      .addCase(loginUserAsync.fulfilled, (state, action) => {
+      .addCase(loginUserAsync.fulfilled, (state, action:any) => {
+        console.log(action.payload);
         if (action.payload.data.success) {
           setToken(action.payload.data.data?.token);
 
