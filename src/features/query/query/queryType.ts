@@ -125,6 +125,8 @@ type TransactionData = {
   user: string | null;
   serial: string;
   imei: string;
+  locationOut:string;
+  method:string;
 };
 
 export type R6ApiResponse = {

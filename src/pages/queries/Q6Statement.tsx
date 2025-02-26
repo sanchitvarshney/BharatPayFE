@@ -61,7 +61,7 @@ const Q6Statement: React.FC = () => {
                   },
                 }}
               >
-                {q6Statement.map((item, index) => (
+                {q6Statement?.map((item, index) => (
                   <TimelineItem key={index}>
                     <TimelineOppositeContent sx={{ m: "auto 0" }} align="right" variant="body2" color="text.secondary">
                       {item.time}
@@ -79,7 +79,9 @@ const Q6Statement: React.FC = () => {
                       </Typography>
                       <Typography>TXN ID: {item.minNo}</Typography>
                       <Typography>User: {item.user || ""}</Typography>
-                      <Typography>Location: {item.location || ""}</Typography>
+                      <Typography>Location In: {item.location || ""}</Typography>
+                      <Typography>Method: {item.method || ""}</Typography>
+                      <Typography>Location Out: {item.locationOut || ""}</Typography>
                     </TimelineContent>
                   </TimelineItem>
                 ))}
