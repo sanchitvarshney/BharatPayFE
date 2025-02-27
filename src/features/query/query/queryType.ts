@@ -31,6 +31,8 @@ export interface BodyItem {
   insertDate: string;
   category: string;
   subCategory: string;
+  IMEI: string;
+  SRLNo: string;
 }
 
 interface Head {

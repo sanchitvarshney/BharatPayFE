@@ -188,7 +188,7 @@ const LogningV2: React.FC = () => {
                   Forgot Password
                 </Link>
                 <Link href="/password-recovery" fontSize={12} className="">
-                   Password Recovery
+                   Lock and Unlock User
                 </Link></div>
               </div>
             <div className=" flex justify-center">
