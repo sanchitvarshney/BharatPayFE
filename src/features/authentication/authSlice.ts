@@ -20,7 +20,8 @@ const initialState: AuthState = {
   verifyMailLoading: false,
   otpLoading: false,
   qrStatus: null,
-  qrCodeLoading: false
+  qrCodeLoading: false,
+  recoveryLoading: false
 };
 
 export const loginUserAsync = createAsyncThunk<AxiosResponse<LoginResponse>, LoginCredentials>("auth/loginUser", async (loginCredential) => {
@@ -162,6 +163,18 @@ const authSlice = createSlice({
       })
       .addCase(changePasswordAsync.rejected, (state) => {
         state.changepasswordloading = false;
+      })
+      .addCase(recoveryAccount.pending, (state) => {
+        state.recoveryLoading = true;
+      })
+      .addCase(recoveryAccount.fulfilled, (state, action) => {
+        state.recoveryLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(recoveryAccount.rejected, (state) => {
+        state.recoveryLoading = false;
       })
       .addCase(getEmailOtpAsync.pending, (state) => {
         state.emailOtpLoading = true;

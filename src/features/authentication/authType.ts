@@ -55,4 +55,5 @@ export interface LoginCredentials {
     otpLoading: boolean
     qrStatus: any
     qrCodeLoading: boolean
+    recoveryLoading : boolean
   }
