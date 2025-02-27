@@ -51,7 +51,7 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        response.payload?.data?.message?showToast(response.payload?.data?.message, "error"):showToast(response.payload, "error"); 
+        response.payload?.data?.message?showToast(response.payload?.data?.message, "error"):showToast("Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts", "error"); 
       }
     });
   };
