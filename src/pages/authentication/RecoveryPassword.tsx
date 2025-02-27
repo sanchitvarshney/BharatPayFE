@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Container,
@@ -62,8 +62,7 @@ const RecoveryPassword = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const {otpLoading} = useAppSelector((state) => state.auth);
-  const [loading, setLoading] = useState(false);
+  const {recoveryLoading} = useAppSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     email: "",
     verificationCode: "",
@@ -95,16 +94,11 @@ const RecoveryPassword = () => {
     }
   };
 
-  useEffect(() => {
-    setLoading(otpLoading);
-  }, [otpLoading]);
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setLoading(true);
+    // setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
         dispatch(recoveryAccount({ email:formData.email })).then((res: any) => { 
           if (res?.payload?.data?.success) {
             showToast(res?.payload?.data?.message, "success");
@@ -112,9 +106,7 @@ const RecoveryPassword = () => {
         });
     } catch (error) {
       console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   return (
@@ -168,7 +160,7 @@ const RecoveryPassword = () => {
                   type="submit"
                   variant="contained"
                   size="large"
-                  disabled={loading}
+                  disabled={recoveryLoading}
                   sx={{
                     borderRadius: 2,
                     py: 1.5,
@@ -179,7 +171,7 @@ const RecoveryPassword = () => {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  {loading ? (
+                  {recoveryLoading ? (
                     <CircularProgress size={24} color="inherit" />
                   ) :(
                     "Submit"
