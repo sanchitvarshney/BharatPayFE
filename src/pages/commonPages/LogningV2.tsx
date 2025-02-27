@@ -201,7 +201,7 @@ const LogningV2: React.FC = () => {
             <div className="mt-[30px]">
               <Typography fontSize={12} className="text-center">
                 This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply. For more info, please visit
-                <Link sx={{ ml: "4px" }} href="www.mscorpres.com" target="_blank">
+                <Link sx={{ ml: "4px" }} href="https://www.mscorpres.com" target="_blank">
                   www.mscorpres.com
                 </Link>
                 .
