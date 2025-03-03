@@ -1,5 +1,5 @@
 import { Card, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, Link, OutlinedInput, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -22,7 +22,9 @@ import ReCAPTCHA from "react-google-recaptcha";
 
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
-  const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null); // Add state to track the reCAPTCHA value
+  const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(null); // Add state to track the reCAPTCHA value
+  const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
+  
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   useEffect(() => {
@@ -52,6 +54,8 @@ const LogningV2: React.FC = () => {
         navigate("/");
       } else {
         response.payload?.data?.message?showToast(response.payload?.data?.message, "error"):showToast("Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts", "error"); 
+        setRecaptchaValue(null);
+        setRecaptchaKey(Math.random());
       }
     });
   };
@@ -192,7 +196,7 @@ const LogningV2: React.FC = () => {
                 </Link></div>
               </div>
             <div className=" flex justify-center">
-              <ReCAPTCHA sitekey="6LfnCN8qAAAAAGEKq5Biwbq4OqdpP6zwY1uuRiTE" onChange={handleRecaptchaChange} />
+              <ReCAPTCHA sitekey="6LfnCN8qAAAAAGEKq5Biwbq4OqdpP6zwY1uuRiTE" onChange={handleRecaptchaChange} key = {recaptchaKey} />
             </div>
               <LoadingButton loading={loading} size="large" variant="contained" fullWidth type="submit">
                 Login
