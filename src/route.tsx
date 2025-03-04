@@ -81,6 +81,8 @@ import WrongDeviceDispatch from "@/pages/Dispatch/WrongDeviceDispatch";
 import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
 import OtpPage from "@/pages/commonPages/otpPage";
 import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
+import TicketLayout from "@/layouts/TicketLayout";
+import CreateTicket from "@/components/ticket/CreateTicket";
 
 export const router = createBrowserRouter([
   {
@@ -676,6 +678,18 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/password-recovery",
+  },
+  {
+    element: (
+      <Protected authentication>
+        <MainLayout>
+          <TicketLayout>
+            <CreateTicket />
+          </TicketLayout>
+        </MainLayout>
+      </Protected>
+    ),
+    path: "/support",
   },
 
   {

@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { FaCircleUser } from "react-icons/fa6";
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { FaStar } from "react-icons/fa6";
 import styled from "styled-components";
 import { FavoriteMenuLinkListType, MainUIStateType } from "@/types/MainLayout";
@@ -181,6 +182,16 @@ function MainLayout(props: { children: React.ReactNode }) {
             <MuiTooltip title={`Socket ${isConnected ? "Connected" : "Disconnected"}`} placement="right">
               <IconButton onClick={() => refreshConnection()}>
                 <SiSocketdotio className={`h-[25px] w-[25px] ${isConnected ? "text-green-500" : "text-red-500"}  ${isLoading ? "animate-spin" : ""}`} />
+              </IconButton>
+            </MuiTooltip>
+
+            <MuiTooltip title="Raise ticket" placement="right">
+              <IconButton
+                onClick={() => {
+                navigate("/support");
+              }}
+              >
+                <SupportAgentIcon className="text-white" fontSize="large" />
               </IconButton>
             </MuiTooltip>
 
