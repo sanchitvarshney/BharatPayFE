@@ -7,7 +7,7 @@ import { resetDocumentFile, resetFormData, storeFormdata } from "@/features/wear
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { getCurrency } from "@/features/common/commonSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import { Autocomplete, Button, CircularProgress, Divider, FilledInput, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, LinearProgress, ListItem, ListItemText, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, Divider, FilledInput, FormControl, FormControlLabel, FormHelperText, IconButton, InputAdornment, InputLabel, LinearProgress, ListItem, ListItemText, Radio, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
 import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -82,7 +82,7 @@ const CreateDispatchPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState<boolean>(false);
   const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
-
+  const [isMultiple, setIsMultiple] = useState<boolean>(true);  // Default is multiple IMEIs
   const { dispatchCreateLoading, uploadFileLoading, clientBranchList } = useAppSelector((state) => state.dispatch);
 
   const { addressDetail } = useAppSelector((state) => state.client) as any;
@@ -212,7 +212,13 @@ const CreateDispatchPage: React.FC = () => {
       setOpen(true);
     }
   };
-  console.log(open);
+
+  const onSingleImeiSubmit = (imei: string) => {
+    const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
+    if (imeiArray.filter((num) => num.trim() !== "").length === 1) {
+      setOpen(true);
+    }
+  }
   const handleClose = (_: object, reason: string) => {
     if (reason === "backdropClick") return; // Prevent closing on outside click
     setOpen(false);
@@ -675,7 +681,35 @@ const CreateDispatchPage: React.FC = () => {
                 setTotal={setTotal}
               /> */}
               <div>
+              <div className="flex items-center gap-4 pl-10">
+  <FormControlLabel
+    control={
+      <Radio
+        checked={isMultiple}
+        onChange={() => setIsMultiple(true)}  // Select multiple IMEIs
+        value="multiple"
+        name="imei-type"
+        color="primary"
+      />
+    }
+    label="Multiple IMEIs"
+  />
+  <FormControlLabel
+    control={
+      <Radio
+        checked={!isMultiple}
+        onChange={() => setIsMultiple(false)}  // Select single IMEI
+        value="single"
+        name="imei-type"
+        color="primary"
+      />
+    }
+    label="Single IMEI"
+  />
+
+
                 <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
+                {isMultiple ? (
                   <FormControl sx={{ width: "400px" }} variant="outlined">
                     <TextField
                       multiline
@@ -701,7 +735,32 @@ const CreateDispatchPage: React.FC = () => {
                         },
                       }}
                     />
-                  </FormControl>
+                  </FormControl>):
+                  (<FormControl sx={{ width: "400px" }} variant="outlined">
+                    <TextField
+                      rows={2}
+                      value={imei}
+                      label="Single IMEI/SR No."
+                      id="standard-adornment-qty"
+                      aria-describedby="standard-weight-helper-text"
+                      inputProps={{
+                        "aria-label": "weight",
+                      }}
+                      onChange={(e) => {
+                        setImei(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          onSingleImeiSubmit(imei);
+                        }
+                      }}
+                      slotProps={{
+                        input: {
+                          endAdornment: <InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : <QrCodeScannerIcon />}</InputAdornment>,
+                        },
+                      }}
+                    />
+                  </FormControl>)}
 
                   <div className="flex items-center p-4 space-x-6 bg-white rounded-lg">
                     <p className="text-lg font-semibold text-blue-600">
@@ -728,7 +787,7 @@ const CreateDispatchPage: React.FC = () => {
                 </LoadingButton>
               </div> */}
                 </div>
-
+                </div>
                 <div className="h-[calc(100vh-250px)]">
                   <ImeiTable setRowdata={setRowData} rowData={rowData} />
                 </div>
