@@ -128,6 +128,7 @@ const authSlice = createSlice({
         }
         if(!action.payload.data.data){
           state.qrStatus = action.payload.data;
+          localStorage.setItem("showOtpPage",action?.payload?.data?.isTwoStep);
         }
         state.loading = false;
       })

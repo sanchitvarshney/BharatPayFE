@@ -9,13 +9,12 @@ import { useUser } from "./hooks/useUser";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
 import OtpPage from "@/pages/commonPages/otpPage";
-import { useAppSelector } from "@/hooks/useReduxHook";
 
 dayjs.extend(customParseFormat);
 function App() {
   const { user } = useUser();
   const [isOffline, setIsOffline] = useState<boolean>(false);
-  const { qrStatus } = useAppSelector((state) => state.auth);
+  const showDispatchPage= localStorage.getItem("showOtpPage");
   useEffect(() => {
     const handleOffline = () => {
       setIsOffline(true); // User is offline, apply blur effect
@@ -59,7 +58,7 @@ function App() {
     }
   }
   else{
-    if(qrStatus?.isTwoStep==="Y"){
+    if(showDispatchPage==="Y"){
       return <OtpPage />
     }
   }
