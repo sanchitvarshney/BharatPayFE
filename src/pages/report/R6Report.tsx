@@ -212,6 +212,7 @@ const R6Report: React.FC = () => {
               <FormControl fullWidth>
               <Select value={partner} defaultValue="eCOM" onChange={(e) => setPartner(e.target.value)}>
                 {[
+                  { value: "eKart", label: "eKart", isDisabled: false },
                   { value: "eCOM", label: "eCOM", isDisabled: false },
                   { value: "dVery", label: "Delhivery", isDisabled: false },
                 ].map((item) => (

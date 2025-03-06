@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, MainR1ReportResponse, R11ReportDataApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, R9reportResponse, ReportStateType } from "./reportType";
+import { DeviceRequestApiResponse, MainR1ReportResponse, R11ReportDataApiResponse, R12ReportDataApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, R9reportResponse, ReportStateType } from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -32,7 +32,9 @@ const initialState: ReportStateType = {
   r9ReportLoading: false,
   wrongDeviceReportLoading: false,
   r11ReportLoading: false,  
-  r11Report: null
+  r11Report: null,
+  r12Report: null,
+  r12ReportLoading: false
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -104,6 +106,11 @@ export const getr8Report = createAsyncThunk<AxiosResponse<R8ReportDataApiRespons
 
 export const getR11Report = createAsyncThunk<AxiosResponse<R11ReportDataApiResponse>, { from: string; to: string }>("report/getR11Report", async (payload) => {
   const response = await axiosInstance.get(`/bpeIssue/report?startDate=${payload.from}&endDate=${payload.to}`);
+  return response;
+});
+
+export const getR12Report = createAsyncThunk<AxiosResponse<R12ReportDataApiResponse>, { from: string; to: string }>("report/getR12Report", async (payload) => {
+  const response = await axiosInstance.get(`/report/v1/trc_assembly?from=${payload.from}&to=${payload.to}`);
   return response;
 });
 
@@ -307,6 +314,20 @@ const reportSlice = createSlice({
       .addCase(getR11Report.rejected, (state) => {
         state.r11ReportLoading = false;
         state.r11Report = null;
+      })
+      .addCase(getR12Report.pending, (state) => {
+        state.r12ReportLoading = true;
+        state.r12Report = null;
+      })
+      .addCase(getR12Report.fulfilled, (state, action) => {
+        state.r12ReportLoading = false;
+        if (action.payload.data.success) {
+          state.r12Report = action.payload.data;
+        }
+      })
+      .addCase(getR12Report.rejected, (state) => {
+        state.r12ReportLoading = false;
+        state.r12Report = null;
       })
       .addCase(getr9Report.pending, (state) => {
         state.r9ReportLoading = true;

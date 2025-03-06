@@ -128,6 +128,7 @@ const authSlice = createSlice({
         }
         if(!action.payload.data.data){
           state.qrStatus = action.payload.data;
+          localStorage.setItem("showOtpPage",action?.payload?.data?.isTwoStep);
         }
         state.loading = false;
       })
@@ -141,7 +142,7 @@ const authSlice = createSlice({
         console.log(action.payload);
         if (action.payload.data.success) {
           setToken(action.payload.data.data?.token);
-
+          localStorage.setItem("showOtpPage","");
           localStorage.setItem("loggedinUser", btoa(JSON.stringify(action.payload.data.data)));
         }
         if(!action.payload.data.data){

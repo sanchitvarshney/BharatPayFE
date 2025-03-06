@@ -239,6 +239,13 @@ export type R8ReportDataApiResponse = {
   data: R8ReportData[];
 };
 
+export type R12ReportDataApiResponse = {
+  status: string;
+  success: boolean;
+  data: string;
+  message: string;
+};
+
 export type R11ReportDataApiResponse = {
   status: string;
   success: boolean;
@@ -320,4 +327,6 @@ export type ReportStateType = {
   wrongDeviceReportLoading: boolean;
   r11ReportLoading: boolean;
   r11Report: R11ReportDataApiResponse | null;
+  r12ReportLoading: boolean;
+  r12Report: R12ReportDataApiResponse | null;
 };

@@ -51,6 +51,7 @@ const R9Report: React.FC = () => {
               <FormControl fullWidth>
                 <Select value={partner} defaultValue="min" onChange={(e) => setpartner(e.target.value)}>
                   {[
+                  { value: "eKart", label: "eKart", isDisabled: false },
                     { value: "eCOM", label: "eCOM", isDisabled: false },
                     { value: "dVery", label: "dVery", isDisabled: false },
                   ].map((item) => (
