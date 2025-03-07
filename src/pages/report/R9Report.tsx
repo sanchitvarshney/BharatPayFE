@@ -15,13 +15,19 @@ import { exportToExcel } from "@/utils/exportToExcel";
 const R9Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [partner, setpartner] = useState<string>("eCOM");
-  const [dateRange, setDateRange] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+  const [dateRange, setDateRange] = useState<{
+    from: Dayjs | null;
+    to: Dayjs | null;
+  }>({
     from: null,
     to: null,
   });
   const dispatch = useAppDispatch();
   const { r9ReportLoading, r9report } = useAppSelector((state) => state.report);
-  const handleDateChange = (dates: { from: Dayjs | null; to: Dayjs | null }) => {
+  const handleDateChange = (dates: {
+    from: Dayjs | null;
+    to: Dayjs | null;
+  }) => {
     console.log("Selected Dates:", dates);
     setDateRange(dates);
   };
@@ -40,22 +46,46 @@ const R9Report: React.FC = () => {
   return (
     <>
       <div className="flex bg-white h-[calc(100vh-100px)] relative">
-        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}`}>
-          <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
-            <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
-              {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+        <div
+          className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${
+            colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "
+          }`}
+        >
+          <div
+            className={`transition-all ${
+              colapse ? "left-0" : "left-[400px]"
+            } w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
+          >
+            <Button
+              onClick={() => setcolapse(!colapse)}
+              className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}
+            >
+              {colapse ? (
+                <Icons.right fontSize="small" />
+              ) : (
+                <Icons.left fontSize="small" />
+              )}
             </Button>
           </div>
           <div className="p-[20px] overflow-hidden ">
             <div className="flex flex-col gap-[20px]">
               <FormControl fullWidth>
-                <Select value={partner} defaultValue="min" onChange={(e) => setpartner(e.target.value)}>
+                <Select
+                  value={partner}
+                  defaultValue="min"
+                  onChange={(e) => setpartner(e.target.value)}
+                >
                   {[
-                  { value: "eKart", label: "eKart", isDisabled: false },
+                    { value: "eKart", label: "eKart", isDisabled: false },
                     { value: "eCOM", label: "eCOM", isDisabled: false },
+                    { value: "DTDC", label: "DTDC", isDisabled: false },
                     { value: "dVery", label: "dVery", isDisabled: false },
                   ].map((item) => (
-                    <MenuItem disabled={item.isDisabled} value={item.value} key={item.value}>
+                    <MenuItem
+                      disabled={item.isDisabled}
+                      value={item.value}
+                      key={item.value}
+                    >
                       {item.label}
                     </MenuItem>
                   ))}
