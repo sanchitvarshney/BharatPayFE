@@ -25,7 +25,7 @@ interface VendorData {
   product: string;
   totalDebit: string;
   issues: Issue; // Changed to a single object
-  inDate: string
+  inDate: string;
 }
 
 export const exportToExcel = (data: VendorData[], fileName: string): void => {
@@ -43,7 +43,7 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
     "Product",
     "TotalDebit",
     "inDate",
-    ...Object.keys(data[0]?.issues)  // Extracting issue fields dynamically
+    ...Object.keys(data[0]?.issues), // Extracting issue fields dynamically
   ];
 
   data.forEach((item) => {
@@ -61,7 +61,7 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
       Product: item?.product,
       TotalDebit: item?.totalDebit,
       inDate: item?.inDate,
-      ...issue,  // Spread the issue object into the row
+      ...issue, // Spread the issue object into the row
     };
 
     // Push the row data into the formattedData
@@ -69,7 +69,9 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
   });
 
   // Convert the data to a sheet
-  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(formattedData, { header: dynamicColumns });
+  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(formattedData, {
+    header: dynamicColumns,
+  });
 
   // Set column widths dynamically (adjust based on the column name length or content)
   worksheet["!cols"] = dynamicColumns?.map((col) => ({
@@ -81,5 +83,28 @@ export const exportToExcel = (data: VendorData[], fileName: string): void => {
   XLSX.utils.book_append_sheet(workbook, worksheet, "Device MIN V2");
 
   // Write the file to disk
+  XLSX.writeFile(workbook, `${fileName}.xlsx`);
+};
+
+export const exportDynamicDataToExcel = (data: any, fileName: string) => {
+  if (!data || !Array.isArray(data?.data) || data?.data?.length === 0) {
+    console.error("Invalid data for export");
+    return;
+  }
+  let headers = [...data?.header];
+  const dataRows = [...data?.data];
+  const filteredHeaders = headers.filter((header) => header !== "Attchments");
+
+  const filteredData = dataRows?.map((row) => {
+    const { Attchments, ...rest } = row;
+    return rest;
+  });
+  const worksheet = XLSX.utils.json_to_sheet(filteredData, {
+    header: filteredHeaders,
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
   XLSX.writeFile(workbook, `${fileName}.xlsx`);
 };
