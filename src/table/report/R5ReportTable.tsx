@@ -3,7 +3,7 @@ import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
-import {  useAppSelector } from "@/hooks/useReduxHook";
+import { useAppSelector } from "@/hooks/useReduxHook";
 import { Button } from "@mui/material";
 import { useSocketContext } from "@/components/context/SocketContext";
 import { DownloadIcon } from "@radix-ui/react-icons";
@@ -17,18 +17,64 @@ type Props = {
 
 // Generate dummy data according to pagination needs
 const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
-    const { emitDownloadr5Report } = useSocketContext();
+  const { emitDownloadr5Report, emitDownloadWrongDeviceReport } =
+    useSocketContext();
   // const dispatch = useAppDispatch();
   const columnDefs: ColDef[] = [
-    { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
+    {
+      headerName: "#",
+      field: "id",
+      sortable: true,
+      filter: true,
+      width: 100,
+      valueGetter: "node.rowIndex+1",
+    },
 
     { headerName: "SKU", field: "sku", sortable: true, filter: true, flex: 1 },
-    { headerName: "SKU Name", field: "skuName", sortable: true, filter: true, flex: 1 },
-    { headerName: "Dispatch Date", field: "dispatchDate", sortable: true, filter: true, flex: 1 },
-    { headerName: "Dispatch Qty", field: "dispatchQty", sortable: true, filter: true, flex: 1 },
-    { headerName: "Insert By", field: "inserby", sortable: true, filter: true, flex: 1 },
-    { headerName: "TXN ID", field: "txnId", sortable: false, filter: true, flex: 1, hide: true },
-    { headerName: "--", field: "dispatchId", sortable: true, filter: true, flex: 1, hide: true },
+    {
+      headerName: "SKU Name",
+      field: "skuName",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "Dispatch Date",
+      field: "dispatchDate",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "Dispatch Qty",
+      field: "dispatchQty",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "Insert By",
+      field: "inserby",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "TXN ID",
+      field: "txnId",
+      sortable: false,
+      filter: true,
+      flex: 1,
+      hide: true,
+    },
+    {
+      headerName: "--",
+      field: "dispatchId",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      hide: true,
+    },
 
     {
       headerName: "",
@@ -38,11 +84,16 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
       cellRenderer: (params: any) => (
         <Button
           onClick={() => {
-            // setOpen(true); 
+            // setOpen(true);
             // dispatch(getr5ReportDetail(params.data.txnId));
             setTxn(params.data.txnId);
-            const id = params.data.txnId;
-            emitDownloadr5Report({txnId:id});
+            const id = params?.data?.txnId;
+            const type = params?.data?.deviceType;
+            if (type === "wrongDevices") {
+              emitDownloadWrongDeviceReport({ txnId: id });
+            } else {
+              emitDownloadr5Report({ txnId: id });
+            }
           }}
           variant="contained"
           size="small"

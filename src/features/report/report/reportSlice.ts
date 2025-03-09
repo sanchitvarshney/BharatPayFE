@@ -275,17 +275,17 @@ const reportSlice = createSlice({
       })
       .addCase(getWrongDeviceReport.pending, (state) => {
         state.wrongDeviceReportLoading = true;
-        state.r6Report = null;
+        state.wrongDeviceReport = null;
       })
       .addCase(getWrongDeviceReport.fulfilled, (state, action) => {
         state.wrongDeviceReportLoading = false;
         if (action.payload.data.success) {
-          state.r6Report = action.payload.data.data;
+          state.wrongDeviceReport = action.payload.data.data;
         }
       })
       .addCase(getWrongDeviceReport.rejected, (state) => {
         state.wrongDeviceReportLoading = false;
-        state.r6Report = null;
+        state.wrongDeviceReport = null;
       })
       .addCase(getr8Report.pending, (state) => {
         state.r8ReportLoading = true;
