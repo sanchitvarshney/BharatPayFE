@@ -22,7 +22,6 @@ const columnDefs: ColDef[] = [
   {headerName:"Key Function",field:"keyFunction",sortable:true,filter:true},
   {headerName:"Visual Condition",field:"visualCondition",sortable:true,filter:true},
   {headerName:"Charging Testing",field:"chargingTest",sortable:true,filter:true},
-  {headerName:"Sim Testing",field:"simTest",sortable:true,filter:true},
   { headerName: "Insert Date and Time", field: "insertDate", sortable: true, filter: true },
   { headerName: "Insert By", field: "insertBy", sortable: true, filter: true },
   { headerName: "Analysis Remark", field: "analytisRemark", sortable: true, filter: true },
