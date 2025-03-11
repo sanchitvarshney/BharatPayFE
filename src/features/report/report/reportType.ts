@@ -329,4 +329,7 @@ export type ReportStateType = {
   r11Report: R11ReportDataApiResponse | null;
   r12ReportLoading: boolean;
   r12Report: R12ReportDataApiResponse | null;
+  r13ReportLoading: boolean;
+  r13Report: R11ReportDataApiResponse | null;
+
 };

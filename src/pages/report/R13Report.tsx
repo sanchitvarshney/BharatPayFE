@@ -7,10 +7,11 @@ import dayjs, { Dayjs } from "dayjs";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { rangePresets } from "@/utils/rangePresets";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getR11Report, } from "@/features/report/report/reportSlice";
-import R11ReportTable from "@/table/report/R11ReportTable";
+import { getR13Report, } from "@/features/report/report/reportSlice";
 import { Divider, List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
-const R8Report: React.FC = () => {
+import R13ReportTable from "@/table/report/R13ReportTable";
+
+const R13Report: React.FC = () => {
   const dispatch = useAppDispatch();
   const { r11ReportLoading, r11Report } = useAppSelector((state) => state.report);
   const [dateRange, setDateRange] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
@@ -20,17 +21,16 @@ const R8Report: React.FC = () => {
   const gridRef = useRef<AgGridReact<any>>(null);
   const [colapse, setcolapse] = useState<boolean>(false);
   const handleDateChange = (dates: { from: Dayjs | null; to: Dayjs | null }) => {
-    console.log("Selected Dates:", dates);
     setDateRange(dates);
   };
   const getreport = () => {
     if (dateRange.from && dateRange.to) {
-      dispatch(getR11Report({ from: dateRange.from.format("YYYY-MM-DD"), to: dateRange.to.format("YYYY-MM-DD") }));
+      dispatch(getR13Report({ from: dateRange.from.format("DD-MM-YYYY"), to: dateRange.to.format("DD-MM-YYYY") }));
     }
   };
   const onBtExport = useCallback(() => {
     gridRef.current!.api.exportDataAsExcel({
-      sheetName: "R11 Report", // Set your desired sheet name here
+      sheetName: "R13 Report", // Set your desired sheet name here
     });
   }, []);
 
@@ -102,11 +102,11 @@ const R8Report: React.FC = () => {
             )}
         </div>
         <div className="w-full">
-          <R11ReportTable gridRef={gridRef} />
+          <R13ReportTable gridRef={gridRef} />
         </div>
       </div>
     </div>
   );
 };
 
-export default R8Report;
+export default R13Report;
