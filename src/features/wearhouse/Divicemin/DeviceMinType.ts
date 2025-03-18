@@ -92,7 +92,7 @@ export type CreateMinPayload = {
   vendorCode: string;
   vendorType: string;
   invoiceAttachment: InvoiceFileData[];
-  fileReference: string;
+  fileReference?: string;
   vendorAddress: string;
   location: string;
   minQty: string;
@@ -102,6 +102,8 @@ export type CreateMinPayload = {
   docDate: string;
   docType: string;
   cc: string;
+  srlNo?: string[];
+  sim_exist?:string[];
 };
 
 export type CreateMinData = {

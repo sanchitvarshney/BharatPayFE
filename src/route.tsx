@@ -81,6 +81,7 @@ import WrongDeviceDispatch from "@/pages/Dispatch/WrongDeviceDispatch";
 import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
 import OtpPage from "@/pages/commonPages/otpPage";
 import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
+import MaterialIn from "@/pages/min/MaterialIn";
 
 export const router = createBrowserRouter([
   {
@@ -380,6 +381,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/device-materials-in",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MaterialIn />
+          </MainLayout>
+        ),
+        path: "/device-min",
       },
       // production=======================================
       {
