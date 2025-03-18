@@ -53,9 +53,7 @@ import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import SelectCostCenter from "@/components/reusable/SelectCostCenter";
 import MinTable from "@/table/min/MinTable";
-import {
-  getVenstoneDeviceDetail,
-} from "@/features/production/Batteryqc/BatteryQcSlice";
+import { getVenstoneDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { generateUniqueId } from "@/utils/uniqueid";
 
 interface RowData {
@@ -77,7 +75,7 @@ const MaterialIn: React.FC = () => {
   const [file, setfile] = useState<File[] | null>(null);
   const [rowData, setRowData] = useState<any[]>([]);
   const [input, setInput] = useState<string>("");
-  
+
   const dispatch = useAppDispatch();
   const {
     storeStep1formData,
@@ -627,13 +625,8 @@ const MaterialIn: React.FC = () => {
           )}
           {step === 1 && (
             <div className="h-[calc(100vh-200px)]   ">
-              {/* <RMMaterialsAddTablev2
-                rowData={rowData}
-                setRowData={setRowData}
-                setTotal={setTotal}
-              /> */}
               <div>
-                <div className="flex items-center gap-4 pl-10">
+                <div className="flex items-center gap-4 pl-10 bg-white">
                   <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
                     <div className="relative max-w-max ">
                       <TextField
@@ -649,7 +642,6 @@ const MaterialIn: React.FC = () => {
                                 dispatch(getVenstoneDeviceDetail(input)).then(
                                   (response: any) => {
                                     if (response.payload.data.success) {
-                                      // if (response.payload.data.data?.isAvailable) {
                                       addRow(
                                         input,
                                         response.payload.data.data[0]
@@ -659,18 +651,6 @@ const MaterialIn: React.FC = () => {
                                         response.payload.data.data[0]
                                           ?.device_model
                                       );
-                                      // } else {
-                                      //   if (input) {
-                                      //     addRow(input, "", false, "--");
-                                      //   }
-                                      // }
-                                      // } else {
-                                      //   if (response.payload.data.data?.isAvailable === false) {
-                                      //     if (input) {
-                                      //       addRow(input, "", false, "--");
-                                      //     }
-                                      //   }
-                                      // }
                                     }
                                   }
                                 );
@@ -714,28 +694,32 @@ const MaterialIn: React.FC = () => {
               </div>
             </div>
           )}
-        <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
-                   {step === 0 && (
-                     <>
-                       <LoadingButton type="submit" variant="contained" endIcon={<Icons.next />} >
-                         Next
-                       </LoadingButton>
-                     </>
-                   )}
-                   {step === 1 && (
-                     <>
-                       <LoadingButton
-                        //  disabled={dispatchCreateLoading}
-                         sx={{ background: "white", color: "red" }}
-                         variant="contained"
-                         startIcon={<Icons.previous />}
-                         onClick={() => {
-                           handleBack();
-                         }}
-                       >
-                         Back
-                       </LoadingButton>
-                       {/* <LoadingButton
+          <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
+            {step === 0 && (
+              <>
+                <LoadingButton
+                  type="submit"
+                  variant="contained"
+                  endIcon={<Icons.next />}
+                >
+                  Next
+                </LoadingButton>
+              </>
+            )}
+            {step === 1 && (
+              <>
+                <LoadingButton
+                  //  disabled={dispatchCreateLoading}
+                  sx={{ background: "white", color: "red" }}
+                  variant="contained"
+                  startIcon={<Icons.previous />}
+                  onClick={() => {
+                    handleBack();
+                  }}
+                >
+                  Back
+                </LoadingButton>
+                {/* <LoadingButton
                          disabled={createminLoading}
                          sx={{ background: "white", color: "red" }}
                          variant="contained"
@@ -746,20 +730,20 @@ const MaterialIn: React.FC = () => {
                        >
                          Reset
                        </LoadingButton> */}
-                       <LoadingButton
-                        //  loading={dispatchCreateLoading}
-                         loadingPosition="start"
-                         variant="contained"
-                         startIcon={<Icons.save />}
-                         onClick={() => {
-                           onFinalSubmit();
-                         }}
-                       >
-                         Submit
-                       </LoadingButton>
-                     </>
-                   )}
-                 </div>
+                <LoadingButton
+                  //  loading={dispatchCreateLoading}
+                  loadingPosition="start"
+                  variant="contained"
+                  startIcon={<Icons.save />}
+                  onClick={() => {
+                    onFinalSubmit();
+                  }}
+                >
+                  Submit
+                </LoadingButton>
+              </>
+            )}
+          </div>
         </div>
       </form>
     </>
