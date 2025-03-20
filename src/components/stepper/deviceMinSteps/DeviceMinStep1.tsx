@@ -74,14 +74,14 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
 
   const onSubmit: SubmitHandler<Step1Form> = (data) => {
     data.unit = unit;
-    if (!storeSerialFiles) showToast("Please Upload Serial File", "error");
+    // if (!storeSerialFiles) showToast("Please Upload Serial File", "error");
     if (!storeInvoiceFiles) showToast("Please Upload Invoice File", "error");
     const updateddata: CreateMinPayload = {
       vendorBranch: data.vendorBranch,
       vendorCode: data.vendor!.id,
       vendorType: data.vendorType,
       invoiceAttachment: storeInvoiceFiles!,
-      fileReference: storeSerialFiles!.fileReference,
+      // fileReference: storeSerialFiles!.fileReference,
       vendorAddress: data.vendorAddress,
       location: data.location!.code,
       minQty: data.qty,
@@ -92,6 +92,7 @@ const DeviceMinStep1: React.FC<Props> = ({ setStep }) => {
       docDate: dayjs(data.docDate).format("DD-MM-YYYY"),
       cc: data.cc?.id || "",
     };
+    setStep(2);
 
     dispatch(createMinAsync(updateddata)).then((response: any) => {
       if (response.payload.data.success) {

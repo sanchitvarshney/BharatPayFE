@@ -16,6 +16,8 @@ import {
   getVendorAddress,
   getVendorAsync,
   getVendorBranchAsync,
+  resetForm,
+  resetInvoiceFile,
   storeDraftMin,
   storeInvoiceFile,
   storeStepFormdata,
@@ -55,6 +57,7 @@ import SelectCostCenter from "@/components/reusable/SelectCostCenter";
 import MinTable from "@/table/min/MinTable";
 import { getVenstoneDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { generateUniqueId } from "@/utils/uniqueid";
+import Success from "@/components/reusable/Success";
 
 interface RowData {
   remarks: string;
@@ -83,8 +86,11 @@ const MaterialIn: React.FC = () => {
     storeInvoiceFiles,
     VendorBranchData,
     uploadInvoiceFileLoading,
-    checkSerialLoading,
+    createMinLoading,
   } = useAppSelector((state) => state.divicemin);
+  const { venStoneDeviceDetailLoading } = useAppSelector(
+    (state) => state.batteryQcReducer
+  );
   const {
     register,
     handleSubmit,
@@ -92,6 +98,7 @@ const MaterialIn: React.FC = () => {
     setValue,
     watch,
     formState: { errors },
+    reset,
   } = useForm<Step1Form>({
     defaultValues: {
       vendorType: "V01",
@@ -151,12 +158,17 @@ const MaterialIn: React.FC = () => {
     };
     dispatch(createMinAsync(updateddata)).then((response: any) => {
       if (response.payload.data.success) {
+        setStep(2);
         dispatch(storeStepFormdata(data));
         dispatch(storeDraftMin(response.payload.data?.data));
+        reset();
+        setRowData([]);
+        dispatch(resetForm());
+        dispatch(resetInvoiceFile())
       }
     });
   };
-  console.log(step, "step");
+
   useEffect(() => {
     dispatch(getVendorAsync(null));
     dispatch(getLocationAsync(null));
@@ -254,14 +266,14 @@ const MaterialIn: React.FC = () => {
         <div className="h-[calc(100vh-50px)] ">
           <div className="p-0 bg-hbg h-[50px] flex items-center justify-between px-[20px] border-b border-neutral-300">
             <Typography fontWeight={500} fontSize={16}>
-              Enter All Details
+              {step === 2 ? "MIN Details" : "Enter All Details"}
             </Typography>
             <Typography>
               {storeDraftMinData && "#" + storeDraftMinData?.min_no}
             </Typography>
           </div>
           {step == 0 && (
-            <div className="h-[calc(100vh-150px)] grid grid-cols-[1fr_400px] p-0">
+            <div className="h-[calc(100vh-150px)] grid grid-cols-[1fr_400px] p-0 bg-white">
               <div className="flex flex-col gap-[20px] h-full overflow-y-auto p-[20px] border-r">
                 <Paper sx={{ background: "#fef3c7", p: 2 }}>
                   <div className="flex flex-row items-center gap-[10px]">
@@ -591,7 +603,7 @@ const MaterialIn: React.FC = () => {
                           <div>
                             <ul className="">
                               {storeInvoiceFiles &&
-                                storeInvoiceFiles.map((item, i) => (
+                                storeInvoiceFiles?.map((item, i) => (
                                   <li
                                     key={i}
                                     className="flex items-center justify-between py-[5px] border-b"
@@ -624,73 +636,81 @@ const MaterialIn: React.FC = () => {
             </div>
           )}
           {step === 1 && (
-            <div className="h-[calc(100vh-200px)]   ">
-              <div>
-                <div className="flex items-center gap-4 pl-10 bg-white">
-                  <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
-                    <div className="relative max-w-max ">
-                      <TextField
-                        value={input}
-                        onChange={(e) => {
-                          setInput(e.target.value);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            if (input) {
-                              if (isSerialUnique(input)) {
-                                // if (storeDraftMinData) {
-                                dispatch(getVenstoneDeviceDetail(input)).then(
-                                  (response: any) => {
-                                    if (response.payload.data.success) {
-                                      addRow(
-                                        input,
-                                        response.payload.data.data[0]
-                                          ?.device_imei,
-                                        true,
-                                        "N",
-                                        response.payload.data.data[0]
-                                          ?.device_model
-                                      );
-                                    }
+            <div>
+              <div className="flex items-center gap-4 pl-10 bg-white">
+                <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
+                  <div className="relative max-w-max ">
+                    <TextField
+                      value={input}
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (input) {
+                            if (isSerialUnique(input)) {
+                              dispatch(getVenstoneDeviceDetail(input)).then(
+                                (response: any) => {
+                                  if (response.payload.data.success) {
+                                    addRow(
+                                      input,
+                                      response.payload.data.data[0]
+                                        ?.device_imei,
+                                      true,
+                                      "N",
+                                      response.payload.data.data[0]
+                                        ?.device_model
+                                    );
                                   }
-                                );
-
-                                // } else {
-                                //   showToast("You din't complete your first step", "error");
-                                // }
-                              } else {
-                                showToast(
-                                  "Serial number already exists",
-                                  "error"
-                                );
-                                setInput("");
-                              }
+                                }
+                              );
+                            } else {
+                              showToast(
+                                "Serial number already exists",
+                                "error"
+                              );
+                              setInput("");
                             }
                           }
-                        }}
-                        ref={inputRef}
-                        className="w-[400px] focus-visible:bg-[#fffadb]"
-                        placeholder="Scan an item to add"
-                        slotProps={{
-                          input: {
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                {checkSerialLoading ? (
-                                  <CircularProgress size={25} />
-                                ) : (
-                                  <Icons.qrScan />
-                                )}
-                              </InputAdornment>
-                            ),
-                          },
-                        }}
-                      />
-                    </div>
+                        }
+                      }}
+                      ref={inputRef}
+                      className="w-[400px] focus-visible:bg-[#fffadb]"
+                      placeholder="Scan an item to add"
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {venStoneDeviceDetailLoading ? (
+                                <CircularProgress size={25} />
+                              ) : (
+                                <Icons.qrScan />
+                              )}
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
                   </div>
                 </div>
-                <div className="h-[calc(100vh-250px)]">
-                  <MinTable setRowdata={setRowData} rowData={rowData} />
-                </div>
+              </div>
+              <div className="h-[calc(100vh-250px)]">
+                <MinTable setRowdata={setRowData} rowData={rowData} />
+              </div>
+            </div>
+          )}
+          {step === 2 && (
+            <div className="h-[calc(100vh-200px)] flex items-center justify-center bg-white">
+              <div className="flex flex-col justify-center gap-[10px]">
+                <Success />
+                <Typography variant="inherit" fontWeight={500}>
+                  MIN Number -{" "}
+                  {storeDraftMinData?.min_no ? storeDraftMinData?.min_no : ""}
+                </Typography>
+                <LoadingButton onClick={() => setStep(0)} variant="contained">
+                  Create New MIN
+                </LoadingButton>
               </div>
             </div>
           )}
@@ -731,7 +751,7 @@ const MaterialIn: React.FC = () => {
                          Reset
                        </LoadingButton> */}
                 <LoadingButton
-                  //  loading={dispatchCreateLoading}
+                  loading={createMinLoading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}
