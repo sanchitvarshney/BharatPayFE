@@ -5,8 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "ag-grid-react";
 import { CardFooter } from "@/components/ui/card";
 import { getQ6Data } from "@/features/query/query/querySlice";
-import { CardContent, IconButton, Paper, TextField } from "@mui/material";
-import FilterIcon from "@mui/icons-material/Filter";
+import { CardContent, Divider, List, ListItem, ListItemText, Paper, TextField, Typography } from "@mui/material";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { Button } from "@/components/ui/button";
 import Q6ReportTable from "@/table/query/Q6ReportTable";
@@ -197,12 +196,28 @@ const Q6Statement: React.FC = () => {
                       <Icons.download fontSize="small" />
                     </LoadingButton>
                   </MuiTooltip>
-                  <IconButton disabled color="warning">
-                    <FilterIcon />
-                  </IconButton>
+                
                 </div>
               </CardFooter>
             </Paper>
+            {q6Statement && (
+              <>
+                <Paper elevation={0} className="rounded-md mt-[20px] px-[20px] ">
+                  <Typography className=" text-slate-600" fontWeight={600} gutterBottom>
+                    Device Info
+                  </Typography>
+                  <Divider />
+                  <List>
+                    <ListItem>
+                      <ListItemText primary="IMEI" secondary={q6Statement?.[0]?.imei || "--"} />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText primary="Serial No." secondary={q6Statement?.[0]?.serial || "--"} />
+                    </ListItem>
+                  </List>
+                </Paper>
+              </>
+            )}
           </div>
         </div>
         <div className="w-full">
