@@ -210,7 +210,7 @@ const MaterialIn: React.FC = () => {
   };
 
   const isSerialUnique = (serial: string) => {
-    return !rowData.some((row) => row.serialno === serial);
+    return !rowData.some((row) => (row.serialno === serial|| row.IMEI === serial));
   };
   const addRow = useCallback(
     (
@@ -648,7 +648,7 @@ const MaterialIn: React.FC = () => {
                         if (e.key === "Enter") {
                           e.preventDefault();
                           if (input) {
-                            if (isSerialUnique(input)) {
+                            if (isSerialUnique(input.trim())) {
                               dispatch(getVenstoneDeviceDetail(input)).then(
                                 (response: any) => {
                                   if (response.payload.data.success) {
