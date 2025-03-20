@@ -268,9 +268,9 @@ const MaterialIn: React.FC = () => {
             <Typography fontWeight={500} fontSize={16}>
               {step === 2 ? "MIN Details" : "Enter All Details"}
             </Typography>
-            <Typography>
+            {/* <Typography>
               {storeDraftMinData && "#" + storeDraftMinData?.min_no}
-            </Typography>
+            </Typography> */}
           </div>
           {step == 0 && (
             <div className="h-[calc(100vh-150px)] grid grid-cols-[1fr_400px] p-0 bg-white">
@@ -416,7 +416,7 @@ const MaterialIn: React.FC = () => {
                     />
                   </div>
 
-                  <div>
+                  {/* <div>
                     <Controller
                       name="qty"
                       control={control}
@@ -450,7 +450,7 @@ const MaterialIn: React.FC = () => {
                         </FormControl>
                       )}
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <Controller
                       name="location"
@@ -462,11 +462,12 @@ const MaterialIn: React.FC = () => {
                           {...field}
                           error={!!errors.location}
                           helperText={errors.location?.message}
+                          label="Location"
                         />
                       )}
                     />
                   </div>
-                  <Controller
+                  {/* <Controller
                     name="cc"
                     control={control}
                     rules={{ required: "Cost Center  is required" }}
@@ -482,7 +483,7 @@ const MaterialIn: React.FC = () => {
                         label="Cost Center"
                       />
                     )}
-                  />
+                  /> */}
                   <div>
                     <Controller
                       name="docType"
@@ -654,7 +655,8 @@ const MaterialIn: React.FC = () => {
                                 (response: any) => {
                                   if (response.payload.data.success) {
                                     addRow(
-                                      input,
+                                      response.payload.data.data[0]
+                                        ?.sl_no,
                                       response.payload.data.data[0]
                                         ?.device_imei,
                                       true,
