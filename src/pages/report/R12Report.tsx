@@ -26,7 +26,7 @@ const R12Report: React.FC = () => {
       setDate({ from: null, to: null });
     }
   };
-  
+
   const downloadReport = () => {
     if (!date.from || !date.to)
       return showToast("Please select location and date range", "error");
@@ -53,6 +53,14 @@ const R12Report: React.FC = () => {
             Download R12 Report
           </Typography>
         </div>
+        <Typography
+          variant="h3"
+          fontSize={14}
+          fontWeight={400}
+          className="text-center"
+        >
+         This report contains the part code consumption at the TRC and Assembly locations
+        </Typography>
         <RangePicker
           className="w-full h-[50px] border-[2px] rounded-sm "
           presets={rangePresets}

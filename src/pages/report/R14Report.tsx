@@ -36,6 +36,14 @@ const R14Report: React.FC = () => {
             Download R14 Report
           </Typography>
         </div>
+        {/* <Typography
+          variant="h3"
+          fontSize={14}
+          fontWeight={400}
+          className="text-center"
+        >
+          This Report Contain BER Components
+        </Typography> */}
         <RangePicker
           className="w-full h-[50px] border-[2px] rounded-sm "
           presets={rangePresets}
