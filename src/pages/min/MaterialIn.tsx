@@ -35,7 +35,6 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
-  OutlinedInput,
   Paper,
   Select,
   TextField,
@@ -53,7 +52,6 @@ import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { showToast } from "@/utils/toasterContext";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
-import SelectCostCenter from "@/components/reusable/SelectCostCenter";
 import MinTable from "@/table/min/MinTable";
 import { getVenstoneDeviceDetail } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { generateUniqueId } from "@/utils/uniqueid";
