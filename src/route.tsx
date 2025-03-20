@@ -34,7 +34,6 @@ import MasterAddressLayout from "./layouts/MasterAddressLayout";
 import MasterBillingAddress from "./pages/master/MasterBillingAddress";
 import MasterShippingaddress from "./pages/master/MasterShippingaddress";
 import Protected from "./components/shared/Protected";
-import DeviceMin from "./pages/wearhouse/DeviceMin";
 import Report from "./pages/report/Report";
 import ReportLayout from "./layouts/ReportLayout";
 import QueryLayout from "./layouts/QueryLayout";
@@ -377,19 +376,20 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DeviceMin />
+            {/* <DeviceMin /> */}
+            <MaterialIn />
           </MainLayout>
         ),
         path: "/device-materials-in",
       },
-      {
-        element: (
-          <MainLayout>
-            <MaterialIn />
-          </MainLayout>
-        ),
-        path: "/device-min",
-      },
+      // {
+      //   element: (
+      //     <MainLayout>
+      //       <MaterialIn />
+      //     </MainLayout>
+      //   ),
+      //   path: "/device-min",
+      // },
       // production=======================================
       {
         element: (

@@ -57,12 +57,6 @@ const MinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
-      field: "id",
-      width: 60,
-      hide: true,
-    },
-    {
-      headerName: "#",
       field: "sr",
       width: 60,
       valueGetter: "node.rowIndex+1",
@@ -70,14 +64,14 @@ const MinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     {
       headerName: "Serial No.",
       field: "serialno",
-      minWidth: 200,
+      minWidth: 300,
       lockVisible: true,
     },
     {
       headerName: "IMEI",
       field: "IMEI",
       cellRenderer: "textInputCellRenderer",
-      minWidth: 270,
+      minWidth: 300,
       lockVisible: true,
     },
     {
@@ -93,32 +87,26 @@ const MinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       cellRenderer: "textInputCellRenderer",
       lockVisible: true,
     },
-    {
-      headerName: "Remarks",
-      field: "remarks",
-      cellRenderer: "textInputCellRenderer",
-      minWidth: 200,
-      lockVisible: true,
-    },
-    {
-      headerName: "isAvailble",
-      field: "isAvailble",
-      cellRenderer: "textInputCellRenderer",
-      minWidth: 200,
-      hide: true,
-      lockVisible: true,
-    },
+    
+    // {
+    //   headerName: "isAvailble",
+    //   field: "isAvailble",
+    //   cellRenderer: "textInputCellRenderer",
+    //   minWidth: 200,
+    //   hide: true,
+    //   lockVisible: true,
+    // },
     {
       headerName: "",
       field: "isNew",
-      pinned: "right",
+      // pinned: "right",
       cellRenderer: (params: any) => {
         const { data } = params;
         return (
-          <div
-            key={data.id}
-            className="flex items-center justify-center h-full gap-[10px]"
-          >
+          // <div
+          //   key={data.id}
+          //   // className="flex items-center justify-center h-full gap-[10px]"
+          // >
             <IconButton
               onClick={() =>
                 setRowdata(rowData.filter((item: any) => item.id !== data?.id))
@@ -127,7 +115,7 @@ const MinTable: React.FC<Props> = ({ rowData, setRowdata }) => {
             >
               <Icons.delete />
             </IconButton>
-          </div>
+          // </div>
         );
       },
       width: 120,
