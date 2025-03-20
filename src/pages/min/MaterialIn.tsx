@@ -76,11 +76,12 @@ const MaterialIn: React.FC = () => {
   const [file, setfile] = useState<File[] | null>(null);
   const [rowData, setRowData] = useState<any[]>([]);
   const [input, setInput] = useState<string>("");
+  const [minNo , setMinNo] = useState<string>("");
 
   const dispatch = useAppDispatch();
   const {
     storeStep1formData,
-    storeDraftMinData,
+    // storeDraftMinData,
     storeInvoiceFiles,
     VendorBranchData,
     uploadInvoiceFileLoading,
@@ -159,6 +160,7 @@ const MaterialIn: React.FC = () => {
         setStep(2);
         dispatch(storeStepFormdata(data));
         dispatch(storeDraftMin(response.payload.data?.data));
+        setMinNo(response.payload.data?.message);
         reset();
         setRowData([]);
         dispatch(resetForm());
@@ -198,7 +200,6 @@ const MaterialIn: React.FC = () => {
       dispatch(uploadInvoiceFile(formdata)).then((res: any) => {
         if (res.payload.data.success) {
           dispatch(storeInvoiceFile(res.payload.data?.data[0]));
-
           showToast(res.payload.data.message, "success");
           setfile(null);
           setFilename("");
@@ -705,8 +706,7 @@ const MaterialIn: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  MIN Number -{" "}
-                  {storeDraftMinData?.min_no ? storeDraftMinData?.min_no : ""}
+                  {minNo}
                 </Typography>
                 <LoadingButton onClick={() => setStep(0)} variant="contained">
                   Create New MIN
