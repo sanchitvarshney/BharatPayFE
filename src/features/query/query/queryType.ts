@@ -31,6 +31,8 @@ export interface BodyItem {
   insertDate: string;
   category: string;
   subCategory: string;
+  IMEI: string;
+  SRLNo: string;
 }
 
 interface Head {
@@ -125,6 +127,8 @@ type TransactionData = {
   user: string | null;
   serial: string;
   imei: string;
+  locationOut:string;
+  method:string;
 };
 
 export type R6ApiResponse = {

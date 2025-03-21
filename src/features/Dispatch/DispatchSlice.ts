@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DispatchItemPayload, DispatchState } from "./DispatchType";
+import { DispatchItemPayload, DispatchState, DispatchWrongItemPayload } from "./DispatchType";
 import { showToast } from "@/utils/toasterContext";
 
 const initialState: DispatchState = {
@@ -12,12 +12,19 @@ const initialState: DispatchState = {
   clientLoading: false,
   clientBranchList: null,
   clientBranchLoading: false,
+  wrongDispatchLoading:false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
   const response = await axiosInstance.post(`dispatchDivice/createDispatch`, payload);
   return response;
 });
+
+export const wrongDeviceDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchWrongItemPayload>("dispatch/CreateWrongDispatch", async (payload) => {
+  const response = await axiosInstance.post(`/wrongDevice/createWrongDispatch`, payload);
+  return response;
+});
+
 export const uploadFile = createAsyncThunk<AxiosResponse<{ success: boolean; message: string; data: string }>, FormData>("dispatch/uploadFile", async (formdata) => {
   const response = await axiosInstance.post(`/dispatchDivice/upload`, formdata, { headers: { "Content-Type": "multipart/form-data" } });
   return response;
@@ -53,6 +60,15 @@ const dispatchSlice = createSlice({
       })
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
+      })
+      .addCase(wrongDeviceDispatch.pending, (state) => {
+        state.wrongDispatchLoading = true;
+      })
+      .addCase(wrongDeviceDispatch.fulfilled, (state) => {
+        state.wrongDispatchLoading = false;
+      })
+      .addCase(wrongDeviceDispatch.rejected, (state) => {
+        state.wrongDispatchLoading = false;
       })
       .addCase(getClient.pending, (state) => {
         state.clientLoading = true;

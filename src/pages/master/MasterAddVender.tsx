@@ -21,6 +21,10 @@ import { showToast } from "@/utils/toasterContext";
 import { Controller, useForm } from "react-hook-form";
 import { Branch, VendorCreatePayload, VendorData } from "@/features/master/vendor/vendorType";
 import SelectState, { StateData } from "@/components/reusable/SelectState";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<unknown>;
@@ -50,7 +54,7 @@ type FormDataType = {
   msme_id: string;
   msme_type: string;
   msme_activity: string;
-  dateOfApplicability: string;
+  dateOfApplicability: Dayjs | null;
 };
 
 const MasterAddVender: React.FC = () => {
@@ -123,7 +127,7 @@ const MasterAddVender: React.FC = () => {
       msme_id: data.msme_id,
       msme_type: data.msme_type,
       msme_activity: data.msme_activity,
-      dateOfApplicability: data.dateOfApplicability,
+      dateOfApplicability: dayjs(data.dateOfApplicability).format("DD-MM-YYYY"),
     };
     const branch: Branch = {
       branch: data.branch,
@@ -398,6 +402,36 @@ const MasterAddVender: React.FC = () => {
                   </Select>
                 </FormControl>
               )}
+               <div>
+                  <Controller
+                    name="dateOfApplicability"
+                    control={control}
+                    rules={{ required: "Date is required" }}
+                    render={({ field }) => (
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          format="DD-MM-YYYY"
+                          slots={{
+                            textField: TextField,
+                          }}
+                          maxDate={dayjs()}
+                          slotProps={{
+                            textField: {
+                              variant: "filled",
+                              error: !!errors.dateOfApplicability,
+                              helperText: errors.dateOfApplicability?.message,
+                            },
+                          }}
+                          value={field.value}
+                          onChange={(value) => field.onChange(value)}
+                          sx={{ width: "100%" }}
+                          label="Date"
+                          name="startDate"
+                        />
+                      </LocalizationProvider>
+                    )}
+                  />
+                </div>
             </div>
             <div className="flex items-center w-full py-[20px] gap-3 mt-[20px]">
               <h2 className="text-lg font-semibold">GST Details</h2>

@@ -34,7 +34,6 @@ import MasterAddressLayout from "./layouts/MasterAddressLayout";
 import MasterBillingAddress from "./pages/master/MasterBillingAddress";
 import MasterShippingaddress from "./pages/master/MasterShippingaddress";
 import Protected from "./components/shared/Protected";
-import DeviceMin from "./pages/wearhouse/DeviceMin";
 import Report from "./pages/report/Report";
 import ReportLayout from "./layouts/ReportLayout";
 import QueryLayout from "./layouts/QueryLayout";
@@ -77,6 +76,11 @@ import StoreTRC from "@/pages/TRC/StoreTRC";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
 import CreateDispatchPage from "@/pages/Dispatch/CreateDispatchPage";
 import PendingTRCListTable from "@/table/master/PendingTRCListTable";
+import WrongDeviceDispatch from "@/pages/Dispatch/WrongDeviceDispatch";
+import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
+import OtpPage from "@/pages/commonPages/otpPage";
+import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
+import MaterialIn from "@/pages/min/MaterialIn";
 
 export const router = createBrowserRouter([
   {
@@ -372,11 +376,20 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DeviceMin />
+            {/* <DeviceMin /> */}
+            <MaterialIn />
           </MainLayout>
         ),
         path: "/device-materials-in",
       },
+      // {
+      //   element: (
+      //     <MainLayout>
+      //       <MaterialIn />
+      //     </MainLayout>
+      //   ),
+      //   path: "/device-min",
+      // },
       // production=======================================
       {
         element: (
@@ -568,6 +581,16 @@ export const router = createBrowserRouter([
         ),
         path: "/dispatch/create",
       },
+      {
+        element: (
+          <MainLayout>
+            <WrongDispatchLayout>
+              <WrongDeviceDispatch />
+            </WrongDispatchLayout>
+          </MainLayout>
+        ),
+        path: "/dispatch/wrong-device",
+      },
 
       //dispatch===========================================
 
@@ -657,6 +680,17 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication={false}>
         {/* <AuthLayout> */}
+        <RecoveryPassword />
+        {/* </AuthLayout> */}
+      </Protected>
+    ),
+    path: "/password-recovery",
+  },
+
+  {
+    element: (
+      <Protected authentication={false}>
+        {/* <AuthLayout> */}
         <ForgotPassword />
         {/* </AuthLayout> */}
       </Protected>
@@ -671,6 +705,14 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/verify-mail",
+  },
+  {
+    element: (
+      <Protected authentication={true}>
+        <OtpPage />
+      </Protected>
+    ),
+    path: "/verify-otp",
   },
   {
     element: (

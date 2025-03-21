@@ -68,8 +68,17 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log("clicked");
     socketService.emit("r10Download", payload);
   };
+  const emitDownloadR14Report = (payload: any) => {
+    console.log("clicked");
+    socketService.emit("berComponent", payload);
+  };
   const emitDownloadr5Report = (payload: any) => {
-    socketService.emit("r5Download", payload);
+    console.log(payload)
+    socketService.emit("r5DeviceSerial", payload);
+  };
+  const emitDownloadWrongDeviceReport = (payload: any) => {
+    console.log(payload)
+    socketService.emit("rWrongDevice", payload);
   };
   const emitGetNotification = () => {
     socketService.emit("getNotification","");
@@ -85,5 +94,5 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.off(event);
   };
 
-  return <SocketContext.Provider value={{ emitDownloadReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification,emitGetNotification,emitDownloadR4Report,emitDownloadR2Report,emitDownloadR10Report,emitDownloadr5Report }}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ emitDownloadReport,emitDownloadR14Report,emitDownloadWrongDeviceReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification,emitGetNotification,emitDownloadR4Report,emitDownloadR2Report,emitDownloadR10Report,emitDownloadr5Report }}>{children}</SocketContext.Provider>;
 };

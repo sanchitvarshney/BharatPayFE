@@ -429,6 +429,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                           placeholder="Scan items"
                           fullWidth
                           onChange={(e) => setInput(e.target.value)}
+                          inputProps={{ maxLength: 15 }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               e.preventDefault();

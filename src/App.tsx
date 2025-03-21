@@ -8,11 +8,13 @@ import BugAndChat from "./components/shared/BugAndChat";
 import { useUser } from "./hooks/useUser";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
+import OtpPage from "@/pages/commonPages/otpPage";
 
 dayjs.extend(customParseFormat);
 function App() {
   const { user } = useUser();
   const [isOffline, setIsOffline] = useState<boolean>(false);
+  const showDispatchPage= localStorage.getItem("showOtpPage");
   useEffect(() => {
     const handleOffline = () => {
       setIsOffline(true); // User is offline, apply blur effect
@@ -37,8 +39,8 @@ function App() {
     };
   }, []);
 
-  if (user) {
-    if (!user.other.e_v) {
+  if (user && user?.other) {
+    if (!user?.other.e_v) {
       return <MailVerifyPage />;
     } else if(!user.other.c_p){
       return <ChangePassword />
@@ -53,6 +55,11 @@ function App() {
           </div>
         </>
       );
+    }
+  }
+  else{
+    if(showDispatchPage==="Y"){
+      return <OtpPage />
     }
   }
 }

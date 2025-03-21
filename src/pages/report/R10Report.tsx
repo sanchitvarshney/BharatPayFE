@@ -36,6 +36,14 @@ const R10Report: React.FC = () => {
             Download R10 Report
           </Typography>
         </div>
+        <Typography
+          variant="h3"
+          fontSize={14}
+          fontWeight={400}
+          className="text-center"
+        >
+          This MONO report provides detailed information about all MONO devices, including serial number, operator, SIM number, SIM status, QR URL, inserted by, date, and time
+        </Typography>
         <RangePicker
           className="w-full h-[50px] border-[2px] rounded-sm "
           presets={rangePresets}

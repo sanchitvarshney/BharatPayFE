@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, MainR1ReportResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, R9reportResponse, ReportStateType } from "./reportType";
+import { DeviceRequestApiResponse, MainR1ReportResponse, R11ReportDataApiResponse, R12ReportDataApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, R9reportResponse, ReportStateType } from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -31,6 +31,12 @@ const initialState: ReportStateType = {
   r9report: null,
   r9ReportLoading: false,
   wrongDeviceReportLoading: false,
+  r11ReportLoading: false,  
+  r11Report: null,
+  r12Report: null,
+  r12ReportLoading: false,
+  r13Report: null,
+  r13ReportLoading: false
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -97,6 +103,21 @@ export const getWrongDeviceReport = createAsyncThunk<AxiosResponse<r6reportApiRe
 });
 export const getr8Report = createAsyncThunk<AxiosResponse<R8ReportDataApiResponse>, { from: string; to: string }>("report/getr8Report", async (payload) => {
   const response = await axiosInstance.get(`/report/r8?type=RANGE&data=${payload.from}-${payload.to}`);
+  return response;
+});
+
+export const getR11Report = createAsyncThunk<AxiosResponse<R11ReportDataApiResponse>, { from: string; to: string }>("report/getR11Report", async (payload) => {
+  const response = await axiosInstance.get(`/bpeIssue/report?startDate=${payload.from}&endDate=${payload.to}`);
+  return response;
+});
+
+export const getR13Report = createAsyncThunk<AxiosResponse<R11ReportDataApiResponse>, { from: string; to: string }>("report/getR13Report", async (payload) => {
+  const response = await axiosInstance.get(`/analytics/device/report?fromDate=${payload.from}&toDate=${payload.to}`);
+  return response;
+});
+
+export const getR12Report = createAsyncThunk<AxiosResponse<R12ReportDataApiResponse>, { from: string; to: string }>("report/getR12Report", async (payload) => {
+  const response = await axiosInstance.get(`/report/v1/trc_assembly?from=${payload.from}&to=${payload.to}`);
   return response;
 });
 
@@ -261,17 +282,17 @@ const reportSlice = createSlice({
       })
       .addCase(getWrongDeviceReport.pending, (state) => {
         state.wrongDeviceReportLoading = true;
-        state.r6Report = null;
+        state.wrongDeviceReport = null;
       })
       .addCase(getWrongDeviceReport.fulfilled, (state, action) => {
         state.wrongDeviceReportLoading = false;
         if (action.payload.data.success) {
-          state.r6Report = action.payload.data.data;
+          state.wrongDeviceReport = action.payload.data.data;
         }
       })
       .addCase(getWrongDeviceReport.rejected, (state) => {
         state.wrongDeviceReportLoading = false;
-        state.r6Report = null;
+        state.wrongDeviceReport = null;
       })
       .addCase(getr8Report.pending, (state) => {
         state.r8ReportLoading = true;
@@ -286,6 +307,48 @@ const reportSlice = createSlice({
       .addCase(getr8Report.rejected, (state) => {
         state.r8ReportLoading = false;
         state.r8Report = null;
+      })
+      .addCase(getR11Report.pending, (state) => {
+        state.r11ReportLoading = true;
+        state.r11Report = null;
+      })
+      .addCase(getR11Report.fulfilled, (state, action) => {
+        state.r11ReportLoading = false;
+        if (action.payload.data.success) {
+          state.r11Report = action.payload.data;
+        }
+      })
+      .addCase(getR11Report.rejected, (state) => {
+        state.r11ReportLoading = false;
+        state.r11Report = null;
+      })
+      .addCase(getR13Report.pending, (state) => {
+        state.r13ReportLoading = true;
+        state.r13Report = null;
+      })
+      .addCase(getR13Report.fulfilled, (state, action) => {
+        state.r13ReportLoading = false;
+        if (action.payload.data.success) {
+          state.r13Report = action.payload.data;
+        }
+      })
+      .addCase(getR13Report.rejected, (state) => {
+        state.r13ReportLoading = false;
+        state.r13Report = null;
+      })
+      .addCase(getR12Report.pending, (state) => {
+        state.r12ReportLoading = true;
+        state.r12Report = null;
+      })
+      .addCase(getR12Report.fulfilled, (state, action) => {
+        state.r12ReportLoading = false;
+        if (action.payload.data.success) {
+          state.r12Report = action.payload.data;
+        }
+      })
+      .addCase(getR12Report.rejected, (state) => {
+        state.r12ReportLoading = false;
+        state.r12Report = null;
       })
       .addCase(getr9Report.pending, (state) => {
         state.r9ReportLoading = true;

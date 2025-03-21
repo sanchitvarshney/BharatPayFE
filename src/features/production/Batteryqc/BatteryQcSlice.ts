@@ -8,6 +8,8 @@ const initialState: BatteryQcState = {
   batteryQcSaveLoading: false,
   deviceDetailData: null,
   deviceDetailLoading: false,
+  venStoneDeviceDetail: null,
+  venStoneDeviceDetailLoading: false,
 };
 
 export const getDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, string>("batteryqc/getDeviceDetail", async (imei) => {
@@ -19,6 +21,12 @@ export const getQcDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiRespons
   const response = await axiosInstance.get(`/backend/getDeviceDetail/${imei}`);
   return response;
 });
+
+export const getVenstoneDeviceDetail = createAsyncThunk<AxiosResponse<DeviceApiResponse>, string>("batteryqc/getVenstoneDeviceDetail", async (imei) => {
+  const response = await axiosInstance.get(`/backend/getVenstoneDeviceDetail/${imei}`);
+  return response;
+});
+
 export const batteryQcSave = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, bateryqcSavePayload>("batteryqc/batteryQcSave", async (payload) => {
   const response = await axiosInstance.post(`/qc/battery/saveBatteryQc`, payload);
   return response;
@@ -39,6 +47,18 @@ const batteryQcSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getVenstoneDeviceDetail.pending, (state) => {
+        state.venStoneDeviceDetailLoading = true;
+      })
+      .addCase(getVenstoneDeviceDetail.fulfilled, (state, action) => {
+        state.venStoneDeviceDetailLoading = false;
+        if (action.payload.data.success) {
+          state.venStoneDeviceDetail = action.payload?.data?.data[0];
+        }
+      })
+      .addCase(getVenstoneDeviceDetail.rejected, (state) => {
+        state.venStoneDeviceDetailLoading = false;
+      })
       .addCase(getDeviceDetail.pending, (state) => {
         state.deviceDetailLoading = true;
       })

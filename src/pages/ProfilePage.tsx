@@ -382,7 +382,7 @@ const ProfilePage: React.FC = () => {
                   Personal Information
                 </Typography>
                 <Typography variant="h2" fontSize={"15px"}>
-                  Basic info, like your name and phone number, that you use on HRMS Platform.
+                  Basic info, like your name and phone number, that you use on BharatPay Platform.
                 </Typography>
                 <div className="mt-[50px]">
                   {/* <Typography variant="h3" fontSize={"18px"} fontWeight={500}>

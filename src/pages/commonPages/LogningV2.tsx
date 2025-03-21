@@ -1,5 +1,5 @@
 import { Card, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, Link, OutlinedInput, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import SelectEndPoint from "@/components/shared/SelectEndPoint";
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const recaptchaRef = useRef<any>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   useEffect(() => {
@@ -43,7 +44,10 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        showToast(response.payload?.data?.message, "error");
+        response.payload?.data?.message?showToast(response.payload?.data?.message, "error"):showToast("Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts", "error"); 
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
+        }
       }
     });
   };
@@ -172,10 +176,15 @@ const LogningV2: React.FC = () => {
                   />
                   {errors.password && <FormHelperText id="component-error-text">{errors.password.message}</FormHelperText>}
                 </FormControl>
+                <div className="flex gap-[20px]">
                 <Link href="/forgot-password" fontSize={12} className="">
                   Forgot Password
                 </Link>
+                <Link href="/password-recovery" fontSize={12} className="">
+                   Lock and Unlock User
+                </Link></div>
               </div>
+          
               <LoadingButton loading={loading} size="large" variant="contained" fullWidth type="submit">
                 Login
               </LoadingButton>
@@ -183,7 +192,7 @@ const LogningV2: React.FC = () => {
             <div className="mt-[30px]">
               <Typography fontSize={12} className="text-center">
                 This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply. For more info, please visit
-                <Link sx={{ ml: "4px" }} href="www.mscorpres.com" target="_blank">
+                <Link sx={{ ml: "4px" }} href="https://www.mscorpres.com" target="_blank">
                   www.mscorpres.com
                 </Link>
                 .

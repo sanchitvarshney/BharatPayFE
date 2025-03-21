@@ -53,4 +53,7 @@ export interface LoginCredentials {
     updateEmailLoading: boolean
     verifyMailLoading: boolean
     otpLoading: boolean
+    qrStatus: any
+    qrCodeLoading: boolean
+    recoveryLoading : boolean
   }

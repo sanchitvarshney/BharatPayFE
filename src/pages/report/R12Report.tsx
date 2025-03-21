@@ -1,23 +1,24 @@
-import { useSocketContext } from "@/components/context/SocketContext";
 import { Icons } from "@/components/icons";
-import SelectLocation, {
-  LocationType,
-} from "@/components/reusable/SelectLocation";
+import { getR12Report } from "@/features/report/report/reportSlice";
+import { AppDispatch } from "@/features/Store";
 import { rangePresets } from "@/utils/rangePresets";
 import { showToast } from "@/utils/toasterContext";
-import { Button, Card, Typography } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Card, Typography } from "@mui/material";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 const { RangePicker } = DatePicker;
-const R7Report: React.FC = () => {
-  const { isConnected } = useSocketContext();
-  const { emitDownloadReport } = useSocketContext();
-  const [location, setLocation] = useState<LocationType | null>(null);
+
+const R12Report: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { r12ReportLoading } = useSelector((state: any) => state.report);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
   });
+
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
       setDate({ from: range[0], to: range[1] });
@@ -25,17 +26,20 @@ const R7Report: React.FC = () => {
       setDate({ from: null, to: null });
     }
   };
+
   const downloadReport = () => {
     if (!date.from || !date.to)
       return showToast("Please select location and date range", "error");
     const reportPayload = {
-      type: !location ? "allLocation" : "location",
-      fromDate: date.from?.format("DD-MM-YYYY"),
-      toDate: date.to?.format("DD-MM-YYYY"),
-      location: location?.id,
+      from: date.from?.format("YYYY-MM-DD"),
+      to: date.to?.format("YYYY-MM-DD"),
     };
-    emitDownloadReport(reportPayload);
-    showToast("Start downloading ", "success");
+    dispatch(getR12Report(reportPayload)).then((res: any) => {
+      console.log(res);
+      if (res?.payload?.data?.success == true) {
+        window.open(res?.payload?.data?.data, "_blank");
+      }
+    });
   };
 
   return (
@@ -46,7 +50,7 @@ const R7Report: React.FC = () => {
       >
         <div className="mb-[20px] text-center">
           <Typography variant="h1" fontSize={20} fontWeight={500}>
-            Download R7 Report
+            Download R12 Report
           </Typography>
         </div>
         <Typography
@@ -55,13 +59,8 @@ const R7Report: React.FC = () => {
           fontWeight={400}
           className="text-center"
         >
-         This report provides raw material stock data based on date and location. <br /> (If no location is selected, the stock data for all locations will be displayed.)
+         This report contains the part code consumption at the TRC and Assembly locations
         </Typography>
-        <SelectLocation
-          value={location}
-          onChange={(e) => setLocation(e)}
-          label="-- Location --"
-        />
         <RangePicker
           className="w-full h-[50px] border-[2px] rounded-sm "
           presets={rangePresets}
@@ -71,17 +70,18 @@ const R7Report: React.FC = () => {
           value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
           format="DD/MM/YYYY" // Update with your desired format
         />
-        <Button
-          disabled={!isConnected}
+        <LoadingButton
+          disabled={!date.from || !date.to}
+          loading={r12ReportLoading}
           onClick={downloadReport}
           variant="contained"
           startIcon={<Icons.download fontSize="small" />}
         >
           Download
-        </Button>
+        </LoadingButton>
       </Card>
     </div>
   );
 };
 
-export default R7Report;
+export default R12Report;

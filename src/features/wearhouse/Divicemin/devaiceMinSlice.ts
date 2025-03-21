@@ -97,7 +97,7 @@ export const UpdateDEviceMin = createAsyncThunk<AxiosResponse<UpdateMinResponse>
 });
 
 export const createMinAsync = createAsyncThunk<AxiosResponse<CreateMinResponse>, CreateMinPayload>("wearhouse/deviceMin/device", async (minData) => {
-  const response = await axiosInstance.post(`/deviceMin/device`, minData);
+  const response = await axiosInstance.post(`/deviceMin/deviceMinV2`, minData);
   return response;
 });
 

@@ -25,4 +25,6 @@ export type BatteryQcState = {
   deviceDetailLoading: boolean;
   deviceDetailData: DeviceData | null;
   batteryQcSaveLoading: boolean;
+  venStoneDeviceDetailLoading: boolean;
+  venStoneDeviceDetail: DeviceData | null;
 };
