@@ -68,6 +68,9 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
       }));
       setRowData(convertedData);
     }
+    else{
+      setRowData([])
+    }
   }, [q6Statement]);
 
   const columnDefs: ColDef[] = [
@@ -117,6 +120,12 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
     {
       headerName: "Inserted By",
       field: "insertBy",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Remark",
+      field: "remark",
       sortable: true,
       filter: true,
     },
