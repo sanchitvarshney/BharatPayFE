@@ -692,6 +692,7 @@ const MaterialIn: React.FC = () => {
                           ),
                         },
                       }}
+                      inputProps={{ maxLength: 15 }}
                     />
                   </div>
                 </div>
