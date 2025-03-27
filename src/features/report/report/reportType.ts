@@ -331,5 +331,6 @@ export type ReportStateType = {
   r12Report: R12ReportDataApiResponse | null;
   r13ReportLoading: boolean;
   r13Report: R11ReportDataApiResponse | null;
-
+  r15ReportLoading: boolean;
+  r15Report: any | null;
 };
