@@ -98,6 +98,7 @@ function MainLayout(props: { children: React.ReactNode }) {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                 >
+                  <MenuItem value={"2025-2026"}> 2025-2026</MenuItem>
                   <MenuItem value={"2024-2025"}> 2024-2025</MenuItem>
                   <MenuItem value={"2023-2024"}> 2023-2024</MenuItem>
                   <MenuItem value={"2022-2023"}> 2022-2023</MenuItem>
