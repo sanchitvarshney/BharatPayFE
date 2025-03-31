@@ -26,6 +26,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getToken();
+  const savedSession = localStorage.getItem("session") || "24-25";
  
   if (token) {
     const uniqueid = uuidv4();
@@ -33,7 +34,7 @@ axiosInstance.interceptors.request.use(async (config) => {
     const location = await getLocation();
     config.headers.Authorization = `Bearer ${token}`;
     config.headers["authorization"] = token;
-    config.headers["session"] = "2024-2025";
+    config.headers["session"] = savedSession;
     config.headers["x-click-token"] = uniqueid;
     config.headers["x-location"] = location ||"";
     config.headers["x-fingerprint"] = fingerprint || "unknown";
