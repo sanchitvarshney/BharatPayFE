@@ -129,6 +129,7 @@ type TransactionData = {
   imei: string;
   locationOut:string;
   method:string;
+  manufacturingMonth?:string
 };
 
 export type R6ApiResponse = {

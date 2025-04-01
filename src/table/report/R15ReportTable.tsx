@@ -18,6 +18,7 @@ const columnDefs: ColDef[] = [
   {headerName:"Consumption Qty",field:"consumpQty",sortable:true,filter:true},
   {headerName:"Closing Qty",field:"closingQty",sortable:true,filter:true},
   {headerName:"Count Qty",field:"countQty",sortable:true,filter:true},
+  {headerName:"Abnormal Qty",field:"qty",sortable:true,filter:true},
   {headerName:"Physical Date",field:"physicalDt",sortable:true,filter:true},
 ];
 

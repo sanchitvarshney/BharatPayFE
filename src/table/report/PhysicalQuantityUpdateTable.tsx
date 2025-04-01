@@ -24,20 +24,24 @@ const InputCellRenderer = (props: ICellRendererParams) => {
       showToast("Please enter a quantity", "error");
       return;
     }
-
     setIsLoading(true);
     try {
-      const response = dispatch(updatePhysicalQuantity({ txnId: props.data.txnId, qty: parseFloat(inputValue) }));
-console.log(response)
-      // if (response.payload.data.success) {
-      //   showToast("Quantity updated successfully", "success");
-      //   setInputValue("");
-      // } else {
-      //   showToast(
-      //     response.payload.data.message || "Failed to update quantity",
-      //     "error"
-      //   );
-      // }
+      const response = await dispatch(
+        updatePhysicalQuantity({
+          txnId: props.data.txnID,
+          qty: parseFloat(inputValue),
+        })
+      ).unwrap();
+
+      if (response.data.success) {
+        showToast("Quantity updated successfully", "success");
+        setInputValue("");
+      } else {
+        showToast(
+          response.data.message || "Failed to update quantity",
+          "error"
+        );
+      }
     } catch (error) {
       showToast("Error updating quantity", "error");
     } finally {
@@ -45,20 +49,30 @@ console.log(response)
     }
   };
 
+  const hasExistingQty =
+    props.data.qty !== undefined &&
+    props.data.qty !== null &&
+    props.data.qty !== "";
+
   return (
     <div className="flex items-center gap-2">
-      <TextField
-        // type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        className="w-24 px-2 py-0 border h-[20%]"
-        placeholder="Enter qty"
-      />
+      {hasExistingQty ? (
+        <div className="w-24 px-2 py-1 text-sm font-medium text-gray-700">
+          {props.data.qty}
+        </div>
+      ) : (
+        <TextField
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          className="w-24 px-2 py-0 border h-[20%]"
+          placeholder="Enter qty"
+        />
+      )}
       <Button
         variant="ghost"
         size="icon"
         onClick={handleSubmit}
-        disabled={isLoading}
+        disabled={isLoading || hasExistingQty}
       >
         {isLoading ? (
           <Icons.refreshv2 className="h-4 w-4 animate-spin" />

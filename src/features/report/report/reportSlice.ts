@@ -39,6 +39,7 @@ const initialState: ReportStateType = {
   r13ReportLoading: false,
   r15Report: null,
   r15ReportLoading: false,
+  updatePhysicalQuantityLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -134,7 +135,7 @@ export const getR15Report = createAsyncThunk<AxiosResponse<any>, { from: string;
 });
 
 export const updatePhysicalQuantity = createAsyncThunk<AxiosResponse<any>, { txnId: string; qty: number }>("report/updatePhysicalQuantity", async (payload) => {
-  const response = await axiosInstance.put(`/report/addAbnormalQty`, { txnId: payload.txnId, qty: payload.qty });
+  const response = await axiosInstance.put(`/report/addAbnormalQty`, { txnID: payload.txnId, qty: payload.qty });
   return response;
 });
 
@@ -178,6 +179,16 @@ const reportSlice = createSlice({
           state.mainR1Report = action.payload.data.data;
         }
       })
+      .addCase(updatePhysicalQuantity.pending, (state) => {
+        state.updatePhysicalQuantityLoading = true;
+      })
+      .addCase(updatePhysicalQuantity.fulfilled, (state) => {
+        state.updatePhysicalQuantityLoading = false;
+      })
+      .addCase(updatePhysicalQuantity.rejected, (state) => {
+        state.updatePhysicalQuantityLoading = false;
+      })
+      
       .addCase(getMainR1Data.rejected, (state) => {
         state.mainR1ReportLoading = false;
       })
