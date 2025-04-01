@@ -133,6 +133,11 @@ export const getR15Report = createAsyncThunk<AxiosResponse<any>, { from: string;
   return response;
 });
 
+export const updatePhysicalQuantity = createAsyncThunk<AxiosResponse<any>, { txnId: string; qty: number }>("report/updatePhysicalQuantity", async (payload) => {
+  const response = await axiosInstance.put(`/report/addAbnormalQty`, { txnId: payload.txnId, qty: payload.qty });
+  return response;
+});
+
 const reportSlice = createSlice({
   name: "report",
   initialState,
