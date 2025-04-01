@@ -22,7 +22,7 @@ function MainLayout(props: { children: React.ReactNode }) {
   const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
-  const [selectedSession, setSelectedSession] = useState('24-25');
+  const [selectedSession, setSelectedSession] = useState('25-26');
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
   const [favoriteSheet, setFavoriteSheet] = useState<boolean>(false);
   const [logotAlert, setLogotAlert] = useState<boolean>(false);

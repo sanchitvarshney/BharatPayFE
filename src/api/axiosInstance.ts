@@ -26,7 +26,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getToken();
-  const savedSession = localStorage.getItem("session") || "24-25";
+  const savedSession = localStorage.getItem("session") || "25-26";
  
   if (token) {
     const uniqueid = uuidv4();
