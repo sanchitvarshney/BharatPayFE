@@ -20,7 +20,7 @@ import { CreateDispatch, getClientBranch, uploadFile } from "@/features/Dispatch
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
-import { getClientAddressDetail } from "@/features/master/client/clientSlice";
+import { getClientAddressDetail, getDispatchFromDetail } from "@/features/master/client/clientSlice";
 import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -44,6 +44,7 @@ type RowData = {
 type FormDataType = {
   clientDetail: clientDetailType | null;
   shipToDetails: shipToDetailsType | null;
+  dispatchFromDetails: dispatchFromDetailsType | null;
   invoice: string;
   qty: string;
   location: LocationType | null;
@@ -61,6 +62,18 @@ type clientDetailType = {
   address1: string;
   address2: string;
   pincode: string;
+};
+
+type dispatchFromDetailsType = {
+  dispatchFrom: string;
+  address1: string;
+  address2: string;
+  mobileNo: string;
+  city: string;
+  gst: string;
+  company: string;
+  pan: string;
+  pin: string;
 };
 
 type shipToDetailsType = {
@@ -85,7 +98,7 @@ const CreateDispatchPage: React.FC = () => {
   const [isMultiple, setIsMultiple] = useState<boolean>(true);  // Default is multiple IMEIs
   const { dispatchCreateLoading, uploadFileLoading, clientBranchList } = useAppSelector((state) => state.dispatch);
 
-  const { addressDetail } = useAppSelector((state) => state.client) as any;
+  const { addressDetail,dispatchFromDetails } = useAppSelector((state) => state.client) as any;
 
   const {
     register,
@@ -99,6 +112,7 @@ const CreateDispatchPage: React.FC = () => {
     defaultValues: {
       clientDetail: null,
       shipToDetails: null,
+      dispatchFromDetails: null,
       invoice: "",
       qty: "",
       document: "",
@@ -158,6 +172,7 @@ const CreateDispatchPage: React.FC = () => {
           }
         : null,
       shipToDetails: data.shipToDetails || null,
+      dispatchFromDetails: data.dispatchFromDetails || null,
     };
     dispatch(CreateDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -177,6 +192,7 @@ const CreateDispatchPage: React.FC = () => {
     dispatch(getLocationAsync(null));
     dispatch(getPertCodesync(null));
     dispatch(getCurrency());
+    dispatch(getDispatchFromDetail());
   }, []);
 
   useEffect(() => {
@@ -202,6 +218,19 @@ const CreateDispatchPage: React.FC = () => {
       setValue("shipToDetails.pincode", value.pinCode); // Update pincode
       setValue("shipToDetails.mobileNo", value.phoneNo);
       setValue("shipToDetails.city", value.city);
+    }
+  };
+  const handleDispatchFromChange = (value: any) => {
+    if (value) {
+      setValue("dispatchFromDetails.dispatchFrom", value.code);
+      setValue("dispatchFromDetails.address1", value.addressLine1);
+      setValue("dispatchFromDetails.address2", value.addressLine2);
+      setValue("dispatchFromDetails.mobileNo", value.mobileNo);
+      setValue("dispatchFromDetails.city", value.city);
+      setValue("dispatchFromDetails.gst", value.gst);
+      setValue("dispatchFromDetails.company", value.company);
+      setValue("dispatchFromDetails.pan", value.pan);
+      setValue("dispatchFromDetails.pin", value.pin);
     }
   };
   const onImeiSubmit = (imei: string) => {
@@ -510,6 +539,147 @@ const CreateDispatchPage: React.FC = () => {
                   label="Ship To Addrests 2"
                   className="h-[100px] resize-none"
                   {...register("shipToDetails.address2", {
+                    required: "Address 2 is required",
+                  })}
+                />
+              </div>
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.shipping />
+                  <h2 className="text-lg font-semibold">Dispatch From Details</h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                <Controller
+                  name="shipToDetails.shipTo"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Ship To Client Branch is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      // value={field.value}
+                      value={dispatchFromDetails?.data?.find((address: any) => address.code === field.value) || null}
+                      onChange={(_, newValue) => handleDispatchFromChange(newValue)}
+                      disablePortal
+                      id="combo-box-demo"
+                      options={dispatchFromDetails || []}
+                      renderInput={(params) => <TextField {...params} label="Dispatch From" error={!!errors.dispatchFromDetails?.dispatchFrom} helperText={errors.dispatchFromDetails?.dispatchFrom?.message} variant="filled" />}
+                    />
+                  )}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.pin}
+                  helperText={errors?.dispatchFromDetails?.pin?.message}
+                  focused={!!watch("dispatchFromDetails.pin")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PinCode"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.pin", {
+                    required: "PinCode is required",
+                  })}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.mobileNo}
+                  helperText={errors?.dispatchFromDetails?.mobileNo?.message}
+                  focused={!!watch("dispatchFromDetails.mobileNo")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Mobile No"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.mobileNo", {
+                    required: "Mobile No is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.gst}
+                  helperText={errors?.dispatchFromDetails?.gst?.message}
+                  focused={!!watch("dispatchFromDetails.gst")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="GST"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.gst", {
+                    required: "GST is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.pan}
+                  helperText={errors?.dispatchFromDetails?.pan?.message}
+                  focused={!!watch("dispatchFromDetails.pan")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PAN"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.pan", {
+                    required: "PAN is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.city}
+                  helperText={errors?.dispatchFromDetails?.city?.message}
+                  focused={!!watch("dispatchFromDetails.city")}
+                  rows={3}
+                  fullWidth
+                  label="City"
+                  className="h-[100px] resize-none"
+                  {...register("dispatchFromDetails.city")}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.address1}
+                  helperText={errors?.dispatchFromDetails?.address1?.message}
+                  focused={!!watch("dispatchFromDetails.address1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("dispatchFromDetails.address1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.address2}
+                  helperText={errors?.dispatchFromDetails?.address2?.message}
+                  focused={!!watch("dispatchFromDetails.address2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Addrests 2"
+                  className="h-[100px] resize-none"
+                  {...register("dispatchFromDetails.address2", {
                     required: "Address 2 is required",
                   })}
                 />

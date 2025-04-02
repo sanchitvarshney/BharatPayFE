@@ -10,6 +10,7 @@ export type DispatchItemPayload = {
   clientDetail: any;
   shipToDetails: any;
   dispatchDate: string;
+  dispatchFromDetails: any;
 };
 
 export type DispatchWrongItemPayload = {
