@@ -221,12 +221,12 @@ const MaterialIn: React.FC = () => {
       isSimAvaileble?: string,
       model?: string
     ) => {
-      if (rowData.filter((item) => item.isNew === true).length >= 10) {
-        showToast(
-          "First submit your all items before adding new item",
-          "warning"
-        );
-      } else {
+      // if (rowData.filter((item) => item.isNew === true).length >= 10) {
+      //   showToast(
+      //     "First submit your all items before adding new item",
+      //     "warning"
+      //   );
+      // } else {
         const newId = generateUniqueId();
         const newRow: RowData = {
           id: newId,
@@ -240,7 +240,7 @@ const MaterialIn: React.FC = () => {
         };
         setRowData((prev) => [newRow, ...prev]);
         setInput("");
-      }
+      // }
     },
     [rowData]
   );
@@ -692,6 +692,7 @@ const MaterialIn: React.FC = () => {
                           ),
                         },
                       }}
+                      inputProps={{ maxLength: 15 }}
                     />
                   </div>
                 </div>

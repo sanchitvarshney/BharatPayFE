@@ -22,6 +22,7 @@ function MainLayout(props: { children: React.ReactNode }) {
   const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
+  const [selectedSession, setSelectedSession] = useState('25-26');
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
   const [favoriteSheet, setFavoriteSheet] = useState<boolean>(false);
   const [logotAlert, setLogotAlert] = useState<boolean>(false);
@@ -59,6 +60,12 @@ function MainLayout(props: { children: React.ReactNode }) {
     }
   }, [isConnected]);
 
+  const handleSessionChange = (newSession:string) => {
+    setSelectedSession(newSession);
+    // Store the selected session in localStorage
+    localStorage.setItem('session', newSession);
+  };
+
   return (
     <Wrapper className="">
       {/* alert disalogs start=============== */}
@@ -81,7 +88,7 @@ function MainLayout(props: { children: React.ReactNode }) {
             <div className="date">
               <FormControl sx={{ width: "300px" }}>
                 <Select
-                  defaultValue={"2024-2025"}
+                  defaultValue={selectedSession}
                   className="shadow"
                   sx={{
                     background: "white",
@@ -97,10 +104,12 @@ function MainLayout(props: { children: React.ReactNode }) {
                   size="small"
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
+                  onChange={(e) => handleSessionChange(e.target.value)}
                 >
-                  <MenuItem value={"2024-2025"}> 2024-2025</MenuItem>
-                  <MenuItem value={"2023-2024"}> 2023-2024</MenuItem>
-                  <MenuItem value={"2022-2023"}> 2022-2023</MenuItem>
+                  <MenuItem value={"25-26"}> 2025-2026</MenuItem>
+                  <MenuItem value={"24-25"}> 2024-2025</MenuItem>
+                  <MenuItem value={"23-24"}> 2023-2024</MenuItem>
+                  <MenuItem value={"22-23"}> 2022-2023</MenuItem>
                 </Select>
               </FormControl>
             </div>

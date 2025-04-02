@@ -32,7 +32,6 @@ const SelectVendor: React.FC<Props> = ({ value, onChange, label = "Search Vendor
   const [loading, setLoading] = useState<boolean>(false);
   const [vendorList, setVendorList] = useState<VendorData[]>([]);
 
-  // Fetch vendors based on search input
   const fetchVendors = async (query: string | null) => {
     setLoading(true);
     try {
@@ -65,7 +64,7 @@ const SelectVendor: React.FC<Props> = ({ value, onChange, label = "Search Vendor
       size={size}
       options={vendorList || []}
       getOptionLabel={(option) => `${option.text}`}
-      filterSelectedOptions
+      filterOptions={(options) => options}
       onChange={(_, value) => {
         onChange(value);
       }}

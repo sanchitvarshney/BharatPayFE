@@ -81,6 +81,7 @@ import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
 import OtpPage from "@/pages/commonPages/otpPage";
 import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
 import MaterialIn from "@/pages/min/MaterialIn";
+import PhysicalQuantityUpdate from "@/pages/PhysicalQuantityReport/PhysicalQuantityUpdate";
 
 export const router = createBrowserRouter([
   {
@@ -112,6 +113,14 @@ export const router = createBrowserRouter([
         path: "/docViewer",
       },
 
+      {
+        element: (
+          <MainLayout>
+            <PhysicalQuantityUpdate />
+          </MainLayout>
+        ),
+        path: "/physical-quantity-update",
+      },
       {
         element: (
           <MainLayout>

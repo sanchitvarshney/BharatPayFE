@@ -20,10 +20,45 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
     };
   }, []);
 
+  const parseDate = (dateString: string): Date | null => {
+    if (!dateString) {
+      return null; // Return null if the input string is empty or undefined
+    }
+  
+    const parts = dateString.split(" ");
+    if (parts.length !== 2) {
+      return null; // Return null if the date string doesn't contain both date and time parts
+    }
+  
+    const dateParts = parts[0].split("-");
+    if (dateParts.length !== 3) {
+      return null; // Return null if the date part doesn't have exactly 3 components (DD-MM-YYYY)
+    }
+  
+    const timeParts = parts[1].split(":");
+    if (timeParts.length !== 3) {
+      return null; // Return null if the time part doesn't have exactly 3 components (HH:mm:ss)
+    }
+  
+    // Construct a new date in the format YYYY-MM-DDTHH:mm:ss
+    const formattedDateString = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${timeParts[0]}:${timeParts[1]}:${timeParts[2]}`;
+  
+    const parsedDate = new Date(formattedDateString);
+    return isNaN(parsedDate.getTime()) ? null : parsedDate; // Return null if the resulting date is invalid
+  };
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return "";
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   useEffect(() => {
     if (q6Statement) {
       const convertedData: any[] = q6Statement?.map((item) => ({
-        insertDate: item.time,
+        insertDate: parseDate(item.time),
         transaction: item.minNo,
         transactionType: item.transactionType,
         method: item.method,
@@ -32,6 +67,9 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
         insertBy: item.user,
       }));
       setRowData(convertedData);
+    }
+    else{
+      setRowData([])
     }
   }, [q6Statement]);
 
@@ -43,6 +81,14 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       width: 100,
       valueGetter: (params: any) => params.node.rowIndex + 1,
+    },
+    {
+      headerName: "Date",
+      field: "insertDate",
+      sortable: true,
+      filter: true,
+      sort: "asc",
+      valueFormatter: (params: any) => formatDate(new Date(params.value)),
     },
     {
       headerName: "Transaction ID",
@@ -57,13 +103,6 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       width: 150,
     },
-    {
-      headerName: "Transaction Type",
-      field: "transactionType",
-      sortable: true,
-      filter: true,
-      width: 150,
-    },
     { headerName: "Location In", field: "locIn", sortable: true, filter: true },
     {
       headerName: "Location Out",
@@ -71,10 +110,22 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
     },
-    { headerName: "Date", field: "insertDate", sortable: true, filter: true },
+    {
+      headerName: "Transaction Type",
+      field: "transactionType",
+      sortable: true,
+      filter: true,
+      width: 200,
+    },
     {
       headerName: "Inserted By",
       field: "insertBy",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Remark",
+      field: "remark",
       sortable: true,
       filter: true,
     },
