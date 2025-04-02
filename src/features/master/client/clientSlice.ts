@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { AddBranchPayload, AddressDetailApiResponse, AddShipToAddressPayload, BasicDetailPayload, ClientDetailApiresponse, ClientState, CraeteClientPayload, CustomerApiResponse, UpdateBillingAddressPayload, UpdateShipToPayload } from "./clientType";
+import { AddBranchPayload, AddressDetailApiResponse, AddShipToAddressPayload, BasicDetailPayload, ClientDetailApiresponse, ClientState, CraeteClientPayload, CustomerApiResponse, DispatchFromDetailApiResponse, UpdateBillingAddressPayload, UpdateShipToPayload } from "./clientType";
 import { showToast } from "@/utils/toasterContext";
 
 const initialState: ClientState = {
@@ -12,6 +12,8 @@ const initialState: ClientState = {
   clientDetailLoading: false,
   addressDetail: null,
   addressDetailLoading: false,
+  dispatchFromDetails: null,
+  dispatchFromDetailsLoading: false,
   addShiptoAddressLoading: false,
   addBranchLoading: false,
   updateshiptoAddressLoading: false,
@@ -36,6 +38,10 @@ export const getClientDetail = createAsyncThunk<AxiosResponse<ClientDetailApires
 });
 export const getClientAddressDetail = createAsyncThunk<AxiosResponse<AddressDetailApiResponse>, string>("master/client/getClientAddressDetail", async (id) => {
   const response = await axiosInstance.get(`/client/branchDetails?addressID=${id}`);
+  return response;
+});
+export const getDispatchFromDetail = createAsyncThunk<AxiosResponse<DispatchFromDetailApiResponse>>("master/client/getDispatchFromDetail", async () => {
+  const response = await axiosInstance.get(`/billingAddress/getAll`);
   return response;
 });
 export const addShipToAddress = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, AddShipToAddressPayload>("master/client/addShipToAddress", async (payload) => {
@@ -108,6 +114,20 @@ const clientSlice = createSlice({
       .addCase(getClient.rejected, (state) => {
         state.getClientLoading = false;
         state.clientdata = null;
+      })
+      .addCase(getDispatchFromDetail.pending, (state) => {
+        state.dispatchFromDetailsLoading = true;
+        state.dispatchFromDetails = null;
+      })
+      .addCase(getDispatchFromDetail.fulfilled, (state, action) => {
+        state.dispatchFromDetailsLoading = false;
+        if (action.payload.data.success) {
+          state.dispatchFromDetails = action.payload.data.data;
+        }
+      })
+      .addCase(getDispatchFromDetail.rejected, (state) => {
+        state.dispatchFromDetailsLoading = false;
+        state.dispatchFromDetails = null;
       })
       .addCase(getClientDetail.pending, (state) => {
         state.clientDetailLoading = true;
