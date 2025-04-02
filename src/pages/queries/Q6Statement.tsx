@@ -214,6 +214,9 @@ const Q6Statement: React.FC = () => {
                     <ListItem>
                       <ListItemText primary="Serial No." secondary={q6Statement?.[0]?.serial || "--"} />
                     </ListItem>
+                    <ListItem>
+                      <ListItemText primary="Manufacturing Month" secondary={q6Statement?.[0]?.manufacturingMonth || "--"} />
+                    </ListItem>
                   </List>
                 </Paper>
               </>
