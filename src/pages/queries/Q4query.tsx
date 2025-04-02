@@ -44,7 +44,7 @@ const Q4query: React.FC = () => {
           {q4Data && (
             <List>
               <ListItem>
-                <ListItemText primary={"SKU Code"} secondary={q4Data?.component?.sku} />
+                <ListItemText primary={"Device Code"} secondary={q4Data?.component?.sku} />
               </ListItem>
               <ListItem>
                 <ListItemText primary={"Name"} secondary={q4Data?.component?.name} />
@@ -59,7 +59,7 @@ const Q4query: React.FC = () => {
           <div className="w-full">
             <div className="flex items-center px-[20px] h-[60px] justify-between">
               <Typography variant="h1" fontWeight={500} fontSize={25} component={"div"} className="">
-                Component Stock at locations as on till date
+                Device Stock at locations as on till date
               </Typography>
               <div className="flex items-center gap-[10px]">
                 <Typography>Total : </Typography>

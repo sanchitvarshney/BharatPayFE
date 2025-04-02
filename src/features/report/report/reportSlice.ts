@@ -36,7 +36,10 @@ const initialState: ReportStateType = {
   r12Report: null,
   r12ReportLoading: false,
   r13Report: null,
-  r13ReportLoading: false
+  r13ReportLoading: false,
+  r15Report: null,
+  r15ReportLoading: false,
+  updatePhysicalQuantityLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -125,6 +128,17 @@ export const getr9Report = createAsyncThunk<AxiosResponse<R9reportResponse>, { f
   const response = await axiosInstance.get(`/deviceMinV2/deviceInwardReport?fromDt=${payload.from}&toDt=${payload.to}&partner=${payload.partner}`);
   return response;
 });
+
+export const getR15Report = createAsyncThunk<AxiosResponse<any>, { from: string; to: string; location: string }>("report/getr15Report", async (payload) => {
+  const response = await axiosInstance.get(`/report/physicalReport?fromDate=${payload.from}&toDate=${payload.to}&location=${payload.location}`);
+  return response;
+});
+
+export const updatePhysicalQuantity = createAsyncThunk<AxiosResponse<any>, { txnId: string; qty: number }>("report/updatePhysicalQuantity", async (payload) => {
+  const response = await axiosInstance.put(`/report/addAbnormalQty`, { txnID: payload.txnId, qty: payload.qty });
+  return response;
+});
+
 const reportSlice = createSlice({
   name: "report",
   initialState,
@@ -165,6 +179,16 @@ const reportSlice = createSlice({
           state.mainR1Report = action.payload.data.data;
         }
       })
+      .addCase(updatePhysicalQuantity.pending, (state) => {
+        state.updatePhysicalQuantityLoading = true;
+      })
+      .addCase(updatePhysicalQuantity.fulfilled, (state) => {
+        state.updatePhysicalQuantityLoading = false;
+      })
+      .addCase(updatePhysicalQuantity.rejected, (state) => {
+        state.updatePhysicalQuantityLoading = false;
+      })
+      
       .addCase(getMainR1Data.rejected, (state) => {
         state.mainR1ReportLoading = false;
       })
@@ -349,6 +373,20 @@ const reportSlice = createSlice({
       .addCase(getR12Report.rejected, (state) => {
         state.r12ReportLoading = false;
         state.r12Report = null;
+      })
+      .addCase(getR15Report.pending, (state) => {
+        state.r15ReportLoading = true;
+        state.r15Report = null;
+      })
+      .addCase(getR15Report.fulfilled, (state, action) => {
+        state.r15ReportLoading = false;
+        if (action.payload.data.success) {
+          state.r15Report = action.payload.data;
+        }
+      })
+      .addCase(getR15Report.rejected, (state) => {
+        state.r15ReportLoading = false;
+        state.r15Report = null;
       })
       .addCase(getr9Report.pending, (state) => {
         state.r9ReportLoading = true;
