@@ -83,6 +83,7 @@ import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
 import MaterialIn from "@/pages/min/MaterialIn";
 import PhysicalQuantityUpdate from "@/pages/PhysicalQuantityReport/PhysicalQuantityUpdate";
 import DispatchTableForEwayBill from "@/pages/ewayBill/DispatchForEwayBill";
+import CreateEwayBill from "@/pages/ewayBill/CreateEwayBill";
 
 export const router = createBrowserRouter([
   {
@@ -112,6 +113,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/eway-bill-details",
+      },
+      {
+        element: (
+          <MainLayout>
+            <CreateEwayBill />
+          </MainLayout>
+        ),
+        path: "/create/e-waybill/:id",
       },
       {
         element: (
