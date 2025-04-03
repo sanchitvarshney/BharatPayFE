@@ -6,14 +6,7 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
 
 interface RowData {
   txnId: string;
@@ -67,22 +60,22 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
     }
   };
 
-  function fnOpenNewWindow(link:string) {
+  function fnOpenNewWindow(link: string) {
     // Define window dimensions
     const width = 920;
     const height = 500;
 
     // Calculate the position to center the window on the screen
-    const left = (window.screen.width / 2) - (width / 2);
-    const top = (window.screen.height / 2) - (height / 2);
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
 
     // Open the new window centered on the screen
     window.open(
-        link,
-        'Spigen',
-        `width=${width},height=${height},top=${top},left=${left},status=1,scrollbars=1,location=0,resizable=yes`
+      link,
+      "Spigen",
+      `width=${width},height=${height},top=${top},left=${left},status=1,scrollbars=1,location=0,resizable=yes`
     );
-}
+  }
 
   const columnDefs: ColDef[] = [
     {
@@ -195,81 +188,16 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
         </Menu>
       </div>
 
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="bottom" className="h-[90vh]">
-          <SheetHeader>
-            <SheetTitle>
-              Fillout Eway Bill Data - {selectedRow?.txnId}
-            </SheetTitle>
-          </SheetHeader>
-          <div className="ag-theme-quartz h-[calc(100vh-200px)] grid grid-cols-4 gap-4">
-            <div className="col-span-1 max-h-[calc(100vh-210px)] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 bg-white border-r flex flex-col gap-4 p-4">
-              <Card className="rounded-sm shadow-sm shadow-slate-500">
-                <CardHeader className="flex flex-row items-center justify-between p-4 bg-[#e0f2f1]">
-                  <CardTitle className="font-[550] text-slate-600">
-                    Dispatch Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="mt-4 flex flex-col gap-4 text-slate-600">
-                  <div className="grid grid-cols-[1fr_150px]">
-                    <div>
-                      <h3 className="font-[600]">SKU</h3>
-                    </div>
-                    <div>
-                      <p className="text-[14px]">{selectedRow?.sku || "--"}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-[1fr_150px]">
-                    <div>
-                      <h3 className="font-[600]">SKU Name</h3>
-                    </div>
-                    <div>
-                      <p className="text-[14px]">
-                        {selectedRow?.skuName || "--"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-[1fr_150px]">
-                    <div>
-                      <h3 className="font-[600]">Dispatch Date</h3>
-                    </div>
-                    <div>
-                      <p className="text-[14px]">
-                        {selectedRow?.dispatchDate || "--"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-[1fr_150px]">
-                    <div>
-                      <h3 className="font-[600]">Quantity</h3>
-                    </div>
-                    <div>
-                      <p className="text-[14px]">
-                        {selectedRow?.dispatchQty || "--"}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="col-span-3">
-              {/* Add your form or additional content here */}
-            </div>
-          </div>
-          <div className="bg-white border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
-            <Button
-              className="rounded-md shadow bg-green-700 hover:bg-green-600 shadow-slate-500 max-w-max px-[30px] text-white"
-              onClick={() => {
-                setTxn(selectedRow?.txnId || "");
-                setOpen(true);
-                setSheetOpen(false);
-              }}
-            >
-              Submit
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
+      <FillEwayBillSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        selectedRow={selectedRow}
+        onSubmit={() => {
+          setTxn(selectedRow?.txnId || "");
+          setOpen(true);
+          setSheetOpen(false);
+        }}
+      />
     </>
   );
 };
