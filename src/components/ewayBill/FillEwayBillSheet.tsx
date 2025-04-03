@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -12,6 +12,7 @@ import { AgGridReact } from "ag-grid-react";
 import { columnDefs } from "@/constants/FilloutEwayBillDataColumns";
 import { ColDef, ColGroupDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import EwayBillCellRenderer from "@/components/ewayBill/EwayBillCellRenderer";
 
 interface RowData {
   txnId: string;
@@ -39,16 +40,27 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   const { dispatchData, dispatchDataLoading } = useAppSelector(
     (state) => state.dispatch
   );
-  console.log(selectedRow);
+  const [rowData, setRowData] = useState<RowData[]>([]);
+
+  useEffect(() => {
+    const updatedData: RowData[] = dispatchData?.data?.map(
+      (material: any) => ({
+        material: material.item_name || "",
+        orderQty: material.item_qty || 0,
+        hsnCode: material.item_hsncode || "",
+        isNew: true,
+      })
+    );
+    setRowData(updatedData);
+  }, [dispatchData?.data]);
+console.log(dispatchDataLoading)
   const components = useMemo(
     () => ({
       textInputCellRenderer: (props: any) => (
-        // <DebitTextInputCellRenderer
-        //   {...props}
-        //   setRowData={setRowData}
-        //   currency={currency}
-        // />
-        <div></div>
+        <EwayBillCellRenderer
+          {...props}
+          setRowData={setRowData}
+        />
       ),
     }),
     []
@@ -58,7 +70,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-[95vh]">
         <SheetHeader>
-          <SheetTitle>Fillout Eway Bill Data - {selectedRow}</SheetTitle>
+          <SheetTitle>Fillout Eway Bill Data - {selectedRow?.txnId}</SheetTitle>
         </SheetHeader>
         <div className="ag-theme-quartz h-[calc(100vh-200px)] grid grid-cols-4 gap-4">
           <div className="col-span-1 max-h-[calc(100vh-210px)] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 bg-white border-r flex flex-col gap-4 p-4">
@@ -216,7 +228,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
           </div>
           <div className="col-span-3">
             <AgGridReact
-              rowData={dispatchData?.data}
+              rowData={rowData}
               columnDefs={columnDefs as (ColDef | ColGroupDef)[]}
               suppressCellFocus={true}
               components={components}
