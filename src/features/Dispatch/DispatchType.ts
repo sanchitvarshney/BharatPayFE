@@ -33,4 +33,6 @@ export type DispatchState = {
   clientBranchList: any;
   clientBranchLoading: boolean;
   wrongDispatchLoading: boolean;
+  dispatchData: any;
+  dispatchDataLoading: boolean;
 };

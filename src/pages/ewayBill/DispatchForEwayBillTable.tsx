@@ -3,10 +3,11 @@ import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
-import { useAppSelector } from "@/hooks/useReduxHook";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
+import { getDispatchData } from "@/features/Dispatch/DispatchSlice";
 
 interface RowData {
   txnId: string;
@@ -28,6 +29,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const dispatch = useAppDispatch();
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -46,6 +48,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
     if (selectedRow) {
       setSheetOpen(true);
       handleMenuClose();
+      dispatch(getDispatchData(selectedRow.txnId));
     }
   };
 
@@ -191,9 +194,9 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
       <FillEwayBillSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        selectedRow={selectedRow}
+        selectedRow={selectedRow?.txnId}
         onSubmit={() => {
-          setTxn(selectedRow?.txnId || "");
+          // setTxn(selectedRow?.txnId || "");
           setOpen(true);
           setSheetOpen(false);
         }}
