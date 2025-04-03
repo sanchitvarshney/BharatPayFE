@@ -82,6 +82,7 @@ import OtpPage from "@/pages/commonPages/otpPage";
 import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
 import MaterialIn from "@/pages/min/MaterialIn";
 import PhysicalQuantityUpdate from "@/pages/PhysicalQuantityReport/PhysicalQuantityUpdate";
+import DispatchTableForEwayBill from "@/pages/ewayBill/DispatchForEwayBill";
 
 export const router = createBrowserRouter([
   {
@@ -103,6 +104,14 @@ export const router = createBrowserRouter([
       {
         element: <StockDetailPage />,
         path: "/stockdetail",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DispatchTableForEwayBill />
+          </MainLayout>
+        ),
+        path: "/eway-bill-details",
       },
       {
         element: (
