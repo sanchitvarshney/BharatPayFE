@@ -23,7 +23,7 @@ interface RowData {
   dispatchQty: number;
   inserby: string;
   dispatchId: string;
-  taxableValue: number;
+  localValue: number;
 }
 
 interface EwayBillSheetProps {
@@ -43,42 +43,72 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   const dispatch = useAppDispatch();
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [taxableValue, setTaxableValue] = useState<number>(0);
-console.log(selectedRow,dispatchDataLoading)
+  const [totalCgst, setTotalCgst] = useState<number>(0);
+  const [totalSgst, setTotalSgst] = useState<number>(0);
+  const [totalIgst, setTotalIgst] = useState<number>(0);
+  const [totalTax, setTotalTax] = useState<number>(0);
+  console.log(selectedRow, dispatchDataLoading);
   useEffect(() => {
-    const updatedData: RowData[] = dispatchData?.data?.map(
-      (material: any) => ({
-        material: material.item_name || "",
-        orderQty: material.item_qty || 0,
-        hsnCode: material.item_hsncode || "",
-        isNew: true,
-      })
-    );
+    const updatedData: RowData[] = dispatchData?.data?.map((material: any) => ({
+      material: material.item_name || "",
+      orderQty: material.item_qty || 0,
+      hsnCode: material.item_hsncode || "",
+      isNew: true,
+    }));
     setRowData(updatedData);
   }, [dispatchData?.data]);
 
   const components = useMemo(
     () => ({
       textInputCellRenderer: (props: any) => (
-        <EwayBillCellRenderer
-          {...props}
-          setRowData={setRowData}
-        />
+        <EwayBillCellRenderer {...props} setRowData={setRowData} />
       ),
     }),
     []
   );
   const onSubmit = () => {
     console.log(rowData);
-    dispatch(fillEwayBillData({
-      txnId: selectedRow?.txnId,
-      data: rowData
-    }));
+    dispatch(
+      fillEwayBillData({
+        txnId: selectedRow?.txnId,
+        data: rowData,
+      })
+    );
   };
-useEffect(() => {
-  console.log(rowData)
-  const taxableValue = rowData.reduce((acc, curr) => acc + curr.taxableValue, 0);
-  setTaxableValue(taxableValue);
-}, [rowData]);
+  console.log(rowData);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const taxableValue = Number(
+        rowData
+          .reduce((acc, curr) => acc + (Number(curr.localValue) || 0), 0)
+          .toFixed(2)
+      );
+      setTaxableValue(taxableValue);
+      const totalCgst = Number(
+        rowData
+          .reduce((acc, curr) => acc + (Number(curr.cgst) || 0), 0)
+          .toFixed(2)
+      );
+      setTotalCgst(totalCgst);
+      const totalSgst = Number(
+        rowData
+          .reduce((acc, curr) => acc + (Number(curr.sgst) || 0), 0)
+          .toFixed(2)
+      );
+      setTotalSgst(totalSgst);
+      const totalIgst = Number(
+        rowData
+          .reduce((acc, curr) => acc + (Number(curr.igst) || 0), 0)
+          .toFixed(2)
+      );
+      setTotalIgst(totalIgst);
+      const totalTax = Number(
+        (taxableValue + totalCgst + totalSgst + totalIgst).toFixed(2)
+      );
+      setTotalTax(totalTax);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [rowData]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -245,7 +275,9 @@ useEffect(() => {
             </Card>
             <Card className="rounded-sm shadow-sm shadow-slate-600">
               <CardHeader className="flex flex-row items-center justify-between p-4 bg-[#e0f2f1]">
-                <CardTitle className="font-[550] text-slate-600">Tax Details</CardTitle>
+                <CardTitle className="font-[550] text-slate-600">
+                  Tax Details
+                </CardTitle>
               </CardHeader>
               <CardContent className="mt-4 flex flex-col gap-4 text-slate-500">
                 <ul>
@@ -254,9 +286,39 @@ useEffect(() => {
                       <h3 className="font-[600]">Taxable Value</h3>
                     </div>
                     <div>
-                      <p className="text-[14px]">
-                        {taxableValue}
-                      </p>
+                      <p className="text-[14px]">{taxableValue}</p>
+                    </div>
+                  </li>
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
+                    <div>
+                      <h3 className="font-[600]">Total CGST</h3>
+                    </div>
+                    <div>
+                      <p className="text-[14px]">{totalCgst}</p>
+                    </div>
+                  </li>
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
+                    <div>
+                      <h3 className="font-[600]">Total SGST</h3>
+                    </div>
+                    <div>
+                      <p className="text-[14px]">{totalSgst}</p>
+                    </div>
+                  </li>
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
+                    <div>
+                      <h3 className="font-[600]">Total IGST</h3>
+                    </div>
+                    <div>
+                      <p className="text-[14px]">{totalIgst}</p>
+                    </div>
+                  </li>
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
+                    <div>
+                      <h3 className="font-[600]">Total Value after Taxes</h3>
+                    </div>
+                    <div>
+                      <p className="text-[14px]">{totalTax}</p>
                     </div>
                   </li>
                 </ul>
