@@ -18,7 +18,7 @@ const columnDefs: ColDef[] = [
   { headerName: "Battary ID", field: "batteryId", sortable: true, filter: true, flex: 1 },
   { headerName: "Status", field: "status", sortable: true, filter: true, flex: 1 },
   { headerName: "Insert Date", field: "insertDate", sortable: true, filter: true, flex: 1 },
-  // { headerName: "Insert By", field: "By", sortable: true, filter: true,flex:1 },
+  { headerName: "Insert By", field: "insertBy", sortable: true, filter: true,flex:1 },
   { headerName: "Remark", field: "remark", sortable: true, filter: true, flex: 1 },
 ];
 
