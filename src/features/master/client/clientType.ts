@@ -145,6 +145,26 @@ export type AddressDetailApiResponse = {
   };
 };
 
+export type DispatchFromDetail = {
+  address: string;
+  addressLine1: string;
+  cin: string;
+  addressLine2: string;
+  code: string;
+  company: string;
+  gst: string;
+  insert_dt: string;
+  label: string;
+  mobileNo: string;
+  pan: string;
+  pin: string;
+};
+
+export type DispatchFromDetailApiResponse = {
+  success: boolean;
+  data: DispatchFromDetail[];
+};
+
 export type AddShipToAddressPayload = {
   addressID: string;
   shipToPincode: string;
@@ -237,4 +257,6 @@ export type ClientState = {
   updateBillingAddressLoading: boolean;
   billId: string | null;
   updateBasicDetailLoading: boolean;
+  dispatchFromDetailsLoading: boolean;
+  dispatchFromDetails: DispatchFromDetail[] | null;
 };

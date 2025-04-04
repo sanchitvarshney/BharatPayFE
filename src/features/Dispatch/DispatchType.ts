@@ -10,6 +10,7 @@ export type DispatchItemPayload = {
   clientDetail: any;
   shipToDetails: any;
   dispatchDate: string;
+  dispatchFromDetails: any;
 };
 
 export type DispatchWrongItemPayload = {
@@ -32,4 +33,6 @@ export type DispatchState = {
   clientBranchList: any;
   clientBranchLoading: boolean;
   wrongDispatchLoading: boolean;
+  dispatchData: any;
+  dispatchDataLoading: boolean;
 };
