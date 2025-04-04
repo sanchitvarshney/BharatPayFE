@@ -18,7 +18,7 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
   const { value, colDef, data, api, column } = props;
-  console.log(showConfirmDialog,selectedRowIndex);
+  console.log(showConfirmDialog, selectedRowIndex);
 
   const handleDeleteRow = (rowIndex: number) => {
     setSelectedRowIndex(rowIndex);
@@ -46,7 +46,7 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
     const { name, value } = e.target;
     data[name] = value;
 
-    if (name === "rate" || name === "orderQty"||name==="gstRate") {
+    if (name === "rate" || name === "orderQty" || name === "gstRate") {
       // Calculate localValue based on rate and orderQty
       data["localValue"] =
         (parseFloat(data.rate) || 0) * (parseFloat(data.orderQty) || 0);
@@ -81,7 +81,7 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
     const newValue = value;
     data[colDef.field] = value; // Save ID in the data
     const localValue = parseFloat(data.localValue) || 0; // Ensure localValue is a number
-    console.log(localValue,data.gstRate);
+    console.log(localValue, data.gstRate);
     let cgst = 0;
     let sgst = 0;
     let igst = 0;
@@ -157,9 +157,9 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
             className="w-[100%] custom-input"
           />
         );
-        case "gstType":
-          return (
-            <Select
+      case "gstType":
+        return (
+          <Select
             className="w-full custom-select"
             value={value}
             defaultValue={value}
@@ -167,21 +167,29 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
             options={gstType}
             // onSelect={(value) => handleChange(value)}
           />
-          );
-        case "gstRate":
-          return (
-            <Input
-              name={colDef.field}
-              onChange={handleInputChange}
-              value={value}
-              type="number"
-              placeholder={colDef.headerName}
-              className="w-[100%] custom-input"
-            />
-          );
+        );
+      case "gstRate":
+        return (
+          <Input
+            name={colDef.field}
+            onChange={handleInputChange}
+            value={value}
+            type="number"
+            placeholder={colDef.headerName}
+            className="w-[100%] custom-input"
+          />
+        );
+      case "remark":
+        return (
+          <Input
+            name={colDef.field}
+            onChange={handleInputChange}
+            value={value}
+            className="w-[100%] custom-input"
+          />
+        );
       case "materialDescription":
       case "hsnCode":
-      case "remark":
       case "localValue":
       case "cgst":
       case "sgst":

@@ -72,8 +72,8 @@ console.log(dispatchDataLoading)
         <SheetHeader>
           <SheetTitle>Fillout Eway Bill Data - {selectedRow?.txnId}</SheetTitle>
         </SheetHeader>
-        <div className="ag-theme-quartz h-[calc(100vh-200px)] grid grid-cols-4 gap-4">
-          <div className="col-span-1 max-h-[calc(100vh-210px)] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 bg-white border-r flex flex-col gap-4 p-4">
+        <div className="ag-theme-quartz h-[calc(100vh-150px)] grid grid-cols-4 gap-4">
+          <div className="col-span-1 max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 bg-white border-r flex flex-col gap-4 p-4">
             <Card className="rounded-sm shadow-sm shadow-slate-500">
               <CardHeader className="flex flex-row items-center justify-between p-4 bg-[#e0f2f1]">
                 <CardTitle className="font-[550] text-slate-600">
@@ -185,13 +185,17 @@ console.log(dispatchDataLoading)
                 </CardTitle>
               </CardHeader>
               <CardContent className="mt-4 flex flex-col gap-4 text-slate-500">
+                <h3 className="font-[600]">Legal Name</h3>
+                <p className="text-[14px]">
+                  {dispatchData?.header?.[0]?.dispatchFrom?.legalName || ""}
+                </p>
                 <h3 className="font-[600]">Address</h3>
                 <p className="text-[14px]">
                   {dispatchData?.header?.[0]?.dispatchFrom?.addressLine1 || ""}{" "}
                   {dispatchData?.header?.[0]?.dispatchFrom?.addressLine2}
                 </p>
                 <ul>
-                  <li className="grid grid-cols-[1fr_150px] mt-4">
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
                     <div>
                       <h3 className="font-[600]">PinCode</h3>
                     </div>
@@ -202,23 +206,23 @@ console.log(dispatchDataLoading)
                       </p>
                     </div>
                   </li>
-                  <li className="grid grid-cols-[1fr_150px] mt-4">
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
                     <div>
-                      <h3 className="font-[600]">GST</h3>
+                      <h3 className="font-[600]">Location</h3>
                     </div>
                     <div>
                       <p className="text-[14px]">
-                        {dispatchData?.header?.[0]?.dispatchFrom?.gstin}
+                        {dispatchData?.header?.[0]?.dispatchFrom?.location}
                       </p>
                     </div>
                   </li>
-                  <li className="grid grid-cols-[1fr_150px] mt-4">
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
                     <div>
-                      <h3 className="font-[600]">PAN</h3>
+                      <h3 className="font-[600]">PinCode</h3>
                     </div>
                     <div>
                       <p className="text-[14px]">
-                        {dispatchData?.header?.[0]?.dispatchFrom?.panno}
+                        {dispatchData?.header?.[0]?.dispatchFrom?.pincode}
                       </p>
                     </div>
                   </li>
