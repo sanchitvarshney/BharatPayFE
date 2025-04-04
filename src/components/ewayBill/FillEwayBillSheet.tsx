@@ -24,6 +24,9 @@ interface RowData {
   inserby: string;
   dispatchId: string;
   localValue: number;
+  cgst:number;
+  sgst:number;
+  igst:number;
 }
 
 interface EwayBillSheetProps {
@@ -113,10 +116,10 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-[95vh]">
-        <SheetHeader>
+        <SheetHeader className="pb-4">
           <SheetTitle>Fillout Eway Bill Data - {selectedRow?.txnId}</SheetTitle>
         </SheetHeader>
-        <div className="ag-theme-quartz h-[calc(100vh-150px)] grid grid-cols-4 gap-4">
+        <div className="ag-theme-quartz h-[calc(100vh-160px)] grid grid-cols-4 gap-4">
           <div className="col-span-1 max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 bg-white border-r flex flex-col gap-4 p-4">
             <Card className="rounded-sm shadow-sm shadow-slate-500">
               <CardHeader className="flex flex-row items-center justify-between p-4 bg-[#e0f2f1]">
@@ -337,7 +340,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
         </div>
         <div className="bg-white border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
           <Button
-            className="rounded-md shadow bg-green-700 hover:bg-green-600 shadow-slate-500 max-w-max px-[30px] text-white"
+            className="rounded-md shadow bg-green-700 hover:bg-green-600 shadow-slate-500 max-w-max px-[30px] text-white "
             onClick={onSubmit}
           >
             Submit

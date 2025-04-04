@@ -147,6 +147,7 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
           />
         );
       case "rate":
+      case "gstRate":
         return (
           <Input
             name={colDef.field}
@@ -165,18 +166,22 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
             defaultValue={value}
             onChange={(value) => handleChange(value)}
             options={gstType}
-            // onSelect={(value) => handleChange(value)}
-          />
-        );
-      case "gstRate":
-        return (
-          <Input
-            name={colDef.field}
-            onChange={handleInputChange}
-            value={value}
-            type="number"
-            placeholder={colDef.headerName}
-            className="w-[100%] custom-input"
+            showSearch={false}
+            allowClear={false}
+            style={{ width: "100%" }}
+            getPopupContainer={(triggerNode) =>
+              triggerNode.parentNode as HTMLElement
+            }
+            dropdownStyle={{
+              zIndex: 9999,
+              position: "fixed",
+              marginTop: "5px",
+            }}
+            dropdownRender={(menu) => (
+              <div style={{ position: "relative", paddingTop: "15px" }}>
+                {menu}
+              </div>
+            )}
           />
         );
       case "remark":
@@ -186,6 +191,7 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
             onChange={handleInputChange}
             value={value}
             className="w-[100%] custom-input"
+            type="text"
           />
         );
       case "materialDescription":
