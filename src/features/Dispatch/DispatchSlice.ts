@@ -46,6 +46,11 @@ export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dis
   return response;
 });
 
+export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>("dispatch/fillEwayBillData", async (payload) => {
+  const response = await axiosInstance.post(`/dispatchDivice/fillEwayBillData`, payload);
+  return response;
+});
+
 const dispatchSlice = createSlice({
   name: "dispatch",
   initialState,

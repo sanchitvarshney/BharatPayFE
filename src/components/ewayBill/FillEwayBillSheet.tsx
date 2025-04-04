@@ -7,12 +7,13 @@ import {
 } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAppSelector } from "@/hooks/useReduxHook";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "ag-grid-react";
 import { columnDefs } from "@/constants/FilloutEwayBillDataColumns";
 import { ColDef, ColGroupDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import EwayBillCellRenderer from "@/components/ewayBill/EwayBillCellRenderer";
+import { fillEwayBillData } from "@/features/Dispatch/DispatchSlice";
 
 interface RowData {
   txnId: string;
@@ -22,26 +23,27 @@ interface RowData {
   dispatchQty: number;
   inserby: string;
   dispatchId: string;
+  taxableValue: number;
 }
 
 interface EwayBillSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedRow: RowData | null;
-  onSubmit: () => void;
+  selectedRow: RowData | any;
 }
 
 const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   open,
   onOpenChange,
   selectedRow,
-  onSubmit,
 }) => {
   const { dispatchData, dispatchDataLoading } = useAppSelector(
     (state) => state.dispatch
   );
+  const dispatch = useAppDispatch();
   const [rowData, setRowData] = useState<RowData[]>([]);
-
+  const [taxableValue, setTaxableValue] = useState<number>(0);
+console.log(selectedRow,dispatchDataLoading)
   useEffect(() => {
     const updatedData: RowData[] = dispatchData?.data?.map(
       (material: any) => ({
@@ -53,7 +55,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
     );
     setRowData(updatedData);
   }, [dispatchData?.data]);
-console.log(dispatchDataLoading)
+
   const components = useMemo(
     () => ({
       textInputCellRenderer: (props: any) => (
@@ -65,6 +67,18 @@ console.log(dispatchDataLoading)
     }),
     []
   );
+  const onSubmit = () => {
+    console.log(rowData);
+    dispatch(fillEwayBillData({
+      txnId: selectedRow?.txnId,
+      data: rowData
+    }));
+  };
+useEffect(() => {
+  console.log(rowData)
+  const taxableValue = rowData.reduce((acc, curr) => acc + curr.taxableValue, 0);
+  setTaxableValue(taxableValue);
+}, [rowData]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -223,6 +237,25 @@ console.log(dispatchDataLoading)
                     <div>
                       <p className="text-[14px]">
                         {dispatchData?.header?.[0]?.dispatchFrom?.pincode}
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="rounded-sm shadow-sm shadow-slate-600">
+              <CardHeader className="flex flex-row items-center justify-between p-4 bg-[#e0f2f1]">
+                <CardTitle className="font-[550] text-slate-600">Tax Details</CardTitle>
+              </CardHeader>
+              <CardContent className="mt-4 flex flex-col gap-4 text-slate-500">
+                <ul>
+                  <li className="grid grid-cols-[1fr_150px] mt-4 gap-2">
+                    <div>
+                      <h3 className="font-[600]">Taxable Value</h3>
+                    </div>
+                    <div>
+                      <p className="text-[14px]">
+                        {taxableValue}
                       </p>
                     </div>
                   </li>

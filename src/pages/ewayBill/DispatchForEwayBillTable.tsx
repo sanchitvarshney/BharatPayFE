@@ -10,22 +10,25 @@ import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
 import { getDispatchData } from "@/features/Dispatch/DispatchSlice";
 
 interface RowData {
+  orderQty: number;
+  material: string;
+  hsnCode: string;
+  isNew: boolean;
+  taxableValue: number;
   txnId: string;
-  sku: string;
-  skuName: string;
-  dispatchDate: string;
-  dispatchQty: number;
-  inserby: string;
   dispatchId: string;
+  dispatchDate: string;
+  inserby: string;
+  skuName: string;
+  sku: string;
 }
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setTxn: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
+const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -41,7 +44,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedRow(null);
+    // setSelectedRow(null);
   };
 
   const handleFilloutEwayBill = () => {
@@ -194,12 +197,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, setOpen }) => {
       <FillEwayBillSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        selectedRow={selectedRow?.txnId}
-        onSubmit={() => {
-          // setTxn(selectedRow?.txnId || "");
-          setOpen(true);
-          setSheetOpen(false);
-        }}
+        selectedRow={selectedRow}
       />
     </>
   );
