@@ -13,6 +13,8 @@ const initialState: DispatchState = {
   clientBranchList: null,
   clientBranchLoading: false,
   wrongDispatchLoading:false,
+  dispatchData: null,
+  dispatchDataLoading: false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -39,6 +41,16 @@ export const getClientBranch = createAsyncThunk<AxiosResponse<any>, string>("mas
   return response;
 });
 
+export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dispatch/getDispatchData", async (id) => {
+  const response = await axiosInstance.get(`/dispatchDivice/detail?txnId=${id}`);
+  return response;
+});
+
+export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>("dispatch/fillEwayBillData", async (payload) => {
+  const response = await axiosInstance.post(`/dispatchDivice/fillEwayBillData`, payload);
+  return response;
+});
+
 const dispatchSlice = createSlice({
   name: "dispatch",
   initialState,
@@ -61,6 +73,19 @@ const dispatchSlice = createSlice({
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
+      .addCase(getDispatchData.rejected, (state) => {
+        state.dispatchDataLoading = false;
+      })
+      .addCase(getDispatchData.pending, (state) => {
+        state.dispatchDataLoading = true;
+      })
+      .addCase(getDispatchData.fulfilled, (state, action) => {
+        state.dispatchDataLoading = false;
+        if (action.payload.data.success) {
+          state.dispatchData = action.payload.data.data;
+        }
+      })
+     
       .addCase(wrongDeviceDispatch.pending, (state) => {
         state.wrongDispatchLoading = true;
       })

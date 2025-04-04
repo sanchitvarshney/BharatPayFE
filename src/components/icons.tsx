@@ -116,6 +116,7 @@ export const Icons = {
   check: CheckIcon,
   sim: SimCardIcon,
   grid: GridViewIcon,
+  ewaybill: LocalShippingOutlinedIcon,
   next: NavigateNextIcon,
   previous: NavigateBeforeIcon,
   files: FileCopyIcon,
