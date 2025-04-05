@@ -15,6 +15,7 @@ const initialState: DispatchState = {
   wrongDispatchLoading:false,
   dispatchData: null,
   dispatchDataLoading: false,
+  ewayBillDataLoading:false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -46,8 +47,8 @@ export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dis
   return response;
 });
 
-export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>("dispatch/fillEwayBillData", async (payload) => {
-  const response = await axiosInstance.post(`/dispatchDivice/fillEwayBillData`, payload);
+export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/submitDetail', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/submitDetail`, payload);
   return response;
 });
 
@@ -86,6 +87,15 @@ const dispatchSlice = createSlice({
         }
       })
      
+      .addCase(fillEwayBillData.pending, (state) => {
+        state.ewayBillDataLoading = true;
+      })
+      .addCase(fillEwayBillData.fulfilled, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(fillEwayBillData.rejected, (state) => {
+        state.ewayBillDataLoading = false;
+      })
       .addCase(wrongDeviceDispatch.pending, (state) => {
         state.wrongDispatchLoading = true;
       })

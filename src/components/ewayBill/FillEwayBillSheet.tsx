@@ -6,7 +6,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "ag-grid-react";
 import { columnDefs } from "@/constants/FilloutEwayBillDataColumns";
@@ -14,6 +13,9 @@ import { ColDef, ColGroupDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import EwayBillCellRenderer from "@/components/ewayBill/EwayBillCellRenderer";
 import { fillEwayBillData } from "@/features/Dispatch/DispatchSlice";
+import { LoadingButton } from "@mui/lab";
+import Loader from "@/components/reusable/Loader";
+import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
   txnId: string;
@@ -24,9 +26,9 @@ interface RowData {
   inserby: string;
   dispatchId: string;
   localValue: number;
-  cgst:number;
-  sgst:number;
-  igst:number;
+  cgst: number;
+  sgst: number;
+  igst: number;
 }
 
 interface EwayBillSheetProps {
@@ -40,9 +42,8 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   onOpenChange,
   selectedRow,
 }) => {
-  const { dispatchData, dispatchDataLoading } = useAppSelector(
-    (state) => state.dispatch
-  );
+  const { dispatchData, dispatchDataLoading, ewayBillDataLoading } =
+    useAppSelector((state) => state.dispatch);
   const dispatch = useAppDispatch();
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [taxableValue, setTaxableValue] = useState<number>(0);
@@ -57,6 +58,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
       orderQty: material.item_qty || 0,
       hsnCode: material.item_hsncode || "",
       isNew: true,
+      txnId: selectedRow?.txnId,
     }));
     setRowData(updatedData);
   }, [dispatchData?.data]);
@@ -70,14 +72,15 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
     []
   );
   const onSubmit = () => {
-    console.log(rowData);
-    dispatch(
-      fillEwayBillData({
-        txnId: selectedRow?.txnId,
-        data: rowData,
-      })
-    );
+    dispatch(fillEwayBillData(rowData[0])).then((res: any) => {
+      console.log(res);
+      if (res.payload.data.success||res.payload.data.status) {
+        showToast(res.payload.data.message, "success");
+        onOpenChange(false);
+      }
+    });
   };
+
   console.log(rowData);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -119,6 +122,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
         <SheetHeader className="pb-4">
           <SheetTitle>Fillout Eway Bill Data - {selectedRow?.txnId}</SheetTitle>
         </SheetHeader>
+        {dispatchDataLoading && <Loader />}
         <div className="ag-theme-quartz h-[calc(100vh-160px)] grid grid-cols-4 gap-4">
           <div className="col-span-1 max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 bg-white border-r flex flex-col gap-4 p-4">
             <Card className="rounded-sm shadow-sm shadow-slate-500">
@@ -339,12 +343,14 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
           </div>
         </div>
         <div className="bg-white border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
-          <Button
+          <LoadingButton
+            loading={ewayBillDataLoading}
             className="rounded-md shadow bg-green-700 hover:bg-green-600 shadow-slate-500 max-w-max px-[30px] text-white "
             onClick={onSubmit}
+            variant="contained"
           >
             Submit
-          </Button>
+          </LoadingButton>
         </div>
       </SheetContent>
     </Sheet>

@@ -35,4 +35,5 @@ export type DispatchState = {
   wrongDispatchLoading: boolean;
   dispatchData: any;
   dispatchDataLoading: boolean;
+  ewayBillDataLoading: boolean;
 };
