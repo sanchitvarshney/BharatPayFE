@@ -4,10 +4,10 @@ import {
   supplyTypeOptions,
   subsupplytype,
   transactionTypeOptions,
-  reverseOptions,
   ewayBillSchema,
   transportationMode,
   vehicleTypeOptions,
+  columnDefs,
 } from "@/constants/EwayBillConstants";
 import {
   Select,
@@ -24,12 +24,21 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { EwayBillFormData } from "@/constants/EwayBillConstants";
 import { AgGridReact } from "ag-grid-react";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { useEffect } from "react";
+import { createEwayBill, getDispatchData } from "@/features/Dispatch/DispatchSlice";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 
 export default function CreateEwayBill() {
+  const dispatch = useAppDispatch();
+  const { dispatchDataLoading, dispatchData } = useAppSelector(
+    (state) => state.dispatch
+  );
   const {
     control,
     formState: { errors },
     handleSubmit,
+    setValue,
   } = useForm<EwayBillFormData>({
     resolver: zodResolver(ewayBillSchema),
     defaultValues: {
@@ -47,10 +56,59 @@ export default function CreateEwayBill() {
 
   const onSubmit = (data: EwayBillFormData) => {
     console.log(data);
+    dispatch(createEwayBill(data)).then((res) => {
+      console.log(res);
+    });
   };
+  const dispId = window.location.pathname.split("/").pop()!;
+  useEffect(() => {
+    dispatch(getDispatchData(dispId?.replace(/_/g, "/")));
+  }, []);
+
+  useEffect(() => {
+    if (dispatchData) {
+      const data = dispatchData?.header[0];
+      console.log(dispatchData, data);
+      setValue("header.documentNo", dispId);
+      setValue("billFrom.gstin", data.billFrom.gstin);
+      setValue("billFrom.legalName", data.billFrom.legalName);
+      setValue("billFrom.tradeName", data.billFrom.tradeName);
+      setValue("billFrom.email", data.billFrom.email);
+      setValue("billFrom.phone", data.billFrom.phone);
+      setValue("billFrom.pincode", data.billFrom.pincode);
+      setValue("billFrom.addressLine1", data.billFrom.addressLine1);
+      setValue("billFrom.addressLine2", data.billFrom.addressLine2);
+      setValue("billFrom.location", data.billFrom.location);
+      setValue("billFrom.state", data.billFrom.state);
+      setValue("billTo.gstin", data.billTo.gstin);
+      setValue("billTo.legalName", data.billTo.legalName);
+      setValue("billTo.email", data.billTo.email);
+      setValue("billTo.phone", data.billTo.phone);
+      setValue("billTo.pincode", data.billTo.pincode);
+      setValue("billTo.addressLine1", data.billTo.addressLine1);
+      setValue("billTo.addressLine2", data.billTo.addressLine2);
+      setValue("billTo.location", data.billTo.location);
+      setValue("dispatchFrom.legalName", data.dispatchFrom.legalName);
+      setValue("dispatchFrom.pincode", data.dispatchFrom.pincode);
+      setValue("dispatchFrom.addressLine1", data.dispatchFrom.addressLine1);
+      setValue("dispatchFrom.addressLine2", data.dispatchFrom.addressLine2);
+      setValue("dispatchFrom.location", data.dispatchFrom.location);
+      setValue("dispatchFrom.state", data.dispatchFrom.state);
+      setValue("shipTo.gstin", data.shipTo.gstin);
+      setValue("shipTo.legalName", data.shipTo.legalName);
+      setValue("shipTo.tradeName", data.shipTo.tradeName);
+      setValue("shipTo.addressLine1", data.shipTo.addressLine1);
+      setValue("shipTo.addressLine2", data.shipTo.addressLine2);
+      setValue("shipTo.location", data.shipTo.location);
+      setValue("shipTo.state", data.shipTo.state);
+      setValue("shipTo.pincode", data.shipTo.pincode);
+      setValue("shipTo.tradeName", data.shipTo.legalName);
+    }
+  }, [dispatchData]);
 
   return (
     <div className="rounded-lg p-[30px] shadow-md bg-[#fff] overflow-y-auto mb-10">
+    {dispatchDataLoading && <FullPageLoading />}
       <div className="text-slate-700 font-[600] text-[28px] flex justify-center mb-2">
         Create E-Way Bill
       </div>
@@ -62,36 +120,7 @@ export default function CreateEwayBill() {
             </h3>
           </CardHeader>
           <CardContent className="mt-[30px] p-6">
-            <div className="grid grid-cols-2 gap-6">
-              <Controller
-                name="header.documentType"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.header?.documentType}>
-                    <InputLabel id="document-type-label">
-                      Document Type
-                    </InputLabel>
-                    <Select
-                      {...field}
-                      labelId="document-type-label"
-                      label="Document Type"
-                      className="bg-white"
-                    >
-                      {docType.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.header?.documentType && (
-                      <span className="text-red-500 text-sm">
-                        {errors.header.documentType.message}
-                      </span>
-                    )}
-                  </FormControl>
-                )}
-              />
-
+            <div className="grid grid-cols-3 gap-6">
               <Controller
                 name="header.supplyType"
                 control={control}
@@ -160,10 +189,40 @@ export default function CreateEwayBill() {
                     className="bg-white"
                     error={!!errors.header?.documentNo}
                     helperText={errors.header?.documentNo?.message}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 )}
               />
-
+              <Controller
+                name="header.documentType"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.header?.documentType}>
+                    <InputLabel id="document-type-label">
+                      Document Type
+                    </InputLabel>
+                    <Select
+                      {...field}
+                      labelId="document-type-label"
+                      label="Document Type"
+                      className="bg-white"
+                    >
+                      {docType.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.header?.documentType && (
+                      <span className="text-red-500 text-sm">
+                        {errors.header.documentType.message}
+                      </span>
+                    )}
+                  </FormControl>
+                )}
+              />
               <Controller
                 name="header.documentDate"
                 control={control}
@@ -225,35 +284,6 @@ export default function CreateEwayBill() {
                   </FormControl>
                 )}
               />
-
-              <Controller
-                name="header.reverseCharge"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.header?.reverseCharge}>
-                    <InputLabel id="reverse-charge-label">
-                      Reverse Charge
-                    </InputLabel>
-                    <Select
-                      {...field}
-                      labelId="reverse-charge-label"
-                      label="Reverse Charge"
-                      className="bg-white"
-                    >
-                      {reverseOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.header?.reverseCharge && (
-                      <span className="text-red-500 text-sm">
-                        {errors.header.reverseCharge.message}
-                      </span>
-                    )}
-                  </FormControl>
-                )}
-              />
             </div>
           </CardContent>
         </Card>
@@ -269,22 +299,6 @@ export default function CreateEwayBill() {
             <CardContent className="mt-[30px] p-6">
               <div className="grid grid-cols-2 gap-6">
                 <Controller
-                  name="billFrom.gstin"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="GSTIN"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.billFrom?.gstin}
-                      helperText={errors.billFrom?.gstin?.message}
-                    />
-                  )}
-                />
-
-                <Controller
                   name="billFrom.legalName"
                   control={control}
                   render={({ field }) => (
@@ -296,11 +310,13 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billFrom?.legalName}
                       helperText={errors.billFrom?.legalName?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
-
-                <Controller
+                    <Controller
                   name="billFrom.tradeName"
                   control={control}
                   render={({ field }) => (
@@ -312,10 +328,32 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billFrom?.tradeName}
                       helperText={errors.billFrom?.tradeName?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
 
+                <Controller
+                  name="billFrom.gstin"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="GSTIN"
+                      variant="outlined"
+                      className="bg-white"
+                      error={!!errors.billFrom?.gstin}
+                      helperText={errors.billFrom?.gstin?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+            
                 <Controller
                   name="billFrom.email"
                   control={control}
@@ -328,6 +366,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billFrom?.email}
                       helperText={errors.billFrom?.email?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -344,6 +385,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billFrom?.phone}
                       helperText={errors.billFrom?.phone?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -360,43 +404,13 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billFrom?.pincode}
                       helperText={errors.billFrom?.pincode?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
-
-                <Controller
-                  name="billFrom.addressLine1"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Address Line 1"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.billFrom?.addressLine1}
-                      helperText={errors.billFrom?.addressLine1?.message}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="billFrom.addressLine2"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Address Line 2"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.billFrom?.addressLine2}
-                      helperText={errors.billFrom?.addressLine2?.message}
-                    />
-                  )}
-                />
-
-                <Controller
+                 <Controller
                   name="billFrom.location"
                   control={control}
                   render={({ field }) => (
@@ -408,6 +422,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billFrom?.location}
                       helperText={errors.billFrom?.location?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -434,6 +451,50 @@ export default function CreateEwayBill() {
                     </FormControl>
                   )}
                 />
+
+                <Controller
+                  name="billFrom.addressLine1"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Address Line 1"
+                      variant="outlined"
+                      className="bg-white"
+                      multiline
+                      rows={3}
+                      error={!!errors.billFrom?.addressLine1}
+                      helperText={errors.billFrom?.addressLine1?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="billFrom.addressLine2"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Address Line 2"
+                      variant="outlined"
+                      className="bg-white"
+                      multiline
+                      rows={3}
+                      error={!!errors.billFrom?.addressLine2}
+                      helperText={errors.billFrom?.addressLine2?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+
+               
               </div>
             </CardContent>
           </Card>
@@ -445,21 +506,7 @@ export default function CreateEwayBill() {
             </CardHeader>
             <CardContent className="mt-[30px] p-6">
               <div className="grid grid-cols-2 gap-6">
-                <Controller
-                  name="billTo.gstin"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="GSTIN"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.billTo?.gstin}
-                      helperText={errors.billTo?.gstin?.message}
-                    />
-                  )}
-                />
+            
 
                 <Controller
                   name="billTo.legalName"
@@ -473,41 +520,31 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billTo?.legalName}
                       helperText={errors.billTo?.legalName?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
-
-                <Controller
-                  name="billTo.addressLine1"
+    <Controller
+                  name="billTo.gstin"
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Address Line 1"
+                      label="GSTIN"
                       variant="outlined"
                       className="bg-white"
-                      error={!!errors.billTo?.addressLine1}
-                      helperText={errors.billTo?.addressLine1?.message}
+                      error={!!errors.billTo?.gstin}
+                      helperText={errors.billTo?.gstin?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
-
-                <Controller
-                  name="billTo.addressLine2"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Address Line 2"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.billTo?.addressLine2}
-                      helperText={errors.billTo?.addressLine2?.message}
-                    />
-                  )}
-                />
+               
 
                 <Controller
                   name="billTo.location"
@@ -521,6 +558,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billTo?.location}
                       helperText={errors.billTo?.location?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -547,19 +587,21 @@ export default function CreateEwayBill() {
                     </FormControl>
                   )}
                 />
-
-                <Controller
-                  name="billTo.pincode"
+                  <Controller
+                  name="billTo.email"
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Pincode"
+                      label="Email"
                       variant="outlined"
                       className="bg-white"
-                      error={!!errors.billTo?.pincode}
-                      helperText={errors.billTo?.pincode?.message}
+                      error={!!errors.billTo?.email}
+                      helperText={errors.billTo?.email?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -576,6 +618,89 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.billTo?.phone}
                       helperText={errors.billTo?.phone?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+
+
+                <Controller
+                  name="billTo.pincode"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Pincode"
+                      variant="outlined"
+                      className="bg-white"
+                      error={!!errors.billTo?.pincode}
+                      helperText={errors.billTo?.pincode?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="billTo.phone"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Phone"
+                      variant="outlined"
+                      className="bg-white"
+                      error={!!errors.billTo?.phone}
+                      helperText={errors.billTo?.phone?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+                 <Controller
+                  name="billTo.addressLine1"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Address Line 1"
+                      variant="outlined"
+                      className="bg-white"
+                      multiline
+                      rows={3}
+                      error={!!errors.billTo?.addressLine1}
+                      helperText={errors.billTo?.addressLine1?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="billTo.addressLine2"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Address Line 2"
+                      variant="outlined"
+                      className="bg-white"
+                      multiline
+                      rows={3}
+                      error={!!errors.billTo?.addressLine2}
+                      helperText={errors.billTo?.addressLine2?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -606,41 +731,14 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.dispatchFrom?.legalName}
                       helperText={errors.dispatchFrom?.legalName?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
 
-                <Controller
-                  name="dispatchFrom.addressLine1"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Address Line 1"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.dispatchFrom?.addressLine1}
-                      helperText={errors.dispatchFrom?.addressLine1?.message}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="dispatchFrom.addressLine2"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Address Line 2"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.dispatchFrom?.addressLine2}
-                      helperText={errors.dispatchFrom?.addressLine2?.message}
-                    />
-                  )}
-                />
+              
 
                 <Controller
                   name="dispatchFrom.location"
@@ -654,6 +752,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.dispatchFrom?.location}
                       helperText={errors.dispatchFrom?.location?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -695,6 +796,50 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.dispatchFrom?.pincode}
                       helperText={errors.dispatchFrom?.pincode?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+                  <Controller
+                  name="dispatchFrom.addressLine1"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Address Line 1"
+                      variant="outlined"
+                      className="bg-white"
+                      multiline
+                      rows={3}
+                      error={!!errors.dispatchFrom?.addressLine1}
+                      helperText={errors.dispatchFrom?.addressLine1?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="dispatchFrom.addressLine2"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Address Line 2"
+                      variant="outlined"
+                      className="bg-white"
+                      multiline
+                      rows={3}
+                      error={!!errors.dispatchFrom?.addressLine2}
+                      helperText={errors.dispatchFrom?.addressLine2?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -709,21 +854,6 @@ export default function CreateEwayBill() {
             </CardHeader>
             <CardContent className="mt-[30px] p-6">
               <div className="grid grid-cols-2 gap-6">
-                <Controller
-                  name="shipTo.gstin"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="GSTIN"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.shipTo?.gstin}
-                      helperText={errors.shipTo?.gstin?.message}
-                    />
-                  )}
-                />
 
                 <Controller
                   name="shipTo.legalName"
@@ -737,6 +867,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.shipTo?.legalName}
                       helperText={errors.shipTo?.legalName?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -753,38 +886,27 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.shipTo?.tradeName}
                       helperText={errors.shipTo?.tradeName?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
-
-                <Controller
-                  name="shipTo.addressLine1"
+                  <Controller
+                  name="shipTo.gstin"
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Address Line 1"
+                      label="GSTIN"
                       variant="outlined"
                       className="bg-white"
-                      error={!!errors.shipTo?.addressLine1}
-                      helperText={errors.shipTo?.addressLine1?.message}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="shipTo.addressLine2"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Address Line 2"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.shipTo?.addressLine2}
-                      helperText={errors.shipTo?.addressLine2?.message}
+                      error={!!errors.shipTo?.gstin}
+                      helperText={errors.shipTo?.gstin?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -801,6 +923,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.shipTo?.location}
                       helperText={errors.shipTo?.location?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -843,6 +968,47 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
+                  <Controller
+                  name="shipTo.addressLine1"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Address Line 1"
+                      variant="outlined"
+                      multiline
+                      rows={3}
+                      className="bg-white"
+                      error={!!errors.shipTo?.addressLine1}
+                      helperText={errors.shipTo?.addressLine1?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="shipTo.addressLine2"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      multiline
+                      rows={3}
+                      label="Address Line 2"
+                      variant="outlined"
+                      className="bg-white"
+                      error={!!errors.shipTo?.addressLine2}
+                      helperText={errors.shipTo?.addressLine2?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
               </div>
             </CardContent>
           </Card>
@@ -872,6 +1038,9 @@ export default function CreateEwayBill() {
                       helperText={
                         errors.ewaybillDetails?.transporterId?.message
                       }
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -890,11 +1059,46 @@ export default function CreateEwayBill() {
                       helperText={
                         errors.ewaybillDetails?.transporterName?.message
                       }
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
 
+                
                 <Controller
+                  name="ewaybillDetails.transDistance"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Transport Distance (km)"
+                      variant="outlined"
+                      className="bg-white"
+                      error={!!errors.ewaybillDetails?.transDistance}
+                      helperText={
+                        errors.ewaybillDetails?.transDistance?.message
+                      }
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Part B Section */}
+          <Card className="rounded-lg shadow-md bg-[#fff] mb-8 border border-slate-200">
+            <CardHeader className="bg-[#e0f2f1] p-0 flex justify-center px-[10px] py-[8px] rounded-t-lg">
+              <h3 className="text-[18px] font-[600] text-slate-700">Part B</h3>
+            </CardHeader>
+            <CardContent className="mt-[30px] p-6">
+              <div className="grid grid-cols-2 gap-6">
+              <Controller
                   name="ewaybillDetails.transMode"
                   control={control}
                   render={({ field }) => (
@@ -940,6 +1144,9 @@ export default function CreateEwayBill() {
                       helperText={
                         errors.ewaybillDetails?.transporterDocNo?.message
                       }
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -987,6 +1194,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.ewaybillDetails?.vehicleNo}
                       helperText={errors.ewaybillDetails?.vehicleNo?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
@@ -1023,78 +1233,22 @@ export default function CreateEwayBill() {
                   )}
                 />
 
-                <Controller
-                  name="ewaybillDetails.transDistance"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Transport Distance (km)"
-                      variant="outlined"
-                      className="bg-white"
-                      error={!!errors.ewaybillDetails?.transDistance}
-                      helperText={
-                        errors.ewaybillDetails?.transDistance?.message
-                      }
-                    />
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Part B Section */}
-          <Card className="rounded-lg shadow-md bg-[#fff] mb-8 border border-slate-200">
-            <CardHeader className="bg-[#e0f2f1] p-0 flex justify-center px-[10px] py-[8px] rounded-t-lg">
-              <h3 className="text-[18px] font-[600] text-slate-700">Part B</h3>
-            </CardHeader>
-            <CardContent className="mt-[30px] p-6">
-              <div className="grid grid-cols-2 gap-6">
-                <Controller
-                  name="header.igstOnIntra"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.header?.igstOnIntra}>
-                      <InputLabel id="igst-on-intra-label">
-                        IGST on Intra
-                      </InputLabel>
-                      <Select
-                        {...field}
-                        labelId="igst-on-intra-label"
-                        label="IGST on Intra"
-                        className="bg-white"
-                      >
-                        {reverseOptions.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {errors.header?.igstOnIntra && (
-                        <span className="text-red-500 text-sm">
-                          {errors.header.igstOnIntra.message}
-                        </span>
-                      )}
-                    </FormControl>
-                  )}
-                />
               </div>
             </CardContent>
           </Card>
         </div>
-         <Card className="rounded-lg shadow-md bg-[#fff] mb-8 border border-slate-200">
+        <Card className="rounded-lg shadow-md bg-[#fff] mb-8 border border-slate-200">
           <CardHeader className="bg-[#e0f2f1] p-0 flex justify-center px-[10px] py-[8px] rounded-t-lg">
             <h3 className="text-[18px] font-[600] text-slate-700">
               Item Details
             </h3>
           </CardHeader>
-          <CardContent className="mt-[30px] p-6">
-            <div
-              className="ag-theme-alpine"
-              style={{ height: 400, width: "100%" }}
-            >
-              <AgGridReact />
+          <CardContent className="mt-[10px] p-6">
+            <div className="ag-theme-quartz h-[calc(100vh-140px)]">
+              <AgGridReact
+                rowData={dispatchData?.data}
+                columnDefs={columnDefs}
+              />
             </div>
           </CardContent>
         </Card>

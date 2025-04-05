@@ -52,6 +52,11 @@ export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>('/eway
   return response;
 });
 
+export const createEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/createEwayBill', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/createEWayBill`, payload);
+  return response;
+});
+
 const dispatchSlice = createSlice({
   name: "dispatch",
   initialState,
