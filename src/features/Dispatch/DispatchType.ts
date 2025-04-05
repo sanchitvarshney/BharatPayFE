@@ -36,4 +36,6 @@ export type DispatchState = {
   dispatchData: any;
   dispatchDataLoading: boolean;
   ewayBillDataLoading: boolean;
+  stateCodeLoading: boolean;
+  stateCode: any;
 };

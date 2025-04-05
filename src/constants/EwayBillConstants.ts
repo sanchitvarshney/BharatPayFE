@@ -6,37 +6,18 @@ export const columnDefs: ColDef[] = [
   {
     headerName: "Item Name",
     field: "item_name",
-    width: 500,
+    width: 300,
     cellRenderer: "truncateCellRenderer",
   },
-  { headerName: "Item No", field: "item_no" },
   { headerName: "HSN", field: "item_hsncode" },
   { headerName: "Qty", field: "item_qty" },
   { headerName: "Rate", field: "item_rate" },
-  { headerName: "Discount (%)", field: "item_discount" },
   { headerName: "GST Rate", field: "item_gst_rate" },
-  { headerName: "GST Type", field: "item_gst_type.label" },
+  { headerName: "GST Type", field: "item_gst_type", valueGetter: (params) => params.data.item_gst_type==="L" ? "Intra State ( Local )" : "Inter State" },
   { headerName: "CGST", field: "item_cgst" },
   { headerName: "SGST", field: "item_sgst" },
   { headerName: "IGST", field: "item_igst" },
-  { headerName: "Taxable Amount", field: "item_taxableValue" },
-];
-
-export const hsnColumns: ColDef[] = [
-  {
-    headerName: "Item Name",
-    field: "itemName",
-    autoHeight: true,
-    maxWidth: 200,
-  },
-  { headerName: "HSN Code", field: "hsnCode" },
-  { headerName: "Qty", field: "qty" },
-  { headerName: "Price", field: "price" },
-  { headerName: "Discount", field: "discount" },
-  { headerName: "CGST", field: "cgst" },
-  { headerName: "SGST", field: "sgst" },
-  { headerName: "IGST", field: "igst" },
-  { headerName: "Total", field: "total" },
+  { headerName: "Taxable Amount", field: "item_value" },
 ];
 
 // Dropdown Options
@@ -168,6 +149,7 @@ const billTo = z.object({
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
   phone: z.union([z.string().optional(), z.null()]),
+  email: z.union([z.string().optional(), z.null()]),
 });
 
 const dispatchFrom = z.object({
