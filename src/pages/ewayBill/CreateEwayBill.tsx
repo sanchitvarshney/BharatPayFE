@@ -26,12 +26,16 @@ import type { EwayBillFormData } from "@/constants/EwayBillConstants";
 import { AgGridReact } from "ag-grid-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { useEffect } from "react";
-import { createEwayBill, getDispatchData } from "@/features/Dispatch/DispatchSlice";
+import {
+  createEwayBill,
+  getDispatchData,
+  getStateCode,
+} from "@/features/Dispatch/DispatchSlice";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 
 export default function CreateEwayBill() {
   const dispatch = useAppDispatch();
-  const { dispatchDataLoading, dispatchData } = useAppSelector(
+  const { dispatchDataLoading, dispatchData, stateCode } = useAppSelector(
     (state) => state.dispatch
   );
   const {
@@ -61,15 +65,22 @@ export default function CreateEwayBill() {
     });
   };
   const dispId = window.location.pathname.split("/").pop()!;
+  const stateOptions =
+    stateCode?.map((state: any) => ({
+      value: state.Code,
+      label: state.Name,
+    })) || [];
+
   useEffect(() => {
     dispatch(getDispatchData(dispId?.replace(/_/g, "/")));
+    dispatch(getStateCode());
   }, []);
 
   useEffect(() => {
     if (dispatchData) {
       const data = dispatchData?.header[0];
       console.log(dispatchData, data);
-      setValue("header.documentNo", dispId);
+      setValue("header.documentNo", dispId.replace(/_/g, "/"));
       setValue("billFrom.gstin", data.billFrom.gstin);
       setValue("billFrom.legalName", data.billFrom.legalName);
       setValue("billFrom.tradeName", data.billFrom.tradeName);
@@ -79,7 +90,7 @@ export default function CreateEwayBill() {
       setValue("billFrom.addressLine1", data.billFrom.addressLine1);
       setValue("billFrom.addressLine2", data.billFrom.addressLine2);
       setValue("billFrom.location", data.billFrom.location);
-      setValue("billFrom.state", data.billFrom.state);
+      setValue("billFrom.state", data.billFrom.state || "");
       setValue("billTo.gstin", data.billTo.gstin);
       setValue("billTo.legalName", data.billTo.legalName);
       setValue("billTo.email", data.billTo.email);
@@ -88,27 +99,26 @@ export default function CreateEwayBill() {
       setValue("billTo.addressLine1", data.billTo.addressLine1);
       setValue("billTo.addressLine2", data.billTo.addressLine2);
       setValue("billTo.location", data.billTo.location);
+      setValue("billTo.state", data.billTo.state?.code || "");
       setValue("dispatchFrom.legalName", data.dispatchFrom.legalName);
       setValue("dispatchFrom.pincode", data.dispatchFrom.pincode);
       setValue("dispatchFrom.addressLine1", data.dispatchFrom.addressLine1);
       setValue("dispatchFrom.addressLine2", data.dispatchFrom.addressLine2);
       setValue("dispatchFrom.location", data.dispatchFrom.location);
-      setValue("dispatchFrom.state", data.dispatchFrom.state);
+      setValue("dispatchFrom.state", data.dispatchFrom.state?.code || "");
       setValue("shipTo.gstin", data.shipTo.gstin);
       setValue("shipTo.legalName", data.shipTo.legalName);
-      setValue("shipTo.tradeName", data.shipTo.tradeName);
       setValue("shipTo.addressLine1", data.shipTo.addressLine1);
       setValue("shipTo.addressLine2", data.shipTo.addressLine2);
       setValue("shipTo.location", data.shipTo.location);
-      setValue("shipTo.state", data.shipTo.state);
+      setValue("shipTo.state", data.shipTo.state?.code || "");
       setValue("shipTo.pincode", data.shipTo.pincode);
-      setValue("shipTo.tradeName", data.shipTo.legalName);
     }
   }, [dispatchData]);
 
   return (
     <div className="rounded-lg p-[30px] shadow-md bg-[#fff] overflow-y-auto mb-10">
-    {dispatchDataLoading && <FullPageLoading />}
+      {dispatchDataLoading && <FullPageLoading />}
       <div className="text-slate-700 font-[600] text-[28px] flex justify-center mb-2">
         Create E-Way Bill
       </div>
@@ -162,7 +172,7 @@ export default function CreateEwayBill() {
                       label="Sub Supply Type"
                       className="bg-white"
                     >
-                      {subsupplytype.map((option) => (
+                      {subsupplytype?.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                           {option.label}
                         </MenuItem>
@@ -316,7 +326,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-                    <Controller
+                <Controller
                   name="billFrom.tradeName"
                   control={control}
                   render={({ field }) => (
@@ -353,7 +363,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-            
+
                 <Controller
                   name="billFrom.email"
                   control={control}
@@ -410,7 +420,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-                 <Controller
+                <Controller
                   name="billFrom.location"
                   control={control}
                   render={({ field }) => (
@@ -440,8 +450,27 @@ export default function CreateEwayBill() {
                         labelId="bill-from-state-label"
                         label="State"
                         className="bg-white"
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: 300,
+                            },
+                          },
+                          anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left",
+                          },
+                          transformOrigin: {
+                            vertical: "top",
+                            horizontal: "left",
+                          },
+                        }}
                       >
-                        {/* Add state options here */}
+                        {stateOptions?.map((option: any) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
                       </Select>
                       {errors.billFrom?.state && (
                         <span className="text-red-500 text-sm">
@@ -493,8 +522,6 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-
-               
               </div>
             </CardContent>
           </Card>
@@ -506,8 +533,6 @@ export default function CreateEwayBill() {
             </CardHeader>
             <CardContent className="mt-[30px] p-6">
               <div className="grid grid-cols-2 gap-6">
-            
-
                 <Controller
                   name="billTo.legalName"
                   control={control}
@@ -526,7 +551,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-    <Controller
+                <Controller
                   name="billTo.gstin"
                   control={control}
                   render={({ field }) => (
@@ -544,7 +569,6 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-               
 
                 <Controller
                   name="billTo.location"
@@ -576,8 +600,27 @@ export default function CreateEwayBill() {
                         labelId="bill-to-state-label"
                         label="State"
                         className="bg-white"
+                      MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: 300,
+                            },
+                          },
+                          anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left",
+                          },
+                          transformOrigin: {
+                            vertical: "top",
+                            horizontal: "left",
+                          },
+                        }}
                       >
-                        {/* Add state options here */}
+                        {stateOptions?.map((option: any) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
                       </Select>
                       {errors.billTo?.state && (
                         <span className="text-red-500 text-sm">
@@ -587,7 +630,7 @@ export default function CreateEwayBill() {
                     </FormControl>
                   )}
                 />
-                  <Controller
+                <Controller
                   name="billTo.email"
                   control={control}
                   render={({ field }) => (
@@ -624,7 +667,6 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-
 
                 <Controller
                   name="billTo.pincode"
@@ -663,7 +705,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-                 <Controller
+                <Controller
                   name="billTo.addressLine1"
                   control={control}
                   render={({ field }) => (
@@ -738,8 +780,6 @@ export default function CreateEwayBill() {
                   )}
                 />
 
-              
-
                 <Controller
                   name="dispatchFrom.location"
                   control={control}
@@ -771,9 +811,27 @@ export default function CreateEwayBill() {
                         {...field}
                         labelId="dispatch-from-state-label"
                         label="State"
-                        className="bg-white"
+                     MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: 300,
+                            },
+                          },
+                          anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left",
+                          },
+                          transformOrigin: {
+                            vertical: "top",
+                            horizontal: "left",
+                          },
+                        }}
                       >
-                        {/* Add state options here */}
+                        {stateOptions?.map((option: any) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
                       </Select>
                       {errors.dispatchFrom?.state && (
                         <span className="text-red-500 text-sm">
@@ -802,7 +860,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-                  <Controller
+                <Controller
                   name="dispatchFrom.addressLine1"
                   control={control}
                   render={({ field }) => (
@@ -854,7 +912,6 @@ export default function CreateEwayBill() {
             </CardHeader>
             <CardContent className="mt-[30px] p-6">
               <div className="grid grid-cols-2 gap-6">
-
                 <Controller
                   name="shipTo.legalName"
                   control={control}
@@ -892,7 +949,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-                  <Controller
+                <Controller
                   name="shipTo.gstin"
                   control={control}
                   render={({ field }) => (
@@ -941,8 +998,27 @@ export default function CreateEwayBill() {
                         labelId="ship-to-state-label"
                         label="State"
                         className="bg-white"
+                     MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: 300,
+                            },
+                          },
+                          anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left",
+                          },
+                          transformOrigin: {
+                            vertical: "top",
+                            horizontal: "left",
+                          },
+                        }}
                       >
-                        {/* Add state options here */}
+                        {stateOptions?.map((option: any) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
                       </Select>
                       {errors.shipTo?.state && (
                         <span className="text-red-500 text-sm">
@@ -968,7 +1044,7 @@ export default function CreateEwayBill() {
                     />
                   )}
                 />
-                  <Controller
+                <Controller
                   name="shipTo.addressLine1"
                   control={control}
                   render={({ field }) => (
@@ -1066,7 +1142,6 @@ export default function CreateEwayBill() {
                   )}
                 />
 
-                
                 <Controller
                   name="ewaybillDetails.transDistance"
                   control={control}
@@ -1098,7 +1173,7 @@ export default function CreateEwayBill() {
             </CardHeader>
             <CardContent className="mt-[30px] p-6">
               <div className="grid grid-cols-2 gap-6">
-              <Controller
+                <Controller
                   name="ewaybillDetails.transMode"
                   control={control}
                   render={({ field }) => (
@@ -1232,7 +1307,6 @@ export default function CreateEwayBill() {
                     </FormControl>
                   )}
                 />
-
               </div>
             </CardContent>
           </Card>
