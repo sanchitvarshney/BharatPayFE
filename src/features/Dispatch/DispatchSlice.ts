@@ -110,7 +110,15 @@ const dispatchSlice = createSlice({
           state.dispatchData = action.payload.data.data;
         }
       })
-     
+      .addCase(createEwayBill.pending, (state) => {
+        state.ewayBillDataLoading = true;
+      })
+      .addCase(createEwayBill.fulfilled, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(createEwayBill.rejected, (state) => {
+        state.ewayBillDataLoading = false;
+      })
       .addCase(fillEwayBillData.pending, (state) => {
         state.ewayBillDataLoading = true;
       })
