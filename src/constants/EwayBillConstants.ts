@@ -181,7 +181,7 @@ const ewaybillDetails = z.object({
   transporterName: z.string({ required_error: "Transporter Name is required" }),
   transMode: z.string().optional(),
   transporterDocNo: z.string().optional(),
-  transporterDate: z.string().optional(),
+  transporterDate: z.string({ required_error: "Transporter Date is required" }),
   vehicleNo: z.string().optional(),
   vehicleType: z.string().optional(),
   transDistance: z.string({ required_error: "Trans Distance is required" }),
