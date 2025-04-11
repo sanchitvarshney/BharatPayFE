@@ -106,8 +106,8 @@ export const transactionTypeOptions = [
 
 // Zod Schemas
 const stateSchema = z.object({
-  code: z.string(),
-  name: z.string(),
+  Code: z.string(),
+  Name: z.string(),
 });
 
 const header = z.object({
@@ -130,7 +130,7 @@ const billFrom = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
@@ -144,7 +144,7 @@ const billTo = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
@@ -157,7 +157,7 @@ const dispatchFrom = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
@@ -170,7 +170,7 @@ const shipTo = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
