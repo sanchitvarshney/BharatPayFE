@@ -36,7 +36,7 @@ import SelectState from "@/components/reusable/SelectState";
 
 export default function CreateEwayBill() {
   const dispatch = useAppDispatch();
-  const { dispatchDataLoading, dispatchData, stateCode } = useAppSelector(
+  const { dispatchDataLoading, dispatchData } = useAppSelector(
     (state) => state.dispatch
   );
   const {
@@ -66,12 +66,7 @@ export default function CreateEwayBill() {
     });
   };
   const dispId = window.location.pathname.split("/").pop()!;
-  const stateOptions =
-    stateCode?.map((state: any) => ({
-      value: state.Code,
-      label: state.Name,
-    })) || [];
-
+  
   useEffect(() => {
     dispatch(getDispatchData(dispId?.replace(/_/g, "/")));
     dispatch(getStateCode());
