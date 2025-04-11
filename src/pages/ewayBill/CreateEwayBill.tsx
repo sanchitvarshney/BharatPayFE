@@ -75,7 +75,7 @@ export default function CreateEwayBill() {
       if (res.payload.data.status) {
         setIsEwayBillCreated(true);
         setEwayBillNo(res?.payload?.data?.data);
-        showToast(res?.payload?.data?.data?.message, "success");
+        showToast(res?.payload?.data?.message, "success");
       }
     });
   };
