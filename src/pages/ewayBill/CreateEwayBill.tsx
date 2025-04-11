@@ -29,13 +29,13 @@ import { useEffect } from "react";
 import {
   createEwayBill,
   getDispatchData,
-  getStateCode,
 } from "@/features/Dispatch/DispatchSlice";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+import SelectState from "@/components/reusable/SelectState";
 
 export default function CreateEwayBill() {
   const dispatch = useAppDispatch();
-  const { dispatchDataLoading, dispatchData, stateCode } = useAppSelector(
+  const { dispatchDataLoading, dispatchData } = useAppSelector(
     (state) => state.dispatch
   );
   const {
@@ -65,15 +65,9 @@ export default function CreateEwayBill() {
     });
   };
   const dispId = window.location.pathname.split("/").pop()!;
-  const stateOptions =
-    stateCode?.map((state: any) => ({
-      value: state.Code,
-      label: state.Name,
-    })) || [];
 
   useEffect(() => {
     dispatch(getDispatchData(dispId?.replace(/_/g, "/")));
-    dispatch(getStateCode());
   }, []);
 
   useEffect(() => {
@@ -90,7 +84,10 @@ export default function CreateEwayBill() {
       setValue("billFrom.addressLine1", data.billFrom.addressLine1);
       setValue("billFrom.addressLine2", data.billFrom.addressLine2);
       setValue("billFrom.location", data.billFrom.location);
-      setValue("billFrom.state", data.billFrom.state || "");
+      setValue("billFrom.state", {
+        Code: data.billFrom.state?.code,
+        Name: data.billFrom.state?.name,
+      });
       setValue("billTo.gstin", data.billTo.gstin);
       setValue("billTo.legalName", data.billTo.legalName);
       setValue("billTo.email", data.billTo.email);
@@ -99,22 +96,32 @@ export default function CreateEwayBill() {
       setValue("billTo.addressLine1", data.billTo.addressLine1);
       setValue("billTo.addressLine2", data.billTo.addressLine2);
       setValue("billTo.location", data.billTo.location);
-      setValue("billTo.state", data.billTo.state?.code || "");
+      setValue("billTo.state", {
+        Code: data.billTo.state?.code,
+        Name: data.billTo.state?.name,
+      });
       setValue("dispatchFrom.legalName", data.dispatchFrom.legalName);
       setValue("dispatchFrom.pincode", data.dispatchFrom.pincode);
       setValue("dispatchFrom.addressLine1", data.dispatchFrom.addressLine1);
       setValue("dispatchFrom.addressLine2", data.dispatchFrom.addressLine2);
       setValue("dispatchFrom.location", data.dispatchFrom.location);
-      setValue("dispatchFrom.state", data.dispatchFrom.state?.code || "");
+      setValue("dispatchFrom.state", {
+        Code: data.dispatchFrom.state?.code,
+        Name: data.dispatchFrom.state?.name,
+      });
       setValue("shipTo.gstin", data.shipTo.gstin);
       setValue("shipTo.legalName", data.shipTo.legalName);
       setValue("shipTo.addressLine1", data.shipTo.addressLine1);
       setValue("shipTo.addressLine2", data.shipTo.addressLine2);
       setValue("shipTo.location", data.shipTo.location);
-      setValue("shipTo.state", data.shipTo.state?.code || "");
+      setValue("shipTo.state", {
+        Code: data.shipTo.state?.code,
+        Name: data.shipTo.state?.name,
+      });
       setValue("shipTo.pincode", data.shipTo.pincode);
     }
   }, [dispatchData]);
+  const formValues = control._formValues;
 
   return (
     <div className="rounded-lg p-[30px] shadow-md bg-[#fff] overflow-y-auto mb-10">
@@ -443,41 +450,15 @@ export default function CreateEwayBill() {
                   name="billFrom.state"
                   control={control}
                   render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.billFrom?.state}>
-                      <InputLabel id="bill-from-state-label">State</InputLabel>
-                      <Select
-                        {...field}
-                        labelId="bill-from-state-label"
-                        label="State"
-                        className="bg-white"
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: 300,
-                            },
-                          },
-                          anchorOrigin: {
-                            vertical: "bottom",
-                            horizontal: "left",
-                          },
-                          transformOrigin: {
-                            vertical: "top",
-                            horizontal: "left",
-                          },
-                        }}
-                      >
-                        {stateOptions?.map((option: any) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {errors.billFrom?.state && (
-                        <span className="text-red-500 text-sm">
-                          {errors.billFrom.state.message}
-                        </span>
-                      )}
-                    </FormControl>
+                    <SelectState
+                      size="medium"
+                      error={!!errors.billFrom?.state}
+                      varient="outlined"
+                      helperText={errors.billFrom?.state?.message}
+                      onChange={field.onChange}
+                      value={field.value}
+                      label={formValues.billFrom.state?.Name}
+                    />
                   )}
                 />
 
@@ -593,41 +574,15 @@ export default function CreateEwayBill() {
                   name="billTo.state"
                   control={control}
                   render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.billTo?.state}>
-                      <InputLabel id="bill-to-state-label">State</InputLabel>
-                      <Select
-                        {...field}
-                        labelId="bill-to-state-label"
-                        label="State"
-                        className="bg-white"
-                      MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: 300,
-                            },
-                          },
-                          anchorOrigin: {
-                            vertical: "bottom",
-                            horizontal: "left",
-                          },
-                          transformOrigin: {
-                            vertical: "top",
-                            horizontal: "left",
-                          },
-                        }}
-                      >
-                        {stateOptions?.map((option: any) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {errors.billTo?.state && (
-                        <span className="text-red-500 text-sm">
-                          {errors.billTo.state.message}
-                        </span>
-                      )}
-                    </FormControl>
+                    <SelectState
+                      size="medium"
+                      error={!!errors.billTo?.state}
+                      varient="outlined"
+                      helperText={errors.billTo?.state?.message}
+                      onChange={field.onChange}
+                      value={field.value}
+                      label={formValues.billTo.state?.Name}
+                    />
                   )}
                 />
                 <Controller
@@ -803,42 +758,15 @@ export default function CreateEwayBill() {
                   name="dispatchFrom.state"
                   control={control}
                   render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.dispatchFrom?.state}>
-                      <InputLabel id="dispatch-from-state-label">
-                        State
-                      </InputLabel>
-                      <Select
-                        {...field}
-                        labelId="dispatch-from-state-label"
-                        label="State"
-                     MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: 300,
-                            },
-                          },
-                          anchorOrigin: {
-                            vertical: "bottom",
-                            horizontal: "left",
-                          },
-                          transformOrigin: {
-                            vertical: "top",
-                            horizontal: "left",
-                          },
-                        }}
-                      >
-                        {stateOptions?.map((option: any) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {errors.dispatchFrom?.state && (
-                        <span className="text-red-500 text-sm">
-                          {errors.dispatchFrom.state.message}
-                        </span>
-                      )}
-                    </FormControl>
+                    <SelectState
+                      size="medium"
+                      error={!!errors.dispatchFrom?.state}
+                      varient="outlined"
+                      helperText={errors.dispatchFrom?.state?.message}
+                      onChange={field.onChange}
+                      value={field.value}
+                      label={formValues.dispatchFrom.state?.Name}
+                    />
                   )}
                 />
 
@@ -991,41 +919,15 @@ export default function CreateEwayBill() {
                   name="shipTo.state"
                   control={control}
                   render={({ field }) => (
-                    <FormControl fullWidth error={!!errors.shipTo?.state}>
-                      <InputLabel id="ship-to-state-label">State</InputLabel>
-                      <Select
-                        {...field}
-                        labelId="ship-to-state-label"
-                        label="State"
-                        className="bg-white"
-                     MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: 300,
-                            },
-                          },
-                          anchorOrigin: {
-                            vertical: "bottom",
-                            horizontal: "left",
-                          },
-                          transformOrigin: {
-                            vertical: "top",
-                            horizontal: "left",
-                          },
-                        }}
-                      >
-                        {stateOptions?.map((option: any) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {errors.shipTo?.state && (
-                        <span className="text-red-500 text-sm">
-                          {errors.shipTo.state.message}
-                        </span>
-                      )}
-                    </FormControl>
+                    <SelectState
+                      size="medium"
+                      error={!!errors.shipTo?.state}
+                      varient="outlined"
+                      helperText={errors.shipTo?.state?.message}
+                      onChange={field.onChange}
+                      value={field.value}
+                      label={formValues.shipTo.state?.Name}
+                    />
                   )}
                 />
 
@@ -1041,6 +943,9 @@ export default function CreateEwayBill() {
                       className="bg-white"
                       error={!!errors.shipTo?.pincode}
                       helperText={errors.shipTo?.pincode?.message}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
                     />
                   )}
                 />
