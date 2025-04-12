@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   Sheet,
   SheetContent,
@@ -25,10 +25,17 @@ interface RowData {
   dispatchQty: number;
   inserby: string;
   dispatchId: string;
+  material: string;
+  orderQty: number;
+  hsnCode: string;
   localValue: number;
   cgst: number;
   sgst: number;
   igst: number;
+  isNew: boolean;
+  rate: number;
+  gstType: string;
+  gstRate: number;
 }
 
 interface EwayBillSheetProps {
@@ -44,6 +51,8 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
 }) => {
   const { dispatchData, dispatchDataLoading, ewayBillDataLoading } =
     useAppSelector((state) => state.dispatch);
+  const gridRef = useRef<AgGridReact<RowData>>(null);
+
   const dispatch = useAppDispatch();
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [taxableValue, setTaxableValue] = useState<number>(0);
@@ -51,7 +60,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   const [totalSgst, setTotalSgst] = useState<number>(0);
   const [totalIgst, setTotalIgst] = useState<number>(0);
   const [totalTax, setTotalTax] = useState<number>(0);
-  console.log(selectedRow, dispatchDataLoading);
+
   useEffect(() => {
     const updatedData: RowData[] = dispatchData?.data?.map((material: any) => ({
       material: material.item_name || "",
@@ -72,9 +81,44 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
     []
   );
   const onSubmit = () => {
+    // Validate required fields
+    const errors = [];
+
+    // Check if any row has empty material
+    const emptyMaterial = rowData.some((row) => !row.material);
+    if (emptyMaterial) {
+      errors.push("Material name is required for all items");
+    }
+
+    // Validate rate
+    const invalidRate = rowData.some((row) => !row.rate || row.rate <= 0);
+    if (invalidRate) {
+      errors.push("Valid rate is required for all items");
+    }
+
+    // Validate GST type
+    const invalidGstType = rowData.some((row) => !row.gstType);
+    if (invalidGstType) {
+      errors.push("GST type is required for all items");
+    }
+
+    // Validate GST rate
+    const invalidGstRate = rowData.some(
+      (row) => !row.gstRate || row.gstRate <= 0
+    );
+    if (invalidGstRate) {
+      errors.push("Valid GST rate is required for all items");
+    }
+
+    // If there are validation errors, show them and return
+    if (errors.length > 0) {
+      showToast(errors.join("\n"), "error");
+      return;
+    }
+
+    // If validation passes, proceed with submission
     dispatch(fillEwayBillData(rowData[0])).then((res: any) => {
-      console.log(res);
-      if (res.payload.data.success||res.payload.data.status) {
+      if (res.payload.data.success || res.payload.data.status) {
         showToast(res.payload.data.message, "success");
         onOpenChange(false);
       }
@@ -339,6 +383,34 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
               suppressCellFocus={true}
               components={components}
               overlayNoRowsTemplate={OverlayNoRowsTemplate}
+              defaultColDef={{
+                resizable: true,
+                suppressCellFlash: true,
+                editable: false,
+              }}
+              onCellFocused={(event: any) => {
+                const { rowIndex, column } = event;
+                const focusedCell = document.querySelector(
+                  `.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `
+                ) as HTMLInputElement;
+                const focusButton = document.querySelector(
+                  `.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `
+                ) as HTMLButtonElement;
+
+                if (focusedCell) {
+                  focusedCell.focus();
+                }
+                if (focusButton) {
+                  focusButton.focus();
+                }
+              }}
+              navigateToNextCell={() => {
+                return null; // Returning null prevents default focus movement
+              }}
+              ref={gridRef}
+              animateRows
+              loading={false}
+              onCellKeyDown={(e) => e.event?.preventDefault()}
             />
           </div>
         </div>
