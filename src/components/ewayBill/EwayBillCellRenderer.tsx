@@ -192,6 +192,7 @@ const EwayBillCellRenderer = (props: EwayBillCellRendererProps) => {
             value={value}
             className="w-[100%] custom-input"
             type="text"
+            placeholder={colDef.headerName}
           />
         );
       case "materialDescription":

@@ -84,6 +84,7 @@ import MaterialIn from "@/pages/min/MaterialIn";
 import PhysicalQuantityUpdate from "@/pages/PhysicalQuantityReport/PhysicalQuantityUpdate";
 import DispatchTableForEwayBill from "@/pages/ewayBill/DispatchForEwayBill";
 import CreateEwayBill from "@/pages/ewayBill/CreateEwayBill";
+import EwayBillLayout from "@/layouts/EwayBillLayout";
 
 export const router = createBrowserRouter([
   {
@@ -109,7 +110,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DispatchTableForEwayBill />
+            <EwayBillLayout>
+              <DispatchTableForEwayBill />
+            </EwayBillLayout>
           </MainLayout>
         ),
         path: "/eway-bill-details",

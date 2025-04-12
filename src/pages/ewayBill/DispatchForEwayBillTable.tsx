@@ -25,7 +25,6 @@ interface RowData {
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
-  setTxn: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
