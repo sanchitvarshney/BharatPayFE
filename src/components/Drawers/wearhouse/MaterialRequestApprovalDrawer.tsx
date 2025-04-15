@@ -366,7 +366,7 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
                                 type="number"
                                 label="Issue Qty"
                                 onChange={(e) => {
-                                  if (!/^[0-9]*$/.test(e.target.value)) return;
+                                  if (!/^\d*\.?\d*$/.test(e.target.value)) return;
                                   if (itemDetail) {
                                     if (parseInt(e.target.value) > itemDetail[0]?.stock || parseInt(e.target.value) > itemDetail[0]?.reqQty) {
                                       showToast("Issue Qty can't be greater than Available Qty or Requested Qty", "error");

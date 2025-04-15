@@ -85,6 +85,8 @@ import PhysicalQuantityUpdate from "@/pages/PhysicalQuantityReport/PhysicalQuant
 import DispatchTableForEwayBill from "@/pages/ewayBill/DispatchForEwayBill";
 import CreateEwayBill from "@/pages/ewayBill/CreateEwayBill";
 import EwayBillLayout from "@/layouts/EwayBillLayout";
+import CreateChallanPage from "@/pages/Dispatch/CreateChallanPage";
+import ManageChallan from "@/pages/Dispatch/ManageChallan";
 
 export const router = createBrowserRouter([
   {
@@ -598,6 +600,26 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/dispatch/manage",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DispatchLayout>
+                <CreateChallanPage />
+            </DispatchLayout>
+          </MainLayout>
+        ),
+        path: "/create-challan",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DispatchLayout>
+              <ManageChallan />
+            </DispatchLayout>
+          </MainLayout>
+        ),
+        path: "/manage-challan",
       },
       {
         element: (

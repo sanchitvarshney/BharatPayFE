@@ -7,8 +7,8 @@ import { useAppSelector, useAppDispatch } from "@/hooks/useReduxHook";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
-import { TextField } from "@mui/material";
 import { updatePhysicalQuantity } from "@/features/report/report/reportSlice";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -61,11 +61,12 @@ const InputCellRenderer = (props: ICellRendererParams) => {
           {props.data.qty}
         </div>
       ) : (
-        <TextField
-          value={inputValue}
+        <Input
           onChange={(e) => setInputValue(e.target.value)}
-          className="w-24 px-2 py-0 border h-[20%]"
-          placeholder="Enter qty"
+          value={inputValue}
+          type="text"
+          placeholder="Enter Qty"
+          className="w-full custom-input"
         />
       )}
       <Button
@@ -73,6 +74,7 @@ const InputCellRenderer = (props: ICellRendererParams) => {
         size="icon"
         onClick={handleSubmit}
         disabled={isLoading || hasExistingQty}
+        className="hover:bg-blue-50"
       >
         {isLoading ? (
           <Icons.refreshv2 className="h-4 w-4 animate-spin" />

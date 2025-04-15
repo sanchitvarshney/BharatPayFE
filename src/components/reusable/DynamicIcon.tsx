@@ -18,7 +18,7 @@ import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturi
 import StorageIcon from "@mui/icons-material/Storage";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 export const Icons = {
   save: SaveIcon,
@@ -40,7 +40,7 @@ export const Icons = {
   trc: StorageIcon,
   dispatch: WarehouseIcon,
   report:AssessmentIcon,
-  ewaybill: LocalShippingOutlinedIcon,
+  ewaybill: LocalShippingIcon,
 };
 
 type IconName = keyof typeof Icons | string;

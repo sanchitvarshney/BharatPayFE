@@ -5,6 +5,7 @@ import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
 // import SettingsIcon from '@mui/icons-material/Settings';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import { SettingsIcon } from "lucide-react";
 type Props = {
   children: React.ReactNode;
 };
@@ -14,7 +15,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/dispatch/create", "/dispatch/manage"];
+  const tabRoutes = ["/dispatch/create", "/manage-challan"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -45,7 +46,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
               </div>
             }
           />
-          {/* <Tab
+          <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
@@ -53,7 +54,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
                 Manage
               </div>
             }
-          /> */}
+          />
         </Tabs>
       </div>
       <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
