@@ -14,23 +14,16 @@ import {
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { getCurrency } from "@/features/common/commonSlice";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {
   Autocomplete,
-  Button,
-  CircularProgress,
   Divider,
   FilledInput,
   FormControl,
-  FormControlLabel,
   FormHelperText,
   IconButton,
   InputAdornment,
   InputLabel,
-  LinearProgress,
   ListItem,
-  ListItemText,
-  Radio,
   Step,
   StepLabel,
   Stepper,
@@ -53,31 +46,15 @@ import {
   uploadFile,
 } from "@/features/Dispatch/DispatchSlice";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
-import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
-import ImeiTable from "@/table/dispatch/ImeiTable";
 import {
   getClientAddressDetail,
   getDispatchFromDetail,
 } from "@/features/master/client/clientSlice";
-import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-type RowData = {
-  imei: string;
-  srno: string;
-  productKey: string;
-  serialNo: number;
-  modalNo: string;
-  deviceSku: string;
-};
 
 type FormDataType = {
   clientDetail: clientDetailType | null;
@@ -123,19 +100,13 @@ type shipToDetailsType = {
   city: string;
 };
 
-const CreateDispatchPage: React.FC = () => {
+const CreateChallanPage: React.FC = () => {
   const [filename, setFilename] = useState<string>("");
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
-  const [rowData, setRowData] = useState<RowData[]>([]);
-  const [imei, setImei] = React.useState<string>("");
   const [dispatchNo, setDispatchNo] = useState<string>("");
   const dispatch = useAppDispatch();
-  const [open, setOpen] = useState<boolean>(false);
-  const { deviceDetailLoading } = useAppSelector(
-    (state) => state.batteryQcReducer
-  );
-  const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
+
   const { dispatchCreateLoading, uploadFileLoading, clientBranchList } =
     useAppSelector((state) => state.dispatch);
 
@@ -167,7 +138,7 @@ const CreateDispatchPage: React.FC = () => {
   });
   const formValues = watch();
   const [activeStep, setActiveStep] = useState(0);
-  const steps = ["Form Details", "Add Component Details", "Review & Submit"];
+  const steps = ["Form Details", "Submit"];
   const formdata = new FormData();
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -178,7 +149,6 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const resetall = () => {
-    setRowData([]);
     reset();
     dispatch(resetDocumentFile());
     setFilename("");
@@ -194,22 +164,12 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const finalSubmit = () => {
-    console.log(rowData);
     const data = formValues;
     // if (formdata) {
-    if (rowData.length !== Number(data.qty))
-      return showToast(
-        "Total Devices should be equal to Quantity you have entered",
-        "error"
-      );
-    const payload: DispatchItemPayload = {
+    const payload: any = {
       docNo: data.docNo,
-      // sku: data.sku?.id || "",
-      sku: rowData.map((item) => item.productKey),
       dispatchQty: Number(data.qty),
       remark: data.remark,
-      imeis: rowData.map((item) => item.imei),
-      srlnos: rowData.map((item) => item.srno),
       document: data.document || "",
       dispatchDate: dayjs(data.dispatchDate).format("DD-MM-YYYY"),
       pickLocation: data.location?.code || "",
@@ -226,7 +186,6 @@ const CreateDispatchPage: React.FC = () => {
       if (res.payload.data.success) {
         setDispatchNo(res?.payload?.data?.data?.refID);
         reset();
-        setRowData([]);
         handleNext();
         resetall();
         //  dispatch(clearFile());
@@ -281,95 +240,10 @@ const CreateDispatchPage: React.FC = () => {
       setValue("dispatchFromDetails.pin", value.pin);
     }
   };
-  const onImeiSubmit = (imei: string) => {
-    const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
-    console.log(imeiArray.filter((num) => num.trim() !== "").length);
-    if (imeiArray.filter((num) => num.trim() !== "").length === 30) {
-      console.log("open");
-      setOpen(true);
-    }
-  };
 
-  const onSingleImeiSubmit = (imei: string) => {
-    const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
-    if (imeiArray.filter((num) => num.trim() !== "").length === 1) {
-      setOpen(true);
-    }
-  };
-  const handleClose = (_: object, reason: string) => {
-    if (reason === "backdropClick") return; // Prevent closing on outside click
-    setOpen(false);
-  };
   return (
     <>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <div className="absolute top-0 left-0 right-0">
-          {deviceDetailLoading && <LinearProgress />}
-        </div>
-        <div className="absolute font-[500]  right-[10px] top-[10px]">
-          Total Devices: {imei.split("\n").length}
-        </div>
-        <DialogTitle id="alert-dialog-title">{"Dispatch Devices"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText
-            id="alert-dialog-description"
-            className="grid grid-cols-5 gap-[10px] "
-          >
-            {imei.split("\n").map((no) => (
-              <ListItemText key={no} primary={no} />
-            ))}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            disabled={deviceDetailLoading}
-            color="error"
-            onClick={() => setOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            autoFocus
-            disabled={deviceDetailLoading}
-            onClick={() => {
-              dispatch(getDeviceDetails(imei)).then((res: any) => {
-                if (res.payload.data.success) {
-                  setImei("");
-                  // const newdata: RowData = {
-                  //   imei: res.payload.data?.data[0].device_imei || "",
-                  //   srno: res.payload.data?.data[0].sl_no || "",
-                  // };
-                  const newRowData = res?.payload?.data?.data?.map(
-                    (device: any) => {
-                      console.log(device);
-                      return {
-                        imei: device.device_imei || "",
-                        srno: device.sl_no || "",
-                        modalNo: device?.p_name || "",
-                        deviceSku: device?.device_sku || "",
-                        productKey: device?.product_key || "",
-                      };
-                    }
-                  );
-                  console.log(newRowData);
-                  // Update rowData by appending newRowData to the existing rowData
-                  setRowData((prevRowData) => [...newRowData, ...prevRowData]);
-                  setOpen(false);
-                } else {
-                  showToast(res.payload.data.message, "error");
-                }
-              });
-            }}
-          >
-            Continue
-          </Button>
-        </DialogActions>
-      </Dialog>
+     
       <ConfirmationModel
         open={alert}
         onClose={() => setAlert(false)}
@@ -1012,170 +886,6 @@ const CreateDispatchPage: React.FC = () => {
             </div>
           )}
           {activeStep === 1 && (
-            <div className="h-[calc(100vh-200px)]   ">
-              {/* <RMMaterialsAddTablev2
-                rowData={rowData}
-                setRowData={setRowData}
-                setTotal={setTotal}
-              /> */}
-              <div>
-                <div className="flex items-center gap-4 pl-10">
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        checked={isMultiple}
-                        onChange={() => setIsMultiple(true)} // Select multiple IMEIs
-                        value="multiple"
-                        name="imei-type"
-                        color="primary"
-                      />
-                    }
-                    label="Multiple IMEIs"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        checked={!isMultiple}
-                        onChange={() => setIsMultiple(false)} // Select single IMEI
-                        value="single"
-                        name="imei-type"
-                        color="primary"
-                      />
-                    }
-                    label="Single IMEI"
-                  />
-
-                  <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
-                    {isMultiple ? (
-                      <FormControl sx={{ width: "400px" }} variant="outlined">
-                        <TextField
-                          multiline
-                          rows={2}
-                          value={imei}
-                          label="IMEI/SR No."
-                          id="standard-adornment-qty"
-                          aria-describedby="standard-weight-helper-text"
-                          inputProps={{
-                            "aria-label": "weight",
-                          }}
-                          onChange={(e) => {
-                            setImei(e.target.value);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              onImeiSubmit(imei);
-                            }
-                          }}
-                          slotProps={{
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  {deviceDetailLoading ? (
-                                    <CircularProgress
-                                      size={20}
-                                      color="inherit"
-                                    />
-                                  ) : (
-                                    <QrCodeScannerIcon />
-                                  )}
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                        />
-                      </FormControl>
-                    ) : (
-                      <FormControl sx={{ width: "400px" }} variant="outlined">
-                        <TextField
-                          rows={2}
-                          value={imei}
-                          label="Single IMEI/SR No."
-                          id="standard-adornment-qty"
-                          aria-describedby="standard-weight-helper-text"
-                          inputProps={{
-                            "aria-label": "weight",
-                          }}
-                          onChange={(e) => {
-                            setImei(e.target.value);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              onSingleImeiSubmit(imei);
-                            }
-                          }}
-                          slotProps={{
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  {deviceDetailLoading ? (
-                                    <CircularProgress
-                                      size={20}
-                                      color="inherit"
-                                    />
-                                  ) : (
-                                    <QrCodeScannerIcon />
-                                  )}
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                        />
-                      </FormControl>
-                    )}
-
-                    <div className="flex items-center p-4 space-x-6 bg-white rounded-lg">
-                      <p className="text-lg font-semibold text-blue-600">
-                        Total Devices:
-                        <span className="pl-1 text-gray-800">
-                          {rowData.length}
-                        </span>
-                      </p>
-                      <p className="text-lg font-semibold text-green-600">
-                        Total L Devices:
-                        <span className="pl-1 text-gray-800">
-                          {
-                            rowData.filter((item: any) =>
-                              item.modalNo.includes("(L)")
-                            )?.length
-                          }
-                        </span>
-                      </p>
-                      <p className="text-lg font-semibold text-red-600">
-                        Total E Devices:
-                        <span className="pl-1 text-gray-800">
-                          {
-                            rowData.filter((item: any) =>
-                              item.modalNo.includes("(E)")
-                            )?.length
-                          }
-                        </span>
-                      </p>
-                      <p className="text-lg font-semibold text-yellow-700">
-                        Total F Devices:
-                        <span className="pl-1 text-gray-800">
-                          {
-                            rowData.filter((item: any) =>
-                              item.modalNo.includes("(F)")
-                            )?.length
-                          }
-                        </span>
-                      </p>
-                    </div>
-
-                    {/* <div className="flex items-center gap-[10px]">
-                <LoadingButton loadingPosition="start" loading={dispatchCreateLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
-                  Submit
-                </LoadingButton>
-              </div> */}
-                  </div>
-                </div>
-                <div className="h-[calc(100vh-250px)]">
-                  <ImeiTable setRowdata={setRowData} rowData={rowData} />
-                </div>
-              </div>
-            </div>
-          )}
-          {activeStep === 2 && (
             <div className="h-[calc(100vh-200px)] flex items-center justify-center">
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
@@ -1193,17 +903,6 @@ const CreateDispatchPage: React.FC = () => {
           )}
           <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
             {activeStep === 0 && (
-              <>
-                <LoadingButton
-                  type="submit"
-                  variant="contained"
-                  endIcon={<Icons.next />}
-                >
-                  Next
-                </LoadingButton>
-              </>
-            )}
-            {activeStep === 1 && (
               <>
                 <LoadingButton
                   disabled={dispatchCreateLoading}
@@ -1247,4 +946,4 @@ const CreateDispatchPage: React.FC = () => {
   );
 };
 
-export default CreateDispatchPage;
+export default CreateChallanPage;
