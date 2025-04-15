@@ -13,6 +13,11 @@ const initialState: DispatchState = {
   clientBranchList: null,
   clientBranchLoading: false,
   wrongDispatchLoading:false,
+  dispatchData: null,
+  dispatchDataLoading: false,
+  ewayBillDataLoading:false,
+  stateCodeLoading:false,
+  stateCode:null,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -39,6 +44,26 @@ export const getClientBranch = createAsyncThunk<AxiosResponse<any>, string>("mas
   return response;
 });
 
+export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dispatch/getDispatchData", async (id) => {
+  const response = await axiosInstance.get(`/dispatchDivice/detail?txnId=${id}`);
+  return response;
+});
+
+export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/submitDetail', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/submitDetail`, payload);
+  return response;
+});
+
+export const createEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/createEwayBill', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/createEWayBill`, payload);
+  return response;
+});
+
+export const getStateCode = createAsyncThunk<AxiosResponse<any>>('/backend/stateCode', async () => {
+  const response = await axiosInstance.get(`/backend/stateCode`);
+  return response;
+});
+
 const dispatchSlice = createSlice({
   name: "dispatch",
   initialState,
@@ -60,6 +85,48 @@ const dispatchSlice = createSlice({
       })
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
+      })
+      .addCase(getStateCode.pending, (state) => {
+        state.stateCodeLoading = true;
+      })
+      .addCase(getStateCode.fulfilled, (state, action) => {
+        state.stateCodeLoading = false;
+        if (action.payload.data.success) {
+          state.stateCode = action.payload.data.data;
+        }
+      })
+      .addCase(getStateCode.rejected, (state) => {
+        state.stateCodeLoading = false;
+      })
+      .addCase(getDispatchData.rejected, (state) => {
+        state.dispatchDataLoading = false;
+      })
+      .addCase(getDispatchData.pending, (state) => {
+        state.dispatchDataLoading = true;
+      })
+      .addCase(getDispatchData.fulfilled, (state, action) => {
+        state.dispatchDataLoading = false;
+        if (action.payload.data.success) {
+          state.dispatchData = action.payload.data.data;
+        }
+      })
+      .addCase(createEwayBill.pending, (state) => {
+        state.ewayBillDataLoading = true;
+      })
+      .addCase(createEwayBill.fulfilled, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(createEwayBill.rejected, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(fillEwayBillData.pending, (state) => {
+        state.ewayBillDataLoading = true;
+      })
+      .addCase(fillEwayBillData.fulfilled, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(fillEwayBillData.rejected, (state) => {
+        state.ewayBillDataLoading = false;
       })
       .addCase(wrongDeviceDispatch.pending, (state) => {
         state.wrongDispatchLoading = true;

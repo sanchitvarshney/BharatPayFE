@@ -62,6 +62,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
 import LabelIcon from '@mui/icons-material/Label';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 
 export const Icons = {
   save: SaveIcon,
@@ -75,6 +76,7 @@ export const Icons = {
   done: DoneIcon,
   time: AccessTimeIcon,
   checkcircle: CheckCircleOutlineIcon,
+  shipping: LocalShippingOutlinedIcon,
   qrScan: QrCodeScannerIcon,
   form: FormatListNumberedRtlIcon,
   checklist: ChecklistIcon,
@@ -114,6 +116,7 @@ export const Icons = {
   check: CheckIcon,
   sim: SimCardIcon,
   grid: GridViewIcon,
+  ewaybill: LocalShippingOutlinedIcon,
   next: NavigateNextIcon,
   previous: NavigateBeforeIcon,
   files: FileCopyIcon,

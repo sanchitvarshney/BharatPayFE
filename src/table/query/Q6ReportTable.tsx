@@ -65,7 +65,6 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
         locIn: item.location,
         locOut: item.locationOut,
         insertBy: item.user,
-        manufacturingMonth: item.manufacturingMonth
       }));
       setRowData(convertedData);
     }
@@ -117,13 +116,6 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       width: 200,
-    },
-    {
-      headerName: "Manufacturing Month",
-      field: "manufacturingMonth",
-      sortable: true,
-      filter: true,
-      width: 230,
     },
     {
       headerName: "Inserted By",
