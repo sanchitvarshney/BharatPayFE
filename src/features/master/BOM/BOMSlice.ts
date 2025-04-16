@@ -60,6 +60,10 @@ export const addComponentInBom = createAsyncThunk<AxiosResponse<{ status: number
   const response = await axiosInstance.put(`/bom/addComponent`, payload);
   return response;
 });
+export const addAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: number; message: string; success: boolean }>, AddBomPayload>("master/addAlternativeComponent", async (payload) => {
+  const response = await axiosInstance.put(`/bom/addAlternateComponent`, payload);
+  return response;
+});
 export const uploadfile = createAsyncThunk<AxiosResponse<UploadFileApiResponse>, FormData>("master/bom/uploadfile", async (payload) => {
   const response = await axiosInstance.post(`/bom/bomUpload`, payload, {
     headers: {
