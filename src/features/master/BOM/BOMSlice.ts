@@ -64,6 +64,11 @@ export const addAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: 
   const response = await axiosInstance.put(`/bom/addAlternateComponent`, payload);
   return response;
 });
+
+export const getAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: number; message: string; success: boolean }>, {bomID: string, componentKey: string}>("master/getAlternativeComponent", async (payload) => {
+  const response = await axiosInstance.get(`/bom/getAlternateComponent?bomID=${payload.bomID}&componentKey=${payload.componentKey}`);
+  return response;
+});
 export const uploadfile = createAsyncThunk<AxiosResponse<UploadFileApiResponse>, FormData>("master/bom/uploadfile", async (payload) => {
   const response = await axiosInstance.post(`/bom/bomUpload`, payload, {
     headers: {
