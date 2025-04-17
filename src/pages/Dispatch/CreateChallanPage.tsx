@@ -37,7 +37,7 @@ import SelectClient, {
 } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import {
-  CreateDispatch,
+  CreateChallan,
   getClientBranch,
 } from "@/features/Dispatch/DispatchSlice";
 import {
@@ -45,6 +45,7 @@ import {
   getDispatchFromDetail,
 } from "@/features/master/client/clientSlice";
 import{ Dayjs } from "dayjs";
+import { showToast } from "@/utils/toasterContext";
 type FormDataType = {
   clientDetail: clientDetailType | null;
   shipToDetails: shipToDetailsType | null;
@@ -164,9 +165,11 @@ const CreateChallanPage: React.FC = () => {
       shipToDetails: data.shipToDetails || null,
       dispatchFromDetails: data.dispatchFromDetails || null,
     };
-    dispatch(CreateDispatch(payload)).then((res: any) => {
+    dispatch(CreateChallan(payload)).then((res: any) => {
+      console.log(res);
       if (res.payload.data.success) {
-        setDispatchNo(res?.payload?.data?.data?.refID);
+        setDispatchNo(res?.payload?.data?.data);
+        showToast(res?.payload?.data?.message, "success");
         reset();
         handleNext();
         resetall();
@@ -760,7 +763,7 @@ const CreateChallanPage: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Dispatch Number - {dispatchNo ? dispatchNo : ""}
+                  Challan Number - {dispatchNo ? dispatchNo : ""}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}

@@ -18,10 +18,27 @@ const initialState: DispatchState = {
   ewayBillDataLoading:false,
   stateCodeLoading:false,
   stateCode:null,
+  challanList: null,
+  getChallanLoading: false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
   const response = await axiosInstance.post(`dispatchDivice/createDispatch`, payload);
+  return response;
+});
+
+export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateChallan", async (payload) => {
+  const response = await axiosInstance.post(`challan/create`, payload);
+  return response;
+});
+
+export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>>("dispatch/getChallan", async () => {
+  const response = await axiosInstance.get(`challan/fetchPerforma`);
+  return response;
+});
+
+export const getChallanById  = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>>("dispatch/getChallanById", async (id) => {
+  const response = await axiosInstance.get(`challan/fetchPerforma?${id}`);
   return response;
 });
 
@@ -86,6 +103,19 @@ const dispatchSlice = createSlice({
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
+      .addCase(getChallan.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(getChallan.fulfilled, (state, action) => {
+        state.getChallanLoading = false;
+        if (action.payload.data.success) {
+          state.challanList = action.payload.data.data;
+        }
+      })
+      .addCase(getChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+
       .addCase(getStateCode.pending, (state) => {
         state.stateCodeLoading = true;
       })

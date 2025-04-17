@@ -38,4 +38,6 @@ export type DispatchState = {
   ewayBillDataLoading: boolean;
   stateCodeLoading: boolean;
   stateCode: any;
+  challanList: any;
+  getChallanLoading: boolean;
 };
