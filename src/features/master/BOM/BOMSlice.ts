@@ -65,7 +65,7 @@ export const addAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: 
   return response;
 });
 
-export const getAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: number; message: string; success: boolean }>, {bomID: string, componentKey: string}>("master/getAlternativeComponent", async (payload) => {
+export const getAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: number; message: string; success: boolean, data: any }>, {bomID: string, componentKey: string}>("master/getAlternativeComponent", async (payload) => {
   const response = await axiosInstance.get(`/bom/getAlternateComponent?bomID=${payload.bomID}&componentKey=${payload.componentKey}`);
   return response;
 });
@@ -201,6 +201,27 @@ const BOMSlice = createSlice({
         }
       })
       .addCase(addComponentInBom.rejected, (state) => {
+        state.addBomLoading = false;
+      })
+      .addCase(getAlternativeComponent.pending, (state) => {
+        state.addBomLoading = true;
+      })
+      .addCase(getAlternativeComponent.fulfilled, (state) => {
+        state.addBomLoading = false;
+      })
+      .addCase(getAlternativeComponent.rejected, (state) => {
+        state.addBomLoading = false;
+      })
+      .addCase(addAlternativeComponent.pending, (state) => {
+        state.addBomLoading = true;
+      })
+      .addCase(addAlternativeComponent.fulfilled, (state, action) => {
+        state.addBomLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(addAlternativeComponent.rejected, (state) => {
         state.addBomLoading = false;
       });
   },

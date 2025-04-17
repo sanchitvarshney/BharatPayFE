@@ -24,6 +24,7 @@ import SelectComponent, {
 } from "@/components/reusable/SelectComponent";
 import MuiSelect from "@/components/reusable/MuiSelect";
 import AlternativeComponentsView from "@/components/reusable/AlternativeComponentsView";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 
 const categoryOptions = [
   { value: "PART", label: "PART" },
@@ -102,8 +103,11 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
         setAlternativeComponents(response.data.data);
         setViewAltOpen(true);
       }
-    } catch (error) {
-      showToast("Error fetching alternative components", "error");
+      else{
+        showToast(response.data.message, "error");
+      }
+    } catch (error:any) {
+      console.log(error.message||"Error fetching alternative components", "error");
     } finally {
       setLoadingAltComponents(false);
     }
@@ -205,6 +209,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-201px)]">
+      {loadingAltComponents && <FullPageLoading />}
       <BootstrapStyleDialog
         open={open}
         handleClose={() => setOpen(false)}
@@ -292,16 +297,18 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
         handleClose={() => setAltOpen(false)}
         title="Add Alternative Component"
         content={
-          <div className="">
+          <div className="w-[600px]">
             <form action="">
-              <div className="grid grid-cols-2 gap-[20px] p-[20px]">
+              <div className="p-[20px]">
                 <SelectComponent
                   label="Select Alternative Component"
                   varient="filled"
-                  width="300px"
+                  width="100%"
                   value={altComponent}
                   onChange={(value) => setAltComponent(value)}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-[20px] p-[20px]">
                 <TextField
                   type="number"
                   label="QTY"

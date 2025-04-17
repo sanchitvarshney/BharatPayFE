@@ -37,6 +37,8 @@ const AlternativeComponentsView: React.FC<Props> = ({
         field: "componentName",
         sortable: true,
         filter: true,
+        minWidth : 300,
+        flex: 1,
       },
       {
         headerName: "Part Code",
