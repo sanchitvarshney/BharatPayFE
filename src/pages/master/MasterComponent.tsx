@@ -99,15 +99,7 @@ const MasterComponent: React.FC = () => {
               Add New Component
             </Typography>
             <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
-              <div>
-                <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
-                {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
-              </div>
-              <div>
-                <TextField disabled placeholder="Part Code" fullWidth label="Part Code" />
-                {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
-              </div>
-              <div>
+            <div>
                 <Controller
                   name="module"
                   control={control}
@@ -127,17 +119,18 @@ const MasterComponent: React.FC = () => {
 
                 {errors.module && <span className=" text-[12px] text-red-500">{errors.module.message}</span>}
               </div>
-              </div>
-              <div>
-              <div>
-                <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
-                {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
-              </div>
               <div>
                 <TextField disabled placeholder="Part Code" fullWidth label="Part Code" />
                 {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
               </div>
-              <div>
+              
+              </div>
+              <div >
+              <div className="mt-[20px]">
+                <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
+                {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
+              </div>
+              <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
                 <Controller
                   name="uom"
                   control={control}

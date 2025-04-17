@@ -308,7 +308,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
                   onChange={(value) => setAltComponent(value)}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-[20px] p-[20px]">
+              <div className="grid grid-cols-2 gap-[20px] px-[20px]">
                 <TextField
                   type="number"
                   label="QTY"
