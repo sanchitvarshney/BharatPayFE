@@ -127,6 +127,16 @@ const MasterComponent: React.FC = () => {
 
                 {errors.module && <span className=" text-[12px] text-red-500">{errors.module.message}</span>}
               </div>
+              </div>
+              <div>
+              <div>
+                <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
+                {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
+              </div>
+              <div>
+                <TextField disabled placeholder="Part Code" fullWidth label="Part Code" />
+                {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
+              </div>
               <div>
                 <Controller
                   name="uom"

@@ -60,6 +60,15 @@ export const addComponentInBom = createAsyncThunk<AxiosResponse<{ status: number
   const response = await axiosInstance.put(`/bom/addComponent`, payload);
   return response;
 });
+export const addAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: number; message: string; success: boolean }>, AddBomPayload>("master/addAlternativeComponent", async (payload) => {
+  const response = await axiosInstance.put(`/bom/addAlternateComponent`, payload);
+  return response;
+});
+
+export const getAlternativeComponent = createAsyncThunk<AxiosResponse<{ status: number; message: string; success: boolean, data: any }>, {bomID: string, componentKey: string}>("master/getAlternativeComponent", async (payload) => {
+  const response = await axiosInstance.get(`/bom/getAlternateComponent?bomID=${payload.bomID}&componentKey=${payload.componentKey}`);
+  return response;
+});
 export const uploadfile = createAsyncThunk<AxiosResponse<UploadFileApiResponse>, FormData>("master/bom/uploadfile", async (payload) => {
   const response = await axiosInstance.post(`/bom/bomUpload`, payload, {
     headers: {
@@ -192,6 +201,27 @@ const BOMSlice = createSlice({
         }
       })
       .addCase(addComponentInBom.rejected, (state) => {
+        state.addBomLoading = false;
+      })
+      .addCase(getAlternativeComponent.pending, (state) => {
+        state.addBomLoading = true;
+      })
+      .addCase(getAlternativeComponent.fulfilled, (state) => {
+        state.addBomLoading = false;
+      })
+      .addCase(getAlternativeComponent.rejected, (state) => {
+        state.addBomLoading = false;
+      })
+      .addCase(addAlternativeComponent.pending, (state) => {
+        state.addBomLoading = true;
+      })
+      .addCase(addAlternativeComponent.fulfilled, (state, action) => {
+        state.addBomLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(addAlternativeComponent.rejected, (state) => {
         state.addBomLoading = false;
       });
   },
