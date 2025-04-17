@@ -39,13 +39,16 @@ import { DeviceType } from "@/components/reusable/SelectSku";
 import {
   CreateChallan,
   getClientBranch,
+  getChallanById,
 } from "@/features/Dispatch/DispatchSlice";
 import {
   getClientAddressDetail,
   getDispatchFromDetail,
 } from "@/features/master/client/clientSlice";
-import{ Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 import { showToast } from "@/utils/toasterContext";
+import { useParams } from "react-router-dom";
+
 type FormDataType = {
   clientDetail: clientDetailType | null;
   shipToDetails: shipToDetailsType | null;
@@ -59,6 +62,8 @@ type FormDataType = {
   otherRef: string;
   document: string;
   dispatchDate: Dayjs | null;
+  gstRate: string;
+  gstState: string;
 };
 
 type clientDetailType = {
@@ -91,13 +96,16 @@ type shipToDetailsType = {
 };
 
 const CreateChallanPage: React.FC = () => {
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const isEditMode = Boolean(id);
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
-  const dispatch = useAppDispatch();
 
-  const { dispatchCreateLoading, clientBranchList } =
-    useAppSelector((state) => state.dispatch);
+  const { dispatchCreateLoading, clientBranchList } = useAppSelector(
+    (state) => state.dispatch
+  );
 
   const { addressDetail, dispatchFromDetails } = useAppSelector(
     (state) => state.client
@@ -123,6 +131,8 @@ const CreateChallanPage: React.FC = () => {
       remark: "",
       file: null,
       sku: null,
+      gstRate: "",
+      gstState: "",
     },
   });
   const formValues = watch();
@@ -164,6 +174,8 @@ const CreateChallanPage: React.FC = () => {
         : null,
       shipToDetails: data.shipToDetails || null,
       dispatchFromDetails: data.dispatchFromDetails || null,
+      gstRate: data.gstRate,
+      gstState: data.gstState === "Inter State" ? "inter" : "local",
     };
     dispatch(CreateChallan(payload)).then((res: any) => {
       console.log(res);
@@ -192,6 +204,16 @@ const CreateChallanPage: React.FC = () => {
       dispatch(getClientBranch((formValues.clientDetail.client as any).code));
     }
   }, [formValues.clientDetail?.client]);
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      const shipmentId = id.replace(/_/g, "/")
+      dispatch(getChallanById({challanId: shipmentId})).then((res: any) => {
+        const data = res?.payload?.data?.data;
+        console.log(data);
+      });
+    }
+  }, [id, isEditMode, dispatch]);
 
   const handleClientBranchChange = (value: any) => {
     if (value) {
@@ -228,7 +250,6 @@ const CreateChallanPage: React.FC = () => {
 
   return (
     <>
-     
       <ConfirmationModel
         open={alert}
         onClose={() => setAlert(false)}
@@ -717,11 +738,47 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
+                 <Controller
+                  name="gstState"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "GST State is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={field.value}
+                      onChange={(_, newValue) =>
+                        field.onChange(newValue)
+                      }
+                      disablePortal
+                      id="combo-box-demo"
+                      options={[
+                        "Inter State",
+                        "Intra State"
+                      ]}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="GST State"
+                          error={!!errors.gstState}
+                          helperText={errors.gstState?.message}
+                          variant="filled"
+                        />
+                      )}
+                    />
+                  )}
+                />
                 <Controller
                   name="otherRef"
                   control={control}
                   rules={{
-                    required: { value: true, message: "Other Reference is required" },
+                    required: {
+                      value: true,
+                      message: "Other Reference is required",
+                    },
                   }}
                   render={({ field }) => (
                     <FormControl
@@ -729,7 +786,7 @@ const CreateChallanPage: React.FC = () => {
                       fullWidth
                       variant="filled"
                     >
-                      <InputLabel htmlFor="otherRef">Document No</InputLabel>
+                      <InputLabel htmlFor="otherRef">Other Reference</InputLabel>
                       <FilledInput
                         {...field}
                         error={!!errors.otherRef}
@@ -737,19 +794,50 @@ const CreateChallanPage: React.FC = () => {
                         type="text"
                       />
                       {errors.otherRef && (
-                        <FormHelperText>{errors.otherRef.message}</FormHelperText>
+                        <FormHelperText>
+                          {errors.otherRef.message}
+                        </FormHelperText>
                       )}
                     </FormControl>
                   )}
                 />
-                
               </div>
               <div className="grid grid-cols-2">
-                <div className="pt-10 pl-10 ">
+                <Controller
+                  name="gstRate"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,  
+                      message: "GST Rate is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.otherRef}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.gstRate}
+                        id="gstRate"
+                        type="text"
+                      />
+                      {errors.gstRate && (
+                        <FormHelperText>
+                          {errors.gstRate.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+                <div className="pl-10 ">
                   <TextField
                     {...register("remark")}
                     fullWidth
-                    label={"Remarks (If any)"}
+                    label={"Remarks"}
                     variant="outlined"
                     multiline
                     rows={5}

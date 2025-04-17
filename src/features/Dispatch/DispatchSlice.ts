@@ -33,12 +33,16 @@ export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; 
 });
 
 export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>>("dispatch/getChallan", async () => {
-  const response = await axiosInstance.get(`challan/fetchPerforma`);
+  const response = await axiosInstance.post(`challan/fetchPerforma`);
+  return response;
+});
+export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/getChallanById", async (data) => {
+  const response = await axiosInstance.post(`challan/fetchPerforma`, data);
   return response;
 });
 
-export const getChallanById  = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>>("dispatch/getChallanById", async (id) => {
-  const response = await axiosInstance.get(`challan/fetchPerforma?${id}`);
+export const printChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printChallan", async (data) => {
+  const response = await axiosInstance.post(`challan/generatePerforma`, data);
   return response;
 });
 

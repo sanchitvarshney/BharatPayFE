@@ -52,7 +52,7 @@ interface ChallanDetails {
 interface Props {
   open: boolean;
   onClose: () => void;
-  challanDetails: ChallanDetails | null;
+  challanDetails: ChallanDetails | any;
 }
 
 const ViewChallanDialog: React.FC<Props> = ({
@@ -84,7 +84,7 @@ const ViewChallanDialog: React.FC<Props> = ({
         <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
           <Stepper activeStep={0} className="w-full">
             <Step>
-              <StepLabel>View Details</StepLabel>
+              <StepLabel>View Details - {challanDetails?.challanId}</StepLabel>
             </Step>
           </Stepper>
         </div>

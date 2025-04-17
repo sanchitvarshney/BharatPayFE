@@ -3,10 +3,13 @@ import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
-import { useAppSelector } from "@/hooks/useReduxHook";
+import { useAppSelector, useAppDispatch } from "@/hooks/useReduxHook";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ViewChallanDialog from "@/components/ewayBill/ViewChallanDialog";
+import { useNavigate } from "react-router-dom";
+import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
+import { printChallan } from "@/features/Dispatch/DispatchSlice";
 
 interface RowData {
   orderQty: number;
@@ -20,6 +23,7 @@ interface RowData {
   inserby: string;
   skuName: string;
   sku: string;
+  challanId: string;
 }
 
 type Props = {
@@ -28,8 +32,11 @@ type Props = {
 
 const ChallanTable: React.FC<Props> = ({ gridRef }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedRow, setSelectedRow] = useState<any | null>(null);
+  const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [viewChallanOpen, setViewChallanOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -48,6 +55,15 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
     handleMenuClose();
   };
 
+  const handleEditChallan = () => {
+    if (selectedRow) {
+      const txnId = selectedRow.challanId;
+      const shipmentId = txnId.replace(/\//g, "_");
+      navigate(`/update-challan/${shipmentId}`);
+      handleMenuClose();
+    }
+  };
+
   const handleCreateEwayBill = () => {
     if (selectedRow) {
       // Add your create eway bill logic here
@@ -56,6 +72,17 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       const shipmentId = txnId.replace(/\//g, "_");
       fnOpenNewWindow(`/create/e-waybill/${shipmentId}`);
       handleMenuClose();
+    }
+  };
+  const handlePrintChallan = () => {
+    if (selectedRow) {
+      const txnId = selectedRow.challanId;
+      const shipmentId = txnId.replace(/\//g, "/");
+      dispatch(printChallan({ challanId: shipmentId })).then((res: any) => {
+        if (res.payload.data.success) {
+          window.open(res.payload.data.data, "_blank");
+        }
+      });
     }
   };
 
@@ -188,11 +215,17 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
           }}
         >
           <MenuItem onClick={handleViewChallan}>View</MenuItem>
-          <MenuItem onClick={handleCreateEwayBill}>Edit</MenuItem>
+          <MenuItem onClick={handleEditChallan}>Edit</MenuItem>
           <MenuItem onClick={handleCreateEwayBill}>Create Dispatch</MenuItem>
-          <MenuItem onClick={handleCreateEwayBill}>Print</MenuItem>
+          <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
         </Menu>
       </div>
+
+      <FillEwayBillSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        selectedRow={selectedRow}
+      />
 
       <ViewChallanDialog
         open={viewChallanOpen}

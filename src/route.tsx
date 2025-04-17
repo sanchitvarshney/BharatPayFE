@@ -615,6 +615,16 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <DispatchLayout>
+                <CreateChallanPage />
+            </DispatchLayout>
+          </MainLayout>
+        ),
+        path: "/update-challan/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DispatchLayout>
               <ManageChallan />
             </DispatchLayout>
           </MainLayout>
