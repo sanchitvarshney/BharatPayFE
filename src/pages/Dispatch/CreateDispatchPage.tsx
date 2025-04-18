@@ -4,16 +4,12 @@ import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/M
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   clearaddressdetail,
-  getLocationAsync,
-  getVendorAsync,
 } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetDocumentFile,
   resetFormData,
   storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { getCurrency } from "@/features/common/commonSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {
   Autocomplete,
@@ -236,10 +232,6 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(getVendorAsync(null));
-    dispatch(getLocationAsync(null));
-    dispatch(getPertCodesync(null));
-    dispatch(getCurrency());
     dispatch(getDispatchFromDetail());
   }, []);
 

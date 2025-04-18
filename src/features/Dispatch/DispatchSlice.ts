@@ -20,6 +20,7 @@ const initialState: DispatchState = {
   stateCode:null,
   challanList: null,
   getChallanLoading: false,
+  createChallanLoading:false
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -29,6 +30,11 @@ export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean;
 
 export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateChallan", async (payload) => {
   const response = await axiosInstance.post(`challan/create`, payload);
+  return response;
+});
+
+export const UpdateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/UpdateChallan", async (payload) => {
+  const response = await axiosInstance.post(`challan/editPerforma`, payload);
   return response;
 });
 
@@ -107,6 +113,15 @@ const dispatchSlice = createSlice({
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
+      .addCase(CreateChallan.pending, (state) => {
+        state.createChallanLoading = true;
+      })
+      .addCase(CreateChallan.fulfilled, (state) => {
+        state.createChallanLoading = false;
+      })
+      .addCase(CreateChallan.rejected, (state) => {
+        state.createChallanLoading = false;
+      })
       .addCase(getChallan.pending, (state) => {
         state.getChallanLoading = true;
       })
@@ -117,6 +132,18 @@ const dispatchSlice = createSlice({
         }
       })
       .addCase(getChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(getChallanById.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(getChallanById.fulfilled, (state, action) => {
+        state.getChallanLoading = false;
+        if (action.payload.data.success) {
+          state.challanList = action.payload.data.data;
+        }
+      })
+      .addCase(getChallanById.rejected, (state) => {
         state.getChallanLoading = false;
       })
 

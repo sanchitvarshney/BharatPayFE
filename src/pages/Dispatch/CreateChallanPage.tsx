@@ -103,7 +103,7 @@ const CreateChallanPage: React.FC = () => {
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
 
-  const { dispatchCreateLoading, clientBranchList } = useAppSelector(
+  const { createChallanLoading, clientBranchList } = useAppSelector(
     (state) => state.dispatch
   );
 
@@ -141,10 +141,6 @@ const CreateChallanPage: React.FC = () => {
   const formdata = new FormData();
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
   };
 
   const resetall = () => {
@@ -866,29 +862,7 @@ const CreateChallanPage: React.FC = () => {
             {activeStep === 0 && (
               <>
                 <LoadingButton
-                  disabled={dispatchCreateLoading}
-                  sx={{ background: "white", color: "red" }}
-                  variant="contained"
-                  startIcon={<Icons.previous />}
-                  onClick={() => {
-                    handleBack();
-                  }}
-                >
-                  Back
-                </LoadingButton>
-                {/* <LoadingButton
-                  disabled={createminLoading}
-                  sx={{ background: "white", color: "red" }}
-                  variant="contained"
-                  startIcon={<Icons.refreshv2 />}
-                  onClick={() => {
-                    setAlert(true);
-                  }}
-                >
-                  Reset
-                </LoadingButton> */}
-                <LoadingButton
-                  loading={dispatchCreateLoading}
+                  loading={createChallanLoading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}

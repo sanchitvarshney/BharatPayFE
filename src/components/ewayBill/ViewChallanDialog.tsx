@@ -47,6 +47,7 @@ interface ChallanDetails {
   };
   otherRef: string;
   date: string;
+  remark: string;
 }
 
 interface Props {
@@ -136,6 +137,24 @@ const ViewChallanDialog: React.FC<Props> = ({
                   <FormControl fullWidth variant="filled">
                     <InputLabel>Other Reference</InputLabel>
                     <FilledInput value={challanDetails.otherRef} disabled />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControl fullWidth variant="filled">
+                    <InputLabel>GST Type</InputLabel>
+                    <FilledInput value={challanDetails.gsttype==="inter"?"INTER STATE":"INTRA STATE"} disabled />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControl fullWidth variant="filled">
+                    <InputLabel>GST Rate</InputLabel>
+                    <FilledInput value={challanDetails.gstrate} disabled />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControl fullWidth variant="filled">
+                    <InputLabel>Remarks</InputLabel>
+                    <FilledInput value={challanDetails.remark} disabled multiline rows={3}/>
                   </FormControl>
                 </Grid>
               </Grid>

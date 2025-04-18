@@ -1,0 +1,867 @@
+import React, { useEffect, useState } from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import {
+  resetDocumentFile,
+  resetFormData,
+  storeFormdata,
+} from "@/features/wearhouse/Rawmin/RawMinSlice";
+import {
+  Autocomplete,
+  Divider,
+  FilledInput,
+  FormControl,
+  FormHelperText,
+  InputAdornment,
+  InputLabel,
+  TextField,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { Icons } from "@/components/icons";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+import SelectClient, {
+  LocationType,
+} from "@/components/reusable/editor/SelectClient";
+import { DeviceType } from "@/components/reusable/SelectSku";
+import {
+  getClientBranch,
+  getChallanById,
+  UpdateChallan,
+} from "@/features/Dispatch/DispatchSlice";
+import {
+  getClientAddressDetail,
+  getDispatchFromDetail,
+} from "@/features/master/client/clientSlice";
+import { showToast } from "@/utils/toasterContext";
+import { useNavigate, useParams } from "react-router-dom";
+import FullPageLoading from "@/components/shared/FullPageLoading";
+
+type FormDataType = {
+  clientDetail: {
+    client: { code: string; text: string } | null;
+    branchId: string;
+    address1: string;
+    address2: string;
+    pincode: string;
+  } | null;
+  shipToDetails: {
+    shipTo: string;
+    shipLabel: string;
+    address1: string;
+    address2: string;
+    pincode: string;
+    mobileNo: string;
+    city: string;
+  } | null;
+  dispatchFromDetails: {
+    dispatchFrom: string;
+    dispatchLabel: string;
+    address1: string;
+    address2: string;
+    pin: string;
+    mobileNo: string;
+    gst: string;
+    pan: string;
+    city: string;
+  } | null;
+  invoice: string;
+  qty: string;
+  document: string;
+  location: LocationType | null;
+  remark: string;
+  file: File[] | null;
+  sku: DeviceType | null;
+  gstRate: string;
+  gstState: string;
+  otherRef: string;
+};
+
+const UpdateChallanPage: React.FC = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const isEditMode = Boolean(id);
+  const [alert, setAlert] = useState<boolean>(false);
+  const [upload, setUpload] = useState<boolean>(false);
+  const [dispatchDetails, setDispatchDetails] = useState<any>(null);
+  const [clientDetails, setClientDetails] = useState<any>(null);
+
+  const { dispatchCreateLoading, clientBranchList, getChallanLoading } =
+    useAppSelector((state) => state.dispatch);
+
+  const { addressDetail, dispatchFromDetails } = useAppSelector(
+    (state) => state.client
+  ) as any;
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<FormDataType>({
+    defaultValues: {
+      clientDetail: null,
+      shipToDetails: null,
+      dispatchFromDetails: null,
+      invoice: "",
+      qty: "",
+      document: "",
+      location: null,
+      remark: "",
+      file: null,
+      sku: null,
+      gstRate: "",
+      gstState: "",
+    },
+  });
+  const formValues = watch();
+  const formdata = new FormData();
+
+  const resetall = () => {
+    reset();
+    dispatch(resetDocumentFile());
+    dispatch(clearaddressdetail());
+    formdata.delete("document");
+  };
+
+  const onSubmit: SubmitHandler<FormDataType> = (data) => {
+    dispatch(storeFormdata(data));
+    // handleNext();
+  };
+
+  const finalSubmit = () => {
+    const data = formValues;
+    // if (formdata) {
+    const payload: any = {
+      otherRef: data.otherRef,
+      dispatchQty: Number(data.qty),
+      remark: data.remark,
+      challanId: id?.replace(/_/g, "/"),
+      clientDetail: data.clientDetail
+        ? {
+            ...data.clientDetail,
+            client: (data.clientDetail?.client as any)?.code,
+          }
+        : null,
+      shipToDetails: data.shipToDetails || null,
+      dispatchFromDetails: data.dispatchFromDetails || null,
+      gstRate: data.gstRate,
+      gstState: data.gstState === "Inter State" ? "inter" : "local",
+    };
+    dispatch(UpdateChallan(payload)).then((res: any) => {
+      console.log(res);
+      if (res.payload.data.success) {
+        showToast(res?.payload?.data?.message, "success");
+        reset();
+        resetall();
+        navigate("/manage-challan");
+      }
+    });
+    //  };
+  };
+
+  useEffect(() => {
+    dispatch(getDispatchFromDetail());
+  }, []);
+
+  useEffect(() => {
+    if (formValues.clientDetail?.client) {
+      dispatch(
+        getClientBranch(
+          (formValues.clientDetail.client as any).code ??
+            formValues.clientDetail.client
+        )
+      );
+    }
+  }, [formValues.clientDetail?.client]);
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      const shipmentId = id.replace(/_/g, "/");
+      dispatch(getChallanById({ challanId: shipmentId })).then((res: any) => {
+        const data = res?.payload?.data?.data[0];
+        if (data) {
+          // Set basic fields
+          setValue("otherRef", data?.otherRef);
+          setValue("qty", data?.dispatchQty);
+          setValue("remark", data?.remark);
+          setValue("gstRate", data?.gstrate);
+
+          // Set client details
+          setValue("clientDetail", {
+            client: {
+              code: data?.clientDetail?.clientKey,
+              text: data?.clientDetail?.name,
+            },
+            branchId: data?.clientDetail?.branchKey,
+
+            address1: data?.clientDetail?.address1,
+            address2: data?.clientDetail?.address2,
+            pincode: data?.clientDetail?.pincode,
+          });
+          setClientDetails(data?.clientDetail);
+          dispatch(getClientAddressDetail(data?.clientDetail?.branchKey));
+          // Set ship to details
+          setValue("shipToDetails", {
+            shipTo: data?.shipToDetails?.shipToKey,
+            shipLabel: data?.shipToDetails?.shipLabel,
+            address1: data?.shipToDetails?.address1,
+            address2: data?.shipToDetails?.address2,
+            pincode: data?.shipToDetails?.pincode,
+            mobileNo: data?.shipToDetails?.mobileNo,
+            city: data?.shipToDetails?.city,
+          });
+          // Set dispatch from details
+          setValue("dispatchFromDetails", {
+            dispatchFrom: data?.dispatchFromDetails?.dispatchFromKey,
+            dispatchLabel: data?.dispatchFromDetails?.dispatchFromLabel,
+            address1: data?.dispatchFromDetails?.address1,
+            address2: data?.dispatchFromDetails?.address2,
+            pin: data?.dispatchFromDetails?.pin,
+            mobileNo: data?.dispatchFromDetails?.mobileNo,
+            gst: data?.dispatchFromDetails?.gst,
+            pan: data?.dispatchFromDetails?.pan,
+            city: data?.dispatchFromDetails?.city,
+          });
+          setDispatchDetails(data?.dispatchFromDetails);
+
+          // Set GST state
+          setValue(
+            "gstState",
+            data?.gsttype === "inter" ? "Inter State" : "Intra State"
+          );
+        }
+      });
+    }
+  }, [id, isEditMode, dispatch, setValue]);
+  console.log(formValues);
+  const handleClientBranchChange = (value: any) => {
+    if (value) {
+      setValue("clientDetail.branchId", value.addressID);
+      setValue("clientDetail.address1", value.addressLine1); // Update addressLine1
+      setValue("clientDetail.address2", value.addressLine2); // Update addressLine2
+      setValue("clientDetail.pincode", value.pinCode); // Update pincode
+      dispatch(getClientAddressDetail(value.addressID));
+      setClientDetails(value);
+    }
+  };
+  const handleShipToChange = (value: any) => {
+    if (value) {
+      setValue("shipToDetails.shipTo", value.shipId);
+      setValue("shipToDetails.address1", value.addressLine1); // Update addressLine1
+      setValue("shipToDetails.address2", value.addressLine2); // Update addressLine2
+      setValue("shipToDetails.pincode", value.pinCode); // Update pincode
+      setValue("shipToDetails.mobileNo", value.phoneNo);
+      setValue("shipToDetails.city", value.city);
+    }
+  };
+  const handleDispatchFromChange = (value: any) => {
+    if (value) {
+      setValue("dispatchFromDetails.dispatchFrom", value.code);
+      setValue("dispatchFromDetails.address1", value.addressLine1);
+      setValue("dispatchFromDetails.address2", value.addressLine2);
+      setValue("dispatchFromDetails.mobileNo", value.mobileNo);
+      setValue("dispatchFromDetails.city", value.city);
+      setValue("dispatchFromDetails.gst", value.gst);
+      setValue("dispatchFromDetails.pan", value.pan);
+      setValue("dispatchFromDetails.pin", value.pin);
+      setDispatchDetails(value);
+    }
+  };
+
+  return (
+    <>
+      {getChallanLoading && <FullPageLoading />}
+      <ConfirmationModel
+        open={alert}
+        onClose={() => setAlert(false)}
+        title="Are you sure?"
+        content="Are you sure you want to reset all fields and table data?"
+        cancelText="Cancel"
+        confirmText="Continue"
+        onConfirm={() => {
+          resetall();
+          dispatch(resetDocumentFile());
+          dispatch(resetFormData());
+          setAlert(false);
+        }}
+      />
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
+        <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
+
+        <div className="h-[calc(100vh-100px)]   ">
+          <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
+            <div
+              id="primary-item-details"
+              className="flex items-center w-full gap-3"
+            >
+              <div className="flex items-center gap-[5px]">
+                <Icons.user />
+                <h2 id="primary-item-details" className="text-lg font-semibold">
+                  Client Details
+                </h2>
+              </div>
+              <Divider
+                sx={{
+                  borderBottomWidth: 2,
+                  borderColor: "#f59e0b",
+                  flexGrow: 1,
+                }}
+              />
+            </div>
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+              <Controller
+                name="clientDetail.client"
+                rules={{
+                  required: { value: true, message: "Client is required" },
+                }}
+                control={control}
+                render={({ field }) => (
+                  <SelectClient
+                    endPoint="/backend/client"
+                    error={!!errors.clientDetail?.client}
+                    helperText={errors.clientDetail?.client?.message}
+                    size="medium"
+                    label={clientDetails?.name || "Select Client"}
+                    varient="filled"
+                    value={field.value as any}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+              <Controller
+                name="clientDetail.branchId"
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Client Branch is required",
+                  },
+                }}
+                control={control}
+                render={({ field }) => (
+                  <Autocomplete
+                    value={
+                      clientBranchList?.find(
+                        (branch: any) => branch.addressID === field.value
+                      ) || null
+                    }
+                    onChange={(_, newValue) =>
+                      handleClientBranchChange(newValue)
+                    }
+                    disablePortal
+                    id="combo-box-demo"
+                    options={clientBranchList || []}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Client Branch"
+                        error={!!errors.clientDetail?.branchId}
+                        helperText={errors.clientDetail?.branchId?.message}
+                        variant="filled"
+                      />
+                    )}
+                  />
+                )}
+              />
+
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.clientDetail?.pincode}
+                // helperText={errors.clientDetail.pincode}
+                helperText={errors?.clientDetail?.pincode?.message}
+                focused={!!watch("clientDetail.pincode")}
+                // multiline
+                rows={3}
+                fullWidth
+                label="PinCode"
+                className="h-[10px] resize-none"
+                {...register("clientDetail.pincode", {
+                  required: "PinCode is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.clientDetail?.address1}
+                helperText={errors?.clientDetail?.address1?.message}
+                focused={!!watch("clientDetail.address1")}
+                multiline
+                rows={3}
+                fullWidth
+                label="Address 1"
+                className="h-[100px] resize-none"
+                {...register("clientDetail.address1", {
+                  required: "Address 1 is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.clientDetail?.address2}
+                helperText={errors?.clientDetail?.address2?.message}
+                focused={!!watch("clientDetail.address2")}
+                multiline
+                rows={3}
+                fullWidth
+                label="Address 2"
+                className="h-[100px] resize-none"
+                {...register("clientDetail.address2", {
+                  required: "Address 2 is required",
+                })}
+              />
+            </div>
+            <div className="flex items-center w-full gap-3">
+              <div className="flex items-center gap-[5px]">
+                <Icons.userAddress />
+                <h2 className="text-lg font-semibold">Ship To Details</h2>
+              </div>
+              <Divider
+                sx={{
+                  borderBottomWidth: 2,
+                  borderColor: "#f59e0b",
+                  flexGrow: 1,
+                }}
+              />
+            </div>
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+              <Controller
+                name="shipToDetails.shipTo"
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Ship To Client Branch is required",
+                  },
+                }}
+                control={control}
+                render={({ field }) => (
+                  <Autocomplete
+                    // value={field.value}
+                    value={
+                      addressDetail?.data?.shippingAddress?.find(
+                        (address: any) => address.shipId === field.value
+                      ) || null
+                    }
+                    onChange={(_, newValue) => handleShipToChange(newValue)}
+                    disablePortal
+                    id="combo-box-demo"
+                    options={addressDetail?.data?.shippingAddress || []}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={"Ship To"}
+                        error={!!errors.shipToDetails?.shipTo}
+                        helperText={errors.shipToDetails?.shipTo?.message}
+                        variant="filled"
+                      />
+                    )}
+                  />
+                )}
+              />
+
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.shipToDetails?.pincode}
+                helperText={errors?.shipToDetails?.pincode?.message}
+                focused={!!watch("shipToDetails.pincode")}
+                // multiline
+                rows={3}
+                fullWidth
+                label="PinCode"
+                className="h-[10px] resize-none"
+                {...register("shipToDetails.pincode", {
+                  required: "PinCode is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.shipToDetails?.mobileNo}
+                helperText={errors?.shipToDetails?.mobileNo?.message}
+                focused={!!watch("shipToDetails.mobileNo")}
+                // multiline
+                rows={3}
+                fullWidth
+                label="Mobile No"
+                className="h-[10px] resize-none"
+                {...register("shipToDetails.mobileNo", {
+                  required: "Mobile No is required",
+                })}
+              />
+
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.shipToDetails?.city}
+                helperText={errors?.shipToDetails?.city?.message}
+                focused={!!watch("shipToDetails.city")}
+                rows={3}
+                fullWidth
+                label="City"
+                className="h-[100px] resize-none"
+                {...register("shipToDetails.city")}
+              />
+
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.shipToDetails?.address1}
+                helperText={errors?.shipToDetails?.address1?.message}
+                focused={!!watch("shipToDetails.address1")}
+                multiline
+                rows={3}
+                fullWidth
+                label="Ship To Address 1"
+                className="h-[100px] resize-none"
+                {...register("shipToDetails.address1", {
+                  required: "Address 1 is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.shipToDetails?.address2}
+                helperText={errors?.shipToDetails?.address2?.message}
+                focused={!!watch("shipToDetails.address2")}
+                multiline
+                rows={3}
+                fullWidth
+                label="Ship To Addrests 2"
+                className="h-[100px] resize-none"
+                {...register("shipToDetails.address2", {
+                  required: "Address 2 is required",
+                })}
+              />
+            </div>
+            <div className="flex items-center w-full gap-3">
+              <div className="flex items-center gap-[5px]">
+                <Icons.shipping />
+                <h2 className="text-lg font-semibold">Dispatch From Details</h2>
+              </div>
+              <Divider
+                sx={{
+                  borderBottomWidth: 2,
+                  borderColor: "#f59e0b",
+                  flexGrow: 1,
+                }}
+              />
+            </div>
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+              <Controller
+                name="dispatchFromDetails.dispatchFrom"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Dispatch From is required",
+                  },
+                }}
+                render={({ field }) => (
+                  <Autocomplete
+                    value={
+                      dispatchFromDetails?.data?.find(
+                        (address: any) => address.code === field.value
+                      ) || null
+                    }
+                    onChange={(_, newValue) =>
+                      handleDispatchFromChange(newValue)
+                    }
+                    disablePortal
+                    id="combo-box-demo"
+                    options={dispatchFromDetails || []}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={
+                          dispatchDetails?.dispatchFromLabel || "Dispatch From"
+                        }
+                        error={!!errors.dispatchFromDetails?.dispatchFrom}
+                        helperText={
+                          errors.dispatchFromDetails?.dispatchFrom?.message
+                        }
+                        variant="filled"
+                      />
+                    )}
+                  />
+                )}
+              />
+
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.dispatchFromDetails?.pin}
+                helperText={errors?.dispatchFromDetails?.pin?.message}
+                focused={!!watch("dispatchFromDetails.pin")}
+                // multiline
+                rows={3}
+                fullWidth
+                label="PinCode"
+                className="h-[10px] resize-none"
+                {...register("dispatchFromDetails.pin", {
+                  required: "PinCode is required",
+                })}
+              />
+
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.dispatchFromDetails?.mobileNo}
+                helperText={errors?.dispatchFromDetails?.mobileNo?.message}
+                focused={!!watch("dispatchFromDetails.mobileNo")}
+                // multiline
+                rows={3}
+                fullWidth
+                label="Mobile No"
+                className="h-[10px] resize-none"
+                {...register("dispatchFromDetails.mobileNo", {
+                  required: "Mobile No is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                // sx={{ mb: 1 }}
+                error={!!errors.dispatchFromDetails?.gst}
+                helperText={errors?.dispatchFromDetails?.gst?.message}
+                focused={!!watch("dispatchFromDetails.gst")}
+                // multiline
+                rows={3}
+                fullWidth
+                label="GST"
+                className="h-[10px] resize-none"
+                {...register("dispatchFromDetails.gst", {
+                  required: "GST is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                // sx={{ mb: 1 }}
+                error={!!errors.dispatchFromDetails?.pan}
+                helperText={errors?.dispatchFromDetails?.pan?.message}
+                focused={!!watch("dispatchFromDetails.pan")}
+                // multiline
+                rows={3}
+                fullWidth
+                label="PAN"
+                className="h-[10px] resize-none"
+                {...register("dispatchFromDetails.pan", {
+                  required: "PAN is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                // sx={{ mb: 1 }}
+                error={!!errors.dispatchFromDetails?.city}
+                helperText={errors?.dispatchFromDetails?.city?.message}
+                focused={!!watch("dispatchFromDetails.city")}
+                rows={3}
+                fullWidth
+                label="City"
+                className="h-[100px] resize-none"
+                {...register("dispatchFromDetails.city")}
+              />
+
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.dispatchFromDetails?.address1}
+                helperText={errors?.dispatchFromDetails?.address1?.message}
+                focused={!!watch("dispatchFromDetails.address1")}
+                multiline
+                rows={3}
+                fullWidth
+                label="Dispatch From Address 1"
+                className="h-[100px] resize-none"
+                {...register("dispatchFromDetails.address1", {
+                  required: "Address 1 is required",
+                })}
+              />
+              <TextField
+                variant="filled"
+                sx={{ mb: 1 }}
+                error={!!errors.dispatchFromDetails?.address2}
+                helperText={errors?.dispatchFromDetails?.address2?.message}
+                focused={!!watch("dispatchFromDetails.address2")}
+                multiline
+                rows={3}
+                fullWidth
+                label="Dispatch From Addrests 2"
+                className="h-[100px] resize-none"
+                {...register("dispatchFromDetails.address2", {
+                  required: "Address 2 is required",
+                })}
+              />
+            </div>
+            <div className="flex items-center w-full gap-3">
+              <div className="flex items-center gap-[5px]">
+                <Icons.files />
+                <h2 className="text-lg font-semibold">
+                  Dispatch Details and Attachments
+                </h2>
+              </div>
+              <Divider
+                sx={{
+                  borderBottomWidth: 2,
+                  borderColor: "#f59e0b",
+                  flexGrow: 1,
+                }}
+              />
+            </div>
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+              <Controller
+                name="qty"
+                control={control}
+                rules={{
+                  required: { value: true, message: "Quantity is required" },
+                  min: {
+                    value: 1,
+                    message: "Quantity must be greater than 0",
+                  },
+                  pattern: {
+                    value: /^[0-9]+$/,
+                    message: "Quantity must be a number",
+                  },
+                }}
+                render={({ field }) => (
+                  <FormControl error={!!errors.qty} fullWidth variant="filled">
+                    <InputLabel htmlFor="qty">Dispatch Quantity</InputLabel>
+                    <FilledInput
+                      {...field}
+                      error={!!errors.qty}
+                      id="qty"
+                      type="number"
+                      endAdornment={
+                        <InputAdornment position="end">NOS</InputAdornment>
+                      }
+                    />
+                    {errors.qty && (
+                      <FormHelperText>{errors.qty.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+              <Controller
+                name="gstState"
+                rules={{
+                  required: {
+                    value: true,
+                    message: "GST State is required",
+                  },
+                }}
+                control={control}
+                render={({ field }) => (
+                  <Autocomplete
+                    value={field.value}
+                    onChange={(_, newValue) => field.onChange(newValue)}
+                    disablePortal
+                    id="combo-box-demo"
+                    options={["Inter State", "Intra State"]}
+                    getOptionLabel={(option) => option}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="GST State"
+                        error={!!errors.gstState}
+                        helperText={errors.gstState?.message}
+                        variant="filled"
+                      />
+                    )}
+                  />
+                )}
+              />
+              <Controller
+                name="otherRef"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Other Reference is required",
+                  },
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    error={!!errors.otherRef}
+                    fullWidth
+                    variant="filled"
+                  >
+                    <InputLabel htmlFor="otherRef">Other Reference</InputLabel>
+                    <FilledInput
+                      {...field}
+                      error={!!errors.otherRef}
+                      id="otherRef"
+                      type="text"
+                    />
+                    {errors.otherRef && (
+                      <FormHelperText>{errors.otherRef.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-2">
+              <Controller
+                name="gstRate"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "GST Rate is required",
+                  },
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    error={!!errors.otherRef}
+                    fullWidth
+                    variant="filled"
+                  >
+                    <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
+                    <FilledInput
+                      {...field}
+                      error={!!errors.gstRate}
+                      id="gstRate"
+                      type="text"
+                    />
+                    {errors.gstRate && (
+                      <FormHelperText>{errors.gstRate.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+              <div className="pl-10 ">
+                <TextField
+                  {...register("remark")}
+                  fullWidth
+                  label={"Remarks"}
+                  variant="outlined"
+                  multiline
+                  rows={5}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
+            <LoadingButton
+              loading={dispatchCreateLoading}
+              loadingPosition="start"
+              variant="contained"
+              startIcon={<Icons.save />}
+              onClick={() => {
+                finalSubmit();
+              }}
+            >
+              Submit
+            </LoadingButton>
+          </div>
+        </div>
+      </form>
+    </>
+  );
+};
+
+export default UpdateChallanPage;

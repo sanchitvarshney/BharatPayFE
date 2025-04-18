@@ -126,6 +126,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      sort: "desc",
     },
     {
       headerName: "Quantity",

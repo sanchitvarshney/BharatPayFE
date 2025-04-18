@@ -40,4 +40,5 @@ export type DispatchState = {
   stateCode: any;
   challanList: any;
   getChallanLoading: boolean;
+  createChallanLoading: boolean;
 };
