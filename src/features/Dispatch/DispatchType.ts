@@ -41,4 +41,5 @@ export type DispatchState = {
   challanList: any;
   getChallanLoading: boolean;
   createChallanLoading: boolean;
+  updateChallanLoading:boolean;
 };

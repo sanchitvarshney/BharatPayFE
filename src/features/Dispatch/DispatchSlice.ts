@@ -20,7 +20,8 @@ const initialState: DispatchState = {
   stateCode:null,
   challanList: null,
   getChallanLoading: false,
-  createChallanLoading:false
+  createChallanLoading:false,
+  updateChallanLoading:false
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -134,6 +135,15 @@ const dispatchSlice = createSlice({
       .addCase(getChallan.rejected, (state) => {
         state.getChallanLoading = false;
       })
+      .addCase(printChallan.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(printChallan.fulfilled, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(printChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
       .addCase(getChallanById.pending, (state) => {
         state.getChallanLoading = true;
       })
@@ -197,6 +207,15 @@ const dispatchSlice = createSlice({
       })
       .addCase(wrongDeviceDispatch.rejected, (state) => {
         state.wrongDispatchLoading = false;
+      })
+      .addCase(UpdateChallan.pending, (state) => {
+        state.updateChallanLoading = true;
+      })
+      .addCase(UpdateChallan.fulfilled, (state) => {
+        state.updateChallanLoading = false;
+      })
+      .addCase(UpdateChallan.rejected, (state) => {
+        state.updateChallanLoading = false;
       })
       .addCase(getClient.pending, (state) => {
         state.clientLoading = true;

@@ -83,6 +83,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
           window.open(res.payload.data.data, "_blank");
         }
       });
+      handleMenuClose();
     }
   };
 

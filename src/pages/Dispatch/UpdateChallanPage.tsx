@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetDocumentFile,
-  resetFormData,
   storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import {
@@ -20,7 +18,6 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
-import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import SelectClient, {
   LocationType,
 } from "@/components/reusable/editor/SelectClient";
@@ -83,12 +80,10 @@ const UpdateChallanPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isEditMode = Boolean(id);
-  const [alert, setAlert] = useState<boolean>(false);
-  const [upload, setUpload] = useState<boolean>(false);
   const [dispatchDetails, setDispatchDetails] = useState<any>(null);
   const [clientDetails, setClientDetails] = useState<any>(null);
 
-  const { dispatchCreateLoading, clientBranchList, getChallanLoading } =
+  const { clientBranchList, getChallanLoading,updateChallanLoading } =
     useAppSelector((state) => state.dispatch);
 
   const { addressDetail, dispatchFromDetails } = useAppSelector(
@@ -154,7 +149,6 @@ const UpdateChallanPage: React.FC = () => {
       gstState: data.gstState === "Inter State" ? "inter" : "local",
     };
     dispatch(UpdateChallan(payload)).then((res: any) => {
-      console.log(res);
       if (res.payload.data.success) {
         showToast(res?.payload?.data?.message, "success");
         reset();
@@ -162,7 +156,6 @@ const UpdateChallanPage: React.FC = () => {
         navigate("/manage-challan");
       }
     });
-    //  };
   };
 
   useEffect(() => {
@@ -239,7 +232,7 @@ const UpdateChallanPage: React.FC = () => {
       });
     }
   }, [id, isEditMode, dispatch, setValue]);
-  console.log(formValues);
+
   const handleClientBranchChange = (value: any) => {
     if (value) {
       setValue("clientDetail.branchId", value.addressID);
@@ -276,26 +269,13 @@ const UpdateChallanPage: React.FC = () => {
 
   return (
     <>
-      {getChallanLoading && <FullPageLoading />}
-      <ConfirmationModel
-        open={alert}
-        onClose={() => setAlert(false)}
-        title="Are you sure?"
-        content="Are you sure you want to reset all fields and table data?"
-        cancelText="Cancel"
-        confirmText="Continue"
-        onConfirm={() => {
-          resetall();
-          dispatch(resetDocumentFile());
-          dispatch(resetFormData());
-          setAlert(false);
-        }}
-      />
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
-        <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
-
-        <div className="h-[calc(100vh-100px)]   ">
-          <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
+      {(getChallanLoading) && <FullPageLoading />}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white h-full flex flex-col"
+      >
+        <div className="flex-1 overflow-y-auto">
+          <div className="py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px]">
             <div
               id="primary-item-details"
               className="flex items-center w-full gap-3"
@@ -662,7 +642,7 @@ const UpdateChallanPage: React.FC = () => {
                 rows={3}
                 fullWidth
                 label="City"
-                className="h-[100px] resize-none"
+                className="h-[50px] resize-none"
                 {...register("dispatchFromDetails.city")}
               />
 
@@ -690,7 +670,7 @@ const UpdateChallanPage: React.FC = () => {
                 multiline
                 rows={3}
                 fullWidth
-                label="Dispatch From Addrests 2"
+                label="Dispatch From Address 2"
                 className="h-[100px] resize-none"
                 {...register("dispatchFromDetails.address2", {
                   required: "Address 2 is required",
@@ -784,22 +764,15 @@ const UpdateChallanPage: React.FC = () => {
                   },
                 }}
                 render={({ field }) => (
-                  <FormControl
+                  <TextField
+                    {...field}
                     error={!!errors.otherRef}
+                    helperText={errors.otherRef?.message}
                     fullWidth
                     variant="filled"
-                  >
-                    <InputLabel htmlFor="otherRef">Other Reference</InputLabel>
-                    <FilledInput
-                      {...field}
-                      error={!!errors.otherRef}
-                      id="otherRef"
-                      type="text"
-                    />
-                    {errors.otherRef && (
-                      <FormHelperText>{errors.otherRef.message}</FormHelperText>
-                    )}
-                  </FormControl>
+                    label="Other Reference"
+                    focused={!!watch("otherRef")}
+                  />
                 )}
               />
             </div>
@@ -832,32 +805,37 @@ const UpdateChallanPage: React.FC = () => {
                   </FormControl>
                 )}
               />
-              <div className="pl-10 ">
-                <TextField
-                  {...register("remark")}
-                  fullWidth
-                  label={"Remarks"}
-                  variant="outlined"
-                  multiline
-                  rows={5}
-                />
+              <div className="pl-10">
+                <FormControl fullWidth variant="filled">
+                  <InputLabel htmlFor="remark">Remarks</InputLabel>
+                  <FilledInput
+                    {...register("remark")}
+                    id="remark"
+                    multiline
+                    rows={5}
+                  />
+                </FormControl>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
-            <LoadingButton
-              loading={dispatchCreateLoading}
-              loadingPosition="start"
-              variant="contained"
-              startIcon={<Icons.save />}
-              onClick={() => {
-                finalSubmit();
-              }}
-            >
-              Submit
-            </LoadingButton>
-          </div>
+        <div className="h-[55px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-white gap-[10px] sticky bottom-0 z-10">
+          <LoadingButton
+            loading={updateChallanLoading}
+            loadingPosition="start"
+            variant="contained"
+            startIcon={<Icons.save />}
+            onClick={() => {
+              finalSubmit();
+            }}
+            sx={{
+              minWidth: "120px",
+              height: "40px",
+            }}
+          >
+            Submit
+          </LoadingButton>
         </div>
       </form>
     </>
