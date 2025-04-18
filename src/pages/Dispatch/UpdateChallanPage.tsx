@@ -77,9 +77,9 @@ type FormDataType = {
 
 const UpdateChallanPage: React.FC = () => {
   const { id } = useParams();
+  const isEditMode = Boolean(id);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const isEditMode = Boolean(id);
   const [dispatchDetails, setDispatchDetails] = useState<any>(null);
   const [clientDetails, setClientDetails] = useState<any>(null);
 
@@ -512,7 +512,7 @@ const UpdateChallanPage: React.FC = () => {
                 multiline
                 rows={3}
                 fullWidth
-                label="Ship To Addrests 2"
+                label="Ship To Address 2"
                 className="h-[100px] resize-none"
                 {...register("shipToDetails.address2", {
                   required: "Address 2 is required",

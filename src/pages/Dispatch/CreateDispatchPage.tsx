@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import {
-  clearaddressdetail,
-} from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetDocumentFile,
   resetFormData,
@@ -45,6 +43,7 @@ import SelectClient, {
 import { DeviceType } from "@/components/reusable/SelectSku";
 import {
   CreateDispatch,
+  getChallanById,
   getClientBranch,
   uploadFile,
 } from "@/features/Dispatch/DispatchSlice";
@@ -66,6 +65,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { useParams } from "react-router-dom";
 type RowData = {
   imei: string;
   srno: string;
@@ -88,6 +88,10 @@ type FormDataType = {
   docNo: string;
   document: string;
   dispatchDate: Dayjs | null;
+  gstRate: string;
+  gstState: string;
+  otherRef: string;
+  gstType: string;
 };
 
 type clientDetailType = {
@@ -120,6 +124,8 @@ type shipToDetailsType = {
 };
 
 const CreateDispatchPage: React.FC = () => {
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
   const [filename, setFilename] = useState<string>("");
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
@@ -159,6 +165,10 @@ const CreateDispatchPage: React.FC = () => {
       remark: "",
       file: null,
       sku: null,
+      docNo: "",
+      otherRef: "",
+      gstRate: "",
+      gstType: "",
     },
   });
   const formValues = watch();
@@ -188,6 +198,61 @@ const CreateDispatchPage: React.FC = () => {
     dispatch(storeFormdata(data));
     handleNext();
   };
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      const shipmentId = id.replace(/_/g, "/");
+      dispatch(getChallanById({ challanId: shipmentId })).then((res: any) => {
+        const data = res?.payload?.data?.data[0];
+        if (data) {
+          // Set basic fields
+          setValue("otherRef", data?.otherRef);
+          setValue("qty", data?.dispatchQty);
+          setValue("remark", data?.remark);
+          setValue("gstRate", data?.gstrate);
+
+          // Set client details
+          setValue("clientDetail", {
+            client: data?.clientDetail?.clientKey,
+            branchId: data?.clientDetail?.branchKey,
+            address1: data?.clientDetail?.address1,
+            address2: data?.clientDetail?.address2,
+            pincode: data?.clientDetail?.pincode,
+          });
+          dispatch(getClientAddressDetail(data?.clientDetail?.branchKey));
+          // Set ship to details
+          setValue("shipToDetails", {
+            shipTo: data?.shipToDetails?.shipToKey,
+            // shipLabel: data?.shipToDetails?.shipLabel,
+            address1: data?.shipToDetails?.address1,
+            address2: data?.shipToDetails?.address2,
+            pincode: data?.shipToDetails?.pincode,
+            mobileNo: data?.shipToDetails?.mobileNo,
+            city: data?.shipToDetails?.city,
+          });
+          // Set dispatch from details
+          setValue("dispatchFromDetails", {
+            dispatchFrom: data?.dispatchFromDetails?.dispatchFromKey,
+            // dispatchLabel: data?.dispatchFromDetails?.dispatchFromLabel,
+            address1: data?.dispatchFromDetails?.address1,
+            address2: data?.dispatchFromDetails?.address2,
+            pin: data?.dispatchFromDetails?.pin,
+            mobileNo: data?.dispatchFromDetails?.mobileNo,
+            gst: data?.dispatchFromDetails?.gst,
+            pan: data?.dispatchFromDetails?.pan,
+            city: data?.dispatchFromDetails?.city,
+            company: data?.dispatchFromDetails?.company,
+          });
+
+          // Set GST state
+          setValue(
+            "gstState",
+            data?.gsttype === "inter" ? "Inter State" : "Intra State"
+          );
+        }
+      });
+    }
+  }, [id, isEditMode, dispatch, setValue]);
 
   const finalSubmit = () => {
     console.log(rowData);
@@ -234,10 +299,15 @@ const CreateDispatchPage: React.FC = () => {
   useEffect(() => {
     dispatch(getDispatchFromDetail());
   }, []);
-
+  
   useEffect(() => {
     if (formValues.clientDetail?.client) {
-      dispatch(getClientBranch((formValues.clientDetail.client as any).code));
+      dispatch(
+        getClientBranch(
+          (formValues.clientDetail.client as any).code ??
+            formValues.clientDetail.client
+        )
+      );
     }
   }, [formValues.clientDetail?.client]);
 
@@ -292,6 +362,7 @@ const CreateDispatchPage: React.FC = () => {
     if (reason === "backdropClick") return; // Prevent closing on outside click
     setOpen(false);
   };
+  console.log(formValues);
   return (
     <>
       <Dialog
@@ -656,11 +727,11 @@ const CreateDispatchPage: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="shipToDetails.shipTo"
+                  name="dispatchFromDetails.dispatchFrom"
                   rules={{
                     required: {
                       value: true,
-                      message: "Ship To Client Branch is required",
+                      message: "Dispatch From is required",
                     },
                   }}
                   control={control}
@@ -668,8 +739,8 @@ const CreateDispatchPage: React.FC = () => {
                     <Autocomplete
                       // value={field.value}
                       value={
-                        dispatchFromDetails?.data?.find(
-                          (address: any) => address.code === field.value
+                        dispatchFromDetails?.find(
+                          (branch: any) => branch.code === field.value
                         ) || null
                       }
                       onChange={(_, newValue) =>
@@ -846,6 +917,86 @@ const CreateDispatchPage: React.FC = () => {
                       />
                       {errors.qty && (
                         <FormHelperText>{errors.qty.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+                <Controller
+                  name="otherRef"
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Document is required" },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.otherRef}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="otherRef">
+                        Other Reference
+                      </InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.otherRef}
+                        id="otherRef"
+                        type="text"
+                      />
+                      {errors.otherRef && (
+                        <FormHelperText>
+                          {errors.otherRef.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+                <Controller
+                  name="gstRate"
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Gst Rate is required" },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.gstRate}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="gstRate">Gst Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.gstRate}
+                        id="gstRate"
+                        type="text"
+                      />
+                      {errors.gstRate && (
+                        <FormHelperText>
+                          {errors.gstRate.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+                <Controller
+                  name="gstType"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.gstRate}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="gstRate">Gst Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.gstRate}
+                        id="gstRate"
+                        type="text"
+                      />
+                      {errors.gstRate && (
+                        <FormHelperText>
+                          {errors.gstRate.message}
+                        </FormHelperText>
                       )}
                     </FormControl>
                   )}

@@ -64,13 +64,11 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
     }
   };
 
-  const handleCreateEwayBill = () => {
+  const handleCreateDispatch = () => {
     if (selectedRow) {
-      // Add your create eway bill logic here
-      console.log("Create eway bill for:", selectedRow);
-      const txnId = selectedRow.txnId;
+      const txnId = selectedRow.challanId;
       const shipmentId = txnId.replace(/\//g, "_");
-      fnOpenNewWindow(`/create/e-waybill/${shipmentId}`);
+      navigate(`/dispatch/create/${shipmentId}`);
       handleMenuClose();
     }
   };
@@ -86,23 +84,6 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       handleMenuClose();
     }
   };
-
-  function fnOpenNewWindow(link: string) {
-    // Define window dimensions
-    const width = 920;
-    const height = 500;
-
-    // Calculate the position to center the window on the screen
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-
-    // Open the new window centered on the screen
-    window.open(
-      link,
-      "Spigen",
-      `width=${width},height=${height},top=${top},left=${left},status=1,scrollbars=1,location=0,resizable=yes`
-    );
-  }
 
   const columnDefs: ColDef[] = [
     {
@@ -218,7 +199,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
         >
           <MenuItem onClick={handleViewChallan}>View</MenuItem>
           <MenuItem onClick={handleEditChallan}>Edit</MenuItem>
-          <MenuItem onClick={handleCreateEwayBill}>Create Dispatch</MenuItem>
+          <MenuItem onClick={handleCreateDispatch}>Create Dispatch</MenuItem>
           <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
         </Menu>
       </div>

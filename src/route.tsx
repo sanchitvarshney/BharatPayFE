@@ -606,8 +606,8 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ChallanLayout >
-                <CreateChallanPage />
+            <ChallanLayout>
+              <CreateChallanPage />
             </ChallanLayout>
           </MainLayout>
         ),
@@ -617,8 +617,8 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <ChallanLayout>
-                <UpdateChallanPage />
-            </ChallanLayout >
+              <UpdateChallanPage />
+            </ChallanLayout>
           </MainLayout>
         ),
         path: "/update-challan/:id",
@@ -628,7 +628,7 @@ export const router = createBrowserRouter([
           <MainLayout>
             <ChallanLayout>
               <ManageChallan />
-            </ChallanLayout >
+            </ChallanLayout>
           </MainLayout>
         ),
         path: "/manage-challan",
@@ -637,13 +637,21 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <DispatchLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <CreateDispatchPage />
-              </CustomRedirection>
+              <CreateDispatchPage />
             </DispatchLayout>
           </MainLayout>
         ),
         path: "/dispatch/create",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DispatchLayout>
+              <CreateDispatchPage />
+            </DispatchLayout>
+          </MainLayout>
+        ),
+        path: "/dispatch/create/:id",
       },
       {
         element: (
