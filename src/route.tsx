@@ -87,6 +87,8 @@ import CreateEwayBill from "@/pages/ewayBill/CreateEwayBill";
 import EwayBillLayout from "@/layouts/EwayBillLayout";
 import CreateChallanPage from "@/pages/Dispatch/CreateChallanPage";
 import ManageChallan from "@/pages/Dispatch/ManageChallan";
+import UpdateChallanPage from "@/pages/Dispatch/UpdateChallanPage";
+import ChallanLayout from "@/layouts/ChallanLayout ";
 
 export const router = createBrowserRouter([
   {
@@ -604,9 +606,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DispatchLayout>
-                <CreateChallanPage />
-            </DispatchLayout>
+            <ChallanLayout>
+              <CreateChallanPage />
+            </ChallanLayout>
           </MainLayout>
         ),
         path: "/create-challan",
@@ -614,9 +616,19 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DispatchLayout>
+            <ChallanLayout>
+              <UpdateChallanPage />
+            </ChallanLayout>
+          </MainLayout>
+        ),
+        path: "/update-challan/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ChallanLayout>
               <ManageChallan />
-            </DispatchLayout>
+            </ChallanLayout>
           </MainLayout>
         ),
         path: "/manage-challan",
@@ -625,13 +637,21 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <DispatchLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <CreateDispatchPage />
-              </CustomRedirection>
+              <CreateDispatchPage />
             </DispatchLayout>
           </MainLayout>
         ),
         path: "/dispatch/create",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DispatchLayout>
+              <CreateDispatchPage />
+            </DispatchLayout>
+          </MainLayout>
+        ),
+        path: "/dispatch/create/:id",
       },
       {
         element: (

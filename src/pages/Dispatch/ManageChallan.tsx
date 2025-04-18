@@ -1,60 +1,23 @@
-import React, { useCallback, useRef, useState } from "react";
-import { DatePicker } from "antd";
+import React, { useEffect, useRef } from "react";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { AgGridReact } from "@ag-grid-community/react";
-
-import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
-import { showToast } from "@/utils/toasterContext";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getr5Report } from "@/features/report/report/reportSlice";
-import { rangePresets } from "@/utils/rangePresets";
-import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import MuiTooltip from "@/components/reusable/MuiTooltip";
-
+import { useAppDispatch } from "@/hooks/useReduxHook";
 dayjs.extend(customParseFormat);
-const { RangePicker } = DatePicker;
-import DispatchForEwayBillTable from "@/pages/ewayBill/DispatchForEwayBillTable";
+import { getChallan } from "@/features/Dispatch/DispatchSlice";
+import ChallanTable from "@/pages/ewayBill/ChallanTable";
 
 const ManageChallan: React.FC = () => {
-  const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { r5reportLoading, r5report } = useAppSelector((state) => state.report);
-  const [filter, setFilter] = useState<string>("DATE");
-  const [device, setDevice] = useState<DeviceType | null>(null);
-  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
-    from: null,
-    to: null,
-  });
-
   const gridRef = useRef<AgGridReact<any>>(null);
 
-  const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
-    if (range) {
-      setDate({ from: range[0], to: range[1] });
-    } else {
-      setDate({ from: null, to: null });
-    }
-  };
-
-  const onBtExport = useCallback(() => {
-    gridRef.current!.api.exportDataAsExcel({
-      sheetName: "R5 Report", // Set your desired sheet name here
-    });
-  }, []);
+  useEffect(() => {
+    dispatch(getChallan())
+  },[])
 
   return (
     <div className="bg-white h-[calc(100vh-100px)] overflow-x-hidden relative flex">
-      <div
+      {/* <div
         className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${
           colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "
         }`}
@@ -162,9 +125,9 @@ const ManageChallan: React.FC = () => {
             </MuiTooltip>
           </div>
         </div>
-      </div>
+      </div> */}
       <div className="w-full">
-        <DispatchForEwayBillTable gridRef={gridRef} />
+        <ChallanTable gridRef={gridRef} />
       </div>
     </div>
   );

@@ -20,20 +20,16 @@ import {
   FilledInput,
   FormControl,
   FormHelperText,
-  IconButton,
   InputAdornment,
   InputLabel,
-  ListItem,
   Step,
   StepLabel,
   Stepper,
   TextField,
   Typography,
 } from "@mui/material";
-import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
-import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import Success from "@/components/reusable/Success";
 import SelectClient, {
@@ -41,20 +37,17 @@ import SelectClient, {
 } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import {
-  CreateDispatch,
+  CreateChallan,
   getClientBranch,
-  uploadFile,
+  getChallanById,
 } from "@/features/Dispatch/DispatchSlice";
-import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import {
   getClientAddressDetail,
   getDispatchFromDetail,
 } from "@/features/master/client/clientSlice";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs, { Dayjs } from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Dayjs } from "dayjs";
+import { showToast } from "@/utils/toasterContext";
+import { useParams } from "react-router-dom";
 
 type FormDataType = {
   clientDetail: clientDetailType | null;
@@ -66,9 +59,11 @@ type FormDataType = {
   remark: string;
   file: File[] | null;
   sku: DeviceType | null;
-  docNo: string;
+  otherRef: string;
   document: string;
   dispatchDate: Dayjs | null;
+  gstRate: string;
+  gstState: string;
 };
 
 type clientDetailType = {
@@ -101,14 +96,16 @@ type shipToDetailsType = {
 };
 
 const CreateChallanPage: React.FC = () => {
-  const [filename, setFilename] = useState<string>("");
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const isEditMode = Boolean(id);
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
-  const dispatch = useAppDispatch();
 
-  const { dispatchCreateLoading, uploadFileLoading, clientBranchList } =
-    useAppSelector((state) => state.dispatch);
+  const { createChallanLoading, clientBranchList } = useAppSelector(
+    (state) => state.dispatch
+  );
 
   const { addressDetail, dispatchFromDetails } = useAppSelector(
     (state) => state.client
@@ -134,6 +131,8 @@ const CreateChallanPage: React.FC = () => {
       remark: "",
       file: null,
       sku: null,
+      gstRate: "",
+      gstState: "",
     },
   });
   const formValues = watch();
@@ -144,35 +143,25 @@ const CreateChallanPage: React.FC = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
 
-  const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
-  };
-
   const resetall = () => {
     reset();
     dispatch(resetDocumentFile());
-    setFilename("");
     dispatch(clearaddressdetail());
     formdata.delete("document");
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
-    if (!data.document)
-      return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
-    handleNext();
+    // handleNext();
   };
 
   const finalSubmit = () => {
     const data = formValues;
     // if (formdata) {
     const payload: any = {
-      docNo: data.docNo,
+      otherRef: data.otherRef,
       dispatchQty: Number(data.qty),
       remark: data.remark,
-      document: data.document || "",
-      dispatchDate: dayjs(data.dispatchDate).format("DD-MM-YYYY"),
-      pickLocation: data.location?.code || "",
       clientDetail: data.clientDetail
         ? {
             ...data.clientDetail,
@@ -181,10 +170,14 @@ const CreateChallanPage: React.FC = () => {
         : null,
       shipToDetails: data.shipToDetails || null,
       dispatchFromDetails: data.dispatchFromDetails || null,
+      gstRate: data.gstRate,
+      gstState: data.gstState === "Inter State" ? "inter" : "local",
     };
-    dispatch(CreateDispatch(payload)).then((res: any) => {
+    dispatch(CreateChallan(payload)).then((res: any) => {
+      console.log(res);
       if (res.payload.data.success) {
-        setDispatchNo(res?.payload?.data?.data?.refID);
+        setDispatchNo(res?.payload?.data?.data);
+        showToast(res?.payload?.data?.message, "success");
         reset();
         handleNext();
         resetall();
@@ -207,6 +200,16 @@ const CreateChallanPage: React.FC = () => {
       dispatch(getClientBranch((formValues.clientDetail.client as any).code));
     }
   }, [formValues.clientDetail?.client]);
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      const shipmentId = id.replace(/_/g, "/")
+      dispatch(getChallanById({challanId: shipmentId})).then((res: any) => {
+        const data = res?.payload?.data?.data;
+        console.log(data);
+      });
+    }
+  }, [id, isEditMode, dispatch]);
 
   const handleClientBranchChange = (value: any) => {
     if (value) {
@@ -243,7 +246,6 @@ const CreateChallanPage: React.FC = () => {
 
   return (
     <>
-     
       <ConfirmationModel
         open={alert}
         onClose={() => setAlert(false)}
@@ -732,151 +734,106 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
+                 <Controller
+                  name="gstState"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "GST State is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={field.value}
+                      onChange={(_, newValue) =>
+                        field.onChange(newValue)
+                      }
+                      disablePortal
+                      id="combo-box-demo"
+                      options={[
+                        "Inter State",
+                        "Intra State"
+                      ]}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="GST State"
+                          error={!!errors.gstState}
+                          helperText={errors.gstState?.message}
+                          variant="filled"
+                        />
+                      )}
+                    />
+                  )}
+                />
                 <Controller
-                  name="docNo"
+                  name="otherRef"
                   control={control}
                   rules={{
-                    required: { value: true, message: "Document is required" },
+                    required: {
+                      value: true,
+                      message: "Other Reference is required",
+                    },
                   }}
                   render={({ field }) => (
                     <FormControl
-                      error={!!errors.docNo}
+                      error={!!errors.otherRef}
                       fullWidth
                       variant="filled"
                     >
-                      <InputLabel htmlFor="docNo">Document No</InputLabel>
+                      <InputLabel htmlFor="otherRef">Other Reference</InputLabel>
                       <FilledInput
                         {...field}
-                        error={!!errors.docNo}
-                        id="docNo"
+                        error={!!errors.otherRef}
+                        id="otherRef"
                         type="text"
                       />
-                      {errors.docNo && (
-                        <FormHelperText>{errors.docNo.message}</FormHelperText>
+                      {errors.otherRef && (
+                        <FormHelperText>
+                          {errors.otherRef.message}
+                        </FormHelperText>
                       )}
                     </FormControl>
                   )}
                 />
-                <Controller
-                  name="location"
-                  rules={{
-                    required: { value: true, message: "Location is required" },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <SelectLocationAcordingModule
-                      endPoint="/dispatchDivice/pickLocation"
-                      error={!!errors.location}
-                      helperText={errors.location?.message}
-                      size="medium"
-                      label="Pick Location"
-                      varient="filled"
-                      value={field.value as any}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-                <div>
-                  <Controller
-                    name="dispatchDate"
-                    control={control}
-                    rules={{ required: " Dispatch Date is required" }}
-                    render={({ field }) => (
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          format="DD-MM-YYYY"
-                          slots={{
-                            textField: TextField,
-                          }}
-                          maxDate={dayjs()}
-                          slotProps={{
-                            textField: {
-                              variant: "filled",
-                              error: !!errors.dispatchDate,
-                              helperText: errors.dispatchDate?.message,
-                            },
-                          }}
-                          value={field.value}
-                          onChange={(value) => field.onChange(value)}
-                          sx={{ width: "100%" }}
-                          label="Dispatch Date"
-                          name="startDate"
-                        />
-                      </LocalizationProvider>
-                    )}
-                  />
-                </div>
               </div>
               <div className="grid grid-cols-2">
-                <div className=" flex flex-col gap-[20px] py-[20px] ">
-                  <div>
-                    <Controller
-                      name="file"
-                      control={control}
-                      render={({ field }) => (
-                        <FileUploader
-                          loading={uploadFileLoading}
-                          acceptedFileTypes={{
-                            "application/pdf": [".pdf"],
-                            "application/msword": [".doc"],
-                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                              [".docx"],
-                            "image/*": [],
-                          }}
-                          multiple={false}
-                          value={field.value}
-                          onFileChange={(value) => {
-                            if (value && value.length > 0) {
-                              formdata.delete("document");
-                              const file = value[0]; // Get the first file (if there's one)
-                              setFilename(value[0].name);
-                              formdata.append("document", file);
-                              dispatch(uploadFile(formdata)).then(
-                                (res: any) => {
-                                  if (res.payload.data.success) {
-                                    const docNos = res.payload.data?.data;
-                                    setValue("document", docNos); // Update the document field in the form
-                                  }
-                                }
-                              );
-                            }
-                          }}
-                          label="Upload Attachment"
-                        />
-                      )}
-                    />
-                    <ListItem
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        p: 0,
-                      }}
+                <Controller
+                  name="gstRate"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,  
+                      message: "GST Rate is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.otherRef}
+                      fullWidth
+                      variant="filled"
                     >
-                      <Typography variant="body2" noWrap>
-                        {filename}
-                      </Typography>
-                      {filename && (
-                        <IconButton
-                          type="button"
-                          sx={{ paddingX: "10px", paddingY: "5px" }}
-                          onClick={() => {
-                            formdata.delete("document");
-                            setFilename("");
-                            setValue("document", "");
-                          }}
-                          color="error"
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                      <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.gstRate}
+                        id="gstRate"
+                        type="text"
+                      />
+                      {errors.gstRate && (
+                        <FormHelperText>
+                          {errors.gstRate.message}
+                        </FormHelperText>
                       )}
-                    </ListItem>
-                  </div>
-                </div>
-                <div className="pt-10 pl-10 ">
+                    </FormControl>
+                  )}
+                />
+                <div className="pl-10 ">
                   <TextField
                     {...register("remark")}
                     fullWidth
-                    label={"Remarks (If any)"}
+                    label={"Remarks"}
                     variant="outlined"
                     multiline
                     rows={5}
@@ -890,7 +847,7 @@ const CreateChallanPage: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Dispatch Number - {dispatchNo ? dispatchNo : ""}
+                  Challan Number - {dispatchNo ? dispatchNo : ""}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}
@@ -905,29 +862,7 @@ const CreateChallanPage: React.FC = () => {
             {activeStep === 0 && (
               <>
                 <LoadingButton
-                  disabled={dispatchCreateLoading}
-                  sx={{ background: "white", color: "red" }}
-                  variant="contained"
-                  startIcon={<Icons.previous />}
-                  onClick={() => {
-                    handleBack();
-                  }}
-                >
-                  Back
-                </LoadingButton>
-                {/* <LoadingButton
-                  disabled={createminLoading}
-                  sx={{ background: "white", color: "red" }}
-                  variant="contained"
-                  startIcon={<Icons.refreshv2 />}
-                  onClick={() => {
-                    setAlert(true);
-                  }}
-                >
-                  Reset
-                </LoadingButton> */}
-                <LoadingButton
-                  loading={dispatchCreateLoading}
+                  loading={createChallanLoading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}

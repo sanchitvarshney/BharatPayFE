@@ -18,10 +18,38 @@ const initialState: DispatchState = {
   ewayBillDataLoading:false,
   stateCodeLoading:false,
   stateCode:null,
+  challanList: null,
+  getChallanLoading: false,
+  createChallanLoading:false,
+  updateChallanLoading:false
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
   const response = await axiosInstance.post(`dispatchDivice/createDispatch`, payload);
+  return response;
+});
+
+export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateChallan", async (payload) => {
+  const response = await axiosInstance.post(`challan/create`, payload);
+  return response;
+});
+
+export const UpdateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/UpdateChallan", async (payload) => {
+  const response = await axiosInstance.post(`challan/editPerforma`, payload);
+  return response;
+});
+
+export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>>("dispatch/getChallan", async () => {
+  const response = await axiosInstance.post(`challan/fetchPerforma`);
+  return response;
+});
+export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/getChallanById", async (data) => {
+  const response = await axiosInstance.post(`challan/fetchPerforma`, data);
+  return response;
+});
+
+export const printChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printChallan", async (data) => {
+  const response = await axiosInstance.post(`challan/generatePerforma`, data);
   return response;
 });
 
@@ -86,6 +114,49 @@ const dispatchSlice = createSlice({
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
+      .addCase(CreateChallan.pending, (state) => {
+        state.createChallanLoading = true;
+      })
+      .addCase(CreateChallan.fulfilled, (state) => {
+        state.createChallanLoading = false;
+      })
+      .addCase(CreateChallan.rejected, (state) => {
+        state.createChallanLoading = false;
+      })
+      .addCase(getChallan.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(getChallan.fulfilled, (state, action) => {
+        state.getChallanLoading = false;
+        if (action.payload.data.success) {
+          state.challanList = action.payload.data.data;
+        }
+      })
+      .addCase(getChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(printChallan.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(printChallan.fulfilled, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(printChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(getChallanById.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(getChallanById.fulfilled, (state, action) => {
+        state.getChallanLoading = false;
+        if (action.payload.data.success) {
+          state.challanList = action.payload.data.data;
+        }
+      })
+      .addCase(getChallanById.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+
       .addCase(getStateCode.pending, (state) => {
         state.stateCodeLoading = true;
       })
@@ -136,6 +207,15 @@ const dispatchSlice = createSlice({
       })
       .addCase(wrongDeviceDispatch.rejected, (state) => {
         state.wrongDispatchLoading = false;
+      })
+      .addCase(UpdateChallan.pending, (state) => {
+        state.updateChallanLoading = true;
+      })
+      .addCase(UpdateChallan.fulfilled, (state) => {
+        state.updateChallanLoading = false;
+      })
+      .addCase(UpdateChallan.rejected, (state) => {
+        state.updateChallanLoading = false;
       })
       .addCase(getClient.pending, (state) => {
         state.clientLoading = true;

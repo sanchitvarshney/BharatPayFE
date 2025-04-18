@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { clearaddressdetail, getLocationAsync, getVendorAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { resetDocumentFile, storeFormdata } from "@/features/wearhouse/Rawmin/RawMinSlice";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { getCurrency } from "@/features/common/commonSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import { Autocomplete,CircularProgress, Divider, FilledInput, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, ListItem, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
 import FileUploader from "@/components/reusable/FileUploader";
@@ -152,13 +150,6 @@ const WrongDeviceDispatch: React.FC = () => {
     });
     //  };
   };
-
-  useEffect(() => {
-    dispatch(getVendorAsync(null));
-    dispatch(getLocationAsync(null));
-    dispatch(getPertCodesync(null));
-    dispatch(getCurrency());
-  }, []);
 
   useEffect(() => {
     if (formValues.clientDetail?.client) {
