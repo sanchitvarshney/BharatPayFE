@@ -210,7 +210,7 @@ const UpdateChallanPage: React.FC = () => {
           setValue("otherRef", data?.otherRef);
           setValue("qty", data?.dispatchQty);
           setValue("remark", data?.remark);
-          setValue("gstRate", data?.gstrate);
+          setValue("gstRate", data?.gstRate);
 
           // Set client details
           setValue("clientDetail", {
@@ -252,7 +252,7 @@ const UpdateChallanPage: React.FC = () => {
           // Set GST state
           setValue(
             "gstState",
-            data?.gsttype === "inter" ? "Inter State" : "Intra State"
+            data?.gstType === "inter" ? "Inter State" : "Intra State"
           );
         }
       });
@@ -830,7 +830,7 @@ const UpdateChallanPage: React.FC = () => {
               />
               <div className="pl-10">
                 <FormControl fullWidth variant="filled">
-                  <InputLabel htmlFor="remark">Remarks</InputLabel>
+                  <InputLabel htmlFor="remark" shrink={!!watch("remark")}>Remarks</InputLabel>
                   <FilledInput
                     {...register("remark")}
                     id="remark"

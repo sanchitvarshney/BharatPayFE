@@ -628,7 +628,7 @@ const CreateDispatchPage: React.FC = () => {
                           },
                           { label: "Other Reference", value: data?.otherRef },
                           { label: "GST Rate", value: data?.gstRate },
-                          { label: "GST Type", value: data?.gstType },
+                          { label: "GST Type", value: data?.gstType==="inter"?"Inter State":"Intra State" },
                         ].map(({ label, value }) => (
                           <div key={label} className="py-5">
                             <Typography

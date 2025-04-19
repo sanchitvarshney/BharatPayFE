@@ -3,16 +3,10 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
-  clearaddressdetail,
-  getLocationAsync,
-  getVendorAsync,
-} from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import {
   resetDocumentFile,
   resetFormData,
   storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { getCurrency } from "@/features/common/commonSlice";
 import {
   Autocomplete,
@@ -146,7 +140,6 @@ const CreateChallanPage: React.FC = () => {
   const resetall = () => {
     reset();
     dispatch(resetDocumentFile());
-    dispatch(clearaddressdetail());
     formdata.delete("document");
   };
 
@@ -156,24 +149,92 @@ const CreateChallanPage: React.FC = () => {
 
   const finalSubmit = () => {
     const data = formValues;
+
+    // Client validations
     if (!data.clientDetail?.client) {
       showToast("Please select a client", "error");
       return;
     }
     if (!data.clientDetail?.branchId) {
-      showToast("Please select a client branch", "error");
+      showToast("Please select a client branch", "error"); 
       return;
     }
+    if (!data.clientDetail?.address1) {
+      showToast("Client address 1 is required", "error");
+      return;
+    }
+    if (!data.clientDetail?.address2) {
+      showToast("Client address 2 is required", "error");
+      return;
+    }
+    if (!data.clientDetail?.pincode) {
+      showToast("Client pincode is required", "error");
+      return;
+    }
+
+    // Ship to validations
     if (!data.shipToDetails?.shipTo) {
       showToast("Please select ship to details", "error");
       return;
     }
+    if (!data.shipToDetails?.address1) {
+      showToast("Ship to address 1 is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.address2) {
+      showToast("Ship to address 2 is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.pincode) {
+      showToast("Ship to pincode is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.mobileNo) {
+      showToast("Ship to mobile number is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.city) {
+      showToast("Ship to city is required", "error");
+      return;
+    }
+
+    // Dispatch from validations
     if (!data.dispatchFromDetails?.dispatchFrom) {
       showToast("Please select dispatch from details", "error");
       return;
     }
-    if (!data.qty) {
-      showToast("Please enter quantity", "error");
+    if (!data.dispatchFromDetails?.address1) {
+      showToast("Dispatch from address 1 is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.address2) {
+      showToast("Dispatch from address 2 is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.pin) {
+      showToast("Dispatch from pin is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.mobileNo) {
+      showToast("Dispatch from mobile number is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.gst) {
+      showToast("Dispatch from GST is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.pan) {
+      showToast("Dispatch from PAN is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.city) {
+      showToast("Dispatch from city is required", "error");
+      return;
+    }
+
+    // Other validations
+    if (!data.qty || Number(data.qty) <= 0) {
+      showToast("Please enter a valid quantity", "error");
       return;
     }
     if (!data.gstRate) {
@@ -208,16 +269,11 @@ const CreateChallanPage: React.FC = () => {
         reset();
         handleNext();
         resetall();
-        //  dispatch(clearFile());
       }
     });
-    //  };
   };
 
   useEffect(() => {
-    dispatch(getVendorAsync(null));
-    dispatch(getLocationAsync(null));
-    dispatch(getPertCodesync(null));
     dispatch(getCurrency());
     dispatch(getDispatchFromDetail());
   }, []);
@@ -567,7 +623,7 @@ const CreateChallanPage: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="shipToDetails.shipTo"
+                  name="dispatchFromDetails.dispatchFrom"
                   rules={{
                     required: {
                       value: true,
@@ -579,7 +635,7 @@ const CreateChallanPage: React.FC = () => {
                     <Autocomplete
                       // value={field.value}
                       value={
-                        dispatchFromDetails?.data?.find(
+                        dispatchFromDetails?.find(
                           (address: any) => address.code === field.value
                         ) || null
                       }
@@ -674,7 +730,7 @@ const CreateChallanPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="City"
-                  className="h-[100px] resize-none"
+                  className="h-[60px] resize-none"
                   {...register("dispatchFromDetails.city")}
                 />
 
@@ -853,15 +909,16 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                <div className="pl-10 ">
-                  <TextField
-                    {...register("remark")}
-                    fullWidth
-                    label={"Remarks"}
-                    variant="outlined"
-                    multiline
-                    rows={5}
-                  />
+                <div className="pl-10">
+                  <FormControl fullWidth variant="filled">
+                    <InputLabel htmlFor="remark">Remarks</InputLabel>
+                    <FilledInput
+                      {...register("remark")}
+                      id="remark"
+                      multiline
+                      rows={5}
+                    />
+                  </FormControl>
                 </div>
               </div>
             </div>
@@ -871,7 +928,7 @@ const CreateChallanPage: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Challan Number - {dispatchNo ? dispatchNo : ""}
+                  Challan Number - {dispatchNo ?? ""}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}
