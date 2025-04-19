@@ -857,7 +857,7 @@ const UpdateChallanPage: React.FC = () => {
               height: "40px",
             }}
           >
-            Submit
+            Update
           </LoadingButton>
         </div>
       </form>
