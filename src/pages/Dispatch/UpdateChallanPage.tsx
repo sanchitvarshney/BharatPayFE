@@ -80,10 +80,9 @@ const UpdateChallanPage: React.FC = () => {
   const isEditMode = Boolean(id);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [dispatchDetails, setDispatchDetails] = useState<any>(null);
   const [clientDetails, setClientDetails] = useState<any>(null);
 
-  const { clientBranchList, getChallanLoading,updateChallanLoading } =
+  const { clientBranchList, getChallanLoading, updateChallanLoading } =
     useAppSelector((state) => state.dispatch);
 
   const { addressDetail, dispatchFromDetails } = useAppSelector(
@@ -131,6 +130,34 @@ const UpdateChallanPage: React.FC = () => {
 
   const finalSubmit = () => {
     const data = formValues;
+    if (!data.clientDetail?.client) {
+      showToast("Please select a client", "error");
+      return;
+    }
+    if (!data.clientDetail?.branchId) {
+      showToast("Please select a client branch", "error");
+      return;
+    }
+    if (!data.shipToDetails?.shipTo) {
+      showToast("Please select ship to details", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.dispatchFrom) {
+      showToast("Please select dispatch from details", "error");
+      return;
+    }
+    if (!data.qty) {
+      showToast("Please enter quantity", "error");
+      return;
+    }
+    if (!data.gstRate) {
+      showToast("Please enter GST rate", "error");
+      return;
+    }
+    if (!data.gstState) {
+      showToast("Please select GST state", "error");
+      return;
+    }
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
@@ -221,7 +248,6 @@ const UpdateChallanPage: React.FC = () => {
             pan: data?.dispatchFromDetails?.pan,
             city: data?.dispatchFromDetails?.city,
           });
-          setDispatchDetails(data?.dispatchFromDetails);
 
           // Set GST state
           setValue(
@@ -263,13 +289,12 @@ const UpdateChallanPage: React.FC = () => {
       setValue("dispatchFromDetails.gst", value.gst);
       setValue("dispatchFromDetails.pan", value.pan);
       setValue("dispatchFromDetails.pin", value.pin);
-      setDispatchDetails(value);
     }
   };
 
   return (
     <>
-      {(getChallanLoading) && <FullPageLoading />}
+      {getChallanLoading && <FullPageLoading />}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white h-full flex flex-col"
@@ -545,8 +570,8 @@ const UpdateChallanPage: React.FC = () => {
                 render={({ field }) => (
                   <Autocomplete
                     value={
-                      dispatchFromDetails?.data?.find(
-                        (address: any) => address.code === field.value
+                      dispatchFromDetails?.find(
+                        (branch: any) => branch.code === field.value
                       ) || null
                     }
                     onChange={(_, newValue) =>
@@ -558,9 +583,7 @@ const UpdateChallanPage: React.FC = () => {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label={
-                          dispatchDetails?.dispatchFromLabel || "Dispatch From"
-                        }
+                        label={"Dispatch From"}
                         error={!!errors.dispatchFromDetails?.dispatchFrom}
                         helperText={
                           errors.dispatchFromDetails?.dispatchFrom?.message

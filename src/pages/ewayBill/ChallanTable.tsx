@@ -6,7 +6,6 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector, useAppDispatch } from "@/hooks/useReduxHook";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ViewChallanDialog from "@/components/ewayBill/ViewChallanDialog";
 import { useNavigate } from "react-router-dom";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
 import { printChallan } from "@/features/Dispatch/DispatchSlice";
@@ -34,7 +33,6 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [viewChallanOpen, setViewChallanOpen] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -48,11 +46,6 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleViewChallan = () => {
-    setViewChallanOpen(true);
-    handleMenuClose();
   };
 
   const handleEditChallan = () => {
@@ -197,7 +190,6 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleViewChallan}>View</MenuItem>
           <MenuItem onClick={handleEditChallan}>Edit</MenuItem>
           <MenuItem onClick={handleCreateDispatch}>Create Dispatch</MenuItem>
           <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
@@ -208,12 +200,6 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         selectedRow={selectedRow}
-      />
-
-      <ViewChallanDialog
-        open={viewChallanOpen}
-        onClose={() => setViewChallanOpen(false)}
-        challanDetails={selectedRow}
       />
     </>
   );

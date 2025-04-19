@@ -7,10 +7,11 @@ export type DispatchItemPayload = {
   srlnos : string[];
   document: string; // required
   pickLocation: string;
-  clientDetail: any;
-  shipToDetails: any;
-  dispatchDate: string;
-  dispatchFromDetails: any;
+  clientDetail?: any;
+  shipToDetails?: any;
+  dispatchDate?: string;
+  dispatchFromDetails?: any;
+  challanNo: string;
 };
 
 export type DispatchWrongItemPayload = {
