@@ -15,7 +15,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/dispatch/create", "/manage-challan"];
+  const tabRoutes = ["/dispatch/create", "/dispatch/manage"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -46,7 +46,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
               </div>
             }
           />
-          <Tab
+          {/* <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
@@ -54,7 +54,7 @@ const DispatchLayout: React.FC<Props> = ({ children }) => {
                 Manage
               </div>
             }
-          />
+          /> */}
         </Tabs>
       </div>
       <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>

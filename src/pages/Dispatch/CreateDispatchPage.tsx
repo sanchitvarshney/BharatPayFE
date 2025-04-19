@@ -10,7 +10,6 @@ import {
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {
-  Autocomplete,
   Button,
   CircularProgress,
   Divider,
@@ -37,7 +36,7 @@ import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import Success from "@/components/reusable/Success";
-import SelectClient, {
+import {
   LocationType,
 } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
@@ -51,7 +50,6 @@ import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAc
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
 import {
-  getClientAddressDetail,
   getDispatchFromDetail,
 } from "@/features/master/client/clientSlice";
 import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
@@ -66,6 +64,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useParams } from "react-router-dom";
+import FullPageLoading from "@/components/shared/FullPageLoading";
+
 type RowData = {
   imei: string;
   srno: string;
@@ -138,12 +138,8 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
-  const { dispatchCreateLoading, uploadFileLoading, clientBranchList } =
+  const { dispatchCreateLoading, uploadFileLoading } =
     useAppSelector((state) => state.dispatch);
-
-  const { addressDetail, dispatchFromDetails } = useAppSelector(
-    (state) => state.client
-  ) as any;
 
   const {
     register,
@@ -174,7 +170,10 @@ const CreateDispatchPage: React.FC = () => {
   const formValues = watch();
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Form Details", "Add Component Details", "Review & Submit"];
+  const { challanList,getChallanLoading } = useAppSelector((state) => state.dispatch);
+  const [data, setData] = useState<any>(null);
   const formdata = new FormData();
+
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
@@ -202,57 +201,15 @@ const CreateDispatchPage: React.FC = () => {
   useEffect(() => {
     if (isEditMode && id) {
       const shipmentId = id.replace(/_/g, "/");
-      dispatch(getChallanById({ challanId: shipmentId })).then((res: any) => {
-        const data = res?.payload?.data?.data[0];
-        if (data) {
-          // Set basic fields
-          setValue("otherRef", data?.otherRef);
-          setValue("qty", data?.dispatchQty);
-          setValue("remark", data?.remark);
-          setValue("gstRate", data?.gstrate);
-
-          // Set client details
-          setValue("clientDetail", {
-            client: data?.clientDetail?.clientKey,
-            branchId: data?.clientDetail?.branchKey,
-            address1: data?.clientDetail?.address1,
-            address2: data?.clientDetail?.address2,
-            pincode: data?.clientDetail?.pincode,
-          });
-          dispatch(getClientAddressDetail(data?.clientDetail?.branchKey));
-          // Set ship to details
-          setValue("shipToDetails", {
-            shipTo: data?.shipToDetails?.shipToKey,
-            // shipLabel: data?.shipToDetails?.shipLabel,
-            address1: data?.shipToDetails?.address1,
-            address2: data?.shipToDetails?.address2,
-            pincode: data?.shipToDetails?.pincode,
-            mobileNo: data?.shipToDetails?.mobileNo,
-            city: data?.shipToDetails?.city,
-          });
-          // Set dispatch from details
-          setValue("dispatchFromDetails", {
-            dispatchFrom: data?.dispatchFromDetails?.dispatchFromKey,
-            // dispatchLabel: data?.dispatchFromDetails?.dispatchFromLabel,
-            address1: data?.dispatchFromDetails?.address1,
-            address2: data?.dispatchFromDetails?.address2,
-            pin: data?.dispatchFromDetails?.pin,
-            mobileNo: data?.dispatchFromDetails?.mobileNo,
-            gst: data?.dispatchFromDetails?.gst,
-            pan: data?.dispatchFromDetails?.pan,
-            city: data?.dispatchFromDetails?.city,
-            company: data?.dispatchFromDetails?.company,
-          });
-
-          // Set GST state
-          setValue(
-            "gstState",
-            data?.gsttype === "inter" ? "Inter State" : "Intra State"
-          );
-        }
-      });
+      dispatch(getChallanById({ challanId: shipmentId }));
     }
   }, [id, isEditMode, dispatch, setValue]);
+
+  useEffect(() => {
+    if (challanList) {
+      setData(challanList?.[0]);
+    }
+  }, [challanList]);
 
   const finalSubmit = () => {
     console.log(rowData);
@@ -274,14 +231,7 @@ const CreateDispatchPage: React.FC = () => {
       document: data.document || "",
       dispatchDate: dayjs(data.dispatchDate).format("DD-MM-YYYY"),
       pickLocation: data.location?.code || "",
-      clientDetail: data.clientDetail
-        ? {
-            ...data.clientDetail,
-            client: (data.clientDetail?.client as any)?.code,
-          }
-        : null,
-      shipToDetails: data.shipToDetails || null,
-      dispatchFromDetails: data.dispatchFromDetails || null,
+      challanNo: id?.replace(/_/g, "/") || "",
     };
     dispatch(CreateDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -299,7 +249,7 @@ const CreateDispatchPage: React.FC = () => {
   useEffect(() => {
     dispatch(getDispatchFromDetail());
   }, []);
-  
+
   useEffect(() => {
     if (formValues.clientDetail?.client) {
       dispatch(
@@ -311,38 +261,6 @@ const CreateDispatchPage: React.FC = () => {
     }
   }, [formValues.clientDetail?.client]);
 
-  const handleClientBranchChange = (value: any) => {
-    if (value) {
-      setValue("clientDetail.branchId", value.addressID);
-      setValue("clientDetail.address1", value.addressLine1); // Update addressLine1
-      setValue("clientDetail.address2", value.addressLine2); // Update addressLine2
-      setValue("clientDetail.pincode", value.pinCode); // Update pincode
-      dispatch(getClientAddressDetail(value.addressID));
-    }
-  };
-  const handleShipToChange = (value: any) => {
-    if (value) {
-      setValue("shipToDetails.shipTo", value.shipId);
-      setValue("shipToDetails.address1", value.addressLine1); // Update addressLine1
-      setValue("shipToDetails.address2", value.addressLine2); // Update addressLine2
-      setValue("shipToDetails.pincode", value.pinCode); // Update pincode
-      setValue("shipToDetails.mobileNo", value.phoneNo);
-      setValue("shipToDetails.city", value.city);
-    }
-  };
-  const handleDispatchFromChange = (value: any) => {
-    if (value) {
-      setValue("dispatchFromDetails.dispatchFrom", value.code);
-      setValue("dispatchFromDetails.address1", value.addressLine1);
-      setValue("dispatchFromDetails.address2", value.addressLine2);
-      setValue("dispatchFromDetails.mobileNo", value.mobileNo);
-      setValue("dispatchFromDetails.city", value.city);
-      setValue("dispatchFromDetails.gst", value.gst);
-      setValue("dispatchFromDetails.company", value.company);
-      setValue("dispatchFromDetails.pan", value.pan);
-      setValue("dispatchFromDetails.pin", value.pin);
-    }
-  };
   const onImeiSubmit = (imei: string) => {
     const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
     console.log(imeiArray.filter((num) => num.trim() !== "").length);
@@ -362,9 +280,11 @@ const CreateDispatchPage: React.FC = () => {
     if (reason === "backdropClick") return; // Prevent closing on outside click
     setOpen(false);
   };
+
   console.log(formValues);
   return (
     <>
+    {getChallanLoading && <FullPageLoading />}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -403,10 +323,6 @@ const CreateDispatchPage: React.FC = () => {
               dispatch(getDeviceDetails(imei)).then((res: any) => {
                 if (res.payload.data.success) {
                   setImei("");
-                  // const newdata: RowData = {
-                  //   imei: res.payload.data?.data[0].device_imei || "",
-                  //   srno: res.payload.data?.data[0].sl_no || "",
-                  // };
                   const newRowData = res?.payload?.data?.data?.map(
                     (device: any) => {
                       console.log(device);
@@ -464,543 +380,254 @@ const CreateDispatchPage: React.FC = () => {
 
           {activeStep === 0 && (
             <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
-              <div
-                id="primary-item-details"
-                className="flex items-center w-full gap-3"
-              >
-                <div className="flex items-center gap-[5px]">
-                  <Icons.user />
-                  <h2
-                    id="primary-item-details"
-                    className="text-lg font-semibold"
+              <div>
+                {/* Section: Primary Item Details */}
+                <section aria-labelledby="primary-item-details">
+                  <div
+                    id="primary-details"
+                    className="flex items-center w-full gap-3"
+                  ><Icons.user />
+                    <h2 id="primary-details" className="text-lg font-semibold">
+                      Client Details
+                    </h2>
+                    <Divider
+                      sx={{
+                        borderBottomWidth: 2,
+                        borderColor: "#f59e0b",
+                        flexGrow: 1,
+                      }}
+                    />
+                  </div>
+
+                  {/* Subsection: Basic Item Details */}
+                  <section
+                    aria-labelledby="basic-item-details"
+                    className="mt-2"
                   >
-                    Client Details
-                  </h2>
-                </div>
-                <Divider
-                  sx={{
-                    borderBottomWidth: 2,
-                    borderColor: "#f59e0b",
-                    flexGrow: 1,
-                  }}
-                />
-              </div>
-              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="clientDetail.client"
-                  rules={{
-                    required: { value: true, message: "Client is required" },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <SelectClient
-                      endPoint="/backend/client"
-                      error={!!errors.clientDetail?.client}
-                      helperText={errors.clientDetail?.client?.message}
-                      size="medium"
-                      label="Select Client"
-                      varient="filled"
-                      value={field.value as any}
-                      onChange={field.onChange}
+                    <div className="grid grid-cols-5 gap-2 mt-4">
+                      {[
+                        { label: "Name", value: data?.clientDetail?.name },
+                        {
+                          label: "Branch",
+                          value: data?.clientDetail?.branchName,
+                        },
+                        {
+                          label: "PinCode",
+                          value: data?.clientDetail?.pincode,
+                        },
+                        {
+                          label: "Address Line 1",
+                          value: data?.clientDetail?.address1,
+                        },
+                        {
+                          label: "Address Line 2",
+                          value: data?.clientDetail?.address2,
+                        },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="py-5">
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            className="text-gray-600"
+                          >
+                            {label}:
+                          </Typography>
+                          <Typography variant="body1" fontWeight={500}>
+                            {value || "N/A"}
+                          </Typography>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </section>
+                <section aria-labelledby="ship-to-details">
+                  <div
+                    id="ship-to-details"
+                    className="flex items-center w-full gap-3"
+                  >  <Icons.userAddress />
+                    <h2 id="ship-to-details" className="text-lg font-semibold">
+                      Ship To Details
+                    </h2>
+                    <Divider
+                      sx={{
+                        borderBottomWidth: 2,
+                        borderColor: "#f59e0b",
+                        flexGrow: 1,
+                      }}
                     />
-                  )}
-                />
-                <Controller
-                  name="clientDetail.branchId"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Client Branch is required",
-                    },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      value={
-                        clientBranchList?.find(
-                          (branch: any) => branch.addressID === field.value
-                        ) || null
-                      }
-                      onChange={(_, newValue) =>
-                        handleClientBranchChange(newValue)
-                      }
-                      disablePortal
-                      id="combo-box-demo"
-                      options={clientBranchList || []}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Client Branch"
-                          error={!!errors.clientDetail?.branchId}
-                          helperText={errors.clientDetail?.branchId?.message}
-                          variant="filled"
-                        />
-                      )}
+                  </div>
+
+                  {/* Subsection: Basic Item Details */}
+                  <section
+                    aria-labelledby="basic-item-details"
+                    className="mt-2"
+                  >
+                    <div className="grid grid-cols-6 gap-2 mt-4">
+                      {[
+                        {
+                          label: "Ship To",
+                          value: data?.shipToDetails?.shipLabel,
+                        },
+                        {
+                          label: "PinCode",
+                          value: data?.shipToDetails?.pincode,
+                        },
+                        {
+                          label: "Mobile No",
+                          value: data?.shipToDetails?.mobileNo,
+                        },
+                        { label: "City", value: data?.shipToDetails?.city },
+                        {
+                          label: "Address Line 1",
+                          value: data?.shipToDetails?.address1,
+                        },
+                        {
+                          label: "Address Line 2",
+                          value: data?.shipToDetails?.address2,
+                        },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="py-5">
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            className="text-gray-600"
+                          >
+                            {label}:
+                          </Typography>
+                          <Typography variant="body1" fontWeight={500}>
+                            {value || "N/A"}
+                          </Typography>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </section>
+                <section aria-labelledby="dispatch-from-details">
+                  <div
+                    id="dispatch-from-details"
+                    className="flex items-center w-full gap-3"
+                  > <Icons.shipping />
+                    <h2
+                      id="dispatch-from-details"
+                      className="text-lg font-semibold"
+                    > 
+                      Dispatch From Details
+                    </h2>
+                    <Divider
+                      sx={{
+                        borderBottomWidth: 2,
+                        borderColor: "#f59e0b",
+                        flexGrow: 1,
+                      }}
                     />
-                  )}
-                />
+                  </div>
 
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.clientDetail?.pincode}
-                  // helperText={errors.clientDetail.pincode}
-                  helperText={errors?.clientDetail?.pincode?.message}
-                  focused={!!watch("clientDetail.pincode")}
-                  // multiline
-                  rows={3}
-                  fullWidth
-                  label="PinCode"
-                  className="h-[10px] resize-none"
-                  {...register("clientDetail.pincode", {
-                    required: "PinCode is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.clientDetail?.address1}
-                  helperText={errors?.clientDetail?.address1?.message}
-                  focused={!!watch("clientDetail.address1")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="Address 1"
-                  className="h-[100px] resize-none"
-                  {...register("clientDetail.address1", {
-                    required: "Address 1 is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.clientDetail?.address2}
-                  helperText={errors?.clientDetail?.address2?.message}
-                  focused={!!watch("clientDetail.address2")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="Address 2"
-                  className="h-[100px] resize-none"
-                  {...register("clientDetail.address2", {
-                    required: "Address 2 is required",
-                  })}
-                />
-              </div>
-              <div className="flex items-center w-full gap-3">
-                <div className="flex items-center gap-[5px]">
-                  <Icons.userAddress />
-                  <h2 className="text-lg font-semibold">Ship To Details</h2>
-                </div>
-                <Divider
-                  sx={{
-                    borderBottomWidth: 2,
-                    borderColor: "#f59e0b",
-                    flexGrow: 1,
-                  }}
-                />
-              </div>
-              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="shipToDetails.shipTo"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Ship To Client Branch is required",
-                    },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      // value={field.value}
-                      value={
-                        addressDetail?.data?.shippingAddress?.find(
-                          (address: any) => address.shipId === field.value
-                        ) || null
-                      }
-                      onChange={(_, newValue) => handleShipToChange(newValue)}
-                      disablePortal
-                      id="combo-box-demo"
-                      options={addressDetail?.data?.shippingAddress || []}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Client Branch"
-                          error={!!errors.shipToDetails?.shipTo}
-                          helperText={errors.shipToDetails?.shipTo?.message}
-                          variant="filled"
-                        />
-                      )}
-                    />
-                  )}
-                />
-
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.shipToDetails?.pincode}
-                  helperText={errors?.shipToDetails?.pincode?.message}
-                  focused={!!watch("shipToDetails.pincode")}
-                  // multiline
-                  rows={3}
-                  fullWidth
-                  label="PinCode"
-                  className="h-[10px] resize-none"
-                  {...register("shipToDetails.pincode", {
-                    required: "PinCode is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.shipToDetails?.mobileNo}
-                  helperText={errors?.shipToDetails?.mobileNo?.message}
-                  focused={!!watch("shipToDetails.mobileNo")}
-                  // multiline
-                  rows={3}
-                  fullWidth
-                  label="Mobile No"
-                  className="h-[10px] resize-none"
-                  {...register("shipToDetails.mobileNo", {
-                    required: "Mobile No is required",
-                  })}
-                />
-
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.shipToDetails?.city}
-                  helperText={errors?.shipToDetails?.city?.message}
-                  focused={!!watch("shipToDetails.city")}
-                  rows={3}
-                  fullWidth
-                  label="City"
-                  className="h-[100px] resize-none"
-                  {...register("shipToDetails.city")}
-                />
-
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.shipToDetails?.address1}
-                  helperText={errors?.shipToDetails?.address1?.message}
-                  focused={!!watch("shipToDetails.address1")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="Ship To Address 1"
-                  className="h-[100px] resize-none"
-                  {...register("shipToDetails.address1", {
-                    required: "Address 1 is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.shipToDetails?.address2}
-                  helperText={errors?.shipToDetails?.address2?.message}
-                  focused={!!watch("shipToDetails.address2")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="Ship To Addrests 2"
-                  className="h-[100px] resize-none"
-                  {...register("shipToDetails.address2", {
-                    required: "Address 2 is required",
-                  })}
-                />
-              </div>
-              <div className="flex items-center w-full gap-3">
-                <div className="flex items-center gap-[5px]">
-                  <Icons.shipping />
-                  <h2 className="text-lg font-semibold">
-                    Dispatch From Details
-                  </h2>
-                </div>
-                <Divider
-                  sx={{
-                    borderBottomWidth: 2,
-                    borderColor: "#f59e0b",
-                    flexGrow: 1,
-                  }}
-                />
-              </div>
-              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="dispatchFromDetails.dispatchFrom"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Dispatch From is required",
-                    },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      // value={field.value}
-                      value={
-                        dispatchFromDetails?.find(
-                          (branch: any) => branch.code === field.value
-                        ) || null
-                      }
-                      onChange={(_, newValue) =>
-                        handleDispatchFromChange(newValue)
-                      }
-                      disablePortal
-                      id="combo-box-demo"
-                      options={dispatchFromDetails || []}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Dispatch From"
-                          error={!!errors.dispatchFromDetails?.dispatchFrom}
-                          helperText={
-                            errors.dispatchFromDetails?.dispatchFrom?.message
-                          }
-                          variant="filled"
-                        />
-                      )}
-                    />
-                  )}
-                />
-
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.dispatchFromDetails?.pin}
-                  helperText={errors?.dispatchFromDetails?.pin?.message}
-                  focused={!!watch("dispatchFromDetails.pin")}
-                  // multiline
-                  rows={3}
-                  fullWidth
-                  label="PinCode"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromDetails.pin", {
-                    required: "PinCode is required",
-                  })}
-                />
-
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.dispatchFromDetails?.mobileNo}
-                  helperText={errors?.dispatchFromDetails?.mobileNo?.message}
-                  focused={!!watch("dispatchFromDetails.mobileNo")}
-                  // multiline
-                  rows={3}
-                  fullWidth
-                  label="Mobile No"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromDetails.mobileNo", {
-                    required: "Mobile No is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  // sx={{ mb: 1 }}
-                  error={!!errors.dispatchFromDetails?.gst}
-                  helperText={errors?.dispatchFromDetails?.gst?.message}
-                  focused={!!watch("dispatchFromDetails.gst")}
-                  // multiline
-                  rows={3}
-                  fullWidth
-                  label="GST"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromDetails.gst", {
-                    required: "GST is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  // sx={{ mb: 1 }}
-                  error={!!errors.dispatchFromDetails?.pan}
-                  helperText={errors?.dispatchFromDetails?.pan?.message}
-                  focused={!!watch("dispatchFromDetails.pan")}
-                  // multiline
-                  rows={3}
-                  fullWidth
-                  label="PAN"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromDetails.pan", {
-                    required: "PAN is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  // sx={{ mb: 1 }}
-                  error={!!errors.dispatchFromDetails?.city}
-                  helperText={errors?.dispatchFromDetails?.city?.message}
-                  focused={!!watch("dispatchFromDetails.city")}
-                  rows={3}
-                  fullWidth
-                  label="City"
-                  className="h-[100px] resize-none"
-                  {...register("dispatchFromDetails.city")}
-                />
-
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.dispatchFromDetails?.address1}
-                  helperText={errors?.dispatchFromDetails?.address1?.message}
-                  focused={!!watch("dispatchFromDetails.address1")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="Dispatch From Address 1"
-                  className="h-[100px] resize-none"
-                  {...register("dispatchFromDetails.address1", {
-                    required: "Address 1 is required",
-                  })}
-                />
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.dispatchFromDetails?.address2}
-                  helperText={errors?.dispatchFromDetails?.address2?.message}
-                  focused={!!watch("dispatchFromDetails.address2")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="Dispatch From Addrests 2"
-                  className="h-[100px] resize-none"
-                  {...register("dispatchFromDetails.address2", {
-                    required: "Address 2 is required",
-                  })}
-                />
-              </div>
-              <div className="flex items-center w-full gap-3">
-                <div className="flex items-center gap-[5px]">
-                  <Icons.files />
-                  <h2 className="text-lg font-semibold">
+                  {/* Subsection: Basic Item Details */}
+                  <section
+                    aria-labelledby="basic-item-details"
+                    className="mt-2"
+                  >
+                    <div className="grid grid-cols-4 gap-6 mt-4">
+                      {[
+                        {
+                          label: "Dispatch From",
+                          value: data?.dispatchFromDetails?.dispatchFromLabel,
+                        },
+                        {
+                          label: "PinCode",
+                          value: data?.dispatchFromDetails?.pin,
+                        },
+                        {
+                          label: "Mobile No",
+                          value: data?.dispatchFromDetails?.mobileNo,
+                        },
+                        {
+                          label: "GST No",
+                          value: data?.dispatchFromDetails?.gst,
+                        },
+                        {
+                          label: "PAN No",
+                          value: data?.dispatchFromDetails?.pan,
+                        },
+                        {
+                          label: "City",
+                          value: data?.dispatchFromDetails?.city,
+                        },
+                        {
+                          label: "Address Line 1",
+                          value: data?.dispatchFromDetails?.address1,
+                        },
+                        {
+                          label: "Address Line 2",
+                          value: data?.dispatchFromDetails?.address2,
+                        },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="py-5">
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            className="text-gray-600"
+                          >
+                            {label}:
+                          </Typography>
+                          <Typography variant="body1" fontWeight={500}>
+                            {value || "N/A"}
+                          </Typography>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </section>
+                <section aria-labelledby="dispatch-from-details">
+                  <div
+                    id="dispatch-from-details"
+                    className="flex items-center w-full gap-3 pt-6"
+                  > <Icons.files />
+                    <h2 id="dispatch-details" className="text-lg font-semibold">
                     Dispatch Details and Attachments
-                  </h2>
-                </div>
-                <Divider
-                  sx={{
-                    borderBottomWidth: 2,
-                    borderColor: "#f59e0b",
-                    flexGrow: 1,
-                  }}
-                />
+                    </h2>
+                    <Divider
+                      sx={{
+                        borderBottomWidth: 2,
+                        borderColor: "#f59e0b",
+                        flexGrow: 1,
+                      }}
+                    />
+                  </div>
+
+                  {/* Subsection: Basic Item Details */}
+                  <section
+                    aria-labelledby="basic-item-details"
+                    className="mt-2"
+                  >
+                    <div className="grid grid-cols-4 gap-6 mt-4">
+                      {[
+                        {
+                          label: "Dispatch Quantity",
+                          value: data?.dispatchQty,
+                        },
+                        { label: "Other Reference", value: data?.otherRef },
+                        { label: "GST Rate", value: data?.gstRate },
+                        { label: "GST Type", value: data?.gstType },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="py-5">
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            className="text-gray-600"
+                          >
+                            {label}:
+                          </Typography>
+                          <Typography variant="body1" fontWeight={500}>
+                            {value || "N/A"}
+                          </Typography>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </section>
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="qty"
-                  control={control}
-                  rules={{
-                    required: { value: true, message: "Quantity is required" },
-                    min: {
-                      value: 1,
-                      message: "Quantity must be greater than 0",
-                    },
-                    pattern: {
-                      value: /^[0-9]+$/,
-                      message: "Quantity must be a number",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.qty}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="qty">Dispatch Quantity</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.qty}
-                        id="qty"
-                        type="number"
-                        endAdornment={
-                          <InputAdornment position="end">NOS</InputAdornment>
-                        }
-                      />
-                      {errors.qty && (
-                        <FormHelperText>{errors.qty.message}</FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="otherRef"
-                  control={control}
-                  rules={{
-                    required: { value: true, message: "Document is required" },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.otherRef}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="otherRef">
-                        Other Reference
-                      </InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.otherRef}
-                        id="otherRef"
-                        type="text"
-                      />
-                      {errors.otherRef && (
-                        <FormHelperText>
-                          {errors.otherRef.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="gstRate"
-                  control={control}
-                  rules={{
-                    required: { value: true, message: "Gst Rate is required" },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.gstRate}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="gstRate">Gst Rate</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.gstRate}
-                        id="gstRate"
-                        type="text"
-                      />
-                      {errors.gstRate && (
-                        <FormHelperText>
-                          {errors.gstRate.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="gstType"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.gstRate}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="gstRate">Gst Rate</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.gstRate}
-                        id="gstRate"
-                        type="text"
-                      />
-                      {errors.gstRate && (
-                        <FormHelperText>
-                          {errors.gstRate.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
                 <Controller
                   name="docNo"
                   control={control}
@@ -1336,15 +963,13 @@ const CreateDispatchPage: React.FC = () => {
           )}
           <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
             {activeStep === 0 && (
-              <>
-                <LoadingButton
-                  type="submit"
-                  variant="contained"
-                  endIcon={<Icons.next />}
-                >
-                  Next
-                </LoadingButton>
-              </>
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                endIcon={<Icons.next />}
+              >
+                Next
+              </LoadingButton>
             )}
             {activeStep === 1 && (
               <>

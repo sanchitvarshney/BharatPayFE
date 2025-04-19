@@ -152,11 +152,38 @@ const CreateChallanPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
     dispatch(storeFormdata(data));
-    // handleNext();
   };
 
   const finalSubmit = () => {
     const data = formValues;
+    if (!data.clientDetail?.client) {
+      showToast("Please select a client", "error");
+      return;
+    }
+    if (!data.clientDetail?.branchId) {
+      showToast("Please select a client branch", "error");
+      return;
+    }
+    if (!data.shipToDetails?.shipTo) {
+      showToast("Please select ship to details", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.dispatchFrom) {
+      showToast("Please select dispatch from details", "error");
+      return;
+    }
+    if (!data.qty) {
+      showToast("Please enter quantity", "error");
+      return;
+    }
+    if (!data.gstRate) {
+      showToast("Please enter GST rate", "error");
+      return;
+    }
+    if (!data.gstState) {
+      showToast("Please select GST state", "error");
+      return;
+    }
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
@@ -203,8 +230,8 @@ const CreateChallanPage: React.FC = () => {
 
   useEffect(() => {
     if (isEditMode && id) {
-      const shipmentId = id.replace(/_/g, "/")
-      dispatch(getChallanById({challanId: shipmentId})).then((res: any) => {
+      const shipmentId = id.replace(/_/g, "/");
+      dispatch(getChallanById({ challanId: shipmentId })).then((res: any) => {
         const data = res?.payload?.data?.data;
         console.log(data);
       });
@@ -734,7 +761,7 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="gstState"
                   rules={{
                     required: {
@@ -746,15 +773,10 @@ const CreateChallanPage: React.FC = () => {
                   render={({ field }) => (
                     <Autocomplete
                       value={field.value}
-                      onChange={(_, newValue) =>
-                        field.onChange(newValue)
-                      }
+                      onChange={(_, newValue) => field.onChange(newValue)}
                       disablePortal
                       id="combo-box-demo"
-                      options={[
-                        "Inter State",
-                        "Intra State"
-                      ]}
+                      options={["Inter State", "Intra State"]}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -782,7 +804,9 @@ const CreateChallanPage: React.FC = () => {
                       fullWidth
                       variant="filled"
                     >
-                      <InputLabel htmlFor="otherRef">Other Reference</InputLabel>
+                      <InputLabel htmlFor="otherRef">
+                        Other Reference
+                      </InputLabel>
                       <FilledInput
                         {...field}
                         error={!!errors.otherRef}
@@ -804,7 +828,7 @@ const CreateChallanPage: React.FC = () => {
                   control={control}
                   rules={{
                     required: {
-                      value: true,  
+                      value: true,
                       message: "GST Rate is required",
                     },
                   }}
