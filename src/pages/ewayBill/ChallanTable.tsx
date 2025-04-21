@@ -104,6 +104,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       flex: 1,
       sort: "desc",
+      minWidth: 190,
     },
     {
       headerName: "Quantity",
@@ -111,6 +112,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 140,
     },
     {
       headerName: "Client",
@@ -126,6 +128,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
     {
       headerName: "Ship Company",
@@ -133,6 +136,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
     {
       headerName: "Other Ref",
@@ -140,6 +144,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
     {
       headerName: "Dispatch Date",
@@ -147,6 +152,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
     {
       headerName: "Is Dispatch",
@@ -154,6 +160,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
       valueGetter: (params: { data: RowData }) =>
         params.data.isdispatch == "Y" ? "Yes" : "No",
     },
@@ -169,6 +176,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
           : params.data.isewaybill == "N"
           ? "No"
           : "Cancelled",
+      minWidth: 160,
     },
     {
       headerName: "Dispatch Date",
@@ -176,6 +184,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
   ];
 
