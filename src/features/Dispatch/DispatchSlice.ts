@@ -39,10 +39,11 @@ export const UpdateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; 
   return response;
 });
 
-export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>>("dispatch/getChallan", async () => {
-  const response = await axiosInstance.post(`challan/fetchPerforma`);
+export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, { from?: string; to?: string; type: string; device?: string }>("dispatch/getChallan", async (query) => {
+  const response = await axiosInstance.post(`challan/fetchPerforma?fromDate=${query.from}&toDate=${query.to}`);
   return response;
 });
+
 export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/getChallanById", async (data) => {
   const response = await axiosInstance.post(`challan/fetchPerforma`, data);
   return response;
@@ -84,6 +85,11 @@ export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>('/eway
 
 export const createEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/createEwayBill', async (payload) => {
   const response = await axiosInstance.post(`/ewayBill/createEWayBill`, payload);
+  return response;
+});
+
+export const cancelEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/cancelEwayBill', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/cancel`, payload);
   return response;
 });
 

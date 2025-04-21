@@ -5,7 +5,6 @@ import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
 // import SettingsIcon from '@mui/icons-material/Settings';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
-import { SettingsIcon } from "lucide-react";
 type Props = {
   children: React.ReactNode;
 };

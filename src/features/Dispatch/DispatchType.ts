@@ -1,7 +1,7 @@
 export type DispatchItemPayload = {
   docNo: string; // required
   sku: string[]; // required
-  dispatchQty: number; // required
+  dispatchQty?: number; // required
   remark?: string; // optional
   imeis: string[]; // required array of strings
   srlnos : string[];
@@ -11,7 +11,7 @@ export type DispatchItemPayload = {
   shipToDetails?: any;
   dispatchDate?: string;
   dispatchFromDetails?: any;
-  challanNo: string;
+  challanId: string;
 };
 
 export type DispatchWrongItemPayload = {
