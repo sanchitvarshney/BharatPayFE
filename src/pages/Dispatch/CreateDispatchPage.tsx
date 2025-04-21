@@ -207,6 +207,8 @@ const CreateDispatchPage: React.FC = () => {
   useEffect(() => {
     if (challanList) {
       setData(challanList?.[0]);
+      setValue("remark", challanList?.[0]?.remark);
+      setValue("qty", challanList?.[0]?.dispatchQty);
     }
   }, [challanList]);
 
@@ -223,14 +225,14 @@ const CreateDispatchPage: React.FC = () => {
       docNo: data.docNo,
       // sku: data.sku?.id || "",
       sku: rowData.map((item) => item.productKey),
-      dispatchQty: Number(data.qty),
+      // dispatchQty: Number(data.qty),
       remark: data.remark,
       imeis: rowData.map((item) => item.imei),
       srlnos: rowData.map((item) => item.srno),
       document: data.document || "",
       dispatchDate: dayjs(data.dispatchDate).format("DD-MM-YYYY"),
       pickLocation: data.location?.code || "",
-      challanNo: id?.replace(/_/g, "/") || "",
+      challanId: id?.replace(/_/g, "/") || "",
     };
     dispatch(CreateDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -627,8 +629,8 @@ const CreateDispatchPage: React.FC = () => {
                             value: data?.dispatchQty,
                           },
                           { label: "Other Reference", value: data?.otherRef },
-                          { label: "GST Rate", value: data?.gstRate },
-                          { label: "GST Type", value: data?.gstType==="inter"?"Inter State":"Intra State" },
+                          { label: "GST Rate", value: data?.gstrate },
+                          { label: "GST Type", value: data?.gsttype==="inter"?"Inter State":"Intra State" },
                         ].map(({ label, value }) => (
                           <div key={label} className="py-5">
                             <Typography
@@ -800,10 +802,11 @@ const CreateDispatchPage: React.FC = () => {
                     <TextField
                       {...register("remark")}
                       fullWidth
-                      label={"Remarks (If any)"}
+                      label={"Remarks"}
                       variant="outlined"
                       multiline
                       rows={5}
+                      disabled
                     />
                   </div>
                 </div>
@@ -980,12 +983,12 @@ const CreateDispatchPage: React.FC = () => {
                   <Typography variant="inherit" fontWeight={500}>
                     Dispatch Number - {dispatchNo ? dispatchNo : ""}
                   </Typography>
-                  <LoadingButton
+                  {/* <LoadingButton
                     onClick={() => setActiveStep(0)}
                     variant="contained"
                   >
                     Create New Dispatch
-                  </LoadingButton>
+                  </LoadingButton> */}
                 </div>
               </div>
             )}

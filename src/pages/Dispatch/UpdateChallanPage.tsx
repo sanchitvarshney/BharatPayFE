@@ -210,7 +210,7 @@ const UpdateChallanPage: React.FC = () => {
           setValue("otherRef", data?.otherRef);
           setValue("qty", data?.dispatchQty);
           setValue("remark", data?.remark);
-          setValue("gstRate", data?.gstRate);
+          setValue("gstRate", data?.gstrate);
 
           // Set client details
           setValue("clientDetail", {
@@ -252,7 +252,7 @@ const UpdateChallanPage: React.FC = () => {
           // Set GST state
           setValue(
             "gstState",
-            data?.gstType === "inter" ? "Inter State" : "Intra State"
+            data?.gsttype === "inter" ? "Inter State" : "Intra State"
           );
         }
       });
