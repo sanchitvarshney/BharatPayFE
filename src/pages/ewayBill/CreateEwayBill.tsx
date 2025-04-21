@@ -126,6 +126,7 @@ export default function CreateEwayBill() {
       });
       setValue("shipTo.gstin", data.shipTo.gstin);
       setValue("shipTo.legalName", data.shipTo.legalName);
+      setValue("shipTo.tradeName", data.shipTo.tradeName);
       setValue("shipTo.addressLine1", data.shipTo.addressLine1);
       setValue("shipTo.addressLine2", data.shipTo.addressLine2);
       setValue("shipTo.location", data.shipTo.location);
@@ -967,7 +968,7 @@ export default function CreateEwayBill() {
                         <TextField
                           {...field}
                           fullWidth
-                          label="Trade Name"
+                          label="Label"
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.shipTo?.tradeName}

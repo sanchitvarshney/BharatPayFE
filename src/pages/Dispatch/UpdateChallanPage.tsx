@@ -73,6 +73,9 @@ type FormDataType = {
   gstRate: string;
   gstState: string;
   otherRef: string;
+  hsnCode: string;
+  materialName: string;
+  itemPrice: string;
 };
 
 const UpdateChallanPage: React.FC = () => {
@@ -174,6 +177,9 @@ const UpdateChallanPage: React.FC = () => {
       dispatchFromDetails: data.dispatchFromDetails || null,
       gstRate: data.gstRate,
       gstState: data.gstState === "Inter State" ? "inter" : "local",
+      hsnCode: data.hsnCode,
+      materialName: data.materialName,
+      itemPrice: data.itemPrice,
     };
     dispatch(UpdateChallan(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -254,6 +260,9 @@ const UpdateChallanPage: React.FC = () => {
             "gstState",
             data?.gsttype === "inter" ? "Inter State" : "Intra State"
           );
+          setValue("hsnCode", data?.hsnCode);
+          setValue("materialName", data?.materialName);
+          setValue("itemPrice", data?.itemPrice);
         }
       });
     }
@@ -749,11 +758,42 @@ const UpdateChallanPage: React.FC = () => {
                 )}
               />
               <Controller
+                name="itemPrice"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Item Price is required",
+                  },
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    error={!!errors.itemPrice}
+                    fullWidth
+                    variant="filled"
+                  >
+                    <InputLabel htmlFor="itemPrice">Rate</InputLabel>
+                    <FilledInput
+                      {...field}
+                      error={!!errors.itemPrice}
+                      id="itemPrice"
+                      type="text"
+                    />
+                    {errors.itemPrice && (
+                      <FormHelperText>
+                        {errors.itemPrice.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+
+              <Controller
                 name="gstState"
                 rules={{
                   required: {
                     value: true,
-                    message: "GST State is required",
+                    message: "GST Type is required",
                   },
                 }}
                 control={control}
@@ -764,11 +804,10 @@ const UpdateChallanPage: React.FC = () => {
                     disablePortal
                     id="combo-box-demo"
                     options={["Inter State", "Intra State"]}
-                    getOptionLabel={(option) => option}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="GST State"
+                        label="GST Type"
                         error={!!errors.gstState}
                         helperText={errors.gstState?.message}
                         variant="filled"
@@ -777,29 +816,7 @@ const UpdateChallanPage: React.FC = () => {
                   />
                 )}
               />
-              <Controller
-                name="otherRef"
-                control={control}
-                rules={{
-                  required: {
-                    value: true,
-                    message: "Other Reference is required",
-                  },
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    error={!!errors.otherRef}
-                    helperText={errors.otherRef?.message}
-                    fullWidth
-                    variant="filled"
-                    label="Other Reference"
-                    focused={!!watch("otherRef")}
-                  />
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-2">
+
               <Controller
                 name="gstRate"
                 control={control}
@@ -828,17 +845,83 @@ const UpdateChallanPage: React.FC = () => {
                   </FormControl>
                 )}
               />
-              <div className="pl-10">
-                <FormControl fullWidth variant="filled">
-                  <InputLabel htmlFor="remark" shrink={!!watch("remark")}>Remarks</InputLabel>
-                  <FilledInput
-                    {...register("remark")}
-                    id="remark"
-                    multiline
-                    rows={5}
-                  />
-                </FormControl>
-              </div>
+
+              <Controller
+                name="hsnCode"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "HSN Code is required",
+                  },
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    error={!!errors.hsnCode}
+                    fullWidth
+                    variant="filled"
+                  >
+                    <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
+                    <FilledInput
+                      {...field}
+                      error={!!errors.hsnCode}
+                      id="hsnCode"
+                      type="text"
+                    />
+                    {errors.hsnCode && (
+                      <FormHelperText>{errors.hsnCode.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+              <Controller
+                name="otherRef"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Other Reference is required",
+                  },
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    error={!!errors.otherRef}
+                    fullWidth
+                    variant="filled"
+                  >
+                    <InputLabel htmlFor="otherRef">Other Reference</InputLabel>
+                    <FilledInput
+                      {...field}
+                      error={!!errors.otherRef}
+                      id="otherRef"
+                      type="text"
+                    />
+                    {errors.otherRef && (
+                      <FormHelperText>{errors.otherRef.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
+              <FormControl fullWidth variant="filled">
+                <InputLabel htmlFor="materialName">Material Name</InputLabel>
+                <FilledInput
+                  {...register("materialName")}
+                  id="materialName"
+                  multiline
+                  rows={2}
+                />
+              </FormControl>
+              <FormControl fullWidth variant="filled">
+                <InputLabel htmlFor="remark">Remarks</InputLabel>
+                <FilledInput
+                  {...register("remark")}
+                  id="remark"
+                  multiline
+                  rows={2}
+                />
+              </FormControl>
             </div>
           </div>
         </div>

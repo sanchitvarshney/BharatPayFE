@@ -139,7 +139,6 @@ const CreateDispatchPage: React.FC = () => {
   );
 
   const {
-    register,
     handleSubmit,
     control,
     reset,
@@ -166,7 +165,7 @@ const CreateDispatchPage: React.FC = () => {
   });
   const formValues = watch();
   const [activeStep, setActiveStep] = useState(0);
-  const steps = ["Form Details", "Add Component Details", "Review & Submit"];
+  const steps = ["Form Details", "Add Component Details", "Submit"];
   const { challanList, getChallanLoading } = useAppSelector(
     (state) => state.dispatch
   );
@@ -631,6 +630,10 @@ const CreateDispatchPage: React.FC = () => {
                           { label: "Other Reference", value: data?.otherRef },
                           { label: "GST Rate", value: data?.gstrate },
                           { label: "GST Type", value: data?.gsttype==="inter"?"Inter State":"Intra State" },
+                          {label:"Item Rate",value:data?.itemRate},
+                          {label:"HSN Code",value:data?.hsnCode},
+                          {label:"Material Name",value:data?.materialName},
+                          {label:"Remarks",value:data?.remark},
                         ].map(({ label, value }) => (
                           <div key={label} className="py-5">
                             <Typography
@@ -797,17 +800,6 @@ const CreateDispatchPage: React.FC = () => {
                         )}
                       </ListItem>
                     </div>
-                  </div>
-                  <div className="pt-10 pl-10 ">
-                    <TextField
-                      {...register("remark")}
-                      fullWidth
-                      label={"Remarks"}
-                      variant="outlined"
-                      multiline
-                      rows={5}
-                      disabled
-                    />
                   </div>
                 </div>
               </div>

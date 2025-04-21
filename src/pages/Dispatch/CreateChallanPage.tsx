@@ -58,6 +58,9 @@ type FormDataType = {
   dispatchDate: Dayjs | null;
   gstRate: string;
   gstState: string;
+  itemPrice: string;
+  hsnCode: string;
+  materialName  : string;
 };
 
 type clientDetailType = {
@@ -127,6 +130,9 @@ const CreateChallanPage: React.FC = () => {
       sku: null,
       gstRate: "",
       gstState: "",
+      itemPrice: "",
+      materialName: "",
+      hsnCode: "",
     },
   });
   const formValues = watch();
@@ -245,6 +251,10 @@ const CreateChallanPage: React.FC = () => {
       showToast("Please select GST state", "error");
       return;
     }
+    if (!data.itemPrice) {
+      showToast("Please Enter Item Price", "error");
+      return;
+    }
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
@@ -260,6 +270,9 @@ const CreateChallanPage: React.FC = () => {
       dispatchFromDetails: data.dispatchFromDetails || null,
       gstRate: data.gstRate,
       gstState: data.gstState === "Inter State" ? "inter" : "local",
+      itemPrice: data.itemPrice,
+      hsnCode: data.hsnCode,
+      materialName  : data.materialName,
     };
     dispatch(CreateChallan(payload)).then((res: any) => {
       console.log(res);
@@ -817,12 +830,43 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
+                   <Controller
+                  name="itemPrice"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Item Price is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.itemPrice}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="itemPrice">Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.itemPrice}
+                        id="itemPrice"
+                        type="text"
+                      />
+                      {errors.itemPrice && (
+                        <FormHelperText>
+                          {errors.itemPrice.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              
                 <Controller
                   name="gstState"
                   rules={{
                     required: {
                       value: true,
-                      message: "GST State is required",
+                      message: "GST Type is required",
                     },
                   }}
                   control={control}
@@ -836,7 +880,7 @@ const CreateChallanPage: React.FC = () => {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="GST State"
+                          label="GST Type"
                           error={!!errors.gstState}
                           helperText={errors.gstState?.message}
                           variant="filled"
@@ -845,7 +889,70 @@ const CreateChallanPage: React.FC = () => {
                     />
                   )}
                 />
+              
+            
                 <Controller
+                  name="gstRate"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "GST Rate is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.otherRef}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.gstRate}
+                        id="gstRate"
+                        type="text"
+                      />
+                      {errors.gstRate && (
+                        <FormHelperText>
+                          {errors.gstRate.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+             
+               <Controller
+                  name="hsnCode"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "HSN Code is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.hsnCode}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.hsnCode}
+                        id="hsnCode"
+                        type="text"
+                      />
+                      {errors.hsnCode && (
+                        <FormHelperText>
+                          {errors.hsnCode.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+                  <Controller
                   name="otherRef"
                   control={control}
                   rules={{
@@ -877,50 +984,28 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-              </div>
-              <div className="grid grid-cols-2">
-                <Controller
-                  name="gstRate"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "GST Rate is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.otherRef}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.gstRate}
-                        id="gstRate"
-                        type="text"
-                      />
-                      {errors.gstRate && (
-                        <FormHelperText>
-                          {errors.gstRate.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-                <div className="pl-10">
+                </div>
+                <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
+                  <FormControl fullWidth variant="filled">
+                    <InputLabel htmlFor="materialName">Material Name</InputLabel>
+                    <FilledInput
+                      {...register("materialName")}
+                      id="materialName"
+                      multiline
+                      rows={2}
+                    />
+                  </FormControl>
                   <FormControl fullWidth variant="filled">
                     <InputLabel htmlFor="remark">Remarks</InputLabel>
                     <FilledInput
                       {...register("remark")}
                       id="remark"
                       multiline
-                      rows={5}
+                      rows={2}
                     />
                   </FormControl>
                 </div>
-              </div>
+              {/* </div> */}
             </div>
           )}
           {activeStep === 1 && (
@@ -934,7 +1019,7 @@ const CreateChallanPage: React.FC = () => {
                   onClick={() => setActiveStep(0)}
                   variant="contained"
                 >
-                  Create New Dispatch
+                  Create New Challan
                 </LoadingButton>
               </div>
             </div>

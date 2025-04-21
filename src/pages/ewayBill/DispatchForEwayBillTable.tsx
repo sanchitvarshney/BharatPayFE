@@ -7,7 +7,9 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
-import { getDispatchData } from "@/features/Dispatch/DispatchSlice";
+import CancelEwayBillModal from "@/components/ewayBill/CancelEwayBillModal";
+import { cancelEwayBill } from "@/features/Dispatch/DispatchSlice";
+import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
   orderQty: number;
@@ -21,6 +23,8 @@ interface RowData {
   inserby: string;
   skuName: string;
   sku: string;
+  ewaybillNo: string;
+  isewaybill: string;
 }
 
 type Props = {
@@ -31,6 +35,8 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const dispatch = useAppDispatch();
 
   const handleMenuClick = (
@@ -46,13 +52,13 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
     // setSelectedRow(null);
   };
 
-  const handleFilloutEwayBill = () => {
-    if (selectedRow) {
-      setSheetOpen(true);
-      handleMenuClose();
-      dispatch(getDispatchData(selectedRow.txnId));
-    }
-  };
+  // const handleFilloutEwayBill = () => {
+  //   if (selectedRow) {
+  //     setSheetOpen(true);
+  //     handleMenuClose();
+  //     dispatch(getDispatchData(selectedRow.txnId));
+  //   }
+  // };
 
   const handleCreateEwayBill = () => {
     if (selectedRow) {
@@ -62,6 +68,40 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
       const shipmentId = txnId.replace(/\//g, "_");
       fnOpenNewWindow(`/create/e-waybill/${shipmentId}`);
       handleMenuClose();
+    }
+  };
+
+  const handleCancelEwayBill = () => {
+    if (selectedRow) {
+      setCancelModalOpen(true);
+      handleMenuClose();
+    }
+  };
+
+  const handleCancelConfirm = async (data: {
+    remarks: string;
+    cancelType: string;
+  }) => {
+    if (!selectedRow) return;
+
+    setCancelLoading(true);
+    try {
+      const result = await dispatch(
+        cancelEwayBill({
+          ewayBillNo: selectedRow.ewaybillNo,
+          remark: data.remarks,
+          cancelRsnCode: data.cancelType,
+        })
+      ).unwrap();
+
+      if (result.status) {
+        showToast("Eway bill cancelled successfully", "success");
+        setCancelModalOpen(false);
+      } else {
+        showToast(result.data.Message || "Failed to cancel eway bill", "error");
+      }
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -137,12 +177,24 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
       hide: true,
     },
     {
-      headerName: "--",
-      field: "dispatchId",
+      headerName: "Eway Bill Status",
+      field: "isewaybill",
       sortable: true,
       filter: true,
       flex: 1,
-      hide: true,
+      valueGetter: (params: { data: RowData }) =>
+        params.data.isewaybill == "Y"
+          ? "Yes"
+          : params.data.isewaybill == "N"
+          ? "No"
+          : "Cancelled",
+    },
+    {
+      headerName: "Eway Bill No",
+      field: "ewaybillNo",
+      sortable: true,
+      filter: true,
+      flex: 1,
     },
   ];
 
@@ -186,9 +238,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleFilloutEwayBill}>
-            Fillout ewayBill data
-          </MenuItem>
+          <MenuItem onClick={handleCancelEwayBill}>Cancel Eway Bill</MenuItem>
           <MenuItem onClick={handleCreateEwayBill}>Create eway bill</MenuItem>
         </Menu>
       </div>
@@ -197,6 +247,13 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         selectedRow={selectedRow}
+      />
+
+      <CancelEwayBillModal
+        open={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        onConfirm={handleCancelConfirm}
+        loading={cancelLoading}
       />
     </>
   );
