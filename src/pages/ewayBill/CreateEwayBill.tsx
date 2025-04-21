@@ -48,6 +48,7 @@ type ewayBillData = {
 export default function CreateEwayBill() {
   const dispatch = useAppDispatch();
   const [isEwayBillCreated, setIsEwayBillCreated] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
   const [ewayBillNo, setEwayBillNo] = useState<ewayBillData>({
     alert: "",
     ewayBillNo: "",
@@ -135,6 +136,7 @@ export default function CreateEwayBill() {
         Name: data.shipTo.state?.name,
       });
       setValue("shipTo.pincode", data.shipTo.pincode);
+      setTotalAmount(Number(dispatchData?.data?.[0]?.item_value) + Number(dispatchData?.data?.[0]?.item_cgst) + Number(dispatchData?.data?.[0]?.item_sgst) + Number(dispatchData?.data?.[0]?.item_igst));
     }
   }, [dispatchData]);
   const formValues = control._formValues;
@@ -1326,9 +1328,14 @@ export default function CreateEwayBill() {
             </div>
             <Card className="rounded-lg shadow-md bg-[#fff] mb-8 border border-slate-200">
               <CardHeader className="bg-[#e0f2f1] p-0 flex justify-center px-[10px] py-[8px] rounded-t-lg">
-                <h3 className="text-[18px] font-[600] text-slate-700">
-                  Item Details
-                </h3>
+                <div className="flex justify-between items-center w-full">
+                  <h3 className="text-[18px] font-[600] text-slate-700">
+                    Item Details
+                  </h3>
+                  <h3 className="text-[18px] font-[600] text-slate-700">
+                    Total Amount: {totalAmount}
+                  </h3>
+                </div>
               </CardHeader>
               <CardContent className="mt-[10px] p-6">
                 <div className="ag-theme-quartz h-[calc(100vh-140px)]">
