@@ -8,7 +8,10 @@ import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
 import CancelEwayBillModal from "@/components/ewayBill/CancelEwayBillModal";
-import { cancelEwayBill, printChallan } from "@/features/Dispatch/DispatchSlice";
+import {
+  cancelEwayBill,
+  printChallan,
+} from "@/features/Dispatch/DispatchSlice";
 import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
@@ -39,7 +42,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const {getChallanLoading} = useAppSelector((state) => state.dispatch);
+  const { getChallanLoading } = useAppSelector((state) => state.dispatch);
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -124,18 +127,18 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
     );
   }
 
-   const handlePrintChallan = () => {
-      if (selectedRow) {
-        const txnId = selectedRow.challanId;
-        const shipmentId = txnId.replace(/\//g, "/");
-        dispatch(printChallan({ challanId: shipmentId })).then((res: any) => {
-          if (res.payload.data.success) {
-            window.open(res.payload.data.data, "_blank");
-          }
-        });
-        handleMenuClose();
-      }
-    };
+  const handlePrintChallan = () => {
+    if (selectedRow) {
+      const txnId = selectedRow.challanId;
+      const shipmentId = txnId.replace(/\//g, "/");
+      dispatch(printChallan({ challanId: shipmentId })).then((res: any) => {
+        if (res.payload.data.success) {
+          window.open(res.payload.data.data, "_blank");
+        }
+      });
+      handleMenuClose();
+    }
+  };
 
   const columnDefs: ColDef[] = [
     {
@@ -223,6 +226,9 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
     };
   }, []);
 
+  const isEwayBillCreated = (row: RowData) => row.isewaybill === "Y";
+  const isEwayBillCancelled = (row: RowData) => row.isewaybill === "C";
+
   return (
     <>
       <div>
@@ -230,7 +236,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
           <AgGridReact
             ref={gridRef}
             loadingOverlayComponent={CustomLoadingOverlay}
-            loading={r5reportLoading||getChallanLoading}
+            loading={r5reportLoading || getChallanLoading}
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
             rowData={r5report ? r5report : []}
@@ -253,9 +259,24 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleCreateEwayBill}>Create Eway Bill</MenuItem>
+          <MenuItem
+            onClick={handleCreateEwayBill}
+            disabled={
+              selectedRow
+                ? isEwayBillCreated(selectedRow) ||
+                  isEwayBillCancelled(selectedRow)
+                : false
+            }
+          >
+            Create Eway Bill
+          </MenuItem>
           <MenuItem onClick={handlePrintChallan}>Print Challan</MenuItem>
-          <MenuItem onClick={handleCancelEwayBill}>Cancel Eway Bill</MenuItem>
+          <MenuItem
+            onClick={handleCancelEwayBill}
+            disabled={selectedRow ? isEwayBillCancelled(selectedRow) : false}
+          >
+            Cancel Eway Bill
+          </MenuItem>
         </Menu>
       </div>
 
