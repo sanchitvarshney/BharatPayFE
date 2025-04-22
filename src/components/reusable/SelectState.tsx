@@ -24,9 +24,10 @@ type Props = {
   varient?: "outlined" | "standard" | "filled";
   required?: boolean;
   size?: "small" | "medium";
+  disabled?: boolean;
 };
 
-const SelectState: React.FC<Props> = ({ value, onChange, label = "Select State", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium" }) => {
+const SelectState: React.FC<Props> = ({ value, onChange, label = "Select State", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium", disabled = false }) => {
   const [stateList, setStateList] = useState<StateData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -90,6 +91,7 @@ const SelectState: React.FC<Props> = ({ value, onChange, label = "Select State",
         </li>
       )}
       sx={{ width }}
+      disabled={disabled}
     />
   );
 };

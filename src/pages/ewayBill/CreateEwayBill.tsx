@@ -426,6 +426,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -444,6 +445,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -463,6 +465,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -482,6 +485,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -501,6 +505,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -520,6 +525,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -538,6 +544,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -554,6 +561,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.billFrom.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -575,6 +583,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -596,6 +605,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -627,6 +637,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -645,6 +656,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -664,6 +676,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -680,6 +693,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.billTo.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -697,7 +711,8 @@ export default function CreateEwayBill() {
                           helperText={errors.billTo?.email?.message}
                           InputLabelProps={{
                             shrink: true,
-                          }}
+                            }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -717,6 +732,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -736,6 +752,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -755,6 +772,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -775,6 +793,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -796,6 +815,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -829,6 +849,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -848,6 +869,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -864,6 +886,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.dispatchFrom.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -883,6 +906,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -905,6 +929,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -928,6 +953,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -959,6 +985,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -978,6 +1005,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -996,6 +1024,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1015,6 +1044,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1031,6 +1061,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.shipTo.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1050,6 +1081,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1070,6 +1102,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1091,6 +1124,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
