@@ -35,6 +35,7 @@ const MasterComponent: React.FC = () => {
   const gridRef = useRef<AgGridReact<any>>(null);
   const {
     register,
+    watch,
     handleSubmit,
     control,
     reset,
@@ -60,7 +61,7 @@ const MasterComponent: React.FC = () => {
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.uom !== null) {
-      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id };
+      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id,part:data.part };
       dispatch(createComponentAsync(newdata)).then((res: any) => {
         if (res.payload?.data?.success) {
           reset();
@@ -120,7 +121,7 @@ const MasterComponent: React.FC = () => {
                 {errors.module && <span className=" text-[12px] text-red-500">{errors.module.message}</span>}
               </div>
               <div>
-                <TextField disabled placeholder="Part Code" fullWidth label="Part Code" />
+                <TextField disabled={watch("module")?.id !== "BPE"} placeholder="Part Code" fullWidth label="Part Code"{...register("part")} />
                 {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
               </div>
               
