@@ -18,6 +18,7 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "srNo", sortable: true, filter: true, valueGetter: "node.rowIndex + 1", maxWidth: 80 },
     { headerName: "Requested By", field: "requestBy", sortable: true, filter: true },
+    {headerName:"IMEI",field:"imei",sortable:true,filter:true},
     { headerName: "Ref ID", field: "refId", sortable: true, filter: true },
     { headerName: "Serial No", field: "srlNo", sortable: true, filter: true },
     { headerName: "Total Devices", field: "totalDevice", sortable: true, filter: true },
