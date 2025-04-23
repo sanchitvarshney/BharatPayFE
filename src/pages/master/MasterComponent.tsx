@@ -25,6 +25,7 @@ export type createComponentdata = {
   uom: { units_id: string; units_name: string } | null;
   group: OptionType | null;
   notes: string;
+  module:{id:string,text:string}|null;
 };
 const MasterComponent: React.FC = () => {
   const [update, setUpadte] = useState<boolean>(false);
@@ -34,6 +35,7 @@ const MasterComponent: React.FC = () => {
   const gridRef = useRef<AgGridReact<any>>(null);
   const {
     register,
+    watch,
     handleSubmit,
     control,
     reset,
@@ -45,14 +47,21 @@ const MasterComponent: React.FC = () => {
       uom: null,
       group: null,
       notes: "",
+      module:null,
     },
   });
+
+  const moduleOptions = [
+    { id: "BPE", text: "BPe" },
+    { id: "MSC", text: "MSc" },
+  ]
+  
   const { UOM, getUOMloading } = useAppSelector((state) => state.uom);
   const { createComponentLoading, component } = useAppSelector((state) => state.component);
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.uom !== null) {
-      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id };
+      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id,part:data.part };
       dispatch(createComponentAsync(newdata)).then((res: any) => {
         if (res.payload?.data?.success) {
           reset();
@@ -91,15 +100,38 @@ const MasterComponent: React.FC = () => {
               Add New Component
             </Typography>
             <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
+            <div>
+                <Controller
+                  name="module"
+                  control={control}
+                  rules={{ required: "You must select a module" }}
+                  render={({ field }) => (
+                    <Autocomplete
+                      // loading={getUOMloading}
+                      value={field.value}
+                      options={moduleOptions}
+                      getOptionLabel={(option) => option.text}
+                      renderInput={(params) => <TextField {...params} label={"Select Module"} variant="outlined" />}
+                      onChange={(_, value) => field.onChange(value)}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                    />
+                  )}
+                />
+
+                {errors.module && <span className=" text-[12px] text-red-500">{errors.module.message}</span>}
+              </div>
               <div>
+                <TextField disabled={watch("module")?.id !== "BPE"} placeholder="Part Code" fullWidth label="Part Code"{...register("part")} />
+                {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
+              </div>
+              
+              </div>
+              <div >
+              <div className="mt-[20px]">
                 <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
                 {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
               </div>
-              <div>
-                <TextField disabled placeholder="Part Code" fullWidth label="Part Code" />
-                {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
-              </div>
-              <div>
+              <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
                 <Controller
                   name="uom"
                   control={control}
