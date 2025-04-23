@@ -262,7 +262,7 @@ const UpdateChallanPage: React.FC = () => {
           );
           setValue("hsnCode", data?.hsnCode);
           setValue("materialName", data?.materialName);
-          setValue("itemPrice", data?.itemPrice);
+          setValue("itemPrice", data?.itemRate);
         }
       });
     }
@@ -772,7 +772,7 @@ const UpdateChallanPage: React.FC = () => {
                     fullWidth
                     variant="filled"
                   >
-                    <InputLabel htmlFor="itemPrice">Rate</InputLabel>
+                    <InputLabel htmlFor="itemPrice" shrink={!!field.value}>Rate</InputLabel>
                     <FilledInput
                       {...field}
                       error={!!errors.itemPrice}
@@ -861,7 +861,12 @@ const UpdateChallanPage: React.FC = () => {
                     fullWidth
                     variant="filled"
                   >
-                    <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
+                    <InputLabel 
+                      htmlFor="hsnCode"
+                      shrink={!!field.value} 
+                    >
+                      HSN Code
+                    </InputLabel>
                     <FilledInput
                       {...field}
                       error={!!errors.hsnCode}
@@ -889,7 +894,12 @@ const UpdateChallanPage: React.FC = () => {
                     fullWidth
                     variant="filled"
                   >
-                    <InputLabel htmlFor="otherRef">Other Reference</InputLabel>
+                    <InputLabel 
+                      htmlFor="otherRef"
+                      shrink={!!field.value}
+                    >
+                      Other Reference
+                    </InputLabel>
                     <FilledInput
                       {...field}
                       error={!!errors.otherRef}
@@ -905,7 +915,12 @@ const UpdateChallanPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
               <FormControl fullWidth variant="filled">
-                <InputLabel htmlFor="materialName">Material Name</InputLabel>
+                <InputLabel 
+                  htmlFor="materialName"
+                  shrink={!!register("materialName")}
+                >
+                  Material Name
+                </InputLabel>
                 <FilledInput
                   {...register("materialName")}
                   id="materialName"
@@ -914,7 +929,12 @@ const UpdateChallanPage: React.FC = () => {
                 />
               </FormControl>
               <FormControl fullWidth variant="filled">
-                <InputLabel htmlFor="remark">Remarks</InputLabel>
+                <InputLabel 
+                  htmlFor="remark"
+                  shrink={!!register("remark")}
+                >
+                  Remarks
+                </InputLabel>
                 <FilledInput
                   {...register("remark")}
                   id="remark"

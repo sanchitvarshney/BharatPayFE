@@ -23,6 +23,8 @@ interface RowData {
   skuName: string;
   sku: string;
   challanId: string;
+  isdispatch: string;
+  isewaybill: string;
 }
 
 type Props = {
@@ -102,6 +104,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       flex: 1,
       sort: "desc",
+      minWidth: 190,
     },
     {
       headerName: "Quantity",
@@ -109,6 +112,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 140,
     },
     {
       headerName: "Client",
@@ -124,6 +128,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
     {
       headerName: "Ship Company",
@@ -131,6 +136,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
     {
       headerName: "Other Ref",
@@ -138,6 +144,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
     },
     {
       headerName: "Dispatch Date",
@@ -145,6 +152,39 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 160,
+    },
+    {
+      headerName: "Is Dispatch",
+      field: "isdispatch",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      minWidth: 160,
+      valueGetter: (params: { data: RowData }) =>
+        params.data.isdispatch == "Y" ? "Yes" : "No",
+    },
+    {
+      headerName: "Eway Bill No",
+      field: "isewaybill",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      valueGetter: (params: { data: RowData }) =>
+        params.data.isewaybill == "Y"
+          ? "Yes"
+          : params.data.isewaybill == "N"
+          ? "No"
+          : "Cancelled",
+      minWidth: 160,
+    },
+    {
+      headerName: "Dispatch Date",
+      field: "date",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      minWidth: 160,
     },
   ];
 
@@ -159,6 +199,8 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
     };
   }, []);
+
+  const isDispatchCreated = (row: RowData) => row.isdispatch === "Y";
 
   return (
     <>
@@ -190,8 +232,18 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleEditChallan}>Edit</MenuItem>
-          <MenuItem onClick={handleCreateDispatch}>Create Dispatch</MenuItem>
+          <MenuItem
+            onClick={handleEditChallan}
+            disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+          >
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={handleCreateDispatch}
+            disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+          >
+            Create Dispatch
+          </MenuItem>
           <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
         </Menu>
       </div>
