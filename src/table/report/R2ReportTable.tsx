@@ -24,6 +24,9 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
     { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true },
     { headerName: "Put Location", field: "putLocation", sortable: true, filter: true },
     { headerName: "Requested Date", field: "insertDate", sortable: true, filter: true },
+    { headerName: "Consumption Date", field: "conspDate", sortable: true, filter: true , valueGetter: (params:any)=>{
+      return params?.data?.conspDate ==="Invalid date" ? null : params?.data?.conspDate;
+    }},
     {
       headerName: "Request Status",
       field: "status",
