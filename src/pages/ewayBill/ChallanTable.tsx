@@ -173,9 +173,9 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       valueGetter: (params: { data: RowData }) =>
         params.data.isewaybill == "Y"
           ? "Yes"
-          : params.data.isewaybill == "N"
-          ? "No"
-          : "Cancelled",
+          : params.data.isewaybill == "C"
+          ? "Cancelled"
+          : "No",
       minWidth: 160,
     },
     {
