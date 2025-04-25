@@ -147,4 +147,6 @@ export type PendingMrRequestState = {
   approveItemDetailLoading: boolean;
   serial: Serial[] | null;
   serialLoading: boolean;
+  swipeDeviceLoading: boolean;
+  swipeDeviceData:PendingRequests[]|null
 };

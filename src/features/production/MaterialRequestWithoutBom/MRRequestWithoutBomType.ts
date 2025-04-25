@@ -37,6 +37,19 @@ export type CreateProductRequestType = {
   cc: string;
   forTrc?: string;
 };
+
+export type CreateSwipeDeviceRequestType = {
+  reqLocation: string;
+  forTrc: number|string;
+  productDetail: [
+      {
+        productKey: string;
+        qty: number;
+        pickLocation: string;
+      }
+    ]
+};
+
 export type CreateProductRequestResponse = {
   status: string;
   message: string;

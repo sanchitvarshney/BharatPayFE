@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
+import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getItemSwipeDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -38,6 +38,7 @@ type Props = {
   setAlert: React.Dispatch<React.SetStateAction<boolean>>;
   approved: string[] | null;
   setApproved: React.Dispatch<React.SetStateAction<string[] | null>>;
+  module?: string;
 };
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -53,7 +54,7 @@ type Forstate = {
   issueQty: string;
   remarks: string;
 };
-const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
+const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved ,module="device" }) => {
   const [itemkey, setItemKey] = useState<string>("");
   const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading } = useAppSelector((state) => state.pendingMr);
   const [scanned, setScanned] = useState<string[] | null>(null);
@@ -192,14 +193,14 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                 Requested Details
               </Typography>
             </div>
-            <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+           { module !="swipe" && <List sx={{ width: "100%", bgcolor: "background.paper" }}>
               <ListItem>
                 <ListItemAvatar>
                   <Avatar>
                     <AccountTreeIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="BOM" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.bomName} />
+                <ListItemText primary="BOM" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.bomName ??""} />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -207,7 +208,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                     <PlaceIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Req. Location:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.locationName} />
+                <ListItemText primary="Req. Location:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.locationName??""} />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -215,9 +216,9 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                     <AppsIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="MFG Qty:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.mfgQty} />
+                <ListItemText primary="MFG Qty:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.mfgQty ??""} />
               </ListItem>
-            </List>
+            </List>}
          
            <div className="absolute bottom-0 left-0 right-0 ">
            <Divider />
@@ -350,7 +351,12 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                               value={field.value}
                               onChange={(e) => {
                                 field.onChange(e);
+                                if(module === "swipe"){
+                                  dispatch(getItemSwipeDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
+                                }
+                                else{
                                 dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
+                                }
                               }}
                               error={!!errors.picLocation}
                               label="Pick Location"

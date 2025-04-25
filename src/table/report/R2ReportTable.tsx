@@ -60,7 +60,7 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
 
   return (
     <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
-      <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data ? r2Data : []} pagination={true} />
+      <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data ? r2Data : []} pagination={true} enableCellTextSelection = {true} />
     </div>
   );
 };
