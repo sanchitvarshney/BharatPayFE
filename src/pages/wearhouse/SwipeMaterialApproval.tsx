@@ -1,5 +1,4 @@
 import MaterialRequestApprovalDrawer from "@/components/Drawers/wearhouse/MaterialRequestApprovalDrawer";
-import MaterialRequestDeviceApprovalDrawer from "@/components/Drawers/wearhouse/MaterialRequestDeviceApprovalDrawer";
 import { crearLocation, getLocationAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { clearItemdetail, getPendingSwipeDeviceListsync, materialRequestCancel } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -11,6 +10,7 @@ import { LoadingButton } from "@mui/lab";
 
 import { showToast } from "@/utils/toasterContext";
 import PendingSwipeApprovalTable from "@/table/wearhouse/PendingSwipeApprovalTable";
+import MaterialRequestSwipeApprovalDrawer from "@/components/Drawers/wearhouse/MaterialRequestSwipeApprovalDrawer";
 
 const SwipeMaterialApproval: React.FC = () => {
   const [approve, setApprove] = useState<boolean>(false);
@@ -74,7 +74,7 @@ const SwipeMaterialApproval: React.FC = () => {
         </DialogActions>
       </Dialog>
       {requestType === "DEVICE" ? (
-        <MaterialRequestDeviceApprovalDrawer approved={approved} setApproved={setApproved} open={approve} setOpen={setApprove} alert={alert} setAlert={setAlert} module={"swipe"} />
+        <MaterialRequestSwipeApprovalDrawer approved={approved} setApproved={setApproved} open={approve} setOpen={setApprove} alert={alert} setAlert={setAlert} />
       ) : (
         <MaterialRequestApprovalDrawer approved={approved} setApproved={setApproved} open={approve} setOpen={setApprove} alert={alert} setAlert={setAlert} />
       )}

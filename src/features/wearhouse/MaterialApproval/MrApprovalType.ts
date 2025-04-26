@@ -73,6 +73,13 @@ export type ApproveDeviceRequestType = {
   issueQty: string;
   srlNumber: string[];
 };
+export type ApproveSwipeRequestType = {
+  transactionId: string,
+  productKey: string,
+  qty: number|string,
+  pickLocation: string,
+  productDetail:any[];
+};
 export type ApproveDeviceRequestResponse = {
   status: string;
   success: boolean;
@@ -149,4 +156,6 @@ export type PendingMrRequestState = {
   serialLoading: boolean;
   swipeDeviceLoading: boolean;
   swipeDeviceData:PendingRequests[]|null
+  deviceLoading: boolean;
+  deviceData:any[]|null
 };

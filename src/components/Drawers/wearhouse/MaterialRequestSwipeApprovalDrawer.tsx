@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
+import { approveSwipeDeviceRequest, clearItemdetail, getItemSwipeDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject, validateScan } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -15,14 +15,11 @@ import { TransitionProps } from "@mui/material/transitions";
 import Grid from "@mui/material/Grid2";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import PlaceIcon from "@mui/icons-material/Place";
 import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
-import AppsIcon from "@mui/icons-material/Apps";
 import Dialog from "@mui/material/Dialog";
-import { Avatar, Button, Chip, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
+import { Avatar, Button, Chip, CircularProgress, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
@@ -53,9 +50,9 @@ type Forstate = {
   issueQty: string;
   remarks: string;
 };
-const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
+const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved  }) => {
   const [itemkey, setItemKey] = useState<string>("");
-  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading } = useAppSelector((state) => state.pendingMr);
+  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading,deviceLoading } = useAppSelector((state) => state.pendingMr);
   const [scanned, setScanned] = useState<string[] | null>(null);
   const [input, setInput] = useState<string>("");
   const [isueeQty, setIsueeQty] = useState<string>("");
@@ -63,6 +60,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
   const [remarks, setRemarks] = useState<string>("");
   const dispatch = useAppDispatch();
   const [data, setData] = useState<ProcessRequestDataBody[] | null>(null);
+  const [deviceData, setDeviceData] = useState<any>(null);
 
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
@@ -96,12 +94,16 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
   });
   const onSubmit: SubmitHandler<Forstate> = (data) => {
     dispatch(
-      approveDeviceRequest({
-        itemCode: itemkey,
+      approveSwipeDeviceRequest({
+        productKey: itemkey,
         pickLocation: data.picLocation!.id,
-        issueQty: data.issueQty,
-        txnID: requestDetail?.id || "",
-        srlNumber: scanned || [],
+        qty: data.issueQty,
+        transactionId: requestDetail?.id ?? "",
+          productDetail: deviceData?.map((row:any) => ({
+            serialNo: row.serial_no,
+            imei_no1: row.imei_no1,
+            imei_no2: row.imei_no2,
+          }))
       })
     ).then((response: any) => {
       if (response.payload.data?.success) {
@@ -112,6 +114,8 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
         setScanned(null);
         setIsueeQty("");
         setSelectedValue(null);
+        setDeviceData(null);
+        handleClose();
       }
     });
   };
@@ -139,6 +143,8 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
       setData(null)
     }
   }, [processRequestData]);
+
+
   return (
     <>
       {/*confirm isuee change =======================================================  */}
@@ -192,32 +198,6 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                 Requested Details
               </Typography>
             </div>
-           <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <AccountTreeIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="BOM" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.bomName ??""} />
-              </ListItem>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <PlaceIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="Req. Location:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.locationName??""} />
-              </ListItem>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <AppsIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="MFG Qty:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.mfgQty ??""} />
-              </ListItem>
-            </List>
          
            <div className="absolute bottom-0 left-0 right-0 ">
            <Divider />
@@ -344,14 +324,14 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                         <Controller
                           name="picLocation"
                           control={control}
-                          rules={{ required: "Pic Location is required" }}
+                          rules={{ required: "Pick Location is required" }}
                           render={({ field }) => (
                             <SelectLocation
                               value={field.value}
                               onChange={(e) => {
                                 field.onChange(e);
-                              
-                                dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
+                            
+                                  dispatch(getItemSwipeDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
                               }}
                               error={!!errors.picLocation}
                               label="Pick Location"
@@ -424,7 +404,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                           disabled={!isueeQty || Number(isueeQty) === scanned?.length}
                           endAdornment={
                             <InputAdornment position="end">
-                              <QrCodeScannerIcon />
+                             {deviceLoading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}
                             </InputAdornment>
                           }
                           placeholder="Scan items"
@@ -433,6 +413,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                           inputProps={{ maxLength: 15 }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
+                              
                               e.preventDefault();
                               if (input) {
                                 if (scanned && scanned.includes(input)) {
@@ -441,14 +422,21 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                   if (scanned && scanned.length + 1 > parseInt(isueeQty)) {
                                     showToast("Scanned Items can't be greater than Issue Qty", "error");
                                   } else {
+                                    dispatch(validateScan(input)).then((response:any)=>{
+                                      if(response.payload.data.success){
+                                        setDeviceData((prev: any) => prev ? [...prev, response.payload.data.data] : [response.payload.data.data]);
+                                     
                                     scanned ? setScanned([input, ...scanned]) : setScanned([input]);
                                     setInput("");
                                     if (Number(isueeQty) === scanned?.length! + 1) {
                                       e.currentTarget.blur();
                                     }
                                   }
+                                })
+                                  }
                                 }
                               }
+                           
                             }
                           }}
                         />
@@ -540,4 +528,4 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
   );
 };
 
-export default MaterialRequestDeviceApprovalDrawer;
+export default MaterialRequestSwipeApprovalDrawer;

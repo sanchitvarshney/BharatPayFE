@@ -7,6 +7,7 @@ import {
   ApproveItemDetailApiResponse,
   ApproveItemsResponse,
   ApprovePayload,
+  ApproveSwipeRequestType,
   AprovedMaterialListPayload,
   AprovedMaterialListResponse,
   ItemDetailApiResponse,
@@ -39,6 +40,8 @@ const initialState: PendingMrRequestState = {
   serialLoading: false,
   swipeDeviceData: null,
   swipeDeviceLoading: false,
+  deviceData: null,
+  deviceLoading: false,
 };
 
 export const getPendingMaterialListsync = createAsyncThunk<AxiosResponse<PendingMrRequestResponse>>("master/getPendingMrrequst", async () => {
@@ -83,6 +86,16 @@ export const approveDeviceRequest = createAsyncThunk<AxiosResponse<ApproveDevice
   const response = await axiosInstance.post(`/req/data/approve/${params.itemCode}/${params.txnID}`, params);
   return response;
 });
+export const approveSwipeDeviceRequest = createAsyncThunk<AxiosResponse<ApproveDeviceRequestResponse>, ApproveSwipeRequestType>("master/approveDeviceType", async (params) => {
+  const response = await axiosInstance.put(`/reqv2/approveMaterialReqV2`, params);
+  return response;
+});
+
+export const validateScan = createAsyncThunk<AxiosResponse<any>, string>("master/validateScan", async (id) => {
+  const response = await axiosInstance.get(`/backend/device?device=${id}`);
+  return response;
+});
+
 export const materialRequestReject = createAsyncThunk<AxiosResponse<MaterialRejectResponse>, MaterialRejectPayload>("master/materialRequestReject", async (params) => {
   const response = await axiosInstance.put(`/req/data/reject/${params.itemCode}/${params.txnId}`, { remarks: params.remarks });
   return response;
@@ -128,6 +141,19 @@ const MrApprovalSlice = createSlice({
       .addCase(getPendingMaterialListsync.rejected, (state) => {
         state.getPendingMrRequestLoading = false;
         state.pendingMrRequestData = [];
+      })
+      .addCase(validateScan.pending, (state) => {
+        state.deviceLoading = true;
+      })
+      .addCase(validateScan.fulfilled, (state, action) => {
+        state.deviceLoading = false;
+        if (action.payload.data.success) {
+          state.deviceData = action.payload.data;
+        }
+      })
+      .addCase(validateScan.rejected, (state) => {
+        state.deviceLoading = false;
+        state.deviceData = [];
       })
       .addCase(getPendingSwipeDeviceListsync.pending, (state) => {
         state.swipeDeviceLoading = true;
