@@ -18,12 +18,16 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "srNo", sortable: true, filter: true, valueGetter: "node.rowIndex + 1", maxWidth: 80 },
     { headerName: "Requested By", field: "requestBy", sortable: true, filter: true },
+    {headerName:"IMEI",field:"imei",sortable:true,filter:true},
     { headerName: "Ref ID", field: "refId", sortable: true, filter: true },
     { headerName: "Serial No", field: "srlNo", sortable: true, filter: true },
     { headerName: "Total Devices", field: "totalDevice", sortable: true, filter: true },
     { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true },
     { headerName: "Put Location", field: "putLocation", sortable: true, filter: true },
     { headerName: "Requested Date", field: "insertDate", sortable: true, filter: true },
+    { headerName: "Consumption Date", field: "conspDate", sortable: true, filter: true , valueGetter: (params:any)=>{
+      return params?.data?.conspDate ==="Invalid date" ? null : params?.data?.conspDate;
+    }},
     {
       headerName: "Request Status",
       field: "status",
@@ -56,7 +60,7 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
 
   return (
     <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
-      <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data ? r2Data : []} pagination={true} />
+      <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data ? r2Data : []} pagination={true} enableCellTextSelection = {true} />
     </div>
   );
 };

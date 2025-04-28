@@ -89,6 +89,10 @@ import CreateChallanPage from "@/pages/Dispatch/CreateChallanPage";
 import ManageChallan from "@/pages/Dispatch/ManageChallan";
 import UpdateChallanPage from "@/pages/Dispatch/UpdateChallanPage";
 import ChallanLayout from "@/layouts/ChallanLayout ";
+import SwipeDeviceRequest from "@/pages/production/SwipeDeviceRequest";
+import SwipeMaterialApprovalLayout from "@/layouts/SwipeMaterialApprovalLayout";
+import SwipeMaterialApproval from "@/pages/wearhouse/SwipeMaterialApproval";
+import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
 
 export const router = createBrowserRouter([
   {
@@ -380,6 +384,26 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <SwipeMaterialApprovalLayout>
+              <SwipeMaterialApproval />
+            </SwipeMaterialApprovalLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-approval",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeMaterialApprovalLayout>
+              <SwipeRequistionRequest />
+            </SwipeMaterialApprovalLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-requisition-request",
+      },
+      {
+        element: (
+          <MainLayout>
             <MinLayout>
               <MaterialInvard />
             </MinLayout>
@@ -446,6 +470,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/material-req-without-bom",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ProductionMaterialRequisitionLayout>
+              <SwipeDeviceRequest />
+            </ProductionMaterialRequisitionLayout>
+          </MainLayout>
+        ),
+        path: "/production/swipe-device-request",
       },
       {
         element: (

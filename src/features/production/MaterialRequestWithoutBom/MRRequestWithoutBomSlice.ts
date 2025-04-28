@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { AvailbleQtyResponse, CreateProductRequestResponse, CreateProductRequestType, LocationApiresponse, MrRequestWithoutBom, PartCodeDataresponse, SkuCodeDataresponse } from "./MRRequestWithoutBomType";
+import { AvailbleQtyResponse, CreateProductRequestResponse, CreateProductRequestType, CreateSwipeDeviceRequestType, LocationApiresponse, MrRequestWithoutBom, PartCodeDataresponse, SkuCodeDataresponse } from "./MRRequestWithoutBomType";
 import { showToast } from "@/utils/toasterContext";
 
 const initialState: MrRequestWithoutBom = {
@@ -30,12 +30,23 @@ export const createProductRequest = createAsyncThunk<AxiosResponse<CreateProduct
   const response = await axiosInstance.post(`/req/without-bom/${value.reqType}`, value);
   return response;
 });
+
+export const createSwipeDeviceRequest = createAsyncThunk<AxiosResponse<CreateProductRequestResponse>, CreateSwipeDeviceRequestType>("/req/swipe-device", async (value) => {
+  const response = await axiosInstance.post(`/reqv2/createMaterialReqV2`, value);
+  return response;
+});
+
 export const getLocationAsync = createAsyncThunk<AxiosResponse<LocationApiresponse>, string | null>("wearhouse/getLocation", async (params) => {
   const response = await axiosInstance.get(`/backend/search/location/${params}`);
   return response;
 });
 export const getAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: any }>("wearhouse/getAvailbleQty", async (params) => {
   const response = await axiosInstance.get(`/backend/stock/${params.type}/${params.itemCode}/${params.location.value ? params.location.value : params.location}`);
+  return response;
+});
+
+export const getSwipeAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: any }>("wearhouse/getAvailbleQty", async (params) => {
+  const response = await axiosInstance.get(`/backend/stockv2/${params.type}/${params.itemCode}/${params.location.value ? params.location.value : params.location}`);
   return response;
 });
 
@@ -88,6 +99,19 @@ const materialRequestSlice = createSlice({
         }
       })
       .addCase(createProductRequest.rejected, (state) => {
+        state.createProductRequestLoading = false;
+      })
+      .addCase(createSwipeDeviceRequest.pending, (state) => {
+        state.createProductRequestLoading = true;
+      })
+      .addCase(createSwipeDeviceRequest.fulfilled, (state, action) => {
+        state.createProductRequestLoading = false;
+        if (action.payload.data.success) {
+          state.craeteRequestData = action.payload.data;
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(createSwipeDeviceRequest.rejected, (state) => {
         state.createProductRequestLoading = false;
       })
       .addCase(getLocationAsync.pending, (state) => {

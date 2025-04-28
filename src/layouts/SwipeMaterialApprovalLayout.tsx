@@ -3,18 +3,18 @@ import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Icons } from "@/components/icons";
-
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import AppsOutageIcon from '@mui/icons-material/AppsOutage';
 type Props = {
   children: React.ReactNode;
 };
 
-const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
+const SwipeMaterialApprovalLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/production/material-req-with-bom", "/production/material-req-without-bom","/production/swipe-device-request"];
+  const tabRoutes = ["/swipe-approval", "/swipe-requisition-request"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -26,7 +26,6 @@ const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
     <div className="h-full">
       <div className=" w-full h-[50px] border-b border-neutral-300 bg-white">
         <Tabs
-        selectionFollowsFocus
           sx={{ padding: 0, width: "max-content" }}
           TabIndicatorProps={{
             style: {
@@ -41,8 +40,8 @@ const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <Icons.bom fontSize="small" />
-                Material Requisition with BOM
+                <PendingActionsIcon />
+               Swipe Pending MR(Approval)
               </div>
             }
           />
@@ -50,17 +49,8 @@ const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <Icons.bom fontSize="small" />
-                Material Requisition without BOM
-              </div>
-            }
-          />
-           <Tab
-            sx={{ fontWeight: "500" }}
-            label={
-              <div className="flex items-center gap-[10px]">
-                <Icons.device fontSize="small" />
-                  Material Requisition for Swipe Device
+                <AppsOutageIcon />
+                Swipe Material Requisition Request
               </div>
             }
           />
@@ -71,4 +61,4 @@ const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
   );
 };
 
-export default ProductionMaterialRequisitionLayout;
+export default SwipeMaterialApprovalLayout;
