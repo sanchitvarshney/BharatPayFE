@@ -21,8 +21,9 @@ type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
   addRow: () => void;
+  module?:string
 };
-const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
+const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addRow,module="" }) => {
   const { type } = useAppSelector((state) => state.materialRequestWithoutBom);
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
@@ -52,7 +53,7 @@ const MaterialReqWithoutBomTable: React.FC<Props> = ({ rowData, setRowdata, addR
 
   const components = useMemo(
     () => ({
-      textInputCellRenderer: (params: any) => <MaterialRequestWithoutBomCellrender props={params} customFunction={getAllTableData} />,
+      textInputCellRenderer: (params: any) => <MaterialRequestWithoutBomCellrender props={params} customFunction={getAllTableData} module={module}/>,
     }),
     []
   );

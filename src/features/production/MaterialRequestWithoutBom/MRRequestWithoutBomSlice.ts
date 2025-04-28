@@ -45,6 +45,11 @@ export const getAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse
   return response;
 });
 
+export const getSwipeAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: any }>("wearhouse/getAvailbleQty", async (params) => {
+  const response = await axiosInstance.get(`/backend/stockv2/${params.type}/${params.itemCode}/${params.location.value ? params.location.value : params.location}`);
+  return response;
+});
+
 const materialRequestSlice = createSlice({
   name: "mrrequestwithoutbom",
   initialState,

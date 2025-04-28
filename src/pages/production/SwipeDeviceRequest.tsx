@@ -259,7 +259,7 @@ const SwipeDeviceRequest = () => {
               </div>
             </form>
           </div>
-          <MaterialReqWithoutBomTable addRow={addRow} setRowdata={setRowData} rowData={rowData} />
+          <MaterialReqWithoutBomTable addRow={addRow} setRowdata={setRowData} rowData={rowData} module="swipe" />
         </div>
       )}
     </div>
