@@ -54,6 +54,7 @@ function MainLayout(props: { children: React.ReactNode }) {
     setSheet2Open(false);
     setFavoriteSheet(false);
   };
+  
   useEffect(() => {
     if (isConnected) {
       emitGetNotification();

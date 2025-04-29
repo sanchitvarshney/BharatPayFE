@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { createSwipeDeviceRequest, } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { Button, Typography } from "@mui/material";
+import { Button, Checkbox, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
@@ -33,6 +33,7 @@ const SwipeDeviceRequest = () => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
+  const [checked , setChecked] = useState<boolean>(false);
   const [final, setFinal] = useState<boolean>(false);
   const { type, createProductRequestLoading, locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const dispatch = useAppDispatch();
@@ -42,7 +43,6 @@ const SwipeDeviceRequest = () => {
     handleSubmit,
     reset,
     control,
-
     formState: { errors },
   } = useForm<Formstate>({
     defaultValues: {
@@ -95,12 +95,13 @@ const SwipeDeviceRequest = () => {
           qty: Number(row.orderqty) || 0,
           pickLocation: row.pickLocation?.value || ""
         }));
-        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc :"0", productDetail })).then((res: any) => {
+        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc :checked?"1":"0", productDetail })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
             setFinal(true);
             setLocationdetail("--");
+            setChecked(false);
           }
         });
       }
@@ -135,6 +136,7 @@ const SwipeDeviceRequest = () => {
                 onClick={() => {
                   setFinal(false);
                   setLocationdetail("--");
+                  setChecked(false);
                 }}
                 variant="contained"
               >
@@ -230,14 +232,31 @@ const SwipeDeviceRequest = () => {
                   /> */}
                   {/* <div>
                     <TextField fullWidth multiline rows={4} label="Remark (if any)" {...register("remarks")} />
-                  </div>
-                  <div className="flex items-center ">
-                    <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" {...register("checkbox")}  checked={type === "device" || !!watch("checkbox")} // Always checked when type is "SKU"
-    disabled={type === "device"} />
-                      <label htmlFor="terms" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
-                        Directly Move To TRC
-                      </label>
                   </div> */}
+                  <div className="flex items-center">
+                    <Controller
+                      name="checkbox"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          {...field}
+                          checked={field.value}
+                          onChange={(e) => {
+                            field.onChange(e.target.checked);
+                            setChecked(e.target.checked);
+                          }}
+                          sx={{
+                            '&.Mui-checked': {
+                              color: '#0369a1',
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                    <label className="text-sm font-medium leading-none cursor-pointer text-slate-500">
+                      Directly Move To TRC
+                    </label>
+                  </div>
                 </CardContent>
                 <CardFooter className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
                   <LoadingButton
