@@ -4,7 +4,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import AppsOutageIcon from '@mui/icons-material/AppsOutage';
+// import AppsOutageIcon from '@mui/icons-material/AppsOutage';
 type Props = {
   children: React.ReactNode;
 };
@@ -45,7 +45,7 @@ const SwipeMaterialApprovalLayout: React.FC<Props> = ({ children }) => {
               </div>
             }
           />
-          <Tab
+          {/* <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
@@ -53,7 +53,7 @@ const SwipeMaterialApprovalLayout: React.FC<Props> = ({ children }) => {
                 Swipe Material Requisition Request
               </div>
             }
-          />
+          /> */}
         </Tabs>
       </div>
       <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
