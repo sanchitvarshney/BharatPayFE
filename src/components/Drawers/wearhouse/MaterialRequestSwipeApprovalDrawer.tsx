@@ -513,7 +513,9 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                       >
                         Reject
                       </LoadingButton>
-                      <LoadingButton loadingPosition="start" type="submit" startIcon={<DoneIcon fontSize="small" />} variant="contained" disabled={!(scanned ? parseInt(isueeQty) === scanned.length : true) || approveItemLoading || !scanned} loading={approveItemLoading}>
+                      <LoadingButton loadingPosition="start" type="submit" startIcon={<DoneIcon fontSize="small" />} variant="contained" 
+                      // disabled={!(scanned ? parseInt(isueeQty) === scanned.length : true) || approveItemLoading || !scanned} 
+                      loading={approveItemLoading}>
                         Approve
                       </LoadingButton>
                     </div>
