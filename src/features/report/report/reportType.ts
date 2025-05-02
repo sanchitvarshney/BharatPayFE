@@ -318,7 +318,7 @@ export type ReportStateType = {
   mainR1Report: MainR1Report[] | null;
   mainR1ReportLoading: boolean;
   r6Report: r6report[] | null;
-  wrongDeviceReport:any|null;
+  wrongDeviceReport: any | null;
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;
   r8Report: R8ReportData[] | null;
@@ -334,4 +334,33 @@ export type ReportStateType = {
   r15ReportLoading: boolean;
   r15Report: any | null;
   updatePhysicalQuantityLoading: boolean;
+  r16Report: R16ReportResponse | null;
+  r16ReportLoading: boolean;
+  r16ReportDateRange: {
+    from: string | null;
+    to: string | null;
+  };
+  r16ReportPartner: string | null;
 };
+
+export interface R16ReportResponse {
+  status: string;
+  success: boolean;
+  page: number;
+  totalPages: number;
+  totalRecords: number;
+  data: Array<{
+    inwardLoc: string;
+    partnerName: string;
+    method: string;
+    skuName: string;
+    deviceSKU: string;
+    model: string;
+    serialNo: string;
+    imeiNo1: string;
+    imeiNo2: string;
+    txnID: string;
+    remark: string;
+    insertDt: string;
+  }>;
+}

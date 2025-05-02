@@ -31,7 +31,7 @@ const initialState: ReportStateType = {
   r9report: null,
   r9ReportLoading: false,
   wrongDeviceReportLoading: false,
-  r11ReportLoading: false,  
+  r11ReportLoading: false,
   r11Report: null,
   r12Report: null,
   r12ReportLoading: false,
@@ -40,6 +40,13 @@ const initialState: ReportStateType = {
   r15Report: null,
   r15ReportLoading: false,
   updatePhysicalQuantityLoading: false,
+  r16Report: null,
+  r16ReportLoading: false,
+  r16ReportDateRange: {
+    from: null,
+    to: null,
+  },
+  r16ReportPartner: null,
 };
 
 export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
@@ -138,6 +145,22 @@ export const updatePhysicalQuantity = createAsyncThunk<AxiosResponse<any>, { txn
   const response = await axiosInstance.put(`/report/addAbnormalQty`, { txnID: payload.txnId, qty: payload.qty });
   return response;
 });
+
+export const getR16Report = createAsyncThunk(
+  "report/getR16Report",
+  async (params: {
+    from: string;
+    to: string;
+    partner: string;
+    page: number;
+    limit: number;
+  }) => {
+    const response = await axiosInstance.get(
+      `/swipeMachine/report/${params.partner}?fromDate=${params.from}&toDate=${params.to}&page=${params.page}&limit=${params.limit}`
+    );
+    return response.data;
+  }
+);
 
 const reportSlice = createSlice({
   name: "report",
@@ -401,10 +424,26 @@ const reportSlice = createSlice({
       .addCase(getr9Report.rejected, (state) => {
         state.r9ReportLoading = false;
         state.r9report = null;
+      })
+      .addCase(getR16Report.pending, (state) => {
+        state.r16ReportLoading = true;
+      })
+      .addCase(getR16Report.fulfilled, (state, action) => {
+        state.r16ReportLoading = false;
+        state.r16Report = action.payload;
+        state.r16ReportDateRange = {
+          from: action.meta.arg.from,
+          to: action.meta.arg.to,
+        };
+        state.r16ReportPartner = action.meta.arg.partner;
+      })
+      .addCase(getR16Report.rejected, (state) => {
+        state.r16ReportLoading = false;
       });
   },
 });
 
-export const { setRefId, clearRefId, clearR1data, clearR6data } = reportSlice.actions;
+export const { setRefId, clearRefId, clearR1data, clearR6data } =
+  reportSlice.actions;
 
 export default reportSlice.reducer;
