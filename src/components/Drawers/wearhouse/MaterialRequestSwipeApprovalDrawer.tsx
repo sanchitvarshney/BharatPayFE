@@ -463,6 +463,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                                       color="error"
                                       onClick={() => {
                                         setScanned(scanned.filter((sc) => sc !== item));
+                                        setDeviceData((prev: any) => prev.filter((sc: any) => sc.imei_no1 !== item));
                                       }}
                                     >
                                       <DeleteIcon fontSize="small" />
