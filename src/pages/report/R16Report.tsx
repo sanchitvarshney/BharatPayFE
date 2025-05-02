@@ -88,6 +88,7 @@ const R16Report: React.FC = () => {
                   { value: "eCOM", label: "eCOM" },
                   { value: "DTDC", label: "DTDC" },
                   { value: "dVery", label: "dVery" },
+                  { value: "ALL", label: "ALL" },
                 ].map((item) => (
                   <MenuItem value={item.value} key={item.value}>
                     {item.label}
