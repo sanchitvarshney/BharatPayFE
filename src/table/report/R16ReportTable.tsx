@@ -142,6 +142,7 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
             rowData={r16Report?.data || []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
+            enableCellTextSelection={true}
             // domLayout="autoHeight"
           />
         </div>

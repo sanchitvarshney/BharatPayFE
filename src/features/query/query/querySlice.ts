@@ -45,8 +45,8 @@ export const getQ5Data = createAsyncThunk<AxiosResponse<Q5Apiresponse>, { type: 
   const response = await axiosInstance.get(`/query/q5/sim/report?type=${payload.type}&data=${payload.data}`);
   return response;
 });
-export const getQ6Data = createAsyncThunk<AxiosResponse<R6ApiResponse>, string>("query/getQ6Data", async (id) => {
-  const response = await axiosInstance.get(`/query/q6/devicetimeline?srlOrImei=${id}`);
+export const getQ6Data = createAsyncThunk<AxiosResponse<R6ApiResponse>, { id: string; type: string }>("query/getQ6Data", async (payload) => {
+  const response = await axiosInstance.get(`/query/q6/${payload.type === "swipe" ? `swipeMachineDetail?srlOrImei=${payload.id}` : `devicetimeline?srlOrImei=${payload.id}`}`);
   return response;
 });
 const querySlice = createSlice({
