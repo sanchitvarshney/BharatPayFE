@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -11,8 +11,10 @@ import R16ReportTable from "@/table/report/R16ReportTable";
 import { showToast } from "@/utils/toasterContext";
 import { getR16Report } from "@/features/report/report/reportSlice";
 import { exportToExcel } from "@/utils/exportToExcel";
+import { AgGridReact } from "@ag-grid-community/react";
 
 const R16Report: React.FC = () => {
+  const gridRef = useRef<AgGridReact>(null);
   const [colapse, setcolapse] = useState<boolean>(false);
   const [partner, setPartner] = useState<string>("eCOM");
   const [dateRange, setDateRange] = useState<{
@@ -141,7 +143,7 @@ const R16Report: React.FC = () => {
         </div>
       </div>
       <div className="w-full">
-        <R16ReportTable />
+        <R16ReportTable gridRef={gridRef} />
       </div>
     </div>
   );
