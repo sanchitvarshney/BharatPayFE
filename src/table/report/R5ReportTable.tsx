@@ -68,12 +68,12 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
       hide: true,
     },
     {
-      headerName: "--",
+      headerName: "Dispatch ID",
       field: "dispatchId",
       sortable: true,
       filter: true,
       flex: 1,
-      hide: true,
+      hide: false,
     },
 
     {
