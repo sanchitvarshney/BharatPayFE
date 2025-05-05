@@ -25,6 +25,11 @@ export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean;
   return response;
 });
 
+export const CreateSwipeDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateSwipeDispatch", async (payload) => {
+  const response = await axiosInstance.post(`dispatchDivice/createDispatchSwipe`, payload);
+  return response;
+});
+
 export const wrongDeviceDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchWrongItemPayload>("dispatch/CreateWrongDispatch", async (payload) => {
   const response = await axiosInstance.post(`/wrongDevice/createWrongDispatch`, payload);
   return response;
@@ -84,6 +89,18 @@ const dispatchSlice = createSlice({
         }
       })
       .addCase(CreateDispatch.rejected, (state) => {
+        state.dispatchCreateLoading = false;
+      })
+      .addCase(CreateSwipeDispatch.pending, (state) => {
+        state.dispatchCreateLoading = true;
+      })
+      .addCase(CreateSwipeDispatch.fulfilled, (state, action) => {
+        state.dispatchCreateLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(CreateSwipeDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
       .addCase(getStateCode.pending, (state) => {

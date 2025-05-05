@@ -400,7 +400,7 @@ const WrongDeviceDispatch: React.FC = () => {
                   multiline
                   rows={3}
                   fullWidth
-                  label="Ship To Addrests 2"
+                  label="Ship To Address 2"
                   className="h-[100px] resize-none"
                   {...register("shipToDetails.address2", {
                     required: "Address 2 is required",

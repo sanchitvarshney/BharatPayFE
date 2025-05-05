@@ -10,7 +10,8 @@ interface RowData {
   productKey: string;
   serialNo: number;
   modalNo:string;
-  deviceSku:string
+  deviceSku:string;
+  imei2?:string;
 }
 
 type Props = {
@@ -23,6 +24,7 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     {headerName:"Modal Name",field:"modalNo",sortable:true,filter:true,flex:1},
     {headerName:"Device SKU",field:"deviceSku",sortable:true,filter:true,flex:1},
     { headerName: "IMEI", field: "imei", sortable: true, filter: true, flex: 1 },
+    { headerName: "IMEI2", field: "imei2", sortable: true, filter: true, flex: 1 },
     { headerName: "SR No.", field: "srno", sortable: true, filter: true, flex: 1 },
     {
       headerName: "",
