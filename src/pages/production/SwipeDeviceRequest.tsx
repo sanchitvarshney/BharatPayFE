@@ -37,7 +37,7 @@ const SwipeDeviceRequest = () => {
   const [final, setFinal] = useState<boolean>(false);
   const { type, createProductRequestLoading, locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const dispatch = useAppDispatch();
-
+console.log(checked)
 
   const {
     handleSubmit,
