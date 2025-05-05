@@ -95,7 +95,7 @@ const SwipeDeviceRequest = () => {
           qty: Number(row.orderqty) || 0,
           pickLocation: row.pickLocation?.value || ""
         }));
-        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc :checked?"1":"0", productDetail })).then((res: any) => {
+        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc :"1", productDetail })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
@@ -240,16 +240,17 @@ const SwipeDeviceRequest = () => {
                       render={({ field }) => (
                         <Checkbox
                           {...field}
-                          checked={field.value}
-                          onChange={(e) => {
-                            field.onChange(e.target.checked);
-                            setChecked(e.target.checked);
-                          }}
+                          checked={true}
+                          // onChange={(e) => {
+                          //   field.onChange(e.target.checked);
+                          //   setChecked(e.target.checked);
+                          // }}
                           sx={{
                             '&.Mui-checked': {
                               color: '#0369a1',
                             },
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -341,5 +342,6 @@ const Success = styled.div`
     }
   }
 `;
+
 
 export default SwipeDeviceRequest;
