@@ -1,7 +1,23 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, MainR1ReportResponse, R11ReportDataApiResponse, R12ReportDataApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, R9reportResponse, ReportStateType } from "./reportType";
+import {
+  DeviceRequestApiResponse,
+  MainR1ReportResponse,
+  R11ReportDataApiResponse,
+  R12ReportDataApiResponse,
+  R1ApiResponse,
+  R2Response,
+  R4ReportQueryParams,
+  r3reportResponse,
+  r4reportDetailDataResponse,
+  R4ReportResponse,
+  R5reportResponse,
+  r6reportApiResponse,
+  R8ReportDataApiResponse,
+  R9reportResponse,
+  ReportStateType,
+} from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -69,8 +85,15 @@ export const getr3Report = createAsyncThunk<AxiosResponse<r3reportResponse>, { f
   const response = await axiosInstance.get(`/report/r3BatteryQcReport?fromDate=${date.from}&toDate=${date.to}`);
   return response;
 });
-export const getr4Report = createAsyncThunk<AxiosResponse<R4ReportResponse>, { from?: string; to?: string; type: string; device?: string }>("report/getr4Report", async (query) => {
-  const response = await axiosInstance.get(query.type === "DEVICE" ? `/report/r4/DEVICE?deviceId=${query.device}` : `/report/r4/DATE?from=${query.from}&to=${query.to}`);
+export const getr4Report = createAsyncThunk<
+  AxiosResponse<R4ReportResponse>,
+  R4ReportQueryParams
+>("report/getr4Report", async (query) => {
+  const response = await axiosInstance.get(
+    query.type === "DEVICE"
+      ? `/report/r4/DEVICE?deviceId=${query.device}&deviceType=${query.deviceType}`
+      : `/report/r4/DATE?from=${query.from}&to=${query.to}`
+  );
   return response;
 });
 export const r4ReportDetail = createAsyncThunk<AxiosResponse<r4reportDetailDataResponse>, string>("report/r4ReportDetail", async (query) => {
@@ -211,7 +234,7 @@ const reportSlice = createSlice({
       .addCase(updatePhysicalQuantity.rejected, (state) => {
         state.updatePhysicalQuantityLoading = false;
       })
-      
+
       .addCase(getMainR1Data.rejected, (state) => {
         state.mainR1ReportLoading = false;
       })

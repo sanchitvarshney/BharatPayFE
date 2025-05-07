@@ -41,6 +41,7 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
     { headerName: "Serial No", field: "serialNo", minWidth: 150 },
     { headerName: "IMEI No 1", field: "imeiNo1", minWidth: 150 },
     { headerName: "IMEI No 2", field: "imeiNo2", minWidth: 150 },
+    { headerName: "Sim No", field: "simNo", minWidth: 150 },
     { headerName: "Transaction ID", field: "txnID", minWidth: 200 },
     { headerName: "Remark", field: "remark", minWidth: 150 },
     { headerName: "Insert Date", field: "insertData", minWidth: 150 },

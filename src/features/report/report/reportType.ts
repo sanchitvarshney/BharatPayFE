@@ -123,6 +123,14 @@ type R4Report = {
   prodductionId: string;
 };
 
+export type R4ReportQueryParams = {
+  from?: string;
+  to?: string;
+  type: string;
+  device?: string;
+  deviceType?: string;
+};
+
 export type r4reportDetailDataResponse = {
   success: boolean;
   status: string;
@@ -304,17 +312,19 @@ export type ReportStateType = {
   r5report: R5report[] | null;
   r5reportLoading: boolean;
   r5reportDetailLoading: boolean;
-  r5reportDetail: {
-    slNo: string;
-    insert_dt: string;
-    shipLabel: string;
-    shipToCity: string;
-    p_name: string;
-    imei: string;
-    nfc_enable: string | null;
-    iccid: string | null;
-    qr_url: string | null;
-  }[] | null;
+  r5reportDetail:
+    | {
+        slNo: string;
+        insert_dt: string;
+        shipLabel: string;
+        shipToCity: string;
+        p_name: string;
+        imei: string;
+        nfc_enable: string | null;
+        iccid: string | null;
+        qr_url: string | null;
+      }[]
+    | null;
   mainR1Report: MainR1Report[] | null;
   mainR1ReportLoading: boolean;
   r6Report: r6report[] | null;

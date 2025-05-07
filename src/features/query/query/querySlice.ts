@@ -37,10 +37,13 @@ export const getQ3DatA = createAsyncThunk<AxiosResponse<Q3ApiResponse>, { date: 
   const response = await axiosInstance.get(`/query/q3/${payload.comp}/${payload.date}`);
   return response;
 });
-export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, string>("query/getQ4DatA", async (id) => {
-  const response = await axiosInstance.get(`/query/q4/${id}`);
-  return response;
-});
+export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, { id: string; type: string }>(
+  "query/getQ4DatA",
+  async (payload) => {
+    const response = await axiosInstance.get(`/query/q4/${payload.id}/${payload.type}`);
+    return response;
+  }
+);
 export const getQ5Data = createAsyncThunk<AxiosResponse<Q5Apiresponse>, { type: string; data: string }>("query/getQ5Data", async (payload) => {
   const response = await axiosInstance.get(`/query/q5/sim/report?type=${payload.type}&data=${payload.data}`);
   return response;
