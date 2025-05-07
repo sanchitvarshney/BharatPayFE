@@ -25,6 +25,7 @@ import vendor from "@/features/master/vendor/vedorSlice";
 import category from "@/features/master/Category/CategorySlice";
 import client from "@/features/master/client/clientSlice";
 import dashboard from "@/features/Dashboard/Dashboard";
+import uploadReducer from "@/features/upload/uploadSlice";
 
 export const store = configureStore({
   reducer: {
@@ -54,6 +55,7 @@ export const store = configureStore({
     simmin: simminReducer,
     client: client,
     dashboard,
+    upload: uploadReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

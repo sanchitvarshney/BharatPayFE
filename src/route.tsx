@@ -89,6 +89,8 @@ import SwipeDeviceRequest from "@/pages/production/SwipeDeviceRequest";
 import SwipeMaterialApprovalLayout from "@/layouts/SwipeMaterialApprovalLayout";
 import SwipeMaterialApproval from "@/pages/wearhouse/SwipeMaterialApproval";
 import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
+import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
+import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 
 export const router = createBrowserRouter([
   {
@@ -698,6 +700,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "queries/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeUploadLayout>
+              <SwipeDeviceUpload />
+            </SwipeUploadLayout>
+          </MainLayout>
+        ),
+        path: "/upload/swipe-device-status",
       },
     ],
   },
