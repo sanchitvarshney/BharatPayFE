@@ -5,6 +5,7 @@ import { Button, Card, Typography, Box, CircularProgress } from "@mui/material";
 import { CloudUpload, Download } from "@mui/icons-material";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { showToast } from "@/utils/toasterContext";
 
 const SwipeDeviceUpload: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -49,9 +50,10 @@ const SwipeDeviceUpload: React.FC = () => {
     formData.append("file", file);
 
     try {
-      await dispatch(uploadSwipeDeviceStatus(formData)).unwrap();
-      toast.success("File uploaded successfully");
-      setFile(null);
+      await dispatch(uploadSwipeDeviceStatus(formData)).then((res) => {
+        showToast("File uploaded successfully", "success");
+        setFile(null);
+      });
     } catch (error) {
       toast.error(uploadError || "Upload failed");
     }
