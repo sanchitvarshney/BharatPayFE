@@ -19,6 +19,7 @@ import StorageIcon from "@mui/icons-material/Storage";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 
 export const Icons = {
   save: SaveIcon,
@@ -41,6 +42,7 @@ export const Icons = {
   dispatch: WarehouseIcon,
   report:AssessmentIcon,
   ewaybill: LocalShippingIcon,
+  Swipe:DriveFolderUploadIcon,
 };
 
 type IconName = keyof typeof Icons | string;
