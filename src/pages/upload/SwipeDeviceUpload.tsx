@@ -50,7 +50,7 @@ const SwipeDeviceUpload: React.FC = () => {
     formData.append("file", file);
 
     try {
-      await dispatch(uploadSwipeDeviceStatus(formData)).then((res) => {
+      await dispatch(uploadSwipeDeviceStatus(formData)).then(() => {
         showToast("File uploaded successfully", "success");
         setFile(null);
       });
