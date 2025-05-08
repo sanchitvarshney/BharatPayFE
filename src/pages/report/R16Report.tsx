@@ -10,8 +10,8 @@ import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import R16ReportTable from "@/table/report/R16ReportTable";
 import { showToast } from "@/utils/toasterContext";
 import { getR16Report } from "@/features/report/report/reportSlice";
-import { exportToExcel } from "@/utils/exportToExcel";
 import { AgGridReact } from "@ag-grid-community/react";
+import { useSocketContext } from "@/components/context/SocketContext";
 
 const R16Report: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
@@ -26,9 +26,10 @@ const R16Report: React.FC = () => {
   });
 
   const dispatch = useAppDispatch();
-  const { r16ReportLoading, r16Report } = useAppSelector(
+  const { r16ReportLoading } = useAppSelector(
     (state) => state.report
   );
+  const { swipeMachineInward } = useSocketContext();
 
   const handleDateChange = (dates: {
     from: Dayjs | null;
@@ -38,10 +39,17 @@ const R16Report: React.FC = () => {
   };
 
   const handleExport = () => {
-    if (r16Report?.data) {
-      exportToExcel(r16Report?.data as any, "R16 Report");
-    }
-  };
+      if (!dateRange.from || !dateRange.to || !partner)
+        return showToast("Please select location and date range", "error");
+      const reportPayload = {
+        partner: partner,
+        fromDate: dateRange.from?.format("DD-MM-YYYY"),
+        toDate: dateRange.to?.format("DD-MM-YYYY"),
+      };
+      swipeMachineInward(reportPayload);
+      showToast("Start downloading ", "success");
+    };
+  
 
   return (
     <div className="flex bg-white h-[calc(100vh-100px)] relative">
@@ -125,7 +133,7 @@ const R16Report: React.FC = () => {
               Search
             </LoadingButton>
             <LoadingButton
-              disabled={!r16Report?.data}
+              disabled={!dateRange.from || !dateRange.to || !partner}
               onClick={handleExport}
               variant="contained"
               color="primary"
