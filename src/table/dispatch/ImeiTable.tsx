@@ -17,8 +17,10 @@ interface RowData {
 type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
+  module:string;
 };
-const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
+const ImeiTable: React.FC<Props> = ({ rowData, setRowdata ,module}) => {
+
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "serialNo", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 100 },
     {headerName:"Modal Name",field:"modalNo",sortable:true,filter:true,flex:1},
@@ -34,7 +36,12 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       cellRenderer: (params: any) => (
         <IconButton
           onClick={() => {
-            setRowdata(rowData.filter((row) => row.imei !== params.data.imei));
+            if(module ==="swipedevice"){
+              setRowdata(rowData.filter((row) => row.srno !== params.data.srno));
+            }
+            else{
+              setRowdata(rowData.filter((row) => row.imei !== params.data.imei));
+            }
           }}
         >
           <DeleteIcon fontSize="small" color="error" />

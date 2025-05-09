@@ -1020,7 +1020,7 @@ const CreateDispatchPage: React.FC = () => {
                 </div>
                 </div>
                 <div className="h-[calc(100vh-250px)]">
-                  <ImeiTable setRowdata={setRowData} rowData={rowData} />
+                  <ImeiTable setRowdata={setRowData} rowData={rowData} module = {formValues?.deviceType} />
                 </div>
               </div>
             </div>
