@@ -97,6 +97,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.on("progress", callback);
   };
 
+  const emitDownloadSwipeR10Report = (payload:any)=>{
+    socketService.emit("swipeMonoReport", payload);
+  }
+
   const swipeMachineInward = (payload:any) => {
     console.log(payload)
     socketService.emit("swipeMachineInward", payload);
@@ -109,5 +113,5 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.off(event);
   };
 
-  return <SocketContext.Provider value={{emitDownloadR17Report,emitDownloadSwipeReport, swipeMachineInward,emitDownloadReport,emitDownloadR14Report,emitDownloadWrongDeviceReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification,emitGetNotification,emitDownloadR4Report,emitDownloadR2Report,emitDownloadR10Report,emitDownloadr5Report }}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{emitDownloadSwipeR10Report,emitDownloadR17Report,emitDownloadSwipeReport, swipeMachineInward,emitDownloadReport,emitDownloadR14Report,emitDownloadWrongDeviceReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification,emitGetNotification,emitDownloadR4Report,emitDownloadR2Report,emitDownloadR10Report,emitDownloadr5Report }}>{children}</SocketContext.Provider>;
 };
