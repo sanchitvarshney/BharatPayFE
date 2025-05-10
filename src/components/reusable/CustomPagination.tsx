@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 interface CustomPaginationProps {
   currentPage: number;
@@ -31,6 +32,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   pageSize,
   onPageSizeChange,
 }) => {
+  const [customPageSize, setCustomPageSize] = useState(pageSize.toString());
+  const [isCustomInput, setIsCustomInput] = useState(false);
+
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -55,7 +59,33 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   };
 
   const handlePageSizeChange = (value: string) => {
+    if (value === "custom") {
+      setIsCustomInput(true);
+      return;
+    }
+    setIsCustomInput(false);
     onPageSizeChange(Number(value));
+  };
+
+  const handleCustomPageSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomPageSize(value);
+  };
+
+  const handleCustomPageSizeBlur = () => {
+    const size = parseInt(customPageSize);
+    if (!isNaN(size) && size > 0) {
+      onPageSizeChange(size);
+    } else {
+      setCustomPageSize(pageSize.toString());
+    }
+    setIsCustomInput(false);
+  };
+
+  const handleCustomPageSizeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleCustomPageSizeBlur();
+    }
   };
 
   const startRecord = (currentPage - 1) * pageSize + 1;
@@ -66,21 +96,35 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm text-neutral-600">Rows per page:</span>
-          <Select
-            value={pageSize.toString()}
-            onValueChange={handlePageSizeChange}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={pageSize} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((size) => (
-                <SelectItem key={size} value={size.toString()}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isCustomInput ? (
+            <Input
+              type="number"
+              value={customPageSize}
+              onChange={handleCustomPageSizeChange}
+              onBlur={handleCustomPageSizeBlur}
+              onKeyDown={handleCustomPageSizeKeyDown}
+              className="h-8 w-[70px]"
+              min={1}
+              autoFocus
+            />
+          ) : (
+            <Select
+              value={pageSize.toString()}
+              onValueChange={handlePageSizeChange}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder={pageSize} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {[10, 20, 30, 40, 50].map((size) => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {size}
+                  </SelectItem>
+                ))}
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
         <span className="text-sm text-neutral-600">
           Showing {startRecord} to {endRecord} of {totalRecords} records
