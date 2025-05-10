@@ -351,6 +351,20 @@ export type ReportStateType = {
     to: string | null;
   };
   r16ReportPartner: string | null;
+  r17Report: {
+    data: any[];
+    page: number;
+    status: string;
+    success: boolean;
+    totalPages: number;
+    totalRecords: number;
+  } | null;
+  getR17DataLoading: boolean;
+  r17ReportDateRange: {
+    from: string | null;
+    to: string | null;
+  };
+  r17ReportPartner: string | null;
 };
 
 export interface R16ReportResponse {
