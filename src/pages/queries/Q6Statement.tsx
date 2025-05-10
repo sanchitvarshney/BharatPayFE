@@ -199,7 +199,7 @@ const Q6Statement: React.FC = () => {
                           }
                         }
                       }}
-                      inputProps={{ maxLength: 15 }}
+                      inputProps={{ maxLength: deviceType === "soundbox" ? 15 : undefined }}
                       sx={{
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {

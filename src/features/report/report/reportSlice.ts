@@ -73,8 +73,8 @@ export const getMainR1Data = createAsyncThunk<AxiosResponse<MainR1ReportResponse
   const response = await axiosInstance.get(payload.type === "min" ? `/report/r1?type=min&data=${payload.data}` : `/report/r1?type=date&from=${payload.from}&to=${payload.to}`);
   return response;
 });
-export const getR2Data = createAsyncThunk<AxiosResponse<R2Response>, { from: string; to: string }>("report/getR2Data", async (date) => {
-  const response = await axiosInstance.get(`report/r2?from=${date.from}&to=${date.to}`);
+export const getR2Data = createAsyncThunk<AxiosResponse<R2Response>, { from: string; to: string, type: string }>("report/getR2Data", async (date) => {
+  const response = await axiosInstance.get(`report/r2?from=${date.from}&to=${date.to}&type=${date.type}`);
   return response;
 });
 export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApiResponse>, any>("report/getR2ReportDetail", async (payload) => {
@@ -92,7 +92,7 @@ export const getr4Report = createAsyncThunk<
   const response = await axiosInstance.get(
     query.type === "DEVICE"
       ? `/report/r4/DEVICE?deviceId=${query.device}&deviceType=${query.deviceType}`
-      : `/report/r4/DATE?from=${query.from}&to=${query.to}`
+      : `/report/r4/DATE?from=${query.from}&to=${query.to}&deviceType=${query.deviceType}`
   );
   return response;
 });

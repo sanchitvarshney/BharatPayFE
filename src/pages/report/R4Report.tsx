@@ -250,40 +250,38 @@ const R4Report: React.FC = () => {
                 <MenuItem value={"DATE"}>Date</MenuItem>
               </Select>
             </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="device-type-label">Device Type</InputLabel>
+              <Select
+                value={deviceType}
+                onChange={(e) => setDeviceType(e.target.value)}
+                labelId="device-type-label"
+                label="Device Type"
+                sx={{
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgb(203 213 225)",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgb(148 163 184)",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgb(14 116 144)",
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
+                  <em>Select Device Type</em>
+                </MenuItem>
+                <MenuItem value="soundbox">Sound Box</MenuItem>
+                <MenuItem value="swipemachine">Swipe Machine</MenuItem>
+              </Select>
+            </FormControl>
             {filter === "DEVICE" && (
-              <>
-                <FormControl fullWidth>
-                  <InputLabel id="device-type-label">Device Type</InputLabel>
-                  <Select
-                    value={deviceType}
-                    onChange={(e) => setDeviceType(e.target.value)}
-                    labelId="device-type-label"
-                    label="Device Type"
-                    sx={{
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "rgb(203 213 225)",
-                      },
-                      "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "rgb(148 163 184)",
-                      },
-                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "rgb(14 116 144)",
-                      },
-                    }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Select Device Type</em>
-                    </MenuItem>
-                    <MenuItem value="soundbox">Sound Box</MenuItem>
-                    <MenuItem value="swipemachine">Swipe Machine</MenuItem>
-                  </Select>
-                </FormControl>
-                <SelectSku
-                  varient="outlined"
-                  onChange={(e) => setDevice(e)}
-                  value={device}
-                />
-              </>
+              <SelectSku
+                varient="outlined"
+                onChange={(e) => setDevice(e)}
+                value={device}
+              />
             )}
             {filter === "DATE" && (
               <RangePicker
@@ -329,6 +327,7 @@ const R4Report: React.FC = () => {
                             type: "DATE",
                             from: dayjs(date.from).format("DD-MM-YYYY"),
                             to: dayjs(date.to).format("DD-MM-YYYY"),
+                            deviceType,
                           })
                         );
                       }
