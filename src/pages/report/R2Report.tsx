@@ -37,7 +37,7 @@ const R2Report: React.FC = () => {
   const { getR2DataLoading, refId } = useAppSelector((state) => state.report);
   const [loading, setLoading] = useState(false);
   const handleDownload = () => {
-    emitDownloadR2Report({ from: date?.from || "", to: date?.to || "" });
+    emitDownloadR2Report({ from: date?.from || "", to: date?.to || "", type: reportType });
     setLoading(true);
   };
 
