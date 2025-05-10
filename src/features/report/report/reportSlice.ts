@@ -70,6 +70,8 @@ const initialState: ReportStateType = {
     to: null,
   },
   r17ReportPartner: null,
+  swipeItemDetails: null,
+  swipeItemDetailsLoading:false
 };
 
 export const getR1Data = createAsyncThunk<
@@ -293,6 +295,20 @@ export const getR17Data = createAsyncThunk(
   }
 );
 
+export const getSwipeItemDetails = createAsyncThunk(
+  "report/getSwipeItemDetails",
+  async (params: { id: string,key:string}) => {
+    try {
+      const response = await axiosInstance.get(
+        `/swipeMachine/deliveredItems?txnId=${params.id}&key=${params.key}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
 const reportSlice = createSlice({
   name: "report",
   initialState,
@@ -396,6 +412,20 @@ const reportSlice = createSlice({
         state.r4reportLoading = false;
         if (action.payload.data.success) {
           state.r4report = action.payload.data.data;
+        }
+      })
+      .addCase(getSwipeItemDetails.rejected, (state) => {
+        state.swipeItemDetailsLoading = false;
+        state.swipeItemDetails = null;
+      })
+      .addCase(getSwipeItemDetails.pending, (state) => {
+        state.swipeItemDetailsLoading = true;
+        state.swipeItemDetails = null;
+      })
+      .addCase(getSwipeItemDetails.fulfilled, (state, action) => {
+        state.swipeItemDetailsLoading = false;
+        if (action.payload.success) {
+          state.swipeItemDetails = action.payload.data;
         }
       })
       .addCase(getr4Report.rejected, (state) => {

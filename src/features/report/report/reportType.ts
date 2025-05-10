@@ -365,6 +365,8 @@ export type ReportStateType = {
     to: string | null;
   };
   r17ReportPartner: string | null;
+  swipeItemDetails: any | null;
+  swipeItemDetailsLoading:boolean
 };
 
 export interface R16ReportResponse {

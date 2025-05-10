@@ -10,20 +10,104 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getR16Report } from "@/features/report/report/reportSlice";
+import {
+  getR16Report,
+  getSwipeItemDetails,
+} from "@/features/report/report/reportSlice";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Typography,
+} from "@mui/material";
 
 type Props = {
   gridRef: RefObject<AgGridReact>;
 };
 
+interface SwipeItemDetails {
+  status: string;
+  success: boolean;
+  data: Array<{
+    issueName: string;
+  }>;
+}
+
+const SwipeItemDetailsModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  details: SwipeItemDetails | any;
+  loading?: boolean;
+}> = ({ open, onClose, details ,loading}) => {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        <Typography variant="h6" component="div">
+          Item Issues
+        </Typography>
+      </DialogTitle>
+      <DialogContent>
+        {loading && <CustomLoadingOverlay />}
+        <Paper elevation={0} className="p-4">
+          <List>
+            {details?.map((item:any, index:any) => (
+              <ListItem key={index} divider={index !== details.length - 1}>
+                <ListItemText
+                  primary={item.issueName}
+                  primaryTypographyProps={{
+                    style: { fontSize: "1rem" },
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary" variant="contained">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
-  const { r16Report, r16ReportLoading, r16ReportDateRange, r16ReportPartner } =
-    useAppSelector((state) => state.report);
+  const {
+    r16Report,
+    r16ReportLoading,
+    r16ReportDateRange,
+    r16ReportPartner,
+    swipeItemDetails,
+    swipeItemDetailsLoading,
+  } = useAppSelector((state) => state.report);
   const dispatch = useAppDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleReceivedItem = (data: any) => {
+    dispatch(getSwipeItemDetails({ id: data?.txnID, key: data?.uniqueKey }));
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // const handleLostItem = (data: any) => {
+  //   // TODO: Implement lost item logic
+  //   showToast("Lost Item action triggered", "info");
+  //   console.log("Lost Item:", data);
+  // };
 
   const columnDefs: ColDef[] = [
     {
@@ -45,6 +129,33 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
     { headerName: "Transaction ID", field: "txnID", minWidth: 200 },
     { headerName: "Remark", field: "remark", minWidth: 150 },
     { headerName: "Insert Date", field: "insertData", minWidth: 150 },
+    {
+      headerName: "Actions",
+      field: "actions",
+      minWidth: 200,
+      cellRenderer: (params: any) => {
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => handleReceivedItem(params.data)}
+            >
+              Received Item
+            </Button>
+            {/* <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => handleLostItem(params.data)}
+            >
+              Lost Item
+            </Button> */}
+          </div>
+        );
+      },
+    },
   ];
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -131,7 +242,7 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
   }, [r16Report?.page]);
 
   return (
-    <div className="flex flex-col h-full  ">
+    <div className="flex flex-col h-full">
       <div className="flex-1">
         <div className="relative ag-theme-quartz h-[calc(100vh-150px)]">
           <AgGridReact
@@ -144,7 +255,6 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             enableCellTextSelection={true}
-            // domLayout="autoHeight"
           />
         </div>
       </div>
@@ -158,6 +268,12 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
           onPageSizeChange={handlePageSizeChange}
         />
       )}
+      <SwipeItemDetailsModal
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        details={swipeItemDetails}
+        loading={swipeItemDetailsLoading}
+      />
     </div>
   );
 };
