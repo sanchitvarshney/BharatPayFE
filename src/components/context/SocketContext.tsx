@@ -88,7 +88,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
 
   const emitDownloadR17Report = (payload: any) => {
     console.log(payload)
-    socketService.emit("r17Download", payload);
+    socketService.emit("swipeFunctionalReport", payload);
   }
   const emitGetNotification = () => {
     socketService.emit("getNotification","");
