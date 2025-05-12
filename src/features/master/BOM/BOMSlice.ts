@@ -126,13 +126,17 @@ const BOMSlice = createSlice({
       })
       .addCase(getBomItem.pending, (state) => {
         state.fgBomListLoading = true;
+        state.bomDetailLoading = true;
       })
       .addCase(getBomItem.fulfilled, (state, action) => {
         state.fgBomListLoading = false;
+        state.bomDetailLoading = false;
         state.bomItemList = action.payload.data.data;
+        state.bomDetail = action.payload.data;
       })
       .addCase(getBomItem.rejected, (state) => {
         state.fgBomListLoading = false;
+        state.bomDetailLoading = false;
       })
       .addCase(fetchBomProduct.pending, (state) => {
         state.fgBomListLoading = true;
