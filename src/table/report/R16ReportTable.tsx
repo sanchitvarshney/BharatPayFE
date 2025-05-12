@@ -95,7 +95,7 @@ const SwipeItemDetailsModal: React.FC<{
             component="div"
             className="font-semibold text-gray-800"
           >
-            Item List
+            Received Item
           </Typography>
         </Box>
       </DialogTitle>
