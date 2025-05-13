@@ -578,11 +578,11 @@ const CreateDispatchPage: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="dispatchFromDetails.dispatchFrom"
+                  name="shipToDetails.shipTo"
                   rules={{
                     required: {
                       value: true,
-                      message: "Dispatch From is required",
+                      message: "Ship To Client Branch is required",
                     },
                   }}
                   control={control}
@@ -939,109 +939,59 @@ const CreateDispatchPage: React.FC = () => {
   />
 
 
-                  <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
-                    {isMultiple ? (
-                      <FormControl sx={{ width: "400px" }} variant="outlined">
-                        <TextField
-                          multiline
-                          rows={2}
-                          value={imei}
-                          label="IMEI/SR No."
-                          id="standard-adornment-qty"
-                          aria-describedby="standard-weight-helper-text"
-                          inputProps={{
-                            "aria-label": "weight",
-                          }}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            const deviceType = formValues.deviceType;
-
-                            if (deviceType === "swipedevice") {
-                              // Add line break after 12 characters only for swipe devices
-                              const formattedValue = value
-                                .replace(/\n/g, "")
-                                .replace(/(.{12})/g, "$1\n")
-                                .trim();
-                              setImei(formattedValue);
-                            } else {
-                              // Keep original behavior for sound boxes
-                              setImei(value);
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              onImeiSubmit(imei);
-                            }
-                          }}
-                          slotProps={{
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  {deviceDetailLoading ? (
-                                    <CircularProgress
-                                      size={20}
-                                      color="inherit"
-                                    />
-                                  ) : (
-                                    <QrCodeScannerIcon />
-                                  )}
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                        />
-                      </FormControl>
-                    ) : (
-                      <FormControl sx={{ width: "400px" }} variant="outlined">
-                        <TextField
-                          rows={2}
-                          value={imei}
-                          label="Single IMEI/SR No."
-                          id="standard-adornment-qty"
-                          aria-describedby="standard-weight-helper-text"
-                          inputProps={{
-                            "aria-label": "weight",
-                          }}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            const deviceType = formValues.deviceType;
-
-                            if (deviceType === "swipedevice") {
-                              // Add line break after 12 characters only for swipe devices
-                              const formattedValue = value
-                                .replace(/\n/g, "")
-                                .replace(/(.{12})/g, "$1\n")
-                                .trim();
-                              setImei(formattedValue);
-                            } else {
-                              // Keep original behavior for sound boxes
-                              setImei(value);
-                            }
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              onSingleImeiSubmit(imei);
-                            }
-                          }}
-                          slotProps={{
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  {deviceDetailLoading ? (
-                                    <CircularProgress
-                                      size={20}
-                                      color="inherit"
-                                    />
-                                  ) : (
-                                    <QrCodeScannerIcon />
-                                  )}
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                        />
-                      </FormControl>
-                    )}
+                <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
+                {isMultiple ? (
+                  <FormControl sx={{ width: "400px" }} variant="outlined">
+                    <TextField
+                      multiline
+                      rows={2}
+                      value={imei}
+                      label="IMEI/SR No."
+                      id="standard-adornment-qty"
+                      aria-describedby="standard-weight-helper-text"
+                      inputProps={{
+                        "aria-label": "weight",
+                      }}
+                      onChange={(e) => {
+                        setImei(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          onImeiSubmit(imei);
+                        }
+                      }}
+                      slotProps={{
+                        input: {
+                          endAdornment: <InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : <QrCodeScannerIcon />}</InputAdornment>,
+                        },
+                      }}
+                    />
+                  </FormControl>):
+                  (<FormControl sx={{ width: "400px" }} variant="outlined">
+                    <TextField
+                      rows={2}
+                      value={imei}
+                      label="Single IMEI/SR No."
+                      id="standard-adornment-qty"
+                      aria-describedby="standard-weight-helper-text"
+                      inputProps={{
+                        "aria-label": "weight",
+                      }}
+                      onChange={(e) => {
+                        setImei(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          onSingleImeiSubmit(imei);
+                        }
+                      }}
+                      slotProps={{
+                        input: {
+                          endAdornment: <InputAdornment position="end">{deviceDetailLoading ? <CircularProgress size={20} color="inherit" /> : <QrCodeScannerIcon />}</InputAdornment>,
+                        },
+                      }}
+                    />
+                  </FormControl>)}
 
                   <div className="flex items-center p-4 space-x-6 bg-white rounded-lg">
                     <p className="text-lg font-semibold text-blue-600">
