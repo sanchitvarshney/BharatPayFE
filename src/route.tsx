@@ -91,6 +91,8 @@ import SwipeMaterialApproval from "@/pages/wearhouse/SwipeMaterialApproval";
 import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
 import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
 import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
+import BranchTransferLayout from "@/layouts/BranchTransferLayout";
+import ManageBranchTransfer from "@/pages/branchTransfer/ManageBranchTransfer";
 
 export const router = createBrowserRouter([
   {
@@ -620,6 +622,17 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/download-excel",
+      },
+      //branch transfer===========================================
+      {
+        element: (
+          <MainLayout>
+              <BranchTransferLayout>
+                <ManageBranchTransfer />
+            </BranchTransferLayout>
+          </MainLayout>
+        ),
+        path: "/branchTransfer/create",
       },
 
       //dispatch===========================================
