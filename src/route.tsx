@@ -95,6 +95,7 @@ import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ManageBranchTransfer from "@/pages/branchTransfer/ManageBranchTransfer";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
+import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 
 export const router = createBrowserRouter([
   {
@@ -645,6 +646,17 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/branchTransfer/create",
+      },
+
+      {
+        element: (
+          <MainLayout>
+            <BranchTransferLayout>
+              <ManageBranchTable />
+            </BranchTransferLayout>
+          </MainLayout>
+        ),
+        path: "/branchTransfer/manage",
       },
 
       //dispatch===========================================

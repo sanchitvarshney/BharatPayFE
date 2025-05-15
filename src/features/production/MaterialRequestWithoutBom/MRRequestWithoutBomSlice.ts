@@ -15,7 +15,8 @@ const initialState: MrRequestWithoutBom = {
   getLocationDataLoading: false,
   craeteRequestData: null,
   getAvailbleQtyLoading: false,
-  availbleQtyData: null,
+  availbleQtyData: null,  
+  transferRequestLoading: false,
 };
 
 export const getPertCodesync = createAsyncThunk<AxiosResponse<PartCodeDataresponse>, string | null>("master/getPertCode", async (value) => {
@@ -30,6 +31,12 @@ export const createProductRequest = createAsyncThunk<AxiosResponse<CreateProduct
   const response = await axiosInstance.post(`/req/without-bom/${value.reqType}`, value);
   return response;
 });
+
+export const createTransferRequest = createAsyncThunk<AxiosResponse<any>, any>("/req/branch-transfer", async (value) => {
+  const response = await axiosInstance.post(`/deviceBranchTransfer/createChallan?type=${value.type}`, value);
+  return response;
+});
+
 
 export const createSwipeDeviceRequest = createAsyncThunk<AxiosResponse<CreateProductRequestResponse>, CreateSwipeDeviceRequestType>("/req/swipe-device", async (value) => {
   const response = await axiosInstance.post(`/reqv2/createMaterialReqV2`, value);
@@ -113,6 +120,15 @@ const materialRequestSlice = createSlice({
       })
       .addCase(createSwipeDeviceRequest.rejected, (state) => {
         state.createProductRequestLoading = false;
+      })
+      .addCase(createTransferRequest.pending, (state) => {
+        state.transferRequestLoading = true;
+      })
+      .addCase(createTransferRequest.fulfilled, (state) => {
+        state.transferRequestLoading = false;
+      })
+      .addCase(createTransferRequest.rejected, (state) => {
+        state.transferRequestLoading = false;
       })
       .addCase(getLocationAsync.pending, (state) => {
         state.getLocationDataLoading = true;

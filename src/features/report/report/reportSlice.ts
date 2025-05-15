@@ -140,6 +140,14 @@ export const r4ReportDetail = createAsyncThunk<
   return response;
 });
 
+export const transferReport = createAsyncThunk<
+  AxiosResponse<any>,
+  string
+>("report/transferReport", async (query) => {
+  const response = await axiosInstance.get(`/deviceBranchTransfer/getChallanList?status=${query}`);
+  return response;
+});
+
 export const getr5Report = createAsyncThunk<
   AxiosResponse<R5reportResponse>,
   { from?: string; to?: string; type: string; device?: string }
