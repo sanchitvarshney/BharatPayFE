@@ -77,7 +77,7 @@ const R4Report: React.FC = () => {
       emitDownloadR4Report({
         type: "DEVICE",
         deviceId: device?.id,
-        deviceType,
+        deviceType: deviceType === "soundbox" ? "soundBox" : "swipeMachine",
       });
     } else {
       if (!date.from || !date.to)
@@ -86,6 +86,7 @@ const R4Report: React.FC = () => {
         type: "DATE",
         fromDate: date.from?.format("DD-MM-YYYY"),
         toDate: date.to?.format("DD-MM-YYYY"),
+        deviceType: deviceType === "soundbox" ? "soundBox" : "swipeMachine",
       });
     }
   };
