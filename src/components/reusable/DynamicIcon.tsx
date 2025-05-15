@@ -20,6 +20,7 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
+import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 
 export const Icons = {
   save: SaveIcon,
@@ -43,6 +44,7 @@ export const Icons = {
   report:AssessmentIcon,
   ewaybill: LocalShippingIcon,
   Swipe:DriveFolderUploadIcon,
+  transfer:SwapHorizontalCircleIcon,
 };
 
 type IconName = keyof typeof Icons | string;
