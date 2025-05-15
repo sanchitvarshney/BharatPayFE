@@ -93,6 +93,8 @@ import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
 import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ManageBranchTransfer from "@/pages/branchTransfer/ManageBranchTransfer";
+import ProcurementLayout from "@/layouts/ProcurementLayout";
+import CreatePO from "@/pages/procurement/CreatePO";
 
 export const router = createBrowserRouter([
   {
@@ -434,6 +436,16 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <ProcurementLayout>
+              <CreatePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/create",
+      },
+      {
+        element: (
+          <MainLayout>
             {/* <DeviceMin /> */}
             <MaterialIn />
           </MainLayout>
@@ -627,8 +639,8 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-              <BranchTransferLayout>
-                <ManageBranchTransfer />
+            <BranchTransferLayout>
+              <ManageBranchTransfer />
             </BranchTransferLayout>
           </MainLayout>
         ),

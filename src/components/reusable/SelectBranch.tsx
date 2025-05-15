@@ -1,6 +1,7 @@
 import React, {  useState } from "react";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material";
 import axiosInstance from "@/api/axiosInstance";
+import { transformBranchList } from "@/utils/transformUtills";
 
 export type GroupdataType = {
   id: string;
@@ -27,7 +28,7 @@ const SelectBranch: React.FC<Props> = ({ value, onChange, label = "Select UOM", 
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/deviceBranchTransfer/getBranchList`);
-      setDeviceList(response.data.data); // Response is based on the LocationApiresponse type
+      setDeviceList(transformBranchList(response.data.data) || []); // Response is based on the LocationApiresponse type
     } catch (error) {
       console.error("Error fetching devices:", error);
     } finally {

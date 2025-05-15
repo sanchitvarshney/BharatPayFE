@@ -140,6 +140,7 @@ const ManageBranchTransfer: React.FC = () => {
       width: 100,
     },
   ];
+  
 
   return (
     <div className="h-[calc(100vh-100px)] bg-white flex w-full">
