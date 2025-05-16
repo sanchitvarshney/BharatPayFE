@@ -198,6 +198,9 @@ const CreateDispatchPage: React.FC = () => {
       if (res.payload.data.success) {
         setDispatchNo(res?.payload?.data?.data?.refID);
         reset();
+        setRowData([]);
+        handleNext();
+        resetall();
       }
     });
   }
