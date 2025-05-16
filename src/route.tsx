@@ -656,17 +656,6 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <BranchTransferLayout>
-              <ManageBranchTransfer />
-            </BranchTransferLayout>
-          </MainLayout>
-        ),
-        path: "/branchTransfer/create2",
-      },
-
-      {
-        element: (
-          <MainLayout>
-            <BranchTransferLayout>
               <ManageBranchTable />
             </BranchTransferLayout>
           </MainLayout>
