@@ -41,4 +41,6 @@ export type DispatchState = {
   ewayBillDataLoading: boolean;
   stateCodeLoading: boolean;
   stateCode: any;
+  branchLoading:boolean;
+  branchList:any;
 };

@@ -50,7 +50,7 @@ export const transformBranchList = (data: any[] | null) => {
     return undefined;
   } else {
     return data.map((item) => {
-      return { text: item.branch_name, id: item.branch_code };
+      return { text: item.branch_name, id: item.branch_code , address:item.address };
     });
   }
 };

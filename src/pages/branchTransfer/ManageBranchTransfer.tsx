@@ -344,7 +344,7 @@ const ManageBranchTransfer: React.FC = () => {
         />
         <div>
           <Controller
-            name="toLocation"
+            name="toLocation" 
             control={control}
             rules={{ required: "To Location is required" }}
             render={({ field }) => (
