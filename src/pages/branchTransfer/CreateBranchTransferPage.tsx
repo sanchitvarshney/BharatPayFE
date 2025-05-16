@@ -4,33 +4,21 @@ import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/M
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   clearaddressdetail,
-  getLocationAsync,
-  getVendorAsync,
 } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetDocumentFile,
   resetFormData,
-  storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { getCurrency } from "@/features/common/commonSlice";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {
-  Autocomplete,
-  Button,
-  CircularProgress,
+  createTransferRequest,
+  getPertCodesync,
+} from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+import { getCurrency } from "@/features/common/commonSlice";
+import {
   Divider,
-  FilledInput,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  IconButton,
-  InputAdornment,
   InputLabel,
-  LinearProgress,
-  ListItem,
-  ListItemText,
-  Radio,
+  FormHelperText,
+  FormControl,
   Step,
   StepLabel,
   Stepper,
@@ -40,54 +28,22 @@ import {
   MenuItem,
   OutlinedInput,
 } from "@mui/material";
-import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import Success from "@/components/reusable/Success";
-import SelectClient, {
-  LocationType,
-} from "@/components/reusable/editor/SelectClient";
-import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
+import { DeviceType } from "@/components/reusable/SelectSku";
 import {
-  CreateDispatch,
-  CreateSwipeDispatch,
   getAllBranch,
-  getClientBranch,
-  uploadFile,
 } from "@/features/Dispatch/DispatchSlice";
-import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
-import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
-import ImeiTable from "@/table/dispatch/ImeiTable";
 import {
-  getClientAddressDetail,
   getDispatchFromDetail,
 } from "@/features/master/client/clientSlice";
-import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs, { Dayjs } from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import SelectDeviceWithType from "@/components/reusable/SelectDeviceWithType";
-import SelectBranch from "@/components/reusable/SelectBranch";
 import axiosInstance from "@/api/axiosInstance";
-type RowData = {
-  imei: string;
-  srno: string;
-  productKey: string;
-  serialNo: number;
-  modalNo: string;
-  deviceSku: string;
-  imei2?: string;
-};
+import ManageBranchTransfer from "./ManageBranchTransfer";
 
 type FormData = {
   product: DeviceType | null;
@@ -102,65 +58,27 @@ type FormData = {
   branchType: string;
   fromLocationAddress: string;
   toLocationAddress: string;
+fromLocationName: string;
+toLocationName: string;
 };
 
-type clientDetailType = {
-  client: string;
-  branchId: string;
-  address1: string;
-  address2: string;
-  pincode: string;
-};
 
-type dispatchFromDetailsType = {
-  dispatchFrom: string;
-  address1: string;
-  address2: string;
-  mobileNo: string;
-  city: string;
-  gst: string;
-  company: string;
-  pan: string;
-  pin: string;
-};
-
-type shipToDetailsType = {
-  shipTo: string;
-  address1: string;
-  address2: string;
-  pincode: string;
-  mobileNo: string;
-  city: string;
-};
-
-const CreateDispatchPage: React.FC = () => {
-  const [filename, setFilename] = useState<string>("");
+const CreateBranchTransferPage: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
-  const [rowData, setRowData] = useState<RowData[]>([]);
-  const [imei, setImei] = React.useState<string>("");
+  const [rowData, setRowData] = useState<any>([]);
   const [dispatchNo, setDispatchNo] = useState<string>("");
   const [fromLocationList, setFromLocationList] = useState<any[]>([]);
   const [toLocationList, setToLocationList] = useState<any[]>([]);
   const dispatch = useAppDispatch();
-  const [open, setOpen] = useState<boolean>(false);
-  const { deviceDetailLoading } = useAppSelector(
-    (state) => state.batteryQcReducer
+  const {branchList} = useAppSelector(
+    (state) => state.dispatch
+  )
+  const { transferRequestLoading } = useAppSelector(
+    (state) => state.materialRequestWithoutBom
   );
-  const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
-  const {
-    dispatchCreateLoading,
-    uploadFileLoading,
-    clientBranchList,
-    branchList,
-  } = useAppSelector((state) => state.dispatch);
-
-  const { addressDetail, dispatchFromDetails } = useAppSelector(
-    (state) => state.client
-  ) as any;
 
   const {
-    register,
     handleSubmit,
     control,
     reset,
@@ -178,9 +96,11 @@ const CreateDispatchPage: React.FC = () => {
       type: "soundBox",
       fromLocationAddress: "",
       toLocationAddress: "",
+      fromLocationName: "",
+      toLocationName: "",
     },
   });
-  const formValues = watch();
+
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Form Details", "Add Component Details", "Review & Submit"];
   const formdata = new FormData();
@@ -196,15 +116,14 @@ const CreateDispatchPage: React.FC = () => {
     setRowData([]);
     reset();
     dispatch(resetDocumentFile());
-    setFilename("");
     dispatch(clearaddressdetail());
     formdata.delete("document");
   };
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    if (!data.document)
-      return showToast("Please Upload Invoice Documents", "error");
-    dispatch(storeFormdata(data));
+  const onSubmit: SubmitHandler<FormData> = () => {
+    // if (!data.document)
+    //   return showToast("Please Upload Invoice Documents", "error");
+    // dispatch(storeFormdata(data));
     handleNext();
   };
 
@@ -223,15 +142,16 @@ const CreateDispatchPage: React.FC = () => {
       createTransferRequest({
         imei,
         serial,
-        fromBranch: data.fromBranch?.id || "",
+        fromBranch: data.fromBranch?.branch_code || "",
         fromLocation: data.fromLocation || "",
-        toBranch: data.toBranch?.id || "",
+        toBranch: data.toBranch?.branch_code || "",
         toLocation: data.toLocation || "",
         product: data.product?.id || "",
         type: data.type,
         qty: data.quantity,
       })
     ).then((res: any) => {
+      console.log(res);
       if (res.payload?.data.success) {
         reset();
         setRowData([]);
@@ -239,6 +159,8 @@ const CreateDispatchPage: React.FC = () => {
           res.payload.data.message || "Transfer Request Created Successfully",
           "success"
         );
+        setActiveStep(2);
+        setDispatchNo(res.payload.data.data.message);
       }
     });
   };
@@ -250,70 +172,6 @@ const CreateDispatchPage: React.FC = () => {
     dispatch(getAllBranch());
   }, []);
 
-  useEffect(() => {
-    if (formValues.clientDetail?.client) {
-      dispatch(getClientBranch((formValues.clientDetail.client as any).code));
-    }
-  }, [formValues.clientDetail?.client]);
-
-  const handleFromBranchChange = (value: any) => {
-    if (value) {
-      console.log(value);
-    }
-  };
-  const handleClientBranchChange = (value: any) => {
-    if (value) {
-      setValue("clientDetail.branchId", value.addressID);
-      setValue("clientDetail.address1", value.addressLine1); // Update addressLine1
-      setValue("clientDetail.address2", value.addressLine2); // Update addressLine2
-      setValue("clientDetail.pincode", value.pinCode); // Update pincode
-      dispatch(getClientAddressDetail(value.addressID));
-    }
-  };
-  const handleShipToChange = (value: any) => {
-    if (value) {
-      setValue("shipToDetails.shipTo", value.shipId);
-      setValue("shipToDetails.address1", value.addressLine1); // Update addressLine1
-      setValue("shipToDetails.address2", value.addressLine2); // Update addressLine2
-      setValue("shipToDetails.pincode", value.pinCode); // Update pincode
-      setValue("shipToDetails.mobileNo", value.phoneNo);
-      setValue("shipToDetails.city", value.city);
-    }
-  };
-  const handleDispatchFromChange = (value: any) => {
-    if (value) {
-      setValue("dispatchFromDetails.dispatchFrom", value.code);
-      setValue("dispatchFromDetails.address1", value.addressLine1);
-      setValue("dispatchFromDetails.address2", value.addressLine2);
-      setValue("dispatchFromDetails.mobileNo", value.mobileNo);
-      setValue("dispatchFromDetails.city", value.city);
-      setValue("dispatchFromDetails.gst", value.gst);
-      setValue("dispatchFromDetails.company", value.company);
-      setValue("dispatchFromDetails.pan", value.pan);
-      setValue("dispatchFromDetails.pin", value.pin);
-    }
-  };
-  const onImeiSubmit = (imei: string) => {
-    const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
-    const validImeiCount = imeiArray.filter((num) => num.trim() !== "").length;
-    const requiredCount = formValues.deviceType === "soundbox" ? 30 : 20;
-
-    if (validImeiCount === requiredCount) {
-      console.log("open");
-      setOpen(true);
-    }
-  };
-
-  const onSingleImeiSubmit = (imei: string) => {
-    const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
-    if (imeiArray.filter((num) => num.trim() !== "").length === 1) {
-      setOpen(true);
-    }
-  };
-  const handleClose = (_: object, reason: string) => {
-    if (reason === "backdropClick") return; // Prevent closing on outside click
-    setOpen(false);
-  };
   const fetchLocations = async (endPoint: string) => {
     // setLoading(true);
     try {
@@ -334,7 +192,7 @@ const CreateDispatchPage: React.FC = () => {
       });
     }
   }, [watch("fromBranch")]);
-  console.log(fromLocationList, watch("fromBranch"));
+
   useEffect(() => {
     if (watch("toBranch")) {
       fetchLocations(
@@ -342,89 +200,13 @@ const CreateDispatchPage: React.FC = () => {
           watch("toBranch")?.branch_code
         }`
       ).then((res) => {
-        console.log(res);
         setToLocationList(res);
       });
     }
   }, [watch("toBranch")]);
 
-  console.log(branchList);
   return (
     <>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <div className="absolute top-0 left-0 right-0">
-          {deviceDetailLoading && <LinearProgress />}
-        </div>
-        <div className="absolute font-[500]  right-[10px] top-[10px]">
-          Total Devices: {imei.split("\n").length}
-        </div>
-        <DialogTitle id="alert-dialog-title">{"Dispatch Devices"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText
-            id="alert-dialog-description"
-            className="grid grid-cols-5 gap-[10px] "
-          >
-            {imei.split("\n").map((no) => (
-              <ListItemText key={no} primary={no} />
-            ))}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            disabled={deviceDetailLoading}
-            color="error"
-            onClick={() => setOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            autoFocus
-            disabled={deviceDetailLoading}
-            onClick={() => {
-              dispatch(
-                getDeviceDetails({
-                  imei: imei,
-                  deviceType: formValues.deviceType,
-                })
-              ).then((res: any) => {
-                if (res.payload.data.success) {
-                  setImei("");
-                  // const newdata: RowData = {
-                  //   imei: res.payload.data?.data[0].device_imei || "",
-                  //   srno: res.payload.data?.data[0].sl_no || "",
-                  // };
-                  const newRowData = res?.payload?.data?.data?.map(
-                    (device: any) => {
-                      console.log(device);
-                      return {
-                        imei: device.device_imei || device.imei_no1 || "",
-                        srno: device.sl_no || "",
-                        modalNo: device?.p_name || "",
-                        deviceSku: device?.device_sku || "",
-                        productKey: device?.product_key || "",
-                        imei2: device?.imei_no2 || "",
-                      };
-                    }
-                  );
-                  console.log(newRowData);
-                  // Update rowData by appending newRowData to the existing rowData
-                  setRowData((prevRowData) => [...newRowData, ...prevRowData]);
-                  setOpen(false);
-                } else {
-                  showToast(res.payload.data.message, "error");
-                }
-              });
-            }}
-          >
-            Continue
-          </Button>
-        </DialogActions>
-      </Dialog>
       <ConfirmationModel
         open={alert}
         onClose={() => setAlert(false)}
@@ -440,10 +222,10 @@ const CreateDispatchPage: React.FC = () => {
           setAlert(false);
         }}
       />
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
 
-        <div className="h-[calc(100vh-100px)]   ">
+        <div className="h-[calc(100vh-100px)]">
           <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
             <Stepper activeStep={activeStep} className="w-full">
               {steps.map((label, index) => (
@@ -525,6 +307,7 @@ const CreateDispatchPage: React.FC = () => {
                       onChange={(value) => {
                         field.onChange(value);
                       }}
+                      type={watch("type") as "soundBox" | "swipeMachine"}
                     />
                   )}
                 />
@@ -579,7 +362,6 @@ const CreateDispatchPage: React.FC = () => {
                         id="from-branch-select"
                         label="From Branch"
                         onChange={(e) => {
-                          console.log(e);
                           const selectedBranch = branchList?.find(
                             (branch: any) =>
                               branch.branch_code === e.target.value
@@ -631,6 +413,10 @@ const CreateDispatchPage: React.FC = () => {
                             field.onChange(
                               selectedLocation?.location_key || ""
                             );
+                            setValue(
+                              "fromLocationName",
+                              selectedLocation?.loc_name
+                            );
                           }}
                           value={
                             fromLocationList.find(
@@ -670,7 +456,7 @@ const CreateDispatchPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="From Branch Address"
-                  disabled
+                  value={watch("fromLocationAddress")}
                 />
               </div>
               <div className="flex items-center w-full gap-3">
@@ -700,7 +486,6 @@ const CreateDispatchPage: React.FC = () => {
                         id="to-branch-select"
                         label="To Branch"
                         onChange={(e) => {
-                          console.log(e);
                           const selectedBranch = branchList?.find(
                             (branch: any) =>
                               branch.branch_code === e.target.value
@@ -752,6 +537,10 @@ const CreateDispatchPage: React.FC = () => {
                             field.onChange(
                               selectedLocation?.location_key || ""
                             );
+                            setValue(
+                              "toLocationName",
+                              selectedLocation?.loc_name
+                            );
                           }}
                           value={
                             toLocationList.find(
@@ -791,178 +580,17 @@ const CreateDispatchPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="To Branch Address"
-                  disabled
+                  value={watch("toLocationAddress")}
                 />
               </div>
             </div>
           )}
           {activeStep === 1 && (
-            <div className="h-[calc(100vh-200px)]   ">
-              {/* <RMMaterialsAddTablev2
-                rowData={rowData}
-                setRowData={setRowData}
-                setTotal={setTotal}
-              /> */}
-              <div>
-                <div className="flex items-center gap-4 pl-10">
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        checked={isMultiple}
-                        onChange={() => setIsMultiple(true)} // Select multiple IMEIs
-                        value="multiple"
-                        name="imei-type"
-                        color="primary"
-                      />
-                    }
-                    label="Multiple IMEIs"
-                  />
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        checked={!isMultiple}
-                        onChange={() => setIsMultiple(false)} // Select single IMEI
-                        value="single"
-                        name="imei-type"
-                        color="primary"
-                      />
-                    }
-                    label="Single IMEI"
-                  />
-
-                  <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
-                    {isMultiple ? (
-                      <FormControl sx={{ width: "400px" }} variant="outlined">
-                        <TextField
-                          multiline
-                          rows={2}
-                          value={imei}
-                          label="IMEI/SR No."
-                          id="standard-adornment-qty"
-                          aria-describedby="standard-weight-helper-text"
-                          inputProps={{
-                            "aria-label": "weight",
-                          }}
-                          onChange={(e) => {
-                            setImei(e.target.value);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              onImeiSubmit(imei);
-                            }
-                          }}
-                          slotProps={{
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  {deviceDetailLoading ? (
-                                    <CircularProgress
-                                      size={20}
-                                      color="inherit"
-                                    />
-                                  ) : (
-                                    <QrCodeScannerIcon />
-                                  )}
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                        />
-                      </FormControl>
-                    ) : (
-                      <FormControl sx={{ width: "400px" }} variant="outlined">
-                        <TextField
-                          rows={2}
-                          value={imei}
-                          label="Single IMEI/SR No."
-                          id="standard-adornment-qty"
-                          aria-describedby="standard-weight-helper-text"
-                          inputProps={{
-                            "aria-label": "weight",
-                          }}
-                          onChange={(e) => {
-                            setImei(e.target.value);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              onSingleImeiSubmit(imei);
-                            }
-                          }}
-                          slotProps={{
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  {deviceDetailLoading ? (
-                                    <CircularProgress
-                                      size={20}
-                                      color="inherit"
-                                    />
-                                  ) : (
-                                    <QrCodeScannerIcon />
-                                  )}
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
-                        />
-                      </FormControl>
-                    )}
-
-                    <div className="flex items-center p-4 space-x-6 bg-white rounded-lg">
-                      <p className="text-lg font-semibold text-blue-600">
-                        Total Devices:
-                        <span className="pl-1 text-gray-800">
-                          {rowData.length}
-                        </span>
-                      </p>
-                      <p className="text-lg font-semibold text-green-600">
-                        Total L Devices:
-                        <span className="pl-1 text-gray-800">
-                          {
-                            rowData.filter((item: any) =>
-                              item.modalNo.includes("(L)")
-                            )?.length
-                          }
-                        </span>
-                      </p>
-                      <p className="text-lg font-semibold text-red-600">
-                        Total E Devices:
-                        <span className="pl-1 text-gray-800">
-                          {
-                            rowData.filter((item: any) =>
-                              item.modalNo.includes("(E)")
-                            )?.length
-                          }
-                        </span>
-                      </p>
-                      <p className="text-lg font-semibold text-yellow-700">
-                        Total F Devices:
-                        <span className="pl-1 text-gray-800">
-                          {
-                            rowData.filter((item: any) =>
-                              item.modalNo.includes("(F)")
-                            )?.length
-                          }
-                        </span>
-                      </p>
-                    </div>
-
-                    {/* <div className="flex items-center gap-[10px]">
-                <LoadingButton loadingPosition="start" loading={dispatchCreateLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
-                  Submit
-                </LoadingButton>
-              </div> */}
-                  </div>
-                </div>
-                <div className="h-[calc(100vh-250px)]">
-                  <ImeiTable
-                    setRowdata={setRowData}
-                    rowData={rowData}
-                    module={watch("type")}
-                  />
-                </div>
-              </div>
-            </div>
+            <ManageBranchTransfer
+              formData={watch()}
+              rowData={rowData}
+              setRowData={setRowData}
+            />
           )}
           {activeStep === 2 && (
             <div className="h-[calc(100vh-200px)] flex items-center justify-center">
@@ -995,7 +623,7 @@ const CreateDispatchPage: React.FC = () => {
             {activeStep === 1 && (
               <>
                 <LoadingButton
-                  disabled={dispatchCreateLoading}
+                  disabled={transferRequestLoading}
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
                   startIcon={<Icons.previous />}
@@ -1006,7 +634,7 @@ const CreateDispatchPage: React.FC = () => {
                   Back
                 </LoadingButton>
                 <LoadingButton
-                  loading={dispatchCreateLoading}
+                  loading={transferRequestLoading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}
@@ -1025,4 +653,4 @@ const CreateDispatchPage: React.FC = () => {
   );
 };
 
-export default CreateDispatchPage;
+export default CreateBranchTransferPage;
