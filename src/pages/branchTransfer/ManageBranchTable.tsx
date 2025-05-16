@@ -27,7 +27,10 @@ import { transferBranchReport } from "@/features/report/report/reportSlice";
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import { showToast } from "@/utils/toasterContext";
-import { approveTransfer, rejectTransfer } from "@/features/Dispatch/DispatchSlice";
+import {
+  approveTransfer,
+  rejectTransfer,
+} from "@/features/Dispatch/DispatchSlice";
 
 // Generate dummy data according to pagination needs
 const ManageBranchTable = () => {
@@ -207,7 +210,7 @@ const ManageBranchTable = () => {
     const payload = {
       challanId: selectedRow?.challanId,
       imei: scannedDevices.map((device) => device.imei),
-    }
+    };
     dispatch(approveTransfer(payload)).then((res: any) => {
       if (res.payload.data.success) {
         showToast("Transfer approved successfully", "success");
@@ -215,8 +218,6 @@ const ManageBranchTable = () => {
         showToast(res.payload.data.message, "error");
       }
     });
-    // Call your approve API here with scannedDevices
-    console.log("Approving with devices:", scannedDevices);
     setApproveModalOpen(false);
     setScannedDevices([]);
   };
@@ -229,7 +230,7 @@ const ManageBranchTable = () => {
     const payload = {
       reason: rejectRemark,
       challanId: selectedRow?.challanId,
-    }
+    };
     dispatch(rejectTransfer(payload)).then((res: any) => {
       console.log(res);
       if (res.payload.data.success) {
@@ -240,9 +241,6 @@ const ManageBranchTable = () => {
         showToast(res.payload.data.message, "error");
       }
     });
-    // Call your reject API here with rejectRemark
-    console.log("Rejecting with remark:", rejectRemark);
-   
   };
 
   return (
@@ -415,7 +413,6 @@ const ManageBranchTable = () => {
                             )
                           );
                         }}
-                        
                       >
                         <Icons.delete color="error" />
                       </IconButton>
