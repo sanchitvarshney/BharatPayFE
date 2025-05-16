@@ -367,6 +367,8 @@ export type ReportStateType = {
   r17ReportPartner: string | null;
   swipeItemDetails: any | null;
   swipeItemDetailsLoading:boolean
+  transferReportLoading: boolean;
+  transferReport: any | null;
 };
 
 export interface R16ReportResponse {

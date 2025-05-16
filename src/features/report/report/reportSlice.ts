@@ -71,7 +71,9 @@ const initialState: ReportStateType = {
   },
   r17ReportPartner: null,
   swipeItemDetails: null,
-  swipeItemDetailsLoading:false
+  swipeItemDetailsLoading:false,
+  transferReportLoading: false,
+  transferReport: null,
 };
 
 export const getR1Data = createAsyncThunk<
@@ -140,7 +142,7 @@ export const r4ReportDetail = createAsyncThunk<
   return response;
 });
 
-export const transferReport = createAsyncThunk<
+export const transferBranchReport = createAsyncThunk<
   AxiosResponse<any>,
   string
 >("report/transferReport", async (query) => {
@@ -347,6 +349,18 @@ const reportSlice = createSlice({
       })
       .addCase(getR1Data.rejected, (state) => {
         state.getR1DataLoading = false;
+      })
+        .addCase(transferBranchReport.pending, (state) => {
+        state.transferReportLoading = true;
+      })
+      .addCase(transferBranchReport.fulfilled, (state, action) => {
+        state.transferReportLoading = false;
+        if (action.payload.data.success) {
+          state.transferReport = action.payload.data.data;
+        }
+      })
+      .addCase(transferBranchReport.rejected, (state) => {
+        state.transferReportLoading = false;
       })
       .addCase(getMainR1Data.pending, (state) => {
         state.mainR1ReportLoading = true;

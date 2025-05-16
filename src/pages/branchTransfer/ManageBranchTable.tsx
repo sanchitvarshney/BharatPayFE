@@ -6,101 +6,113 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Button } from "@/components/ui/button";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { transferReport } from "@/features/report/report/reportSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Icons } from "@/components/icons";
+import { transferBranchReport } from "@/features/report/report/reportSlice";
 
 // Generate dummy data according to pagination needs
 const ManageBranchTable  = () => {
   const dispatch = useAppDispatch();
-  const columnDefs: ColDef[] = [
+ const columnDefs: ColDef[] = [
     {
       headerName: "#",
-      field: "id",
+      field: "serialNo",
       sortable: true,
       filter: true,
-      width: 100,
       valueGetter: "node.rowIndex+1",
+      width: 100,
     },
     {
-      headerName: "Production ID",
-      field: "prodductionId",
+      headerName: "Challan ID",
+      field: "challanId",
       sortable: true,
       filter: true,
+      width: 200,
     },
     {
-      headerName: "SR No.",
-      field: "productSrlNo",
+      headerName: "Device Type",
+      field: "deviceType",
       sortable: true,
       filter: true,
+      width: 200,
     },
     {
-      headerName: "IMEI 1",
-      field: "productImei1",
+      headerName: "SKU",
+      field: "sku",
       sortable: true,
       filter: true,
+      width: 200,
     },
     {
-      headerName: "IMEI 2",
-      field: "productImei2",
+      headerName: "From Branch",
+      field: "fromFranch",
       sortable: true,
       filter: true,
+      width: 200,
     },
-    { headerName: "SKU", field: "sku", sortable: true, filter: true },
-    { headerName: "SKU Name", field: "skuName", sortable: true, filter: true },
     {
-      headerName: "Requested Date",
+      headerName: "To Branch",
+      field: "to_branch",
+      sortable: true,
+      filter: true,
+      width: 200,
+    },
+    {
+      headerName: "From Location",
+      field: "from_location",
+      sortable: true,
+      filter: true,
+      width: 200,
+    },
+    {
+      headerName: "To Location",
+      field: "to_location",
+      sortable: true,
+      filter: true,
+      width: 200,
+    },
+    {
+      headerName: "Model Name",
+      field: "modelName",
+      sortable: true,
+      filter: true,
+      width: 200,
+      
+    },
+    {
+      headerName: "Insert Date",
       field: "insertDate",
       sortable: true,
       filter: true,
+      width: 200,
     },
     {
-      headerName: "Requested By",
+      headerName: "Insert By",
       field: "insertBy",
       sortable: true,
       filter: true,
-    },
-    {
-      headerName: "Pick Location",
-      field: "productionLocation",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Drop Location",
-      field: "dropLocation",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "",
-      field: "prodductionId",
-      sortable: true,
-      filter: true,
-      hide: true,
+      width: 200,
     },
     // {
-    //   headerName: "",
-    //   pinned: "right",
+    //   headerName: "Actions",
+    //   field: "",
     //   sortable: false,
     //   filter: false,
     //   cellRenderer: (params: any) => (
-    //     <Button
+    //     <IconButton
     //       onClick={() => {
-    //         setOpen(true);
-    //         dispatch(r4ReportDetail(params.data.prodductionId));
+    //         setRowData(
+    //           rowData.filter((row: any) => row.imei !== params.data.imei)
+    //         );
     //       }}
-    //       variant="contained"
-    //       size="small"
-    //       startIcon={<FullscreenIcon fontSize="small" />}
     //     >
-    //       Detail
-    //     </Button>
+    //       <DeleteIcon fontSize="small" color="error" />
+    //     </IconButton>
     //   ),
-    //   width: 150,
+    //   width: 100,
     // },
   ];
-  const { r4report, r4reportLoading } = useAppSelector((state) => state.report);
+  const { transferReport, transferReportLoading } = useAppSelector((state) => state.report);
   const [status, setStatus] = useState<string>("");
   const [colapse, setcolapse] = useState<boolean>(false);
   const paginationPageSize = 20; // Define page size
@@ -155,45 +167,13 @@ const ManageBranchTable  = () => {
           <div className="flex justify-between itesms-center">
             <div className="flex gap-[10px]">
               <LoadingButton
-                loading={r4reportLoading}
+                loading={transferReportLoading}
                 variant="contained"
                 startIcon={<Icons.search fontSize="small" />}
                 loadingPosition="start"
                 onClick={() => {
-                  dispatch(transferReport(status));
+                  dispatch(transferBranchReport(status));
                 }}
-                // onClick={() => {
-                //   if (filter === "DEVICE") {
-                //     if (!device || !deviceType) {
-                //       showToast(
-                //         "Please select a device and device type",
-                //         "error"
-                //       );
-                //     } else {
-                //       dispatch(
-                //         getr4Report({
-                //           type: "DEVICE",
-                //           device: device?.id,
-                //           deviceType,
-                //         })
-                //       );
-                //     }
-                //   }
-                //   if (filter === "DATE") {
-                //     if (!date.from || !date.to) {
-                //       showToast("Please select a date", "error");
-                //     } else {
-                //       dispatch(
-                //         getr4Report({
-                //           type: "DATE",
-                //           from: dayjs(date.from).format("DD-MM-YYYY"),
-                //           to: dayjs(date.to).format("DD-MM-YYYY"),
-                //           deviceType,
-                //         })
-                //       );
-                //     }
-                //   }
-                // }}
               >
                 Search
               </LoadingButton>
@@ -206,14 +186,15 @@ const ManageBranchTable  = () => {
           <AgGridReact
             // ref={gridRef}
             loadingOverlayComponent={CustomLoadingOverlay}
-            loading={r4reportLoading}
+            loading={transferReportLoading}
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
-            rowData={r4report ? r4report : []}
+            rowData={transferReport ? transferReport : []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             pagination={true}
             paginationPageSize={paginationPageSize}
+            enableCellTextSelection
           />
         </div>
       </div>
