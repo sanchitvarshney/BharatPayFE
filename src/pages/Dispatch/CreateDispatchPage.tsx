@@ -69,6 +69,7 @@ type RowData = {
   serialNo: number;
   modalNo: string;
   deviceSku: string;
+  imei2?: string;
 };
 
 type FormDataType = {
@@ -228,11 +229,14 @@ const CreateDispatchPage: React.FC = () => {
       remark: data.remark,
       imeis: rowData.map((item) => item.imei),
       srlnos: rowData.map((item) => item.srno),
+      imei1: rowData.map((item) => item.imei),
+      imei2: rowData.map((item) => item.imei2),
       document: data.document || "",
       dispatchDate: dayjs(data.dispatchDate).format("DD-MM-YYYY"),
       pickLocation: data.location?.code || "",
       challanId: id?.replace(/_/g, "/") || "",
     };
+    if(formValues.deviceType === "soundbox"){
     dispatch(CreateDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
         setDispatchNo(res?.payload?.data?.data?.refID);
@@ -243,8 +247,18 @@ const CreateDispatchPage: React.FC = () => {
         //  dispatch(clearFile());
       }
     });
-    //  };
-  };
+  }
+
+  else{
+    dispatch(CreateSwipeDispatch(payload)).then((res: any) => {
+      if (res.payload.data.success) {
+        setDispatchNo(res?.payload?.data?.data?.refID);
+        reset();
+      }
+    });
+  }
+}
+
 
   useEffect(() => {
     dispatch(getDispatchFromDetail());
@@ -263,8 +277,10 @@ const CreateDispatchPage: React.FC = () => {
 
   const onImeiSubmit = (imei: string) => {
     const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
-    console.log(imeiArray.filter((num) => num.trim() !== "").length);
-    if (imeiArray.filter((num) => num.trim() !== "").length === 30) {
+    const validImeiCount = imeiArray.filter((num) => num.trim() !== "").length;
+    const requiredCount = formValues.deviceType === "soundbox" ? 30 : 20;
+    
+    if (validImeiCount === requiredCount) {
       console.log("open");
       setOpen(true);
     }
@@ -383,8 +399,422 @@ const CreateDispatchPage: React.FC = () => {
               </Stepper>
             </div>
 
+<<<<<<< HEAD
             {activeStep === 0 && (
               <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
+=======
+          {activeStep === 0 && (
+            <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
+              <div id="primary-item-details" className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.user />
+                  <h2 id="primary-item-details" className="text-lg font-semibold">
+                    Client Details
+                  </h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                <Controller
+                  name="clientDetail.client"
+                  rules={{
+                    required: { value: true, message: "Client is required" },
+                  }}
+                  control={control}
+                  render={({ field }) => <SelectClient endPoint="/backend/client" error={!!errors.clientDetail?.client} helperText={errors.clientDetail?.client?.message} size="medium" label="Select Client" varient="filled" value={field.value as any} onChange={field.onChange} />}
+                />
+                <Controller
+                  name="clientDetail.branchId"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Client Branch is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={clientBranchList?.find((branch: any) => branch.addressID === field.value) || null}
+                      onChange={(_, newValue) => handleClientBranchChange(newValue)}
+                      disablePortal
+                      id="combo-box-demo"
+                      options={clientBranchList || []}
+                      renderInput={(params) => <TextField {...params} label="Client Branch" error={!!errors.clientDetail?.branchId} helperText={errors.clientDetail?.branchId?.message} variant="filled" />}
+                    />
+                  )}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.clientDetail?.pincode}
+                  // helperText={errors.clientDetail.pincode}
+                  helperText={errors?.clientDetail?.pincode?.message}
+                  focused={!!watch("clientDetail.pincode")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PinCode"
+                  className="h-[10px] resize-none"
+                  {...register("clientDetail.pincode", {
+                    required: "PinCode is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.clientDetail?.address1}
+                  helperText={errors?.clientDetail?.address1?.message}
+                  focused={!!watch("clientDetail.address1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("clientDetail.address1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.clientDetail?.address2}
+                  helperText={errors?.clientDetail?.address2?.message}
+                  focused={!!watch("clientDetail.address2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Address 2"
+                  className="h-[100px] resize-none"
+                  {...register("clientDetail.address2", {
+                    required: "Address 2 is required",
+                  })}
+                />
+              </div>
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.userAddress />
+                  <h2 className="text-lg font-semibold">Ship To Details</h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                <Controller
+                  name="shipToDetails.shipTo"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Ship To Client Branch is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      // value={field.value}
+                      value={addressDetail?.data?.shippingAddress?.find((address: any) => address.shipId === field.value) || null}
+                      onChange={(_, newValue) => handleShipToChange(newValue)}
+                      disablePortal
+                      id="combo-box-demo"
+                      options={addressDetail?.data?.shippingAddress || []}
+                      renderInput={(params) => <TextField {...params} label="Client Branch" error={!!errors.shipToDetails?.shipTo} helperText={errors.shipToDetails?.shipTo?.message} variant="filled" />}
+                    />
+                  )}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.pincode}
+                  helperText={errors?.shipToDetails?.pincode?.message}
+                  focused={!!watch("shipToDetails.pincode")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PinCode"
+                  className="h-[10px] resize-none"
+                  {...register("shipToDetails.pincode", {
+                    required: "PinCode is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.mobileNo}
+                  helperText={errors?.shipToDetails?.mobileNo?.message}
+                  focused={!!watch("shipToDetails.mobileNo")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Mobile No"
+                  className="h-[10px] resize-none"
+                  {...register("shipToDetails.mobileNo", {
+                    required: "Mobile No is required",
+                  })}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.city}
+                  helperText={errors?.shipToDetails?.city?.message}
+                  focused={!!watch("shipToDetails.city")}
+                  rows={3}
+                  fullWidth
+                  label="City"
+                  className="h-[100px] resize-none"
+                  {...register("shipToDetails.city")}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.address1}
+                  helperText={errors?.shipToDetails?.address1?.message}
+                  focused={!!watch("shipToDetails.address1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Ship To Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("shipToDetails.address1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipToDetails?.address2}
+                  helperText={errors?.shipToDetails?.address2?.message}
+                  focused={!!watch("shipToDetails.address2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Ship To Address 2"
+                  className="h-[100px] resize-none"
+                  {...register("shipToDetails.address2", {
+                    required: "Address 2 is required",
+                  })}
+                />
+              </div>
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.shipping />
+                  <h2 className="text-lg font-semibold">Dispatch From Details</h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                <Controller
+                  name="shipToDetails.shipTo"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Ship To Client Branch is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      // value={field.value}
+                      value={dispatchFromDetails?.data?.find((address: any) => address.code === field.value) || null}
+                      onChange={(_, newValue) => handleDispatchFromChange(newValue)}
+                      disablePortal
+                      id="combo-box-demo"
+                      options={dispatchFromDetails || []}
+                      renderInput={(params) => <TextField {...params} label="Dispatch From" error={!!errors.dispatchFromDetails?.dispatchFrom} helperText={errors.dispatchFromDetails?.dispatchFrom?.message} variant="filled" />}
+                    />
+                  )}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.pin}
+                  helperText={errors?.dispatchFromDetails?.pin?.message}
+                  focused={!!watch("dispatchFromDetails.pin")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PinCode"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.pin", {
+                    required: "PinCode is required",
+                  })}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.mobileNo}
+                  helperText={errors?.dispatchFromDetails?.mobileNo?.message}
+                  focused={!!watch("dispatchFromDetails.mobileNo")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Mobile No"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.mobileNo", {
+                    required: "Mobile No is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.gst}
+                  helperText={errors?.dispatchFromDetails?.gst?.message}
+                  focused={!!watch("dispatchFromDetails.gst")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="GST"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.gst", {
+                    required: "GST is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.pan}
+                  helperText={errors?.dispatchFromDetails?.pan?.message}
+                  focused={!!watch("dispatchFromDetails.pan")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PAN"
+                  className="h-[10px] resize-none"
+                  {...register("dispatchFromDetails.pan", {
+                    required: "PAN is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.city}
+                  helperText={errors?.dispatchFromDetails?.city?.message}
+                  focused={!!watch("dispatchFromDetails.city")}
+                  rows={3}
+                  fullWidth
+                  label="City"
+                  className="h-[100px] resize-none"
+                  {...register("dispatchFromDetails.city")}
+                />
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.address1}
+                  helperText={errors?.dispatchFromDetails?.address1?.message}
+                  focused={!!watch("dispatchFromDetails.address1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("dispatchFromDetails.address1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.dispatchFromDetails?.address2}
+                  helperText={errors?.dispatchFromDetails?.address2?.message}
+                  focused={!!watch("dispatchFromDetails.address2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Address 2"
+                  className="h-[100px] resize-none"
+                  {...register("dispatchFromDetails.address2", {
+                    required: "Address 2 is required",
+                  })}
+                />
+              </div>
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.files />
+                  <h2 className="text-lg font-semibold">Dispatch Details and Attachments</h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+
+                <Controller
+                  name="qty"
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Quantity is required" },
+                    min: {
+                      value: 1,
+                      message: "Quantity must be greater than 0",
+                    },
+                    pattern: {
+                      value: /^[0-9]+$/,
+                      message: "Quantity must be a number",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl error={!!errors.qty} fullWidth variant="filled">
+                      <InputLabel htmlFor="qty">Dispatch Quantity</InputLabel>
+                      <FilledInput {...field} error={!!errors.qty} id="qty" type="number" endAdornment={<InputAdornment position="end">NOS</InputAdornment>} />
+                      {errors.qty && <FormHelperText>{errors.qty.message}</FormHelperText>}
+                    </FormControl>
+                  )}
+                />
+                <Controller
+                  name="docNo"
+                  control={control}
+                  rules={{
+                    required: { value: true, message: "Document is required" },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.docNo}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="docNo">Document No</InputLabel>
+                      <FilledInput {...field} error={!!errors.docNo} id="docNo" type="text" />
+                      {errors.docNo && <FormHelperText>{errors.docNo.message}</FormHelperText>}
+                    </FormControl>
+                  )}
+                />
+                <Controller
+                  name="location"
+                  rules={{
+                    required: { value: true, message: "Location is required" },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <SelectLocationAcordingModule endPoint="/dispatchDivice/pickLocation" error={!!errors.location} helperText={errors.location?.message} size="medium" label="Pick Location" varient="filled" value={field.value as any} onChange={field.onChange} />
+                  )}
+                />
+>>>>>>> c3d234edffd870aef03d5a5549b6acb6bf23457d
                 <div>
                   {/* Section: Primary Item Details */}
                   <section aria-labelledby="primary-item-details">
@@ -705,6 +1135,49 @@ const CreateDispatchPage: React.FC = () => {
                       />
                     )}
                   />
+<<<<<<< HEAD
+=======
+                </div>
+                <Controller
+                  name="deviceType"
+                  control={control}
+                  rules={{ required: "Device type is required" }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.deviceType}
+                      component="fieldset"
+                    >
+                      <Typography variant="subtitle1" className="mb-2">
+                        Device Type
+                      </Typography>
+                      <RadioGroup
+                        row
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      >
+                        <FormControlLabel
+                          value="soundbox"
+                          control={<Radio />}
+                          label="Sound Box"
+                        />
+                        <FormControlLabel
+                          value="swipedevice"
+                          control={<Radio />}
+                          label="Swipe Device"
+                        />
+                      </RadioGroup>
+                      {errors.deviceType && (
+                        <FormHelperText error>
+                          {errors.deviceType.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-2">
+                <div className=" flex flex-col gap-[20px] py-[20px] ">
+>>>>>>> c3d234edffd870aef03d5a5549b6acb6bf23457d
                   <div>
                     <Controller
                       name="dispatchDate"
@@ -960,11 +1433,18 @@ const CreateDispatchPage: React.FC = () => {
                   Submit
                 </LoadingButton>
               </div> */}
+<<<<<<< HEAD
                     </div>
                   </div>
                   <div className="h-[calc(100vh-250px)]">
                     <ImeiTable setRowdata={setRowData} rowData={rowData} />
                   </div>
+=======
+                </div>
+                </div>
+                <div className="h-[calc(100vh-250px)]">
+                  <ImeiTable setRowdata={setRowData} rowData={rowData} module = {formValues?.deviceType} />
+>>>>>>> c3d234edffd870aef03d5a5549b6acb6bf23457d
                 </div>
               </div>
             )}

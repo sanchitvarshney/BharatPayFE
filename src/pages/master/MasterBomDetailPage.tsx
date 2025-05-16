@@ -6,7 +6,7 @@ import Divider from "@mui/material/Divider";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchBomDetail } from "@/features/master/BOM/BOMSlice";
+import { getBomItem } from "@/features/master/BOM/BOMSlice";
 import MasterFGBOMDetailTable from "@/table/master/MasterFGBOMDetailTable";
 import { AgGridReact } from "@ag-grid-community/react";
 const MasterBomDetailPage: React.FC = () => {
@@ -24,7 +24,7 @@ const MasterBomDetailPage: React.FC = () => {
   }, []);
   useEffect(() => {
     if (id) {
-      dispatch(fetchBomDetail(id));
+      dispatch(getBomItem(id));
     }
   }, [id]);
   return (
@@ -58,7 +58,7 @@ const MasterBomDetailPage: React.FC = () => {
           <Button disabled={bomDetailLoading} onClick={onBtExport} className="py-[5px] px-[10px] bg-white text-slate-600 border border-green-600 hover:bg-white/80">
             <Icons.download color="success" />
           </Button>
-          <Button disabled={bomDetailLoading} onClick={() => dispatch(fetchBomDetail(id || ""))} className="py-[5px] px-[10px] bg-white text-slate-600 border border-slate-600 hover:bg-white/80">
+          <Button disabled={bomDetailLoading} onClick={() => dispatch(getBomItem(id || ""))} className="py-[5px] px-[10px] bg-white text-slate-600 border border-slate-600 hover:bg-white/80">
             <Icons.refresh />
           </Button>
           <Button disabled className="py-[5px] px-[10px] bg-white text-red-600 border border-red-600 hover:bg-white/80">

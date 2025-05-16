@@ -159,8 +159,24 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
               min={0}
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
-                  if (Number(e.target.value) >= 0) {
+                  const inputValue = Number(e.target.value);
+                  const availableQty =
+                    availbleQtyData?.find(
+                      (item) =>
+                        item.location === data?.pickLocation?.value &&
+                        item.item === data?.code?.value
+                    )?.Stock || 0;
+
+                  if (inputValue >= 0 && inputValue <= availableQty) {
                     handleInputChange(e);
+                  } else if (inputValue > availableQty) {
+                    // If input is greater than available quantity, set it to available quantity
+                    const event = {
+                      target: {
+                        value: availableQty.toString(),
+                      },
+                    };
+                    handleInputChange(event);
                   }
                 }
               }}

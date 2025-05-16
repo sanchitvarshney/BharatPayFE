@@ -410,7 +410,6 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                           placeholder="Scan items"
                           fullWidth
                           onChange={(e) => setInput(e.target.value)}
-                          inputProps={{ maxLength: 15 }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               
@@ -463,6 +462,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                                       color="error"
                                       onClick={() => {
                                         setScanned(scanned.filter((sc) => sc !== item));
+                                        setDeviceData((prev: any) => prev.filter((sc: any) => sc.serial_no !== item));
                                       }}
                                     >
                                       <DeleteIcon fontSize="small" />
@@ -513,7 +513,9 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                       >
                         Reject
                       </LoadingButton>
-                      <LoadingButton loadingPosition="start" type="submit" startIcon={<DoneIcon fontSize="small" />} variant="contained" disabled={!(scanned ? parseInt(isueeQty) === scanned.length : true) || approveItemLoading || !scanned} loading={approveItemLoading}>
+                      <LoadingButton loadingPosition="start" type="submit" startIcon={<DoneIcon fontSize="small" />} variant="contained" 
+                      // disabled={!(scanned ? parseInt(isueeQty) === scanned.length : true) || approveItemLoading || !scanned} 
+                      loading={approveItemLoading}>
                         Approve
                       </LoadingButton>
                     </div>

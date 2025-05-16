@@ -38,22 +38,19 @@ export const getQ3DatA = createAsyncThunk<AxiosResponse<Q3ApiResponse>, { date: 
   const response = await axiosInstance.get(`/query/q3/${payload.comp}/${payload.date}`);
   return response;
 });
-export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, string>("query/getQ4DatA", async (id) => {
-  const response = await axiosInstance.get(`/query/q4/${id}`);
-  return response;
-});
-
-export const downloadQ4Data = createAsyncThunk<AxiosResponse<Q4Apiresponse>,  { locationKey: string; productKey: string }>("query/downloadQ4Data", async (payload) => {
-  const response = await axiosInstance.get(`/query/q4/download/${payload.productKey}/${payload.locationKey}`);
-  return response;
-});
-
+export const getQ4DatA = createAsyncThunk<AxiosResponse<Q4Apiresponse>, { id: string; type: string }>(
+  "query/getQ4DatA",
+  async (payload) => {
+    const response = await axiosInstance.get(`/query/q4/${payload.id}/${payload.type}`);
+    return response;
+  }
+);
 export const getQ5Data = createAsyncThunk<AxiosResponse<Q5Apiresponse>, { type: string; data: string }>("query/getQ5Data", async (payload) => {
   const response = await axiosInstance.get(`/query/q5/sim/report?type=${payload.type}&data=${payload.data}`);
   return response;
 });
-export const getQ6Data = createAsyncThunk<AxiosResponse<R6ApiResponse>, string>("query/getQ6Data", async (id) => {
-  const response = await axiosInstance.get(`/query/q6/devicetimeline?srlOrImei=${id}`);
+export const getQ6Data = createAsyncThunk<AxiosResponse<R6ApiResponse>, { id: string; type: string }>("query/getQ6Data", async (payload) => {
+  const response = await axiosInstance.get(`/query/q6/${payload.type === "swipe" ? `swipeMachineDetail?srlOrImei=${payload.id}` : `devicetimeline?srlOrImei=${payload.id}`}`);
   return response;
 });
 const querySlice = createSlice({
@@ -127,15 +124,15 @@ const querySlice = createSlice({
         state.q4DataLoading = false;
         state.q4Data = null;
       })
-      .addCase(downloadQ4Data.pending, (state) => {
-        state.q4DownloadLoading = true;
-      })
-      .addCase(downloadQ4Data.fulfilled, (state) => {
-        state.q4DownloadLoading = false;
-      })
-      .addCase(downloadQ4Data.rejected, (state) => {
-        state.q4DownloadLoading = false;
-      })
+      // .addCase(downloadQ4Data.pending, (state) => {
+      //   state.q4DownloadLoading = true;
+      // })
+      // .addCase(downloadQ4Data.fulfilled, (state) => {
+      //   state.q4DownloadLoading = false;
+      // })
+      // .addCase(downloadQ4Data.rejected, (state) => {
+      //   state.q4DownloadLoading = false;
+      // })
       .addCase(getQ5Data.pending, (state) => {
         state.q5DataLoading = true;
         state.q5Data = null;

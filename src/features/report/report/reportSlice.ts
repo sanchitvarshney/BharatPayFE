@@ -1,7 +1,23 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { DeviceRequestApiResponse, MainR1ReportResponse, R11ReportDataApiResponse, R12ReportDataApiResponse, R1ApiResponse, R2Response, r3reportResponse, r4reportDetailDataResponse, R4ReportResponse, R5reportResponse, r6reportApiResponse, R8ReportDataApiResponse, R9reportResponse, ReportStateType } from "./reportType";
+import {
+  DeviceRequestApiResponse,
+  MainR1ReportResponse,
+  R11ReportDataApiResponse,
+  R12ReportDataApiResponse,
+  R1ApiResponse,
+  R2Response,
+  R4ReportQueryParams,
+  r3reportResponse,
+  r4reportDetailDataResponse,
+  R4ReportResponse,
+  R5reportResponse,
+  r6reportApiResponse,
+  R8ReportDataApiResponse,
+  R9reportResponse,
+  ReportStateType,
+} from "./reportType";
 
 const initialState: ReportStateType = {
   r1Data: null,
@@ -31,7 +47,7 @@ const initialState: ReportStateType = {
   r9report: null,
   r9ReportLoading: false,
   wrongDeviceReportLoading: false,
-  r11ReportLoading: false,  
+  r11ReportLoading: false,
   r11Report: null,
   r12Report: null,
   r12ReportLoading: false,
@@ -40,39 +56,109 @@ const initialState: ReportStateType = {
   r15Report: null,
   r15ReportLoading: false,
   updatePhysicalQuantityLoading: false,
+  r16Report: null,
+  r16ReportLoading: false,
+  r16ReportDateRange: {
+    from: null,
+    to: null,
+  },
+  r16ReportPartner: null,
+  r17Report: null,
+  getR17DataLoading: false,
+  r17ReportDateRange: {
+    from: null,
+    to: null,
+  },
+  r17ReportPartner: null,
+  swipeItemDetails: null,
+  swipeItemDetailsLoading:false,
+  transferReportLoading: false,
+  transferReport: null,
 };
 
-export const getR1Data = createAsyncThunk<AxiosResponse<R1ApiResponse>, { type: string; data: string }>("report/getR1", async (date) => {
-  const response = await axiosInstance.get(`/report/r1/detail?type=${date.type}&data=${date.data}`);
+export const getR1Data = createAsyncThunk<
+  AxiosResponse<R1ApiResponse>,
+  { type: string; data: string }
+>("report/getR1", async (date) => {
+  const response = await axiosInstance.get(
+    `/report/r1/detail?type=${date.type}&data=${date.data}`
+  );
   return response;
 });
-export const getMainR1Data = createAsyncThunk<AxiosResponse<MainR1ReportResponse>, { type: "min" | "date"; data: string; from: string; to: string }>("report/mainR1Data", async (payload) => {
-  const response = await axiosInstance.get(payload.type === "min" ? `/report/r1?type=min&data=${payload.data}` : `/report/r1?type=date&from=${payload.from}&to=${payload.to}`);
+export const getMainR1Data = createAsyncThunk<
+  AxiosResponse<MainR1ReportResponse>,
+  { type: "min" | "date"; data: string; from: string; to: string }
+>("report/mainR1Data", async (payload) => {
+  const response = await axiosInstance.get(
+    payload.type === "min"
+      ? `/report/r1?type=min&data=${payload.data}`
+      : `/report/r1?type=date&from=${payload.from}&to=${payload.to}`
+  );
   return response;
 });
-export const getR2Data = createAsyncThunk<AxiosResponse<R2Response>, { from: string; to: string }>("report/getR2Data", async (date) => {
-  const response = await axiosInstance.get(`report/r2?from=${date.from}&to=${date.to}`);
+export const getR2Data = createAsyncThunk<
+  AxiosResponse<R2Response>,
+  { from: string; to: string; type: string }
+>("report/getR2Data", async (date) => {
+  const response = await axiosInstance.get(
+    `report/r2?from=${date.from}&to=${date.to}&type=${date.type}`
+  );
   return response;
 });
-export const getR2ReportDetail = createAsyncThunk<AxiosResponse<DeviceRequestApiResponse>, any>("report/getR2ReportDetail", async (payload) => {
-  const response = await axiosInstance.get(`/report/r2/detail/${payload.refId}/${payload.srlno}`);
+export const getR2ReportDetail = createAsyncThunk<
+  AxiosResponse<DeviceRequestApiResponse>,
+  any
+>("report/getR2ReportDetail", async (payload) => {
+  const response = await axiosInstance.get(
+    `/report/r2/detail/${payload.refId}/${payload.srlno}`
+  );
   return response;
 });
-export const getr3Report = createAsyncThunk<AxiosResponse<r3reportResponse>, { from: string; to: string }>("report/getr3Report", async (date) => {
-  const response = await axiosInstance.get(`/report/r3BatteryQcReport?fromDate=${date.from}&toDate=${date.to}`);
+export const getr3Report = createAsyncThunk<
+  AxiosResponse<r3reportResponse>,
+  { from: string; to: string }
+>("report/getr3Report", async (date) => {
+  const response = await axiosInstance.get(
+    `/report/r3BatteryQcReport?fromDate=${date.from}&toDate=${date.to}`
+  );
   return response;
 });
-export const getr4Report = createAsyncThunk<AxiosResponse<R4ReportResponse>, { from?: string; to?: string; type: string; device?: string }>("report/getr4Report", async (query) => {
-  const response = await axiosInstance.get(query.type === "DEVICE" ? `/report/r4/DEVICE?deviceId=${query.device}` : `/report/r4/DATE?from=${query.from}&to=${query.to}`);
+export const getr4Report = createAsyncThunk<
+  AxiosResponse<R4ReportResponse>,
+  R4ReportQueryParams
+>("report/getr4Report", async (query) => {
+  const response = await axiosInstance.get(
+    query.type === "DEVICE"
+      ? `/report/r4/DEVICE?deviceId=${query.device}&deviceType=${query.deviceType}`
+      : `/report/r4/DATE?from=${query.from}&to=${query.to}&deviceType=${query.deviceType}`
+  );
   return response;
 });
-export const r4ReportDetail = createAsyncThunk<AxiosResponse<r4reportDetailDataResponse>, string>("report/r4ReportDetail", async (query) => {
+export const r4ReportDetail = createAsyncThunk<
+  AxiosResponse<r4reportDetailDataResponse>,
+  string
+>("report/r4ReportDetail", async (query) => {
   const response = await axiosInstance.get(`/report/r4/consumed/${query}`);
   return response;
 });
 
-export const getr5Report = createAsyncThunk<AxiosResponse<R5reportResponse>, { from?: string; to?: string; type: string; device?: string }>("report/getr5Report", async (query) => {
-  const response = await axiosInstance.get(query.type === "DEVICE" ? `/report/r5/DEVICE?deviceId=${query.device}` : `/report/r5/DATE?from=${query.from}&to=${query.to}`);
+export const transferBranchReport = createAsyncThunk<
+  AxiosResponse<any>,
+  string
+>("report/transferReport", async (query) => {
+  const response = await axiosInstance.get(`/deviceBranchTransfer/getChallanList?status=${query}`);
+  return response;
+});
+
+export const getr5Report = createAsyncThunk<
+  AxiosResponse<R5reportResponse>,
+  { from?: string; to?: string; type: string; device?: string }
+>("report/getr5Report", async (query) => {
+  const response = await axiosInstance.get(
+    query.type === "DEVICE"
+      ? `/report/r5/DEVICE?deviceId=${query.device}`
+      : `/report/r5/DATE?from=${query.from}&to=${query.to}`
+  );
   return response;
 });
 export const getr5ReportDetail = createAsyncThunk<
@@ -93,51 +179,145 @@ export const getr5ReportDetail = createAsyncThunk<
   }>,
   string
 >("report/getr5ReportDetail", async (query) => {
-  const response = await axiosInstance.post(`/report/r5/deviceSerial`, { txnId: query });
+  const response = await axiosInstance.post(`/report/r5/deviceSerial`, {
+    txnId: query,
+  });
   return response;
 });
-export const getr6Report = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: "MINNO" | "DATE"; data: string; from: string; to: string }>("report/getr6Report", async (payload) => {
-  const response = await axiosInstance.get(payload.type === "MINNO" ? `/report/r6/MINNO?data=${payload.data}` : `/report/r6/DATE?startDate=${payload.from}&endDate=${payload.to}`);
+export const getr6Report = createAsyncThunk<
+  AxiosResponse<r6reportApiResponse>,
+  { type: "MINNO" | "DATE"; data: string; from: string; to: string }
+>("report/getr6Report", async (payload) => {
+  const response = await axiosInstance.get(
+    payload.type === "MINNO"
+      ? `/report/r6/MINNO?data=${payload.data}`
+      : `/report/r6/DATE?startDate=${payload.from}&endDate=${payload.to}`
+  );
   return response;
 });
-export const getWrongDeviceReport = createAsyncThunk<AxiosResponse<r6reportApiResponse>, { type: string; from: string; to: string }>("report/getWrongDeviceReport", async (payload) => {
-  const response = await axiosInstance.get(`/wrongDevice/fetch/?fromDate=${payload.from}&toDate=${payload.to}&deliveryPartner=${payload.type}`);
+export const getWrongDeviceReport = createAsyncThunk<
+  AxiosResponse<r6reportApiResponse>,
+  { type: string; from: string; to: string }
+>("report/getWrongDeviceReport", async (payload) => {
+  const response = await axiosInstance.get(
+    `/wrongDevice/fetch/?fromDate=${payload.from}&toDate=${payload.to}&deliveryPartner=${payload.type}`
+  );
   return response;
 });
-export const getr8Report = createAsyncThunk<AxiosResponse<R8ReportDataApiResponse>, { from: string; to: string }>("report/getr8Report", async (payload) => {
-  const response = await axiosInstance.get(`/report/r8?type=RANGE&data=${payload.from}-${payload.to}`);
-  return response;
-});
-
-export const getR11Report = createAsyncThunk<AxiosResponse<R11ReportDataApiResponse>, { from: string; to: string }>("report/getR11Report", async (payload) => {
-  const response = await axiosInstance.get(`/bpeIssue/report?startDate=${payload.from}&endDate=${payload.to}`);
-  return response;
-});
-
-export const getR13Report = createAsyncThunk<AxiosResponse<R11ReportDataApiResponse>, { from: string; to: string }>("report/getR13Report", async (payload) => {
-  const response = await axiosInstance.get(`/analytics/device/report?fromDate=${payload.from}&toDate=${payload.to}`);
-  return response;
-});
-
-export const getR12Report = createAsyncThunk<AxiosResponse<R12ReportDataApiResponse>, { from: string; to: string }>("report/getR12Report", async (payload) => {
-  const response = await axiosInstance.get(`/report/v1/trc_assembly?from=${payload.from}&to=${payload.to}`);
-  return response;
-});
-
-export const getr9Report = createAsyncThunk<AxiosResponse<R9reportResponse>, { from: string; to: string; partner: string }>("report/getr9Report", async (payload) => {
-  const response = await axiosInstance.get(`/deviceMinV2/deviceInwardReport?fromDt=${payload.from}&toDt=${payload.to}&partner=${payload.partner}`);
-  return response;
-});
-
-export const getR15Report = createAsyncThunk<AxiosResponse<any>, { from: string; to: string; location: string }>("report/getr15Report", async (payload) => {
-  const response = await axiosInstance.get(`/report/physicalReport?fromDate=${payload.from}&toDate=${payload.to}&location=${payload.location}`);
+export const getr8Report = createAsyncThunk<
+  AxiosResponse<R8ReportDataApiResponse>,
+  { from: string; to: string }
+>("report/getr8Report", async (payload) => {
+  const response = await axiosInstance.get(
+    `/report/r8?type=RANGE&data=${payload.from}-${payload.to}`
+  );
   return response;
 });
 
-export const updatePhysicalQuantity = createAsyncThunk<AxiosResponse<any>, { txnId: string; qty: number }>("report/updatePhysicalQuantity", async (payload) => {
-  const response = await axiosInstance.put(`/report/addAbnormalQty`, { txnID: payload.txnId, qty: payload.qty });
+export const getR11Report = createAsyncThunk<
+  AxiosResponse<R11ReportDataApiResponse>,
+  { from: string; to: string }
+>("report/getR11Report", async (payload) => {
+  const response = await axiosInstance.get(
+    `/bpeIssue/report?startDate=${payload.from}&endDate=${payload.to}`
+  );
   return response;
 });
+
+export const getR13Report = createAsyncThunk<
+  AxiosResponse<R11ReportDataApiResponse>,
+  { from: string; to: string }
+>("report/getR13Report", async (payload) => {
+  const response = await axiosInstance.get(
+    `/analytics/device/report?fromDate=${payload.from}&toDate=${payload.to}`
+  );
+  return response;
+});
+
+export const getR12Report = createAsyncThunk<
+  AxiosResponse<R12ReportDataApiResponse>,
+  { from: string; to: string }
+>("report/getR12Report", async (payload) => {
+  const response = await axiosInstance.get(
+    `/report/v1/trc_assembly?from=${payload.from}&to=${payload.to}`
+  );
+  return response;
+});
+
+export const getr9Report = createAsyncThunk<
+  AxiosResponse<R9reportResponse>,
+  { from: string; to: string; partner: string }
+>("report/getr9Report", async (payload) => {
+  const response = await axiosInstance.get(
+    `/deviceMinV2/deviceInwardReport?fromDt=${payload.from}&toDt=${payload.to}&partner=${payload.partner}`
+  );
+  return response;
+});
+
+export const getR15Report = createAsyncThunk<
+  AxiosResponse<any>,
+  { from: string; to: string; location: string }
+>("report/getr15Report", async (payload) => {
+  const response = await axiosInstance.get(
+    `/report/physicalReport?fromDate=${payload.from}&toDate=${payload.to}&location=${payload.location}`
+  );
+  return response;
+});
+
+export const updatePhysicalQuantity = createAsyncThunk<
+  AxiosResponse<any>,
+  { txnId: string; qty: number }
+>("report/updatePhysicalQuantity", async (payload) => {
+  const response = await axiosInstance.put(`/report/addAbnormalQty`, {
+    txnID: payload.txnId,
+    qty: payload.qty,
+  });
+  return response;
+});
+
+export const getR16Report = createAsyncThunk(
+  "report/getR16Report",
+  async (params: {
+    from: string;
+    to: string;
+    partner: string;
+    page: number;
+    limit: number;
+  }) => {
+    const response = await axiosInstance.get(
+      `/swipeMachine/report/${params.partner}?fromDate=${params.from}&toDate=${params.to}&page=${params.page}&limit=${params.limit}`
+    );
+    return response.data;
+  }
+);
+
+export const getR17Data = createAsyncThunk(
+  "report/getR17Data",
+  async (params: { from: string; to: string; page: number; limit: number }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/swipeMachine/report?startDate=${params.from}&endDate=${params.to}&page=${params.page}&limit=${params.limit}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+export const getSwipeItemDetails = createAsyncThunk(
+  "report/getSwipeItemDetails",
+  async (params: { id: string,key:string}) => {
+    try {
+      const response = await axiosInstance.get(
+        `/swipeMachine/deliveredItems?txnId=${params.id}&key=${params.key}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
 
 const reportSlice = createSlice({
   name: "report",
@@ -170,6 +350,18 @@ const reportSlice = createSlice({
       .addCase(getR1Data.rejected, (state) => {
         state.getR1DataLoading = false;
       })
+        .addCase(transferBranchReport.pending, (state) => {
+        state.transferReportLoading = true;
+      })
+      .addCase(transferBranchReport.fulfilled, (state, action) => {
+        state.transferReportLoading = false;
+        if (action.payload.data.success) {
+          state.transferReport = action.payload.data.data;
+        }
+      })
+      .addCase(transferBranchReport.rejected, (state) => {
+        state.transferReportLoading = false;
+      })
       .addCase(getMainR1Data.pending, (state) => {
         state.mainR1ReportLoading = true;
       })
@@ -188,7 +380,7 @@ const reportSlice = createSlice({
       .addCase(updatePhysicalQuantity.rejected, (state) => {
         state.updatePhysicalQuantityLoading = false;
       })
-      
+
       .addCase(getMainR1Data.rejected, (state) => {
         state.mainR1ReportLoading = false;
       })
@@ -242,6 +434,20 @@ const reportSlice = createSlice({
         state.r4reportLoading = false;
         if (action.payload.data.success) {
           state.r4report = action.payload.data.data;
+        }
+      })
+      .addCase(getSwipeItemDetails.rejected, (state) => {
+        state.swipeItemDetailsLoading = false;
+        state.swipeItemDetails = null;
+      })
+      .addCase(getSwipeItemDetails.pending, (state) => {
+        state.swipeItemDetailsLoading = true;
+        state.swipeItemDetails = null;
+      })
+      .addCase(getSwipeItemDetails.fulfilled, (state, action) => {
+        state.swipeItemDetailsLoading = false;
+        if (action.payload.success) {
+          state.swipeItemDetails = action.payload.data;
         }
       })
       .addCase(getr4Report.rejected, (state) => {
@@ -401,10 +607,40 @@ const reportSlice = createSlice({
       .addCase(getr9Report.rejected, (state) => {
         state.r9ReportLoading = false;
         state.r9report = null;
+      })
+      .addCase(getR16Report.pending, (state) => {
+        state.r16ReportLoading = true;
+      })
+      .addCase(getR16Report.fulfilled, (state, action) => {
+        state.r16ReportLoading = false;
+        state.r16Report = action.payload;
+        state.r16ReportDateRange = {
+          from: action.meta.arg.from,
+          to: action.meta.arg.to,
+        };
+        state.r16ReportPartner = action.meta.arg.partner;
+      })
+      .addCase(getR16Report.rejected, (state) => {
+        state.r16ReportLoading = false;
+      })
+      .addCase(getR17Data.pending, (state) => {
+        state.getR17DataLoading = true;
+      })
+      .addCase(getR17Data.fulfilled, (state, action) => {
+        state.getR17DataLoading = false;
+        state.r17Report = action.payload;
+        state.r17ReportDateRange = {
+          from: action.meta.arg.from,
+          to: action.meta.arg.to,
+        };
+      })
+      .addCase(getR17Data.rejected, (state) => {
+        state.getR17DataLoading = false;
       });
   },
 });
 
-export const { setRefId, clearRefId, clearR1data, clearR6data } = reportSlice.actions;
+export const { setRefId, clearRefId, clearR1data, clearR6data } =
+  reportSlice.actions;
 
 export default reportSlice.reducer;

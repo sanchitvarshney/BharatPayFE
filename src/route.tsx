@@ -93,6 +93,14 @@ import SwipeDeviceRequest from "@/pages/production/SwipeDeviceRequest";
 import SwipeMaterialApprovalLayout from "@/layouts/SwipeMaterialApprovalLayout";
 import SwipeMaterialApproval from "@/pages/wearhouse/SwipeMaterialApproval";
 import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
+import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
+import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
+import BranchTransferLayout from "@/layouts/BranchTransferLayout";
+import ManageBranchTransfer from "@/pages/branchTransfer/ManageBranchTransfer";
+import ProcurementLayout from "@/layouts/ProcurementLayout";
+import CreatePO from "@/pages/procurement/CreatePO";
+import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
+import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 
 export const router = createBrowserRouter([
   {
@@ -434,6 +442,16 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <ProcurementLayout>
+              <CreatePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/create",
+      },
+      {
+        element: (
+          <MainLayout>
             {/* <DeviceMin /> */}
             <MaterialIn />
           </MainLayout>
@@ -623,6 +641,38 @@ export const router = createBrowserRouter([
         ),
         path: "/production/download-excel",
       },
+      //branch transfer===========================================
+      {
+        element: (
+          <MainLayout>
+            <BranchTransferLayout>
+              <CreateBranchTransferPage />
+            </BranchTransferLayout>
+          </MainLayout>
+        ),
+        path: "/branchTransfer/create",
+      },
+      {
+        element: (
+          <MainLayout>
+            <BranchTransferLayout>
+              <ManageBranchTransfer />
+            </BranchTransferLayout>
+          </MainLayout>
+        ),
+        path: "/branchTransfer/create2",
+      },
+
+      {
+        element: (
+          <MainLayout>
+            <BranchTransferLayout>
+              <ManageBranchTable />
+            </BranchTransferLayout>
+          </MainLayout>
+        ),
+        path: "/branchTransfer/manage",
+      },
 
       //dispatch===========================================
       {
@@ -740,6 +790,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "queries/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeUploadLayout>
+              <SwipeDeviceUpload />
+            </SwipeUploadLayout>
+          </MainLayout>
+        ),
+        path: "/upload/swipe-device-status",
       },
     ],
   },

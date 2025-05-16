@@ -3,18 +3,18 @@ import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
-// import AppsOutageIcon from '@mui/icons-material/AppsOutage';
+import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
 type Props = {
   children: React.ReactNode;
 };
 
-const SwipeMaterialApprovalLayout: React.FC<Props> = ({ children }) => {
+const ProcurementLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/swipe-approval", "/swipe-requisition-request"];
+  const tabRoutes = ["/procurement/create", "/procurement/manage","/procurement/completed"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -40,25 +40,35 @@ const SwipeMaterialApprovalLayout: React.FC<Props> = ({ children }) => {
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <PendingActionsIcon />
-               Swipe Pending MR(Approval)
+                <WarehouseIcon fontSize="small" />
+                Create PO
               </div>
             }
           />
-          {/* <Tab
+          <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <AppsOutageIcon />
-                Swipe Material Requisition Request
+                <ManageHistoryIcon fontSize="small" />
+                Manage PO
               </div>
             }
-          /> */}
+          />
+          <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <ManageHistoryIcon fontSize="small" />
+                Completed PO
+              </div>
+            }
+          />
         </Tabs>
+        
       </div>
       <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
     </div>
   );
 };
 
-export default SwipeMaterialApprovalLayout;
+export default ProcurementLayout;

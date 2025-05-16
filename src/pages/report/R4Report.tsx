@@ -46,10 +46,12 @@ const { RangePicker } = DatePicker;
 const R4Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { r4reportLoading, r4ReportDetail, r4ReportDetailLoading, r4report } = useAppSelector((state) => state.report);
+  const { r4reportLoading, r4ReportDetail, r4ReportDetailLoading, r4report } =
+    useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DEVICE");
   const [device, setDevice] = useState<DeviceType | null>(null);
-  const { emitDownloadR4Report,isConnected } = useSocketContext();
+  const [deviceType, setDeviceType] = useState<string>("");
+  const { emitDownloadR4Report, isConnected } = useSocketContext();
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
@@ -69,13 +71,23 @@ const R4Report: React.FC = () => {
     }
   };
   const downloadr4report = () => {
-  
     if (filter === "DEVICE") {
-      if(!device) return showToast("Please select a device", "error");
-      emitDownloadR4Report({ type: "DEVICE", deviceId: device?.id });
+      if (!device || !deviceType)
+        return showToast("Please select a device and device type", "error");
+      emitDownloadR4Report({
+        type: "DEVICE",
+        deviceId: device?.id,
+        deviceType: deviceType === "soundbox" ? "soundBox" : "swipeMachine",
+      });
     } else {
-      if (!date.from || !date.to) return showToast("Please select a date", "error");
-      emitDownloadR4Report({ type: "DATE", fromDate: date.from?.format("DD-MM-YYYY"), toDate: date.to?.format("DD-MM-YYYY") });
+      if (!date.from || !date.to)
+        return showToast("Please select a date", "error");
+      emitDownloadR4Report({
+        type: "DATE",
+        fromDate: date.from?.format("DD-MM-YYYY"),
+        toDate: date.to?.format("DD-MM-YYYY"),
+        deviceType: deviceType === "soundbox" ? "soundBox" : "swipeMachine",
+      });
     }
   };
   const onBtExport = useCallback(() => {
@@ -85,26 +97,58 @@ const R4Report: React.FC = () => {
   }, []);
   return (
     <>
-      <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
+      <Dialog
+        fullScreen
+        open={open}
+        onClose={handleClose}
+        TransitionComponent={Transition}
+      >
         <div className="border-b h-[50px] border-neutral-300 bg-neutral-200 flex items-center px-[20px]">
-          <IconButton size="small" edge="start" onClick={handleClose} aria-label="close">
+          <IconButton
+            size="small"
+            edge="start"
+            onClick={handleClose}
+            aria-label="close"
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div" fontWeight={500} fontSize={18}>
-            {r4ReportDetail && `#${r4ReportDetail?.productionData?.productImei}`}
-            {r4ReportDetailLoading && <Skeleton className="h-[30px] w-[300px]" />}
+          <Typography
+            sx={{ ml: 2, flex: 1 }}
+            variant="h6"
+            component="div"
+            fontWeight={500}
+            fontSize={18}
+          >
+            {r4ReportDetail &&
+              `#${r4ReportDetail?.productionData?.productImei}`}
+            {r4ReportDetailLoading && (
+              <Skeleton className="h-[30px] w-[300px]" />
+            )}
           </Typography>
         </div>
         <div className="h-full grid grid-cols-[400px_1fr] w-full ">
           <div className="h-full border-r border-neutral-300">
-            <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+            <List
+              sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+            >
               <ListItem>
                 <ListItemAvatar>
                   <Avatar>
                     <LocationCityIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Pick Location" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[100px]" /> : r4ReportDetail?.productionData?.productionLocation}</>} />
+                <ListItemText
+                  primary="Pick Location"
+                  secondary={
+                    <>
+                      {r4ReportDetailLoading ? (
+                        <Skeleton className="h-[15px] w-[100px]" />
+                      ) : (
+                        r4ReportDetail?.productionData?.productionLocation
+                      )}
+                    </>
+                  }
+                />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -112,7 +156,18 @@ const R4Report: React.FC = () => {
                     <ShareLocationIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Drop Location" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[130px]" /> : r4ReportDetail?.productionData?.dropLocation}</>} />
+                <ListItemText
+                  primary="Drop Location"
+                  secondary={
+                    <>
+                      {r4ReportDetailLoading ? (
+                        <Skeleton className="h-[15px] w-[130px]" />
+                      ) : (
+                        r4ReportDetail?.productionData?.dropLocation
+                      )}
+                    </>
+                  }
+                />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -120,7 +175,18 @@ const R4Report: React.FC = () => {
                     <DateRangeIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Insert Date" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[150px]" /> : r4ReportDetail?.productionData?.insertDate}</>} />
+                <ListItemText
+                  primary="Insert Date"
+                  secondary={
+                    <>
+                      {r4ReportDetailLoading ? (
+                        <Skeleton className="h-[15px] w-[150px]" />
+                      ) : (
+                        r4ReportDetail?.productionData?.insertDate
+                      )}
+                    </>
+                  }
+                />
               </ListItem>
 
               <ListItem>
@@ -129,7 +195,18 @@ const R4Report: React.FC = () => {
                     <PersonIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Insert By" secondary={<>{r4ReportDetailLoading ? <Skeleton className="h-[15px] w-[100px]" /> : r4ReportDetail?.productionData?.insertBy}</>} />
+                <ListItemText
+                  primary="Insert By"
+                  secondary={
+                    <>
+                      {r4ReportDetailLoading ? (
+                        <Skeleton className="h-[15px] w-[100px]" />
+                      ) : (
+                        r4ReportDetail?.productionData?.insertBy
+                      )}
+                    </>
+                  }
+                />
               </ListItem>
             </List>
           </div>
@@ -139,21 +216,74 @@ const R4Report: React.FC = () => {
         </div>
       </Dialog>
       <div className="bg-white h-[calc(100vh-100px)] flex relative">
-        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}`}>
-          <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
-            <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
-              {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+        <div
+          className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${
+            colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "
+          }`}
+        >
+          <div
+            className={`transition-all ${
+              colapse ? "left-0" : "left-[400px]"
+            } w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
+          >
+            <Button
+              onClick={() => setcolapse(!colapse)}
+              className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}
+            >
+              {colapse ? (
+                <Icons.right fontSize="small" />
+              ) : (
+                <Icons.left fontSize="small" />
+              )}
             </Button>
           </div>
           <div className="flex  gap-[20px] flex-col   p-[20px] overflow-hidden mt-[20px]">
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
-              <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
+              <Select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Filter By"
+              >
                 <MenuItem value={"DEVICE"}>SKU</MenuItem>
                 <MenuItem value={"DATE"}>Date</MenuItem>
               </Select>
             </FormControl>
-            {filter === "DEVICE" && <SelectSku varient="outlined" onChange={(e) => setDevice(e)} value={device} />}
+            <FormControl fullWidth>
+              <InputLabel id="device-type-label">Device Type</InputLabel>
+              <Select
+                value={deviceType}
+                onChange={(e) => setDeviceType(e.target.value)}
+                labelId="device-type-label"
+                label="Device Type"
+                sx={{
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgb(203 213 225)",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgb(148 163 184)",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgb(14 116 144)",
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
+                  <em>Select Device Type</em>
+                </MenuItem>
+                <MenuItem value="soundbox">Sound Box</MenuItem>
+                <MenuItem value="swipemachine">Swipe Machine</MenuItem>
+              </Select>
+            </FormControl>
+            {filter === "DEVICE" && (
+              <SelectSku
+                varient="outlined"
+                onChange={(e) => setDevice(e)}
+                value={device}
+              />
+            )}
             {filter === "DATE" && (
               <RangePicker
                 className="w-full h-[55px] border-2 rounded-lg border-neutral-300 rounded-0 "
@@ -161,8 +291,8 @@ const R4Report: React.FC = () => {
                 onChange={handleDateChange}
                 disabledDate={(current) => current && current > dayjs()}
                 placeholder={["Start date", "End Date"]}
-                value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
-                format="DD/MM/YYYY" // Update with your desired format
+                value={date.from && date.to ? [date.from, date.to] : null}
+                format="DD/MM/YYYY"
               />
             )}
             <div className="flex justify-between itesms-center">
@@ -174,24 +304,45 @@ const R4Report: React.FC = () => {
                   loadingPosition="start"
                   onClick={() => {
                     if (filter === "DEVICE") {
-                      if (!device) {
-                        showToast("Please select a device", "error");
+                      if (!device || !deviceType) {
+                        showToast(
+                          "Please select a device and device type",
+                          "error"
+                        );
                       } else {
-                        dispatch(getr4Report({ type: "DEVICE", device: device?.id }));
+                        dispatch(
+                          getr4Report({
+                            type: "DEVICE",
+                            device: device?.id,
+                            deviceType,
+                          })
+                        );
                       }
                     }
                     if (filter === "DATE") {
                       if (!date.from || !date.to) {
                         showToast("Please select a date", "error");
                       } else {
-                        dispatch(getr4Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                        dispatch(
+                          getr4Report({
+                            type: "DATE",
+                            from: dayjs(date.from).format("DD-MM-YYYY"),
+                            to: dayjs(date.to).format("DD-MM-YYYY"),
+                            deviceType,
+                          })
+                        );
                       }
                     }
                   }}
                 >
                   Search
                 </LoadingButton>
-                <LoadingButton disabled={!isConnected} onClick={downloadr4report} variant="contained" startIcon={<Icons.download fontSize="small" />} >
+                <LoadingButton
+                  disabled={!isConnected}
+                  onClick={downloadr4report}
+                  variant="contained"
+                  startIcon={<Icons.download fontSize="small" />}
+                >
                   Download Report
                 </LoadingButton>
               </div>

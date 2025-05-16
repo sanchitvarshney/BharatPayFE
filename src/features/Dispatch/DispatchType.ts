@@ -4,14 +4,17 @@ export type DispatchItemPayload = {
   dispatchQty?: number; // required
   remark?: string; // optional
   imeis: string[]; // required array of strings
+  imei1?: any;
+  imei2?: any;
   srlnos : string[];
   document: string; // required
   pickLocation: string;
-  clientDetail?: any;
-  shipToDetails?: any;
-  dispatchDate?: string;
-  dispatchFromDetails?: any;
   challanId: string;
+  clientDetail: any;
+  shipToDetails: any;
+  dispatchDate: string;
+  dispatchFromDetails: any;
+  deviceType?: string;
 };
 
 export type DispatchWrongItemPayload = {
@@ -43,4 +46,6 @@ export type DispatchState = {
   getChallanLoading: boolean;
   createChallanLoading: boolean;
   updateChallanLoading:boolean;
+  branchLoading:boolean;
+  branchList:any;
 };

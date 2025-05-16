@@ -17,7 +17,7 @@ type Props = {
 
 // Generate dummy data according to pagination needs
 const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
-  const { emitDownloadr5Report, emitDownloadWrongDeviceReport } =
+  const { emitDownloadr5Report, emitDownloadWrongDeviceReport,emitDownloadSwipeReport } =
     useSocketContext();
   // const dispatch = useAppDispatch();
   const columnDefs: ColDef[] = [
@@ -68,12 +68,12 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
       hide: true,
     },
     {
-      headerName: "--",
+      headerName: "Dispatch ID",
       field: "dispatchId",
       sortable: true,
       filter: true,
       flex: 1,
-      hide: true,
+      hide: false,
     },
 
     {
@@ -91,7 +91,10 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
             const type = params?.data?.deviceType;
             if (type === "wrongDevices") {
               emitDownloadWrongDeviceReport({ txnId: id });
-            } else {
+            }else if(type === "swipedevice"){
+              emitDownloadSwipeReport({ txnId: id });
+            }            
+            else {
               emitDownloadr5Report({ txnId: id });
             }
           }}

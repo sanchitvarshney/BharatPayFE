@@ -92,4 +92,5 @@ export type MrRequestWithoutBom = {
   craeteRequestData: CreateProductRequestResponse | null;
   getAvailbleQtyLoading: boolean;
   availbleQtyData: AvaibleQtyData[] | null;
+  transferRequestLoading: boolean;
 };

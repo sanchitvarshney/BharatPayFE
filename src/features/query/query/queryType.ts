@@ -130,6 +130,7 @@ type TransactionData = {
   locationOut:string;
   method:string;
   manufacturingMonth?:string
+  deviceMovId?:string
 };
 
 export type R6ApiResponse = {

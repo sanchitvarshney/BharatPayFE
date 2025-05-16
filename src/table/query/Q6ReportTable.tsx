@@ -65,6 +65,7 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
         locIn: item.location,
         locOut: item.locationOut,
         insertBy: item.user,
+        moveId: item.deviceMovId
       }));
       setRowData(convertedData);
     }
@@ -116,6 +117,13 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       width: 200,
+    },
+    {
+      headerName: "Move ID",
+      field: "moveId",
+      sortable: true,
+      filter: true,
+      width:250
     },
     {
       headerName: "Inserted By",

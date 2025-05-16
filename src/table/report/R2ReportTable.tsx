@@ -28,6 +28,7 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
     { headerName: "Consumption Date", field: "conspDate", sortable: true, filter: true , valueGetter: (params:any)=>{
       return params?.data?.conspDate ==="Invalid date" ? null : params?.data?.conspDate;
     }},
+    { headerName: "Consumption By", field: "conspBy", sortable: true, filter: true },
     {
       headerName: "Request Status",
       field: "status",

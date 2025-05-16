@@ -123,6 +123,14 @@ type R4Report = {
   prodductionId: string;
 };
 
+export type R4ReportQueryParams = {
+  from?: string;
+  to?: string;
+  type: string;
+  device?: string;
+  deviceType?: string;
+};
+
 export type r4reportDetailDataResponse = {
   success: boolean;
   status: string;
@@ -304,21 +312,23 @@ export type ReportStateType = {
   r5report: R5report[] | null;
   r5reportLoading: boolean;
   r5reportDetailLoading: boolean;
-  r5reportDetail: {
-    slNo: string;
-    insert_dt: string;
-    shipLabel: string;
-    shipToCity: string;
-    p_name: string;
-    imei: string;
-    nfc_enable: string | null;
-    iccid: string | null;
-    qr_url: string | null;
-  }[] | null;
+  r5reportDetail:
+    | {
+        slNo: string;
+        insert_dt: string;
+        shipLabel: string;
+        shipToCity: string;
+        p_name: string;
+        imei: string;
+        nfc_enable: string | null;
+        iccid: string | null;
+        qr_url: string | null;
+      }[]
+    | null;
   mainR1Report: MainR1Report[] | null;
   mainR1ReportLoading: boolean;
   r6Report: r6report[] | null;
-  wrongDeviceReport:any|null;
+  wrongDeviceReport: any | null;
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;
   r8Report: R8ReportData[] | null;
@@ -334,4 +344,51 @@ export type ReportStateType = {
   r15ReportLoading: boolean;
   r15Report: any | null;
   updatePhysicalQuantityLoading: boolean;
+  r16Report: R16ReportResponse | null;
+  r16ReportLoading: boolean;
+  r16ReportDateRange: {
+    from: string | null;
+    to: string | null;
+  };
+  r16ReportPartner: string | null;
+  r17Report: {
+    data: any[];
+    page: number;
+    status: string;
+    success: boolean;
+    totalPages: number;
+    totalRecords: number;
+  } | null;
+  getR17DataLoading: boolean;
+  r17ReportDateRange: {
+    from: string | null;
+    to: string | null;
+  };
+  r17ReportPartner: string | null;
+  swipeItemDetails: any | null;
+  swipeItemDetailsLoading:boolean
+  transferReportLoading: boolean;
+  transferReport: any | null;
 };
+
+export interface R16ReportResponse {
+  status: string;
+  success: boolean;
+  page: number;
+  totalPages: number;
+  totalRecords: number;
+  data: Array<{
+    inwardLoc: string;
+    partnerName: string;
+    method: string;
+    skuName: string;
+    deviceSKU: string;
+    model: string;
+    serialNo: string;
+    imeiNo1: string;
+    imeiNo2: string;
+    txnID: string;
+    remark: string;
+    insertDt: string;
+  }>;
+}
