@@ -96,7 +96,6 @@ import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
 import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
 import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 import BranchTransferLayout from "@/layouts/BranchTransferLayout";
-import ManageBranchTransfer from "@/pages/branchTransfer/ManageBranchTransfer";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
 import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
