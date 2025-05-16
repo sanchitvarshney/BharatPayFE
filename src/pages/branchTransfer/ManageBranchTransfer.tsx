@@ -70,7 +70,7 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
             imei2: device?.imei_no2 || "",
           };
         });
-        setRowData((prevRowData: any) => [...newRowData, ...prevRowData] ); ;
+        setRowData((prevRowData: any) => [...newRowData, ...prevRowData]);
       } else {
         showToast(res.payload.data.message, "error");
       }
@@ -140,7 +140,7 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
       width: 100,
     },
   ];
-console.log(formData)
+  console.log(formData);
   return (
     <div className="h-[calc(100vh-100px)] bg-white flex w-full">
       {/* Display form data - 1/3 */}
