@@ -210,6 +210,7 @@ const ManageBranchTable = () => {
     const payload = {
       challanId: selectedRow?.challanId,
       imei: scannedDevices.map((device) => device.imei),
+      serial: scannedDevices.map((device) => device.srno || ""),
     };
     dispatch(approveTransfer(payload)).then((res: any) => {
       if (res.payload.data.success) {
