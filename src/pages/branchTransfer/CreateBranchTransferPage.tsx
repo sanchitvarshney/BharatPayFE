@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import {
-  clearaddressdetail,
-} from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetDocumentFile,
   resetFormData,
@@ -22,11 +20,11 @@ import {
   Step,
   StepLabel,
   Stepper,
-  TextField,
   Typography,
   Select,
   MenuItem,
   OutlinedInput,
+  Paper,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -34,12 +32,8 @@ import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import Success from "@/components/reusable/Success";
 import { DeviceType } from "@/components/reusable/SelectSku";
-import {
-  getAllBranch,
-} from "@/features/Dispatch/DispatchSlice";
-import {
-  getDispatchFromDetail,
-} from "@/features/master/client/clientSlice";
+import { getAllBranch } from "@/features/Dispatch/DispatchSlice";
+import { getDispatchFromDetail } from "@/features/master/client/clientSlice";
 import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import SelectDeviceWithType from "@/components/reusable/SelectDeviceWithType";
 import axiosInstance from "@/api/axiosInstance";
@@ -58,10 +52,9 @@ type FormData = {
   branchType: string;
   fromLocationAddress: string;
   toLocationAddress: string;
-fromLocationName: string;
-toLocationName: string;
+  fromLocationName: string;
+  toLocationName: string;
 };
-
 
 const CreateBranchTransferPage: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
@@ -71,9 +64,7 @@ const CreateBranchTransferPage: React.FC = () => {
   const [fromLocationList, setFromLocationList] = useState<any[]>([]);
   const [toLocationList, setToLocationList] = useState<any[]>([]);
   const dispatch = useAppDispatch();
-  const {branchList} = useAppSelector(
-    (state) => state.dispatch
-  )
+  const { branchList } = useAppSelector((state) => state.dispatch);
   const { transferRequestLoading } = useAppSelector(
     (state) => state.materialRequestWithoutBom
   );
@@ -160,7 +151,7 @@ const CreateBranchTransferPage: React.FC = () => {
           "success"
         );
         setActiveStep(2);
-        setDispatchNo(res.payload.data.data.message);
+        setDispatchNo(res.payload.data.message);
       }
     });
   };
@@ -347,50 +338,78 @@ const CreateBranchTransferPage: React.FC = () => {
                 />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="fromBranch"
-                  rules={{ required: "From Branch is required" }}
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth>
-                      <InputLabel id="from-branch-label">
-                        From Branch
-                      </InputLabel>
-                      <Select
-                        {...field}
-                        labelId="from-branch-label"
-                        id="from-branch-select"
-                        label="From Branch"
-                        onChange={(e) => {
-                          const selectedBranch = branchList?.find(
-                            (branch: any) =>
-                              branch.branch_code === e.target.value
-                          );
-                          setValue(
-                            "fromLocationAddress",
-                            selectedBranch?.address
-                          );
-                          field.onChange(selectedBranch || null);
-                        }}
-                        value={field.value?.branch_code || ""}
-                      >
-                        {branchList?.map((branch: any) => (
-                          <MenuItem
-                            key={branch.branch_code}
-                            value={branch.branch_code}
-                          >
-                            {branch.branch_name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {errors.fromBranch && (
-                        <FormHelperText error>
-                          {errors.fromBranch.message?.toString()}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
+                <div>
+                  <Controller
+                    name="fromBranch"
+                    rules={{ required: "From Branch is required" }}
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth>
+                        <InputLabel id="from-branch-label">
+                          From Branch
+                        </InputLabel>
+                        <Select
+                          {...field}
+                          labelId="from-branch-label"
+                          id="from-branch-select"
+                          label="From Branch"
+                          onChange={(e) => {
+                            const selectedBranch = branchList?.find(
+                              (branch: any) =>
+                                branch.branch_code === e.target.value
+                            );
+                            setValue(
+                              "fromLocationAddress",
+                              selectedBranch?.address
+                            );
+                            field.onChange(selectedBranch || null);
+                          }}
+                          value={field.value?.branch_code || ""}
+                        >
+                          {branchList?.map((branch: any) => (
+                            <MenuItem
+                              key={branch.branch_code}
+                              value={branch.branch_code}
+                            >
+                              {branch.branch_name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {errors.fromBranch && (
+                          <FormHelperText error>
+                            {errors.fromBranch.message?.toString()}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+
+              {!!watch("fromLocationAddress")&&    <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 1.5,
+                      mt: 1,
+                      backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                      border: '1px solid rgba(34, 197, 94, 0.2)',
+                      borderRadius: 1
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      fontWeight={500}
+                      sx={{
+                        color: 'rgb(22, 163, 74)',
+                        fontSize: '0.875rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}
+                    >
+                      <Icons.building className="text-green-600" />
+                      {watch("fromLocationAddress")}
+                    </Typography>
+                  </Paper>}
+                </div>
                 <div>
                   <Controller
                     name="fromLocation"
@@ -446,18 +465,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </p>
                   )}
                 </div>
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.fromLocationAddress}
-                  helperText={errors?.fromLocationAddress?.message}
-                  focused={!!watch("fromLocationAddress")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="From Branch Address"
-                  value={watch("fromLocationAddress")}
-                />
+               
               </div>
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
@@ -473,6 +481,7 @@ const CreateBranchTransferPage: React.FC = () => {
                 />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                <div>
                 <Controller
                   name="toBranch"
                   rules={{ required: "To Branch is required" }}
@@ -515,6 +524,32 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
+                 {!!watch("toLocationAddress")&&    <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 1.5,
+                      mt: 1,
+                      backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                      border: '1px solid rgba(34, 197, 94, 0.2)',
+                      borderRadius: 1
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      fontWeight={500}
+                      sx={{
+                        color: 'rgb(22, 163, 74)',
+                        fontSize: '0.875rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}
+                    >
+                      <Icons.building className="text-green-600" />
+                      {watch("toLocationAddress")}
+                    </Typography>
+                  </Paper>}
+                </div>
                 <div>
                   <Controller
                     name="toLocation"
@@ -570,18 +605,6 @@ const CreateBranchTransferPage: React.FC = () => {
                     </p>
                   )}
                 </div>
-                <TextField
-                  variant="filled"
-                  sx={{ mb: 1 }}
-                  error={!!errors.toLocationAddress}
-                  helperText={errors?.toLocationAddress?.message}
-                  focused={!!watch("toLocationAddress")}
-                  multiline
-                  rows={3}
-                  fullWidth
-                  label="To Branch Address"
-                  value={watch("toLocationAddress")}
-                />
               </div>
             </div>
           )}
@@ -597,11 +620,12 @@ const CreateBranchTransferPage: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Dispatch Number - {dispatchNo ? dispatchNo : ""}
+                  {dispatchNo ? dispatchNo : ""}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}
                   variant="contained"
+                  className="w-1/2"
                 >
                   Create New Branch Transfer
                 </LoadingButton>

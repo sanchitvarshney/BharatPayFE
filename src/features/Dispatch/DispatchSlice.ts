@@ -24,6 +24,7 @@ const initialState: DispatchState = {
   updateChallanLoading:false,
   branchLoading:false,
   branchList:null,
+  rejectTransferLoading:false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -109,6 +110,16 @@ export const getAllBranch = createAsyncThunk<AxiosResponse<any>>('/backend/branc
   return response;
 });
 
+export const rejectTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferReject', async (payload) => {
+  const response = await axiosInstance.put(`deviceBranchTransfer/updateStatus/reject`,payload);
+  return response;
+});
+
+export const approveTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferApprove', async (payload) => {
+  const response = await axiosInstance.put(`deviceBranchTransfer/updateStatus/approve`,payload);
+  return response;
+});
+
 const dispatchSlice = createSlice({
   name: "dispatch",
   initialState,
@@ -174,6 +185,15 @@ const dispatchSlice = createSlice({
         state.getChallanLoading = false;
       })
 
+      .addCase(rejectTransfer.pending, (state) => {
+        state.rejectTransferLoading = true;
+      })
+      .addCase(rejectTransfer.fulfilled, (state) => {
+        state.rejectTransferLoading = false;
+      })
+      .addCase(rejectTransfer.rejected, (state) => {
+        state.rejectTransferLoading = false;
+      })
       .addCase(CreateSwipeDispatch.pending, (state) => {
         state.dispatchCreateLoading = true;
       })
