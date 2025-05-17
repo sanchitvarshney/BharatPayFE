@@ -167,6 +167,9 @@ const ManageBranchTable = () => {
   const { deviceDetailLoading } = useAppSelector(
     (state) => state.batteryQcReducer
   );
+  const { rejectTransferLoading } = useAppSelector(
+    (state) => state.dispatch
+  );
   const paginationPageSize = 20; // Define page size
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -215,12 +218,13 @@ const ManageBranchTable = () => {
     dispatch(approveTransfer(payload)).then((res: any) => {
       if (res.payload.data.success) {
         showToast("Transfer approved successfully", "success");
+        dispatch(transferBranchReport(status));
+        setApproveModalOpen(false);
+        setScannedDevices([]);
       } else {
         showToast(res.payload.data.message, "error");
       }
     });
-    setApproveModalOpen(false);
-    setScannedDevices([]);
   };
 
   const handleReject = () => {
@@ -233,11 +237,11 @@ const ManageBranchTable = () => {
       challanId: selectedRow?.challanId,
     };
     dispatch(rejectTransfer(payload)).then((res: any) => {
-      console.log(res);
       if (res.payload.data.success) {
         showToast("Transfer rejected successfully", "success");
         setRejectModalOpen(false);
         setRejectRemark("");
+        dispatch(transferBranchReport(status));
       } else {
         showToast(res.payload.data.message, "error");
       }
@@ -344,6 +348,7 @@ const ManageBranchTable = () => {
             onClick={handleReject}
             variant="contained"
             color="error"
+            loading={rejectTransferLoading}
           >
             Reject
           </LoadingButton>
@@ -437,6 +442,7 @@ const ManageBranchTable = () => {
             onClick={handleApprove}
             variant="contained"
             color="success"
+            loading={rejectTransferLoading}
           >
             Approve
           </LoadingButton>

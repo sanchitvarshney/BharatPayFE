@@ -194,6 +194,15 @@ const dispatchSlice = createSlice({
       .addCase(rejectTransfer.rejected, (state) => {
         state.rejectTransferLoading = false;
       })
+      .addCase(approveTransfer.pending, (state) => {
+        state.rejectTransferLoading = true;
+      })
+      .addCase(approveTransfer.fulfilled, (state) => {
+        state.rejectTransferLoading = false;
+      })
+      .addCase(approveTransfer.rejected, (state) => {
+        state.rejectTransferLoading = false;
+      })
       .addCase(CreateSwipeDispatch.pending, (state) => {
         state.dispatchCreateLoading = true;
       })
