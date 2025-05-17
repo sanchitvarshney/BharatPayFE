@@ -126,30 +126,31 @@ const ManageBranchTable = () => {
       field: "",
       sortable: false,
       filter: false,
-      cellRenderer: (params: any) => (
-        <Stack direction="row" spacing={1}>
-          <IconButton
-            onClick={() => {
-              setSelectedRow(params.data);
-              setApproveModalOpen(true);
-            }}
-            color="success"
-            size="small"
-          >
-            Approve
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              setSelectedRow(params.data);
-              setRejectModalOpen(true);
-            }}
-            color="error"
-            size="small"
-          >
-            Reject
-          </IconButton>
-        </Stack>
-      ),
+      cellRenderer: (params: any) =>
+        params.data.status === "Pending" ? (
+          <Stack direction="row" spacing={1}>
+            <IconButton
+              onClick={() => {
+                setSelectedRow(params.data);
+                setApproveModalOpen(true);
+              }}
+              color="success"
+              size="small"
+            >
+              Approve
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                setSelectedRow(params.data);
+                setRejectModalOpen(true);
+              }}
+              color="error"
+              size="small"
+            >
+              Reject
+            </IconButton>
+          </Stack>
+        ) : null,
       width: 220,
     },
   ];
@@ -167,9 +168,7 @@ const ManageBranchTable = () => {
   const { deviceDetailLoading } = useAppSelector(
     (state) => state.batteryQcReducer
   );
-  const { rejectTransferLoading } = useAppSelector(
-    (state) => state.dispatch
-  );
+  const { rejectTransferLoading } = useAppSelector((state) => state.dispatch);
   const paginationPageSize = 20; // Define page size
 
   const defaultColDef = useMemo<ColDef>(() => {
