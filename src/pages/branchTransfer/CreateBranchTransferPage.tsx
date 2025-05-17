@@ -617,7 +617,7 @@ const CreateBranchTransferPage: React.FC = () => {
           )}
           {activeStep === 2 && (
             <div className="h-[calc(100vh-200px)] flex items-center justify-center">
-              <div className="flex flex-col justify-center gap-[10px]">
+              <div className="flex flex-col items-center justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
                   {dispatchNo ? dispatchNo : ""}

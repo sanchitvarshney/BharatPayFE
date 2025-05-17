@@ -145,10 +145,10 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
   ];
 
   return (
-    <div className="h-[calc(100vh-100px)] bg-white flex w-full">
+    <div className="h-[calc(100vh-200px)] bg-white flex w-full">
       {/* Display form data - 1/3 */}
       <div
-        className="flex flex-col gap-[20px] border-r border-neutral-300 p-[20px] h-full overflow-y-auto"
+        className="flex flex-col gap-[20px] border-r border-neutral-300 p-[20px]"
         style={{ flex: "1 1 0%", minWidth: 0, maxWidth: "33.3333%" }}
       >
         <Accordion defaultExpanded={false}>
@@ -328,7 +328,7 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
 
       {/* Right side - 2/3 */}
       <div
-        className="flex flex-col p-[20px] h-full"
+        className="flex flex-col p-[20px]"
         style={{ flex: "2 1 0%", minWidth: 0, maxWidth: "66.6666%" }}
       >
         <div className="mb-4" style={{ maxWidth: 400 }}>
@@ -357,8 +357,8 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
             }}
           />
         </div>
-        <div className="flex-1 min-h-0 w-full">
-          <div className="ag-theme-quartz h-[calc(100vh-250px)]">
+        <div className="flex-1 w-full">
+          <div className="ag-theme-quartz h-[calc(100vh-350px)]">
             <AgGridReact
               overlayNoRowsTemplate={OverlayNoRowsTemplate}
               suppressCellFocus={true}
