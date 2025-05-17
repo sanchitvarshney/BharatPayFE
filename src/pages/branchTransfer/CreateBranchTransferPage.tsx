@@ -406,7 +406,7 @@ const CreateBranchTransferPage: React.FC = () => {
                       }}
                     >
                       <Icons.building className="text-green-600" />
-                      {watch("fromLocationAddress")}
+                      {watch("fromLocationAddress")?.replace(/<br\s*\/?>/gi, '\n')}
                     </Typography>
                   </Paper>}
                 </div>
@@ -546,7 +546,7 @@ const CreateBranchTransferPage: React.FC = () => {
                       }}
                     >
                       <Icons.building className="text-green-600" />
-                      {watch("toLocationAddress")}
+                      {watch("toLocationAddress")?.replace(/<br\s*\/?>/gi, '\n')}
                     </Typography>
                   </Paper>}
                 </div>

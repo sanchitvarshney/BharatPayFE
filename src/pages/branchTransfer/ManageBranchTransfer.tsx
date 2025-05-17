@@ -192,7 +192,7 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
                   {formData.fromBranch?.branch_name || "-"}
                 </Typography>
                 <Typography className="text-green-600 text-sm mt-1">
-                  {formData.fromBranch?.address || "-"}
+                  {(formData.fromBranch?.address)?.replace(/<br\s*\/?>/gi, '\n') || "-"}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -213,7 +213,7 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
                 </Typography>
                 <Typography>{formData.toBranch?.branch_name || "-"}</Typography>
                 <Typography className="text-green-600 text-sm mt-1">
-                  {formData.toBranch?.address || "-"}
+                  {(formData.toBranch?.address)?.replace(/<br\s*\/?>/gi, '\n') || "-"}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
