@@ -2,14 +2,44 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
-
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { clearaddressdetail, getLocationAsync, getVendorAddress, getVendorAsync, getVendorBranchAsync, uploadInvoiceFile } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { createRawMin, deletefile, resetDocumentFile, resetFormData, storeDocumentFile, storeFormdata } from "@/features/wearhouse/Rawmin/RawMinSlice";
+import {
+  clearaddressdetail,
+  getLocationAsync,
+  getVendorAddress,
+  getVendorAsync,
+  getVendorBranchAsync,
+  uploadInvoiceFile,
+} from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import {
+  createRawMin,
+  deletefile,
+  resetDocumentFile,
+  resetFormData,
+  storeDocumentFile,
+  storeFormdata,
+} from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { CreateRawMinPayloadType } from "@/features/wearhouse/Rawmin/RawMinType";
 import { getCurrency } from "@/features/common/commonSlice";
-import { Divider, FormControl, FormHelperText, IconButton, InputLabel, List, ListItem, ListItemText, MenuItem, Select, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  Divider,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Select,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography,
+} from "@mui/material";
 import SelectVendor, { VendorData } from "@/components/reusable/SelectVendor";
 import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -25,7 +55,15 @@ import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import RMMaterialsAddTablev2 from "@/table/wearhouse/RMMaterialsAddTablev2";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import SelectCostCenter, {
+  CostCenterType,
+} from "@/components/reusable/SelectCostCenter";
+import {
+  getDispatchFromDetail,
+  getShippingAddress,
+} from "@/features/master/client/clientSlice";
+import { transformSkuCode } from "@/utils/transformUtills";
+import AddPOTable from "@/pages/procurement/AddPOTable";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -55,11 +93,47 @@ interface Totals {
   taxableValue: number;
 }
 
+interface BillAddress {
+  id: number;
+  code: string;
+  addressLine1: string;
+  addressLine2: string;
+  mobileNo: string;
+  city: string;
+  gst: string;
+  company: string;
+  pan: string;
+  pin: string;
+  label: string;
+}
+
+interface ShippingAddress {
+  id: number;
+  addressLine1: string;
+  addressLine2: string;
+  mobileNo: string;
+  city: string;
+  gst: string;
+  company: string;
+  pan: string;
+  pin: string;
+  label: string;
+}
 type FormData = {
+  currency: string;
+  invoice: string;
+  location: string;
+  vendorname: VendorData | null;
+  vendorbranch: string;
+  vendoraddress: string;
+  duedate: string;
+  advancepayment: 0;
+  billaddressid: 0;
+  billaddress: BillAddress;
+  shipaddressid: 0;
+  shipaddress: ShippingAddress;
+  exchange: 0;
   vendorType: string;
-  vendor: VendorData | null;
-  vendorBranch: string;
-  vendorAddress: string;
   gstin: string;
   doucmentDate: Dayjs | null;
   documentId: string;
@@ -73,10 +147,23 @@ const CreatePO: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [total, setTotal] = useState<Totals>({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
+  const [total, setTotal] = useState<Totals>({
+    cgst: 0,
+    sgst: 0,
+    igst: 0,
+    taxableValue: 0,
+  });
   const dispatch = useAppDispatch();
-  const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
-  const { documnetFileData, createminLoading, formdata } = useAppSelector((state) => state.rawmin);
+  const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } =
+    useAppSelector((state) => state.divicemin);
+  const { documnetFileData, createminLoading, formdata } = useAppSelector(
+    (state) => state.rawmin
+  );
+  const { dispatchFromDetails, shippingAddress } = useAppSelector(
+    (state) => state.client
+  ) as any;
+
+  const { currencyData } = useAppSelector((state) => state.common);
 
   const {
     register,
@@ -112,7 +199,15 @@ const CreatePO: React.FC = () => {
 
   const checkRequiredFields = (data: RowData[]) => {
     let hasErrors = false;
-    const requiredFields: Array<keyof RowData> = ["partComponent", "qty", "rate", "hsnCode", "gstType", "gstRate", "location"];
+    const requiredFields: Array<keyof RowData> = [
+      "partComponent",
+      "qty",
+      "rate",
+      "hsnCode",
+      "gstType",
+      "gstRate",
+      "location",
+    ];
 
     const missingDetails: string[] = [];
 
@@ -120,7 +215,12 @@ const CreatePO: React.FC = () => {
       const missingFields: string[] = [];
 
       requiredFields.forEach((field) => {
-        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
+        if (
+          item[field] === "" ||
+          item[field] === 0 ||
+          item[field] === undefined ||
+          item[field] === null
+        ) {
           missingFields.push(field);
         }
       });
@@ -132,7 +232,10 @@ const CreatePO: React.FC = () => {
     });
 
     if (missingDetails.length > 0) {
-      showToast(`Some required fields are missing:\n${missingDetails.join("\n")}`, "error");
+      showToast(
+        `Some required fields are missing:\n${missingDetails.join("\n")}`,
+        "error"
+      );
     }
 
     return hasErrors;
@@ -149,8 +252,9 @@ const CreatePO: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    if (!documnetFileData || documnetFileData.length === 0) return showToast("Please Upload Invoice Documents", "error");
-    dispatch(storeFormdata(data));
+    // if (!documnetFileData || documnetFileData.length === 0)
+    //   return showToast("Please Upload Invoice Documents", "error");
+    // dispatch(storeFormdata(data));
     handleNext();
   };
   const finalSubmit = () => {
@@ -161,7 +265,9 @@ const CreatePO: React.FC = () => {
         showToast("Please Upload Invoice Documents", "error");
       } else {
         if (!checkRequiredFields(rowData)) {
-          const component = rowData.map((item) => item.partComponent?.value || "");
+          const component = rowData.map(
+            (item) => item.partComponent?.value || ""
+          );
           const qty = rowData.map((item) => Number(item.qty));
           const rate = rowData.map((item) => Number(item.rate));
           const gsttype = rowData.map((item) => item.gstType);
@@ -226,19 +332,41 @@ const CreatePO: React.FC = () => {
     dispatch(getLocationAsync(null));
     dispatch(getPertCodesync(null));
     dispatch(getCurrency());
+    dispatch(getDispatchFromDetail());
+    dispatch(getShippingAddress());
   }, []);
 
-  useEffect(() => {
-    if (formdata) {
-      setValue("vendorType", formdata.vendorType);
-      setValue("vendor", formdata.vendor);
-      setValue("vendorBranch", formdata.vendorBranch);
-      setValue("vendorAddress", formdata.vendorAddress);
-      setValue("gstin", formdata.gstin);
-      setValue("doucmentDate", dayjs(formdata.doucmentDate));
-      setValue("documentId", formdata.documentId);
+  const handleBillAddressChange = (value: any) => {
+    console.log(value);
+    if (value) {
+      setValue("billaddressid", value.id);
+      setValue("billaddress.label", value.label);
+      setValue("billaddress.addressLine1", value.addressLine1);
+      setValue("billaddress.addressLine2", value.addressLine2);
+      setValue("billaddress.mobileNo", value.mobileNo);
+      setValue("billaddress.gst", value.gst);
+      setValue("billaddress.company", value.company);
+      setValue("billaddress.pan", value.pan);
+      setValue("billaddress.pin", value.pin);
     }
-  }, [formdata]);
+  };
+  const handleShipAddressChange = (value: any) => {
+    console.log(value);
+    if (value) {
+      setValue("shipaddressid", value.code);
+      setValue("shipaddress.label", value.label);
+      setValue("shipaddress.addressLine1", value.addressLine1);
+      setValue("shipaddress.addressLine2", value.addressLine2);
+      setValue("shipaddress.mobileNo", value.mobileNo);
+      setValue("shipaddress.city", value.city);
+      setValue("shipaddress.gst", value.gst);
+      setValue("shipaddress.company", value.company);
+      setValue("shipaddress.pan", value.pan);
+      setValue("shipaddress.pin", value.pin);
+    }
+  };
+  const billLabel = watch("billaddress.label");
+  const shipLabel = watch("shipaddress.label");
   return (
     <>
       <ConfirmationModel
@@ -272,78 +400,28 @@ const CreatePO: React.FC = () => {
 
           {activeStep === 0 && (
             <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
-              <div id="primary-item-details" className="flex items-center w-full gap-3">
+              <div
+                id="primary-item-details"
+                className="flex items-center w-full gap-3"
+              >
                 <div className="flex items-center gap-[5px]">
                   <Icons.user />
-                  <h2 id="primary-item-details" className="text-lg font-semibold">
+                  <h2
+                    id="primary-item-details"
+                    className="text-lg font-semibold"
+                  >
                     Vendor Details
                   </h2>
                 </div>
-                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="vendorType"
-                  control={control}
-                  rules={{ required: "Vendor Type is required" }}
-                  render={({ field }) => (
-                    <FormControl variant="filled" error={!!errors.vendorType} fullWidth>
-                      <InputLabel id="demo-simple-select-label">Vendor Type </InputLabel>
-                      <Select labelId="demo-simple-select-label" id="demo-simple-select" label="Vendor Type" {...field}>
-                        <MenuItem value={"V01"}>Vendor</MenuItem>
-                      </Select>
-                      {errors.vendorType && <FormHelperText>{errors.vendorType.message}</FormHelperText>}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="vendor"
-                  control={control}
-                  rules={{ required: "Vendor  is required" }}
-                  render={({ field }) => (
-                    <SelectVendor
-                      varient="filled"
-                      error={!!errors.vendor}
-                      helperText={errors.vendor?.message}
-                      value={field.value}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        dispatch(getVendorBranchAsync(e!.id));
-                      }}
-                      label="Vendor"
-                    />
-                  )}
-                />
-                <Controller
-                  name="vendorBranch"
-                  control={control}
-                  rules={{ required: "Vendor Branch  is required" }}
-                  render={({ field }) => (
-                    <FormControl variant="filled" error={!!errors.vendorBranch} disabled={!VendorBranchData} fullWidth>
-                      <InputLabel id="Vendor-simple-select-label">Vendor Branch</InputLabel>
-                      <Select
-                        labelId="Vendor-simple-select-label"
-                        id="Vendor-simple-select"
-                        label="Vendor Branch"
-                        value={field.value}
-                        onChange={(e) => {
-                          field.onChange(e.target.value);
-                          dispatch(getVendorAddress(e.target.value)).then((response: any) => {
-                            if (response.payload.data.success) {
-                              setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) || "");
-                              setValue("gstin", response.payload.data?.data?.gstid);
-                            }
-                          });
-                        }}
-                      >
-                        {VendorBranchData?.map((item) => (
-                          <MenuItem value={item.id}>{item.text}</MenuItem>
-                        ))}
-                      </Select>
-                      {errors.vendorBranch && <FormHelperText>{errors.vendorBranch.message}</FormHelperText>}
-                    </FormControl>
-                  )}
-                />
                 <Controller
                   name="cc"
                   control={control}
@@ -362,6 +440,76 @@ const CreatePO: React.FC = () => {
                     />
                   )}
                 />
+                <Controller
+                  name="vendorname"
+                  control={control}
+                  rules={{ required: "Vendor  is required" }}
+                  render={({ field }) => (
+                    <SelectVendor
+                      varient="filled"
+                      error={!!errors.vendorname}
+                      helperText={errors.vendorname?.message}
+                      value={field.value}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        dispatch(getVendorBranchAsync(e!.id));
+                      }}
+                      label="Vendor"
+                    />
+                  )}
+                />
+                <Controller
+                  name="vendorbranch"
+                  control={control}
+                  rules={{ required: "Vendor Branch  is required" }}
+                  render={({ field }) => (
+                    <FormControl
+                      variant="filled"
+                      error={!!errors.vendorbranch}
+                      disabled={!VendorBranchData}
+                      fullWidth
+                    >
+                      <InputLabel id="Vendor-simple-select-label">
+                        Vendor Branch
+                      </InputLabel>
+                      <Select
+                        labelId="Vendor-simple-select-label"
+                        id="Vendor-simple-select"
+                        label="Vendor Branch"
+                        value={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          dispatch(getVendorAddress(e.target.value)).then(
+                            (response: any) => {
+                              if (response.payload.data.success) {
+                                setValue(
+                                  "vendoraddress",
+                                  replaceBrWithNewLine(
+                                    response.payload.data?.data?.address
+                                  ) || ""
+                                );
+                                setValue(
+                                  "gstin",
+                                  response.payload.data?.data?.gstid
+                                );
+                              }
+                            }
+                          );
+                        }}
+                      >
+                        {VendorBranchData?.map((item) => (
+                          <MenuItem value={item.id}>{item.text}</MenuItem>
+                        ))}
+                      </Select>
+                      {errors.vendorbranch && (
+                        <FormHelperText>
+                          {errors.vendorbranch.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+
                 <div className="flex items-center gap-[10px] text-slate-600 sm:col-span-1 md:col-span-2 ">
                   <p className="font-[500]">GSTIN :</p>
                   <p>{venderaddressdata ? venderaddressdata.gstid : "--"}</p>
@@ -370,140 +518,364 @@ const CreatePO: React.FC = () => {
                   <TextField
                     variant="filled"
                     sx={{ mb: 1 }}
-                    error={!!errors.vendorAddress}
-                    helperText={errors?.vendorAddress?.message}
-                    focused={!!watch("vendorAddress")}
+                    error={!!errors.vendoraddress}
+                    helperText={errors?.vendoraddress?.message}
+                    focused={!!watch("vendoraddress")}
                     multiline
                     rows={3}
                     fullWidth
                     label="Bill From Address"
                     className="h-[100px] resize-none"
-                    {...register("vendorAddress", { required: "Bill From Address is required" })}
+                    {...register("vendoraddress", {
+                      required: "Bill From Address is required",
+                    })}
                   />
                 </div>
               </div>
-              <div id="primary-item-details" className="flex items-center w-full gap-3">
+              <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
-                  <Icons.user />
-                  <h2 id="primary-item-details" className="text-lg font-semibold">
-                    Billing Details
-                  </h2>
+                  <Icons.shipping />
+                  <h2 className="text-lg font-semibold">Billing Details</h2>
                 </div>
-                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="vendorType"
+                  name="billaddressid"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Bill Address is required",
+                    },
+                  }}
                   control={control}
-                  rules={{ required: "Vendor Type is required" }}
                   render={({ field }) => (
-                    <FormControl variant="filled" error={!!errors.vendorType} fullWidth>
-                      <InputLabel id="demo-simple-select-label">Vendor Type </InputLabel>
-                      <Select labelId="demo-simple-select-label" id="demo-simple-select" label="Vendor Type" {...field}>
-                        <MenuItem value={"V01"}>Vendor</MenuItem>
-                      </Select>
-                      {errors.vendorType && <FormHelperText>{errors.vendorType.message}</FormHelperText>}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="vendor"
-                  control={control}
-                  rules={{ required: "Vendor  is required" }}
-                  render={({ field }) => (
-                    <SelectVendor
-                      varient="filled"
-                      error={!!errors.vendor}
-                      helperText={errors.vendor?.message}
-                      value={field.value}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        dispatch(getVendorBranchAsync(e!.id));
-                      }}
-                      label="Vendor"
+                    <Autocomplete
+                      value={
+                        dispatchFromDetails?.data?.find(
+                          (address: any) => address.code === field.value
+                        ) || null
+                      }
+                      onChange={(_, newValue) =>
+                        handleBillAddressChange(newValue)
+                      }
+                      disablePortal
+                      id="combo-box-demo"
+                      options={dispatchFromDetails || []}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={(billLabel || "Bill Address") as any}
+                          error={!!errors.billaddress}
+                          helperText={errors.billaddress?.message}
+                          variant="filled"
+                        />
+                      )}
                     />
                   )}
                 />
-                <Controller
-                  name="vendorBranch"
-                  control={control}
-                  rules={{ required: "Vendor Branch  is required" }}
-                  render={({ field }) => (
-                    <FormControl variant="filled" error={!!errors.vendorBranch} disabled={!VendorBranchData} fullWidth>
-                      <InputLabel id="Vendor-simple-select-label">Vendor Branch</InputLabel>
-                      <Select
-                        labelId="Vendor-simple-select-label"
-                        id="Vendor-simple-select"
-                        label="Vendor Branch"
-                        value={field.value}
-                        onChange={(e) => {
-                          field.onChange(e.target.value);
-                          dispatch(getVendorAddress(e.target.value)).then((response: any) => {
-                            if (response.payload.data.success) {
-                              setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) || "");
-                              setValue("gstin", response.payload.data?.data?.gstid);
-                            }
-                          });
-                        }}
-                      >
-                        {VendorBranchData?.map((item) => (
-                          <MenuItem value={item.id}>{item.text}</MenuItem>
-                        ))}
-                      </Select>
-                      {errors.vendorBranch && <FormHelperText>{errors.vendorBranch.message}</FormHelperText>}
-                    </FormControl>
-                  )}
+
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.billaddress?.pin}
+                  helperText={errors?.billaddress?.pin?.message}
+                  focused={!!watch("billaddress.pin")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PinCode"
+                  className="h-[10px] resize-none"
+                  {...register("billaddress.pin", {
+                    required: "PinCode is required",
+                  })}
                 />
+
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.billaddress?.mobileNo}
+                  helperText={errors?.billaddress?.mobileNo?.message}
+                  focused={!!watch("billaddress.mobileNo")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Mobile No"
+                  className="h-[10px] resize-none"
+                  {...register("billaddress.mobileNo", {
+                    required: "Mobile No is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.billaddress?.gst}
+                  helperText={errors?.billaddress?.gst?.message}
+                  focused={!!watch("billaddress.gst")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="GST"
+                  className="h-[10px] resize-none"
+                  {...register("billaddress.gst", {
+                    required: "GST is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 5 }}
+                  error={!!errors.billaddress?.pan}
+                  helperText={errors?.billaddress?.pan?.message}
+                  focused={!!watch("billaddress.pan")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PAN"
+                  className="h-[10px] resize-none"
+                  {...register("billaddress.pan", {
+                    required: "PAN is required",
+                  })}
+                />
+                <div></div>
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.billaddress?.addressLine1}
+                  helperText={errors?.billaddress?.addressLine1?.message}
+                  focused={!!watch("billaddress.addressLine1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("billaddress.addressLine1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.billaddress?.addressLine2}
+                  helperText={errors?.billaddress?.addressLine2?.message}
+                  focused={!!watch("billaddress.addressLine2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Address 2"
+                  className="h-[100px] resize-none"
+                  {...register("billaddress.addressLine2", {
+                    required: "Address 2 is required",
+                  })}
+                />
+              </div>
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.building />
+                  <h2 className="text-lg font-semibold">Shipping Details</h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="cc"
+                  name="shipaddressid"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Ship Address is required",
+                    },
+                  }}
                   control={control}
-                  rules={{ required: "Cost Center  is required" }}
                   render={({ field }) => (
-                    <SelectCostCenter
-                      variant="filled"
-                      error={!!errors.cc}
-                      helperText={errors.cc?.message}
-                      value={field.value}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        dispatch(getVendorBranchAsync(e!.id));
-                      }}
-                      label="Cost Center"
+                    <Autocomplete
+                      // value={field.value}
+                      value={
+                        shippingAddress?.data?.find(
+                          (address: any) => address.code === field.value
+                        ) || null
+                      }
+                      onChange={(_, newValue) =>
+                        handleShipAddressChange(newValue)
+                      }
+                      disablePortal
+                      id="combo-box-demo"
+                      options={shippingAddress || []}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={(shipLabel || "Ship Address") as any}
+                          error={!!errors.shipaddress}
+                          helperText={errors.shipaddress?.message}
+                          variant="filled"
+                        />
+                      )}
                     />
                   )}
                 />
-                <div className="flex items-center gap-[10px] text-slate-600 sm:col-span-1 md:col-span-2 ">
-                  <p className="font-[500]">GSTIN :</p>
-                  <p>{venderaddressdata ? venderaddressdata.gstid : "--"}</p>
-                </div>
-                <div className="col-span-2">
-                  <TextField
-                    variant="filled"
-                    sx={{ mb: 1 }}
-                    error={!!errors.vendorAddress}
-                    helperText={errors?.vendorAddress?.message}
-                    focused={!!watch("vendorAddress")}
-                    multiline
-                    rows={3}
-                    fullWidth
-                    label="Bill From Address"
-                    className="h-[100px] resize-none"
-                    {...register("vendorAddress", { required: "Bill From Address is required" })}
-                  />
-                </div>
+
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.shipaddress?.pin}
+                  helperText={errors?.shipaddress?.pin?.message}
+                  focused={!!watch("shipaddress.pin")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PinCode"
+                  className="h-[10px] resize-none"
+                  {...register("shipaddress.pin", {
+                    required: "PinCode is required",
+                  })}
+                />
+
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.shipaddress?.gst}
+                  helperText={errors?.shipaddress?.gst?.message}
+                  focused={!!watch("shipaddress.gst")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="GST"
+                  className="h-[10px] resize-none"
+                  {...register("shipaddress.gst", {
+                    required: "GST is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.shipaddress?.pan}
+                  helperText={errors?.shipaddress?.pan?.message}
+                  focused={!!watch("shipaddress.pan")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="PAN"
+                  className="h-[10px] resize-none"
+                  {...register("shipaddress.pan", {
+                    required: "PAN is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 5 }}
+                  error={!!errors.shipaddress?.city}
+                  helperText={errors?.shipaddress?.city?.message}
+                  focused={!!watch("shipaddress.city")}
+                  rows={3}
+                  fullWidth
+                  label="City"
+                  className="h-[10px] resize-none"
+                  {...register("shipaddress.city")}
+                />
+                <div></div>
+
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipaddress?.addressLine1}
+                  helperText={errors?.shipaddress?.addressLine1?.message}
+                  focused={!!watch("shipaddress.addressLine1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Address 1"
+                  className="h-[100px] resize-none"
+                  {...register("shipaddress.addressLine1", {
+                    required: "Address 1 is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.shipaddress?.addressLine2}
+                  helperText={errors?.shipaddress?.addressLine2?.message}
+                  focused={!!watch("shipaddress.addressLine2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Dispatch From Address 2"
+                  className="h-[100px] resize-none"
+                  {...register("shipaddress.addressLine2", {
+                    required: "Address 2 is required",
+                  })}
+                />
               </div>
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.documentDetail />
                   <h2 className="text-lg font-semibold">Document Details</h2>
                 </div>
-                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
               </div>
               <div className="grid grid-cols-3 gap-[30px] py-[20px]">
                 <Controller
-                  name="doucmentDate"
+                  name="currency"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Currency is required",
+                    },
+                  }}
                   control={control}
-                  rules={{ required: " Document Date is required" }}
+                  render={({ field }) => (
+                    <Autocomplete
+                      // value={field.value}
+                      // value={
+                      //   currencyData?.find(
+                      //     (address: any) => address.code === field.value
+                      //   ) || null
+                      // }
+                      onChange={(_, newValue) => setValue("currency", newValue)}
+                      disablePortal
+                      id="combo-box-demo"
+                      options={transformSkuCode(currencyData) || []}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Currency"
+                          error={!!errors.currency}
+                          helperText={errors.currency?.message}
+                          variant="filled"
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <TextField
+                  variant="filled"
+                  label="Exchange Rate"
+                  error={!!errors.exchange}
+                  helperText={errors.exchange?.message}
+                  {...register("exchange", {
+                    required: "Exchange Rate  is required",
+                  })}
+                />
+                <Controller
+                  name="duedate"
+                  control={control}
+                  rules={{ required: " Due Date is required" }}
                   render={({ field }) => (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -515,86 +887,38 @@ const CreatePO: React.FC = () => {
                         slotProps={{
                           textField: {
                             variant: "filled",
-                            error: !!errors.doucmentDate,
-                            helperText: errors.doucmentDate?.message,
+                            error: !!errors.duedate,
+                            helperText: errors.duedate?.message,
                           },
                         }}
-                        value={field.value}
+                        value={(field.value as any) || null}
                         onChange={(value) => field.onChange(value)}
                         sx={{ width: "100%" }}
-                        label="Document Date"
-                        name="startDate"
+                        label="Due Date"
+                        name="duedate"
                       />
                     </LocalizationProvider>
                   )}
                 />
-                <TextField variant="filled" label="Document ID" error={!!errors.documentId} helperText={errors.documentId?.message} {...register("documentId", { required: "Invoice Id  is required" })} />
-              </div>
-              <div className="flex items-center w-full gap-3">
-                <div className="flex items-center gap-[5px]">
-                  <Icons.files />
-                  <h2 className="text-lg font-semibold">Attachments</h2>
-                </div>
-                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
-              </div>
-              <div className="grid grid-cols-2">
-                <div className=" flex flex-col gap-[20px] py-[20px] ">
-                  <div>
-                    <TextField variant="filled" fullWidth label="Document Name" value={filename} onChange={(e) => setFilename(e.target.value)} />
-                  </div>
-                  <div>
-                    <FileUploader
-                      acceptedFileTypes={{
-                        "application/pdf": [],
-                        "text/plain": [],
-                        "text/csv": [],
-                        "application/vnd.ms-excel": [],
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
-                      }}
-                      label="Upload Document"
-                      value={file}
-                      onFileChange={setfile}
-                    />
-                  </div>
-                  <div className="flex items-center ">
-                    <LoadingButton variant="contained" loadingPosition="start" loading={uploadInvoiceFileLoading} type="button" startIcon={<FileUploadIcon fontSize="small" />} onClick={InvoiceFileUpload}>
-                      Upload
-                    </LoadingButton>
-                  </div>
-                </div>
-                <div className="p-[20px]">
-                  <Typography variant="inherit" fontWeight={500} gutterBottom>
-                    Uploaded Documents
-                  </Typography>
-                  <Divider />
-                  <List>
-                    {documnetFileData &&
-                      documnetFileData.map((item, i) => (
-                        <ListItem
-                          key={i}
-                          secondaryAction={
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => {
-                                dispatch(deletefile(item.fileID));
-                              }}
-                            >
-                              <Icons.delete fontSize="small" />
-                            </IconButton>
-                          }
-                        >
-                          <ListItemText primary={item.originalFileName} />
-                        </ListItem>
-                      ))}
-                  </List>
-                </div>
+                <TextField
+                  variant="filled"
+                  label="Document ID"
+                  error={!!errors.documentId}
+                  helperText={errors.documentId?.message}
+                  {...register("documentId", {
+                    required: "Document Id  is required",
+                  })}
+                />
               </div>
             </div>
           )}
           {activeStep === 1 && (
             <div className="h-[calc(100vh-200px)]   ">
-              <RMMaterialsAddTablev2 rowData={rowData} setRowData={setRowData} setTotal={setTotal} />
+              <AddPOTable
+                rowData={rowData}
+                setRowData={setRowData}
+                setTotal={setTotal}
+              />
             </div>
           )}
           {activeStep === 2 && (
@@ -604,7 +928,10 @@ const CreatePO: React.FC = () => {
                 <Typography variant="inherit" fontWeight={500}>
                   Min No. : {minNo}
                 </Typography>
-                <LoadingButton onClick={() => setActiveStep(0)} variant="contained">
+                <LoadingButton
+                  onClick={() => setActiveStep(0)}
+                  variant="contained"
+                >
                   Create New MIN
                 </LoadingButton>
               </div>
@@ -612,36 +939,69 @@ const CreatePO: React.FC = () => {
           )}
           <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
             {activeStep === 1 && (
-              <div className={`absolute bottom-0 left-0 w-[500px] z-[10]  transition-all bg-white ${open ? "h-[290px]" : "h-[50px]"} border-r overflow-hidden`}>
+              <div
+                className={`absolute bottom-0 left-0 w-[500px] z-[10]  transition-all bg-white ${
+                  open ? "h-[290px]" : "h-[50px]"
+                } border-r overflow-hidden`}
+              >
                 <div className="h-[50px] bg-cyan-900 flex items-center pe-[20px] gap-[10px]">
-                  <Button type="button" onClick={() => setOpen(!open)} className="bg-amber-500 hover:bg-amber-600 p-0  rounded-none h-full w-[50px]">
-                    <Icons.up className={`h-[20px] w-[20px] transition-transform duration-200 ${open ? "rotate-180" : "rotate-0"}`} />
+                  <Button
+                    type="button"
+                    onClick={() => setOpen(!open)}
+                    className="bg-amber-500 hover:bg-amber-600 p-0  rounded-none h-full w-[50px]"
+                  >
+                    <Icons.up
+                      className={`h-[20px] w-[20px] transition-transform duration-200 ${
+                        open ? "rotate-180" : "rotate-0"
+                      }`}
+                    />
                   </Button>
-                  <Typography variant="h6" component={"div"} fontWeight={500} fontSize={"17px"} className="text-white">
+                  <Typography
+                    variant="h6"
+                    component={"div"}
+                    fontWeight={500}
+                    fontSize={"17px"}
+                    className="text-white"
+                  >
                     Total GST and Tax Details
                   </Typography>
                 </div>
                 <Card className="border-0 rounded-none shadow-none">
                   <CardContent className="flex flex-col gap-[20px] pt-[20px]">
                     <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">Sub-Total value before Taxes</p>
-                      <p className="text-[14px] text-muted-foreground">{total.taxableValue}</p>
+                      <p className="text-slate-600 font-[500]">
+                        Sub-Total value before Taxes
+                      </p>
+                      <p className="text-[14px] text-muted-foreground">
+                        {total.taxableValue}
+                      </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">CGST</p>
-                      <p className="text-[14px] text-muted-foreground">(+) {total.cgst}</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {total.cgst}
+                      </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">SGST</p>
-                      <p className="text-[14px] text-muted-foreground">(+) {total.sgst}</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {total.sgst}
+                      </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">IGST</p>
-                      <p className="text-[14px] text-muted-foreground">(+) {total.igst}</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {total.igst}
+                      </p>
                     </div>
                     <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">Sub-Total values after Taxes</p>
-                      <p className="text-[14px] text-muted-foreground">{total.taxableValue + (total.cgst + total.sgst + total.igst)}</p>
+                      <p className="text-slate-600 font-[500]">
+                        Sub-Total values after Taxes
+                      </p>
+                      <p className="text-[14px] text-muted-foreground">
+                        {total.taxableValue +
+                          (total.cgst + total.sgst + total.igst)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -660,7 +1020,14 @@ const CreatePO: React.FC = () => {
                   Reset
                 </LoadingButton>
 
-                <LoadingButton type="submit" variant="contained" endIcon={<Icons.next />}>
+                <LoadingButton
+                  type="submit"
+                  variant="contained"
+                  endIcon={<Icons.next />}
+                  // onClick={() => {
+                  //   handleNext();
+                  // }}
+                >
                   Next
                 </LoadingButton>
               </>
