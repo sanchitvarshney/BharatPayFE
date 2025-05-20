@@ -9,29 +9,19 @@ import {
   getVendorAddress,
   getVendorAsync,
   getVendorBranchAsync,
-  uploadInvoiceFile,
 } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
-  createRawMin,
-  deletefile,
   resetDocumentFile,
   resetFormData,
-  storeDocumentFile,
-  storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { CreateRawMinPayloadType } from "@/features/wearhouse/Rawmin/RawMinType";
 import { getCurrency } from "@/features/common/commonSlice";
 import {
   Autocomplete,
   Divider,
   FormControl,
   FormHelperText,
-  IconButton,
   InputLabel,
-  List,
-  ListItem,
-  ListItemText,
   MenuItem,
   Select,
   Step,
@@ -46,13 +36,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
-import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
-import RMMaterialsAddTablev2 from "@/table/wearhouse/RMMaterialsAddTablev2";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
 import SelectCostCenter, {
@@ -64,6 +51,7 @@ import {
 } from "@/features/master/client/clientSlice";
 import { transformSkuCode } from "@/utils/transformUtills";
 import AddPOTable from "@/pages/procurement/AddPOTable";
+import { createPO, setFormData } from "@/features/procurement/poSlices";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -133,16 +121,14 @@ type FormData = {
   shipaddressid: 0;
   shipaddress: ShippingAddress;
   exchange: 0;
-  vendorType: string;
+  vendor: string |  null;
   gstin: string;
   doucmentDate: Dayjs | null;
   documentId: string;
   cc: CostCenterType | null;
 };
 const CreatePO: React.FC = () => {
-  const [filename, setFilename] = useState<string>("");
   const [alert, setAlert] = useState<boolean>(false);
-  const [file, setfile] = useState<File[] | null>(null);
   const [minNo, setMinno] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
@@ -154,11 +140,13 @@ const CreatePO: React.FC = () => {
     taxableValue: 0,
   });
   const dispatch = useAppDispatch();
-  const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } =
-    useAppSelector((state) => state.divicemin);
-  const { documnetFileData, createminLoading, formdata } = useAppSelector(
+  const { VendorBranchData, venderaddressdata } = useAppSelector(
+    (state) => state.divicemin
+  );
+  const { documnetFileData, createminLoading } = useAppSelector(
     (state) => state.rawmin
   );
+  const { formData } = useAppSelector((state) => state.po);
   const { dispatchFromDetails, shippingAddress } = useAppSelector(
     (state) => state.client
   ) as any;
@@ -175,10 +163,9 @@ const CreatePO: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      vendorType: "V01",
       vendor: null,
-      vendorBranch: "",
-      vendorAddress: "",
+      vendorbranch: "",
+      vendoraddress: "",
       gstin: "",
       doucmentDate: null,
       documentId: "",
@@ -206,7 +193,6 @@ const CreatePO: React.FC = () => {
       "hsnCode",
       "gstType",
       "gstRate",
-      "location",
     ];
 
     const missingDetails: string[] = [];
@@ -246,23 +232,41 @@ const CreatePO: React.FC = () => {
     setTotal({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
     reset();
     dispatch(resetDocumentFile());
-    setFilename("");
-    setfile(null);
     dispatch(clearaddressdetail());
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    // if (!documnetFileData || documnetFileData.length === 0)
-    //   return showToast("Please Upload Invoice Documents", "error");
-    // dispatch(storeFormdata(data));
-    handleNext();
+    console.log("Form Data:", data); // Debug log
+    // Validate required fields
+    if (!data.vendorname) {
+      showToast("Please select a vendor", "error");
+      return;
+    }
+    if (!data.vendorbranch) {
+      showToast("Please select a vendor branch", "error");
+      return;
+    }
+    if (!data.billaddressid) {
+      showToast("Please select a bill address", "error");
+      return;
+    }
+    if (!data.shipaddressid) {
+      showToast("Please select a shipping address", "error");
+      return;
+    }
+
+    try {
+      dispatch(setFormData(data as any));
+      setActiveStep(1); // Directly set the step instead of using handleNext
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      showToast("Error submitting form", "error");
+    }
   };
   const finalSubmit = () => {
-    if (formdata) {
+    if (formData) {
       if (rowData.length === 0) {
         showToast("Please Add Material Details", "error");
-      } else if (!documnetFileData) {
-        showToast("Please Upload Invoice Documents", "error");
       } else {
         if (!checkRequiredFields(rowData)) {
           const component = rowData.map(
@@ -272,59 +276,52 @@ const CreatePO: React.FC = () => {
           const rate = rowData.map((item) => Number(item.rate));
           const gsttype = rowData.map((item) => item.gstType);
           const gstrate = rowData.map((item) => Number(item.gstRate));
-          const location = rowData.map((item) => item.location?.value || "");
-          const currency = rowData.map((item) => item.currency);
-          const remarks = rowData.map((item) => item.remarks);
-          const hsnCode = rowData.map((item) => item.hsnCode);
-          const payload: CreateRawMinPayloadType = {
+          const hsncode = rowData.map((item) => item.hsnCode);
+          const remark = rowData.map((item) => item.remarks);
+          const payload: any = {
             component,
             qty,
             rate,
             gsttype,
             gstrate,
-            location,
-            hsnCode,
-            remarks,
-            currency: currency || [],
-            vendor: formdata.vendor?.id || "",
-            vendorbranch: formdata.vendorBranch || "",
-            address: formdata.vendorAddress || "",
-            doc_id: formdata.documentId || "",
-            doc_date: dayjs(formdata.doucmentDate).format("DD-MM-YYYY") || "",
-            vendortype: formdata.vendorType || "",
+            hsncode,
+            remark,
+            currency: formData.currency?.value || "",
+            vendorname: formData.vendorname?.id || "",
+            vendorbranch: formData.vendorbranch || "",
+            vendoraddress: formData.vendoraddress || "",
+            duedate: dayjs(formData.duedate).format("DD-MM-YYYY") || "",
+            advancepayment: formData.advancepayment || "",
+            billaddressid: formData.billaddressid || "",
+            shipaddressid: formData.shipaddressid || "",
+            billaddress:
+              formData.billaddress?.addressLine1 +
+              formData.billaddress?.addressLine2 || "",
+            shipaddress:
+              formData.shipaddress?.addressLine1 +
+              formData.shipaddress?.addressLine2 || "",
+            exchange: formData.exchange || "",
+            doucmentDate: formData.doucmentDate || "",
+            documentId: formData.documentId || "",
+            doc_id: formData.documentId || "",
+            doc_date: dayjs(formData.doucmentDate).format("DD-MM-YYYY") || "",
+            vendortype: formData.vendorType || "",
             invoiceAttachment: documnetFileData || [],
-            cc: formdata?.cc?.id || "",
+            cc: formData?.cc?.id || "",
           };
-          dispatch(createRawMin(payload)).then((response: any) => {
+          console.log(payload);
+          dispatch(createPO(payload)).then((response: any) => {
+            console.log(response);
             if (response.payload.data.success) {
               showToast(response.payload?.data?.message, "success");
               resetall();
               handleNext();
               dispatch(resetFormData());
-              setMinno(response.payload?.data?.data.transaction_id);
+              setMinno(response.payload?.data?.data.po_id);
             }
           });
         }
       }
-    }
-  };
-
-  const InvoiceFileUpload = () => {
-    if (file && filename) {
-      const formdata = new FormData();
-      formdata.append("file", file[0]);
-      formdata.append("fileName", filename);
-      dispatch(uploadInvoiceFile(formdata)).then((res: any) => {
-        if (res.payload.data.success) {
-          dispatch(storeDocumentFile(res.payload.data?.data[0]));
-
-          showToast(res.payload.data.message, "success");
-          setfile(null);
-          setFilename("");
-        }
-      });
-    } else {
-      showToast("File and Document Name Required", "error");
     }
   };
   useEffect(() => {
@@ -339,7 +336,7 @@ const CreatePO: React.FC = () => {
   const handleBillAddressChange = (value: any) => {
     console.log(value);
     if (value) {
-      setValue("billaddressid", value.id);
+      setValue("billaddressid", value.code);
       setValue("billaddress.label", value.label);
       setValue("billaddress.addressLine1", value.addressLine1);
       setValue("billaddress.addressLine2", value.addressLine2);
@@ -845,9 +842,8 @@ const CreatePO: React.FC = () => {
                       // value={
                       //   currencyData?.find(
                       //     (address: any) => address.code === field.value
-                      //   ) || null
-                      // }
-                      onChange={(_, newValue) => setValue("currency", newValue)}
+                      value={field.value as any}
+                      onChange={(_, newValue) => field.onChange(newValue?.value || '')}
                       disablePortal
                       id="combo-box-demo"
                       options={transformSkuCode(currencyData) || []}
@@ -926,13 +922,13 @@ const CreatePO: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Min No. : {minNo}
+                  PO No. : {minNo}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}
                   variant="contained"
                 >
-                  Create New MIN
+                  Create New PO
                 </LoadingButton>
               </div>
             </div>
@@ -1024,9 +1020,9 @@ const CreatePO: React.FC = () => {
                   type="submit"
                   variant="contained"
                   endIcon={<Icons.next />}
-                  // onClick={() => {
-                  //   handleNext();
-                  // }}
+                  onClick={() => {
+                    onSubmit(watch());
+                  }}
                 >
                   Next
                 </LoadingButton>

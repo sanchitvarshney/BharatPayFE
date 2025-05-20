@@ -28,7 +28,7 @@ const ManagePO: React.FC = () => {
   const dispatch = useAppDispatch();
   const { managePoData, loading,dateRange } = useAppSelector((state) => state.po);
   const [colapse, setcolapse] = useState<boolean>(false);
-  const [type, setType] = useState<string>("powise");
+  const [type, setType] = useState<string>("datewise");
   //   const [detail, setDetail] = useState<boolean>(false);
   const [po, setPo] = useState<string>("");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({

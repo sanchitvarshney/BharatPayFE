@@ -8,7 +8,8 @@ const initialState: PoStateType = {
   loading: false,
   error: null,
   managePoData: [],
-  dateRange:null
+  dateRange:null,
+  formData:null
 };
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
@@ -24,12 +25,20 @@ export const getListofPo = createAsyncThunk<
   return response;
 });
 
+export const createPO = createAsyncThunk<AxiosResponse<any>, any>("po/createPO", async (payload) => {
+  const response = await axiosInstance.post("/po/createPO", payload);
+  return response;
+});
+
 const procurementPoSlice = createSlice({
   name: "procurementPo",
   initialState,
   reducers: {
     setDateRange(state, action: any) {
       state.dateRange = action.payload;
+    },
+    setFormData(state, action: any) {
+      state.formData = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -49,6 +58,6 @@ const procurementPoSlice = createSlice({
   },
 });
 
-export const { setDateRange } = procurementPoSlice.actions;
+export const { setDateRange, setFormData } = procurementPoSlice.actions;
 
 export default procurementPoSlice.reducer;

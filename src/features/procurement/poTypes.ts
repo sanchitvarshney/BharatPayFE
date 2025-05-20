@@ -3,7 +3,8 @@ export type PoStateType = {
   loading: boolean;
   error: any | null;
   managePoData: any;
-  dateRange:any
+  dateRange:any,
+  formData:any
 };
 
 export type PoListResponse = {
