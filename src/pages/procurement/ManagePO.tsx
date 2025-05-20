@@ -33,7 +33,7 @@ const ManagePO: React.FC = () => {
   });
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<any>(null);
-
+console.log(selectedRow,'selectedRow');
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
