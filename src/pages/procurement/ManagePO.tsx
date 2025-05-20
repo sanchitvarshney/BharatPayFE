@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import dayjs, { Dayjs } from "dayjs";
 import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
@@ -7,18 +7,14 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getListofPo } from "@/features/procurement/poSlices";
 import CustomPagination from "@/components/reusable/CustomPagination";
 import { AgGridReact } from "@ag-grid-community/react";
-
 import LoadingButton from "@mui/lab/LoadingButton";
 import SearchIcon from "@mui/icons-material/Search";
-import { FormControl, MenuItem, Select, TextField } from "@mui/material";
-
+import { FormControl, IconButton, Menu, MenuItem, Select, TextField } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
-
 import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
-
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import {  setDateRange } from "@/features/procurement/poSlices";
@@ -35,13 +31,35 @@ const ManagePO: React.FC = () => {
     from: null,
     to: null,
   });
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
 
-  // console.log("managePoData", managePoData);
-  //   const dispatch = useAppDispatch();
 
-  //   const gridRef = useRef<AgGridReact<any>>(null);
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLElement>,
+    rowData: any
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(rowData);
+  };
 
   const columnDefs: ColDef[] = [
+    {
+      headerName: "",
+      // pinned: "right",
+      sortable: false,
+      filter: false,
+      cellRenderer: (params: { data: any }) => (
+        <IconButton
+          size="small"
+          onClick={(e) => handleMenuClick(e, params.data)}
+          className="hover:bg-gray-100"
+        >
+          <MoreVertIcon className="h-4 w-4" />
+        </IconButton>
+      ),
+      width: 50,
+    },
     {
       headerName: "#",
       field: "id",
@@ -97,11 +115,6 @@ const ManagePO: React.FC = () => {
 
   const handlePageChange = useCallback(
     (page: number) => {
-      console.log("handlePageChange", dateRange);
-      // if (!dateRange) {
-      //   console.log("no date range");
-      //   return;
-      // }
      
       setCurrentPage(page);
       dispatch(
@@ -143,21 +156,15 @@ const ManagePO: React.FC = () => {
 
   const handleExport = () => {
     console.log("DownloadReport")
-  //   if (!dateRange || !date) {
-  //     return showToast("Please select location and date range", "error");
-  //   }
-  //   const reportPayload = {
-  //     partner: partner,
-  //     fromDate: dateRange.from?.format("DD-MM-YYYY"),
-  //     toDate: dateRange.to?.format("DD-MM-YYYY"),
-  //   };
-  //   swipeMachineInward(reportPayload);
-  //   showToast("Start downloading ", "success");
   };
   console.log("date range", dateRange)
 
+  const handlePrintChallan = () => {
+    console.log("Print Challan")
+  }
+
   return (
-    <>
+  
       <div className="flex bg-white h-[calc(100vh-100px)] relative">
         <div
           className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${
@@ -354,8 +361,35 @@ const ManagePO: React.FC = () => {
             </div>
           </div>
         </div>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          <MenuItem
+            // onClick={handleEditChallan}
+            // disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+          >
+            Update PO
+          </MenuItem>
+          <MenuItem
+            // onClick={handleCreateDispatch}
+            // disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+          >
+            View 
+          </MenuItem>
+          <MenuItem onClick={handlePrintChallan}>Download</MenuItem>
+          <MenuItem onClick={handlePrintChallan}>Cancel</MenuItem>
+        </Menu>
       </div>
-    </>
   );
 };
 
