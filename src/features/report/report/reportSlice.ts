@@ -152,12 +152,12 @@ export const transferBranchReport = createAsyncThunk<
 
 export const getr5Report = createAsyncThunk<
   AxiosResponse<R5reportResponse>,
-  { from?: string; to?: string; type: string; device?: string }
+  { from?: string; to?: string; type: string; device?: string; deviceType?: string }
 >("report/getr5Report", async (query) => {
   const response = await axiosInstance.get(
     query.type === "DEVICE"
-      ? `/report/r5/DEVICE?deviceId=${query.device}`
-      : `/report/r5/DATE?from=${query.from}&to=${query.to}`
+      ? `/report/r5/DEVICE?deviceId=${query.device}&type=${query.deviceType}`
+      : `/report/r5/DATE?from=${query.from}&to=${query.to}&type=${query.deviceType}`
   );
   return response;
 });
