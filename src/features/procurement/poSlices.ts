@@ -30,6 +30,43 @@ export const createPO = createAsyncThunk<AxiosResponse<any>, any>("po/createPO",
   return response;
 });
 
+export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
+  "/poPrint",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/po/printPo?poid=${data.id}`, {
+        responseType: "blob",
+      });
+
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `PO_${data.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      // Return success response
+      return {
+        success: true,
+        data: null,
+        message: "PDF downloaded successfully",
+      } as any;
+    } catch (error: any) {
+      // Return error response using rejectWithValue
+      return rejectWithValue({
+        success: false,
+        data: null,
+        message: error.message || "Failed to download PDF",
+        error: error,
+      } as any);
+    }
+  }
+);
+
 const procurementPoSlice = createSlice({
   name: "procurementPo",
   initialState,
