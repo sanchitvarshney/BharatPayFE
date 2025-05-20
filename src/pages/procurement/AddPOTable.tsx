@@ -7,7 +7,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { Button, IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { generateUniqueId } from "@/utils/uniqueid";
-import MaterialInvardCellRenderer from "@/table/Cellrenders/MaterialInvardCellRenderer";
+import POCellRenderer from "@/table/Cellrenders/POCellRenderer";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -39,8 +39,10 @@ type Props = {
   rowData: RowData[];
   setRowData: React.Dispatch<React.SetStateAction<RowData[]>>;
   setTotal: React.Dispatch<React.SetStateAction<Totals>>;
+  exchange:any
+  currency:any
 };
-const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal }) => {
+const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -74,14 +76,13 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal }) => {
       location: null,
       autoConsump: "",
       remarks: "",
-      currency: "364907247",
+      currency: currency,
       isNew: true,
-      excRate: 0,
+      excRate: exchange,
       uom: "",
     };
     setRowData([newRow, ...rowData]);
   };
-  console.log(rowData);
   const handleDeleteRow = (id: string) => {
     setRowData(rowData.filter((row) => row.id !== id));
   };
@@ -99,7 +100,8 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal }) => {
 
   const components = useMemo(
     () => ({
-      textInputCellRenderer: (params: any) => <MaterialInvardCellRenderer props={params} customFunction={getAllTableData} />,
+      textInputCellRenderer: (params: any) => <POCellRenderer props={params} customFunction={getAllTableData} />,
+      
     }),
     []
   );

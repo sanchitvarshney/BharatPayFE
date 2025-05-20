@@ -54,6 +54,18 @@ const procurementPoSlice = createSlice({
       .addCase(getListofPo.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(createPO.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createPO.fulfilled, (state, action) => {
+        state.loading = false;
+ 
+        state.managePoData = action.payload.data;
+      })
+      .addCase(createPO.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });

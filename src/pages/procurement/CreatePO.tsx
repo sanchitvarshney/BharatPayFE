@@ -35,7 +35,7 @@ import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
@@ -121,10 +121,8 @@ type FormData = {
   shipaddressid: 0;
   shipaddress: ShippingAddress;
   exchange: 0;
-  vendor: string |  null;
+  vendor: string | null;
   gstin: string;
-  doucmentDate: Dayjs | null;
-  documentId: string;
   cc: CostCenterType | null;
 };
 const CreatePO: React.FC = () => {
@@ -143,8 +141,8 @@ const CreatePO: React.FC = () => {
   const { VendorBranchData, venderaddressdata } = useAppSelector(
     (state) => state.divicemin
   );
-  const { documnetFileData, createminLoading } = useAppSelector(
-    (state) => state.rawmin
+  const { loading } = useAppSelector(
+    (state) => state.po
   );
   const { formData } = useAppSelector((state) => state.po);
   const { dispatchFromDetails, shippingAddress } = useAppSelector(
@@ -167,8 +165,6 @@ const CreatePO: React.FC = () => {
       vendorbranch: "",
       vendoraddress: "",
       gstin: "",
-      doucmentDate: null,
-      documentId: "",
       cc: null,
     },
   });
@@ -181,6 +177,12 @@ const CreatePO: React.FC = () => {
   };
 
   const handleBack = () => {
+    // Set form values from Redux state before going back
+    if (formData) {
+      Object.entries(formData).forEach(([key, value]) => {
+        setValue(key as any, value);
+      });
+    }
     setActiveStep((prevStep) => prevStep - 1);
   };
 
@@ -236,7 +238,6 @@ const CreatePO: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    console.log("Form Data:", data); // Debug log
     // Validate required fields
     if (!data.vendorname) {
       showToast("Please select a vendor", "error");
@@ -296,22 +297,15 @@ const CreatePO: React.FC = () => {
             shipaddressid: formData.shipaddressid || "",
             billaddress:
               formData.billaddress?.addressLine1 +
-              formData.billaddress?.addressLine2 || "",
+                formData.billaddress?.addressLine2 || "",
             shipaddress:
               formData.shipaddress?.addressLine1 +
-              formData.shipaddress?.addressLine2 || "",
+                formData.shipaddress?.addressLine2 || "",
             exchange: formData.exchange || "",
             doucmentDate: formData.doucmentDate || "",
-            documentId: formData.documentId || "",
-            doc_id: formData.documentId || "",
-            doc_date: dayjs(formData.doucmentDate).format("DD-MM-YYYY") || "",
-            vendortype: formData.vendorType || "",
-            invoiceAttachment: documnetFileData || [],
             cc: formData?.cc?.id || "",
           };
-          console.log(payload);
           dispatch(createPO(payload)).then((response: any) => {
-            console.log(response);
             if (response.payload.data.success) {
               showToast(response.payload?.data?.message, "success");
               resetall();
@@ -843,7 +837,7 @@ const CreatePO: React.FC = () => {
                       //   currencyData?.find(
                       //     (address: any) => address.code === field.value
                       value={field.value as any}
-                      onChange={(_, newValue) => field.onChange(newValue?.value || '')}
+                      onChange={(_, newValue) => field.onChange(newValue)}
                       disablePortal
                       id="combo-box-demo"
                       options={transformSkuCode(currencyData) || []}
@@ -896,15 +890,6 @@ const CreatePO: React.FC = () => {
                     </LocalizationProvider>
                   )}
                 />
-                <TextField
-                  variant="filled"
-                  label="Document ID"
-                  error={!!errors.documentId}
-                  helperText={errors.documentId?.message}
-                  {...register("documentId", {
-                    required: "Document Id  is required",
-                  })}
-                />
               </div>
             </div>
           )}
@@ -914,6 +899,8 @@ const CreatePO: React.FC = () => {
                 rowData={rowData}
                 setRowData={setRowData}
                 setTotal={setTotal}
+                exchange={formData?.exchange}
+                currency={formData?.currency?.value}
               />
             </div>
           )}
@@ -1031,7 +1018,7 @@ const CreatePO: React.FC = () => {
             {activeStep === 1 && (
               <>
                 <LoadingButton
-                  disabled={createminLoading}
+                  disabled={loading}
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
                   startIcon={<Icons.previous />}
@@ -1042,7 +1029,7 @@ const CreatePO: React.FC = () => {
                   Back
                 </LoadingButton>
                 <LoadingButton
-                  disabled={createminLoading}
+                  disabled={loading}
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
                   startIcon={<Icons.refreshv2 />}
@@ -1053,7 +1040,7 @@ const CreatePO: React.FC = () => {
                   Reset
                 </LoadingButton>
                 <LoadingButton
-                  loading={createminLoading}
+                  loading={loading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}
