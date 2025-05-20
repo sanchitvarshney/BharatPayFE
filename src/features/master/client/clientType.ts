@@ -259,4 +259,6 @@ export type ClientState = {
   updateBasicDetailLoading: boolean;
   dispatchFromDetailsLoading: boolean;
   dispatchFromDetails: DispatchFromDetail[] | null;
+  getShippingAddressLoading: boolean;
+  shippingAddress: any[] | null;
 };
