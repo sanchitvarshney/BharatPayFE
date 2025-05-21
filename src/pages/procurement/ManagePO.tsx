@@ -4,9 +4,10 @@ import dayjs, { Dayjs } from "dayjs";
 import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getListofPo } from "@/features/procurement/poSlices";
+import { getListofPo, poPrint } from "@/features/procurement/poSlices";
 import CustomPagination from "@/components/reusable/CustomPagination";
 import { AgGridReact } from "@ag-grid-community/react";
+
 import LoadingButton from "@mui/lab/LoadingButton";
 import SearchIcon from "@mui/icons-material/Search";
 import { FormControl, IconButton, Menu, MenuItem, Select, TextField } from "@mui/material";
@@ -123,7 +124,7 @@ console.log(selectedRow,'selectedRow');
           data: dateRange,
 
           page: page,
-          limit: 2,
+          limit: pageSize,
         })
       );
     },
@@ -139,7 +140,7 @@ console.log(selectedRow,'selectedRow');
           getListofPo({
             wise: type,
             data: dateRange,
-            page: 1,
+            page: currentPage,
             limit: size,
           })
         );
@@ -160,8 +161,8 @@ console.log(selectedRow,'selectedRow');
   console.log("date range", dateRange)
 
   const handlePrintChallan = () => {
-    console.log("Print Challan")
-  }
+    dispatch(poPrint({ id: selectedRow.po_transaction }));
+  };
 
   return (
   
@@ -338,7 +339,7 @@ console.log(selectedRow,'selectedRow');
         </div>
         <div className="w-full">
           <div>
-            <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+            <div className="relative ag-theme-quartz h-[calc(100vh-190px)]">
               <AgGridReact
                 loadingOverlayComponent={CustomLoadingOverlay}
                 loading={loading}
