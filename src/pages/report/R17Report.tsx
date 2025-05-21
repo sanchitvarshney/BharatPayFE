@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getR17Data } from "@/features/report/report/reportSlice";
 import { useSocketContext } from "@/components/context/SocketContext";
 import R17ReportTable from "@/table/report/R17ReportTable";
-import SelectDevice from "@/components/reusable/SelectSku";
+import SelectDeviceWithType from "@/components/reusable/SelectDeviceWithType";
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -74,7 +74,7 @@ const R17Report: React.FC = () => {
         </div>
 
         <div className="flex flex-col p-[20px] gap-[20px] mt-[20px] overflow-hidden">
-        <SelectDevice value={device} onChange={setDevice} />
+        <SelectDeviceWithType value={device} onChange={setDevice} type="swipeMachine"/>
           <RangePicker
             className="h-[50px] rounded-sm border-[2px]"
             value={[
