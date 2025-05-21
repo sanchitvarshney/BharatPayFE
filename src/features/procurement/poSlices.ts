@@ -9,7 +9,9 @@ const initialState: PoStateType = {
   error: null,
   managePoData: [],
   dateRange:null,
-  formData:null
+  formData:null,
+  printLoading:false,
+  cancelLoading:false
 };
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
@@ -27,6 +29,11 @@ export const getListofPo = createAsyncThunk<
 
 export const createPO = createAsyncThunk<AxiosResponse<any>, any>("po/createPO", async (payload) => {
   const response = await axiosInstance.post("/po/createPO", payload);
+  return response;
+});
+
+export const cancelPO = createAsyncThunk<AxiosResponse<any>, any>("po/cancelPO", async (payload) => {
+  const response = await axiosInstance.post("/po/cancelPO", payload);
   return response;
 });
 
@@ -90,6 +97,26 @@ const procurementPoSlice = createSlice({
       })
       .addCase(getListofPo.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(poPrint.pending, (state) => {
+        state.printLoading = true;
+      })
+      .addCase(poPrint.fulfilled, (state) => {
+        state.printLoading = false;
+       })
+      .addCase(poPrint.rejected, (state, action) => {
+        state.printLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(cancelPO.pending, (state) => {
+        state.cancelLoading = true;
+      })
+      .addCase(cancelPO.fulfilled, (state) => {
+        state.cancelLoading = false;
+      })
+      .addCase(cancelPO.rejected, (state, action) => {
+        state.cancelLoading = false;
         state.error = action.error.message;
       })
       .addCase(createPO.pending, (state) => {
