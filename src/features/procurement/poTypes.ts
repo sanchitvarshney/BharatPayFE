@@ -4,7 +4,11 @@ export type PoStateType = {
   error: any | null;
   managePoData: any;
   dateRange:any,
-  formData:any
+  formData:any;
+  printLoading:boolean;
+  cancelLoading:boolean;
+  fetchPODataLoading:boolean;
+  fetchPOData:any;
 };
 
 export type PoListResponse = {

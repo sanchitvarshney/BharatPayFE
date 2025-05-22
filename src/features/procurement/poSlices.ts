@@ -9,7 +9,11 @@ const initialState: PoStateType = {
   error: null,
   managePoData: [],
   dateRange:null,
-  formData:null
+  formData:null,
+  printLoading:false,
+  cancelLoading:false,
+  fetchPODataLoading:false,
+  fetchPOData:[],
 };
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
@@ -28,6 +32,21 @@ export const getListofPo = createAsyncThunk<
 export const createPO = createAsyncThunk<AxiosResponse<any>, any>("po/createPO", async (payload) => {
   const response = await axiosInstance.post("/po/createPO", payload);
   return response;
+});
+
+export const cancelPO = createAsyncThunk<AxiosResponse<any>, any>("po/cancelPO", async (payload) => {
+  const response = await axiosInstance.post("/po/cancelPO", payload);
+  return response;
+});
+
+export const fetchPOData = createAsyncThunk<AxiosResponse<any>, any>("po/fetchPOData", async (payload) => {
+  const response = await axiosInstance.get(`/po/fetchComponentList4PO?poid=${payload.id}`);
+  return response.data;
+});
+
+export const getPODetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPODetail", async (payload) => {
+  const response = await axiosInstance.get(`/po/fetchData4Update?pono=${payload.id}`);
+  return response.data;
 });
 
 export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
@@ -90,6 +109,47 @@ const procurementPoSlice = createSlice({
       })
       .addCase(getListofPo.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getPODetail.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPODetail.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(getPODetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchPOData.pending, (state) => {
+        state.fetchPODataLoading = true;
+      })
+      .addCase(fetchPOData.fulfilled, (state, action) => {
+        state.fetchPODataLoading = false;
+        state.fetchPOData = action.payload.data;
+      })
+      .addCase(fetchPOData.rejected, (state, action) => {
+        state.fetchPODataLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(poPrint.pending, (state) => {
+        state.printLoading = true;
+      })
+      .addCase(poPrint.fulfilled, (state) => {
+        state.printLoading = false;
+       })
+      .addCase(poPrint.rejected, (state, action) => {
+        state.printLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(cancelPO.pending, (state) => {
+        state.cancelLoading = true;
+      })
+      .addCase(cancelPO.fulfilled, (state) => {
+        state.cancelLoading = false;
+      })
+      .addCase(cancelPO.rejected, (state, action) => {
+        state.cancelLoading = false;
         state.error = action.error.message;
       })
       .addCase(createPO.pending, (state) => {

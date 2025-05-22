@@ -42,16 +42,17 @@ import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
-import SelectCostCenter, {
-  CostCenterType,
-} from "@/components/reusable/SelectCostCenter";
 import {
   getDispatchFromDetail,
   getShippingAddress,
 } from "@/features/master/client/clientSlice";
 import { transformSkuCode } from "@/utils/transformUtills";
 import AddPOTable from "@/pages/procurement/AddPOTable";
-import { createPO, setFormData } from "@/features/procurement/poSlices";
+import {
+  createPO,
+  getPODetail,
+  setFormData,
+} from "@/features/procurement/poSlices";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -83,28 +84,23 @@ interface Totals {
 
 interface BillAddress {
   id: number;
-  code: string;
+  mobileNo: string;
+  gst: string;
+  pin: string;
+  pan: string;
   addressLine1: string;
   addressLine2: string;
-  mobileNo: string;
-  city: string;
-  gst: string;
-  company: string;
-  pan: string;
-  pin: string;
   label: string;
 }
 
 interface ShippingAddress {
   id: number;
+  pin: string;
+  gst: string;
+  pan: string;
+  city: string;
   addressLine1: string;
   addressLine2: string;
-  mobileNo: string;
-  city: string;
-  gst: string;
-  company: string;
-  pan: string;
-  pin: string;
   label: string;
 }
 type FormData = {
@@ -123,7 +119,6 @@ type FormData = {
   exchange: 0;
   vendor: string | null;
   gstin: string;
-  cc: CostCenterType | null;
 };
 const CreatePO: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
@@ -141,13 +136,13 @@ const CreatePO: React.FC = () => {
   const { VendorBranchData, venderaddressdata } = useAppSelector(
     (state) => state.divicemin
   );
-  const { loading } = useAppSelector(
-    (state) => state.po
-  );
+  const { loading } = useAppSelector((state) => state.po);
   const { formData } = useAppSelector((state) => state.po);
   const { dispatchFromDetails, shippingAddress } = useAppSelector(
     (state) => state.client
   ) as any;
+  const isEdit = window.location.href.includes("edit-po");
+  const id = window.location.href.split("edit-po/")[1]?.replace(/_/g, "/") || "";
 
   const { currencyData } = useAppSelector((state) => state.common);
 
@@ -165,7 +160,6 @@ const CreatePO: React.FC = () => {
       vendorbranch: "",
       vendoraddress: "",
       gstin: "",
-      cc: null,
     },
   });
 
@@ -303,7 +297,6 @@ const CreatePO: React.FC = () => {
                 formData.shipaddress?.addressLine2 || "",
             exchange: formData.exchange || "",
             doucmentDate: formData.doucmentDate || "",
-            cc: formData?.cc?.id || "",
           };
           dispatch(createPO(payload)).then((response: any) => {
             if (response.payload.data.success) {
@@ -336,7 +329,6 @@ const CreatePO: React.FC = () => {
       setValue("billaddress.addressLine2", value.addressLine2);
       setValue("billaddress.mobileNo", value.mobileNo);
       setValue("billaddress.gst", value.gst);
-      setValue("billaddress.company", value.company);
       setValue("billaddress.pan", value.pan);
       setValue("billaddress.pin", value.pin);
     }
@@ -348,16 +340,66 @@ const CreatePO: React.FC = () => {
       setValue("shipaddress.label", value.label);
       setValue("shipaddress.addressLine1", value.addressLine1);
       setValue("shipaddress.addressLine2", value.addressLine2);
-      setValue("shipaddress.mobileNo", value.mobileNo);
       setValue("shipaddress.city", value.city);
       setValue("shipaddress.gst", value.gst);
-      setValue("shipaddress.company", value.company);
       setValue("shipaddress.pan", value.pan);
       setValue("shipaddress.pin", value.pin);
     }
   };
   const billLabel = watch("billaddress.label");
   const shipLabel = watch("shipaddress.label");
+
+  useEffect(() => {
+    if (isEdit) {
+      dispatch(getPODetail({ id: id })).then((response: any) => {
+        if (response.payload.success) {
+          const { bill, ship, materials, header } = response.payload.data;
+          console.log(bill, ship, materials, header);
+          setValue("vendorname", header?.vendorcode?.value);
+          dispatch(getVendorBranchAsync(header?.vendorcode?.value));
+          setValue("vendorbranch", header?.vendorbranch?.value);
+          dispatch(getVendorAddress(header?.vendorbranch?.value)).then(
+            (response: any) => {
+              if (response.payload.data.success) {
+                setValue(
+                  "vendoraddress",
+                  replaceBrWithNewLine(response.payload.data?.data?.address) ||
+                    ""
+                );
+                setValue("gstin", response.payload.data?.data?.gstid);
+              }
+            }
+          );
+          // setValue("duedate", header?.duedate || "");
+          setValue("exchange", header?.exchangerate || "");
+          setValue("currency", header?.currency?.value || "");
+          setValue("billaddressid", bill?.addrbillid || "");
+          handleBillAddressChange(bill?.addrbillid || "");
+          setValue("shipaddressid", ship?.addrshipid || "");
+          handleShipAddressChange(ship?.addrshipid || "");
+          setRowData(materials.map((item: any ) => ({
+            ...item,
+            partComponent: { lable: item.component_short, value: item.componentKey },
+            qty: item.orderqty,
+            rate: item.rate,
+            taxablevalue: item.taxablevalue,
+            foreignvalue: item.exchangetaxablevalue===item.taxablevalue?0:item.exchangetaxablevalue,
+            hsnCode: item.hsncode,
+            gstType: item.gsttype?.id,
+            gstRate: item.gstrate,
+            cgst: item.cgst,
+            sgst: item.sgst,
+            igst: item.igst,
+            remarks: item.remark,
+            currency: item.header?.currency?.value || "",
+            isNew: true,
+            excRate: item.header?.exchangerate || 1,
+            uom: item.uom,
+          })));
+        }
+      });
+    }
+  }, [isEdit]);
   return (
     <>
       <ConfirmationModel
@@ -413,24 +455,6 @@ const CreatePO: React.FC = () => {
                 />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="cc"
-                  control={control}
-                  rules={{ required: "Cost Center  is required" }}
-                  render={({ field }) => (
-                    <SelectCostCenter
-                      variant="filled"
-                      error={!!errors.cc}
-                      helperText={errors.cc?.message}
-                      value={field.value}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        dispatch(getVendorBranchAsync(e!.id));
-                      }}
-                      label="Cost Center"
-                    />
-                  )}
-                />
                 <Controller
                   name="vendorname"
                   control={control}
