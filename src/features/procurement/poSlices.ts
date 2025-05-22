@@ -44,6 +44,11 @@ export const fetchPOData = createAsyncThunk<AxiosResponse<any>, any>("po/fetchPO
   return response.data;
 });
 
+export const getPODetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPODetail", async (payload) => {
+  const response = await axiosInstance.get(`/po/fetchData4Update?pono=${payload.id}`);
+  return response.data;
+});
+
 export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
   "/poPrint",
   async (data, { rejectWithValue }) => {
@@ -103,6 +108,16 @@ const procurementPoSlice = createSlice({
         state.managePoData = action.payload.data;
       })
       .addCase(getListofPo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getPODetail.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPODetail.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(getPODetail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

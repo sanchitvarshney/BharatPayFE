@@ -177,11 +177,13 @@ const ManagePO: React.FC = () => {
 
   const handlePrintChallan = () => {
     dispatch(poPrint({ id: selectedRow.po_transaction }));
+    setAnchorEl(null);
   };
 
   const handleEditChallan = () => {
     const id = selectedRow.po_transaction.replaceAll("/", "_");
     window.open(`/procurement/edit-po/${id}`, "_blank");
+    setAnchorEl(null);
   };
 
   const handleCancelPO = () => {
@@ -478,7 +480,7 @@ const ManagePO: React.FC = () => {
             </LoadingButton>
           </DialogActions>
         </Dialog>
-        <ViewPOModal open={openViewPOModal} setOpen={setOpenViewPOModal} poId={selectedRow.po_transaction} />
+        <ViewPOModal open={openViewPOModal} setOpen={setOpenViewPOModal} poId={selectedRow?.po_transaction} />
       </div>
     </div>
   );

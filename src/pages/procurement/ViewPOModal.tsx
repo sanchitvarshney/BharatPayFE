@@ -2,7 +2,7 @@ import React from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import {
   CustomDrawerHeader,
@@ -20,7 +20,7 @@ const ViewPOModal: React.FC<Props> = ({ open, setOpen, poId }) => {
   const { fetchPOData, fetchPODataLoading } = useAppSelector(
     (state) => state.po
   );
-  const dispatch = useAppDispatch();
+
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
