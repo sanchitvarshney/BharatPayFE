@@ -52,7 +52,10 @@ import {
   createPO,
   getPODetail,
   setFormData,
+  updatePO,
 } from "@/features/procurement/poSlices";
+import { useNavigate } from "react-router-dom";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -111,7 +114,6 @@ type FormData = {
   vendorbranch: string;
   vendoraddress: string;
   duedate: string;
-  advancepayment: 0;
   billaddressid: 0;
   billaddress: BillAddress;
   shipaddressid: 0;
@@ -119,13 +121,18 @@ type FormData = {
   exchange: 0;
   vendor: string | null;
   gstin: string;
+  vendorMobile: string;
+  paymentTerms: string;
+  termsOfDelivery: string;
 };
 const CreatePO: React.FC = () => {
+  const navigate = useNavigate();
   const [alert, setAlert] = useState<boolean>(false);
   const [minNo, setMinno] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
+  const [gstTypeStatus, setGstTypeStatus] = useState<string>("L");
   const [total, setTotal] = useState<Totals>({
     cgst: 0,
     sgst: 0,
@@ -142,7 +149,8 @@ const CreatePO: React.FC = () => {
     (state) => state.client
   ) as any;
   const isEdit = window.location.href.includes("edit-po");
-  const id = window.location.href.split("edit-po/")[1]?.replace(/_/g, "/") || "";
+  const id =
+    window.location.href.split("edit-po/")[1]?.replace(/_/g, "/") || "";
 
   const { currencyData } = useAppSelector((state) => state.common);
 
@@ -160,6 +168,7 @@ const CreatePO: React.FC = () => {
       vendorbranch: "",
       vendoraddress: "",
       gstin: "",
+      vendorMobile: "",
     },
   });
 
@@ -286,7 +295,6 @@ const CreatePO: React.FC = () => {
             vendorbranch: formData.vendorbranch || "",
             vendoraddress: formData.vendoraddress || "",
             duedate: dayjs(formData.duedate).format("DD-MM-YYYY") || "",
-            advancepayment: formData.advancepayment || "",
             billaddressid: formData.billaddressid || "",
             shipaddressid: formData.shipaddressid || "",
             billaddress:
@@ -297,7 +305,21 @@ const CreatePO: React.FC = () => {
                 formData.shipaddress?.addressLine2 || "",
             exchange: formData.exchange || "",
             doucmentDate: formData.doucmentDate || "",
+            paymentTerms: formData.paymentTerms || "",
+            termsOfDelivery: formData.termsOfDelivery || "",
+            vendorMobile: formData.vendorMobile || "",
           };
+          if (isEdit) {
+            dispatch(updatePO(payload)).then((response: any) => {
+              if (response.payload.data.success) {
+                showToast(response.payload?.data?.message, "success");
+                resetall();
+                handleNext();
+                dispatch(resetFormData());
+                navigate("/procurement/po");
+              }
+            });
+          } else {
           dispatch(createPO(payload)).then((response: any) => {
             if (response.payload.data.success) {
               showToast(response.payload?.data?.message, "success");
@@ -311,6 +333,7 @@ const CreatePO: React.FC = () => {
       }
     }
   };
+}
   useEffect(() => {
     dispatch(getVendorAsync(null));
     dispatch(getLocationAsync(null));
@@ -355,7 +378,7 @@ const CreatePO: React.FC = () => {
         if (response.payload.success) {
           const { bill, ship, materials, header } = response.payload.data;
           console.log(bill, ship, materials, header);
-          setValue("vendorname", header?.vendorcode?.value);
+          setValue("vendorname", header?.vendorcode);
           dispatch(getVendorBranchAsync(header?.vendorcode?.value));
           setValue("vendorbranch", header?.vendorbranch?.value);
           dispatch(getVendorAddress(header?.vendorbranch?.value)).then(
@@ -367,6 +390,7 @@ const CreatePO: React.FC = () => {
                     ""
                 );
                 setValue("gstin", response.payload.data?.data?.gstid);
+                setValue("vendorMobile", response.payload.data?.data?.phone);
               }
             }
           );
@@ -377,25 +401,38 @@ const CreatePO: React.FC = () => {
           handleBillAddressChange(bill || "");
           setValue("shipaddressid", ship?.code || "");
           handleShipAddressChange(ship || "");
-          setRowData(materials.map((item: any ) => ({
-            ...item,
-            partComponent: { lable: item.component_short, value: item.componentKey },
-            qty:  Number(item.orderqty) || 0,
-            rate: Number(item.rate) || 0,
-            taxablevalue: Number(item.taxablevalue) || 0,
-            foreignvalue: item.exchangetaxablevalue===item.taxablevalue?0:item.exchangetaxablevalue,
-            hsnCode: item.hsncode,
-            gstType: item.gsttype?.id,
-            gstRate: Number(item.gstrate),
-            cgst: Number(item.cgst) || 0,
-            sgst: Number(item.sgst)   || 0,
-            igst: Number(item.igst) || 0,
-            remarks: item.remark,
-            currency: item.header?.currency?.value || "",
-            isNew: true,
-            excRate: item.header?.exchangerate || 1,
-            uom: item.uom,
-          })));
+          setValue("paymentTerms", header?.paymentterms || "");
+          setValue("termsOfDelivery", header?.termsOfDelivery || "");
+          setRowData(
+            materials.map((item: any) => ({
+              // ...item,
+              partComponent: {
+                lable: item.component_short,
+                value: item.componentKey,
+              },
+              qty: Number(item.orderqty) || 0,
+              rate: Number(item.rate) || 0,
+              taxableValue: Number(item.taxablevalue) || 0,
+              foreignValue:Number(item.exchangetaxablevalue),
+              hsnCode: item.hsncode,
+              gstType: item.gsttype[0]?.id,
+              gstRate: Number(item.gstrate),
+              cgst: Number(item.cgst) || 0,
+              sgst: Number(item.sgst) || 0,
+              igst: Number(item.igst) || 0,
+              remarks: item.remark,
+              currency: item.header?.currency?.value || "",
+              isNew: true,
+              excRate: item.header?.exchangerate || 1,
+              uom: item.uom,
+            }))
+          );
+          setTotal({
+            cgst: Number(materials.reduce((acc: number, item: any) => acc + Number(item.cgst), 0)),
+            sgst: Number(materials.reduce((acc: number, item: any) => acc + Number(item.sgst), 0)),
+            igst: Number(materials.reduce((acc: number, item: any) => acc + Number(item.igst), 0)),
+            taxableValue: Number(materials.reduce((acc: number, item: any) => acc + Number(item.taxablevalue), 0))
+          });
         }
       });
     }
@@ -420,7 +457,7 @@ const CreatePO: React.FC = () => {
       />
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
-
+          {loading && <FullPageLoading/>}
         <div className="h-[calc(100vh-100px)]   ">
           <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
             <Stepper activeStep={activeStep} className="w-full">
@@ -508,6 +545,8 @@ const CreatePO: React.FC = () => {
                                   "gstin",
                                   response.payload.data?.data?.gstid
                                 );
+                                setValue("vendorMobile", response.payload.data?.data?.phone);
+                                setGstTypeStatus(response.payload.data?.data?.state==="09"?"L":"I");
                               }
                             }
                           );
@@ -524,6 +563,22 @@ const CreatePO: React.FC = () => {
                       )}
                     </FormControl>
                   )}
+                />
+
+                  <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.vendorMobile}
+                  helperText={errors?.vendorMobile?.message}
+                  focused={!!watch("vendorMobile")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Mobile No"
+                  className="h-[10px] resize-none"
+                  {...register("vendorMobile", {
+                    required: "Mobile No is required",
+                  })}
                 />
 
                 <div className="flex items-center gap-[10px] text-slate-600 sm:col-span-1 md:col-span-2 ">
@@ -880,11 +935,17 @@ const CreatePO: React.FC = () => {
                 />
                 <TextField
                   variant="filled"
-                  label="Exchange Rate"
+                  // sx={{ mb: 1 }}
                   error={!!errors.exchange}
-                  helperText={errors.exchange?.message}
+                  helperText={errors?.exchange?.message}
+                  focused={!!watch("exchange")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Exchange Rate"
+                  className="h-[10px] resize-none"
                   {...register("exchange", {
-                    required: "Exchange Rate  is required",
+                    required: "Exchange Rate is required",
                   })}
                 />
                 <Controller
@@ -915,6 +976,8 @@ const CreatePO: React.FC = () => {
                     </LocalizationProvider>
                   )}
                 />
+                <TextField variant="filled" label="Payment Terms" />
+                <TextField variant="filled" label="Terms of Delivery" />
               </div>
             </div>
           )}
@@ -926,6 +989,7 @@ const CreatePO: React.FC = () => {
                 setTotal={setTotal}
                 exchange={formData?.exchange}
                 currency={formData?.currency?.value}
+                gstTypeStatus={gstTypeStatus}
               />
             </div>
           )}
@@ -981,25 +1045,25 @@ const CreatePO: React.FC = () => {
                         Sub-Total value before Taxes
                       </p>
                       <p className="text-[14px] text-muted-foreground">
-                        {total.taxableValue}
+                        {total.taxableValue.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">CGST</p>
                       <p className="text-[14px] text-muted-foreground">
-                        (+) {total.cgst}
+                        (+) {total.cgst.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">SGST</p>
                       <p className="text-[14px] text-muted-foreground">
-                        (+) {total.sgst}
+                        (+) {total.sgst.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">IGST</p>
                       <p className="text-[14px] text-muted-foreground">
-                        (+) {total.igst}
+                        (+) {total.igst.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
@@ -1007,8 +1071,8 @@ const CreatePO: React.FC = () => {
                         Sub-Total values after Taxes
                       </p>
                       <p className="text-[14px] text-muted-foreground">
-                        {total.taxableValue +
-                          (total.cgst + total.sgst + total.igst)}
+                        {(total.taxableValue +
+                          (total.cgst + total.sgst + total.igst)).toFixed(2)}
                       </p>
                     </div>
                   </CardContent>

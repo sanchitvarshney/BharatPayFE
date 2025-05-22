@@ -58,7 +58,7 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
     }
     api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
   };
-
+  console.log(data);
   const renderContent = () => {
     switch (colDef.field) {
       case "partComponent":

@@ -49,6 +49,11 @@ export const createPO = createAsyncThunk<AxiosResponse<any>, any>("po/createPO",
   return response;
 });
 
+export const updatePO = createAsyncThunk<AxiosResponse<any>, any>("po/updatePO", async (payload) => {
+  const response = await axiosInstance.post("/po/updatePO", payload);
+  return response;
+});
+
 export const cancelPO = createAsyncThunk<AxiosResponse<any>, any>("po/cancelPO", async (payload) => {
   const response = await axiosInstance.post("/po/cancelPO", payload);
   return response;
@@ -188,6 +193,16 @@ const procurementPoSlice = createSlice({
         state.managePoData = action.payload.data;
       })
       .addCase(createPO.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updatePO.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updatePO.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updatePO.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
