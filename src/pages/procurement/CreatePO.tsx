@@ -373,23 +373,23 @@ const CreatePO: React.FC = () => {
           // setValue("duedate", header?.duedate || "");
           setValue("exchange", header?.exchangerate || "");
           setValue("currency", header?.currency?.value || "");
-          setValue("billaddressid", bill?.addrbillid || "");
-          handleBillAddressChange(bill?.addrbillid || "");
-          setValue("shipaddressid", ship?.addrshipid || "");
-          handleShipAddressChange(ship?.addrshipid || "");
+          setValue("billaddressid", bill?.code || "");
+          handleBillAddressChange(bill || "");
+          setValue("shipaddressid", ship?.code || "");
+          handleShipAddressChange(ship || "");
           setRowData(materials.map((item: any ) => ({
             ...item,
             partComponent: { lable: item.component_short, value: item.componentKey },
-            qty: item.orderqty,
-            rate: item.rate,
-            taxablevalue: item.taxablevalue,
+            qty:  Number(item.orderqty) || 0,
+            rate: Number(item.rate) || 0,
+            taxablevalue: Number(item.taxablevalue) || 0,
             foreignvalue: item.exchangetaxablevalue===item.taxablevalue?0:item.exchangetaxablevalue,
             hsnCode: item.hsncode,
             gstType: item.gsttype?.id,
-            gstRate: item.gstrate,
-            cgst: item.cgst,
-            sgst: item.sgst,
-            igst: item.igst,
+            gstRate: Number(item.gstrate),
+            cgst: Number(item.cgst) || 0,
+            sgst: Number(item.sgst)   || 0,
+            igst: Number(item.igst) || 0,
             remarks: item.remark,
             currency: item.header?.currency?.value || "",
             isNew: true,
@@ -400,6 +400,7 @@ const CreatePO: React.FC = () => {
       });
     }
   }, [isEdit]);
+
   return (
     <>
       <ConfirmationModel
