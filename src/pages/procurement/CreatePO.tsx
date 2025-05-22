@@ -387,9 +387,9 @@ const CreatePO: React.FC = () => {
             hsnCode: item.hsncode,
             gstType: item.gsttype?.id,
             gstRate: item.gstrate,
-            cgst: item.cgst,
-            sgst: item.sgst,
-            igst: item.igst,
+            cgst: Number(item.cgst),
+            sgst: Number(item.sgst),
+            igst: Number(item.igst),
             remarks: item.remark,
             currency: item.header?.currency?.value || "",
             isNew: true,
@@ -400,6 +400,7 @@ const CreatePO: React.FC = () => {
       });
     }
   }, [isEdit]);
+
   return (
     <>
       <ConfirmationModel
