@@ -4,7 +4,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { cancelPO, getListofPo, poPrint } from "@/features/procurement/poSlices";
+import { cancelPO, fetchPOData, getListofPo, poPrint } from "@/features/procurement/poSlices";
 import CustomPagination from "@/components/reusable/CustomPagination";
 import { AgGridReact } from "@ag-grid-community/react";
 
@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { setDateRange } from "@/features/procurement/poSlices";
+import ViewPOModal from "@/pages/procurement/ViewPOModal";
 const ManagePO: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -49,6 +50,7 @@ const ManagePO: React.FC = () => {
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
   const [cancelReason, setCancelReason] = useState<string>("");
+  const [openViewPOModal, setOpenViewPOModal] = useState<boolean>(false);
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -221,6 +223,12 @@ const ManagePO: React.FC = () => {
     } catch (error) {
       showToast("Failed to cancel PO", "error");
     }
+  };
+
+  const handleViewPO = () => {
+    setOpenViewPOModal(true);
+    dispatch(fetchPOData({id:selectedRow.po_transaction}));
+    setAnchorEl(null);
   };
 
   return (
@@ -431,7 +439,7 @@ const ManagePO: React.FC = () => {
           }}
         >
           <MenuItem onClick={handleEditChallan}>Update PO</MenuItem>
-          <MenuItem>View</MenuItem>
+          <MenuItem onClick={handleViewPO}>View</MenuItem>
           <MenuItem onClick={handlePrintChallan}>Download</MenuItem>
           <MenuItem onClick={handleCancelPO}>Cancel</MenuItem>
         </Menu>
@@ -470,6 +478,7 @@ const ManagePO: React.FC = () => {
             </LoadingButton>
           </DialogActions>
         </Dialog>
+        <ViewPOModal open={openViewPOModal} setOpen={setOpenViewPOModal} poId={selectedRow.po_transaction} />
       </div>
     </div>
   );

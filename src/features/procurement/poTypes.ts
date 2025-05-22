@@ -6,7 +6,9 @@ export type PoStateType = {
   dateRange:any,
   formData:any;
   printLoading:boolean;
-  cancelLoading:boolean
+  cancelLoading:boolean;
+  fetchPODataLoading:boolean;
+  fetchPOData:any;
 };
 
 export type PoListResponse = {
