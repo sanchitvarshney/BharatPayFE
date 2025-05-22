@@ -48,6 +48,12 @@ export const addShipToAddress = createAsyncThunk<AxiosResponse<{ success: boolea
   const response = await axiosInstance.post(`/client/addShipmentAddress`, payload);
   return response;
 });
+
+export const getShippingAddress = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>>("master/client/getShippingAddress", async () => {
+  const response = await axiosInstance.post(`/client/addShipmentAddress`);
+  return response;
+});
+
 export const addClientBranch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, AddBranchPayload>("master/client/addClientBranch", async (payload) => {
   const response = await axiosInstance.post(`/client/addBranch`, payload);
   return response;
