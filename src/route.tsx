@@ -447,6 +447,26 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <ProcurementLayout>
+              <CreatePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/edit-po/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ProcurementLayout>
+              <ManagePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/manage",
+      },
+      {
+        element: (
+          <MainLayout>
             {/* <DeviceMin /> */}
             <MaterialIn />
           </MainLayout>

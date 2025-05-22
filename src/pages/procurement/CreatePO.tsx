@@ -25,7 +25,17 @@ import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import RMMaterialsAddTablev2 from "@/table/wearhouse/RMMaterialsAddTablev2";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
-import SelectCostCenter, { CostCenterType } from "@/components/reusable/SelectCostCenter";
+import {
+  getDispatchFromDetail,
+  getShippingAddress,
+} from "@/features/master/client/clientSlice";
+import { transformSkuCode } from "@/utils/transformUtills";
+import AddPOTable from "@/pages/procurement/AddPOTable";
+import {
+  createPO,
+  getPODetail,
+  setFormData,
+} from "@/features/procurement/poSlices";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -55,15 +65,33 @@ interface Totals {
   taxableValue: number;
 }
 
+interface BillAddress {
+  id: number;
+  mobileNo: string;
+  gst: string;
+  pin: string;
+  pan: string;
+  addressLine1: string;
+  addressLine2: string;
+  label: string;
+}
+
+interface ShippingAddress {
+  id: number;
+  pin: string;
+  gst: string;
+  pan: string;
+  city: string;
+  addressLine1: string;
+  addressLine2: string;
+  label: string;
+}
 type FormData = {
   vendorType: string;
   vendor: VendorData | null;
   vendorBranch: string;
   vendorAddress: string;
   gstin: string;
-  doucmentDate: Dayjs | null;
-  documentId: string;
-  cc: CostCenterType | null;
 };
 const CreatePO: React.FC = () => {
   const [filename, setFilename] = useState<string>("");
@@ -75,8 +103,18 @@ const CreatePO: React.FC = () => {
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [total, setTotal] = useState<Totals>({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
   const dispatch = useAppDispatch();
-  const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
-  const { documnetFileData, createminLoading, formdata } = useAppSelector((state) => state.rawmin);
+  const { VendorBranchData, venderaddressdata } = useAppSelector(
+    (state) => state.divicemin
+  );
+  const { loading } = useAppSelector((state) => state.po);
+  const { formData } = useAppSelector((state) => state.po);
+  const { dispatchFromDetails, shippingAddress } = useAppSelector(
+    (state) => state.client
+  ) as any;
+  const isEdit = window.location.href.includes("edit-po");
+  const id = window.location.href.split("edit-po/")[1]?.replace(/_/g, "/") || "";
+
+  const { currencyData } = useAppSelector((state) => state.common);
 
   const {
     register,
@@ -93,9 +131,6 @@ const CreatePO: React.FC = () => {
       vendorBranch: "",
       vendorAddress: "",
       gstin: "",
-      doucmentDate: null,
-      documentId: "",
-      cc: null,
     },
   });
 
@@ -176,18 +211,24 @@ const CreatePO: React.FC = () => {
             rate,
             gsttype,
             gstrate,
-            location,
-            hsnCode,
-            remarks,
-            currency: currency || [],
-            vendor: formdata.vendor?.id || "",
-            vendorbranch: formdata.vendorBranch || "",
-            address: formdata.vendorAddress || "",
-            doc_id: formdata.documentId || "",
-            doc_date: dayjs(formdata.doucmentDate).format("DD-MM-YYYY") || "",
-            vendortype: formdata.vendorType || "",
-            invoiceAttachment: documnetFileData || [],
-            cc: formdata?.cc?.id || "",
+            hsncode,
+            remark,
+            currency: formData.currency?.value || "",
+            vendorname: formData.vendorname?.id || "",
+            vendorbranch: formData.vendorbranch || "",
+            vendoraddress: formData.vendoraddress || "",
+            duedate: dayjs(formData.duedate).format("DD-MM-YYYY") || "",
+            advancepayment: formData.advancepayment || "",
+            billaddressid: formData.billaddressid || "",
+            shipaddressid: formData.shipaddressid || "",
+            billaddress:
+              formData.billaddress?.addressLine1 +
+                formData.billaddress?.addressLine2 || "",
+            shipaddress:
+              formData.shipaddress?.addressLine1 +
+                formData.shipaddress?.addressLine2 || "",
+            exchange: formData.exchange || "",
+            doucmentDate: formData.doucmentDate || "",
           };
           dispatch(createRawMin(payload)).then((response: any) => {
             if (response.payload.data.success) {
@@ -228,17 +269,86 @@ const CreatePO: React.FC = () => {
     dispatch(getCurrency());
   }, []);
 
-  useEffect(() => {
-    if (formdata) {
-      setValue("vendorType", formdata.vendorType);
-      setValue("vendor", formdata.vendor);
-      setValue("vendorBranch", formdata.vendorBranch);
-      setValue("vendorAddress", formdata.vendorAddress);
-      setValue("gstin", formdata.gstin);
-      setValue("doucmentDate", dayjs(formdata.doucmentDate));
-      setValue("documentId", formdata.documentId);
+  const handleBillAddressChange = (value: any) => {
+    console.log(value);
+    if (value) {
+      setValue("billaddressid", value.code);
+      setValue("billaddress.label", value.label);
+      setValue("billaddress.addressLine1", value.addressLine1);
+      setValue("billaddress.addressLine2", value.addressLine2);
+      setValue("billaddress.mobileNo", value.mobileNo);
+      setValue("billaddress.gst", value.gst);
+      setValue("billaddress.pan", value.pan);
+      setValue("billaddress.pin", value.pin);
     }
-  }, [formdata]);
+  };
+  const handleShipAddressChange = (value: any) => {
+    console.log(value);
+    if (value) {
+      setValue("shipaddressid", value.code);
+      setValue("shipaddress.label", value.label);
+      setValue("shipaddress.addressLine1", value.addressLine1);
+      setValue("shipaddress.addressLine2", value.addressLine2);
+      setValue("shipaddress.city", value.city);
+      setValue("shipaddress.gst", value.gst);
+      setValue("shipaddress.pan", value.pan);
+      setValue("shipaddress.pin", value.pin);
+    }
+  };
+  const billLabel = watch("billaddress.label");
+  const shipLabel = watch("shipaddress.label");
+
+  useEffect(() => {
+    if (isEdit) {
+      dispatch(getPODetail({ id: id })).then((response: any) => {
+        if (response.payload.success) {
+          const { bill, ship, materials, header } = response.payload.data;
+          console.log(bill, ship, materials, header);
+          setValue("vendorname", header?.vendorcode?.value);
+          dispatch(getVendorBranchAsync(header?.vendorcode?.value));
+          setValue("vendorbranch", header?.vendorbranch?.value);
+          dispatch(getVendorAddress(header?.vendorbranch?.value)).then(
+            (response: any) => {
+              if (response.payload.data.success) {
+                setValue(
+                  "vendoraddress",
+                  replaceBrWithNewLine(response.payload.data?.data?.address) ||
+                    ""
+                );
+                setValue("gstin", response.payload.data?.data?.gstid);
+              }
+            }
+          );
+          // setValue("duedate", header?.duedate || "");
+          setValue("exchange", header?.exchangerate || "");
+          setValue("currency", header?.currency?.value || "");
+          setValue("billaddressid", bill?.addrbillid || "");
+          handleBillAddressChange(bill?.addrbillid || "");
+          setValue("shipaddressid", ship?.addrshipid || "");
+          handleShipAddressChange(ship?.addrshipid || "");
+          setRowData(materials.map((item: any ) => ({
+            ...item,
+            partComponent: { lable: item.component_short, value: item.componentKey },
+            qty: item.orderqty,
+            rate: item.rate,
+            taxablevalue: item.taxablevalue,
+            foreignvalue: item.exchangetaxablevalue===item.taxablevalue?0:item.exchangetaxablevalue,
+            hsnCode: item.hsncode,
+            gstType: item.gsttype?.id,
+            gstRate: item.gstrate,
+            cgst: item.cgst,
+            sgst: item.sgst,
+            igst: item.igst,
+            remarks: item.remark,
+            currency: item.header?.currency?.value || "",
+            isNew: true,
+            excRate: item.header?.exchangerate || 1,
+            uom: item.uom,
+          })));
+        }
+      });
+    }
+  }, [isEdit]);
   return (
     <>
       <ConfirmationModel
@@ -283,131 +393,7 @@ const CreatePO: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="vendorType"
-                  control={control}
-                  rules={{ required: "Vendor Type is required" }}
-                  render={({ field }) => (
-                    <FormControl variant="filled" error={!!errors.vendorType} fullWidth>
-                      <InputLabel id="demo-simple-select-label">Vendor Type </InputLabel>
-                      <Select labelId="demo-simple-select-label" id="demo-simple-select" label="Vendor Type" {...field}>
-                        <MenuItem value={"V01"}>Vendor</MenuItem>
-                      </Select>
-                      {errors.vendorType && <FormHelperText>{errors.vendorType.message}</FormHelperText>}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="vendor"
-                  control={control}
-                  rules={{ required: "Vendor  is required" }}
-                  render={({ field }) => (
-                    <SelectVendor
-                      varient="filled"
-                      error={!!errors.vendor}
-                      helperText={errors.vendor?.message}
-                      value={field.value}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        dispatch(getVendorBranchAsync(e!.id));
-                      }}
-                      label="Vendor"
-                    />
-                  )}
-                />
-                <Controller
-                  name="vendorBranch"
-                  control={control}
-                  rules={{ required: "Vendor Branch  is required" }}
-                  render={({ field }) => (
-                    <FormControl variant="filled" error={!!errors.vendorBranch} disabled={!VendorBranchData} fullWidth>
-                      <InputLabel id="Vendor-simple-select-label">Vendor Branch</InputLabel>
-                      <Select
-                        labelId="Vendor-simple-select-label"
-                        id="Vendor-simple-select"
-                        label="Vendor Branch"
-                        value={field.value}
-                        onChange={(e) => {
-                          field.onChange(e.target.value);
-                          dispatch(getVendorAddress(e.target.value)).then((response: any) => {
-                            if (response.payload.data.success) {
-                              setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) || "");
-                              setValue("gstin", response.payload.data?.data?.gstid);
-                            }
-                          });
-                        }}
-                      >
-                        {VendorBranchData?.map((item) => (
-                          <MenuItem value={item.id}>{item.text}</MenuItem>
-                        ))}
-                      </Select>
-                      {errors.vendorBranch && <FormHelperText>{errors.vendorBranch.message}</FormHelperText>}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="cc"
-                  control={control}
-                  rules={{ required: "Cost Center  is required" }}
-                  render={({ field }) => (
-                    <SelectCostCenter
-                      variant="filled"
-                      error={!!errors.cc}
-                      helperText={errors.cc?.message}
-                      value={field.value}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        dispatch(getVendorBranchAsync(e!.id));
-                      }}
-                      label="Cost Center"
-                    />
-                  )}
-                />
-                <div className="flex items-center gap-[10px] text-slate-600 sm:col-span-1 md:col-span-2 ">
-                  <p className="font-[500]">GSTIN :</p>
-                  <p>{venderaddressdata ? venderaddressdata.gstid : "--"}</p>
-                </div>
-                <div className="col-span-2">
-                  <TextField
-                    variant="filled"
-                    sx={{ mb: 1 }}
-                    error={!!errors.vendorAddress}
-                    helperText={errors?.vendorAddress?.message}
-                    focused={!!watch("vendorAddress")}
-                    multiline
-                    rows={3}
-                    fullWidth
-                    label="Bill From Address"
-                    className="h-[100px] resize-none"
-                    {...register("vendorAddress", { required: "Bill From Address is required" })}
-                  />
-                </div>
-              </div>
-              <div id="primary-item-details" className="flex items-center w-full gap-3">
-                <div className="flex items-center gap-[5px]">
-                  <Icons.user />
-                  <h2 id="primary-item-details" className="text-lg font-semibold">
-                    Billing Details
-                  </h2>
-                </div>
-                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
-              </div>
-              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="vendorType"
-                  control={control}
-                  rules={{ required: "Vendor Type is required" }}
-                  render={({ field }) => (
-                    <FormControl variant="filled" error={!!errors.vendorType} fullWidth>
-                      <InputLabel id="demo-simple-select-label">Vendor Type </InputLabel>
-                      <Select labelId="demo-simple-select-label" id="demo-simple-select" label="Vendor Type" {...field}>
-                        <MenuItem value={"V01"}>Vendor</MenuItem>
-                      </Select>
-                      {errors.vendorType && <FormHelperText>{errors.vendorType.message}</FormHelperText>}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="vendor"
+                  name="vendorname"
                   control={control}
                   rules={{ required: "Vendor  is required" }}
                   render={({ field }) => (
