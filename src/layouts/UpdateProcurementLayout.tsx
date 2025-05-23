@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
-import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 type Props = {
   children: React.ReactNode;
