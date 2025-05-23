@@ -94,7 +94,14 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
               api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
               
             }}
-            value={value}
+            value={
+              value
+                ? {
+                    ...value,
+                    label: value?.label || value?.text || value?.lable,
+                  }
+                : null
+            }
           />
         );
       case "gstType":
