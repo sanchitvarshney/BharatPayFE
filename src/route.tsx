@@ -102,6 +102,7 @@ import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 import ManagePO from "./pages/procurement/ManagePO";
 import CompletedPO from "@/pages/procurement/CompletedPO";
+import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
 
 export const router = createBrowserRouter([
   {
@@ -453,9 +454,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProcurementLayout>
+            <UpdateProcurementLayout>
               <CreatePO />
-            </ProcurementLayout>
+            </UpdateProcurementLayout>
           </MainLayout>
         ),
         path: "/procurement/edit-po/:id",
