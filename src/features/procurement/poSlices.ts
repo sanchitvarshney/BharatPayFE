@@ -68,6 +68,10 @@ export const getPODetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPODe
   const response = await axiosInstance.get(`/po/fetchData4Update?pono=${payload.id}`);
   return response.data;
 });
+export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
+  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
+  return response;
+});
 
 export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
   "/poPrint",

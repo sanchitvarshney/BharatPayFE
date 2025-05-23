@@ -290,6 +290,15 @@ const CreatePO: React.FC = () => {
           const gstrate = rowData.map((item) => Number(item.gstRate));
           const hsncode = rowData.map((item) => item.hsnCode);
           const remark = rowData.map((item) => item.remarks);
+          const dueDate = watch("duedate");
+          let formattedDueDate = "";
+          if (dueDate) {
+            const date = dayjs(dueDate);
+            if (date.isValid()) {
+              formattedDueDate = date.format("DD-MM-YYYY");
+            }
+          }
+
           const payload: any = {
             component,
             qty,
@@ -302,8 +311,7 @@ const CreatePO: React.FC = () => {
             vendorname: formData.vendorname?.id || "",
             vendorbranch: formData.vendorbranch || "",
             vendoraddress: formData.vendoraddress || "",
-            // duedate: dayjs(formData.duedate).format("DD-MM-YYYY") || "",
-            duedate: "23-05-2025",
+            duedate: formattedDueDate,
             billaddressid: formData.billaddressid || "",
             shipaddressid: formData.shipaddressid || "",
             billaddress:
@@ -314,11 +322,13 @@ const CreatePO: React.FC = () => {
                 formData.shipaddress?.addressLine2 || "",
             exchange: formData.exchange || "",
             doucmentDate: formData.doucmentDate || "",
-            paymentTerms: formData.paymentTerms || "",
-            termsOfDelivery: formData.termsOfDelivery || "",
+            paymentterms: watch("paymentTerms") || formData.paymentTerms || "",
+            termsOfDelivery:
+              watch("termsOfDelivery") || formData.termsOfDelivery || "",
             vendorMobile: formData.vendorMobile || "",
             updaterow: rowData.map((item) => item.updaterow),
             poid: id,
+            vendor_type: "v01",
           };
           if (isEdit) {
             dispatch(updatePO(payload)).then((response: any) => {
@@ -327,7 +337,7 @@ const CreatePO: React.FC = () => {
                 resetall();
                 handleNext();
                 dispatch(resetFormData());
-                navigate("/procurement/po");
+                navigate("/procurement/manage");
               }
             });
           } else {
@@ -355,7 +365,6 @@ const CreatePO: React.FC = () => {
   }, []);
 
   const handleBillAddressChange = (value: any) => {
-    console.log(value);
     if (value) {
       setValue("billaddressid", value.code);
       setValue("billaddress.label", value.label);
@@ -368,7 +377,6 @@ const CreatePO: React.FC = () => {
     }
   };
   const handleShipAddressChange = (value: any) => {
-    console.log(value);
     if (value) {
       setValue("shipaddressid", value.code);
       setValue("shipaddress.label", value.label);
@@ -387,7 +395,6 @@ const CreatePO: React.FC = () => {
       dispatch(getPODetail({ id: id })).then((response: any) => {
         if (response.payload.success) {
           const { bill, ship, materials, header } = response.payload.data;
-          console.log(bill, ship, materials, header);
 
           // Set vendor name with proper object structure
           setValue("vendorname", {
@@ -411,8 +418,24 @@ const CreatePO: React.FC = () => {
               }
             }
           );
-          setValue("duedate", header?.duedate || "");
+
+          // Parse and set due date properly
+          if (header?.duedate) {
+            try {
+              // Parse the date string in DD-MM-YYYY format
+              const [day, month, year] = header.duedate.split("-");
+              const parsedDate = dayjs(`${year}-${month}-${day}`);
+
+              if (parsedDate.isValid()) {
+                setValue("duedate", parsedDate);
+              }
+            } catch (error) {
+              console.error("Error parsing date:", error);
+            }
+          }
+
           setValue("exchange", header?.exchangerate || "");
+
           // Set currency with proper object structure
           setValue("currency", {
             value: header?.currency?.value,
@@ -425,6 +448,19 @@ const CreatePO: React.FC = () => {
           handleShipAddressChange(ship || "");
           setValue("paymentTerms", header?.paymentterms || "");
           setValue("termsOfDelivery", header?.termsOfDelivery || "");
+
+          // Set payment terms and terms of delivery
+          setValue("paymentTerms", header?.paymentterms || "");
+          setValue("termsOfDelivery", header?.termsofcondition || "");
+
+          // Update form data in Redux
+          dispatch(
+            setFormData({
+              ...formData,
+              paymentTerms: header?.paymentterms || "",
+              termsOfDelivery: header?.termsOfDelivery || "",
+            })
+          );
 
           setRowData(
             materials.map((item: any) => ({
@@ -454,10 +490,30 @@ const CreatePO: React.FC = () => {
             }))
           );
           setTotal({
-            cgst: Number(materials.reduce((acc: number, item: any) => acc + Number(item.cgst), 0)),
-            sgst: Number(materials.reduce((acc: number, item: any) => acc + Number(item.sgst), 0)),
-            igst: Number(materials.reduce((acc: number, item: any) => acc + Number(item.igst), 0)),
-            taxableValue: Number(materials.reduce((acc: number, item: any) => acc + Number(item.taxablevalue), 0))
+            cgst: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.cgst),
+                0
+              )
+            ),
+            sgst: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.sgst),
+                0
+              )
+            ),
+            igst: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.igst),
+                0
+              )
+            ),
+            taxableValue: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.taxablevalue),
+                0
+              )
+            ),
           });
         }
       });
@@ -990,7 +1046,13 @@ const CreatePO: React.FC = () => {
                 <Controller
                   name="duedate"
                   control={control}
-                  rules={{ required: " Due Date is required" }}
+                  rules={{
+                    required: "Due Date is required",
+                    validate: (value) => {
+                      if (!value) return "Due Date is required";
+                      return dayjs(value).isValid() || "Invalid date";
+                    },
+                  }}
                   render={({ field }) => (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -998,16 +1060,30 @@ const CreatePO: React.FC = () => {
                         slots={{
                           textField: TextField,
                         }}
-                        maxDate={dayjs()}
                         slotProps={{
                           textField: {
                             variant: "filled",
                             error: !!errors.duedate,
                             helperText: errors.duedate?.message,
+                            fullWidth: true,
                           },
                         }}
-                        value={(field.value as any) || null}
-                        onChange={(value) => field.onChange(value)}
+                        value={
+                          field.value && dayjs(field.value).isValid()
+                            ? dayjs(field.value)
+                            : null
+                        }
+                        onChange={(newValue) => {
+                          if (newValue && dayjs(newValue).isValid()) {
+                            field.onChange(newValue);
+                            dispatch(
+                              setFormData({
+                                ...formData,
+                                duedate: newValue,
+                              })
+                            );
+                          }
+                        }}
                         sx={{ width: "100%" }}
                         label="Due Date"
                         name="duedate"
@@ -1015,8 +1091,44 @@ const CreatePO: React.FC = () => {
                     </LocalizationProvider>
                   )}
                 />
-                <TextField variant="filled" label="Payment Terms" />
-                <TextField variant="filled" label="Terms of Delivery" />
+                <TextField
+                  variant="filled"
+                  label="Payment Terms"
+                  {...register("paymentTerms", {
+                    required: "Payment Terms is required",
+                  })}
+                  error={!!errors.paymentTerms}
+                  helperText={errors.paymentTerms?.message}
+                  value={watch("paymentTerms") || ""}
+                  onChange={(e) => {
+                    setValue("paymentTerms", e.target.value);
+                    dispatch(
+                      setFormData({
+                        ...formData,
+                        paymentTerms: e.target.value,
+                      })
+                    );
+                  }}
+                />
+                <TextField
+                  variant="filled"
+                  label="Terms of Delivery"
+                  {...register("termsOfDelivery", {
+                    required: "Terms of Delivery is required",
+                  })}
+                  error={!!errors.termsOfDelivery}
+                  helperText={errors.termsOfDelivery?.message}
+                  value={watch("termsOfDelivery") || ""}
+                  onChange={(e) => {
+                    setValue("termsOfDelivery", e.target.value);
+                    dispatch(
+                      setFormData({
+                        ...formData,
+                        termsOfDelivery: e.target.value,
+                      })
+                    );
+                  }}
+                />
               </div>
             </div>
           )}
