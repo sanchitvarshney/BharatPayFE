@@ -56,6 +56,7 @@ import {
 } from "@/features/procurement/poSlices";
 import { useNavigate } from "react-router-dom";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -414,10 +415,10 @@ const CreatePO: React.FC = () => {
                     ""
                 );
                 setValue("gstin", response.payload.data?.data?.gstid);
-                setValue("vendorMobile", response.payload.data?.data?.phone);
               }
             }
           );
+          setValue("vendorMobile", header?.vendorMobile || "");
 
           // Parse and set due date properly
           if (header?.duedate) {
