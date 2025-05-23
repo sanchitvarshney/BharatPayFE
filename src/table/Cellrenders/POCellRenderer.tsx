@@ -2,11 +2,12 @@ import { Input, Select } from "antd";
 import { IoMdCheckmark } from "react-icons/io";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import React, { useEffect, useState } from "react";
-import { useAppSelector } from "@/hooks/useReduxHook";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { transformSkuCode } from "../../utils/transformUtills";
 import { Button, Typography } from "@mui/material";
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
+import { getPOComponentDetail } from "@/features/procurement/poSlices";
 
 interface POCellRendererProps {
   props: any;
@@ -17,6 +18,7 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
   const [currency, setCurrency] = useState<string>(data.excRate);
   const [open, setOpen] = useState<boolean>(false);
   const { currencyData, currencyLoaidng } = useAppSelector((state) => state.common);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     customFunction();
@@ -40,11 +42,6 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
     data[colDef.field] = newValue; // update the data
     data["taxableValue"] = Number(data.qty) * Number(data.rate);
     if (data.excRate != 0 || data.excRate != "") {
-      data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
-      data["foreignValue"] = Number(data.qty) * Number(data.rate);
-    }
-    if (data.currency != "364907247") {
-      data["foreignValue"] = Number(data.qty) * Number(data.rate);
       data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
     }
     if (data.gstType === "L") {
@@ -87,9 +84,15 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
             }}
             onChange={(selectedValue) => {
               const newValue = selectedValue;
+              dispatch(getPOComponentDetail(newValue?.value || "")).then((res:any) => {
+                if(res.payload.data.status==="success"){
+                  data["hsnCode"]=res.payload.data.data.hsn;
+                }
+              });
               data[colDef.field] = newValue;
               api.refreshCells({ rowNodes: [props.node], columns: [column, "component", "remark", "qty", "uom"] });
               api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
+              
             }}
             value={value}
           />
