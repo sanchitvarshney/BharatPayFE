@@ -14,6 +14,7 @@ const initialState: PoStateType = {
   cancelLoading:false,
   fetchPODataLoading:false,
   fetchPOData:[],
+  completedPoData:[],
 };
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
@@ -29,8 +30,27 @@ export const getListofPo = createAsyncThunk<
   return response;
 });
 
+export const getListofCompletedPo = createAsyncThunk<
+  AxiosResponse<PoListResponse>,
+  { wise: "powise" | "datewise" | "vendorwise" | string ; data: string; limit: number; page: number }
+>("po/fetchCompletedData4PO", async (payload) => {
+  console.log(payload.data,"list of po change page")
+  const response = await axiosInstance.get(
+    payload.wise === "powise"
+      ? `/po/fetchCompletePO?wise=powise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
+      : `/po/fetchCompletePO?wise=datewise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
+  );
+
+  return response.data;
+});
+
 export const createPO = createAsyncThunk<AxiosResponse<any>, any>("po/createPO", async (payload) => {
   const response = await axiosInstance.post("/po/createPO", payload);
+  return response;
+});
+
+export const updatePO = createAsyncThunk<AxiosResponse<any>, any>("po/updatePO", async (payload) => {
+  const response = await axiosInstance.put("/po/updateData4Update", payload);
   return response;
 });
 
@@ -47,6 +67,10 @@ export const fetchPOData = createAsyncThunk<AxiosResponse<any>, any>("po/fetchPO
 export const getPODetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPODetail", async (payload) => {
   const response = await axiosInstance.get(`/po/fetchData4Update?pono=${payload.id}`);
   return response.data;
+});
+export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
+  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
+  return response;
 });
 
 export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
@@ -111,6 +135,18 @@ const procurementPoSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      .addCase(getListofCompletedPo.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getListofCompletedPo.fulfilled, (state, action) => {
+        state.loading = false;
+ 
+        state.completedPoData = action.payload.data;
+      })
+      .addCase(getListofCompletedPo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
       .addCase(getPODetail.pending, (state) => {
         state.loading = true;
       })
@@ -161,6 +197,16 @@ const procurementPoSlice = createSlice({
         state.managePoData = action.payload.data;
       })
       .addCase(createPO.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updatePO.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updatePO.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updatePO.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

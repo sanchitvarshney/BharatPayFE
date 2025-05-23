@@ -41,8 +41,9 @@ type Props = {
   setTotal: React.Dispatch<React.SetStateAction<Totals>>;
   exchange:any
   currency:any
+  gstTypeStatus:string
 };
-const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency }) => {
+const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency,gstTypeStatus }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -68,7 +69,7 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, 
       taxableValue: 0,
       foreignValue: 0,
       hsnCode: "",
-      gstType: "L",
+      gstType: gstTypeStatus,
       gstRate: 0,
       cgst: 0,
       sgst: 0,

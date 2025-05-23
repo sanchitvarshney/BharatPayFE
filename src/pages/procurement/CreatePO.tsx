@@ -30,7 +30,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import SelectVendor, { VendorData } from "@/components/reusable/SelectVendor";
+import SelectVendor from "@/components/reusable/SelectVendor";
 import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -52,7 +52,10 @@ import {
   createPO,
   getPODetail,
   setFormData,
+  updatePO,
 } from "@/features/procurement/poSlices";
+import { useNavigate } from "react-router-dom";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 interface RowData {
   partComponent: { lable: string; value: string } | null;
   qty: number;
@@ -73,6 +76,8 @@ interface RowData {
   isNew?: boolean;
   excRate: number;
   uom: string;
+  updaterow?: string;
+  poid?: string;
 }
 
 interface Totals {
@@ -103,15 +108,19 @@ interface ShippingAddress {
   addressLine2: string;
   label: string;
 }
-type FormData = {
-  currency: string;
+interface VendorFormData {
+  id: string;
+  text: string;
+}
+
+interface FormData {
+  currency: { value: string; label: string };
   invoice: string;
   location: string;
-  vendorname: VendorData | null;
+  vendorname: VendorFormData | null;
   vendorbranch: string;
   vendoraddress: string;
-  duedate: string;
-  advancepayment: 0;
+  duedate: string | dayjs.Dayjs;
   billaddressid: 0;
   billaddress: BillAddress;
   shipaddressid: 0;
@@ -119,13 +128,19 @@ type FormData = {
   exchange: 0;
   vendor: string | null;
   gstin: string;
-};
+  vendorMobile: string;
+  paymentTerms: string;
+  termsOfDelivery: string;
+}
 const CreatePO: React.FC = () => {
+  const navigate = useNavigate();
   const [alert, setAlert] = useState<boolean>(false);
+  const [isNext, setIsNext] = useState<boolean>(true);
   const [minNo, setMinno] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
+  const [gstTypeStatus, setGstTypeStatus] = useState<string>("L");
   const [total, setTotal] = useState<Totals>({
     cgst: 0,
     sgst: 0,
@@ -142,7 +157,8 @@ const CreatePO: React.FC = () => {
     (state) => state.client
   ) as any;
   const isEdit = window.location.href.includes("edit-po");
-  const id = window.location.href.split("edit-po/")[1]?.replace(/_/g, "/") || "";
+  const id =
+    window.location.href.split("edit-po/")[1]?.replace(/_/g, "/") || "";
 
   const { currencyData } = useAppSelector((state) => state.common);
 
@@ -160,6 +176,7 @@ const CreatePO: React.FC = () => {
       vendorbranch: "",
       vendoraddress: "",
       gstin: "",
+      vendorMobile: "",
     },
   });
 
@@ -273,6 +290,15 @@ const CreatePO: React.FC = () => {
           const gstrate = rowData.map((item) => Number(item.gstRate));
           const hsncode = rowData.map((item) => item.hsnCode);
           const remark = rowData.map((item) => item.remarks);
+          const dueDate = watch("duedate");
+          let formattedDueDate = "";
+          if (dueDate) {
+            const date = dayjs(dueDate);
+            if (date.isValid()) {
+              formattedDueDate = date.format("DD-MM-YYYY");
+            }
+          }
+
           const payload: any = {
             component,
             qty,
@@ -285,8 +311,7 @@ const CreatePO: React.FC = () => {
             vendorname: formData.vendorname?.id || "",
             vendorbranch: formData.vendorbranch || "",
             vendoraddress: formData.vendoraddress || "",
-            duedate: dayjs(formData.duedate).format("DD-MM-YYYY") || "",
-            advancepayment: formData.advancepayment || "",
+            duedate: formattedDueDate,
             billaddressid: formData.billaddressid || "",
             shipaddressid: formData.shipaddressid || "",
             billaddress:
@@ -297,16 +322,35 @@ const CreatePO: React.FC = () => {
                 formData.shipaddress?.addressLine2 || "",
             exchange: formData.exchange || "",
             doucmentDate: formData.doucmentDate || "",
+            paymentterms: watch("paymentTerms") || formData.paymentTerms || "",
+            termsOfDelivery:
+              watch("termsOfDelivery") || formData.termsOfDelivery || "",
+            vendorMobile: formData.vendorMobile || "",
+            updaterow: rowData.map((item) => item.updaterow),
+            poid: id,
+            vendor_type: "v01",
           };
-          dispatch(createPO(payload)).then((response: any) => {
-            if (response.payload.data.success) {
-              showToast(response.payload?.data?.message, "success");
-              resetall();
-              handleNext();
-              dispatch(resetFormData());
-              setMinno(response.payload?.data?.data.po_id);
-            }
-          });
+          if (isEdit) {
+            dispatch(updatePO(payload)).then((response: any) => {
+              if (response.payload.data.success) {
+                showToast(response.payload?.data?.message, "success");
+                resetall();
+                handleNext();
+                dispatch(resetFormData());
+                navigate("/procurement/manage");
+              }
+            });
+          } else {
+            dispatch(createPO(payload)).then((response: any) => {
+              if (response.payload.data.success) {
+                showToast(response.payload?.data?.message, "success");
+                resetall();
+                handleNext();
+                dispatch(resetFormData());
+                setMinno(response.payload?.data?.data.po_id);
+              }
+            });
+          }
         }
       }
     }
@@ -321,7 +365,6 @@ const CreatePO: React.FC = () => {
   }, []);
 
   const handleBillAddressChange = (value: any) => {
-    console.log(value);
     if (value) {
       setValue("billaddressid", value.code);
       setValue("billaddress.label", value.label);
@@ -334,7 +377,6 @@ const CreatePO: React.FC = () => {
     }
   };
   const handleShipAddressChange = (value: any) => {
-    console.log(value);
     if (value) {
       setValue("shipaddressid", value.code);
       setValue("shipaddress.label", value.label);
@@ -348,16 +390,21 @@ const CreatePO: React.FC = () => {
   };
   const billLabel = watch("billaddress.label");
   const shipLabel = watch("shipaddress.label");
-
   useEffect(() => {
     if (isEdit) {
       dispatch(getPODetail({ id: id })).then((response: any) => {
         if (response.payload.success) {
           const { bill, ship, materials, header } = response.payload.data;
-          console.log(bill, ship, materials, header);
-          setValue("vendorname", header?.vendorcode?.value);
+
+          // Set vendor name with proper object structure
+          setValue("vendorname", {
+            id: header?.vendorcode?.value,
+            text: header?.vendorcode?.label,
+          });
+
           dispatch(getVendorBranchAsync(header?.vendorcode?.value));
           setValue("vendorbranch", header?.vendorbranch?.value);
+
           dispatch(getVendorAddress(header?.vendorbranch?.value)).then(
             (response: any) => {
               if (response.payload.data.success) {
@@ -367,35 +414,107 @@ const CreatePO: React.FC = () => {
                     ""
                 );
                 setValue("gstin", response.payload.data?.data?.gstid);
+                setValue("vendorMobile", response.payload.data?.data?.phone);
               }
             }
           );
-          // setValue("duedate", header?.duedate || "");
+
+          // Parse and set due date properly
+          if (header?.duedate) {
+            try {
+              // Parse the date string in DD-MM-YYYY format
+              const [day, month, year] = header.duedate.split("-");
+              const parsedDate = dayjs(`${year}-${month}-${day}`);
+
+              if (parsedDate.isValid()) {
+                setValue("duedate", parsedDate);
+              }
+            } catch (error) {
+              console.error("Error parsing date:", error);
+            }
+          }
+
           setValue("exchange", header?.exchangerate || "");
-          setValue("currency", header?.currency?.value || "");
-          setValue("billaddressid", bill?.addrbillid || "");
-          handleBillAddressChange(bill?.addrbillid || "");
-          setValue("shipaddressid", ship?.addrshipid || "");
-          handleShipAddressChange(ship?.addrshipid || "");
-          setRowData(materials.map((item: any ) => ({
-            ...item,
-            partComponent: { lable: item.component_short, value: item.componentKey },
-            qty: item.orderqty,
-            rate: item.rate,
-            taxablevalue: item.taxablevalue,
-            foreignvalue: item.exchangetaxablevalue===item.taxablevalue?0:item.exchangetaxablevalue,
-            hsnCode: item.hsncode,
-            gstType: item.gsttype?.id,
-            gstRate: item.gstrate,
-            cgst: Number(item.cgst),
-            sgst: Number(item.sgst),
-            igst: Number(item.igst),
-            remarks: item.remark,
-            currency: item.header?.currency?.value || "",
-            isNew: true,
-            excRate: item.header?.exchangerate || 1,
-            uom: item.uom,
-          })));
+
+          // Set currency with proper object structure
+          setValue("currency", {
+            value: header?.currency?.value,
+            label: header?.currency?.label,
+          });
+
+          setValue("billaddressid", bill?.code || "");
+          handleBillAddressChange(bill || "");
+          setValue("shipaddressid", ship?.code || "");
+          handleShipAddressChange(ship || "");
+          setValue("paymentTerms", header?.paymentterms || "");
+          setValue("termsOfDelivery", header?.termsOfDelivery || "");
+
+          // Set payment terms and terms of delivery
+          setValue("paymentTerms", header?.paymentterms || "");
+          setValue("termsOfDelivery", header?.termsofcondition || "");
+
+          // Update form data in Redux
+          dispatch(
+            setFormData({
+              ...formData,
+              paymentTerms: header?.paymentterms || "",
+              termsOfDelivery: header?.termsOfDelivery || "",
+            })
+          );
+
+          setRowData(
+            materials.map((item: any) => ({
+              partComponent: {
+                lable: item.component_short,
+                value: item.componentKey,
+              },
+              qty: Number(item.orderqty) || 0,
+              updaterow: item.updateid,
+              rate: Number(item.rate) || 0,
+              taxableValue: Number(item.taxablevalue) || 0,
+              foreignValue: Number(item.exchangetaxablevalue),
+              hsnCode: item.hsncode,
+              gstType: item.gsttype[0]?.id,
+              gstRate: Number(item.gstrate),
+              cgst: Number(item.cgst) || 0,
+              sgst: Number(item.sgst) || 0,
+              igst: Number(item.igst) || 0,
+              remarks: item.remark,
+              currency: {
+                value: item.header?.currency?.value,
+                label: item.header?.currency?.label,
+              },
+              isNew: true,
+              excRate: item.header?.exchangerate || 1,
+              uom: item.uom,
+            }))
+          );
+          setTotal({
+            cgst: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.cgst),
+                0
+              )
+            ),
+            sgst: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.sgst),
+                0
+              )
+            ),
+            igst: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.igst),
+                0
+              )
+            ),
+            taxableValue: Number(
+              materials.reduce(
+                (acc: number, item: any) => acc + Number(item.taxablevalue),
+                0
+              )
+            ),
+          });
         }
       });
     }
@@ -420,7 +539,7 @@ const CreatePO: React.FC = () => {
       />
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
-
+        {loading && <FullPageLoading />}
         <div className="h-[calc(100vh-100px)]   ">
           <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
             <Stepper activeStep={activeStep} className="w-full">
@@ -470,7 +589,9 @@ const CreatePO: React.FC = () => {
                         field.onChange(e);
                         dispatch(getVendorBranchAsync(e!.id));
                       }}
-                      label="Vendor"
+                      label={
+                        isEdit && isNext ? watch("vendorname")?.text : "Vendor"
+                      }
                     />
                   )}
                 />
@@ -508,6 +629,15 @@ const CreatePO: React.FC = () => {
                                   "gstin",
                                   response.payload.data?.data?.gstid
                                 );
+                                setValue(
+                                  "vendorMobile",
+                                  response.payload.data?.data?.phone
+                                );
+                                setGstTypeStatus(
+                                  response.payload.data?.data?.state === "09"
+                                    ? "L"
+                                    : "I"
+                                );
                               }
                             }
                           );
@@ -524,6 +654,22 @@ const CreatePO: React.FC = () => {
                       )}
                     </FormControl>
                   )}
+                />
+
+                <TextField
+                  variant="filled"
+                  // sx={{ mb: 1 }}
+                  error={!!errors.vendorMobile}
+                  helperText={errors?.vendorMobile?.message}
+                  focused={!!watch("vendorMobile")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Mobile No"
+                  className="h-[10px] resize-none"
+                  {...register("vendorMobile", {
+                    required: "Mobile No is required",
+                  })}
                 />
 
                 <div className="flex items-center gap-[10px] text-slate-600 sm:col-span-1 md:col-span-2 ">
@@ -869,7 +1015,11 @@ const CreatePO: React.FC = () => {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Currency"
+                          label={
+                            isEdit && isNext
+                              ? watch("currency")?.label
+                              : "Currency"
+                          }
                           error={!!errors.currency}
                           helperText={errors.currency?.message}
                           variant="filled"
@@ -880,17 +1030,29 @@ const CreatePO: React.FC = () => {
                 />
                 <TextField
                   variant="filled"
-                  label="Exchange Rate"
+                  // sx={{ mb: 1 }}
                   error={!!errors.exchange}
-                  helperText={errors.exchange?.message}
+                  helperText={errors?.exchange?.message}
+                  focused={!!watch("exchange")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="Exchange Rate"
+                  className="h-[10px] resize-none"
                   {...register("exchange", {
-                    required: "Exchange Rate  is required",
+                    required: "Exchange Rate is required",
                   })}
                 />
                 <Controller
                   name="duedate"
                   control={control}
-                  rules={{ required: " Due Date is required" }}
+                  rules={{
+                    required: "Due Date is required",
+                    validate: (value) => {
+                      if (!value) return "Due Date is required";
+                      return dayjs(value).isValid() || "Invalid date";
+                    },
+                  }}
                   render={({ field }) => (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -898,22 +1060,74 @@ const CreatePO: React.FC = () => {
                         slots={{
                           textField: TextField,
                         }}
-                        maxDate={dayjs()}
                         slotProps={{
                           textField: {
                             variant: "filled",
                             error: !!errors.duedate,
                             helperText: errors.duedate?.message,
+                            fullWidth: true,
                           },
                         }}
-                        value={(field.value as any) || null}
-                        onChange={(value) => field.onChange(value)}
+                        value={
+                          field.value && dayjs(field.value).isValid()
+                            ? dayjs(field.value)
+                            : null
+                        }
+                        onChange={(newValue) => {
+                          if (newValue && dayjs(newValue).isValid()) {
+                            field.onChange(newValue);
+                            dispatch(
+                              setFormData({
+                                ...formData,
+                                duedate: newValue,
+                              })
+                            );
+                          }
+                        }}
                         sx={{ width: "100%" }}
                         label="Due Date"
                         name="duedate"
                       />
                     </LocalizationProvider>
                   )}
+                />
+                <TextField
+                  variant="filled"
+                  label="Payment Terms"
+                  {...register("paymentTerms", {
+                    required: "Payment Terms is required",
+                  })}
+                  error={!!errors.paymentTerms}
+                  helperText={errors.paymentTerms?.message}
+                  value={watch("paymentTerms") || ""}
+                  onChange={(e) => {
+                    setValue("paymentTerms", e.target.value);
+                    dispatch(
+                      setFormData({
+                        ...formData,
+                        paymentTerms: e.target.value,
+                      })
+                    );
+                  }}
+                />
+                <TextField
+                  variant="filled"
+                  label="Terms of Delivery"
+                  {...register("termsOfDelivery", {
+                    required: "Terms of Delivery is required",
+                  })}
+                  error={!!errors.termsOfDelivery}
+                  helperText={errors.termsOfDelivery?.message}
+                  value={watch("termsOfDelivery") || ""}
+                  onChange={(e) => {
+                    setValue("termsOfDelivery", e.target.value);
+                    dispatch(
+                      setFormData({
+                        ...formData,
+                        termsOfDelivery: e.target.value,
+                      })
+                    );
+                  }}
                 />
               </div>
             </div>
@@ -926,6 +1140,7 @@ const CreatePO: React.FC = () => {
                 setTotal={setTotal}
                 exchange={formData?.exchange}
                 currency={formData?.currency?.value}
+                gstTypeStatus={gstTypeStatus}
               />
             </div>
           )}
@@ -981,25 +1196,25 @@ const CreatePO: React.FC = () => {
                         Sub-Total value before Taxes
                       </p>
                       <p className="text-[14px] text-muted-foreground">
-                        {total.taxableValue}
+                        {total.taxableValue.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">CGST</p>
                       <p className="text-[14px] text-muted-foreground">
-                        (+) {total.cgst}
+                        (+) {total.cgst.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">SGST</p>
                       <p className="text-[14px] text-muted-foreground">
-                        (+) {total.sgst}
+                        (+) {total.sgst.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">IGST</p>
                       <p className="text-[14px] text-muted-foreground">
-                        (+) {total.igst}
+                        (+) {total.igst.toFixed(2)}
                       </p>
                     </div>
                     <div className="flex justify-between">
@@ -1007,8 +1222,10 @@ const CreatePO: React.FC = () => {
                         Sub-Total values after Taxes
                       </p>
                       <p className="text-[14px] text-muted-foreground">
-                        {total.taxableValue +
-                          (total.cgst + total.sgst + total.igst)}
+                        {(
+                          total.taxableValue +
+                          (total.cgst + total.sgst + total.igst)
+                        ).toFixed(2)}
                       </p>
                     </div>
                   </CardContent>
@@ -1034,6 +1251,7 @@ const CreatePO: React.FC = () => {
                   endIcon={<Icons.next />}
                   onClick={() => {
                     onSubmit(watch());
+                    setIsNext(false);
                   }}
                 >
                   Next
