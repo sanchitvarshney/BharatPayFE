@@ -50,7 +50,7 @@ export const createPO = createAsyncThunk<AxiosResponse<any>, any>("po/createPO",
 });
 
 export const updatePO = createAsyncThunk<AxiosResponse<any>, any>("po/updatePO", async (payload) => {
-  const response = await axiosInstance.post("/po/updatePO", payload);
+  const response = await axiosInstance.put("/po/updateData4Update", payload);
   return response;
 });
 
