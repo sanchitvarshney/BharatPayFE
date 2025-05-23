@@ -458,7 +458,7 @@ const ManagePO: React.FC = () => {
           maxWidth="sm"
           fullWidth
         >
-          <DialogTitle>Cancel Purchase Order</DialogTitle>
+          <DialogTitle>Cancel Procurement Order</DialogTitle>
           <DialogContent>
             <div className="mt-4">
               <TextField

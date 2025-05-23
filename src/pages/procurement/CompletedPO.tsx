@@ -53,7 +53,7 @@ const CompletedPO: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
-  const [cancelReason, setCancelReason] = useState<string>("");
+  const [cancelReason, setCancelReason] = useState("");
   const [openViewPOModal, setOpenViewPOModal] = useState<boolean>(false);
 
   const handleMenuClick = (
@@ -454,7 +454,7 @@ const CompletedPO: React.FC = () => {
           maxWidth="sm"
           fullWidth
         >
-          <DialogTitle>Cancel Purchase Order</DialogTitle>
+          <DialogTitle>Cancel Procurement Order</DialogTitle>
           <DialogContent>
             <div className="mt-4">
               <TextField
