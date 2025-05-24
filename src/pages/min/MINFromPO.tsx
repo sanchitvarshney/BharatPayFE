@@ -22,12 +22,13 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { showToast } from "@/utils/toasterContext";
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { Icons } from "@/components/icons";
 import dayjs from "dayjs";
 import { fetchDataForMIN } from "@/features/procurement/poSlices";
+import MINFromPOTextInputCellRenderer from "@/table/Cellrenders/MINFromPOTextInputCellRenderer";
 
 type FormData = {
   product: DeviceType | null;
@@ -99,10 +100,46 @@ const MINFromPO = () => {
       }
     });
   };
-
+console.log(rowData);
+  const components = useMemo(
+    () => ({
+      textInputCellRenderer: (params: any) => <MINFromPOTextInputCellRenderer props={params} />,
+      
+    }),
+    []
+  );
+console.log(rowData);
   const handleSearchPO = async () => {
     dispatch(fetchDataForMIN(poNumber.trim())).then((res: any) => {
       if (res.payload.data.success) {
+        const materials = res.payload.data.data.materials;
+        setRowData(
+          materials.map((item: any) => ({
+            partComponent: {
+              lable: "( " + item.c_partno + " ) " + item.component_shortname,
+              value: item.componentKey,
+            },
+            qty: Number(item.orderqty) || 0,
+            updaterow: item.access_code,
+            rate: Number(item.orderrate) || 0,
+            taxableValue: Number(item.totalValue) || 0,
+            foreignValue: Number(item.usdValue),
+            hsnCode: item.hsncode,
+            gstType: item.gsttype,
+            gstRate: Number(item.gstrate),
+            cgst: Number(item.cgst) || 0,
+            sgst: Number(item.sgst) || 0,
+            igst: Number(item.igst) || 0,
+            remarks: item.remark,
+            currency: {
+              value: item.header?.currency?.value,
+              label: item.header?.currency?.label,
+            },
+            isNew: true,
+            excRate: item.header?.exchangerate || 1,
+            uom: item.uom,
+          }))
+        );
         setMaterials(res.payload.data.data.materials);
         setVendorData(res.payload.data.data.vendor_type);
       } else {
@@ -131,68 +168,97 @@ const MINFromPO = () => {
       setUploading(false);
     }
   };
-
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
-      field: "serialNo",
-      sortable: true,
-      filter: true,
-      valueGetter: "node.rowIndex+1",
-      width: 100,
+      valueGetter: "node.rowIndex + 1",
+      width: 50,
+      pinned: "left",
     },
     {
-      headerName: "Modal Name",
-      field: "modalNo",
-      sortable: true,
-      filter: true,
-      flex: 1,
+      headerName: "",
+      field: "excRate",
+      cellRenderer: "textInputCellRenderer",
+      hide: true,
     },
     {
-      headerName: "Device SKU",
-      field: "deviceSku",
-      sortable: true,
-      filter: true,
-      flex: 1,
+      headerName: "Part Component",
+      field: "partComponent.lable",
+      cellRenderer: "textInputCellRenderer",
+      minWidth: 300,
     },
     {
-      headerName: "IMEI",
-      field: "imei",
-      sortable: true,
-      filter: true,
-      flex: 1,
+      headerName: "Qty",
+      field: "qty",
+      cellRenderer: "textInputCellRenderer",
     },
     {
-      headerName: "IMEI2",
-      field: "imei2",
-      sortable: true,
-      filter: true,
-      flex: 1,
+      headerName: "Rate",
+      field: "rate",
+      cellRenderer: "textInputCellRenderer",
+      width: 200,
+    },
+    // {
+    //   headerName: "",
+    //   field: "currency",
+    //   cellRenderer: "textInputCellRenderer",
+    //   width: 80,
+    // },
+    {
+      headerName: "Taxable Value",
+      field: "taxableValue",
+      cellRenderer: "textInputCellRenderer",
     },
     {
-      headerName: "SR No.",
-      field: "srno",
-      sortable: true,
-      filter: true,
-      flex: 1,
+      headerName: "Foreign Value",
+      field: "foreignValue",
+      cellRenderer: "textInputCellRenderer",
     },
     {
-      headerName: "Actions",
-      field: "",
-      sortable: false,
-      filter: false,
-      cellRenderer: (params: any) => (
-        <IconButton
-          onClick={() => {
-            setRowData(
-              rowData.filter((row: any) => row.imei !== params.data.imei)
-            );
-          }}
-        >
-          <DeleteIcon fontSize="small" color="error" />
-        </IconButton>
-      ),
-      width: 100,
+      headerName: "HSN Code",
+      field: "hsnCode",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "Location",
+      field: "location",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "GST Type",
+      field: "gstType",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "GST Rate",
+      field: "gstRate",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "CGST",
+      field: "cgst",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "SGST",
+      field: "sgst",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "IGST",
+      field: "igst",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "Remarks",
+      field: "remarks",
+      cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "uom",
+      field: "uom",
+
+      hide: true,
     },
   ];
 
@@ -325,9 +391,10 @@ const MINFromPO = () => {
           <AgGridReact
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
-            rowData={materials}
+            rowData={rowData}
             columnDefs={columnDefs}
             pagination={true}
+            components={components}
           />
         </div>
       </div>
