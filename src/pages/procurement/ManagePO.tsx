@@ -29,7 +29,6 @@ import {
 } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
-import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -174,11 +173,6 @@ const ManagePO: React.FC = () => {
     setDate(dates);
   };
 
-  const handleExport = () => {
-    console.log("DownloadReport");
-  };
-  console.log("date range", dateRange);
-
   const handlePrintChallan = () => {
     dispatch(poPrint({ id: selectedRow.po_transaction }));
     setAnchorEl(null);
@@ -316,25 +310,6 @@ const ManagePO: React.FC = () => {
                   >
                     Search
                   </LoadingButton>
-                  <MuiTooltip title="Download" placement="right">
-                    <LoadingButton
-                      // disabled={!mainR1Report}
-                      variant="contained"
-                      color="primary"
-                      style={{
-                        borderRadius: "50%",
-                        width: 40,
-                        height: 40,
-                        minWidth: 0,
-                        padding: 0,
-                      }}
-                      onClick={handleExport}
-                      size="small"
-                      sx={{ zIndex: 1 }}
-                    >
-                      <Icons.download />
-                    </LoadingButton>
-                  </MuiTooltip>
                 </div>
               </div>
             ) : type === "datewise" ? (
@@ -382,25 +357,6 @@ const ManagePO: React.FC = () => {
                   >
                     Search
                   </LoadingButton>
-                  <MuiTooltip title="Download" placement="right">
-                    <LoadingButton
-                      // disabled={!mainR1Report}
-                      variant="contained"
-                      color="primary"
-                      style={{
-                        borderRadius: "50%",
-                        width: 40,
-                        height: 40,
-                        minWidth: 0,
-                        padding: 0,
-                      }}
-                      onClick={() => {}}
-                      size="small"
-                      sx={{ zIndex: 1 }}
-                    >
-                      <Icons.download />
-                    </LoadingButton>
-                  </MuiTooltip>
                 </div>
               </div>
             ) : null}
