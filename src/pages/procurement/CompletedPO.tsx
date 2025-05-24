@@ -380,25 +380,6 @@ const CompletedPO: React.FC = () => {
                   >
                     Search
                   </LoadingButton>
-                  <MuiTooltip title="Download" placement="right">
-                    <LoadingButton
-                      // disabled={!mainR1Report}
-                      variant="contained"
-                      color="primary"
-                      style={{
-                        borderRadius: "50%",
-                        width: 40,
-                        height: 40,
-                        minWidth: 0,
-                        padding: 0,
-                      }}
-                      onClick={() => {}}
-                      size="small"
-                      sx={{ zIndex: 1 }}
-                    >
-                      <Icons.download />
-                    </LoadingButton>
-                  </MuiTooltip>
                 </div>
               </div>
             ) : null}
