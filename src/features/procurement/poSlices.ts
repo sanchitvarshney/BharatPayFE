@@ -73,6 +73,11 @@ export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>
   return response;
 });
 
+export const fetchDataForMIN   = createAsyncThunk<AxiosResponse<any>, string>("po/fetchDataForMIN", async (id) => {
+  const response = await axiosInstance.get(`/po/fetchData4MIN?pono=${id}`);
+  return response;
+});
+
 export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
   "/poPrint",
   async (data, { rejectWithValue }) => {
