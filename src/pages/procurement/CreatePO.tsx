@@ -132,6 +132,7 @@ interface FormData {
   vendorMobile: string;
   paymentTerms: string;
   termsOfDelivery: string;
+  remarks: string;
 }
 const CreatePO: React.FC = () => {
   const navigate = useNavigate();
@@ -178,6 +179,7 @@ const CreatePO: React.FC = () => {
       vendoraddress: "",
       gstin: "",
       vendorMobile: "",
+      remarks: "",
     },
   });
 
@@ -329,7 +331,8 @@ const CreatePO: React.FC = () => {
             vendorMobile: formData.vendorMobile || "",
             updaterow: rowData.map((item) => item.updaterow),
             poid: id,
-            vendor_type: "v01",
+            vendor_type: "v01",            
+            poRemarks: watch("remarks") || "",
           };
           if (isEdit) {
             dispatch(updatePO(payload)).then((response: any) => {
@@ -1131,6 +1134,21 @@ const CreatePO: React.FC = () => {
                   }}
                 />
               </div>
+              <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.remarks}
+                  helperText={errors?.remarks?.message}
+                  focused={!!watch("remarks")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Remarks"
+                  className="h-[100px] resize-none"
+                  {...register("remarks", {
+                    required: "Remarks is required",
+                  })}
+                />
             </div>
           )}
           {activeStep === 1 && (
