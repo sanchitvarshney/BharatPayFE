@@ -2,17 +2,9 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {
   Typography,
-  IconButton,
-  CircularProgress,
-  Grid,
   TextField,
-  InputAdornment,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Button,
   Card,
   CardContent,
@@ -21,14 +13,25 @@ import {
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import DeleteIcon from "@mui/icons-material/Delete";
-import React, { useState, useRef, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { showToast } from "@/utils/toasterContext";
-import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
-import { Icons } from "@/components/icons";
-import dayjs from "dayjs";
-import { fetchDataForMIN } from "@/features/procurement/poSlices";
+import { fetchDataForMIN, uploadMinInvoice } from "@/features/procurement/poSlices";
 import MINFromPOTextInputCellRenderer from "@/table/Cellrenders/MINFromPOTextInputCellRenderer";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from "@/components/ui/Fileupload";
+import { LoadingButton } from "@mui/lab";
+import { IoCloudUpload } from "react-icons/io5";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 
 type FormData = {
   product: DeviceType | null;
@@ -46,7 +49,6 @@ type FormData = {
 };
 
 const MINFromPO = () => {
-  const [imei, setImei] = useState<string>("");
   const [rowData, setRowData] = useState<any>([]);
   const [formData, setFormData] = useState<FormData>({
     product: null,
@@ -67,48 +69,25 @@ const MINFromPO = () => {
   const [materials, setMaterials] = useState<any[]>([]);
   const [invoiceNo, setInvoiceNo] = useState("");
   const [invoiceDate, setInvoiceDate] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [files, setFiles] = useState<File[] | null>(null);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [url , setUrl] = useState<string>("");
+
+  const { loading } = useAppSelector(
+    (state) => state.po
+  );
 
   const dispatch = useAppDispatch();
-  const { deviceDetailLoading } = useAppSelector(
-    (state) => state.batteryQcReducer
-  );
-  console.log(materials,vendorData);
-  const handleImeiEnter = (imei: string) => {
-    dispatch(
-      getDeviceDetails({
-        imei: imei,
-        deviceType: formData.type,
-      })
-    ).then((res: any) => {
-      if (res.payload.data.success) {
-        setImei("");
-        const newRowData = res?.payload?.data?.data?.map((device: any) => {
-          return {
-            imei: device.device_imei || device.imei_no1 || "",
-            srno: device.sl_no || "",
-            modalNo: device?.p_name || "",
-            deviceSku: device?.device_sku || "",
-            productKey: device?.product_key || "",
-            imei2: device?.imei_no2 || "",
-          };
-        });
-        setRowData((prevRowData: any) => [...newRowData, ...prevRowData]);
-      } else {
-        showToast(res.payload.data.message, "error");
-      }
-    });
-  };
-console.log(rowData);
   const components = useMemo(
     () => ({
-      textInputCellRenderer: (params: any) => <MINFromPOTextInputCellRenderer props={params} />,
-      
+      textInputCellRenderer: (params: any) => (
+        <MINFromPOTextInputCellRenderer props={params} />
+      ),
     }),
     []
   );
-console.log(rowData);
+  console.log(rowData);
   const handleSearchPO = async () => {
     dispatch(fetchDataForMIN(poNumber.trim())).then((res: any) => {
       if (res.payload.data.success) {
@@ -148,26 +127,56 @@ console.log(rowData);
     });
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
+  const handleFileChange = async (files: File[] | null) => {
+    setFiles(files);
   };
+console.log(url)
+  const uploadDocs = async () => {
+    setUploadLoading(true);
+    if (!files && files === null) {
+      // toast({
+      //   title: "No file selected",
+      //   className: "bg-red-600 text-white items-center",
+      // });
+      setUploadLoading(false);
+    }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
     try {
-      await fetch("/api/upload-docs", {
-        method: "POST",
-        body: formData,
-      });
-    } catch (err) {
-    } finally {
-      setUploading(false);
+      if (files && files.length > 0) {
+        dispatch(uploadMinInvoice({ files: files[0] }))
+          .then((res) => {
+            console.log(res)
+            if (res.payload?.success) {
+              setUrl(res.payload?.data[0]?.url);
+              // toast({
+              //   title: res.payload?.message,
+              //   className: "bg-green-600 text-white items-center",
+              // });
+              setUploadLoading(false);
+              setSheetOpen(false);
+            }
+          })
+          .catch((error) => {
+            console.error("Error uploading docs:", error);
+            // toast({
+            //   title: "Error uploading docs",
+            //   className: "bg-red-600 text-white items-center",
+            // });
+            setUploadLoading(false);
+            setSheetOpen(false);
+            setFiles([]);
+          });
+      }
+    } catch (error) {
+      console.error("Error uploading docs:", error);
+      // toast({
+      //   title: "Error uploading docs",
+      //   className: "bg-red-600 text-white items-center",
+      // });
+      setUploadLoading(false);
     }
   };
+
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
@@ -270,6 +279,7 @@ console.log(rowData);
 
   return (
     <div className="minfrompo-root flex bg-white h-[calc(100vh-60px)]">
+      {loading && <FullPageLoading/>}
       {/* Left Panel */}
       <div className="minfrompo-left flex flex-col gap-6 border-r border-neutral-300 p-6 min-w-[350px] max-w-[400px] bg-gray-50">
         <Card variant="outlined" className="bg-white">
@@ -278,23 +288,6 @@ console.log(rowData);
               <Typography variant="h6" fontWeight={700}>
                 Vendor Detail
               </Typography>
-              <Button
-                variant="contained"
-                color="success"
-                size="small"
-                startIcon={<UploadFileIcon />}
-                onClick={handleUploadClick}
-                disabled={uploading}
-                style={{ minWidth: 120 }}
-              >
-                {uploading ? "Uploading..." : "Upload Docs"}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              />
             </div>
             <div className="space-y-2 mb-4">
               <div>
@@ -381,10 +374,28 @@ console.log(rowData);
       </div>
       {/* Right Panel */}
       <div className="flex-1 flex flex-col p-8">
-        <div className="flex gap-2 mb-6 max-w-lg">
-          <TextField fullWidth label="PO Number" size="small" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} />
-          <Button variant="contained" onClick={handleSearchPO}>
-            Search
+        <div className="flex justify-between gap-2 mb-6 w-full">
+          <div className="flex gap-2">
+            <TextField
+              fullWidth
+              label="PO Number"
+              size="small"
+              value={poNumber}
+              onChange={(e) => setPoNumber(e.target.value)}
+            />
+            <Button variant="contained" onClick={handleSearchPO}>
+              Search
+            </Button>
+          </div>
+          <Button
+            variant="contained"
+            color="success"
+            size="small"
+            startIcon={<UploadFileIcon />}
+            onClick={() => setSheetOpen(true)}
+            className="w-40"
+          >
+           Upload Docs
           </Button>
         </div>
         <div className="ag-theme-quartz rounded shadow h-[calc(100vh-250px)] bg-white">
@@ -398,6 +409,83 @@ console.log(rowData);
           />
         </div>
       </div>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent
+          className="min-w-[35%] p-0"
+          onInteractOutside={(e: any) => {
+            e.preventDefault();
+          }}
+        >
+          <SheetHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400">
+            <SheetTitle className="text-slate-600">Upload Docs here</SheetTitle>
+          </SheetHeader>
+          <div className="ag-theme-quartz h-[calc(100vh-100px)] w-full">
+            <FileUploader
+              value={files}
+              onValueChange={handleFileChange}
+              dropzoneOptions={{
+                accept: {
+                  "image/*": [".jpg", ".jpeg", ".png", ".gif", ".pdf"],
+                },
+                maxFiles: 5,
+                maxSize: 4 * 1024 * 1024, // 4 MB
+                multiple: true,
+              }}
+            >
+              <div className="bg-white border border-gray-300 rounded-lg shadow-lg h-[120px] p-[20px] m-[20px]">
+                <h2 className="text-xl font-semibold text-center mb-4">
+                  <div className="text-center w-full justify-center flex">
+                    <div>Upload Your Files</div>
+                    <div>
+                      <IoCloudUpload
+                        className="text-cyan-700 ml-5 h-[20]"
+                        size={"1.5rem"}
+                      />
+                    </div>
+                  </div>
+                </h2>
+                <FileInput>
+                  <span className="text-slate-500 text-sm text-center w-full justify-center flex">
+                    Drag and drop files here, or click to select files
+                  </span>
+                </FileInput>
+              </div>
+              <div className="m-[20px]">
+                <FileUploaderContent>
+                  {files?.map((file, index) => (
+                    <FileUploaderItem key={index} index={index}>
+                      <span>{file.name}</span>
+                    </FileUploaderItem>
+                  ))}
+                </FileUploaderContent>
+              </div>
+            </FileUploader>
+          </div>
+          <div className="bg-white border-t shadow border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
+            <Button
+              className="rounded-md shadow bg-cyan-700 hover:bg-cyan-600 shadow-slate-500 max-w-max px-[30px]"
+              onClick={() => setSheetOpen(false)}
+            >
+              Back
+            </Button>
+            <LoadingButton
+              onClick={uploadDocs}
+              sx={{
+                backgroundColor: "#217346",
+                "&:hover": {
+                  backgroundColor: "#2fa062",
+                },
+                color: "white",
+              }}
+              variant="contained"
+              loading={uploadLoading}
+            >
+              Upload
+            </LoadingButton>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

@@ -78,6 +78,28 @@ export const fetchDataForMIN   = createAsyncThunk<AxiosResponse<any>, string>("p
   return response;
 });
 
+export const uploadMinInvoice = createAsyncThunk<
+  any, // Define the type of the data you expect to return
+  { files: File } // Define the type of the argument you expect
+>("/po/uploadInvoice", async ({ files }) => {
+  // console.log(file,"uploadMinInvoice formdata");
+  const formData = new FormData();
+  // console.log(file,"aftyer")
+  formData.append("files", files); // Append the file to FormData
+  console.log(formData, "uploadMinInvoice formdata");
+  const response = await axiosInstance.post(
+    "/po/uploadInvoice",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data", // Set appropriate headers
+      },
+    }
+  );
+
+  return response.data;
+});
+
 export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
   "/poPrint",
   async (data, { rejectWithValue }) => {
@@ -137,6 +159,16 @@ const procurementPoSlice = createSlice({
         state.managePoData = action.payload.data;
       })
       .addCase(getListofPo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchDataForMIN.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDataForMIN.fulfilled, (state) => {
+        state.loading = false;
+       })
+      .addCase(fetchDataForMIN.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
