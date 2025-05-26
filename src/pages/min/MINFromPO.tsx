@@ -1,6 +1,4 @@
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { CostCenterType } from "@/components/reusable/SelectCostCenter";
-import { DeviceType } from "@/components/reusable/SelectSku";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   Typography,
@@ -9,6 +7,9 @@ import {
   Card,
   CardContent,
   Divider,
+  Stepper,
+  StepLabel,
+  Step,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "ag-grid-community";
@@ -37,38 +38,10 @@ import { LoadingButton } from "@mui/lab";
 import { IoCloudUpload } from "react-icons/io5";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
-
-type FormData = {
-  product: DeviceType | null;
-  toLocation: any;
-  fromLocation: any;
-  fromBranch: any;
-  toBranch: any;
-  quantity: number;
-  remark: string;
-  cc: CostCenterType | null;
-  type: string;
-  branchType: string;
-  fromLocationName: string;
-  toLocationName: string;
-};
+import Success from "@/components/reusable/Success";
 
 const MINFromPO = () => {
   const [rowData, setRowData] = useState<any>([]);
-  const [formData, setFormData] = useState<FormData>({
-    product: null,
-    toLocation: null,
-    fromLocation: null,
-    fromBranch: null,
-    toBranch: null,
-    quantity: 0,
-    remark: "",
-    cc: null,
-    type: "",
-    branchType: "",
-    fromLocationName: "",
-    toLocationName: "",
-  });
   const [poNumber, setPoNumber] = useState("");
   const [vendorData, setVendorData] = useState<any>(null);
   const [materials, setMaterials] = useState<any[]>([]);
@@ -79,7 +52,13 @@ const MINFromPO = () => {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [url, setUrl] = useState<string>("");
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [location, setLocation] = useState<string>("");
+  const [location, setLocation] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
+  const [minMessage, setMinMessage] = useState("");
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ["PO Details", "Submit"];
 
   const { loading } = useAppSelector((state) => state.po);
 
@@ -198,7 +177,6 @@ const MINFromPO = () => {
     {
       headerName: "Part Component",
       field: "partComponent.lable",
-      cellRenderer: "textInputCellRenderer",
       minWidth: 300,
     },
     {
@@ -309,16 +287,19 @@ const MINFromPO = () => {
         gsttype: rowData.map((row: any) => row.gstType),
         hsnCode: rowData.map((row: any) => row.hsnCode),
       };
-      dispatch(submitPOMIN(submitData)).then((res)=>{
-        if(res.payload.data.success){
+      dispatch(submitPOMIN(submitData)).then((res: any) => {
+        if (res.payload.data.success) {
+          showToast(res.payload.data.message, "success");
+          setMinMessage(res.payload.data.message);
           setRowData([]);
           setPoNumber("");
           setInvoiceNo("");
           setInvoiceDate("");
           setUrl("");
-          setLocation("");
+          setLocation(null);
           setVendorData(null);
           setMaterials([]);
+          setActiveStep(1);
         }
       });
       console.log("Submit Data:", submitData);
@@ -331,233 +312,258 @@ const MINFromPO = () => {
   };
 
   return (
-    <div className="minfrompo-root flex bg-white h-[calc(100vh-60px)]">
-      {loading && <FullPageLoading />}
-      {/* Left Panel */}
-      <div className="minfrompo-left flex flex-col gap-6 border-r border-neutral-300 p-6 min-w-[350px] max-w-[400px] bg-gray-50">
-        <Card variant="outlined" className="bg-white">
-          <CardContent>
-            <div className="flex items-center justify-between mb-2">
-              <Typography variant="h6" fontWeight={700}>
-                Vendor Detail
-              </Typography>
-            </div>
-            <div className="space-y-2 mb-4">
-              <div>
-                <b>Name:</b> {vendorData?.vendorname || "-"}
-              </div>
-              <div>
-                <b>Address:</b> {vendorData?.vendoraddress || "-"}
-              </div>
-              <div>
-                <b>GSTIN:</b> {vendorData?.gstin || "-"}
-              </div>
-              <div>
-                <b>Currency:</b>{" "}
-                {vendorData?.currencyData?.currency_symbol || "-"}
-              </div>
-              <div>
-                <b>Exchange Rate:</b> {vendorData?.exchange_rate || "-"}
-              </div>
-              <div className="flex gap-2 mt-2">
-                <TextField
-                  label="Invoice No."
-                  value={invoiceNo}
-                  onChange={(e) => setInvoiceNo(e.target.value)}
-                  required
-                  size="small"
-                  fullWidth
-                />
-                <TextField
-                  label="Invoice Date"
-                  type="date"
-                  value={invoiceDate}
-                  onChange={(e) => setInvoiceDate(e.target.value)}
-                  required
-                  size="small"
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                />
-              </div>
-              <AntLocationSelectAcordinttoModule
-                endpoint="/transaction/rm-inward-location"
-                onChange={(value) => {
-                  const newValue = value;
-                  setLocation(newValue);
-                }}
-                value={location}
-              />
-            </div>
-            <Divider className="my-4" />
-            <Typography fontWeight={600} fontSize={16} mb={1}>
-              Tax Detail
-            </Typography>
-            <Card className="border-0 rounded-none shadow-none">
-              <CardContent className="flex flex-col gap-[20px] pt-[20px] ">
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">
-                    Sub-Total value before Taxes
-                  </p>
-                  <p className="text-[14px] text-muted-foreground">
-                    {totalValue.toFixed(2)}
-                  </p>
+    <div>
+      <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
+        <Stepper activeStep={activeStep} className="w-full">
+          {steps.map((label, index) => (
+            <Step key={index}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </div>
+      {activeStep === 0 && (
+        <div className="minfrompo-root flex bg-white h-[calc(100vh-60px)]">
+          {loading && <FullPageLoading />}
+          {/* Left Panel */}
+          <div className="minfrompo-left flex flex-col gap-6 border-r border-neutral-300 p-6 min-w-[350px] max-w-[400px] bg-gray-50">
+            <Card variant="outlined" className="bg-white">
+              <CardContent>
+                <div className="flex items-center justify-between mb-2">
+                  <Typography variant="h6" fontWeight={700}>
+                    Vendor Detail
+                  </Typography>
                 </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">CGST</p>
-                  <p className="text-[14px] text-muted-foreground">
-                    (+) {cgst.toFixed(2)}
-                  </p>
+                <div className="space-y-2 mb-4">
+                  <div>
+                    <b>Name:</b> {vendorData?.vendorname || "-"}
+                  </div>
+                  <div>
+                    <b>Address:</b> {vendorData?.vendoraddress || "-"}
+                  </div>
+                  <div>
+                    <b>GSTIN:</b> {vendorData?.gstin || "-"}
+                  </div>
+                  <div className="flex gap-2">
+                    <b>Currency:</b> {vendorData?.currency_symbol || "-"}
+                    <b>Exchange Rate:</b> {vendorData?.exchange_rate || "-"}
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <TextField
+                      label="Invoice No."
+                      value={invoiceNo}
+                      onChange={(e) => setInvoiceNo(e.target.value)}
+                      required
+                      size="small"
+                      fullWidth
+                    />
+                    <TextField
+                      label="Invoice Date"
+                      type="date"
+                      value={invoiceDate}
+                      onChange={(e) => setInvoiceDate(e.target.value)}
+                      required
+                      size="small"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </div>
+                  <AntLocationSelectAcordinttoModule
+                    endpoint="/transaction/rm-inward-location"
+                    onChange={(value) => {
+                      setLocation(value);
+                    }}
+                    value={location}
+                    label="Select Location"
+                  />
                 </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">SGST</p>
-                  <p className="text-[14px] text-muted-foreground">
-                    (+) {sgst.toFixed(2)}
-                  </p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">IGST</p>
-                  <p className="text-[14px] text-muted-foreground">
-                    (+) {igst.toFixed(2)}
-                  </p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-slate-600 font-[500]">
-                    Sub-Total values after Taxes
-                  </p>
-                  <p className="text-[14px] text-muted-foreground">
-                    {afterTax.toFixed(2)}
-                  </p>
-                </div>
+                <Divider className="my-4" />
+                <Typography fontWeight={600} fontSize={16} mb={1}>
+                  Tax Detail
+                </Typography>
+                <Card className="border-0 rounded-none shadow-none">
+                  <CardContent className="flex flex-col gap-[20px] pt-[20px] ">
+                    <div className="flex justify-between">
+                      <p className="text-slate-600 font-[500]">
+                        Sub-Total value before Taxes
+                      </p>
+                      <p className="text-[14px] text-muted-foreground">
+                        {totalValue.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p className="text-slate-600 font-[500]">CGST</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {cgst.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p className="text-slate-600 font-[500]">SGST</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {sgst.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p className="text-slate-600 font-[500]">IGST</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {igst.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p className="text-slate-600 font-[500]">
+                        Sub-Total values after Taxes
+                      </p>
+                      <p className="text-[14px] text-muted-foreground">
+                        {afterTax.toFixed(2)}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
-          </CardContent>
-        </Card>
-      </div>
-      {/* Right Panel */}
-      <div className="flex-1 flex flex-col p-8">
-        <div className="flex justify-between gap-2 mb-6 w-full">
-          <div className="flex gap-2">
-            <TextField
-              fullWidth
-              label="PO Number"
-              size="small"
-              value={poNumber}
-              onChange={(e) => setPoNumber(e.target.value)}
-            />
-            <Button variant="contained" onClick={handleSearchPO}>
-              Search
-            </Button>
           </div>
-          <Button
-            variant="contained"
-            color="success"
-            size="small"
-            startIcon={<UploadFileIcon />}
-            onClick={() => setSheetOpen(true)}
-            className="w-40"
-          >
-            Upload Docs
-          </Button>
-        </div>
-        <div className="ag-theme-quartz rounded shadow h-[calc(100vh-350px)] bg-white">
-          <AgGridReact
-            overlayNoRowsTemplate={OverlayNoRowsTemplate}
-            suppressCellFocus={true}
-            rowData={rowData}
-            columnDefs={columnDefs}
-            pagination={true}
-            components={components}
-          />
-        </div>
-        <div className="flex justify-end mt-4">
-          <LoadingButton
-            variant="contained"
-            color="primary"
-            loading={submitLoading}
-            onClick={handleSubmit}
-            className="w-40"
-          >
-            Submit
-          </LoadingButton>
-        </div>
-      </div>
+          {/* Right Panel */}
+          <div className="flex-1 flex flex-col p-8">
+            <div className="flex justify-between gap-2 mb-6 w-full">
+              <div className="flex gap-2">
+                <TextField
+                  fullWidth
+                  label="PO Number"
+                  size="small"
+                  value={poNumber}
+                  onChange={(e) => setPoNumber(e.target.value)}
+                />
+                <Button variant="contained" onClick={handleSearchPO}>
+                  Search
+                </Button>
+              </div>
+              <Button
+                variant="contained"
+                color="success"
+                size="small"
+                startIcon={<UploadFileIcon />}
+                onClick={() => setSheetOpen(true)}
+                className="w-40"
+              >
+                Upload Docs
+              </Button>
+            </div>
+            <div className="ag-theme-quartz rounded shadow h-[calc(100vh-150px)] bg-white">
+              <AgGridReact
+                overlayNoRowsTemplate={OverlayNoRowsTemplate}
+                suppressCellFocus={true}
+                rowData={rowData}
+                columnDefs={columnDefs}
+                pagination={true}
+                components={components}
+              />
+            </div>
+            <div className="flex justify-end mt-4">
+              <LoadingButton
+                variant="contained"
+                color="primary"
+                loading={submitLoading}
+                onClick={handleSubmit}
+                className="w-40"
+              >
+                Submit
+              </LoadingButton>
+            </div>
+          </div>
 
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent
-          className="min-w-[35%] p-0"
-          onInteractOutside={(e: any) => {
-            e.preventDefault();
-          }}
-        >
-          <SheetHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400">
-            <SheetTitle className="text-slate-600">Upload Docs here</SheetTitle>
-          </SheetHeader>
-          <div className="ag-theme-quartz h-[calc(100vh-100px)] w-full">
-            <FileUploader
-              value={files}
-              onValueChange={handleFileChange}
-              dropzoneOptions={{
-                accept: {
-                  "image/*": [".jpg", ".jpeg", ".png", ".gif", ".pdf"],
-                },
-                maxFiles: 5,
-                maxSize: 4 * 1024 * 1024, // 4 MB
-                multiple: true,
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetContent
+              className="min-w-[35%] p-0"
+              onInteractOutside={(e: any) => {
+                e.preventDefault();
               }}
             >
-              <div className="bg-white border border-gray-300 rounded-lg shadow-lg h-[120px] p-[20px] m-[20px]">
-                <h2 className="text-xl font-semibold text-center mb-4">
-                  <div className="text-center w-full justify-center flex">
-                    <div>Upload Your Files</div>
-                    <div>
-                      <IoCloudUpload
-                        className="text-cyan-700 ml-5 h-[20]"
-                        size={"1.5rem"}
-                      />
-                    </div>
+              <SheetHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400">
+                <SheetTitle className="text-slate-600">
+                  Upload Docs here
+                </SheetTitle>
+              </SheetHeader>
+              <div className="ag-theme-quartz h-[calc(100vh-100px)] w-full">
+                <FileUploader
+                  value={files}
+                  onValueChange={handleFileChange}
+                  dropzoneOptions={{
+                    accept: {
+                      "image/*": [".jpg", ".jpeg", ".png", ".gif", ".pdf"],
+                    },
+                    maxFiles: 5,
+                    maxSize: 4 * 1024 * 1024, // 4 MB
+                    multiple: true,
+                  }}
+                >
+                  <div className="bg-white border border-gray-300 rounded-lg shadow-lg h-[120px] p-[20px] m-[20px]">
+                    <h2 className="text-xl font-semibold text-center mb-4">
+                      <div className="text-center w-full justify-center flex">
+                        <div>Upload Your Files</div>
+                        <div>
+                          <IoCloudUpload
+                            className="text-cyan-700 ml-5 h-[20]"
+                            size={"1.5rem"}
+                          />
+                        </div>
+                      </div>
+                    </h2>
+                    <FileInput>
+                      <span className="text-slate-500 text-sm text-center w-full justify-center flex">
+                        Drag and drop files here, or click to select files
+                      </span>
+                    </FileInput>
                   </div>
-                </h2>
-                <FileInput>
-                  <span className="text-slate-500 text-sm text-center w-full justify-center flex">
-                    Drag and drop files here, or click to select files
-                  </span>
-                </FileInput>
+                  <div className="m-[20px]">
+                    <FileUploaderContent>
+                      {files?.map((file, index) => (
+                        <FileUploaderItem key={index} index={index}>
+                          <span>{file.name}</span>
+                        </FileUploaderItem>
+                      ))}
+                    </FileUploaderContent>
+                  </div>
+                </FileUploader>
               </div>
-              <div className="m-[20px]">
-                <FileUploaderContent>
-                  {files?.map((file, index) => (
-                    <FileUploaderItem key={index} index={index}>
-                      <span>{file.name}</span>
-                    </FileUploaderItem>
-                  ))}
-                </FileUploaderContent>
+              <div className="bg-white border-t shadow border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
+                <Button
+                  className="rounded-md shadow bg-cyan-700 hover:bg-cyan-600 shadow-slate-500 max-w-max px-[30px]"
+                  onClick={() => setSheetOpen(false)}
+                >
+                  Back
+                </Button>
+                <LoadingButton
+                  onClick={uploadDocs}
+                  sx={{
+                    backgroundColor: "#217346",
+                    "&:hover": {
+                      backgroundColor: "#2fa062",
+                    },
+                    color: "white",
+                  }}
+                  variant="contained"
+                  loading={uploadLoading}
+                >
+                  Upload
+                </LoadingButton>
               </div>
-            </FileUploader>
-          </div>
-          <div className="bg-white border-t shadow border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
-            <Button
-              className="rounded-md shadow bg-cyan-700 hover:bg-cyan-600 shadow-slate-500 max-w-max px-[30px]"
-              onClick={() => setSheetOpen(false)}
-            >
-              Back
-            </Button>
-            <LoadingButton
-              onClick={uploadDocs}
-              sx={{
-                backgroundColor: "#217346",
-                "&:hover": {
-                  backgroundColor: "#2fa062",
-                },
-                color: "white",
-              }}
-              variant="contained"
-              loading={uploadLoading}
-            >
-              Upload
+            </SheetContent>
+          </Sheet>
+        </div>
+      )}
+      {activeStep === 1 && (
+        <div className="h-[calc(100vh-200px)] flex items-center justify-center bg-white">
+          <div className="flex flex-col justify-center gap-[10px]">
+            <Success />
+            <Typography variant="inherit" fontWeight={500}>
+              {minMessage}
+            </Typography>
+            <LoadingButton onClick={() => setActiveStep(0)} variant="contained">
+              Create New PO MIN
             </LoadingButton>
           </div>
-        </SheetContent>
-      </Sheet>
+        </div>
+      )}
     </div>
   );
 };
