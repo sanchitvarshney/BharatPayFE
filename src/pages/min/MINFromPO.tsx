@@ -323,7 +323,7 @@ const MINFromPO = () => {
         </Stepper>
       </div>
       {activeStep === 0 && (
-        <div className="minfrompo-root flex bg-white h-[calc(100vh-60px)]">
+        <div className="minfrompo-root flex bg-white h-[calc(100vh-100px)]">
           {loading && <FullPageLoading />}
           {/* Left Panel */}
           <div className="minfrompo-left flex flex-col gap-6 border-r border-neutral-300 p-6 min-w-[350px] max-w-[400px] bg-gray-50">
