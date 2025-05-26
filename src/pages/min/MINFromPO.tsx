@@ -10,6 +10,7 @@ import {
   Stepper,
   StepLabel,
   Step,
+  Skeleton,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "ag-grid-community";
@@ -40,6 +41,78 @@ import FullPageLoading from "@/components/shared/FullPageLoading";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 import Success from "@/components/reusable/Success";
 
+const VendorDetailSkeleton = () => (
+  <div className="space-y-5 mb-8">
+    <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <Skeleton variant="text" width={60} />
+          <Skeleton variant="text" width={120} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Skeleton variant="text" width={70} />
+          <Skeleton variant="text" width="100%" height={40} />
+        </div>
+        <div className="flex justify-between items-center">
+          <Skeleton variant="text" width={50} />
+          <Skeleton variant="text" width={100} />
+        </div>
+      </div>
+    </div>
+    <div className="bg-slate-50 p-4 rounded-lg shadow-sm flex flex-col gap-2">
+      <div className="flex justify-between items-center">
+        <Skeleton variant="text" width={80} />
+        <Skeleton variant="text" width={60} />
+      </div>
+      <div className="flex justify-between items-center">
+        <Skeleton variant="text" width={100} />
+        <Skeleton variant="text" width={60} />
+      </div>
+    </div>
+    <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
+      <Typography
+        variant="subtitle2"
+        className="text-slate-600 mb-3 font-semibold"
+      >
+        Invoice & Location
+      </Typography>
+      <div className="flex flex-col gap-3">
+        <Skeleton variant="rectangular" height={40} />
+        <Skeleton variant="rectangular" height={40} />
+        <Skeleton variant="rectangular" height={40} />
+      </div>
+    </div>
+  </div>
+);
+
+const TaxDetailSkeleton = () => (
+  <Card className="border-0 rounded-lg shadow bg-slate-50">
+    <CardContent className="flex flex-col gap-4 p-4">
+      <div className="flex justify-between items-center">
+        <Skeleton variant="text" width={180} />
+        <Skeleton variant="text" width={80} />
+      </div>
+      <div className="flex justify-between items-center">
+        <Skeleton variant="text" width={60} />
+        <Skeleton variant="text" width={80} />
+      </div>
+      <div className="flex justify-between items-center">
+        <Skeleton variant="text" width={60} />
+        <Skeleton variant="text" width={80} />
+      </div>
+      <div className="flex justify-between items-center">
+        <Skeleton variant="text" width={60} />
+        <Skeleton variant="text" width={80} />
+      </div>
+      <Divider className="my-2" />
+      <div className="flex justify-between items-center">
+        <Skeleton variant="text" width={180} />
+        <Skeleton variant="text" width={80} />
+      </div>
+    </CardContent>
+  </Card>
+);
+
 const MINFromPO = () => {
   const [rowData, setRowData] = useState<any>([]);
   const [poNumber, setPoNumber] = useState("");
@@ -51,7 +124,6 @@ const MINFromPO = () => {
   const [files, setFiles] = useState<File[] | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [url, setUrl] = useState<string>("");
-  const [submitLoading, setSubmitLoading] = useState(false);
   const [location, setLocation] = useState<{
     label: string;
     value: string;
@@ -60,7 +132,7 @@ const MINFromPO = () => {
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["PO Details", "Submit"];
 
-  const { loading } = useAppSelector((state) => state.po);
+  const { loading, submitPOMINLoading } = useAppSelector((state) => state.po);
 
   const dispatch = useAppDispatch();
   const components = useMemo(
@@ -212,11 +284,6 @@ const MINFromPO = () => {
       cellRenderer: "textInputCellRenderer",
     },
     {
-      headerName: "Location",
-      field: "location",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
       headerName: "GST Type",
       field: "gstType",
       cellRenderer: "textInputCellRenderer",
@@ -270,8 +337,6 @@ const MINFromPO = () => {
       showToast("No items to submit", "error");
       return;
     }
-
-    setSubmitLoading(true);
     try {
       const submitData = {
         poid: poNumber,
@@ -306,8 +371,6 @@ const MINFromPO = () => {
     } catch (error) {
       console.error("Error submitting data:", error);
       showToast("Failed to submit data", "error");
-    } finally {
-      setSubmitLoading(false);
     }
   };
 
@@ -324,103 +387,181 @@ const MINFromPO = () => {
       </div>
       {activeStep === 0 && (
         <div className="minfrompo-root flex bg-white h-[calc(100vh-100px)]">
-          {loading && <FullPageLoading />}
+          {/* {loading && <FullPageLoading />} */}
           {/* Left Panel */}
-          <div className="minfrompo-left flex flex-col gap-6 border-r border-neutral-300 p-6 min-w-[350px] max-w-[400px] bg-gray-50">
-            <Card variant="outlined" className="bg-white">
-              <CardContent>
-                <div className="flex items-center justify-between mb-2">
-                  <Typography variant="h6" fontWeight={700}>
+          <div className="minfrompo-left flex flex-col border-r border-neutral-300 min-w-[350px] max-w-[400px] bg-gray-50 h-[calc(100vh-100px)]">
+            <div className="overflow-y-auto flex-1 p-6">
+              <Card
+                variant="outlined"
+                className="bg-white shadow-md rounded-xl"
+              >
+                <CardContent className="p-6">
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    className="text-slate-700 mb-6 sticky top-0 bg-white z-10"
+                  >
                     Vendor Detail
                   </Typography>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <div>
-                    <b>Name:</b> {vendorData?.vendorname || "-"}
-                  </div>
-                  <div>
-                    <b>Address:</b> {vendorData?.vendoraddress || "-"}
-                  </div>
-                  <div>
-                    <b>GSTIN:</b> {vendorData?.gstin || "-"}
-                  </div>
-                  <div className="flex gap-2">
-                    <b>Currency:</b> {vendorData?.currency_symbol || "-"}
-                    <b>Exchange Rate:</b> {vendorData?.exchange_rate || "-"}
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <TextField
-                      label="Invoice No."
-                      value={invoiceNo}
-                      onChange={(e) => setInvoiceNo(e.target.value)}
-                      required
-                      size="small"
-                      fullWidth
-                    />
-                    <TextField
-                      label="Invoice Date"
-                      type="date"
-                      value={invoiceDate}
-                      onChange={(e) => setInvoiceDate(e.target.value)}
-                      required
-                      size="small"
-                      fullWidth
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </div>
-                  <AntLocationSelectAcordinttoModule
-                    endpoint="/transaction/rm-inward-location"
-                    onChange={(value) => {
-                      setLocation(value);
-                    }}
-                    value={location}
-                    label="Select Location"
-                  />
-                </div>
-                <Divider className="my-4" />
-                <Typography fontWeight={600} fontSize={16} mb={1}>
-                  Tax Detail
-                </Typography>
-                <Card className="border-0 rounded-none shadow-none">
-                  <CardContent className="flex flex-col gap-[20px] pt-[20px] ">
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">
-                        Sub-Total value before Taxes
-                      </p>
-                      <p className="text-[14px] text-muted-foreground">
-                        {totalValue.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">CGST</p>
-                      <p className="text-[14px] text-muted-foreground">
-                        (+) {cgst.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">SGST</p>
-                      <p className="text-[14px] text-muted-foreground">
-                        (+) {sgst.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">IGST</p>
-                      <p className="text-[14px] text-muted-foreground">
-                        (+) {igst.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">
-                        Sub-Total values after Taxes
-                      </p>
-                      <p className="text-[14px] text-muted-foreground">
-                        {afterTax.toFixed(2)}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
+                  {loading ? (
+                    <>
+                      <VendorDetailSkeleton />
+                      <Divider className="my-6" />
+                      <Typography
+                        variant="h6"
+                        fontWeight={700}
+                        className="text-slate-700 mb-6 sticky top-0 bg-white z-10"
+                      >
+                        Tax Detail
+                      </Typography>
+                      <TaxDetailSkeleton />
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-5 mb-8">
+                        <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-600 font-medium">
+                                Name:
+                              </span>
+                              <span className="text-slate-900 font-semibold">
+                                {vendorData?.vendorname || "-"}
+                              </span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <span className="text-slate-600 font-medium">
+                                Address:
+                              </span>
+                              <span className="text-slate-900 font-semibold break-words">
+                                {vendorData?.vendoraddress || "-"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-slate-600 font-medium">
+                                GSTIN:
+                              </span>
+                              <span className="text-slate-900 font-semibold">
+                                {vendorData?.gstin || "-"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-slate-50 p-4 rounded-lg shadow-sm flex flex-col gap-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">
+                              Currency:
+                            </span>
+                            <span className="text-slate-900 font-semibold">
+                              {vendorData?.currency_symbol || "-"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">
+                              Exchange Rate:
+                            </span>
+                            <span className="text-slate-900 font-semibold">
+                              {vendorData?.exchange_rate || "-"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
+                          <Typography
+                            variant="subtitle2"
+                            className="text-slate-600 mb-3 font-semibold"
+                          >
+                            Invoice & Location
+                          </Typography>
+                          <div className="flex flex-col gap-3">
+                            <TextField
+                              label="Invoice No."
+                              value={invoiceNo}
+                              onChange={(e) => setInvoiceNo(e.target.value)}
+                              required
+                              size="small"
+                              fullWidth
+                              className="bg-white"
+                              variant="standard"
+                            />
+                            <TextField
+                              label="Invoice Date"
+                              type="date"
+                              value={invoiceDate}
+                              onChange={(e) => setInvoiceDate(e.target.value)}
+                              required
+                              size="small"
+                              fullWidth
+                              InputLabelProps={{ shrink: true }}
+                              className="bg-white"
+                              variant="standard"
+                            />
+                            <AntLocationSelectAcordinttoModule
+                              endpoint="/transaction/rm-inward-location"
+                              onChange={setLocation}
+                              value={location}
+                              label="Select Location"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <Divider className="my-6" />
+                      <Typography
+                        variant="h6"
+                        fontWeight={700}
+                        className="text-slate-700 mb-6 sticky top-0 bg-white z-10"
+                      >
+                        Tax Detail
+                      </Typography>
+                      <Card className="border-0 rounded-lg shadow bg-slate-50">
+                        <CardContent className="flex flex-col gap-4 p-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">
+                              Sub-Total value before Taxes
+                            </span>
+                            <span className="text-slate-900 font-semibold">
+                              {totalValue.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">
+                              CGST
+                            </span>
+                            <span className="text-slate-900 font-semibold">
+                              (+) {cgst.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">
+                              SGST
+                            </span>
+                            <span className="text-slate-900 font-semibold">
+                              (+) {sgst.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">
+                              IGST
+                            </span>
+                            <span className="text-slate-900 font-semibold">
+                              (+) {igst.toFixed(2)}
+                            </span>
+                          </div>
+                          <Divider className="my-2" />
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-700 font-bold">
+                              Sub-Total values after Taxes
+                            </span>
+                            <span className="text-slate-900 font-bold">
+                              {afterTax.toFixed(2)}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
           {/* Right Panel */}
           <div className="flex-1 flex flex-col p-8">
@@ -433,9 +574,13 @@ const MINFromPO = () => {
                   value={poNumber}
                   onChange={(e) => setPoNumber(e.target.value)}
                 />
-                <Button variant="contained" onClick={handleSearchPO}>
+                <LoadingButton
+                  variant="contained"
+                  onClick={handleSearchPO}
+                  loading={loading}
+                >
                   Search
-                </Button>
+                </LoadingButton>
               </div>
               <Button
                 variant="contained"
@@ -462,7 +607,7 @@ const MINFromPO = () => {
               <LoadingButton
                 variant="contained"
                 color="primary"
-                loading={submitLoading}
+                loading={submitPOMINLoading}
                 onClick={handleSubmit}
                 className="w-40"
               >

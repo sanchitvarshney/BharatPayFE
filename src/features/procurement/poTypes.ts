@@ -10,6 +10,7 @@ export type PoStateType = {
   fetchPODataLoading:boolean;
   fetchPOData:any;
   completedPoData:any;
+  submitPOMINLoading:boolean;
 };
 
 export type PoListResponse = {
