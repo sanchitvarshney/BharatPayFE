@@ -78,11 +78,15 @@ export const fetchDataForMIN   = createAsyncThunk<AxiosResponse<any>, string>("p
   return response;
 });
 
+export const submitPOMIN = createAsyncThunk<AxiosResponse<any>, any>("po/submitPOMIN", async (payload) => {
+  const response = await axiosInstance.post("/po/poMIN", payload);
+  return response;
+});
+
 export const uploadMinInvoice = createAsyncThunk<
   any, // Define the type of the data you expect to return
   { files: File } // Define the type of the argument you expect
 >("/po/uploadInvoice", async ({ files }) => {
-  // console.log(file,"uploadMinInvoice formdata");
   const formData = new FormData();
   // console.log(file,"aftyer")
   formData.append("files", files); // Append the file to FormData

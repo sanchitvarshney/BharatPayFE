@@ -15,7 +15,11 @@ import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useState, useMemo } from "react";
 import { showToast } from "@/utils/toasterContext";
-import { fetchDataForMIN, uploadMinInvoice } from "@/features/procurement/poSlices";
+import {
+  fetchDataForMIN,
+  submitPOMIN,
+  uploadMinInvoice,
+} from "@/features/procurement/poSlices";
 import MINFromPOTextInputCellRenderer from "@/table/Cellrenders/MINFromPOTextInputCellRenderer";
 import {
   Sheet,
@@ -32,6 +36,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { IoCloudUpload } from "react-icons/io5";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 
 type FormData = {
   product: DeviceType | null;
@@ -72,11 +77,11 @@ const MINFromPO = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [files, setFiles] = useState<File[] | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
-  const [url , setUrl] = useState<string>("");
+  const [url, setUrl] = useState<string>("");
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [location, setLocation] = useState<string>("");
 
-  const { loading } = useAppSelector(
-    (state) => state.po
-  );
+  const { loading } = useAppSelector((state) => state.po);
 
   const dispatch = useAppDispatch();
   const components = useMemo(
@@ -130,7 +135,7 @@ const MINFromPO = () => {
   const handleFileChange = async (files: File[] | null) => {
     setFiles(files);
   };
-console.log(url)
+  console.log(url);
   const uploadDocs = async () => {
     setUploadLoading(true);
     if (!files && files === null) {
@@ -145,7 +150,7 @@ console.log(url)
       if (files && files.length > 0) {
         dispatch(uploadMinInvoice({ files: files[0] }))
           .then((res) => {
-            console.log(res)
+            console.log(res);
             if (res.payload?.success) {
               setUrl(res.payload?.data[0]?.url);
               // toast({
@@ -277,9 +282,57 @@ console.log(url)
   const igst = Number(materials[0]?.igst || 0);
   const afterTax = totalValue + cgst + sgst + igst;
 
+  const handleSubmit = async () => {
+    if (!poNumber || !invoiceNo || !invoiceDate || !url) {
+      showToast("Please fill all required fields and upload invoice", "error");
+      return;
+    }
+
+    if (rowData.length === 0) {
+      showToast("No items to submit", "error");
+      return;
+    }
+
+    setSubmitLoading(true);
+    try {
+      const submitData = {
+        poid: poNumber,
+        invoice: invoiceNo,
+        location: location?.value || "",
+        invoiceAttachment: Array(url),
+        invoiceDate: invoiceDate,
+        access_code: rowData.map((row: any) => row.updaterow),
+        component: rowData.map((row: any) => row.partComponent.value),
+        qty: rowData.map((row: any) => row.qty.toString()),
+        rate: rowData.map((row: any) => row.rate.toString()),
+        gstrate: rowData.map((row: any) => row.gstRate.toString()),
+        gsttype: rowData.map((row: any) => row.gstType),
+        hsnCode: rowData.map((row: any) => row.hsnCode),
+      };
+      dispatch(submitPOMIN(submitData)).then((res)=>{
+        if(res.payload.data.success){
+          setRowData([]);
+          setPoNumber("");
+          setInvoiceNo("");
+          setInvoiceDate("");
+          setUrl("");
+          setLocation("");
+          setVendorData(null);
+          setMaterials([]);
+        }
+      });
+      console.log("Submit Data:", submitData);
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      showToast("Failed to submit data", "error");
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
   return (
     <div className="minfrompo-root flex bg-white h-[calc(100vh-60px)]">
-      {loading && <FullPageLoading/>}
+      {loading && <FullPageLoading />}
       {/* Left Panel */}
       <div className="minfrompo-left flex flex-col gap-6 border-r border-neutral-300 p-6 min-w-[350px] max-w-[400px] bg-gray-50">
         <Card variant="outlined" className="bg-white">
@@ -326,6 +379,14 @@ console.log(url)
                   InputLabelProps={{ shrink: true }}
                 />
               </div>
+              <AntLocationSelectAcordinttoModule
+                endpoint="/transaction/rm-inward-location"
+                onChange={(value) => {
+                  const newValue = value;
+                  setLocation(newValue);
+                }}
+                value={location}
+              />
             </div>
             <Divider className="my-4" />
             <Typography fontWeight={600} fontSize={16} mb={1}>
@@ -395,10 +456,10 @@ console.log(url)
             onClick={() => setSheetOpen(true)}
             className="w-40"
           >
-           Upload Docs
+            Upload Docs
           </Button>
         </div>
-        <div className="ag-theme-quartz rounded shadow h-[calc(100vh-250px)] bg-white">
+        <div className="ag-theme-quartz rounded shadow h-[calc(100vh-350px)] bg-white">
           <AgGridReact
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
@@ -407,6 +468,17 @@ console.log(url)
             pagination={true}
             components={components}
           />
+        </div>
+        <div className="flex justify-end mt-4">
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            loading={submitLoading}
+            onClick={handleSubmit}
+            className="w-40"
+          >
+            Submit
+          </LoadingButton>
         </div>
       </div>
 
