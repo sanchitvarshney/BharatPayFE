@@ -15,7 +15,7 @@ import {
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { showToast } from "@/utils/toasterContext";
 import {
   fetchDataForMIN,
@@ -121,7 +121,6 @@ const MINFromPO = () => {
   const [invoiceDate, setInvoiceDate] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [files, setFiles] = useState<File[] | null>(null);
-  const [uploadLoading, setUploadLoading] = useState(false);
   const [url, setUrl] = useState<string>("");
   const [location, setLocation] = useState<{
     label: string;
@@ -138,18 +137,9 @@ const MINFromPO = () => {
   });
   const steps = ["PO Details", "Submit"];
 
-  const { loading, submitPOMINLoading } = useAppSelector((state) => state.po);
+  const { loading, submitPOMINLoading,uploadMinInvoiceLoading } = useAppSelector((state) => state.po);
 
   const dispatch = useAppDispatch();
-  const components = useMemo(
-    () => ({
-      textInputCellRenderer: (params: any) => (
-        <MINFromPOTextInputCellRenderer props={params} customFunction={getAllTableData} />
-      ),
-    }),
-    []
-  );
-  console.log(rowData);
 
   const calculateTotals = (data: any[]) => {
     const totalValue = data.reduce(
@@ -179,23 +169,40 @@ const MINFromPO = () => {
     };
   };
 
-  const getAllTableData = () => {
-    console.log("okk")
+  const getAllTableData = useCallback(() => {
+    console.log("okk");
     const allData: any[] = [];
-    const rowCount = gridRef.current?.api.getDisplayedRowCount() ?? 0;
-    for (let i = 0; i < rowCount; i++) {
-      const rowNode = gridRef.current?.api.getDisplayedRowAtIndex(i);
-      if (rowNode && rowNode.data) {
-        allData.push(rowNode.data);
-      }
+    if (gridRef.current?.api) {
+      gridRef.current.api.forEachNode((node: any) => {
+        if (node.data) {
+          allData.push(node.data);
+        }
+      });
     }
-    return calculateTotals(allData);
-  };
-
-  const onCellValueChanged = () => {
-    const newTotals = getAllTableData();
+    const newTotals = calculateTotals(allData);
     setTotals(newTotals);
-  };
+    return newTotals;
+  }, []);
+
+  const onCellValueChanged = useCallback(
+    () => {
+      // Ensure we recalculate totals whenever any cell value changes
+      getAllTableData();
+    },
+    [getAllTableData]
+  );
+
+  const components = useMemo(
+    () => ({
+      textInputCellRenderer: (params: any) => (
+        <MINFromPOTextInputCellRenderer
+          props={params}
+          customFunction={getAllTableData}
+        />
+      ),
+    }),
+    [getAllTableData]
+  );
 
   const handleSearchPO = async () => {
     dispatch(fetchDataForMIN(poNumber.trim())).then((res: any) => {
@@ -241,13 +248,11 @@ const MINFromPO = () => {
   };
   console.log(url);
   const uploadDocs = async () => {
-    setUploadLoading(true);
     if (!files && files === null) {
       // toast({
       //   title: "No file selected",
       //   className: "bg-red-600 text-white items-center",
-      // });
-      setUploadLoading(false);
+      // });]
     }
 
     try {
@@ -261,7 +266,6 @@ const MINFromPO = () => {
               //   title: res.payload?.message,
               //   className: "bg-green-600 text-white items-center",
               // });
-              setUploadLoading(false);
               setSheetOpen(false);
             }
           })
@@ -271,7 +275,6 @@ const MINFromPO = () => {
             //   title: "Error uploading docs",
             //   className: "bg-red-600 text-white items-center",
             // });
-            setUploadLoading(false);
             setSheetOpen(false);
             setFiles([]);
           });
@@ -282,7 +285,6 @@ const MINFromPO = () => {
       //   title: "Error uploading docs",
       //   className: "bg-red-600 text-white items-center",
       // });
-      setUploadLoading(false);
     }
   };
 
@@ -734,7 +736,7 @@ const MINFromPO = () => {
                     color: "white",
                   }}
                   variant="contained"
-                  loading={uploadLoading}
+                  loading={uploadMinInvoiceLoading}
                 >
                   Upload
                 </LoadingButton>

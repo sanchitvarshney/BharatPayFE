@@ -16,6 +16,7 @@ const initialState: PoStateType = {
   fetchPOData:[],
   completedPoData:[],
   submitPOMINLoading:false,
+  uploadMinInvoiceLoading:false,
 };
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
@@ -165,6 +166,16 @@ const procurementPoSlice = createSlice({
       })
       .addCase(getListofPo.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(uploadMinInvoice.pending, (state) => {
+        state.uploadMinInvoiceLoading = true;
+      })
+      .addCase(uploadMinInvoice.fulfilled, (state) => {
+        state.uploadMinInvoiceLoading = false;
+       })
+      .addCase(uploadMinInvoice.rejected, (state, action) => {
+        state.uploadMinInvoiceLoading = false;
         state.error = action.error.message;
       })
       .addCase(submitPOMIN.pending, (state) => {

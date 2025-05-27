@@ -1,40 +1,44 @@
 import { Input } from "antd";
-import React, { useEffect } from "react";
-import {useAppSelector } from "@/hooks/useReduxHook";
+import React, { useEffect, useCallback } from "react";
+import { useAppSelector } from "@/hooks/useReduxHook";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 
 interface POCellRendererProps {
   props: any;
-  customFunction: () => void
+  customFunction: () => void;
 }
-const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props,customFunction }) => {
-  const { value, colDef, data, api, column } = props;
+
+const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
+  props,
+  customFunction,
+}) => {
+  const { value, colDef, data, api } = props;
   const { currencyData } = useAppSelector((state) => state.common);
 
+  // Call customFunction whenever value changes
   useEffect(() => {
-    customFunction();
-  }, [value]);
+    if (data.isNew) {
+      customFunction();
+    }
+  }, [value, data.isNew, customFunction]);
 
-  const handleInputChange = (e: any) => {
-    const newValue = e.target.value;
-    data[colDef.field] = newValue; // update the data
-    data["taxableValue"] = Number(data.qty) * Number(data.rate);
-    if (data.excRate != 0 || data.excRate != "") {
-      data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
-      data["foreignValue"] = Number(data.qty) * Number(data.rate);
-    }
-    if (data.gstType === "L") {
-      data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-      data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-      data["igst"] = 0;
-    } else {
-      data["sgst"] = 0;
-      data["cgst"] = 0;
-      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
-    }
-    api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
-    customFunction();
-  };
+  const updateCellAndRefresh = useCallback(
+    (newValue: any, field: string) => {
+      // Update the data
+      data[field] = newValue;
+
+      // Force grid to update
+      api.applyTransaction({
+        update: [data],
+      });
+
+      // Call customFunction to update totals
+      if (data.isNew) {
+        customFunction();
+      }
+    },
+    [data, api, customFunction]
+  );
 
   const renderContent = () => {
     switch (colDef.field) {
@@ -45,39 +49,69 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props,c
           <AntLocationSelectAcordinttoModule
             endpoint="/transaction/rm-inward-location"
             onChange={(value) => {
-              const newValue = value;
-              data[colDef.field] = newValue; // update the data
-              api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
+              updateCellAndRefresh(value, colDef.field);
             }}
             value={value}
           />
         );
-     
       case "rate":
         return (
-          <div className="flex items-center gap-[5px] ">
+          <div className="flex items-center gap-[5px]">
             <Input
               min={0}
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
-                  handleInputChange(e);
-                  if (currencyData?.find((item) => item.id === data.currency)?.text === "₹") {
-                    data["foreignValue"] = 0;
-                    data["taxableValue"] = Number(data.qty) * Number(data.rate);
-                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] });
+                  const newValue = e.target.value;
+                  updateCellAndRefresh(newValue, colDef.field);
+
+                  if (
+                    currencyData?.find((item) => item.id === data.currency)
+                      ?.text === "₹"
+                  ) {
+                    updateCellAndRefresh(0, "foreignValue");
+                    updateCellAndRefresh(
+                      Number(data.qty) * Number(newValue),
+                      "taxableValue"
+                    );
                   } else if (data.currency === "0" || data.currency === "") {
-                    data["taxableValue"] = Number(data.qty) * Number(data.rate);
-                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
+                    updateCellAndRefresh(
+                      Number(data.qty) * Number(newValue),
+                      "taxableValue"
+                    );
                   } else {
-                    data["foreignValue"] = Number(data.qty) * Number(data.rate);
-                    data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
-                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
+                    updateCellAndRefresh(
+                      Number(data.qty) * Number(newValue),
+                      "foreignValue"
+                    );
+                    updateCellAndRefresh(
+                      Number(data.qty) *
+                        Number(newValue) *
+                        Number(data.excRate),
+                      "taxableValue"
+                    );
+                  }
+
+                  // Update GST calculations
+                  const taxableValue = data.taxableValue;
+                  if (data.gstType === "L") {
+                    const sgst =
+                      ((Number(data.gstRate) / 100) * taxableValue) / 2;
+                    const cgst =
+                      ((Number(data.gstRate) / 100) * taxableValue) / 2;
+                    updateCellAndRefresh(sgst, "sgst");
+                    updateCellAndRefresh(cgst, "cgst");
+                    updateCellAndRefresh(0, "igst");
+                  } else {
+                    updateCellAndRefresh(0, "sgst");
+                    updateCellAndRefresh(0, "cgst");
+                    const igst = (Number(data.gstRate) / 100) * taxableValue;
+                    updateCellAndRefresh(igst, "igst");
                   }
                 }
               }}
               value={value}
               placeholder={colDef.headerName}
-              className="w-[100%]  custom-input"
+              className="w-[100%] custom-input"
             />
           </div>
         );
@@ -87,7 +121,36 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props,c
             suffix={data.uom}
             onChange={(e) => {
               if (/^-?\d*\.?\d*$/.test(e.target.value)) {
-                handleInputChange(e);
+                const newValue = e.target.value;
+                updateCellAndRefresh(newValue, colDef.field);
+
+                // Recalculate taxable value
+                let taxableValue = Number(newValue) * Number(data.rate);
+                if (data.excRate != 0 && data.excRate != "") {
+                  taxableValue =
+                    Number(newValue) * Number(data.rate) * Number(data.excRate);
+                  updateCellAndRefresh(
+                    Number(newValue) * Number(data.rate),
+                    "foreignValue"
+                  );
+                }
+                updateCellAndRefresh(taxableValue, "taxableValue");
+
+                // Update GST calculations
+                if (data.gstType === "L") {
+                  const sgst =
+                    ((Number(data.gstRate) / 100) * taxableValue) / 2;
+                  const cgst =
+                    ((Number(data.gstRate) / 100) * taxableValue) / 2;
+                  updateCellAndRefresh(sgst, "sgst");
+                  updateCellAndRefresh(cgst, "cgst");
+                  updateCellAndRefresh(0, "igst");
+                } else {
+                  updateCellAndRefresh(0, "sgst");
+                  updateCellAndRefresh(0, "cgst");
+                  const igst = (Number(data.gstRate) / 100) * taxableValue;
+                  updateCellAndRefresh(igst, "igst");
+                }
               }
             }}
             value={value}
@@ -95,24 +158,32 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props,c
             className="w-[100%] custom-input"
           />
         );
-
       case "taxableValue":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
       case "foreignValue":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
-        case "hsnCode":
-          return <span>{data.hsnCode}</span>;
       case "gstRate":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
       case "cgst":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
       case "sgst":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
       case "igst":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
+        return (
+          <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>
+        );
+      case "hsnCode":
+        return <span>{data.hsnCode}</span>;
       case "remarks":
-        case "gstType":
+      case "gstType":
         return <span>{value}</span>;
+      case "orderremark":
+        return (
+          <Input
+            onChange={(e) => {
+              updateCellAndRefresh(e.target.value, colDef.field);
+            }}
+            value={value}
+            type="text"
+            placeholder={colDef.headerName}
+            className="w-[100%] custom-input"
+          />
+        );
     }
   };
 
@@ -123,4 +194,4 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props,c
   return <span>{value}</span>;
 };
 
-export default MINFromPOTextInputCellRenderer;
+export default React.memo(MINFromPOTextInputCellRenderer);
