@@ -224,7 +224,7 @@ const MINFromPO = () => {
           cgst: Number(item.cgst) || 0,
           sgst: Number(item.sgst) || 0,
           igst: Number(item.igst) || 0,
-          remarks: item.remark,
+          remarks: item.orderremark,
           currency: {
             value: item.header?.currency?.value,
             label: item.header?.currency?.label,
@@ -365,7 +365,7 @@ const MINFromPO = () => {
     {
       headerName: "Remarks",
       field: "remarks",
-      cellRenderer: "textInputCellRenderer",
+      // cellRenderer: "textInputCellRenderer",
     },
     {
       headerName: "uom",
@@ -562,7 +562,7 @@ const MINFromPO = () => {
                       <Card className="border-0 rounded-lg shadow bg-slate-50">
                         <CardContent className="flex flex-col gap-4 p-4">
                           <div className="flex justify-between items-center">
-                            <span className="text-slate-600 font-medium">
+                            <span className="text-slate-600 font-medium pr-6">
                               Sub-Total value before Taxes
                             </span>
                             <span className="text-slate-900 font-semibold">
