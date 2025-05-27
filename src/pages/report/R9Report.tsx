@@ -115,6 +115,7 @@ const R9Report: React.FC = () => {
                     { value: "eCOM", label: "eCOM", isDisabled: false },
                     { value: "DTDC", label: "DTDC", isDisabled: false },
                     { value: "dVery", label: "dVery", isDisabled: false },
+                    { value: "expb", label: "XpressBees", isDisabled: false },
                   ].map((item) => (
                     <MenuItem
                       disabled={item.isDisabled}
@@ -212,6 +213,7 @@ const R9Report: React.FC = () => {
                       { value: "eCOM", label: "eCOM", isDisabled: false },
                       { value: "DTDC", label: "DTDC", isDisabled: false },
                       { value: "dVery", label: "Delhivery", isDisabled: false },
+                      { value: "expb", label: "XpressBees", isDisabled: false },
                     ].map((item) => (
                       <MenuItem
                         disabled={item.isDisabled}

@@ -74,6 +74,7 @@ const R5report: React.FC = () => {
   const [filter, setFilter] = useState<string>("DATE");
   const [txn, setTxn] = useState<string>("");
   const [device, setDevice] = useState<DeviceType | null>(null);
+  const [type, setType] = useState<string>("soundBox");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
@@ -127,6 +128,13 @@ const R5report: React.FC = () => {
             </Button>
           </div>
           <div className="flex flex-col gap-[20px]  mt-[20px] p-[20px] overflow-hidden">
+          <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Device Type</InputLabel>
+              <Select value={type} onChange={(e) => setType(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Device Type">
+                <MenuItem value={"soundBox"}>Sound Box</MenuItem>
+                <MenuItem value={"swipeMachine"}>Swipe Machine</MenuItem>
+              </Select>
+            </FormControl>
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
@@ -157,14 +165,14 @@ const R5report: React.FC = () => {
                     if (!device) {
                       showToast("Please select a device", "error");
                     } else {
-                      dispatch(getr5Report({ type: "DEVICE", device: device?.id }));
+                      dispatch(getr5Report({ type: "DEVICE", device: device?.id, deviceType: type }));
                     }
                   }
                   if (filter === "DATE") {
                     if (!date.from || !date.to) {
                       showToast("Please select a date", "error");
                     } else {
-                      dispatch(getr5Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                      dispatch(getr5Report({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), deviceType: type }));
                     }
                   }
                 }}

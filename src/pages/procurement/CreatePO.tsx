@@ -47,7 +47,7 @@ import {
   getShippingAddress,
 } from "@/features/master/client/clientSlice";
 import { transformSkuCode } from "@/utils/transformUtills";
-import AddPOTable from "@/pages/procurement/AddPOTable";
+import AddPOTable from "./AddPOTable";
 import {
   createPO,
   getPODetail,

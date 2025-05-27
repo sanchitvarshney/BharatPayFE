@@ -452,6 +452,16 @@ export const router = createBrowserRouter([
         ),
         path: "/procurement/create",
       },
+            {
+        element: (
+          <MainLayout>
+            <ProcurementLayout>
+              <ManagePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/manage",
+      },
       {
         element: (
           <MainLayout>

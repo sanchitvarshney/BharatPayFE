@@ -25,6 +25,7 @@ const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen }) => {
     { headerName: "IMEI 2", field: "productImei2", sortable: true, filter: true },
     { headerName: "SKU", field: "sku", sortable: true, filter: true },
     { headerName: "SKU Name", field: "skuName", sortable: true, filter: true },
+    { headerName: "Device Move ID", field: "device_mov_id", sortable: true, filter: true },
     { headerName: "Requested Date", field: "insertDate", sortable: true, filter: true },
     { headerName: "Requested By", field: "insertBy", sortable: true, filter: true },
     { headerName: "Pick Location", field: "productionLocation", sortable: true, filter: true },
@@ -76,6 +77,7 @@ const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={paginationPageSize}
+          enableCellTextSelection
         />
       </div>
     </div>

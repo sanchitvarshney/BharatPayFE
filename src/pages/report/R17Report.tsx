@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getR17Data } from "@/features/report/report/reportSlice";
 import { useSocketContext } from "@/components/context/SocketContext";
 import R17ReportTable from "@/table/report/R17ReportTable";
+import SelectDeviceWithType from "@/components/reusable/SelectDeviceWithType";
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -19,6 +20,7 @@ const R17Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [pageSize, setPageSize] = useState(10);
+  const [device, setDevice] = useState<any>(null);
   const { emitDownloadR17Report, } = useSocketContext();
 
   const dispatch = useAppDispatch();
@@ -36,14 +38,14 @@ const R17Report: React.FC = () => {
 
   const handlePageChange = (newPage: number) => {
     if (date) {
-      dispatch(getR17Data({ ...date, page: newPage, limit: pageSize }));
+      dispatch(getR17Data({ ...date, page: newPage, limit: pageSize, device: device?.id }));
     }
   };
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     if (date) {
-      dispatch(getR17Data({ ...date, page: 1, limit: size }));
+      dispatch(getR17Data({ ...date, page: 1, limit: size, device: device?.id }));
     }
   };
 
@@ -72,6 +74,7 @@ const R17Report: React.FC = () => {
         </div>
 
         <div className="flex flex-col p-[20px] gap-[20px] mt-[20px] overflow-hidden">
+        <SelectDeviceWithType value={device} onChange={setDevice} type="swipeMachine"/>
           <RangePicker
             className="h-[50px] rounded-sm border-[2px]"
             value={[
@@ -101,9 +104,9 @@ const R17Report: React.FC = () => {
               onClick={() => {
                 if (!date) {
                   showToast("Please select a date range", "error");
-                } else {
+                } else {  
                   dispatch(
-                    getR17Data({ ...date, page: 1, limit: pageSize })
+                    getR17Data({ ...date, page: 1, limit: pageSize, device: device?.id })
                   ).then((res: any) => {
                     if (res.payload?.data?.status === "success") {
                       showToast("Report loaded successfully", "success");
