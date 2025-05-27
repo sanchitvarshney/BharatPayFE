@@ -259,7 +259,6 @@ const CreateDispatchPage: React.FC = () => {
     const requiredCount = formValues.deviceType === "soundbox" ? 30 : 20;
     
     if (validImeiCount === requiredCount) {
-      console.log("open");
       setOpen(true);
     }
   };
@@ -308,7 +307,6 @@ const CreateDispatchPage: React.FC = () => {
                   //   srno: res.payload.data?.data[0].sl_no || "",
                   // };
                   const newRowData = res?.payload?.data?.data?.map((device: any) => {
-                    console.log(device)
                     return {
                       imei: device.device_imei || device.imei_no1 || "",
                       srno: device.sl_no || "",
@@ -318,7 +316,6 @@ const CreateDispatchPage: React.FC = () => {
                       imei2: device?.imei_no2 || "",
                     };
                   });
-                    console.log(newRowData)
                   // Update rowData by appending newRowData to the existing rowData
                   setRowData((prevRowData) => [...newRowData, ...prevRowData]);
                   setOpen(false)

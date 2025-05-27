@@ -125,7 +125,6 @@ const MaterialIn: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<any> = (data) => {
-    console.log(data);
     if (!storeInvoiceFiles)
       return showToast("Please Upload Invoice File", "error");
     // dispatch(storeFormdata(data));

@@ -170,7 +170,6 @@ const MINFromPO = () => {
   };
 
   const getAllTableData = useCallback(() => {
-    console.log("okk");
     const allData: any[] = [];
     if (gridRef.current?.api) {
       gridRef.current.api.forEachNode((node: any) => {
@@ -246,45 +245,30 @@ const MINFromPO = () => {
   const handleFileChange = async (files: File[] | null) => {
     setFiles(files);
   };
-  console.log(url);
+
   const uploadDocs = async () => {
     if (!files && files === null) {
-      // toast({
-      //   title: "No file selected",
-      //   className: "bg-red-600 text-white items-center",
-      // });]
+      showToast("Please upload a file", "error");
     }
 
     try {
       if (files && files.length > 0) {
         dispatch(uploadMinInvoice({ files: files[0] }))
           .then((res) => {
-            console.log(res);
             if (res.payload?.success) {
               setUrl(res.payload?.data[0]?.url);
-              // toast({
-              //   title: res.payload?.message,
-              //   className: "bg-green-600 text-white items-center",
-              // });
+             showToast(res.payload.message, "success");
               setSheetOpen(false);
             }
           })
           .catch((error) => {
             console.error("Error uploading docs:", error);
-            // toast({
-            //   title: "Error uploading docs",
-            //   className: "bg-red-600 text-white items-center",
-            // });
             setSheetOpen(false);
             setFiles([]);
           });
       }
     } catch (error) {
       console.error("Error uploading docs:", error);
-      // toast({
-      //   title: "Error uploading docs",
-      //   className: "bg-red-600 text-white items-center",
-      // });
     }
   };
 
@@ -414,7 +398,6 @@ const MINFromPO = () => {
           setActiveStep(1);
         }
       });
-      console.log("Submit Data:", submitData);
     } catch (error) {
       console.error("Error submitting data:", error);
       showToast("Failed to submit data", "error");

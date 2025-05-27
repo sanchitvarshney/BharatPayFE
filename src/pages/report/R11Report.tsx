@@ -20,7 +20,6 @@ const R8Report: React.FC = () => {
   const gridRef = useRef<AgGridReact<any>>(null);
   const [colapse, setcolapse] = useState<boolean>(false);
   const handleDateChange = (dates: { from: Dayjs | null; to: Dayjs | null }) => {
-    console.log("Selected Dates:", dates);
     setDateRange(dates);
   };
   const getreport = () => {
