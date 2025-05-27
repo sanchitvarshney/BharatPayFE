@@ -1,47 +1,27 @@
-import { Input, Select } from "antd";
-import { IoMdCheckmark } from "react-icons/io";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { transformSkuCode } from "../../utils/transformUtills";
-import { Button, Typography } from "@mui/material";
-import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
+import { Input } from "antd";
+import React, { useEffect } from "react";
+import {useAppSelector } from "@/hooks/useReduxHook";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
-import { getPOComponentDetail } from "@/features/procurement/poSlices";
 
 interface POCellRendererProps {
   props: any;
+  customFunction: () => void
 }
-const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props }) => {
+const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props,customFunction }) => {
   const { value, colDef, data, api, column } = props;
-  const [currency, setCurrency] = useState<string>(data.excRate);
-  const [open, setOpen] = useState<boolean>(false);
-  const { currencyData, currencyLoaidng } = useAppSelector((state) => state.common);
-  const dispatch = useAppDispatch();
+  const { currencyData } = useAppSelector((state) => state.common);
 
-  // useEffect(() => {
-  //   customFunction();
-  // }, [value]);
-  const handleChange = (value: string) => {
-    const newValue = value;
-    data[colDef.field] = newValue; // update the data
-    if (data.gstType === "L") {
-      data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-      data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-      data["igst"] = 0;
-    } else {
-      data["sgst"] = 0;
-      data["cgst"] = 0;
-      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
-    }
-    api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
-  };
+  useEffect(() => {
+    customFunction();
+  }, [value]);
+
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
     data[colDef.field] = newValue; // update the data
     data["taxableValue"] = Number(data.qty) * Number(data.rate);
     if (data.excRate != 0 || data.excRate != "") {
       data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
+      data["foreignValue"] = Number(data.qty) * Number(data.rate);
     }
     if (data.gstType === "L") {
       data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
@@ -53,6 +33,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props }
       data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
     }
     api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
+    customFunction();
   };
 
   const renderContent = () => {
@@ -84,7 +65,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({ props }
                     data["foreignValue"] = 0;
                     data["taxableValue"] = Number(data.qty) * Number(data.rate);
                     api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] });
-                  } else if (currency === "0" || currency === "") {
+                  } else if (data.currency === "0" || data.currency === "") {
                     data["taxableValue"] = Number(data.qty) * Number(data.rate);
                     api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
                   } else {

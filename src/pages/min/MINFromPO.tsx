@@ -15,7 +15,7 @@ import {
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { showToast } from "@/utils/toasterContext";
 import {
   fetchDataForMIN,
@@ -37,7 +37,6 @@ import {
 } from "@/components/ui/Fileupload";
 import { LoadingButton } from "@mui/lab";
 import { IoCloudUpload } from "react-icons/io5";
-import FullPageLoading from "@/components/shared/FullPageLoading";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 import Success from "@/components/reusable/Success";
 
@@ -114,10 +113,10 @@ const TaxDetailSkeleton = () => (
 );
 
 const MINFromPO = () => {
+  const gridRef = useRef<any>(null);
   const [rowData, setRowData] = useState<any>([]);
   const [poNumber, setPoNumber] = useState("");
   const [vendorData, setVendorData] = useState<any>(null);
-  const [materials, setMaterials] = useState<any[]>([]);
   const [invoiceNo, setInvoiceNo] = useState("");
   const [invoiceDate, setInvoiceDate] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -130,6 +129,13 @@ const MINFromPO = () => {
   } | null>(null);
   const [minMessage, setMinMessage] = useState("");
   const [activeStep, setActiveStep] = useState(0);
+  const [totals, setTotals] = useState({
+    totalValue: 0,
+    cgst: 0,
+    sgst: 0,
+    igst: 0,
+    afterTax: 0,
+  });
   const steps = ["PO Details", "Submit"];
 
   const { loading, submitPOMINLoading } = useAppSelector((state) => state.po);
@@ -138,45 +144,92 @@ const MINFromPO = () => {
   const components = useMemo(
     () => ({
       textInputCellRenderer: (params: any) => (
-        <MINFromPOTextInputCellRenderer props={params} />
+        <MINFromPOTextInputCellRenderer props={params} customFunction={getAllTableData} />
       ),
     }),
     []
   );
   console.log(rowData);
+
+  const calculateTotals = (data: any[]) => {
+    const totalValue = data.reduce(
+      (sum: number, row: any) => sum + (Number(row.taxableValue) || 0),
+      0
+    );
+    const cgst = data.reduce(
+      (sum: number, row: any) => sum + (Number(row.cgst) || 0),
+      0
+    );
+    const sgst = data.reduce(
+      (sum: number, row: any) => sum + (Number(row.sgst) || 0),
+      0
+    );
+    const igst = data.reduce(
+      (sum: number, row: any) => sum + (Number(row.igst) || 0),
+      0
+    );
+    const afterTax = totalValue + cgst + sgst + igst;
+
+    return {
+      totalValue,
+      cgst,
+      sgst,
+      igst,
+      afterTax,
+    };
+  };
+
+  const getAllTableData = () => {
+    console.log("okk")
+    const allData: any[] = [];
+    const rowCount = gridRef.current?.api.getDisplayedRowCount() ?? 0;
+    for (let i = 0; i < rowCount; i++) {
+      const rowNode = gridRef.current?.api.getDisplayedRowAtIndex(i);
+      if (rowNode && rowNode.data) {
+        allData.push(rowNode.data);
+      }
+    }
+    return calculateTotals(allData);
+  };
+
+  const onCellValueChanged = () => {
+    const newTotals = getAllTableData();
+    setTotals(newTotals);
+  };
+
   const handleSearchPO = async () => {
     dispatch(fetchDataForMIN(poNumber.trim())).then((res: any) => {
       if (res.payload.data.success) {
         const materials = res.payload.data.data.materials;
-        setRowData(
-          materials.map((item: any) => ({
-            partComponent: {
-              lable: "( " + item.c_partno + " ) " + item.component_shortname,
-              value: item.componentKey,
-            },
-            qty: Number(item.orderqty) || 0,
-            updaterow: item.access_code,
-            rate: Number(item.orderrate) || 0,
-            taxableValue: Number(item.totalValue) || 0,
-            foreignValue: Number(item.usdValue),
-            hsnCode: item.hsncode,
-            gstType: item.gsttype,
-            gstRate: Number(item.gstrate),
-            cgst: Number(item.cgst) || 0,
-            sgst: Number(item.sgst) || 0,
-            igst: Number(item.igst) || 0,
-            remarks: item.remark,
-            currency: {
-              value: item.header?.currency?.value,
-              label: item.header?.currency?.label,
-            },
-            isNew: true,
-            excRate: item.header?.exchangerate || 1,
-            uom: item.uom,
-          }))
-        );
-        setMaterials(res.payload.data.data.materials);
+        const newRowData = materials.map((item: any) => ({
+          partComponent: {
+            lable: "( " + item.c_partno + " ) " + item.component_shortname,
+            value: item.componentKey,
+          },
+          qty: Number(item.orderqty) || 0,
+          updaterow: item.access_code,
+          rate: Number(item.orderrate) || 0,
+          taxableValue: Number(item.totalValue) || 0,
+          foreignValue: Number(item.usdValue),
+          hsnCode: item.hsncode,
+          gstType: item.gsttype,
+          gstRate: Number(item.gstrate),
+          cgst: Number(item.cgst) || 0,
+          sgst: Number(item.sgst) || 0,
+          igst: Number(item.igst) || 0,
+          remarks: item.remark,
+          currency: {
+            value: item.header?.currency?.value,
+            label: item.header?.currency?.label,
+          },
+          isNew: true,
+          excRate: item.header?.exchangerate || 1,
+          uom: item.uom,
+        }));
+        setRowData(newRowData);
         setVendorData(res.payload.data.data.vendor_type);
+        // Calculate initial totals
+        setTotals(calculateTotals(newRowData));
       } else {
         showToast(res.payload.data.message, "error");
       }
@@ -238,7 +291,6 @@ const MINFromPO = () => {
       headerName: "#",
       valueGetter: "node.rowIndex + 1",
       width: 50,
-      pinned: "left",
     },
     {
       headerName: "",
@@ -321,12 +373,6 @@ const MINFromPO = () => {
     },
   ];
 
-  const totalValue = Number(materials[0]?.totalValue || 0);
-  const cgst = Number(materials[0]?.cgst || 0);
-  const sgst = Number(materials[0]?.sgst || 0);
-  const igst = Number(materials[0]?.igst || 0);
-  const afterTax = totalValue + cgst + sgst + igst;
-
   const handleSubmit = async () => {
     if (!poNumber || !invoiceNo || !invoiceDate || !url) {
       showToast("Please fill all required fields and upload invoice", "error");
@@ -363,7 +409,6 @@ const MINFromPO = () => {
           setUrl("");
           setLocation(null);
           setVendorData(null);
-          setMaterials([]);
           setActiveStep(1);
         }
       });
@@ -519,7 +564,7 @@ const MINFromPO = () => {
                               Sub-Total value before Taxes
                             </span>
                             <span className="text-slate-900 font-semibold">
-                              {totalValue.toFixed(2)}
+                              {totals.totalValue.toFixed(2)}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
@@ -527,7 +572,7 @@ const MINFromPO = () => {
                               CGST
                             </span>
                             <span className="text-slate-900 font-semibold">
-                              (+) {cgst.toFixed(2)}
+                              (+) {totals.cgst.toFixed(2)}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
@@ -535,7 +580,7 @@ const MINFromPO = () => {
                               SGST
                             </span>
                             <span className="text-slate-900 font-semibold">
-                              (+) {sgst.toFixed(2)}
+                              (+) {totals.sgst.toFixed(2)}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
@@ -543,7 +588,7 @@ const MINFromPO = () => {
                               IGST
                             </span>
                             <span className="text-slate-900 font-semibold">
-                              (+) {igst.toFixed(2)}
+                              (+) {totals.igst.toFixed(2)}
                             </span>
                           </div>
                           <Divider className="my-2" />
@@ -552,7 +597,7 @@ const MINFromPO = () => {
                               Sub-Total values after Taxes
                             </span>
                             <span className="text-slate-900 font-bold">
-                              {afterTax.toFixed(2)}
+                              {totals.afterTax.toFixed(2)}
                             </span>
                           </div>
                         </CardContent>
@@ -595,12 +640,14 @@ const MINFromPO = () => {
             </div>
             <div className="ag-theme-quartz rounded shadow h-[calc(100vh-150px)] bg-white">
               <AgGridReact
+                ref={gridRef}
                 overlayNoRowsTemplate={OverlayNoRowsTemplate}
                 suppressCellFocus={true}
                 rowData={rowData}
                 columnDefs={columnDefs}
                 pagination={true}
                 components={components}
+                onCellValueChanged={onCellValueChanged}
               />
             </div>
             <div className="flex justify-end mt-4">
