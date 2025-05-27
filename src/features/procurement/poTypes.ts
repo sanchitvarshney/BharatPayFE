@@ -11,6 +11,7 @@ export type PoStateType = {
   fetchPOData:any;
   completedPoData:any;
   submitPOMINLoading:boolean;
+  uploadMinInvoiceLoading:boolean;
 };
 
 export type PoListResponse = {

@@ -376,6 +376,7 @@ const ManagePO: React.FC = () => {
               }
               columnDefs={columnDefs}
               defaultColDef={defaultColDef}
+              enableCellTextSelection={true}
             />
           </div>
           <div className="p-4 border-t">
