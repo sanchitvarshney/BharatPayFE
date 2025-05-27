@@ -452,7 +452,7 @@ const CreatePO: React.FC = () => {
           handleShipAddressChange(ship || "");
           setValue("paymentTerms", header?.paymentterms || "");
           setValue("termsOfDelivery", header?.termsOfDelivery || "");
-
+          setValue("remarks", header?.poRemarks || "");
           // Set payment terms and terms of delivery
           setValue("paymentTerms", header?.paymentterms || "");
           setValue("termsOfDelivery", header?.termsofcondition || "");

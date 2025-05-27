@@ -15,6 +15,8 @@ const initialState: PoStateType = {
   fetchPODataLoading:false,
   fetchPOData:[],
   completedPoData:[],
+  submitPOMINLoading:false,
+  uploadMinInvoiceLoading:false,
 };
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
@@ -71,6 +73,37 @@ export const getPODetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPODe
 export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
   const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
   return response;
+});
+
+export const fetchDataForMIN   = createAsyncThunk<AxiosResponse<any>, string>("po/fetchDataForMIN", async (id) => {
+  const response = await axiosInstance.get(`/po/fetchData4MIN?pono=${id}`);
+  return response;
+});
+
+export const submitPOMIN = createAsyncThunk<AxiosResponse<any>, any>("po/submitPOMIN", async (payload) => {
+  const response = await axiosInstance.post("/po/poMIN", payload);
+  return response;
+});
+
+export const uploadMinInvoice = createAsyncThunk<
+  any, // Define the type of the data you expect to return
+  { files: File } // Define the type of the argument you expect
+>("/po/uploadInvoice", async ({ files }) => {
+  const formData = new FormData();
+  // console.log(file,"aftyer")
+  formData.append("files", files); // Append the file to FormData
+  console.log(formData, "uploadMinInvoice formdata");
+  const response = await axiosInstance.post(
+    "/po/uploadInvoice",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data", // Set appropriate headers
+      },
+    }
+  );
+
+  return response.data;
 });
 
 export const poPrint = createAsyncThunk<AxiosResponse<any>, { id: string }>(
@@ -132,6 +165,36 @@ const procurementPoSlice = createSlice({
         state.managePoData = action.payload.data;
       })
       .addCase(getListofPo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(uploadMinInvoice.pending, (state) => {
+        state.uploadMinInvoiceLoading = true;
+      })
+      .addCase(uploadMinInvoice.fulfilled, (state) => {
+        state.uploadMinInvoiceLoading = false;
+       })
+      .addCase(uploadMinInvoice.rejected, (state, action) => {
+        state.uploadMinInvoiceLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(submitPOMIN.pending, (state) => {
+        state.submitPOMINLoading = true;
+      })
+      .addCase(submitPOMIN.fulfilled, (state) => {
+        state.submitPOMINLoading = false;
+      })
+      .addCase(submitPOMIN.rejected, (state, action) => {
+        state.submitPOMINLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchDataForMIN.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDataForMIN.fulfilled, (state) => {
+        state.loading = false;
+       })
+      .addCase(fetchDataForMIN.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

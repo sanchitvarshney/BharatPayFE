@@ -99,6 +99,7 @@ import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransfe
 import ManagePO from "./pages/procurement/ManagePO";
 import CompletedPO from "@/pages/procurement/CompletedPO";
 import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
+import MINFromPO from "@/pages/min/MINFromPO";
 
 export const router = createBrowserRouter([
   {
@@ -495,6 +496,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/device-materials-in",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MINFromPO />
+          </MainLayout>
+        ),
+        path: "/material-in-with-po",
       },
       // {
       //   element: (
