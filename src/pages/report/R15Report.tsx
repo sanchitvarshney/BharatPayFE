@@ -33,7 +33,7 @@ const R15Report: React.FC = () => {
   }) => {
     setDateRange(dates);
   };
-  console.log(location)
+
   const getreport = () => {
     if (dateRange.from && dateRange.to && location) {
       dispatch(

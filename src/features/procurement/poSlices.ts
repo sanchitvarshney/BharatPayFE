@@ -22,7 +22,7 @@ export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
   { wise: "powise" | "datewise" | "vendorwise" | string ; data: string; limit: number; page: number }
 >("po/fetchPendingData4PO", async (payload) => {
-  console.log(payload.data,"list of po change page")
+
   const response = await axiosInstance.get(
     payload.wise === "powise"
       ? `/po/fetchPendingData4PO?wise=powise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
@@ -36,7 +36,7 @@ export const getListofCompletedPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
   { wise: "powise" | "datewise" | "vendorwise" | string ; data: string; limit: number; page: number }
 >("po/fetchCompletedData4PO", async (payload) => {
-  console.log(payload.data,"list of po change page")
+
   const response = await axiosInstance.get(
     payload.wise === "powise"
       ? `/po/fetchCompletePO?wise=powise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
@@ -90,9 +90,9 @@ export const uploadMinInvoice = createAsyncThunk<
   { files: File } // Define the type of the argument you expect
 >("/po/uploadInvoice", async ({ files }) => {
   const formData = new FormData();
-  // console.log(file,"aftyer")
+
   formData.append("files", files); // Append the file to FormData
-  console.log(formData, "uploadMinInvoice formdata");
+
   const response = await axiosInstance.post(
     "/po/uploadInvoice",
     formData,

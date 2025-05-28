@@ -13,7 +13,7 @@ const MasterBomDetailPage: React.FC = () => {
   const gridRef = useRef<AgGridReact<any>>(null);
   const dispatch = useAppDispatch();
   const { bomDetailLoading, bomDetail } = useAppSelector((state) => state.bom);
-  console.log(bomDetail);
+
   const navigate = useNavigate();
   const { id } = useParams();
   const onBtExport = useCallback(() => {

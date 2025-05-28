@@ -142,7 +142,6 @@ const CreateBranchTransferPage: React.FC = () => {
         qty: data.quantity,
       })
     ).then((res: any) => {
-      console.log(res);
       if (res.payload?.data.success) {
         reset();
         setRowData([]);
