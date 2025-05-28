@@ -4,6 +4,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { formatNumber } from "@/utils/numberFormatUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -17,7 +18,9 @@ const columnDefs: ColDef[] = [
   { headerName: "Category", field: "category", sortable: true, filter: true },
   { headerName: "Sub-Category", field: "subCategory", sortable: true, filter: true },
   { headerName: "UOM", field: "uom", sortable: true, filter: true },
-  { headerName: "Out Quantity", field: "outQty", sortable: true, filter: true },
+  { headerName: "Out Quantity", field: "outQty", sortable: true, filter: true, valueFormatter: (params: any) => {
+    return formatNumber(params.value);
+  }},
   { headerName: "Location From", field: "locFrom", sortable: true, filter: true },
   { headerName: "Location In", field: "locIn", sortable: true, filter: true },
   { headerName: "Requested By", field: "reqBy", sortable: true, filter: true },
@@ -47,6 +50,7 @@ const R8ReportTable: React.FC<Props> = ({ gridRef }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={20}
+          enableCellTextSelection
         />
       </div>
     </div>

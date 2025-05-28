@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getR13Report, } from "@/features/report/report/reportSlice";
 import { Divider, List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
 import R13ReportTable from "@/table/report/R13ReportTable";
+import { formatNumber } from "@/utils/numberFormatUtils";
 
 const R13Report: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -88,10 +89,10 @@ const R13Report: React.FC = () => {
                   <Divider />
                   <List>
                     <ListItem>
-                      <ListItemText primary="Total Approve" secondary={r11Report?.totalApprove} />
+                      <ListItemText primary="Total Approve" secondary={formatNumber(r11Report?.totalApprove)} />
                     </ListItem>
                     <ListItem>
-                      <ListItemText primary="Total Pending" secondary={r11Report?.totalPending} />
+                      <ListItemText primary="Total Pending" secondary={formatNumber(r11Report?.totalPending)} />
                     </ListItem>
                     <ListItem>
                       <ListItemText primary="Total Reject" secondary={r11Report?.totalReject || "--"} />

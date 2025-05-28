@@ -4,6 +4,7 @@ import FullPageLoading from "@/components/shared/FullPageLoading";
 import { Button } from "@/components/ui/button";
 import { getQ4DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { formatNumber } from "@/utils/numberFormatUtils";
 import { showToast } from "@/utils/toasterContext";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -157,10 +158,10 @@ const Q4query: React.FC = () => {
               <div className="flex items-center gap-[10px]">
                 <Typography>Total : </Typography>
                 <Typography>
-                  {q4Data?.locationQty.reduce(
+                  {formatNumber(q4Data?.locationQty.reduce(
                     (sum, item) => sum + Number(item.closeQty),
                     0
-                  )}
+                  ))}
                 </Typography>
               </div>
             </div>
@@ -181,7 +182,7 @@ const Q4query: React.FC = () => {
                         {item.locationName}
                       </Typography>
                       <Typography fontWeight={500} className="text-slate-500">
-                        {item.closeQty}
+                        {formatNumber(item.closeQty)}
                       </Typography>
                     </div>
                   ))}

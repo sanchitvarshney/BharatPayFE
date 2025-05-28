@@ -4,6 +4,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { formatNumber } from "@/utils/numberFormatUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -13,11 +14,21 @@ const columnDefs: ColDef[] = [
   { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
   { headerName: "Part Code", field: "partCode", sortable: true, filter: true, width: 150 },
   { headerName: "Part Name", field: "partName", sortable: true, filter: true },
-  { headerName: "Opening Qty", field: "openingQty", sortable: true, filter: true },
-  { headerName: "Inward Qty", field: "inwardQty", sortable: true, filter: true },
-  {headerName:"Consumption Qty",field:"consumpQty",sortable:true,filter:true},
-  {headerName:"Closing Qty",field:"closingQty",sortable:true,filter:true},
-  {headerName:"Count Qty",field:"countQty",sortable:true,filter:true},
+  { headerName: "Opening Qty", field: "openingQty", sortable: true, filter: true, valueFormatter: (params: any) => {
+    return formatNumber(params.value);
+  }},
+  { headerName: "Inward Qty", field: "inwardQty", sortable: true, filter: true, valueFormatter: (params: any) => {
+    return formatNumber(params.value);
+  }},
+  {headerName:"Consumption Qty",field:"consumpQty",sortable:true,filter:true, valueFormatter: (params: any) => {
+    return formatNumber(params.value);
+  }},
+  {headerName:"Closing Qty",field:"closingQty",sortable:true,filter:true, valueFormatter: (params: any) => {
+    return formatNumber(params.value);
+  }},
+  {headerName:"Count Qty",field:"countQty",sortable:true,filter:true, valueFormatter: (params: any) => {
+    return formatNumber(params.value);
+  }},
   {headerName:"Abnormal Qty",field:"qty",sortable:true,filter:true},
   {headerName:"Physical Date",field:"physicalDt",sortable:true,filter:true},
 ];
@@ -45,6 +56,7 @@ const R13ReportTable: React.FC<Props> = ({ gridRef }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={20}
+          enableCellTextSelection
         />
       </div>
     </div>
