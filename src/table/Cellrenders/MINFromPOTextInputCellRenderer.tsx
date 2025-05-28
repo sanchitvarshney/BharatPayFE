@@ -2,6 +2,7 @@ import { Input } from "antd";
 import React, { useEffect, useCallback } from "react";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
+import { formatNumber } from "@/utils/numberFormatUtils";
 
 interface POCellRendererProps {
   props: any;
@@ -164,9 +165,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
       case "cgst":
       case "sgst":
       case "igst":
-        return (
-          <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>
-        );
+        return <span>{formatNumber(value)}</span>;
       case "hsnCode":
         return <span>{data.hsnCode}</span>;
       case "remarks":
@@ -191,7 +190,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
     return renderContent();
   }
 
-  return <span>{value}</span>;
+  return <span>{formatNumber(value)}</span>;
 };
 
 export default React.memo(MINFromPOTextInputCellRenderer);

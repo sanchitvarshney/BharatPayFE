@@ -44,6 +44,7 @@ const R8ReportTable: React.FC<Props> = ({ gridRef }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={20}
+          enableCellTextSelection
         />
       </div>
     </div>

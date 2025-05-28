@@ -7,6 +7,7 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { Button } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { formatNumber } from "@/utils/numberFormatUtils";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
@@ -23,9 +24,13 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
     { headerName: "AWB No", field: "awbNo" },
     { headerName: "Serial", field: "serial" },
     { headerName: "IMEI", field: "imei" },
-    { headerName: "Quantity", field: "quantity" },
+    { headerName: "Quantity", field: "quantity", valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    }},
     { headerName: "Product", field: "product" },
-    { headerName: "Total Debit", field: "totalDebit" },
+    { headerName: "Total Debit", field: "totalDebit", valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    }},
     {
       headerName: "",
       field: "issues",
@@ -89,6 +94,7 @@ const R9ReportTable: React.FC<Props> = ({ gridRef }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={20}
+          enableCellTextSelection
         />
       </div>
     </div>

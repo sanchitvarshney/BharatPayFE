@@ -72,6 +72,7 @@ const R1reportTable: React.FC<Props> = ({ gridRef, setOpen,setMin }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={20}
+          enableCellTextSelection
         />
       </div>
     </div>

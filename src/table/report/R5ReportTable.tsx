@@ -7,6 +7,7 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { Button } from "@mui/material";
 import { useSocketContext } from "@/components/context/SocketContext";
 import { DownloadIcon } from "@radix-ui/react-icons";
+import { formatNumber } from "@/utils/numberFormatUtils";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -51,6 +52,9 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      valueFormatter: (params: any) => {
+        return formatNumber(params.value);
+      },
     },
     {
       headerName: "Insert By",
@@ -133,6 +137,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={paginationPageSize}
+          enableCellTextSelection
         />
       </div>
     </div>

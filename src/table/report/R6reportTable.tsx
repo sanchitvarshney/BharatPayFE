@@ -11,6 +11,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { showToast } from "@/utils/toasterContext";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 import { clearR6data } from "@/features/report/report/reportSlice";
+import { formatNumber } from "@/utils/numberFormatUtils";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
@@ -176,6 +177,9 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
             //     </a>
             //   );
             // } 
+            if((col === "Qty" && params.data.Qty)||(col === "Rate" && params.data.Rate)){
+              return formatNumber(params.value);
+            }
             else {
               return params.value; // Display value for other columns
             }
@@ -210,6 +214,7 @@ const R6reportTable: React.FC<Props> = ({ gridRef }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={20}
+          enableCellTextSelection
         />
       </div>
     </div>
