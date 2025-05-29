@@ -23,7 +23,7 @@ const R17Report: React.FC = () => {
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [pageSize, setPageSize] = useState(10);
   const [device, setDevice] = useState<any>(null);
-  const [filterType, setFilterType] = useState<string>("device");
+  const [filterType, setFilterType] = useState<string>("DEVICE");
   const { emitDownloadR17Report } = useSocketContext();
 
   const dispatch = useAppDispatch();
@@ -92,8 +92,8 @@ const R17Report: React.FC = () => {
                 setDevice(null)
               }}
             >
-              <MenuItem value="device">Device</MenuItem>
-              <MenuItem value="part">Part</MenuItem>
+              <MenuItem value="DEVICE">Device</MenuItem>
+              <MenuItem value="PART">Part</MenuItem>
             </Select>
           </FormControl>
            {filterType === "device" ? <SelectDeviceWithType
