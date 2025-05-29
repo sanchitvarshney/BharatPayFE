@@ -151,8 +151,9 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true}
+          pagination={true} 
           paginationPageSize={20}
+          enableCellTextSelection
         />
       </div>
     </div>

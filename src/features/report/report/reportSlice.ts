@@ -293,10 +293,10 @@ export const getR16Report = createAsyncThunk(
 
 export const getR17Data = createAsyncThunk(
   "report/getR17Data",
-  async (params: { from: string; to: string; page: number; limit: number, device: string }) => {
+  async (params: { from: string; to: string; page: number; limit: number, device: string, type: string }) => {
     try {
       const response = await axiosInstance.get(
-        `/swipeMachine/report?startDate=${params.from}&endDate=${params.to}&page=${params.page}&limit=${params.limit}&device=${params.device}`
+        `/swipeMachine/report?startDate=${params.from}&endDate=${params.to}&page=${params.page}&limit=${params.limit}&device=${params.device}&type=${params.type}`
       );
       return response.data;
     } catch (error) {
