@@ -96,7 +96,7 @@ const R17Report: React.FC = () => {
               <MenuItem value="PART">Part</MenuItem>
             </Select>
           </FormControl>
-           {filterType === "device" ? <SelectDeviceWithType
+           {filterType === "DEVICE" ? <SelectDeviceWithType
               value={device}
               onChange={setDevice}
               type="swipeMachine"
