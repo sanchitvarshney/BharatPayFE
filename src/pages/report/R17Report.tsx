@@ -88,7 +88,9 @@ const R17Report: React.FC = () => {
           <FormControl fullWidth>
             <Select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
+              onChange={(e) => {setFilterType(e.target.value)
+                setDevice(null)
+              }}
             >
               <MenuItem value="device">Device</MenuItem>
               <MenuItem value="part">Part</MenuItem>
