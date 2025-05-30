@@ -7,12 +7,16 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { getR2ReportDetail, setRefId } from "@/features/report/report/reportSlice";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   open?: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  pageSize: number;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
 };
-const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
+const R2ReportTable: React.FC<Props> = ({ setOpen, pageSize, handlePageChange, handlePageSizeChange }) => {
   const { r2Data, getR2DataLoading, r2ReportDetailLoading } = useAppSelector((state) => state.report);
   const dispatch = useAppDispatch();
   const columnDefs: ColDef[] = [
@@ -61,8 +65,16 @@ const R2ReportTable: React.FC<Props> = ({ setOpen }) => {
   ];
 
   return (
-    <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
-      <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data ? r2Data : []} pagination={true} enableCellTextSelection = {true} />
+    <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+      <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data?.data || []} pagination={false} enableCellTextSelection = {true} />
+     {r2Data && <CustomPagination
+        currentPage={r2Data?.pagination?.currentPage}
+        totalPages={r2Data?.pagination?.totalPages}
+        totalRecords={r2Data?.pagination?.totalRecords}
+        onPageChange={handlePageChange}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+      />}
     </div>
   );
 };

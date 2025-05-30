@@ -98,10 +98,10 @@ export const getMainR1Data = createAsyncThunk<
 });
 export const getR2Data = createAsyncThunk<
   AxiosResponse<R2Response>,
-  { from: string; to: string; type: string }
+  { from: string; to: string; type: string; page: number; limit: number }
 >("report/getR2Data", async (date) => {
   const response = await axiosInstance.get(
-    `report/r2?from=${date.from}&to=${date.to}&type=${date.type}`
+    `report/r2?from=${date.from}&to=${date.to}&type=${date.type}&page=${date.page}&limit=${date.limit}`
   );
   return response;
 });
@@ -116,10 +116,10 @@ export const getR2ReportDetail = createAsyncThunk<
 });
 export const getr3Report = createAsyncThunk<
   AxiosResponse<r3reportResponse>,
-  { from: string; to: string }
+  { from: string; to: string; page: number; limit: number }
 >("report/getr3Report", async (date) => {
   const response = await axiosInstance.get(
-    `/report/r3BatteryQcReport?fromDate=${date.from}&toDate=${date.to}`
+    `/report/r3BatteryQcReport?fromDate=${date.from}&toDate=${date.to}&page=${date.page}&limit=${date.limit}`
   );
   return response;
 });
@@ -386,17 +386,17 @@ const reportSlice = createSlice({
       })
       .addCase(getR2Data.pending, (state) => {
         state.getR2DataLoading = true;
-        state.r2Data = null;
+        // state.r2Data = null;
       })
       .addCase(getR2Data.fulfilled, (state, action) => {
         state.getR2DataLoading = false;
         if (action.payload.data?.status === "success") {
-          state.r2Data = action.payload.data.data;
+          state.r2Data = action.payload.data;
         }
       })
       .addCase(getR2Data.rejected, (state) => {
         state.getR2DataLoading = false;
-        state.r2Data = null;
+        // state.r2Data = null;
       })
       .addCase(getR2ReportDetail.pending, (state) => {
         state.r2ReportDetailLoading = true;
@@ -414,17 +414,17 @@ const reportSlice = createSlice({
       })
       .addCase(getr3Report.pending, (state) => {
         state.r3reportLoading = true;
-        state.r3report = null;
+        // state.r3report = null;
       })
       .addCase(getr3Report.fulfilled, (state, action) => {
         state.r3reportLoading = false;
         if (action.payload.data.success) {
-          state.r3report = action.payload.data.data;
+          state.r3report = action.payload.data;
         }
       })
       .addCase(getr3Report.rejected, (state) => {
         state.r3reportLoading = false;
-        state.r3report = null;
+        // state.r3report = null;
       })
       .addCase(getr4Report.pending, (state) => {
         state.r4reportLoading = true;

@@ -5,9 +5,13 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
+  pageSize: number;
 };
 // Dummy data
 
@@ -59,7 +63,7 @@ const columnDefs: ColDef[] = [
   { headerName: "Remark", field: "remark", sortable: true, filter: true, width: 150 },
 ];
 
-const R3ReportTable: React.FC<Props> = ({ gridRef }) => {
+const R3ReportTable: React.FC<Props> = ({ gridRef, handlePageChange, handlePageSizeChange, pageSize }) => {
   const { r3reportLoading, r3report } = useAppSelector((state) => state.report);
   // Simulate data loading
 
@@ -71,21 +75,29 @@ const R3ReportTable: React.FC<Props> = ({ gridRef }) => {
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-170px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           loading={r3reportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
-          rowData={r3report ? r3report : []}
+          rowData={r3report?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true}
+          pagination={false}
           paginationPageSize={20}
           enableCellTextSelection={true}
         />
       </div>
+     {r3report && <CustomPagination
+          currentPage={r3report?.pagination?.currentPage}
+          totalPages={r3report?.pagination?.totalPages}
+          totalRecords={r3report?.pagination?.totalRecords}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />}
     </div>
   );
 };
