@@ -34,7 +34,7 @@ const R17Report: React.FC = () => {
       showToast("Please select a date range", "error");
       return;
     }
-    emitDownloadR17Report({ from: date.from, to: date.to });
+    emitDownloadR17Report({ from: date.from, to: date.to, device: device?.id, type: filterType });
   };
 
   const handlePageChange = (newPage: number) => {
