@@ -265,7 +265,7 @@ const Deviceinreport: React.FC = () => {
                     placement="bottomRight"
                     className="w-full"
                     format="DD-MM-YYYY"
-                    disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
+                    // disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
                     onChange={(e: any) => {
                       console.log(e);
                     }}
