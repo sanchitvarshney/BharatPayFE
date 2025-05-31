@@ -157,7 +157,7 @@ const Deviceinreport: React.FC = () => {
                     placement="bottomRight"
                     className="w-full h-[50px]"
                     format="DD-MM-YYYY"
-                    disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
+                    // disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
                     placeholder={["Start date", "End Date"]}
                     value={date.from && date.to ? [date.from, date.to] : null}
                     onChange={(range: [Dayjs | null, Dayjs | null] | null) => {
@@ -215,7 +215,7 @@ const Deviceinreport: React.FC = () => {
                     placement="bottomRight"
                     className="w-full"
                     format="DD-MM-YYYY"
-                    disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
+                    // disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
                     onChange={(e: any) => {
                       console.log(e);
                     }}
@@ -240,7 +240,7 @@ const Deviceinreport: React.FC = () => {
                     placement="bottomRight"
                     className="w-full"
                     format="DD-MM-YYYY"
-                    disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
+                    // disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
                     onChange={(e: any) => {
                       console.log(e);
                     }}
@@ -282,7 +282,7 @@ const Deviceinreport: React.FC = () => {
                     placement="bottomRight"
                     className="w-full"
                     format="DD-MM-YYYY"
-                    disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
+                    // disabledDate={(current) => current && (current < dayjs().subtract(3, "month") || current > dayjs())}
                     onChange={(e: any) => {
                       console.log(e);
                     }}
