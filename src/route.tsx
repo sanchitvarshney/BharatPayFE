@@ -100,6 +100,7 @@ import ManagePO from "./pages/procurement/ManagePO";
 import CompletedPO from "@/pages/procurement/CompletedPO";
 import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
 import MINFromPO from "@/pages/min/MINFromPO";
+import CustomSideBarMenu from "./components/customSidebarMenu/CustomSideBarMenu";
 
 export const router = createBrowserRouter([
   {
@@ -113,7 +114,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <HomePage />
+            <CustomSideBarMenu>
+              <HomePage />
+            </CustomSideBarMenu>
           </MainLayout>
         ),
         path: "/",
@@ -448,7 +451,7 @@ export const router = createBrowserRouter([
         ),
         path: "/procurement/create",
       },
-            {
+      {
         element: (
           <MainLayout>
             <ProcurementLayout>
@@ -763,9 +766,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ReportLayout>
-              <Report />
-            </ReportLayout>
+            <CustomSideBarMenu>
+              <ReportLayout>
+                <Report />
+              </ReportLayout>
+            </CustomSideBarMenu>
           </MainLayout>
         ),
         path: "report/:id",

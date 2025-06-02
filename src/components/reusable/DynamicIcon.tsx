@@ -17,11 +17,11 @@ import WindowIcon from "@mui/icons-material/Window";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
 import StorageIcon from "@mui/icons-material/Storage";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
-import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
-import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl';
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
+import SwapHorizontalCircleIcon from "@mui/icons-material/SwapHorizontalCircle";
+import FormatListNumberedRtlIcon from "@mui/icons-material/FormatListNumberedRtl";
 
 export const Icons = {
   save: SaveIcon,
@@ -42,11 +42,11 @@ export const Icons = {
   production: PrecisionManufacturingIcon,
   trc: StorageIcon,
   dispatch: WarehouseIcon,
-  report:AssessmentIcon,
+  report: AssessmentIcon,
   ewaybill: LocalShippingIcon,
-  Swipe:DriveFolderUploadIcon,
-  transfer:SwapHorizontalCircleIcon,
-  procurement: FormatListNumberedRtlIcon
+  Swipe: DriveFolderUploadIcon,
+  transfer: SwapHorizontalCircleIcon,
+  procurement: FormatListNumberedRtlIcon,
 };
 
 type IconName = keyof typeof Icons | string;
@@ -55,13 +55,20 @@ interface IconProps {
   name: IconName; // Ensures the name corresponds to a valid key in Icons
   size?: "small" | "inherit" | "large" | "medium"; // Optional size prop
   color?: string; // Optional color
+  hover?: boolean;
 }
 
-const DynamicIcon: React.FC<IconProps> = ({ name, size = "medium", color = "inherit" }) => {
+const DynamicIcon: React.FC<IconProps> = ({
+  name,
+  size = "medium",
+  // color = "inherit",
+ 
+}) => {
+
   // Select the icon if it exists, otherwise fall back to the default icon
   const IconComponent = Icons[name as keyof typeof Icons] || HelpOutlineIcon;
 
-  return <IconComponent fontSize={size} style={{ color }} />;
+  return <IconComponent fontSize={size}  className= { "hover:no-underline hover:text-cyan-700"} />;
 };
 
 export default DynamicIcon;
