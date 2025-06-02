@@ -2,7 +2,12 @@ import { ChevronRight, Star } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { MdHome } from "react-icons/md";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
 import React, { useEffect } from "react";
 import { Props } from "@/types/MainLayout";
@@ -13,7 +18,12 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getMenuData } from "@/features/menu/menuSlice";
 import { Menu } from "@/features/menu/menuType";
 import DynamicIcon from "../reusable/DynamicIcon";
-import { Box, CircularProgress, circularProgressClasses, CircularProgressProps } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  circularProgressClasses,
+  CircularProgressProps,
+} from "@mui/material";
 import { Icons } from "../icons";
 function FacebookCircularProgress(props: CircularProgressProps) {
   return (
@@ -53,23 +63,41 @@ function FacebookCircularProgress(props: CircularProgressProps) {
     </Box>
   );
 }
-const renderMenu = (menu: Menu[] | undefined, setSidemenu: React.Dispatch<React.SetStateAction<boolean>>) => {
+const renderMenu = (
+  menu: Menu[] | undefined,
+  setSidemenu: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   return (
     <Accordion type="single" collapsible>
       <ul className="flex flex-col gap-[10px]">
         {menu?.map((item: Menu, index) => (
           <li key={item.menu_key}>
             {item.children ? (
-              <AccordionItem value={`${index + item.name}`} className="border-0">
+              <AccordionItem
+                value={`${index + item.name}`}
+                className="border-0"
+              >
                 <AccordionTrigger className="hover:no-underline hover:bg-cyan-800 p-[10px] rounded-md  cursor-pointer">
-                  <span className="flex gap-[10px] items-center">{item.name}</span>
+                  <span className="flex gap-[10px] items-center">
+                    {item.name}
+                  </span>
                 </AccordionTrigger>
-                <AccordionContent className="p-[10px] mt-[10px] border-l-2 border-yellow-600 bg-cyan-900 rounded">{renderMenu(item.children, setSidemenu)}</AccordionContent>
+                <AccordionContent className="p-[10px] mt-[10px] border-l-2 border-yellow-600 bg-cyan-900 rounded">
+                  {renderMenu(item.children, setSidemenu)}
+                </AccordionContent>
               </AccordionItem>
             ) : (
-              <div key={item.menu_key} className="flex items-center justify-between w-full">
-                <Link onClick={() => setSidemenu(false)} to={`${item.url}` || "#"} className="w-full hover:no-underline hover:bg-cyan-700 p-[10px] rounded-md  cursor-pointer flex items-center gap-[10px]">
-                  {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
+              <div
+                key={item.menu_key}
+                className="flex items-center justify-between w-full"
+              >
+                <Link
+                  onClick={() => setSidemenu(false)}
+                  to={`${item.url}` || "#"}
+                  className="w-full hover:no-underline hover:bg-cyan-700 p-[10px] rounded-md  cursor-pointer flex items-center gap-[10px]"
+                >
+                  {item.name}{" "}
+                  <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
                 </Link>
                 <MuiTooltip title="Add to favorite" placement="right">
                   <div className="h-[30px] min-w-[30px] flex justify-center items-center rounded-md  hover:bg-white hover:text-cyan-600 transition-all cursor-pointer ">
@@ -93,11 +121,25 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
   }, []);
 
   return (
-    <div ref={modalRef} className={` absolute  h-[100vh] w-[300px] z-[60] top-0 bg-cyan-800 transition-all duration-500 ${sheetOpen ? "left-[60px]" : "left-[-300px]"}`}>
-      <Button disabled={menuLoading} onClick={() => dispatch(getMenuData())} variant={"outline"}  className="cursor-pointer absolute top-[10px] right-[50px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white">
+    <div
+      ref={modalRef}
+      className={` absolute  h-[100vh] w-[300px] z-[60] top-0 bg-cyan-800 transition-all duration-500 ${
+        sheetOpen ? "left-[60px]" : "left-[-300px]"
+      }`}
+    >
+      <Button
+        disabled={menuLoading}
+        onClick={() => dispatch(getMenuData())}
+        variant={"outline"}
+        className="cursor-pointer absolute top-[10px] right-[50px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white"
+      >
         <Icons.refresh />
       </Button>
-      <Button variant={"outline"} onClick={() => setSheetOpen(false)} className="cursor-pointer absolute top-[10px] right-[10px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white">
+      <Button
+        variant={"outline"}
+        onClick={() => setSheetOpen(false)}
+        className="cursor-pointer absolute top-[10px] right-[10px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white"
+      >
         <FaArrowLeftLong className="text-[20px] " />
       </Button>
       {menuLoading ? (
@@ -107,7 +149,13 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
       ) : (
         <ul className="flex flex-col text-white py-[5px] mt-[50px] ">
           <li>
-            <NavLink to={"/"} onClick={() => setSheetOpen(false)} className={"flex gap-[10px] items-center py-[10px] hover:bg-cyan-900 p-[10px]  "}>
+            <NavLink
+              to={"/"}
+              onClick={() => setSheetOpen(false)}
+              className={
+                "flex gap-[10px] items-center py-[10px] hover:bg-cyan-900 p-[10px]  "
+              }
+            >
               <MdHome className="h-[20px] w-[20px]" />
               Dashboard
             </NavLink>
@@ -115,7 +163,11 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
           {menu?.map((item) =>
             item.children ? (
               <li className="group" key={item.menu_key}>
-                <div className={"flex justify-between items-center py-[10px] hover:bg-cyan-900 p-[10px] group-hover:bg-cyan-900  cursor-pointer"}>
+                <div
+                  className={
+                    "flex justify-between items-center py-[10px] hover:bg-cyan-900 p-[10px] group-hover:bg-cyan-900  cursor-pointer"
+                  }
+                >
                   <span className="flex gap-[10px] items-center cursor-pointer">
                     <DynamicIcon name={item?.icon} size="small" />
                     {item.name}
@@ -133,21 +185,36 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
                         <DynamicIcon name={item?.icon} size="small" />
                         {item.name}
                       </span>
-                      <p className="font-[350] text-[13px] mt-[10px]">{item.description}</p>
-                      <a href="#" className="font-[350] text-[13px] mt-[10px] text-blue-200">
+                      <p className="font-[350] text-[13px] mt-[10px]">
+                        {item.description}
+                      </p>
+                      <a
+                        href="#"
+                        className="font-[350] text-[13px] mt-[10px] text-blue-200"
+                      >
                         Explore material management
                       </a>
                     </div>
                     <Separator className="bg-slate-200 text-slate-200" />
-                    <ul className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">{renderMenu(item.children, setSheetOpen)}</ul>
+                    <ul className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">
+                      {renderMenu(item.children, setSheetOpen)}
+                    </ul>
                   </div>
                 </div>
               </li>
             ) : (
-              <div key={item.menu_key} className="flex items-center justify-between w-full">
-                <Link onClick={() => setSheetOpen(false)} to={`${item.url}` || "#"} className="w-full hover:no-underline hover:bg-cyan-900 p-[10px] roundeded-none  cursor-pointer flex items-center gap-[10px]">
+              <div
+                key={item.menu_key}
+                className="flex items-center justify-between w-full"
+              >
+                <Link
+                  onClick={() => setSheetOpen(false)}
+                  to={`${item.url}` || "#"}
+                  className="w-full hover:no-underline hover:bg-cyan-900 p-[10px] roundeded-none  cursor-pointer flex items-center gap-[10px]"
+                >
                   <DynamicIcon name={item?.icon} size="small" />
-                  {item.name} <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
+                  {item.name}{" "}
+                  <CgArrowTopRight className="h-[20px] w-[20px] font-[600]" />
                 </Link>
               </div>
             )

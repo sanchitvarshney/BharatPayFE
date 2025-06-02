@@ -54,7 +54,7 @@ const DownloadIndecator = () => {
       <MuiTooltip title="Download" placement="bottom">
         <IconButton
           sx={{
-            color: open ? "black" : "#525252",
+            color: open ? "black" : "#fff",
             p: "12px",
             background: open ? "#e5e5e5" : "",
             border: "none",
@@ -88,6 +88,7 @@ const DownloadIndecator = () => {
             border: "none", // Remove border
             borderTopRightRadius: 0, // Remove border radius
             boxShadow: 2, // Optional: remove shadow
+            marginLeft:5
           },
         }}
       >

@@ -32,7 +32,7 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
 }));
 
 type Props = {
-  children: React.ReactElement;
+  children: React.ReactElement | any;
   title: string;
   placement:
     | "bottom"

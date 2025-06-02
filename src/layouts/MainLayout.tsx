@@ -11,24 +11,35 @@ import ProfileSidebar from "@/components/shared/ProfileSidebar";
 import MainLayoutPopovers from "../components/shared/MainLayoutPopovers";
 import DownloadIndecator from "@/components/shared/DownloadIndecator";
 import { SiSocketdotio } from "react-icons/si";
-import { FormControl, IconButton, MenuItem, Select, Tooltip } from "@mui/material";
+import {
+  FormControl,
+  IconButton,
+  MenuItem,
+  Select,
+  Tooltip,
+} from "@mui/material";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
 
 function MainLayout(props: { children: React.ReactNode }) {
- 
-  const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
+  // const tab = useParams();
+  // console.log(tab)
+  const { isConnected, refreshConnection, isLoading, emitGetNotification } =
+    useSocketContext();
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
-  const [selectedSession, setSelectedSession] = useState('25-26');
-  const [selectedCompanyBranch, setSelectedCompanyBranch] = useState('BRMSC031');
+  const [selectedSession, setSelectedSession] = useState("25-26");
+  const [selectedCompanyBranch, setSelectedCompanyBranch] =
+    useState("BRMSC031");
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
   const [favoriteSheet, setFavoriteSheet] = useState<boolean>(false);
   const [logotAlert, setLogotAlert] = useState<boolean>(false);
   const [notificationSheet, setNotificationSheet] = useState<boolean>(false);
-  const [favoriteLinkList, setFavoriteLinkList] = useState<FavoriteMenuLinkListType[]>([]);
+  const [favoriteLinkList, setFavoriteLinkList] = useState<
+    FavoriteMenuLinkListType[]
+  >([]);
   const modalRef = useRef<HTMLDivElement>(null);
   const sidebaref = useRef<HTMLDivElement>(null);
   const favoriteref = useRef<HTMLDivElement>(null);
@@ -55,23 +66,23 @@ function MainLayout(props: { children: React.ReactNode }) {
     setSheet2Open(false);
     setFavoriteSheet(false);
   };
-  
+
   useEffect(() => {
     if (isConnected) {
       emitGetNotification();
     }
   }, [isConnected]);
 
-  const handleSessionChange = (newSession:string) => {
+  const handleSessionChange = (newSession: string) => {
     setSelectedSession(newSession);
     // Store the selected session in localStorage
-    localStorage.setItem('session', newSession);
+    localStorage.setItem("session", newSession);
   };
 
-  const handleCompanyBranchChange = (newCompanyBranch:string) => {
+  const handleCompanyBranchChange = (newCompanyBranch: string) => {
     setSelectedCompanyBranch(newCompanyBranch);
     // Store the selected company branch in localStorage
-    localStorage.setItem('companyBranch', newCompanyBranch);
+    localStorage.setItem("companyBranch", newCompanyBranch);
   };
 
   return (
@@ -80,7 +91,13 @@ function MainLayout(props: { children: React.ReactNode }) {
       <MainLayoutPopovers uiState={uiState} />
       {/* alert disalogs start=============== */}
       {/* sidebars=========================== */}
-      <div className={`sheetone absolute  h-[100vh] z-[50] top-0 w-full transition-all  ${sheetOpen || sheet2Open || favoriteSheet ? "bg-[#00000081]" : "left-[-100%]"}`}></div>
+      <div
+        className={`sheetone absolute  h-[100vh] z-[50] top-0 w-full transition-all  ${
+          sheetOpen || sheet2Open || favoriteSheet
+            ? "bg-[#00000081]"
+            : "left-[-100%]"
+        }`}
+      ></div>
       <FavoriteSidebar uiState={uiState} />
       <SidebarMenues uiState={uiState} />
       <ProfileSidebar uiState={uiState} />
@@ -88,80 +105,85 @@ function MainLayout(props: { children: React.ReactNode }) {
       <div>
         <nav
           style={{
-            boxShadow: "rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px",
+            boxShadow:
+              "rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px",
           }}
-          className={`  z-[7] flex  items-center justify-between h-[50px] px-[20px] fixed top-0 left-[50px] w-[calc(100vw-50px)]   ${import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ? "bg-amber-300" : "bg-neutral-300"}`}
+          className={`  z-[7] flex  items-center justify-between h-[50px] px-[20px] fixed top-0 left-[50px] w-[calc(100vw-50px)]   ${
+            import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV"
+              ? "bg-amber-300"
+              : "bg-neutral-300"
+          }`}
         >
+          <div className="ml-4">
+            {/* <h1>hi</h1> */}
+          </div>
           <div className="flex gap-[20px] items-center">
+            
             <div className="date flex gap-[20px] items-center">
               <FormControl sx={{ width: "200px" }}>
                 <Tooltip title="Session">
-                <Select
-                  defaultValue={selectedSession}
-                  className="shadow"
-                  sx={{
-                    background: "white",
-                    border: "none",
-                    outline: "none",
-                    "& .MuiOutlinedInput-notchedOutline": {
+                  <Select
+                    defaultValue={selectedSession}
+                    className="shadow"
+                    sx={{
+                      background: "white",
                       border: "none",
-                    },
-                    "& .MuiSelect-select": {
-                      padding: "8px 12px",
-                    },
-                  }}
-                  size="small"
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  onChange={(e) => handleSessionChange(e.target.value)}
-                >
-                  <MenuItem value={"25-26"}> 2025-2026</MenuItem>
-                  <MenuItem value={"24-25"}> 2024-2025</MenuItem>
-                  <MenuItem value={"23-24"}> 2023-2024</MenuItem>
-                  <MenuItem value={"22-23"}> 2022-2023</MenuItem>
-                </Select>
+                      outline: "none",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+                      "& .MuiSelect-select": {
+                        padding: "8px 12px",
+                      },
+                    }}
+                    size="small"
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    onChange={(e) => handleSessionChange(e.target.value)}
+                  >
+                    <MenuItem value={"25-26"}> 2025-2026</MenuItem>
+                    <MenuItem value={"24-25"}> 2024-2025</MenuItem>
+                    <MenuItem value={"23-24"}> 2023-2024</MenuItem>
+                    <MenuItem value={"22-23"}> 2022-2023</MenuItem>
+                  </Select>
                 </Tooltip>
               </FormControl>
               <FormControl sx={{ width: "200px" }}>
                 <Tooltip title="Company Branch">
-                <Select
-                  defaultValue={selectedCompanyBranch}
-                  className="shadow"
-                  sx={{
-                    background: "white",
-                    border: "none",
-                    outline: "none",
-                    "& .MuiOutlinedInput-notchedOutline": {
+                  <Select
+                    defaultValue={selectedCompanyBranch}
+                    className="shadow"
+                    sx={{
+                      background: "white",
                       border: "none",
-                    },
-                    "& .MuiSelect-select": {
-                      padding: "8px 12px",
-                    },
-                  }}
-                  size="small"
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  onChange={(e) => handleCompanyBranchChange(e.target.value)}
-                >
-                  <MenuItem value={"BRMSC031"}> B88</MenuItem>
-                  <MenuItem value={"BRMSC030"}> Kortek</MenuItem>
-                </Select>
+                      outline: "none",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+                      "& .MuiSelect-select": {
+                        padding: "8px 12px",
+                      },
+                    }}
+                    size="small"
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    onChange={(e) => handleCompanyBranchChange(e.target.value)}
+                  >
+                    <MenuItem value={"BRMSC031"}> B88</MenuItem>
+                    <MenuItem value={"BRMSC030"}> Kortek</MenuItem>
+                  </Select>
                 </Tooltip>
               </FormControl>
             </div>
           </div>
-          <div className="flex items-center gap-[20px]">
-            <div className="toggle"></div>
-            <div className="download">
-              <DownloadIndecator />
-            </div>
-
-            <NotificationPnnel />
-          </div>
         </nav>
       </div>
       <div className="mt-[50px] ">
-        <div className={`w-[60px] overflow-hidden h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[70] ${sheetOpen ? "border-r border-white" : "border-r border-transparent"}`}>
+        <div
+          className={`w-[60px] overflow-hidden h-[100vh] bg-cyan-800 fixed left-0 top-0 pt-[20px] pb-[10px] flex items-center justify-between flex-col z-[70] ${
+            sheetOpen ? "border-r border-white" : "border-r border-transparent"
+          }`}
+        >
           <div className="flex flex-col items-center gap-[20px]">
             <div className="flex items-center justify-center">
               <Link
@@ -172,7 +194,11 @@ function MainLayout(props: { children: React.ReactNode }) {
                   setSheetOpen(false);
                 }}
               >
-                <img src="/bharatpay.svg" alt="" className="h-[35px] w-[35px] rounded-full " />
+                <img
+                  src="/bharatpay.svg"
+                  alt=""
+                  className="h-[35px] w-[35px] rounded-full "
+                />
               </Link>
             </div>
             <div>
@@ -223,13 +249,27 @@ function MainLayout(props: { children: React.ReactNode }) {
             </Button>
           </div>
           <div className="flex flex-col gap-[20px] items-center">
-            <MuiTooltip title={`Socket ${isConnected ? "Connected" : "Disconnected"}`} placement="right">
+            <MuiTooltip
+              title={`Socket ${isConnected ? "Connected" : "Disconnected"}`}
+              placement="right"
+            >
               <IconButton onClick={() => refreshConnection()}>
-                <SiSocketdotio className={`h-[25px] w-[25px] ${isConnected ? "text-green-500" : "text-red-500"}  ${isLoading ? "animate-spin" : ""}`} />
+                <SiSocketdotio
+                  className={`h-[25px] w-[25px] ${
+                    isConnected ? "text-green-500" : "text-red-500"
+                  }  ${isLoading ? "animate-spin" : ""}`}
+                />
               </IconButton>
             </MuiTooltip>
+            {/* <div className="flex flex-col items-center "> */}
+             
+              {/* <div className="download"> */}
+                <DownloadIndecator  />
+              {/* </div> */}
 
-         
+              <NotificationPnnel />
+            {/* </div> */}
+
             <MuiTooltip title="Account" placement="right">
               <IconButton
                 onClick={() => {
@@ -243,11 +283,7 @@ function MainLayout(props: { children: React.ReactNode }) {
             </MuiTooltip>
           </div>
         </div>
-        <main className="ml-[60px]  bg-[#f1f1f1] h-full">
-          {
-            props.children
-          }
-        </main>
+        <main className="ml-[60px]  bg-[#f1f1f1] h-full">{props.children}</main>
       </div>
     </Wrapper>
   );
