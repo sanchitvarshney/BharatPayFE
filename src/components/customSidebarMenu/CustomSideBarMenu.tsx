@@ -123,31 +123,45 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <div className=" w-full h-[calc(100vh-50px)] bg-#ffffff-600 flex flex-col">
-      {/* <div className="flex "> */}
-
-      {/* <div className="absolute top-4 left-10  flex items-center justify-center z-10">
-        <h2>Tab</h2>
-      </div> */}
       <div className="z-3 h-[calc(100vh-50px)] flex justify-center items-center ">
         <div
-          className={`  h-[85%] ${
+          className={` h-[95%] ${
             isExpanded ? "w-[320px] p-4 items-start" : "w-[80px] items-center "
           } flex flex-col justify-between py-4 transition-all duration-500 ease-in-out overflow-y-auto bg-#ffffff-600`}
         >
-          <MuiTooltip title={!isExpanded ? "Dashboard" : ""} placement="right">
-            <NavLink
-              to={"/"}
-              // onClick={() => setSheetOpen(false)}
-              className={`flex gap-[10px] items-center  ${
-                isExpanded ? "py-[10px]" : "m-0 p-0"
-              } `}
+          <div>
+            {" "}
+            <div
+              className={`flex justify-between items-center ${
+                isExpanded && "mb-3"
+              }`}
             >
-              <MdHome className="h-[20px] w-[20px] hover:text-cyan-900" />
-              {isExpanded ? <span>Dashboard</span> : ""}
-            </NavLink>
-          </MuiTooltip>
+              <MuiTooltip
+                title={!isExpanded ? "Dashboard" : ""}
+                placement="right"
+              >
+                <NavLink
+                  to={"/"}
+                  // onClick={() => setSheetOpen(false)}
+                  className={`flex gap-[10px] items-center  ${
+                    isExpanded ? "py-[10px]" : "mb-6 "
+                  } `}
+                >
+                  <MdHome className="h-[20px] w-[20px] hover:text-cyan-900" />
+                  {isExpanded ? <span>Dashboard</span> : ""}
+                </NavLink>
+              </MuiTooltip>
+              {isExpanded && (
+                <MuiTooltip title="Add to favorite" placement="right">
+                  <div className="h-[30px] min-w-[30px] flex justify-center items-center rounded-md hover:bg-white hover:text-cyan-600 transition-all cursor-pointer ">
+                    <Star className="h-[16px] w-[16px]" />
+                  </div>
+                </MuiTooltip>
+              )}
+            </div>
+            {renderMenu(menu, isExpanded)}
+          </div>
 
-          {renderMenu(menu, isExpanded)}
           <MuiTooltip title="Expend" placement="right">
             <div
               onClick={() => setIsExpanded(!isExpanded)}
@@ -166,9 +180,7 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
         </div>
 
         <div
-          className={` ${
-            isExpanded ? "w-[85%]" : "w-[95%]"
-          } h-[85%] overflow-y-auto
+          className={` ${isExpanded ? "w-[85%]" : "w-[95%]"} overflow-y-auto
  `}
         >
           {children}

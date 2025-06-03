@@ -51,7 +51,7 @@ const DownloadIndecator = () => {
 
   return (
     <>
-      <MuiTooltip title="Download" placement="bottom">
+      <MuiTooltip title="Download" placement="right">
         <IconButton
           sx={{
             color: open ? "black" : "#fff",

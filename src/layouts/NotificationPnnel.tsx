@@ -26,7 +26,7 @@ const NotificationPnnel: React.FC = () => {
 
   return (
     <>
-      <MuiTooltip title="Notification" placement="bottom">
+      <MuiTooltip title="Notification" placement="right">
         <IconButton
           sx={{
             color: open ? "black" : "#fff",

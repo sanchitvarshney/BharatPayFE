@@ -22,6 +22,7 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
+import MenuBreadcrumb from "@/components/shared/MenuBreadcrumb";
 
 function MainLayout(props: { children: React.ReactNode }) {
   // const tab = useParams();
@@ -115,10 +116,9 @@ function MainLayout(props: { children: React.ReactNode }) {
           }`}
         >
           <div className="ml-4">
-            {/* <h1>hi</h1> */}
+            <MenuBreadcrumb />
           </div>
           <div className="flex gap-[20px] items-center">
-            
             <div className="date flex gap-[20px] items-center">
               <FormControl sx={{ width: "200px" }}>
                 <Tooltip title="Session">
@@ -262,12 +262,12 @@ function MainLayout(props: { children: React.ReactNode }) {
               </IconButton>
             </MuiTooltip>
             {/* <div className="flex flex-col items-center "> */}
-             
-              {/* <div className="download"> */}
-                <DownloadIndecator  />
-              {/* </div> */}
 
-              <NotificationPnnel />
+            {/* <div className="download"> */}
+            <DownloadIndecator />
+            {/* </div> */}
+
+            <NotificationPnnel />
             {/* </div> */}
 
             <MuiTooltip title="Account" placement="right">
