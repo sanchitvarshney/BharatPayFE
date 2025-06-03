@@ -116,7 +116,7 @@ export const router = createBrowserRouter([
           <MainLayout>
             <CustomSideBarMenu>
               <HomePage />
-            </CustomSideBarMenu>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/",
@@ -128,9 +128,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <EwayBillLayout>
-              <DispatchTableForEwayBill />
-            </EwayBillLayout>
+            <CustomSideBarMenu>
+              <EwayBillLayout>
+                <DispatchTableForEwayBill />
+              </EwayBillLayout>
+            </CustomSideBarMenu>
           </MainLayout>
         ),
         path: "/eway-bill-details",
@@ -138,7 +140,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <CreateEwayBill />
+            <CustomSideBarMenu>
+              <CreateEwayBill />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/create/e-waybill/:id",
@@ -146,7 +150,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DocViewer />
+            <CustomSideBarMenu>
+              <DocViewer />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/docViewer",
@@ -155,7 +161,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <PhysicalQuantityUpdate />
+            <CustomSideBarMenu>
+              <PhysicalQuantityUpdate />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/physical-quantity-update",
@@ -163,7 +171,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DashBoard />
+            <CustomSideBarMenu>
+              <DashBoard />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/dashboard",
@@ -171,7 +181,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProfilePage />
+            <CustomSideBarMenu>
+              <ProfilePage />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/profile",
@@ -181,7 +193,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterUOM />
+            <CustomSideBarMenu>
+              <MasterUOM />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-uom",
@@ -189,7 +203,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterCategory />
+            <CustomSideBarMenu>
+              <MasterCategory />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-category",
@@ -197,9 +213,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterComponentsLayout>
-              <MasterComponent />
-            </MasterComponentsLayout>
+            <CustomSideBarMenu>
+              <MasterComponentsLayout>
+                <MasterComponent />
+              </MasterComponentsLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-components",
@@ -207,7 +225,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterComponentDeatil />
+            <CustomSideBarMenu>
+              <MasterComponentDeatil />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-components/:id",
@@ -215,9 +235,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterComponentProductLayout>
-              <MasterProductFg />
-            </MasterComponentProductLayout>
+            <CustomSideBarMenu>
+              <MasterComponentProductLayout>
+                <MasterProductFg />
+              </MasterComponentProductLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-product-fg",
@@ -225,9 +247,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterComponentProductLayout>
-              <MasterProductSFg />
-            </MasterComponentProductLayout>
+            <CustomSideBarMenu>
+              <MasterComponentProductLayout>
+                <MasterProductSFg />
+              </MasterComponentProductLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-product-sfg",
@@ -235,9 +259,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterBOMLayout>
-              <MasterCraeteBOM />
-            </MasterBOMLayout>
+            <CustomSideBarMenu>
+              <MasterBOMLayout>
+                <MasterCraeteBOM />
+              </MasterBOMLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-bom-create",
@@ -245,11 +271,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterBOMLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <MasterSfgBOM />
-              </CustomRedirection>
-            </MasterBOMLayout>
+            <CustomSideBarMenu>
+              <MasterBOMLayout>
+                <CustomRedirection UnderDevelopment={true}>
+                  <MasterSfgBOM />
+                </CustomRedirection>
+              </MasterBOMLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-sfg-bom",
@@ -257,11 +285,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterBOMLayout>
-              <CustomRedirection>
-                <MasterFGBOM />
-              </CustomRedirection>
-            </MasterBOMLayout>
+            <CustomSideBarMenu>
+              <MasterBOMLayout>
+                <CustomRedirection>
+                  <MasterFGBOM />
+                </CustomRedirection>
+              </MasterBOMLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-fg-bom",
@@ -269,7 +299,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterBomDetailPage />
+            <CustomSideBarMenu>
+              <MasterBomDetailPage />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-fg-bom/:id",
@@ -277,11 +309,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterBOMLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <MasterBOMDisabled />
-              </CustomRedirection>
-            </MasterBOMLayout>
+            <CustomSideBarMenu>
+              <MasterBOMLayout>
+                <CustomRedirection UnderDevelopment={true}>
+                  <MasterBOMDisabled />
+                </CustomRedirection>
+              </MasterBOMLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-bom-disabled",
@@ -289,7 +323,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterLocation />
+            <CustomSideBarMenu>
+              <MasterLocation />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-location",
@@ -297,9 +333,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <CustomRedirection UnderDevelopment={false}>
-              <MasterAddVender />
-            </CustomRedirection>
+            <CustomSideBarMenu>
+              <CustomRedirection UnderDevelopment={false}>
+                <MasterAddVender />
+              </CustomRedirection>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-vendor-add",
@@ -307,9 +345,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <CustomRedirection UnderDevelopment={false}>
-              <MaterVendorDetail />
-            </CustomRedirection>
+            <CustomSideBarMenu>
+              <CustomRedirection UnderDevelopment={false}>
+                <MaterVendorDetail />
+              </CustomRedirection>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-vendor/:id",
@@ -317,9 +357,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <CustomRedirection UnderDevelopment={false}>
-              <MasterClient />
-            </CustomRedirection>
+            <CustomSideBarMenu>
+              <CustomRedirection UnderDevelopment={false}>
+                <MasterClient />
+              </CustomRedirection>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-client",
@@ -327,9 +369,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <CustomRedirection UnderDevelopment={false}>
-              <MasterClientDetail />
-            </CustomRedirection>
+            <CustomSideBarMenu>
+              <CustomRedirection UnderDevelopment={false}>
+                <MasterClientDetail />
+              </CustomRedirection>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-client/:id",
@@ -337,11 +381,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterVenderLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <MsterVendorDetail />
-              </CustomRedirection>
-            </MasterVenderLayout>
+            <CustomSideBarMenu>
+              <MasterVenderLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <MsterVendorDetail />
+                </CustomRedirection>
+              </MasterVenderLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-vender-detail",
@@ -349,11 +395,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterAddressLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <MasterBillingAddress />
-              </CustomRedirection>
-            </MasterAddressLayout>
+            <CustomSideBarMenu>
+              <MasterAddressLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <MasterBillingAddress />
+                </CustomRedirection>
+              </MasterAddressLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-billing-address",
@@ -361,11 +409,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterAddressLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <MasterShippingaddress />
-              </CustomRedirection>
-            </MasterAddressLayout>
+            <CustomSideBarMenu>
+              <MasterAddressLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <MasterShippingaddress />
+                </CustomRedirection>
+              </MasterAddressLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-shipping-address",
@@ -374,9 +424,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MaterialApprovalLayout>
-              <MaterialApproval />
-            </MaterialApprovalLayout>
+            <CustomSideBarMenu>
+              <MaterialApprovalLayout>
+                <MaterialApproval />
+              </MaterialApprovalLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/pending-material-approval",
@@ -384,9 +436,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MaterialApprovalLayout>
-              <MaterialRequistionRequest />
-            </MaterialApprovalLayout>
+            <CustomSideBarMenu>
+              <MaterialApprovalLayout>
+                <MaterialRequistionRequest />
+              </MaterialApprovalLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/material-requisition-request",
@@ -394,9 +448,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <SwipeMaterialApprovalLayout>
-              <SwipeMaterialApproval />
-            </SwipeMaterialApprovalLayout>
+            <CustomSideBarMenu>
+              <SwipeMaterialApprovalLayout>
+                <SwipeMaterialApproval />
+              </SwipeMaterialApprovalLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/swipe-approval",
@@ -404,9 +460,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <SwipeMaterialApprovalLayout>
-              <SwipeRequistionRequest />
-            </SwipeMaterialApprovalLayout>
+            <CustomSideBarMenu>
+              <SwipeMaterialApprovalLayout>
+                <SwipeRequistionRequest />
+              </SwipeMaterialApprovalLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/swipe-requisition-request",
@@ -414,9 +472,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MinLayout>
-              <MaterialInvard />
-            </MinLayout>
+            <CustomSideBarMenu>
+              <MinLayout>
+                <MaterialInvard />
+              </MinLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/raw-min-v2",
@@ -424,9 +484,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MinLayout>
-              <SimMin />
-            </MinLayout>
+            <CustomSideBarMenu>
+              <MinLayout>
+                <SimMin />
+              </MinLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/sim-min",
@@ -434,9 +496,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MinLayout>
-              <MaterialInvardv2 />
-            </MinLayout>
+            <CustomSideBarMenu>
+              <MinLayout>
+                <MaterialInvardv2 />
+              </MinLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/raw-min",
@@ -444,9 +508,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProcurementLayout>
-              <CreatePO />
-            </ProcurementLayout>
+            <CustomSideBarMenu>
+              <ProcurementLayout>
+                <CreatePO />
+              </ProcurementLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/procurement/create",
@@ -454,9 +520,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProcurementLayout>
-              <ManagePO />
-            </ProcurementLayout>
+            <CustomSideBarMenu>
+              <ProcurementLayout>
+                <ManagePO />
+              </ProcurementLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/procurement/manage",
@@ -464,9 +532,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <UpdateProcurementLayout>
-              <CreatePO />
-            </UpdateProcurementLayout>
+            <CustomSideBarMenu>
+              <UpdateProcurementLayout>
+                <CreatePO />
+              </UpdateProcurementLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/procurement/edit-po/:id",
@@ -474,9 +544,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProcurementLayout>
-              <ManagePO />
-            </ProcurementLayout>
+            <CustomSideBarMenu>
+              <ProcurementLayout>
+                <ManagePO />
+              </ProcurementLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/procurement/manage",
@@ -484,9 +556,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProcurementLayout>
-              <CompletedPO />
-            </ProcurementLayout>
+            <CustomSideBarMenu>
+              <ProcurementLayout>
+                <CompletedPO />
+              </ProcurementLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/procurement/completed",
@@ -494,8 +568,10 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            {/* <DeviceMin /> */}
-            <MaterialIn />
+            <CustomSideBarMenu>
+              {/* <DeviceMin /> */}
+              <MaterialIn />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/device-materials-in",
@@ -503,7 +579,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MINFromPO />
+            <CustomSideBarMenu>
+              <MINFromPO />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/material-in-with-po",
@@ -511,8 +589,9 @@ export const router = createBrowserRouter([
       // {
       //   element: (
       //     <MainLayout>
+
       //       <MaterialIn />
-      //     </MainLayout>
+      //  </MainLayout>
       //   ),
       //   path: "/device-min",
       // },
@@ -520,11 +599,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProductionMaterialRequisitionLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <MaterialRequestWithBom />
-              </CustomRedirection>
-            </ProductionMaterialRequisitionLayout>
+            <CustomSideBarMenu>
+              <ProductionMaterialRequisitionLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <MaterialRequestWithBom />
+                </CustomRedirection>
+              </ProductionMaterialRequisitionLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/material-req-with-bom",
@@ -532,9 +613,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProductionMaterialRequisitionLayout>
-              <MaterialReqWithoutBom />
-            </ProductionMaterialRequisitionLayout>
+            <CustomSideBarMenu>
+              <ProductionMaterialRequisitionLayout>
+                <MaterialReqWithoutBom />
+              </ProductionMaterialRequisitionLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/material-req-without-bom",
@@ -542,9 +625,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProductionMaterialRequisitionLayout>
-              <SwipeDeviceRequest />
-            </ProductionMaterialRequisitionLayout>
+            <CustomSideBarMenu>
+              <ProductionMaterialRequisitionLayout>
+                <SwipeDeviceRequest />
+              </ProductionMaterialRequisitionLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/swipe-device-request",
@@ -552,11 +637,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProductionAndPlanLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <CraetePPR />
-              </CustomRedirection>
-            </ProductionAndPlanLayout>
+            <CustomSideBarMenu>
+              <ProductionAndPlanLayout>
+                <CustomRedirection UnderDevelopment={true}>
+                  <CraetePPR />
+                </CustomRedirection>
+              </ProductionAndPlanLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/create-ppr",
@@ -564,11 +651,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProductionAndPlanLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <PendingPPR />
-              </CustomRedirection>
-            </ProductionAndPlanLayout>
+            <CustomSideBarMenu>
+              <ProductionAndPlanLayout>
+                <CustomRedirection UnderDevelopment={true}>
+                  <PendingPPR />
+                </CustomRedirection>
+              </ProductionAndPlanLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/pending-ppr",
@@ -576,11 +665,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProductionAndPlanLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <CompletePPR />
-              </CustomRedirection>
-            </ProductionAndPlanLayout>
+            <CustomSideBarMenu>
+              <ProductionAndPlanLayout>
+                <CustomRedirection UnderDevelopment={true}>
+                  <CompletePPR />
+                </CustomRedirection>
+              </ProductionAndPlanLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/complete-ppr",
@@ -588,11 +679,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <TRCLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <AddTRC />
-              </CustomRedirection>
-            </TRCLayout>
+            <CustomSideBarMenu>
+              <TRCLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <AddTRC />
+                </CustomRedirection>
+              </TRCLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/add-trc",
@@ -600,11 +693,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <TRCLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <StoreTRC />
-              </CustomRedirection>
-            </TRCLayout>
+            <CustomSideBarMenu>
+              <TRCLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <StoreTRC />
+                </CustomRedirection>
+              </TRCLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/store-trc",
@@ -612,11 +707,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <TRCLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <ViewTRC />
-              </CustomRedirection>
-            </TRCLayout>
+            <CustomSideBarMenu>
+              <TRCLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <ViewTRC />
+                </CustomRedirection>
+              </TRCLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/view-trc",
@@ -624,11 +721,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <TRCLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <PendingTRCListTable />
-              </CustomRedirection>
-            </TRCLayout>
+            <CustomSideBarMenu>
+              <TRCLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <PendingTRCListTable />
+                </CustomRedirection>
+              </TRCLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/trc-list",
@@ -636,7 +735,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <BatteryQC />
+            <CustomSideBarMenu>
+              <BatteryQC />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/battery-qc",
@@ -644,7 +745,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ProductionCreate />
+            <CustomSideBarMenu>
+              <ProductionCreate />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/create",
@@ -652,9 +755,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <CustomRedirection UnderDevelopment={true}>
-              <ProductionManage />
-            </CustomRedirection>
+            <CustomSideBarMenu>
+              <CustomRedirection UnderDevelopment={true}>
+                <ProductionManage />
+              </CustomRedirection>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/manage",
@@ -662,11 +767,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <QrLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <MasterQrGenerator />
-              </CustomRedirection>
-            </QrLayout>
+            <CustomSideBarMenu>
+              <QrLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <MasterQrGenerator />
+                </CustomRedirection>
+              </QrLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/master-qr-generator",
@@ -674,9 +781,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <QrLayout>
-              <SingleQrGenerator />
-            </QrLayout>
+            <CustomSideBarMenu>
+              <QrLayout>
+                <SingleQrGenerator />
+              </QrLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/single-qr-generator",
@@ -684,9 +793,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <QrLayout>
-              <DownloadQrExcel />
-            </QrLayout>
+            <CustomSideBarMenu>
+              <QrLayout>
+                <DownloadQrExcel />
+              </QrLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/production/download-excel",
@@ -695,9 +806,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <BranchTransferLayout>
-              <CreateBranchTransferPage />
-            </BranchTransferLayout>
+            <CustomSideBarMenu>
+              <BranchTransferLayout>
+                <CreateBranchTransferPage />
+              </BranchTransferLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/branchTransfer/create",
@@ -705,9 +818,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <BranchTransferLayout>
-              <ManageBranchTable />
-            </BranchTransferLayout>
+            <CustomSideBarMenu>
+              <BranchTransferLayout>
+                <ManageBranchTable />
+              </BranchTransferLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/branchTransfer/manage",
@@ -717,11 +832,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DispatchLayout>
-              <CustomRedirection UnderDevelopment={true}>
-                <ManageDispatch />
-              </CustomRedirection>
-            </DispatchLayout>
+            <CustomSideBarMenu>
+              <DispatchLayout>
+                <CustomRedirection UnderDevelopment={true}>
+                  <ManageDispatch />
+                </CustomRedirection>
+              </DispatchLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/dispatch/manage",
@@ -729,11 +846,13 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DispatchLayout>
-              <CustomRedirection UnderDevelopment={false}>
-                <CreateDispatchPage />
-              </CustomRedirection>
-            </DispatchLayout>
+            <CustomSideBarMenu>
+              <DispatchLayout>
+                <CustomRedirection UnderDevelopment={false}>
+                  <CreateDispatchPage />
+                </CustomRedirection>
+              </DispatchLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/dispatch/create",
@@ -741,9 +860,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <WrongDispatchLayout>
-              <WrongDeviceDispatch />
-            </WrongDispatchLayout>
+            <CustomSideBarMenu>
+              <WrongDispatchLayout>
+                <WrongDeviceDispatch />
+              </WrongDispatchLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/dispatch/wrong-device",
@@ -755,7 +876,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <SopPage />
+            <CustomSideBarMenu>
+              <SopPage />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/sop",
@@ -770,7 +893,7 @@ export const router = createBrowserRouter([
               <ReportLayout>
                 <Report />
               </ReportLayout>
-            </CustomSideBarMenu>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "report/:id",
@@ -778,7 +901,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MasterReport />
+            <CustomSideBarMenu>
+              <MasterReport />
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/master-report",
@@ -787,9 +912,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <QueryLayout>
-              <Query />
-            </QueryLayout>
+            <CustomSideBarMenu>
+              <QueryLayout>
+                <Query />
+              </QueryLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "queries/:id",
@@ -797,9 +924,11 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <SwipeUploadLayout>
-              <SwipeDeviceUpload />
-            </SwipeUploadLayout>
+            <CustomSideBarMenu>
+              <SwipeUploadLayout>
+                <SwipeDeviceUpload />
+              </SwipeUploadLayout>
+            </CustomSideBarMenu>{" "}
           </MainLayout>
         ),
         path: "/upload/swipe-device-status",
@@ -811,7 +940,9 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication>
         <MainLayout>
-          <Custom404Page />
+          <CustomSideBarMenu>
+            <Custom404Page />
+          </CustomSideBarMenu>{" "}
         </MainLayout>
       </Protected>
     ),
@@ -821,7 +952,9 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication>
         <MainLayout>
-          <NotPermissionPage />
+          <CustomSideBarMenu>
+            <NotPermissionPage />
+          </CustomSideBarMenu>{" "}
         </MainLayout>
       </Protected>
     ),
@@ -831,7 +964,9 @@ export const router = createBrowserRouter([
     element: (
       <Protected authentication>
         <MainLayout>
-          <UnderConstructionPage />
+          <CustomSideBarMenu>
+            <UnderConstructionPage />
+          </CustomSideBarMenu>{" "}
         </MainLayout>
       </Protected>
     ),
