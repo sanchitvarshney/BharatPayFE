@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CgArrowTopRight } from "react-icons/cg";
 // import { Star } from "lucide-react";
 import MuiTooltip from "../reusable/MuiTooltip";
@@ -53,15 +53,17 @@ const renderMenu = (
                     </MuiTooltip>
                   )}
                   {isExpanded && (
-                    <AccordionTrigger className="w-[100%] py-1 m-0 leading-none hover:no-underline">
+                    <AccordionTrigger
+                      className={`w-[100%] py-1 m-0 leading-none hover:no-underline  rounded-md  ${
+                        isExpanded ? "hover:bg-cyan-100" : ""
+                      }`}
+                    >
                       <MuiTooltip
                         title={!isExpanded ? item?.name : ""}
                         placement="right"
                       >
                         <div
-                          className={`w-full p-1 flex items-center  cursor-pointer ${
-                            isExpanded ? "hover:bg-cyan-300" : ""
-                          } rounded-md `}
+                          className={`w-full p-1 flex items-center  cursor-pointer  rounded-md `}
                         >
                           <div className={`flex items-center  `}>
                             {isNew ? (
@@ -88,7 +90,7 @@ const renderMenu = (
                     </AccordionTrigger>
                   )}
                   {isExpanded && item?.children && (
-                    <AccordionContent className="px-4 mt-2 border-l-2 border-cyan-600 bg-#fff-300 rounded">
+                    <AccordionContent className="px-4 mt-1 border-l-2 border-cyan-600 bg-#fff-300 rounded">
                       {renderMenu(
                         item.children,
                         isExpanded,
@@ -157,15 +159,16 @@ interface CustomSideBarMenuProps {
 
 const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
   const { menu, menuLoading } = useAppSelector((state) => state.menu);
+  const navigate = useNavigate();
 
   const [isExpanded, setIsExpanded] = useState(false);
   return (
-    <div className=" w-full h-[calc(100vh-50px)] bg-#ffffff-600 flex flex-col bg-gradient-to-t from-cyan-400 to-cyan-100">
+    <div className=" w-full h-[calc(100vh-50px)]  flex flex-col bg-gradient-to-t from-cyan-400 to-cyan-100">
       <div className="z-3 h-[calc(100vh-50px)] flex justify-center items-center ">
         <div
-          className={` h-[90%] ${
-            isExpanded ? "w-[350px] p-2 items-center" : "w-[80px] items-center "
-          } flex flex-col justify-between py-0 transition-all duration-500 ease-in-out overflow-y-auto bg-#ffffff-600  bg-gradient-to-t from-cyan-400 to-cyan-100`}
+          className={` h-[98%] ${
+            isExpanded ? "w-[360px] p-0 items-center" : "w-[80px] items-center "
+          } flex flex-col justify-between py-0 transition-all duration-100 ease-in-out   bg-gradient-to-t from-cyan-400 to-cyan-100`}
         >
           {menuLoading ? (
             <Box
@@ -179,19 +182,22 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
             </Box>
           ) : (
             <>
-              <div>
+              <div className="overflow-y-auto p-1">
                 {" "}
+                {/* <Link to={"/"}> */}
                 <div
                   className={`flex justify-between items-center p-1 pl-1   rounded-md  ${
                     isExpanded && "mb-5 hover:bg-cyan-300 "
                   }`}
+                  onClick={() => {
+                    navigate("/");
+                  }}
                 >
                   <MuiTooltip
                     title={!isExpanded ? "Dashboard" : ""}
                     placement="right"
                   >
-                    <NavLink
-                      to={"/"}
+                    <div
                       className={`flex gap-[10px] items-center   ${
                         isExpanded ? "p-0 mb-0" : "mb-5 "
                       } `}
@@ -204,13 +210,33 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
                       ) : (
                         ""
                       )}
-                    </NavLink>
+                    </div>
                   </MuiTooltip>
                 </div>
+                {/* </Link> */}
                 {renderMenu(menu, isExpanded, setIsExpanded, true)}
               </div>
             </>
           )}
+          <div
+            className={`mt-4  flex  ${
+              isExpanded ? "self-end mr-2" : "self-center"
+            }`}
+          >
+            <MuiTooltip title="Expend" placement="right">
+              <div
+                onClick={() => setIsExpanded(!isExpanded)}
+                className={`  cursor-pointer rounded transition`}
+              >
+                <IoIosOpen
+                  size={26}
+                  className={`transform transition-transform duration-100  ${
+                    isExpanded ? "rotate-180" : ""
+                  } `}
+                />
+              </div>
+            </MuiTooltip>
+          </div>
         </div>
 
         <div
@@ -219,21 +245,7 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
           {children}
         </div>
       </div>
-      <MuiTooltip title="Expend" placement="right">
-        <div
-          onClick={() => setIsExpanded(!isExpanded)}
-          className={` position: relative bottom-7 ml-5  cursor-pointer rounded transition`}
-        >
-          <IoIosOpen
-            size={26}
-            className={`transform transition-transform duration-100  ${
-              isExpanded ? "rotate-180" : ""
-            }`}
-          />
-        </div>
-      </MuiTooltip>
     </div>
-    // </div>
   );
 };
 
