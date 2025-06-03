@@ -69,7 +69,7 @@ const DynamicIcon: React.FC<IconProps> = ({
   // Select the icon if it exists, otherwise fall back to the default icon
   const IconComponent = Icons[name as keyof typeof Icons] || HelpOutlineIcon;
 
-  return <IconComponent fontSize={size}  className= { `hover:no-underline ${isExpended ? "hover:text-black-700":"hover:text-cyan-700"} `} />;
+  return <IconComponent fontSize={size}  className= { `hover:no-underline ${isExpended ? "hover:text-black-700":"hover:text-white-700"} `} />;
 };
 
 export default DynamicIcon;

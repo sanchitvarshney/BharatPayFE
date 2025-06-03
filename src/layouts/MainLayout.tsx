@@ -113,7 +113,7 @@ function MainLayout(props: { children: React.ReactNode }) {
             import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV"
               ? "bg-amber-300"
               : "bg-neutral-300"
-          }`}
+          } bg-gradient-to-l from-cyan-400 to-cyan-100`}
         >
           <div className="ml-4">
             <MenuBreadcrumb />

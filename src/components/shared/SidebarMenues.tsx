@@ -196,7 +196,7 @@ const SidebarMenues: React.FC<Props> = ({ uiState }) => {
                       </a>
                     </div>
                     <Separator className="bg-slate-200 text-slate-200" />
-                    <ul className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">
+                   <ul  className="p-[10px] overflow-y-auto h-[calc(100vh-170px)] scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 flex flex-col gap-[10px] ">
                       {renderMenu(item.children, setSheetOpen)}
                     </ul>
                   </div>
