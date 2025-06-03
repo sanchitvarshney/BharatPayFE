@@ -32,7 +32,7 @@ const renderMenu = (
                 value={`${index + item.name}`}
                 className="border-0 w-full transition-all duration-100"
               >
-                <div className="flex flex-col">
+                <div className="flex flex-col px-2">
                   {!isExpanded && (
                     <MuiTooltip
                       title={!isExpanded ? item?.name : ""}
@@ -108,8 +108,8 @@ const renderMenu = (
               >
                 <div
                   key={item?.id}
-                  className={`flex items-center justify-between w-full ${
-                    isExpanded && "hover:bg-cyan-300"
+                  className={`flex items-center justify-between w-full px-3 ${
+                    isExpanded && "hover:bg-cyan-100"
                   } rounded-md p-1`}
                 >
                   <Link
@@ -166,7 +166,7 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
     <div className=" w-full h-[calc(100vh-50px)]  flex flex-col bg-gradient-to-t from-cyan-400 to-cyan-100">
       <div className="z-3 h-[calc(100vh-50px)] flex justify-center items-center ">
         <div
-          className={` h-[98%] ${
+          className={` h-[95%] ${
             isExpanded ? "w-[360px] p-0 items-center" : "w-[80px] items-center "
           } flex flex-col justify-between py-0 transition-all duration-100 ease-in-out   bg-gradient-to-t from-cyan-400 to-cyan-100`}
         >
@@ -182,12 +182,12 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
             </Box>
           ) : (
             <>
-              <div className="overflow-y-auto p-1">
+              <div className="overflow-y-auto custom-scrollbar-for-menu p-1">
                 {" "}
                 {/* <Link to={"/"}> */}
                 <div
                   className={`flex justify-between items-center p-1 pl-1   rounded-md  ${
-                    isExpanded && "mb-5 hover:bg-cyan-300 "
+                    isExpanded && "mb-5 hover:bg-cyan-100 "
                   }`}
                   onClick={() => {
                     navigate("/");
@@ -198,8 +198,8 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
                     placement="right"
                   >
                     <div
-                      className={`flex gap-[10px] items-center   ${
-                        isExpanded ? "p-0 mb-0" : "mb-5 "
+                      className={`flex gap-[10px] items-center px-2  ${
+                        isExpanded ? "px-0 mb-0" : "mb-5 "
                       } `}
                     >
                       <MdHome size={26} />
@@ -220,7 +220,7 @@ const CustomSideBarMenu: React.FC<CustomSideBarMenuProps> = ({ children }) => {
           )}
           <div
             className={`mt-4  flex  ${
-              isExpanded ? "self-end mr-2" : "self-center"
+              isExpanded ? "self-end mr-2" : "self-center "
             }`}
           >
             <MuiTooltip title="Expend" placement="right">
