@@ -11,7 +11,6 @@ import {
   createTransferRequest,
   getPertCodesync,
 } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { getCurrency } from "@/features/common/commonSlice";
 import {
   Divider,
   InputLabel,
@@ -25,6 +24,9 @@ import {
   MenuItem,
   OutlinedInput,
   Paper,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -38,6 +40,7 @@ import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 import SelectDeviceWithType from "@/components/reusable/SelectDeviceWithType";
 import axiosInstance from "@/api/axiosInstance";
 import ManageBranchTransfer from "./ManageBranchTransfer";
+import ComponentTable from "@/pages/branchTransfer/ComponentTable";
 
 type FormData = {
   product: DeviceType | null;
@@ -54,6 +57,14 @@ type FormData = {
   toLocationAddress: string;
   fromLocationName: string;
   toLocationName: string;
+  mode: string;
+  referenceNumber: string;
+  otherTerms: string;
+  termsOfDelivery: string;
+  docNo: string;
+  dispatchThrough: string;
+  destination: string;
+  transferType: string;
 };
 
 const CreateBranchTransferPage: React.FC = () => {
@@ -63,6 +74,7 @@ const CreateBranchTransferPage: React.FC = () => {
   const [dispatchNo, setDispatchNo] = useState<string>("");
   const [fromLocationList, setFromLocationList] = useState<any[]>([]);
   const [toLocationList, setToLocationList] = useState<any[]>([]);
+  const [componentsRowData, setComponentsRowData] = useState<any[]>([]);
   const dispatch = useAppDispatch();
   const { branchList } = useAppSelector((state) => state.dispatch);
   const { transferRequestLoading } = useAppSelector(
@@ -89,6 +101,13 @@ const CreateBranchTransferPage: React.FC = () => {
       toLocationAddress: "",
       fromLocationName: "",
       toLocationName: "",
+      mode: "",
+      referenceNumber: "",
+      otherTerms: "",
+      termsOfDelivery: "",
+      docNo: "",
+      dispatchThrough: "",
+      transferType: "",
     },
   });
 
@@ -140,6 +159,13 @@ const CreateBranchTransferPage: React.FC = () => {
         product: data.product?.id || "",
         type: data.type,
         qty: data.quantity,
+        mode: data.mode,
+        referenceNumber: data.referenceNumber,
+        otherTerms: data.otherTerms,
+        termsOfDelivery: data.termsOfDelivery,
+        docNo: data.docNo,
+        dispatchThrough: data.dispatchThrough,
+        destination: data.destination,
       })
     ).then((res: any) => {
       if (res.payload?.data.success) {
@@ -157,7 +183,6 @@ const CreateBranchTransferPage: React.FC = () => {
 
   useEffect(() => {
     dispatch(getPertCodesync(null));
-    dispatch(getCurrency());
     dispatch(getDispatchFromDetail());
     dispatch(getAllBranch());
   }, []);
@@ -605,14 +630,216 @@ const CreateBranchTransferPage: React.FC = () => {
                   )}
                 </div>
               </div>
+              <div
+                id="primary-item-details"
+                className="flex items-center w-full gap-3"
+              >
+                <div className="flex items-center gap-[5px]">
+                  <Icons.detail />
+                  <h2
+                    id="primary-item-details"
+                    className="text-lg font-semibold"
+                  >
+                    DC Terms
+                  </h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                 <Controller
+                  name="mode"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Mode / Terms and Conditions</InputLabel>
+                      <OutlinedInput
+                        fullWidth
+                        {...field}
+                        value={field.value}
+                        type="text"
+                        label="Mode / Terms and Conditions"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                />
+                 <Controller
+                  name="referenceNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Reference Number & Date</InputLabel>
+                      <OutlinedInput
+                        fullWidth
+                        {...field}
+                        value={field.value}
+                            type="text"
+                        label="Reference Number & Date"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                />
+                 <Controller
+                  name="otherTerms"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Other Terms</InputLabel>
+                      <OutlinedInput
+                        fullWidth
+                        {...field}
+                        value={field.value}
+                        type="text"
+                        label="Other Terms"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                />
+                 <Controller
+                  name="termsOfDelivery"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Terms of Delivery</InputLabel>
+                      <OutlinedInput
+                        fullWidth
+                          {...field}
+                        value={field.value}
+                        type="text"
+                        label="Terms of Delivery"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                />
+                 <Controller
+                  name="docNo"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Dispatch Doc Number</InputLabel>
+                      <OutlinedInput
+                        fullWidth
+                        {...field}
+                        value={field.value}
+                        type="text"
+                        label="Dispatch Doc Number"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                />
+                 <Controller
+                  name="dispatchThrough"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Dispatch Through</InputLabel>
+                      <OutlinedInput
+                        fullWidth
+                        {...field}
+                        value={field.value}
+                        type="text"
+                        label="Dispatch Through"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                />
+                 <Controller
+                  name="destination"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Destination</InputLabel>
+                      <OutlinedInput
+                        fullWidth
+                          {...field}
+                        value={field.value}
+                        type="text"
+                        label="Destination"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                />
+                <Controller
+                  name="transferType"
+                  control={control}
+                  rules={{ required: "Transfer type is required" }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.transferType}
+                      component="fieldset"
+                    >
+                      <Typography variant="subtitle1" className="mb-2">
+                      Transfer Type
+                      </Typography>
+                      <RadioGroup
+                        row
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      >
+                        <FormControlLabel
+                          value="device"
+                          control={<Radio />}
+                          label="Device"
+                        />
+                        <FormControlLabel
+                          value="component"
+                          control={<Radio />}
+                          label="Component"
+                        />
+                      </RadioGroup>
+                      {errors.transferType && (
+                        <FormHelperText error>
+                          {errors.transferType.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+                
+              </div>
             </div>
           )}
           {activeStep === 1 && (
-            <ManageBranchTransfer
+            <>
+
+            {watch("transferType")==="device" ? <ManageBranchTransfer
               formData={watch()}
               rowData={rowData}
               setRowData={setRowData}
-            />
+            />:
+             <div className="h-[calc(100vh-200px)]   ">
+              <ComponentTable
+                rowData={componentsRowData}
+                setRowData={setComponentsRowData}
+              />
+            </div>}
+            </>
           )}
           {activeStep === 2 && (
             <div className="h-[calc(100vh-200px)] flex items-center justify-center">
