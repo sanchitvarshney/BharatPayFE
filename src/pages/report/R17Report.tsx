@@ -12,6 +12,8 @@ import { getR17Data } from "@/features/report/report/reportSlice";
 import { useSocketContext } from "@/components/context/SocketContext";
 import R17ReportTable from "@/table/report/R17ReportTable";
 import SelectDeviceWithType from "@/components/reusable/SelectDeviceWithType";
+import { FormControl, MenuItem, Select } from "@mui/material";
+import SelectComponent from "@/components/reusable/SelectComponent";
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const dateFormat = "DD-MM-YYYY";
@@ -21,31 +23,40 @@ const R17Report: React.FC = () => {
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [pageSize, setPageSize] = useState(10);
   const [device, setDevice] = useState<any>(null);
-  const { emitDownloadR17Report, } = useSocketContext();
+  const [filterType, setFilterType] = useState<string>("DEVICE");
+  const { emitDownloadR17Report } = useSocketContext();
 
   const dispatch = useAppDispatch();
-  const { getR17DataLoading } = useAppSelector(
-    (state) => state.report
-  );
+  const { getR17DataLoading } = useAppSelector((state) => state.report);
 
   const handleDownload = () => {
     if (!date?.from || !date?.to) {
       showToast("Please select a date range", "error");
       return;
     }
-    emitDownloadR17Report({ from: date.from, to: date.to });
+    emitDownloadR17Report({ from: date.from, to: date.to, device: device?.id, type: filterType });
   };
 
   const handlePageChange = (newPage: number) => {
     if (date) {
-      dispatch(getR17Data({ ...date, page: newPage, limit: pageSize, device: device?.id }));
+      dispatch(
+        getR17Data({
+          ...date,
+          page: newPage,
+          limit: pageSize,
+          device: device?.id,
+          type: filterType,
+        })
+      );
     }
   };
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     if (date) {
-      dispatch(getR17Data({ ...date, page: 1, limit: size, device: device?.id }));
+      dispatch(
+        getR17Data({ ...date, page: 1, limit: size, device: device?.id, type: filterType })
+      );
     }
   };
 
@@ -74,7 +85,24 @@ const R17Report: React.FC = () => {
         </div>
 
         <div className="flex flex-col p-[20px] gap-[20px] mt-[20px] overflow-hidden">
-        <SelectDeviceWithType value={device} onChange={setDevice} type="swipeMachine"/>
+          <FormControl fullWidth>
+            <Select
+              value={filterType}
+              onChange={(e) => {setFilterType(e.target.value)
+                setDevice(null)
+              }}
+            >
+              <MenuItem value="DEVICE">Device</MenuItem>
+              <MenuItem value="PART">Part</MenuItem>
+            </Select>
+          </FormControl>
+           {filterType === "DEVICE" ? <SelectDeviceWithType
+              value={device}
+              onChange={setDevice}
+              type="swipeMachine"
+            /> :    <div>
+            <SelectComponent value={device} onChange={(e) => setDevice(e)} label="Select Part" />
+          </div>}
           <RangePicker
             className="h-[50px] rounded-sm border-[2px]"
             value={[
@@ -104,9 +132,15 @@ const R17Report: React.FC = () => {
               onClick={() => {
                 if (!date) {
                   showToast("Please select a date range", "error");
-                } else {  
+                } else {
                   dispatch(
-                    getR17Data({ ...date, page: 1, limit: pageSize, device: device?.id })
+                    getR17Data({
+                      ...date,
+                      page: 1,
+                      limit: pageSize,
+                      device: device?.id,
+                      type: filterType,
+                    })
                   ).then((res: any) => {
                     if (res.payload?.data?.status === "success") {
                       showToast("Report loaded successfully", "success");

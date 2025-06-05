@@ -31,6 +31,8 @@ const R2Report: React.FC = () => {
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [reportType, setReportType] = useState<string>("consumption");
   const [open, setOpen] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const { emitDownloadR2Report, onDownloadReport } = useSocketContext();
 
   const dispatch = useAppDispatch();
@@ -47,6 +49,16 @@ const R2Report: React.FC = () => {
       // showToast("Report downloaded successfully", "success");
     });
   }, [onDownloadReport]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    dispatch(getR2Data({ from: date?.from || "", to: date?.to || "", type: reportType, page: page, limit: pageSize }));
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    dispatch(getR2Data({ from: date?.from || "", to: date?.to || "", type: reportType, page: currentPage, limit: pageSize }));
+  };
 
   return (
     <>
@@ -128,6 +140,8 @@ const R2Report: React.FC = () => {
                         from: date.from,
                         to: date.to,
                         type: reportType,
+                        page: currentPage,
+                        limit: pageSize,
                       })
                     ).then((res: any) => {
                       if (res.payload?.data?.status === "success") {
@@ -164,7 +178,7 @@ const R2Report: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <R2ReportTable setOpen={setOpen} />
+          <R2ReportTable setOpen={setOpen} pageSize={pageSize} handlePageChange={handlePageChange} handlePageSizeChange={handlePageSizeChange} />
         </div>
       </div>
     </>

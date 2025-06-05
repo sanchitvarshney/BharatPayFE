@@ -73,6 +73,12 @@ const R17ReportTable: React.FC<R17ReportTableProps> = ({
         flex: 1,
         minWidth: 120,
       },
+      {
+        field: "remark",
+        headerName: "Remark",
+        flex: 1,
+        minWidth: 180,
+      },
       ...Array.from({ length: 21 }, (_, i) => {
         const questionNumber = i + 1;
         const question = r17Report?.data?.[0]?.questions?.find(

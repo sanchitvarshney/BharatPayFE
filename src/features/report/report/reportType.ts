@@ -63,6 +63,11 @@ export type R2Response = {
   status: string;
   success: boolean;
   data: R2ReportData[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  };
 };
 
 // Type for Device Issue
@@ -106,6 +111,11 @@ export type r3reportResponse = {
   code: number;
   status: string;
   data: r3report[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  };
 };
 
 export type R4ReportResponse = {
@@ -299,11 +309,11 @@ export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
   getR2DataLoading: boolean;
-  r2Data: R2ReportData[] | null;
+  r2Data: R2Response | null;
   r2ReportDetail: DeviceRequestApiResponse | null;
   r2ReportDetailLoading: boolean;
   refId: string | null;
-  r3report: r3report[] | null;
+  r3report: r3reportResponse | null;
   r3reportLoading: boolean;
   r4report: R4Report[] | null;
   r4reportLoading: boolean;

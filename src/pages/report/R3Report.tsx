@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -12,6 +12,7 @@ import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
+import { useSocketContext } from "@/components/context/SocketContext";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
@@ -24,6 +25,9 @@ const R3Report: React.FC = () => {
     from: null,
     to: null,
   });
+  const [pageSize, setPageSize] = useState<number>(10);
+  const { emitDownloadR3Report } = useSocketContext();
+
   const gridRef = useRef<AgGridReact<any>>(null);
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
@@ -33,11 +37,24 @@ const R3Report: React.FC = () => {
       setDate({ from: null, to: null });
     }
   };
-  const onBtExport = useCallback(() => {
-    gridRef.current!.api.exportDataAsExcel({
-      sheetName: "R3 Report", // Set your desired sheet name here
-    });
-  }, []);
+
+  const handlePageChange = (page: number) => {
+    dispatch(getr3Report({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), page: page, limit: pageSize }));
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    dispatch(getr3Report({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), page: 1, limit: pageSize }));
+  };
+  const handleDownload = () => {
+    emitDownloadR3Report({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") });
+  };
+
+  // const onBtExport = useCallback(() => {
+  //   gridRef.current!.api.exportDataAsExcel({
+  //     sheetName: "R3 Report", // Set your desired sheet name here
+  //   });
+  // }, []);
 
   return (
     <div className="bg-white h-[calc(100vh-100px)] flex relative">
@@ -67,7 +84,7 @@ const R3Report: React.FC = () => {
                 if (!date.from || !date.to) {
                   showToast("Select date range", "error");
                 } else {
-                  dispatch(getr3Report({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                  dispatch(getr3Report({ from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), page: 1, limit: pageSize }));
                 }
               }}
             >
@@ -77,13 +94,7 @@ const R3Report: React.FC = () => {
               <LoadingButton
                 variant="contained"
                 disabled={!r3report}
-                onClick={() => {
-                  if (!date) {
-                    showToast("Select date range", "error");
-                  } else {
-                    onBtExport();
-                  }
-                }}
+                onClick={handleDownload}
                 color="primary"
                 style={{
                   borderRadius: "50%",
@@ -102,7 +113,7 @@ const R3Report: React.FC = () => {
         </div>
       </div>
       <div className="w-full">
-        <R3ReportTable gridRef={gridRef} />
+        <R3ReportTable gridRef={gridRef} handlePageChange={handlePageChange} handlePageSizeChange={handlePageSizeChange} pageSize={pageSize} />
       </div>
     </div>
   );

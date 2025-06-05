@@ -116,12 +116,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                 <SelectValue placeholder={pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
-                {[10, 20, 30, 40, 50].map((size) => (
+                {[10, 20, 30, 40, 50,100].map((size) => (
                   <SelectItem key={size} value={size.toString()}>
                     {size}
                   </SelectItem>
                 ))}
-                <SelectItem value="custom">Custom</SelectItem>
+                {/* <SelectItem value="custom">Custom</SelectItem> */}
               </SelectContent>
             </Select>
           )}
