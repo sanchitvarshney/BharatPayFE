@@ -10,12 +10,13 @@ import { r4ReportDetail } from "@/features/report/report/reportSlice";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  deviceType: string;
 };
 
 // Define new column definitions
 
 // Generate dummy data according to pagination needs
-const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen }) => {
+const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen, deviceType }) => {
   const dispatch = useAppDispatch();
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
@@ -40,7 +41,7 @@ const R4ReportTable: React.FC<Props> = ({ gridRef, setOpen }) => {
         <Button
           onClick={() => {
             setOpen(true);
-            dispatch(r4ReportDetail(params.data.prodductionId));
+            dispatch(r4ReportDetail({query:params.data.prodductionId,deviceType:deviceType}));
           }}
           variant="contained"
           size="small"

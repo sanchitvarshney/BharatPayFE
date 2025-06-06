@@ -136,9 +136,9 @@ export const getr4Report = createAsyncThunk<
 });
 export const r4ReportDetail = createAsyncThunk<
   AxiosResponse<r4reportDetailDataResponse>,
-  string
+  {query:string,deviceType:string}
 >("report/r4ReportDetail", async (query) => {
-  const response = await axiosInstance.get(`/report/r4/consumed/${query}`);
+  const response = await axiosInstance.get(`/report/r4/consumed/${query.query}?deviceType=${query.deviceType}`);
   return response;
 });
 

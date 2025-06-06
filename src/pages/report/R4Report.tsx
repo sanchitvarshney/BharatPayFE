@@ -369,7 +369,7 @@ const R4Report: React.FC = () => {
           </div>
         </div>
         <div className="w-full ">
-          <R4ReportTable setOpen={setOpen} gridRef={gridRef} />
+          <R4ReportTable setOpen={setOpen} gridRef={gridRef} deviceType={deviceType === "soundbox" ? "soundBox" : "swipeMachine"}/>
         </div>
       </div>
     </>
