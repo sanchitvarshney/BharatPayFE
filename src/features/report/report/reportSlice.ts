@@ -312,7 +312,7 @@ export const getR18Data = createAsyncThunk(
   async (params: { from: string; to: string; page: number; limit: number }) => {
     try {
       const response = await axiosInstance.get(
-        `/swipeMachine/rejectionReport?fromDate=${params.from}&toDate=${params.to}&page=${params.page}&limit=${params.limit}`
+        `/report/swipemachine/rejectionReport?startDate=${params.from}&endDate=${params.to}&page=${params.page}&limit=${params.limit}`
       );
       return response.data;
     } catch (error) {

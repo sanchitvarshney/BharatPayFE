@@ -6,12 +6,6 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomPagination from "@/components/reusable/CustomPagination";
 
-interface Question {
-  questionId: string;
-  question: string;
-  answer: string;
-}
-
 interface R18ReportTableProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
@@ -37,41 +31,21 @@ const R18ReportTable: React.FC<R18ReportTableProps> = ({
         maxWidth: 100,
       },
       {
-        field: "productName",
-        headerName: "Product Name",
-        flex: 1,
-        minWidth: 150,
-      },
-      {
-        field: "productCode",
-        headerName: "Product Code",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
         field: "serial",
         headerName: "Serial Number",
         flex: 1,
-        minWidth: 150,
+        minWidth: 180,
       },
       {
-        field: "imei_no1",
-        headerName: "IMEI 1",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "imei_no2",
-        headerName: "IMEI 2",
-        flex: 1,
-        minWidth: 120,
-      },
-
-      {
-        field: "date",
+        field: "insert_dt",
         headerName: "Date",
         flex: 1,
-        minWidth: 120,
+        minWidth: 180,
+        valueFormatter: (params) => {
+          if (!params.value) return "--";
+          const date = new Date(params.value);
+          return date.toLocaleString();
+        },
       },
       {
         field: "remark",
@@ -79,26 +53,18 @@ const R18ReportTable: React.FC<R18ReportTableProps> = ({
         flex: 1,
         minWidth: 180,
       },
-      ...Array.from({ length: 21 }, (_, i) => {
-        const questionNumber = i + 1;
-        const question = r18Report?.data?.[0]?.questions?.find(
-          (q: Question) => String(q.questionId) === String(questionNumber)
-        );
-        return {
-          field: `question_${questionNumber}`,
-          headerName: question?.question || `Question ${questionNumber}`,
-          flex: 1,
-          minWidth: 200,
-          valueGetter: (params: any) => {
-            const question = params.data.questions.find(
-              (q: Question) => String(q.questionId) === String(questionNumber)
-            );
-            return question?.answer || "--";
-          },
-        };
-      }),
+      ...(r18Report?.question || []).map((question: string, index: number) => ({
+        field: `question_${index + 1}`,
+        headerName: question,
+        flex: 1,
+        minWidth: 120,
+        valueGetter: (params: any) => {
+          const qA = params.data.qA || [];
+          return qA.includes(question) ? "YES" : "NO";
+        },
+      })),
     ],
-    [r18Report?.data]
+    [r18Report?.question]
   );
 
   const defaultColDef = useMemo(
