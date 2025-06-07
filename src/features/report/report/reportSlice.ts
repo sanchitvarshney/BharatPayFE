@@ -74,6 +74,8 @@ const initialState: ReportStateType = {
   swipeItemDetailsLoading:false,
   transferReportLoading: false,
   transferReport: null,
+  getR18DataLoading: false,
+  r18Report: null,
 };
 
 export const getR1Data = createAsyncThunk<
@@ -297,6 +299,20 @@ export const getR17Data = createAsyncThunk(
     try {
       const response = await axiosInstance.get(
         `/swipeMachine/report?startDate=${params.from}&endDate=${params.to}&page=${params.page}&limit=${params.limit}&device=${params.device}&type=${params.type}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+export const getR18Data = createAsyncThunk(
+  "report/getR18Data",
+  async (params: { from: string; to: string; page: number; limit: number }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/swipeMachine/rejectionReport?fromDate=${params.from}&toDate=${params.to}&page=${params.page}&limit=${params.limit}`
       );
       return response.data;
     } catch (error) {
@@ -636,6 +652,20 @@ const reportSlice = createSlice({
       })
       .addCase(getR17Data.rejected, (state) => {
         state.getR17DataLoading = false;
+      })
+       .addCase(getR18Data.pending, (state) => {
+        state.getR18DataLoading = true;
+      })
+      .addCase(getR18Data.fulfilled, (state, action) => {
+        state.getR18DataLoading = false;
+        state.r18Report = action.payload;
+        state.r17ReportDateRange = {
+          from: action.meta.arg.from,
+          to: action.meta.arg.to,
+        };
+      })
+      .addCase(getR18Data.rejected, (state) => {
+        state.getR18DataLoading = false;
       });
   },
 });

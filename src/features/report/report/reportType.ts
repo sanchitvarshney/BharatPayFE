@@ -379,6 +379,8 @@ export type ReportStateType = {
   swipeItemDetailsLoading:boolean
   transferReportLoading: boolean;
   transferReport: any | null;
+  getR18DataLoading: boolean;
+  r18Report:any;
 };
 
 export interface R16ReportResponse {

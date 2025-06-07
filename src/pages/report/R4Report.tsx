@@ -119,8 +119,11 @@ const R4Report: React.FC = () => {
             fontWeight={500}
             fontSize={18}
           >
-            {r4ReportDetail &&
-              `#${r4ReportDetail?.productionData?.productImei}`}
+            {r4ReportDetail && 
+              `#${r4ReportDetail?.productionData?.productImei !== "--" 
+                ? r4ReportDetail?.productionData?.productImei 
+                : r4ReportDetail?.productionData?.productSrlNo}`}
+              
             {r4ReportDetailLoading && (
               <Skeleton className="h-[30px] w-[300px]" />
             )}
