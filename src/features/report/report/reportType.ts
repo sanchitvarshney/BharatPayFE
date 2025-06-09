@@ -335,7 +335,7 @@ export type ReportStateType = {
         qr_url: string | null;
       }[]
     | null;
-  mainR1Report: MainR1Report[] | null;
+  mainR1Report: any;
   mainR1ReportLoading: boolean;
   r6Report: r6report[] | null;
   wrongDeviceReport: any | null;
