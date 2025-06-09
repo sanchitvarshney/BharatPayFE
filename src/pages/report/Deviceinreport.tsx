@@ -351,7 +351,7 @@ const Deviceinreport: React.FC = () => {
                           minWidth: 0,
                           padding: 0,
                         }}
-                        onClick={() => handleDownload()}
+                        onClick={handleDownload}
                         size="small"
                         sx={{ zIndex: 1 }}
                       >
