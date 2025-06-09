@@ -381,6 +381,10 @@ export type ReportStateType = {
   transferReport: any | null;
   getR18DataLoading: boolean;
   r18Report:any;
+  paginationDateRange: {
+    from: string | null;
+    to: string | null;
+  };
 };
 
 export interface R16ReportResponse {

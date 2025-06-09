@@ -76,6 +76,10 @@ const initialState: ReportStateType = {
   transferReport: null,
   getR18DataLoading: false,
   r18Report: null,
+  paginationDateRange: {
+    from: null,
+    to: null,
+  },
 };
 
 export const getR1Data = createAsyncThunk<
@@ -89,12 +93,12 @@ export const getR1Data = createAsyncThunk<
 });
 export const getMainR1Data = createAsyncThunk<
   AxiosResponse<MainR1ReportResponse>,
-  { type: "min" | "date"; data: string; from: string; to: string }
+  { type: any; data: string; from: string; to: string; page: number; limit: number }
 >("report/mainR1Data", async (payload) => {
   const response = await axiosInstance.get(
     payload.type === "min"
-      ? `/report/r1?type=min&data=${payload.data}`
-      : `/report/r1?type=date&from=${payload.from}&to=${payload.to}`
+      ? `/report/r1?type=min&data=${payload.data}&page=${payload.page}&limit=${payload.limit}`
+      : `/report/r1?type=date&from=${payload.from}&to=${payload.to}&page=${payload.page}&limit=${payload.limit}`
   );
   return response;
 });
@@ -384,7 +388,7 @@ const reportSlice = createSlice({
       .addCase(getMainR1Data.fulfilled, (state, action) => {
         state.mainR1ReportLoading = false;
         if (action.payload.data.success) {
-          state.mainR1Report = action.payload.data.data;
+          state.mainR1Report = action.payload.data;
         }
       })
       .addCase(updatePhysicalQuantity.pending, (state) => {

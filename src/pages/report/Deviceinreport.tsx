@@ -40,6 +40,9 @@ const Deviceinreport: React.FC = () => {
     from: null,
     to: null,
   });
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState<number>(1);
+
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
   const { r1Data, mainR1ReportLoading, mainR1Report } = useAppSelector((state) => state.report);
@@ -52,6 +55,15 @@ const Deviceinreport: React.FC = () => {
         sheetName: "R1 Report", // Set your desired sheet name here
       });
   }, [mainR1Report]);
+
+  const handlePageChange = (page: number) => {
+    dispatch(getMainR1Data({ type: "date", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), data: "", page: page, limit: pageSize }));
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    dispatch(getMainR1Data({ type: "date", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), data: "", page: page, limit: size }));
+  };
 
   return (
     <>
@@ -176,7 +188,7 @@ const Deviceinreport: React.FC = () => {
                         if (!date.from || !date.to) {
                           showToast("Please select date range", "error");
                         } else {
-                          dispatch(getMainR1Data({ type: "date", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), data: "" }));
+                          dispatch(getMainR1Data({ type: "date", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), data: "", page: 1, limit: pageSize }));
                         }
                       }}
                       variant="contained"
@@ -303,7 +315,7 @@ const Deviceinreport: React.FC = () => {
                       loading={mainR1ReportLoading}
                       onClick={() => {
                         if (min) {
-                          dispatch(getMainR1Data({ type: "min", data: min, from: "", to: "" })).then((response: any) => {
+                          dispatch(getMainR1Data({ type: "min", data: min, from: "", to: "", page: 1, limit: pageSize })).then((response: any) => {
                             if (response.payload?.data?.success) {
                             }
                           });
@@ -341,7 +353,9 @@ const Deviceinreport: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <R1reportTable gridRef={gridRef} setMin={setMin} setOpen={setDetail} />
+          <R1reportTable gridRef={gridRef} setMin={setMin} setOpen={setDetail}  onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize} />
         </div>
       </div>
     </>
