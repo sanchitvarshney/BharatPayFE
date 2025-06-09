@@ -57,6 +57,7 @@ const Deviceinreport: React.FC = () => {
   }, [mainR1Report]);
 
   const handlePageChange = (page: number) => {
+    setPage(page);
     dispatch(getMainR1Data({ type: "date", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY"), data: "", page: page, limit: pageSize }));
   };
 
