@@ -57,6 +57,7 @@ const R4Report: React.FC = () => {
     to: null,
   });
   const [open, setOpen] = React.useState(false);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const handleClose = () => {
     setOpen(false);
@@ -95,6 +96,32 @@ const R4Report: React.FC = () => {
       sheetName: "R3 Report", // Set your desired sheet name here
     });
   }, []);
+
+  const handlePageChange = (page: number) => {
+    dispatch(
+      getr4Report({
+        type: "DATE",
+        from: dayjs(date.from).format("DD-MM-YYYY"),
+        to: dayjs(date.to).format("DD-MM-YYYY"),
+        deviceType,
+        limit: page,
+        page: 1,
+      })
+    );
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    dispatch(
+      getr4Report({
+        type: "DATE",
+        from: dayjs(date.from).format("DD-MM-YYYY"),
+        to: dayjs(date.to).format("DD-MM-YYYY"),
+        page: 1,
+        limit: pageSize,
+      })
+    );
+  };
   return (
     <>
       <Dialog
@@ -119,11 +146,13 @@ const R4Report: React.FC = () => {
             fontWeight={500}
             fontSize={18}
           >
-            {r4ReportDetail && 
-              `#${r4ReportDetail?.productionData?.productImei !== "--" 
-                ? r4ReportDetail?.productionData?.productImei 
-                : r4ReportDetail?.productionData?.productSrlNo}`}
-              
+            {r4ReportDetail &&
+              `#${
+                r4ReportDetail?.productionData?.productImei !== "--"
+                  ? r4ReportDetail?.productionData?.productImei
+                  : r4ReportDetail?.productionData?.productSrlNo
+              }`}
+
             {r4ReportDetailLoading && (
               <Skeleton className="h-[30px] w-[300px]" />
             )}
@@ -318,6 +347,8 @@ const R4Report: React.FC = () => {
                             type: "DEVICE",
                             device: device?.id,
                             deviceType,
+                            limit: pageSize,
+                            page: 1,
                           })
                         );
                       }
@@ -332,6 +363,8 @@ const R4Report: React.FC = () => {
                             from: dayjs(date.from).format("DD-MM-YYYY"),
                             to: dayjs(date.to).format("DD-MM-YYYY"),
                             deviceType,
+                            limit: pageSize,
+                            page: 1,
                           })
                         );
                       }
@@ -372,7 +405,14 @@ const R4Report: React.FC = () => {
           </div>
         </div>
         <div className="w-full ">
-          <R4ReportTable setOpen={setOpen} gridRef={gridRef} deviceType={deviceType === "soundbox" ? "soundBox" : "swipeMachine"}/>
+          <R4ReportTable
+            setOpen={setOpen}
+            gridRef={gridRef}
+            deviceType={deviceType === "soundbox" ? "soundBox" : "swipeMachine"}
+            handlePageChange={handlePageChange}
+            handlePageSizeChange={handlePageSizeChange}
+            pageSize={pageSize}
+          />
         </div>
       </div>
     </>

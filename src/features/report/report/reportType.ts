@@ -122,6 +122,11 @@ export type R4ReportResponse = {
   success: boolean;
   status: string;
   data: R4Report[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  };
 };
 
 type R4Report = {
@@ -139,6 +144,8 @@ export type R4ReportQueryParams = {
   type: string;
   device?: string;
   deviceType?: string;
+  page?: number;
+  limit?: number;
 };
 
 export type r4reportDetailDataResponse = {
@@ -178,7 +185,12 @@ type R5report = {
 export type R5reportResponse = {
   status: string;
   success: boolean;
-  data: R5report[]; // Array of dispatch records
+  data: R5report[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  };
 };
 
 type MainR1Report = {
@@ -222,6 +234,11 @@ export type r6report = {
 export type r6reportApiResponse = {
   success: boolean;
   data: r6report[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  }
 };
 
 type R8ReportData = {
@@ -315,11 +332,11 @@ export type ReportStateType = {
   refId: string | null;
   r3report: r3reportResponse | null;
   r3reportLoading: boolean;
-  r4report: R4Report[] | null;
+  r4report:R4ReportResponse | null;
   r4reportLoading: boolean;
   r4ReportDetail: r4reportDetailData | null;
   r4ReportDetailLoading: boolean;
-  r5report: R5report[] | null;
+  r5report: R5reportResponse | null;
   r5reportLoading: boolean;
   r5reportDetailLoading: boolean;
   r5reportDetail:
@@ -337,7 +354,7 @@ export type ReportStateType = {
     | null;
   mainR1Report: any;
   mainR1ReportLoading: boolean;
-  r6Report: r6report[] | null;
+  r6Report: r6reportApiResponse| null;
   wrongDeviceReport: any | null;
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;

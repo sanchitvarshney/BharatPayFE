@@ -8,16 +8,20 @@ import { Button } from "@mui/material";
 import { useSocketContext } from "@/components/context/SocketContext";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { formatNumber } from "@/utils/numberFormatUtils";
+import CustomPagination from "@/components/reusable/CustomPagination";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setTxn: React.Dispatch<React.SetStateAction<string>>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (size: number) => void;
+  pageSize: number;
 };
 
 // Define new column definitions
 
 // Generate dummy data according to pagination needs
-const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
+const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, handlePageSizeChange, pageSize }) => {
   const { emitDownloadr5Report, emitDownloadWrongDeviceReport,emitDownloadSwipeReport } =
     useSocketContext();
   // const dispatch = useAppDispatch();
@@ -125,21 +129,29 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           loading={r5reportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
-          rowData={r5report ? r5report : []}
+          rowData={r5report?.data ||  []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true}
+          pagination={false}
           paginationPageSize={paginationPageSize}
           enableCellTextSelection
         />
       </div>
+       {r5report && <CustomPagination
+          currentPage={r5report?.pagination?.currentPage}
+          totalPages={r5report?.pagination?.totalPages}
+          totalRecords={r5report?.pagination?.totalRecords}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />}
     </div>
   );
 };

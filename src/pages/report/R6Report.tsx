@@ -22,7 +22,7 @@ const R6Report: React.FC = () => {
     from: null,
     to: null,
   });
-
+  const [pageSize, setPageSize] = useState<number>(10);
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
   const { r6ReportLoading, r6Report } = useAppSelector((state) => state.report);
@@ -30,12 +30,64 @@ const R6Report: React.FC = () => {
   const { RangePicker } = DatePicker;
 
   const onBtExport = useCallback(() => {
-    console.log("click");
     r6Report &&
       gridRef.current!.api.exportDataAsExcel({
         sheetName: "R6 Report",
       });
   }, [r6Report]);
+
+  const handlePageChange = (page: number) => {
+    if (type === "date") {
+      dispatch(
+        getr6Report({
+          type: "DATE",
+          from: dayjs(date.from).format("DD-MM-YYYY"),
+          to: dayjs(date.to).format("DD-MM-YYYY"),
+          data: "",
+          page: page,
+          limit: pageSize,
+        })
+      );
+    } else {
+      dispatch(
+        getr6Report({
+          type: "MINNO",
+          data: min,
+          from: "",
+          to: "",
+          page: page,
+          limit: pageSize,
+        })
+      );
+    }
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    if (type === "date") {
+      dispatch(
+        getr6Report({
+          type: "DATE",
+          from: dayjs(date.from).format("DD-MM-YYYY"),
+          to: dayjs(date.to).format("DD-MM-YYYY"),
+          data: "",
+          page: 1,
+          limit: pageSize,
+        })
+      );
+    } else {
+      dispatch(
+        getr6Report({
+          type: "MINNO",
+          data: min,
+          from: "",
+          to: "",
+          page: 1,
+          limit: pageSize,
+        })
+      );
+    }
+  };
 
   return (
     <>
@@ -119,6 +171,8 @@ const R6Report: React.FC = () => {
                               from: dayjs(date.from).format("DD-MM-YYYY"),
                               to: dayjs(date.to).format("DD-MM-YYYY"),
                               data: "",
+                              page: 1,
+                              limit: pageSize,
                             })
                           );
                         }
@@ -174,6 +228,8 @@ const R6Report: React.FC = () => {
                               data: min,
                               from: "",
                               to: "",
+                              page: 1,
+                              limit: pageSize,
                             })
                           ).then((response: any) => {
                             if (response.payload?.data?.success) {
@@ -213,7 +269,12 @@ const R6Report: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <R6reportTable gridRef={gridRef} />
+          <R6reportTable
+            gridRef={gridRef}
+            handlePageChange={handlePageChange}
+            handlePageSizeChange={handlePageSizeChange}
+            pageSize={pageSize}
+          />
         </div>
       </div>
     </>
