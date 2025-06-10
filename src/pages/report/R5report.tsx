@@ -115,8 +115,8 @@ const R5report: React.FC = () => {
       type: filter,
       productType: type,
       device: device?.id,
-      from: date.from,
-      to: date.to,
+      from: date.from?.format("DD-MM-YYYY") || "",
+      to: date.to?.format("DD-MM-YYYY") || "",
     });
   };
 
@@ -178,7 +178,7 @@ const R5report: React.FC = () => {
             </IconButton>
             #{txn}
           </div>
-          <IconButton disabled={!r5reportDetail} onClick={onBtExportDetail}>
+          <IconButton disabled={!r5reportDetail} onClick={onBtExport}>
             <Icons.download />
           </IconButton>
         </div>
@@ -299,7 +299,7 @@ const R5report: React.FC = () => {
                 <LoadingButton
                   variant="contained"
                   disabled={!r5report}
-                  onClick={onBtExport}
+                  onClick={onBtExportDetail}
                   color="primary"
                   style={{
                     borderRadius: "50%",
