@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -14,6 +14,8 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 import R6reportTable from "@/table/report/R6reportTable";
 import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
+import { useSocketContext } from "@/components/context/SocketContext";
+
 const R6Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("min");
@@ -28,13 +30,22 @@ const R6Report: React.FC = () => {
   const { r6ReportLoading, r6Report } = useAppSelector((state) => state.report);
   const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
+  const { emitR6DispatchReport } = useSocketContext();
 
-  const onBtExport = useCallback(() => {
-    r6Report &&
-      gridRef.current!.api.exportDataAsExcel({
-        sheetName: "R6 Report",
+  const onBtExport = () => {
+    if (type === "min") {
+      emitR6DispatchReport({
+        type: "MINNO",
+        data: min,
       });
-  }, [r6Report]);
+    } else {
+      emitR6DispatchReport({
+        type: type,
+        startDate: date.from?.format("DD-MM-YYYY") || "",
+        endDate: date.to?.format("DD-MM-YYYY") || "",
+      });
+    }
+  };
 
   const handlePageChange = (page: number) => {
     if (type === "date") {

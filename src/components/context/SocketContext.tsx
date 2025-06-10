@@ -74,6 +74,11 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("r5DispatchReport", payload);
   };
 
+    const emitR6DispatchReport = (payload: any) => {
+    console.log("clicked", payload);
+    socketService.emit("r6Download", payload);
+  };
+
   const emitDownloadR3Report = (payload: any) => {
     console.log("clicked", payload);
     socketService.emit("r3Download", payload);
@@ -137,6 +142,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   return (
     <SocketContext.Provider
       value={{
+        emitR6DispatchReport,
         emitR5DispatchReport,
         emitDownloadR1Report,
         emitDownloadSwipeR10Report,
