@@ -426,7 +426,7 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-sm">
       <div className="flex-1">
-        <div className="relative ag-theme-quartz h-[calc(100vh-150px)]">
+        <div className="relative ag-theme-quartz h-[calc(100vh-190px)]">
           <AgGridReact
             ref={gridRef}
             loadingOverlayComponent={CustomLoadingOverlay}
@@ -443,16 +443,14 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
         </div>
       </div>
       {r16Report && (
-        <div className="p-4 border-t">
-          <CustomPagination
-            currentPage={currentPage}
-            totalPages={r16Report.totalPages}
-            totalRecords={r16Report.totalRecords}
-            onPageChange={handlePageChange}
-            pageSize={pageSize}
-            onPageSizeChange={handlePageSizeChange}
-          />
-        </div>
+        <CustomPagination
+          currentPage={currentPage}
+          totalPages={r16Report.totalPages}
+          totalRecords={r16Report.totalRecords}
+          onPageChange={handlePageChange}
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+        />
       )}
       <SwipeItemDetailsModal
         open={isModalOpen}

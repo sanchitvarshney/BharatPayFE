@@ -40,8 +40,6 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers["x-click-token"] = uniqueid;
     config.headers["x-location"] = location ||"";
     config.headers["x-fingerprint"] = fingerprint || "unknown";
-   
-    
   
   }
   return config;
