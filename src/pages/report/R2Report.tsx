@@ -31,9 +31,9 @@ const R2Report: React.FC = () => {
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
   const [reportType, setReportType] = useState<string>("consumption");
   const [open, setOpen] = useState(false);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
-  const { emitDownloadR2Report, onDownloadReport } = useSocketContext();
+  const { emitDownloadR2Report, onDownloadReport,isConnected } = useSocketContext();
 
   const dispatch = useAppDispatch();
   const { getR2DataLoading, refId } = useAppSelector((state) => state.report);
@@ -57,7 +57,7 @@ const R2Report: React.FC = () => {
 
   const handlePageSizeChange = (pageSize: number) => {
     setPageSize(pageSize);
-    dispatch(getR2Data({ from: date?.from || "", to: date?.to || "", type: reportType, page: currentPage, limit: pageSize }));
+    dispatch(getR2Data({ from: date?.from || "", to: date?.to || "", type: reportType, page: 1, limit: pageSize }));
   };
 
   return (
@@ -157,7 +157,7 @@ const R2Report: React.FC = () => {
               <MuiTooltip title="Download" placement="right">
                 <LoadingButton
                   variant="contained"
-                  // disabled
+                  disabled={!isConnected}
                   loading={loading}
                   onClick={handleDownload}
                   color="primary"

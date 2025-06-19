@@ -21,10 +21,10 @@ const dateFormat = "DD-MM-YYYY";
 const R17Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [device, setDevice] = useState<any>(null);
   const [filterType, setFilterType] = useState<string>("DEVICE");
-  const { emitDownloadR17Report } = useSocketContext();
+  const { emitDownloadR17Report ,isConnected} = useSocketContext();
 
   const dispatch = useAppDispatch();
   const { getR17DataLoading } = useAppSelector((state) => state.report);
@@ -166,6 +166,7 @@ const R17Report: React.FC = () => {
               }}
               size="small"
               sx={{ zIndex: 1 }}
+              disabled={!isConnected}
             >
               <Icons.download fontSize="small" />
             </LoadingButton>

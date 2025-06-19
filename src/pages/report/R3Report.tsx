@@ -20,13 +20,13 @@ const { RangePicker } = DatePicker;
 const R3Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { r3reportLoading, r3report } = useAppSelector((state) => state.report);
+  const { r3reportLoading } = useAppSelector((state) => state.report);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
   });
-  const [pageSize, setPageSize] = useState<number>(10);
-  const { emitDownloadR3Report } = useSocketContext();
+  const [pageSize, setPageSize] = useState<number>(20);
+  const { emitDownloadR3Report,isConnected } = useSocketContext();
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
@@ -93,7 +93,7 @@ const R3Report: React.FC = () => {
             <MuiTooltip title="Download" placement="right">
               <LoadingButton
                 variant="contained"
-                disabled={!r3report}
+                disabled={!isConnected}
                 onClick={handleDownload}
                 color="primary"
                 style={{

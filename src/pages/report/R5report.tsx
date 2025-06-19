@@ -78,7 +78,7 @@ import { useSocketContext } from "@/components/context/SocketContext";
 const R5report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { r5reportLoading, r5report, r5reportDetail } = useAppSelector(
+  const { r5reportLoading, r5reportDetail } = useAppSelector(
     (state) => state.report
   );
   const [filter, setFilter] = useState<string>("DATE");
@@ -90,8 +90,8 @@ const R5report: React.FC = () => {
     to: null,
   });
   const [open, setOpen] = React.useState(false);
-  const [pageSize, setPageSize] = useState<number>(10);
-  const { emitR5DispatchReport } = useSocketContext();
+  const [pageSize, setPageSize] = useState<number>(20);
+  const { emitR5DispatchReport,isConnected } = useSocketContext();
 
   const handleClose = () => {
     setOpen(false);
@@ -122,14 +122,15 @@ const R5report: React.FC = () => {
 
   const handlePageSizeChange = (pageSize: number) => {
     setPageSize(pageSize);
-    if (type === "date") {
+    if (filter === "DATE") {
       dispatch(
         getr5Report({
-          type: "DATE",
+          type: type,
           from: dayjs(date.from).format("DD-MM-YYYY"),
           to: dayjs(date.to).format("DD-MM-YYYY"),
           page: 1,
           limit: pageSize,
+          deviceType: type,
         })
       );
     } else {
@@ -146,7 +147,7 @@ const R5report: React.FC = () => {
   };
 
   const handlePageChange = (page: number) => {
-    if (type === "date") {
+    if (filter === "DATE") {
       dispatch(
         getr5Report({
           type: "DATE",
@@ -154,6 +155,7 @@ const R5report: React.FC = () => {
           to: dayjs(date.to).format("DD-MM-YYYY"),
           page: page,
           limit: pageSize,
+          deviceType: type,
         })
       );
     } else {
@@ -298,7 +300,7 @@ const R5report: React.FC = () => {
               <MuiTooltip title="Download" placement="right">
                 <LoadingButton
                   variant="contained"
-                  disabled={!r5report}
+                  disabled={!isConnected}
                   onClick={onBtExportDetail}
                   color="primary"
                   style={{

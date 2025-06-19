@@ -40,7 +40,7 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers["x-click-token"] = uniqueid;
     config.headers["x-location"] = location ||"";
     config.headers["x-fingerprint"] = fingerprint || "unknown";
-  
+    config.headers["ngrok-skip-browser-warning"] = "69420";
   }
   return config;
 });

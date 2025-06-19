@@ -4,9 +4,13 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
+  pageSize: number;
 };
 
 const columnDefs: ColDef[] = [
@@ -28,7 +32,7 @@ const columnDefs: ColDef[] = [
 ];
 
 
-const R13ReportTable: React.FC<Props> = ({ gridRef }) => {
+const R13ReportTable: React.FC<Props> = ({ gridRef,handlePageChange, handlePageSizeChange, pageSize }) => {
   const { r13Report, r13ReportLoading } = useAppSelector((state) => state.report);
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -38,7 +42,7 @@ const R13ReportTable: React.FC<Props> = ({ gridRef }) => {
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-150px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -48,11 +52,21 @@ const R13ReportTable: React.FC<Props> = ({ gridRef }) => {
           rowData={r13Report?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true}
+          pagination={false}
           paginationPageSize={20}
           enableCellTextSelection
         />
       </div>
+      {r13Report && (
+        <CustomPagination
+          currentPage={r13Report?.pagination?.currentPage as any}
+          totalPages={r13Report?.pagination?.totalPages as any}
+          totalRecords={r13Report?.pagination?.totalRecords as any}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />
+      )}
     </div>
   );
 };

@@ -37,7 +37,7 @@ import { setDateRange } from "@/features/procurement/poSlices";
 import ViewPOModal from "@/pages/procurement/ViewPOModal";
 const ManagePO: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const dispatch = useAppDispatch();
   const { managePoData, printLoading, dateRange, loading, cancelLoading } =
     useAppSelector((state) => state.po);

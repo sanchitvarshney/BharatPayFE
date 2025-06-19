@@ -29,7 +29,7 @@ const R16Report: React.FC = () => {
   const { r16ReportLoading } = useAppSelector(
     (state) => state.report
   );
-  const { swipeMachineInward } = useSocketContext();
+  const { swipeMachineInward,isConnected } = useSocketContext();
 
   const handleDateChange = (dates: {
     from: Dayjs | null;
@@ -128,7 +128,7 @@ const R16Report: React.FC = () => {
                       to: dayjs(dateRange.to).format("DD-MM-YYYY"),
                       partner: partner,
                       page: 1,
-                      limit: 10,
+                      limit: 20,
                     })
                   );
                 }
@@ -137,7 +137,7 @@ const R16Report: React.FC = () => {
               Search
             </LoadingButton>
             <LoadingButton
-              disabled={!dateRange.from || !dateRange.to || !partner}
+             disabled={!isConnected}
               onClick={handleExport}
               variant="contained"
               color="primary"
