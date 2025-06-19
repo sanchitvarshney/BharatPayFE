@@ -378,7 +378,7 @@ export type ReportStateType = {
     | null;
   mainR1Report: any;
   mainR1ReportLoading: boolean;
-  r6Report: r6reportApiResponse | null;
+  r6Report: any;
   wrongDeviceReport: any;
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;
