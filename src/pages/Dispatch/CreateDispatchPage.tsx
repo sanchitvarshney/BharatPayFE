@@ -253,15 +253,19 @@ const CreateDispatchPage: React.FC = () => {
       setValue("dispatchFromDetails.pin", value.pin);
     }
   };
-  const onImeiSubmit = (imei: string) => {
-    const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
-    const validImeiCount = imeiArray.filter((num) => num.trim() !== "").length;
-    const requiredCount = formValues.deviceType === "soundbox" ? 30 : 20;
-    
-    if (validImeiCount === requiredCount) {
-      setOpen(true);
-    }
-  };
+const onImeiSubmit = (imei: string) => {
+  // Split by newline, remove spaces from each line, preserve newlines
+  const imeiArray = imei
+    ? imei.split("\n").map((line) => line.replace(/\s+/g, "")) // remove all whitespace (spaces, tabs) from each line
+    : [];
+
+  const validImeiCount = imeiArray.filter((num) => num !== "").length;
+  const requiredCount = formValues.deviceType === "soundbox" ? 30 : 20;
+
+  if (validImeiCount === requiredCount) {
+    setOpen(true);
+  }
+};
 
   const onSingleImeiSubmit = (imei: string) => {
     const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
