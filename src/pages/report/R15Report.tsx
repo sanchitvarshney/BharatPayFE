@@ -61,7 +61,7 @@ const R15Report: React.FC = () => {
   //   });
   // }, []);
    const onBtExport = () => {
-    emitR15Report({ from: dayjs(dateRange.from).format("YYYY-MM-DD"), to: dayjs(dateRange.to).format("YYYY-MM-DD"),location: location?.id,sortBy:"physicalDt",sortOrder:"DESC" });
+    emitR15Report({ fromDate: dayjs(dateRange.from).format("YYYY-MM-DD"), toDate: dayjs(dateRange.to).format("YYYY-MM-DD"),location: location?.id,sortBy:"physicalDt",sortOrder:"DESC" });
   };
 
   const handlePageChange = (page: number) => {

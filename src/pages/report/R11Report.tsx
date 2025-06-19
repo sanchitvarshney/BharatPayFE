@@ -65,7 +65,7 @@ const R11Report: React.FC = () => {
 
    const onBtExport = () => {
     if(dateRange.from && dateRange.to){
-      emitR11Report({start:dateRange.from?.format("YYYY-MM-DD"),end:dateRange.to?.format("YYYY-MM-DD")});
+      emitR11Report({startDate:dateRange.from?.format("YYYY-MM-DD"),endDate:dateRange.to?.format("YYYY-MM-DD")});
     }
     else{
       showToast("Please select Date range", "error");

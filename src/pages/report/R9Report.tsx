@@ -70,9 +70,9 @@ const handleExport =()=>{
 const exportWrongDeviceData =()=>{
   if (reportDate.from && reportDate.to && partner) {
     emitWrongDeviceReport({
-        from: dayjs(reportDate.from).format("DD-MM-YYYY"),
-        to: dayjs(reportDate.to).format("DD-MM-YYYY"),
-        partner: partner,
+        fromDt: dayjs(reportDate.from).format("DD-MM-YYYY"),
+        toDt: dayjs(reportDate.to).format("DD-MM-YYYY"),
+        deliveryPartner: partner,
       })
   }
 }
@@ -301,6 +301,7 @@ const exportWrongDeviceData =()=>{
               {(reportDate.from || reportDate.to) && (
                 <div className="flex items-center justify-between">
                   <LoadingButton
+                  disabled={!isConnected}
                     className="max-w-max"
                     variant="contained"
                     loading={wrongDeviceReportLoading}
