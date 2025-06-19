@@ -40,7 +40,7 @@ const R6Report: React.FC = () => {
       });
     } else {
       emitR6DispatchReport({
-        type: type,
+        type: type==="date"?"DATE":type,
         startDate: date.from?.format("DD-MM-YYYY") || "",
         endDate: date.to?.format("DD-MM-YYYY") || "",
       });
