@@ -909,40 +909,32 @@ const onImeiSubmit = (imei: string) => {
             </div>
           )}
           {activeStep === 1 && (
-            <div className="h-[calc(100vh-200px)]   ">
-              {/* <RMMaterialsAddTablev2
-                rowData={rowData}
-                setRowData={setRowData}
-                setTotal={setTotal}
-              /> */}
-              <div>
-              <div className="flex items-center gap-4 pl-10">
-  <FormControlLabel
-    control={
-      <Radio
-        checked={isMultiple}
-        onChange={() => setIsMultiple(true)}  // Select multiple IMEIs
-        value="multiple"
-        name="imei-type"
-        color="primary"
-      />
-    }
-    label="Multiple IMEIs"
-  />
-  <FormControlLabel
-    control={
-      <Radio
-        checked={!isMultiple}
-        onChange={() => setIsMultiple(false)}  // Select single IMEI
-        value="single"
-        name="imei-type"
-        color="primary"
-      />
-    }
-    label="Single IMEI"
-  />
-
-
+            <div className="h-[calc(100vh-200px)] flex flex-col">
+                <div className="flex items-center gap-4 pl-10">
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        checked={isMultiple}
+                        onChange={() => setIsMultiple(true)}
+                        value="multiple"
+                        name="imei-type"
+                        color="primary"
+                      />
+                    }
+                    label="Multiple IMEIs"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        checked={!isMultiple}
+                        onChange={() => setIsMultiple(false)}
+                        value="single"
+                        name="imei-type"
+                        color="primary"
+                      />
+                    }
+                    label="Single IMEI"
+                  />
                 <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
                 {isMultiple ? (
                   <FormControl sx={{ width: "400px" }} variant="outlined">
@@ -1015,17 +1007,14 @@ const onImeiSubmit = (imei: string) => {
                       <span className="pl-1 text-gray-800">{rowData.filter((item: any) => item.modalNo.includes("(F)"))?.length}</span>
                     </p>
                   </div>
-
-                  {/* <div className="flex items-center gap-[10px]">
-                <LoadingButton loadingPosition="start" loading={dispatchCreateLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
-                  Submit
-                </LoadingButton>
-              </div> */}
                 </div>
                 </div>
-                <div className="h-[calc(100vh-250px)]">
-                  <ImeiTable setRowdata={setRowData} rowData={rowData} module = {formValues?.deviceType} />
-                </div>
+              <div className="flex-grow overflow-auto px-4">
+                <ImeiTable
+                  setRowdata={setRowData}
+                  rowData={rowData}
+                  module={formValues?.deviceType}
+                />
               </div>
             </div>
           )}
