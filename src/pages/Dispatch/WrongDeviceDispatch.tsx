@@ -121,7 +121,6 @@ const WrongDeviceDispatch: React.FC = () => {
   };
 
   const finalSubmit = () => {
-    console.log(rowData)
     const data = formValues;
     // if (formdata) {
     if (rowData.length !== Number(data.qty)) return showToast("Total Devices should be equal to Quantity you have entered", "error");
@@ -400,7 +399,7 @@ const WrongDeviceDispatch: React.FC = () => {
                   multiline
                   rows={3}
                   fullWidth
-                  label="Ship To Addrests 2"
+                  label="Ship To Address 2"
                   className="h-[100px] resize-none"
                   {...register("shipToDetails.address2", {
                     required: "Address 2 is required",
@@ -580,9 +579,7 @@ const WrongDeviceDispatch: React.FC = () => {
                         setImei(e.target.value);
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          console.log(imei);
-                          
+                        if (e.key === "Enter") {                          
                           // Check if the imei already exists in the rowData
                           const isDuplicate = rowData.some((item) => item.awbNo === imei);
                           

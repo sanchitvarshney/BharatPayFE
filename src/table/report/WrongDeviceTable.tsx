@@ -11,19 +11,32 @@ import axiosInstance from "@/api/axiosInstance";
 import { showToast } from "@/utils/toasterContext";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 import { clearR6data } from "@/features/report/report/reportSlice";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
+  pageSize: number;
 };
 
-const WrongDeviceTable: React.FC<Props> = ({ gridRef }) => {
+const WrongDeviceTable: React.FC<Props> = ({
+  gridRef,
+  handlePageChange,
+  handlePageSizeChange,
+  pageSize,
+}) => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = React.useState(false);
   const [current, setCurrent] = React.useState<string>("");
   const [rowData, setRowData] = useState<any[]>([]); // Holds the row data
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]); // Holds the column definitions
-  const { wrongDeviceReport, r6ReportLoading, wrongDeviceReportLoading } =
-    useAppSelector((state) => state.report);
+  const {
+    wrongDeviceReport,
+    r6ReportLoading,
+    wrongDeviceReportLoading,
+    r9ReportLoading,
+  } = useAppSelector((state) => state.report);
   const generateprint = async (min: string) => {
     setLoading(true);
 
@@ -68,13 +81,13 @@ const WrongDeviceTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
     };
   }, []);
-
+  console.log(wrongDeviceReport);
   useEffect(() => {
     const fetchGridData = async () => {
       setLoading(true);
       const r6Data: any = wrongDeviceReport;
       const header = r6Data?.header; // Headers from API response
-      const data = r6Data?.data; // Row data from API response
+      const data = r6Data?.records; // Row data from API response
       const filteredHeader = header?.filter(
         (col: string) => col !== "Print" && col !== "Transaction ID"
       );
@@ -146,16 +159,28 @@ const WrongDeviceTable: React.FC<Props> = ({ gridRef }) => {
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
-          loading={r6ReportLoading || wrongDeviceReportLoading}
+          loading={
+            r6ReportLoading || wrongDeviceReportLoading || r9ReportLoading
+          }
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true}
+          pagination={false}
           paginationPageSize={20}
         />
       </div>
+      {wrongDeviceReport && (
+        <CustomPagination
+          currentPage={wrongDeviceReport?.pagination?.currentPage as any}
+          totalPages={wrongDeviceReport?.pagination?.totalPages as any}
+          totalRecords={wrongDeviceReport?.pagination?.totalRecords as any}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />
+      )}
     </div>
   );
 };

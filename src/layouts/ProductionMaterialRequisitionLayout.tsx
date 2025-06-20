@@ -14,7 +14,7 @@ const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/production/material-req-with-bom", "/production/material-req-without-bom"];
+  const tabRoutes = ["/production/material-req-with-bom", "/production/material-req-without-bom","/production/swipe-device-request"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -52,6 +52,15 @@ const ProductionMaterialRequisitionLayout: React.FC<Props> = ({ children }) => {
               <div className="flex items-center gap-[10px]">
                 <Icons.bom fontSize="small" />
                 Material Requisition without BOM
+              </div>
+            }
+          />
+           <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <Icons.device fontSize="small" />
+                  Material Requisition for Swipe Device
               </div>
             }
           />
