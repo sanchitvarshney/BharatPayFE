@@ -145,7 +145,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   };
   const emitR13Report = (payload: any) => {
     console.log(payload);
-    socketService.emit("r13Download", payload);
+    socketService.emit("deviceReportDownload", payload);
   };
 
   const emitR11Report = (payload: any) => {
