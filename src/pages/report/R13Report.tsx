@@ -52,8 +52,8 @@ const R13Report: React.FC = () => {
   const onBtExport = useCallback(() => {
     if (dateRange.from && dateRange.to) {
       emitR13Report({
-        from: dayjs(dateRange.from).format("DD-MM-YYYY"),
-        to: dayjs(dateRange.to).format("DD-MM-YYYY"),
+        fromDate: dayjs(dateRange.from).format("DD-MM-YYYY"),
+        toDate: dayjs(dateRange.to).format("DD-MM-YYYY"),
       });
     }
   }, [dateRange, emitR13Report]);
