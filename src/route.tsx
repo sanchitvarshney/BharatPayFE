@@ -84,6 +84,22 @@ import MaterialIn from "@/pages/min/MaterialIn";
 import PhysicalQuantityUpdate from "@/pages/PhysicalQuantityReport/PhysicalQuantityUpdate";
 import DispatchTableForEwayBill from "@/pages/ewayBill/DispatchForEwayBill";
 import CreateEwayBill from "@/pages/ewayBill/CreateEwayBill";
+import EwayBillLayout from "@/layouts/EwayBillLayout";
+import SwipeDeviceRequest from "@/pages/production/SwipeDeviceRequest";
+import SwipeMaterialApprovalLayout from "@/layouts/SwipeMaterialApprovalLayout";
+import SwipeMaterialApproval from "@/pages/wearhouse/SwipeMaterialApproval";
+import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
+import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
+import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
+import BranchTransferLayout from "@/layouts/BranchTransferLayout";
+import ProcurementLayout from "@/layouts/ProcurementLayout";
+import CreatePO from "@/pages/procurement/CreatePO";
+import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
+import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
+import ManagePO from "./pages/procurement/ManagePO";
+import CompletedPO from "@/pages/procurement/CompletedPO";
+import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
+import MINFromPO from "@/pages/min/MINFromPO";
 
 export const router = createBrowserRouter([
   {
@@ -109,7 +125,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <DispatchTableForEwayBill />
+            <EwayBillLayout>
+              <DispatchTableForEwayBill />
+            </EwayBillLayout>
           </MainLayout>
         ),
         path: "/eway-bill-details",
@@ -373,6 +391,26 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <SwipeMaterialApprovalLayout>
+              <SwipeMaterialApproval />
+            </SwipeMaterialApprovalLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-approval",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeMaterialApprovalLayout>
+              <SwipeRequistionRequest />
+            </SwipeMaterialApprovalLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-requisition-request",
+      },
+      {
+        element: (
+          <MainLayout>
             <MinLayout>
               <MaterialInvard />
             </MinLayout>
@@ -403,11 +441,69 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <ProcurementLayout>
+              <CreatePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/create",
+      },
+            {
+        element: (
+          <MainLayout>
+            <ProcurementLayout>
+              <ManagePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/manage",
+      },
+      {
+        element: (
+          <MainLayout>
+            <UpdateProcurementLayout>
+              <CreatePO />
+            </UpdateProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/edit-po/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ProcurementLayout>
+              <ManagePO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/manage",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ProcurementLayout>
+              <CompletedPO />
+            </ProcurementLayout>
+          </MainLayout>
+        ),
+        path: "/procurement/completed",
+      },
+      {
+        element: (
+          <MainLayout>
             {/* <DeviceMin /> */}
             <MaterialIn />
           </MainLayout>
         ),
         path: "/device-materials-in",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MINFromPO />
+          </MainLayout>
+        ),
+        path: "/material-in-with-po",
       },
       // {
       //   element: (
@@ -439,6 +535,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/production/material-req-without-bom",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ProductionMaterialRequisitionLayout>
+              <SwipeDeviceRequest />
+            </ProductionMaterialRequisitionLayout>
+          </MainLayout>
+        ),
+        path: "/production/swipe-device-request",
       },
       {
         element: (
@@ -582,6 +688,27 @@ export const router = createBrowserRouter([
         ),
         path: "/production/download-excel",
       },
+      //branch transfer===========================================
+      {
+        element: (
+          <MainLayout>
+            <BranchTransferLayout>
+              <CreateBranchTransferPage />
+            </BranchTransferLayout>
+          </MainLayout>
+        ),
+        path: "/branchTransfer/create",
+      },
+      {
+        element: (
+          <MainLayout>
+            <BranchTransferLayout>
+              <ManageBranchTable />
+            </BranchTransferLayout>
+          </MainLayout>
+        ),
+        path: "/branchTransfer/manage",
+      },
 
       //dispatch===========================================
       {
@@ -661,6 +788,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "queries/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeUploadLayout>
+              <SwipeDeviceUpload />
+            </SwipeUploadLayout>
+          </MainLayout>
+        ),
+        path: "/upload/swipe-device-status",
       },
     ],
   },

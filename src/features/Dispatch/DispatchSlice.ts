@@ -15,10 +15,21 @@ const initialState: DispatchState = {
   wrongDispatchLoading:false,
   dispatchData: null,
   dispatchDataLoading: false,
+  ewayBillDataLoading:false,
+  stateCodeLoading:false,
+  stateCode:null,
+  branchLoading:false,
+  branchList:null,
+  rejectTransferLoading:false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
   const response = await axiosInstance.post(`dispatchDivice/createDispatch`, payload);
+  return response;
+});
+
+export const CreateSwipeDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateSwipeDispatch", async (payload) => {
+  const response = await axiosInstance.post(`dispatchDivice/createDispatchSwipe`, payload);
   return response;
 });
 
@@ -46,8 +57,33 @@ export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dis
   return response;
 });
 
-export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>("dispatch/fillEwayBillData", async (payload) => {
-  const response = await axiosInstance.post(`/dispatchDivice/fillEwayBillData`, payload);
+export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/submitDetail', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/submitDetail`, payload);
+  return response;
+});
+
+export const createEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/createEwayBill', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/createEWayBill`, payload);
+  return response;
+});
+
+export const getStateCode = createAsyncThunk<AxiosResponse<any>>('/backend/stateCode', async () => {
+  const response = await axiosInstance.get(`/backend/stateCode`);
+  return response;
+});
+
+export const getAllBranch = createAsyncThunk<AxiosResponse<any>>('/backend/branch', async () => {
+  const response = await axiosInstance.get(`/deviceBranchTransfer/getBranchList`);
+  return response;
+});
+
+export const rejectTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferReject', async (payload) => {
+  const response = await axiosInstance.put(`deviceBranchTransfer/updateStatus/reject`,payload);
+  return response;
+});
+
+export const approveTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferApprove', async (payload) => {
+  const response = await axiosInstance.put(`deviceBranchTransfer/updateStatus/approve`,payload);
   return response;
 });
 
@@ -73,6 +109,48 @@ const dispatchSlice = createSlice({
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
+      .addCase(rejectTransfer.pending, (state) => {
+        state.rejectTransferLoading = true;
+      })
+      .addCase(rejectTransfer.fulfilled, (state) => {
+        state.rejectTransferLoading = false;
+      })
+      .addCase(rejectTransfer.rejected, (state) => {
+        state.rejectTransferLoading = false;
+      })
+      .addCase(approveTransfer.pending, (state) => {
+        state.rejectTransferLoading = true;
+      })
+      .addCase(approveTransfer.fulfilled, (state) => {
+        state.rejectTransferLoading = false;
+      })
+      .addCase(approveTransfer.rejected, (state) => {
+        state.rejectTransferLoading = false;
+      })
+      .addCase(CreateSwipeDispatch.pending, (state) => {
+        state.dispatchCreateLoading = true;
+      })
+      .addCase(CreateSwipeDispatch.fulfilled, (state, action) => {
+        state.dispatchCreateLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(CreateSwipeDispatch.rejected, (state) => {
+        state.dispatchCreateLoading = false;
+      })
+      .addCase(getStateCode.pending, (state) => {
+        state.stateCodeLoading = true;
+      })
+      .addCase(getStateCode.fulfilled, (state, action) => {
+        state.stateCodeLoading = false;
+        if (action.payload.data.success) {
+          state.stateCode = action.payload.data.data;
+        }
+      })
+      .addCase(getStateCode.rejected, (state) => {
+        state.stateCodeLoading = false;
+      })
       .addCase(getDispatchData.rejected, (state) => {
         state.dispatchDataLoading = false;
       })
@@ -85,7 +163,36 @@ const dispatchSlice = createSlice({
           state.dispatchData = action.payload.data.data;
         }
       })
-     
+      .addCase(createEwayBill.pending, (state) => {
+        state.ewayBillDataLoading = true;
+      })
+      .addCase(createEwayBill.fulfilled, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(createEwayBill.rejected, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(getAllBranch.pending, (state) => {
+        state.branchLoading = true;
+      })
+      .addCase(getAllBranch.fulfilled, (state, action) => {
+        state.branchLoading = false;
+        if (action.payload.data.success) {
+          state.branchList = action.payload.data.data;
+        }
+      })
+      .addCase(getAllBranch.rejected, (state) => {
+        state.branchLoading = false;
+      })
+      .addCase(fillEwayBillData.pending, (state) => {
+        state.ewayBillDataLoading = true;
+      })
+      .addCase(fillEwayBillData.fulfilled, (state) => {
+        state.ewayBillDataLoading = false;
+      })
+      .addCase(fillEwayBillData.rejected, (state) => {
+        state.ewayBillDataLoading = false;
+      })
       .addCase(wrongDeviceDispatch.pending, (state) => {
         state.wrongDispatchLoading = true;
       })

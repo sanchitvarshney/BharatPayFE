@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   Sheet,
   SheetContent,
@@ -6,7 +6,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "ag-grid-react";
 import { columnDefs } from "@/constants/FilloutEwayBillDataColumns";
@@ -14,6 +13,9 @@ import { ColDef, ColGroupDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import EwayBillCellRenderer from "@/components/ewayBill/EwayBillCellRenderer";
 import { fillEwayBillData } from "@/features/Dispatch/DispatchSlice";
+import { LoadingButton } from "@mui/lab";
+import Loader from "@/components/reusable/Loader";
+import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
   txnId: string;
@@ -23,10 +25,17 @@ interface RowData {
   dispatchQty: number;
   inserby: string;
   dispatchId: string;
+  material: string;
+  orderQty: number;
+  hsnCode: string;
   localValue: number;
-  cgst:number;
-  sgst:number;
-  igst:number;
+  cgst: number;
+  sgst: number;
+  igst: number;
+  isNew: boolean;
+  rate: number;
+  gstType: string;
+  gstRate: number;
 }
 
 interface EwayBillSheetProps {
@@ -40,9 +49,10 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   onOpenChange,
   selectedRow,
 }) => {
-  const { dispatchData, dispatchDataLoading } = useAppSelector(
-    (state) => state.dispatch
-  );
+  const { dispatchData, dispatchDataLoading, ewayBillDataLoading } =
+    useAppSelector((state) => state.dispatch);
+  const gridRef = useRef<AgGridReact<RowData>>(null);
+
   const dispatch = useAppDispatch();
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [taxableValue, setTaxableValue] = useState<number>(0);
@@ -50,13 +60,14 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
   const [totalSgst, setTotalSgst] = useState<number>(0);
   const [totalIgst, setTotalIgst] = useState<number>(0);
   const [totalTax, setTotalTax] = useState<number>(0);
-  console.log(selectedRow, dispatchDataLoading);
+
   useEffect(() => {
     const updatedData: RowData[] = dispatchData?.data?.map((material: any) => ({
       material: material.item_name || "",
       orderQty: material.item_qty || 0,
       hsnCode: material.item_hsncode || "",
       isNew: true,
+      txnId: selectedRow?.txnId,
     }));
     setRowData(updatedData);
   }, [dispatchData?.data]);
@@ -70,14 +81,50 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
     []
   );
   const onSubmit = () => {
-    console.log(rowData);
-    dispatch(
-      fillEwayBillData({
-        txnId: selectedRow?.txnId,
-        data: rowData,
-      })
+    // Validate required fields
+    const errors = [];
+
+    // Check if any row has empty material
+    const emptyMaterial = rowData.some((row) => !row.material);
+    if (emptyMaterial) {
+      errors.push("Material name is required for all items");
+    }
+
+    // Validate rate
+    const invalidRate = rowData.some((row) => !row.rate || row.rate <= 0);
+    if (invalidRate) {
+      errors.push("Valid rate is required for all items");
+    }
+
+    // Validate GST type
+    const invalidGstType = rowData.some((row) => !row.gstType);
+    if (invalidGstType) {
+      errors.push("GST type is required for all items");
+    }
+
+    // Validate GST rate
+    const invalidGstRate = rowData.some(
+      (row) => !row.gstRate || row.gstRate <= 0
     );
+    if (invalidGstRate) {
+      errors.push("Valid GST rate is required for all items");
+    }
+
+    // If there are validation errors, show them and return
+    if (errors.length > 0) {
+      showToast(errors.join("\n"), "error");
+      return;
+    }
+
+    // If validation passes, proceed with submission
+    dispatch(fillEwayBillData(rowData[0])).then((res: any) => {
+      if (res.payload.data.success || res.payload.data.status) {
+        showToast(res.payload.data.message, "success");
+        onOpenChange(false);
+      }
+    });
   };
+
   console.log(rowData);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -119,6 +166,7 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
         <SheetHeader className="pb-4">
           <SheetTitle>Fillout Eway Bill Data - {selectedRow?.txnId}</SheetTitle>
         </SheetHeader>
+        {dispatchDataLoading && <Loader />}
         <div className="ag-theme-quartz h-[calc(100vh-160px)] grid grid-cols-4 gap-4">
           <div className="col-span-1 max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-800 scrollbar-track-gray-300 bg-white border-r flex flex-col gap-4 p-4">
             <Card className="rounded-sm shadow-sm shadow-slate-500">
@@ -335,16 +383,46 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
               suppressCellFocus={true}
               components={components}
               overlayNoRowsTemplate={OverlayNoRowsTemplate}
+              defaultColDef={{
+                resizable: true,
+                suppressCellFlash: true,
+                editable: false,
+              }}
+              onCellFocused={(event: any) => {
+                const { rowIndex, column } = event;
+                const focusedCell = document.querySelector(
+                  `.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `
+                ) as HTMLInputElement;
+                const focusButton = document.querySelector(
+                  `.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `
+                ) as HTMLButtonElement;
+
+                if (focusedCell) {
+                  focusedCell.focus();
+                }
+                if (focusButton) {
+                  focusButton.focus();
+                }
+              }}
+              navigateToNextCell={() => {
+                return null; // Returning null prevents default focus movement
+              }}
+              ref={gridRef}
+              animateRows
+              loading={false}
+              onCellKeyDown={(e) => e.event?.preventDefault()}
             />
           </div>
         </div>
         <div className="bg-white border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
-          <Button
+          <LoadingButton
+            loading={ewayBillDataLoading}
             className="rounded-md shadow bg-green-700 hover:bg-green-600 shadow-slate-500 max-w-max px-[30px] text-white "
             onClick={onSubmit}
+            variant="contained"
           >
             Submit
-          </Button>
+          </LoadingButton>
         </div>
       </SheetContent>
     </Sheet>

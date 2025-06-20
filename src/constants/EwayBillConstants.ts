@@ -6,37 +6,18 @@ export const columnDefs: ColDef[] = [
   {
     headerName: "Item Name",
     field: "item_name",
-    width: 500,
+    width: 300,
     cellRenderer: "truncateCellRenderer",
   },
-  { headerName: "Item No", field: "item_no" },
   { headerName: "HSN", field: "item_hsncode" },
   { headerName: "Qty", field: "item_qty" },
   { headerName: "Rate", field: "item_rate" },
-  { headerName: "Discount (%)", field: "item_discount" },
   { headerName: "GST Rate", field: "item_gst_rate" },
-  { headerName: "GST Type", field: "item_gst_type.label" },
+  { headerName: "GST Type", field: "item_gst_type", valueGetter: (params) => params.data.item_gst_type==="L" ? "Intra State ( Local )" : "Inter State" },
   { headerName: "CGST", field: "item_cgst" },
   { headerName: "SGST", field: "item_sgst" },
   { headerName: "IGST", field: "item_igst" },
-  { headerName: "Taxable Amount", field: "item_taxableValue" },
-];
-
-export const hsnColumns: ColDef[] = [
-  {
-    headerName: "Item Name",
-    field: "itemName",
-    autoHeight: true,
-    maxWidth: 200,
-  },
-  { headerName: "HSN Code", field: "hsnCode" },
-  { headerName: "Qty", field: "qty" },
-  { headerName: "Price", field: "price" },
-  { headerName: "Discount", field: "discount" },
-  { headerName: "CGST", field: "cgst" },
-  { headerName: "SGST", field: "sgst" },
-  { headerName: "IGST", field: "igst" },
-  { headerName: "Total", field: "total" },
+  { headerName: "Taxable Amount", field: "item_value" },
 ];
 
 // Dropdown Options
@@ -125,8 +106,8 @@ export const transactionTypeOptions = [
 
 // Zod Schemas
 const stateSchema = z.object({
-  code: z.string(),
-  name: z.string(),
+  Code: z.string(),
+  Name: z.string(),
 });
 
 const header = z.object({
@@ -149,7 +130,7 @@ const billFrom = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
@@ -163,11 +144,12 @@ const billTo = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
   phone: z.union([z.string().optional(), z.null()]),
+  email: z.union([z.string().optional(), z.null()]),
 });
 
 const dispatchFrom = z.object({
@@ -175,7 +157,7 @@ const dispatchFrom = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
@@ -188,7 +170,7 @@ const shipTo = z.object({
   addressLine1: z.string({ required_error: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
   location: z.string({ required_error: "Location is required" }),
-  state: stateSchema.refine((val) => val.code && val.name, {
+  state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
@@ -199,7 +181,7 @@ const ewaybillDetails = z.object({
   transporterName: z.string({ required_error: "Transporter Name is required" }),
   transMode: z.string().optional(),
   transporterDocNo: z.string().optional(),
-  transporterDate: z.string().optional(),
+  transporterDate: z.string({ required_error: "Transporter Date is required" }),
   vehicleNo: z.string().optional(),
   vehicleType: z.string().optional(),
   transDistance: z.string({ required_error: "Trans Distance is required" }),

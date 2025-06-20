@@ -27,6 +27,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getToken();
   const savedSession = localStorage.getItem("session") || "25-26";
+  const savedCompanyBranch = localStorage.getItem("companyBranch") || "BRMSC031";
  
   if (token) {
     const uniqueid = uuidv4();
@@ -35,12 +36,11 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${token}`;
     config.headers["authorization"] = token;
     config.headers["session"] = savedSession;
+    config.headers["companyBranch"] = savedCompanyBranch;
     config.headers["x-click-token"] = uniqueid;
     config.headers["x-location"] = location ||"";
     config.headers["x-fingerprint"] = fingerprint || "unknown";
-   
-    
-  
+    config.headers["ngrok-skip-browser-warning"] = "69420";
   }
   return config;
 });

@@ -8,13 +8,17 @@ import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 import { Button } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { getR1Data } from "@/features/report/report/reportSlice";
+import CustomPagination from "@/components/reusable/CustomPagination";
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMin: React.Dispatch<React.SetStateAction<string>>;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+  pageSize: number;
 };
 
-const R1reportTable: React.FC<Props> = ({ gridRef, setOpen,setMin }) => {
+const R1reportTable: React.FC<Props> = ({ gridRef, setOpen,setMin, onPageChange, onPageSizeChange, pageSize }) => {
   const dispatch = useAppDispatch();
   const { mainR1Report, mainR1ReportLoading } = useAppSelector((state) => state.report);
   const columnDefs: ColDef[] = [
@@ -58,22 +62,33 @@ const R1reportTable: React.FC<Props> = ({ gridRef, setOpen,setMin }) => {
       filter: true,
     };
   }, []);
+
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
           loading={mainR1ReportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
-          rowData={mainR1Report ? mainR1Report : []}
+          rowData={mainR1Report?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true}
-          paginationPageSize={20}
+          pagination={false}
+          enableCellTextSelection
         />
       </div>
+      {mainR1Report && (
+        <CustomPagination
+          currentPage={mainR1Report.pagination?.currentPage}
+          totalPages={mainR1Report.pagination?.totalPages}
+          totalRecords={mainR1Report.pagination?.totalRecords}
+          onPageChange={onPageChange}
+          pageSize={pageSize}
+          onPageSizeChange={onPageSizeChange}
+        />
+      )}
     </div>
   );
 };

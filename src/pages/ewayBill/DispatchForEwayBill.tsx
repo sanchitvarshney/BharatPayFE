@@ -30,7 +30,6 @@ const DispatchForEwayBill: React.FC = () => {
   const dispatch = useAppDispatch();
   const { r5reportLoading, r5report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DATE");
-  const [txn, setTxn] = useState<string>("");
   const [device, setDevice] = useState<DeviceType | null>(null);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
@@ -52,7 +51,7 @@ const DispatchForEwayBill: React.FC = () => {
       sheetName: "R5 Report", // Set your desired sheet name here
     });
   }, []);
-console.log(txn)
+
   return (
     <div className="bg-white h-[calc(100vh-100px)] overflow-x-hidden relative flex">
       <div
@@ -165,7 +164,7 @@ console.log(txn)
         </div>
       </div>
       <div className="w-full">
-        <DispatchForEwayBillTable setTxn={setTxn} gridRef={gridRef} />
+        <DispatchForEwayBillTable gridRef={gridRef} />
       </div>
     </div>
   );

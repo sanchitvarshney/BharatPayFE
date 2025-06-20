@@ -4,6 +4,8 @@ export type DispatchItemPayload = {
   dispatchQty: number; // required
   remark?: string; // optional
   imeis: string[]; // required array of strings
+  imei1?: any;
+  imei2?: any;
   srlnos : string[];
   document: string; // required
   pickLocation: string;
@@ -11,6 +13,7 @@ export type DispatchItemPayload = {
   shipToDetails: any;
   dispatchDate: string;
   dispatchFromDetails: any;
+  deviceType?: string;
 };
 
 export type DispatchWrongItemPayload = {
@@ -35,4 +38,10 @@ export type DispatchState = {
   wrongDispatchLoading: boolean;
   dispatchData: any;
   dispatchDataLoading: boolean;
+  ewayBillDataLoading: boolean;
+  stateCodeLoading: boolean;
+  stateCode: any;
+  branchLoading:boolean;
+  branchList:any;
+  rejectTransferLoading:boolean;
 };

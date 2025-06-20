@@ -25,7 +25,6 @@ interface RowData {
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
-  setTxn: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
@@ -167,7 +166,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
             loading={r5reportLoading}
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
-            rowData={r5report ? r5report : []}
+            rowData={r5report?.data|| []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             pagination={true}

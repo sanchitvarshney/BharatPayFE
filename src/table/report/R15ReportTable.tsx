@@ -4,27 +4,94 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { formatNumber } from "@/utils/numberFormatUtils";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
+  pageSize: number;
 };
 
 const columnDefs: ColDef[] = [
-  { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
-  { headerName: "Part Code", field: "partCode", sortable: true, filter: true, width: 150 },
+  {
+    headerName: "#",
+    field: "id",
+    valueGetter: "node.rowIndex+1",
+    maxWidth: 100,
+  },
+  {
+    headerName: "Part Code",
+    field: "partCode",
+    sortable: true,
+    filter: true,
+    width: 150,
+  },
   { headerName: "Part Name", field: "partName", sortable: true, filter: true },
-  { headerName: "Opening Qty", field: "openingQty", sortable: true, filter: true },
-  { headerName: "Inward Qty", field: "inwardQty", sortable: true, filter: true },
-  {headerName:"Consumption Qty",field:"consumpQty",sortable:true,filter:true},
-  {headerName:"Closing Qty",field:"closingQty",sortable:true,filter:true},
-  {headerName:"Count Qty",field:"countQty",sortable:true,filter:true},
-  {headerName:"Abnormal Qty",field:"qty",sortable:true,filter:true},
-  {headerName:"Physical Date",field:"physicalDt",sortable:true,filter:true},
+  {
+    headerName: "Opening Qty",
+    field: "openingQty",
+    sortable: true,
+    filter: true,
+    valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    },
+  },
+  {
+    headerName: "Inward Qty",
+    field: "inwardQty",
+    sortable: true,
+    filter: true,
+    valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    },
+  },
+  {
+    headerName: "Consumption Qty",
+    field: "consumpQty",
+    sortable: true,
+    filter: true,
+    valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    },
+  },
+  {
+    headerName: "Closing Qty",
+    field: "closingQty",
+    sortable: true,
+    filter: true,
+    valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    },
+  },
+  {
+    headerName: "Count Qty",
+    field: "countQty",
+    sortable: true,
+    filter: true,
+    valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    },
+  },
+  { headerName: "Abnormal Qty", field: "qty", sortable: true, filter: true },
+  {
+    headerName: "Physical Date",
+    field: "physicalDt",
+    sortable: true,
+    filter: true,
+  },
 ];
 
-
-const R13ReportTable: React.FC<Props> = ({ gridRef }) => {
-  const { r15Report, r15ReportLoading } = useAppSelector((state) => state.report);
+const R13ReportTable: React.FC<Props> = ({
+  gridRef,
+  handlePageChange,
+  handlePageSizeChange,
+  pageSize,
+}) => {
+  const { r15Report, r15ReportLoading } = useAppSelector(
+    (state) => state.report
+  );
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
@@ -33,7 +100,7 @@ const R13ReportTable: React.FC<Props> = ({ gridRef }) => {
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -43,10 +110,20 @@ const R13ReportTable: React.FC<Props> = ({ gridRef }) => {
           rowData={r15Report?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true}
-          paginationPageSize={20}
+          pagination={false}
+          enableCellTextSelection
         />
       </div>
+      {r15Report && (
+        <CustomPagination
+          currentPage={r15Report?.pagination?.currentPage as any}
+          totalPages={r15Report?.pagination?.totalPages as any}
+          totalRecords={r15Report?.pagination?.totalRecords as any}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />
+      )}
     </div>
   );
 };

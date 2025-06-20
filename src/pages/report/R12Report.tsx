@@ -35,7 +35,6 @@ const R12Report: React.FC = () => {
       to: date.to?.format("YYYY-MM-DD"),
     };
     dispatch(getR12Report(reportPayload)).then((res: any) => {
-      console.log(res);
       if (res?.payload?.data?.success == true) {
         window.open(res?.payload?.data?.data, "_blank");
       }

@@ -382,7 +382,7 @@ const MasterClient: React.FC = () => {
                   {...register("address", { required: "Address  is required" })}
                   error={!!errors.address}
                   helperText={errors.address?.message}
-                  label="Address Line 2"
+                  label="Address"
                   multiline
                   rows={3}
                   variant="filled"
