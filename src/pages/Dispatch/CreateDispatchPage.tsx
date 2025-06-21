@@ -48,7 +48,7 @@ import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAc
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
 import { getDispatchFromDetail } from "@/features/master/client/clientSlice";
-import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
+// import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
