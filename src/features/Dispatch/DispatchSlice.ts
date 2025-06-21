@@ -21,10 +21,7 @@ const initialState: DispatchState = {
   challanList: null,
   getChallanLoading: false,
   createChallanLoading:false,
-  updateChallanLoading:false,
-  branchLoading:false,
-  branchList:null,
-  rejectTransferLoading:false,
+  updateChallanLoading:false
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -54,11 +51,6 @@ export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean;
 
 export const printChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printChallan", async (data) => {
   const response = await axiosInstance.post(`challan/generatePerforma`, data);
-  return response;
-});
-
-export const CreateSwipeDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateSwipeDispatch", async (payload) => {
-  const response = await axiosInstance.post(`dispatchDivice/createDispatchSwipe`, payload);
   return response;
 });
 
@@ -103,21 +95,6 @@ export const cancelEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBi
 
 export const getStateCode = createAsyncThunk<AxiosResponse<any>>('/backend/stateCode', async () => {
   const response = await axiosInstance.get(`/backend/stateCode`);
-  return response;
-});
-
-export const getAllBranch = createAsyncThunk<AxiosResponse<any>>('/backend/branch', async () => {
-  const response = await axiosInstance.get(`/deviceBranchTransfer/getBranchList`);
-  return response;
-});
-
-export const rejectTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferReject', async (payload) => {
-  const response = await axiosInstance.put(`deviceBranchTransfer/updateStatus/reject`,payload);
-  return response;
-});
-
-export const approveTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferApprove', async (payload) => {
-  const response = await axiosInstance.put(`deviceBranchTransfer/updateStatus/approve`,payload);
   return response;
 });
 
@@ -186,36 +163,6 @@ const dispatchSlice = createSlice({
         state.getChallanLoading = false;
       })
 
-      .addCase(rejectTransfer.pending, (state) => {
-        state.rejectTransferLoading = true;
-      })
-      .addCase(rejectTransfer.fulfilled, (state) => {
-        state.rejectTransferLoading = false;
-      })
-      .addCase(rejectTransfer.rejected, (state) => {
-        state.rejectTransferLoading = false;
-      })
-      .addCase(approveTransfer.pending, (state) => {
-        state.rejectTransferLoading = true;
-      })
-      .addCase(approveTransfer.fulfilled, (state) => {
-        state.rejectTransferLoading = false;
-      })
-      .addCase(approveTransfer.rejected, (state) => {
-        state.rejectTransferLoading = false;
-      })
-      .addCase(CreateSwipeDispatch.pending, (state) => {
-        state.dispatchCreateLoading = true;
-      })
-      .addCase(CreateSwipeDispatch.fulfilled, (state, action) => {
-        state.dispatchCreateLoading = false;
-        if (action.payload.data.success) {
-          showToast(action.payload.data.message, "success");
-        }
-      })
-      .addCase(CreateSwipeDispatch.rejected, (state) => {
-        state.dispatchCreateLoading = false;
-      })
       .addCase(getStateCode.pending, (state) => {
         state.stateCodeLoading = true;
       })
@@ -248,18 +195,6 @@ const dispatchSlice = createSlice({
       })
       .addCase(createEwayBill.rejected, (state) => {
         state.ewayBillDataLoading = false;
-      })
-      .addCase(getAllBranch.pending, (state) => {
-        state.branchLoading = true;
-      })
-      .addCase(getAllBranch.fulfilled, (state, action) => {
-        state.branchLoading = false;
-        if (action.payload.data.success) {
-          state.branchList = action.payload.data.data;
-        }
-      })
-      .addCase(getAllBranch.rejected, (state) => {
-        state.branchLoading = false;
       })
       .addCase(fillEwayBillData.pending, (state) => {
         state.ewayBillDataLoading = true;

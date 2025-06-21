@@ -4,14 +4,9 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { formatNumber } from "@/utils/numberFormatUtils";
-import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
-  handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
 };
 
 const columnDefs: ColDef[] = [
@@ -22,9 +17,7 @@ const columnDefs: ColDef[] = [
   { headerName: "Category", field: "category", sortable: true, filter: true },
   { headerName: "Sub-Category", field: "subCategory", sortable: true, filter: true },
   { headerName: "UOM", field: "uom", sortable: true, filter: true },
-  { headerName: "Out Quantity", field: "outQty", sortable: true, filter: true, valueFormatter: (params: any) => {
-    return formatNumber(params.value);
-  }},
+  { headerName: "Out Quantity", field: "outQty", sortable: true, filter: true },
   { headerName: "Location From", field: "locFrom", sortable: true, filter: true },
   { headerName: "Location In", field: "locIn", sortable: true, filter: true },
   { headerName: "Requested By", field: "reqBy", sortable: true, filter: true },
@@ -32,7 +25,7 @@ const columnDefs: ColDef[] = [
   { headerName: "Approved By", field: "approvedBy", sortable: true, filter: true },
 ];
 
-const R8ReportTable: React.FC<Props> = ({ gridRef, handlePageChange, handlePageSizeChange, pageSize }) => {
+const R8ReportTable: React.FC<Props> = ({ gridRef }) => {
   const { r8Report, r8ReportLoading } = useAppSelector((state) => state.report);
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -42,31 +35,20 @@ const R8ReportTable: React.FC<Props> = ({ gridRef, handlePageChange, handlePageS
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           loading={r8ReportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
-          rowData={r8Report?.data || []}
+          rowData={r8Report || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          pagination={true}
           paginationPageSize={20}
-          enableCellTextSelection
-          pagination={false}
         />
       </div>
-      {r8Report && (
-        <CustomPagination
-          currentPage={r8Report?.pagination?.currentPage as any}
-          totalPages={r8Report?.pagination?.totalPages as any}
-          totalRecords={r8Report?.pagination?.totalRecords as any}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
-        />
-      )}
     </div>
   );
 };

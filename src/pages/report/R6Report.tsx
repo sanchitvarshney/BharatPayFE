@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -14,8 +14,6 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 import R6reportTable from "@/table/report/R6reportTable";
 import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
-import { useSocketContext } from "@/components/context/SocketContext";
-
 const R6Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("min");
@@ -24,81 +22,20 @@ const R6Report: React.FC = () => {
     from: null,
     to: null,
   });
-  const [pageSize, setPageSize] = useState<number>(20);
+
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
   const { r6ReportLoading, r6Report } = useAppSelector((state) => state.report);
   const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
-  const { emitR6DispatchReport,isConnected } = useSocketContext();
 
-  const onBtExport = () => {
-    if (type === "min") {
-      emitR6DispatchReport({
-        type: "MINNO",
-        data: min,
+  const onBtExport = useCallback(() => {
+    console.log("click");
+    r6Report &&
+      gridRef.current!.api.exportDataAsExcel({
+        sheetName: "R6 Report",
       });
-    } else {
-      emitR6DispatchReport({
-        type: type==="date"?"DATE":type,
-        startDate: date.from?.format("DD-MM-YYYY") || "",
-        endDate: date.to?.format("DD-MM-YYYY") || "",
-      });
-    }
-  };
-
-  const handlePageChange = (page: number) => {
-    if (type === "date") {
-      dispatch(
-        getr6Report({
-          type: "DATE",
-          from: dayjs(date.from).format("DD-MM-YYYY"),
-          to: dayjs(date.to).format("DD-MM-YYYY"),
-          data: "",
-          page: page,
-          limit: pageSize,
-        })
-      );
-    } else {
-      dispatch(
-        getr6Report({
-          type: "MINNO",
-          data: min,
-          from: "",
-          to: "",
-          page: page,
-          limit: pageSize,
-        })
-      );
-    }
-  };
-
-  const handlePageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize);
-    if (type === "date") {
-      dispatch(
-        getr6Report({
-          type: "DATE",
-          from: dayjs(date.from).format("DD-MM-YYYY"),
-          to: dayjs(date.to).format("DD-MM-YYYY"),
-          data: "",
-          page: 1,
-          limit: pageSize,
-        })
-      );
-    } else {
-      dispatch(
-        getr6Report({
-          type: "MINNO",
-          data: min,
-          from: "",
-          to: "",
-          page: 1,
-          limit: pageSize,
-        })
-      );
-    }
-  };
+  }, [r6Report]);
 
   return (
     <>
@@ -182,8 +119,6 @@ const R6Report: React.FC = () => {
                               from: dayjs(date.from).format("DD-MM-YYYY"),
                               to: dayjs(date.to).format("DD-MM-YYYY"),
                               data: "",
-                              page: 1,
-                              limit: pageSize,
                             })
                           );
                         }
@@ -197,7 +132,7 @@ const R6Report: React.FC = () => {
                     </LoadingButton>
                     <MuiTooltip title="Download" placement="right">
                       <LoadingButton
-                        disabled={!isConnected}
+                        disabled={!r6Report}
                         variant="contained"
                         color="primary"
                         style={{
@@ -239,8 +174,6 @@ const R6Report: React.FC = () => {
                               data: min,
                               from: "",
                               to: "",
-                              page: 1,
-                              limit: pageSize,
                             })
                           ).then((response: any) => {
                             if (response.payload?.data?.success) {
@@ -280,12 +213,7 @@ const R6Report: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <R6reportTable
-            gridRef={gridRef}
-            handlePageChange={handlePageChange}
-            handlePageSizeChange={handlePageSizeChange}
-            pageSize={pageSize}
-          />
+          <R6reportTable gridRef={gridRef} />
         </div>
       </div>
     </>

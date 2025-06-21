@@ -88,7 +88,6 @@ type FormDataType = {
   gstState: string;
   otherRef: string;
   gstType: string;
-  deviceType: string;
 };
 
 type clientDetailType = {
@@ -965,7 +964,7 @@ const CreateDispatchPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="h-[calc(100vh-250px)]">
-                    <ImeiTable setRowdata={setRowData} rowData={rowData} module="swipeDevice" />
+                    <ImeiTable setRowdata={setRowData} rowData={rowData} />
                   </div>
                 </div>
               </div>

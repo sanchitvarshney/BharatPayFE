@@ -2,7 +2,7 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@mui/lab";
 import { AgGridReact } from "@ag-grid-community/react";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { rangePresets } from "@/utils/rangePresets";
@@ -11,11 +11,10 @@ import { getR15Report } from "@/features/report/report/reportSlice";
 import SelectLocation from "@/components/reusable/SelectLocation";
 import { showToast } from "@/utils/toasterContext";
 import R15ReportTable from "@/table/report/R15ReportTable";
-import { useSocketContext } from "@/components/context/SocketContext";
 
 const R15Report: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { r15ReportLoading } = useAppSelector(
+  const { r15ReportLoading, r15Report } = useAppSelector(
     (state) => state.report
   );
   const [dateRange, setDateRange] = useState<{
@@ -28,72 +27,32 @@ const R15Report: React.FC = () => {
   const [location, setLocation] = useState<any>(null);
   const gridRef = useRef<AgGridReact<any>>(null);
   const [colapse, setcolapse] = useState<boolean>(false);
-  const [pageSize, setPageSize] = useState<number>(20);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-    const { emitR15Report,isConnected } = useSocketContext();
-
   const handleDateChange = (dates: {
     from: Dayjs | null;
     to: Dayjs | null;
   }) => {
     setDateRange(dates);
   };
-
+  console.log(location)
   const getreport = () => {
     if (dateRange.from && dateRange.to && location) {
-      setCurrentPage(1); // Reset to first page on new search
       dispatch(
         getR15Report({
           from: dayjs(dateRange.from).format("YYYY-MM-DD"),
           to: dayjs(dateRange.to).format("YYYY-MM-DD"),
           location: location?.id,
-          page: currentPage,
-          limit: pageSize,
-        })
-      );
-    } else {
-      showToast("Please select Date range and Location", "error");
-    }
-  };
-  // const onBtExport = useCallback(() => {
-  //   gridRef.current!.api.exportDataAsExcel({
-  //     sheetName: "R15 Report", // Set your desired sheet name here
-  //   });
-  // }, []);
-   const onBtExport = () => {
-    emitR15Report({ fromDate: dayjs(dateRange.from).format("YYYY-MM-DD"), toDate: dayjs(dateRange.to).format("YYYY-MM-DD"),location: location?.id,sortBy:"physicalDt",sortOrder:"DESC" });
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    if (dateRange.from && dateRange.to && location) {
-      dispatch(
-        getR15Report({
-          from: dayjs(dateRange.from).format("YYYY-MM-DD"),
-          to: dayjs(dateRange.to).format("YYYY-MM-DD"),
-          location: location?.id,
-          page: page,
-          limit: pageSize,
         })
       );
     }
-  };
-
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when changing page size
-    if (dateRange.from && dateRange.to && location) {
-      dispatch(
-        getR15Report({
-          from: dayjs(dateRange.from).format("YYYY-MM-DD"),
-          to: dayjs(dateRange.to).format("YYYY-MM-DD"),
-          location: location?.id,
-          page: 1,
-          limit: newPageSize,
-        })
-      );
+    else{
+      showToast ("Please select Date range and Location", "error");
     }
   };
+  const onBtExport = useCallback(() => {
+    gridRef.current!.api.exportDataAsExcel({
+      sheetName: "R13 Report", // Set your desired sheet name here
+    });
+  }, []);
 
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
@@ -148,7 +107,7 @@ const R15Report: React.FC = () => {
                 Search
               </LoadingButton>
               <LoadingButton
-                disabled={!isConnected}
+                disabled={!r15Report}
                 variant="contained"
                 color="primary"
                 style={{
@@ -168,12 +127,7 @@ const R15Report: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <R15ReportTable
-            gridRef={gridRef}
-            handlePageChange={handlePageChange}
-            handlePageSizeChange={handlePageSizeChange}
-            pageSize={pageSize}
-          />
+          <R15ReportTable gridRef={gridRef} />
         </div>
       </div>
     </div>

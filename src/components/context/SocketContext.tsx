@@ -64,31 +64,6 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("r2_download", payload);
   };
 
-  const emitDownloadR1Report = (payload: any) => {
-    console.log("clicked", payload);
-    socketService.emit("r1Download", payload);
-  };
-
-  const emitR5DispatchReport = (payload: any) => {
-    console.log("clicked", payload);
-    socketService.emit("r5DispatchReport", payload);
-  };
-
-  const emitR6DispatchReport = (payload: any) => {
-    console.log("clicked", payload);
-    socketService.emit("r6Download", payload);
-  };
-
-  const emitDownloadR3Report = (payload: any) => {
-    console.log("clicked", payload);
-    socketService.emit("r3Download", payload);
-  };
-
-  const emitDownloadSwipeReport = (payload: any) => {
-    console.log("clicked");
-    socketService.emit("swipeDispatchReport", payload);
-  };
-
   const emitDownloadR10Report = (payload: any) => {
     console.log("clicked");
     socketService.emit("r10Download", payload);
@@ -98,107 +73,26 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("berComponent", payload);
   };
   const emitDownloadr5Report = (payload: any) => {
-    console.log(payload);
+    console.log(payload)
     socketService.emit("r5DeviceSerial", payload);
   };
   const emitDownloadWrongDeviceReport = (payload: any) => {
-    console.log(payload);
+    console.log(payload)
     socketService.emit("rWrongDevice", payload);
   };
-  const emitDownloadR18Report = (payload: any) => {
-    console.log(payload);
-    socketService.emit("swipeRejectionReport", payload);
-  };
-
-  const emitDownloadR17Report = (payload: any) => {
-    console.log(payload);
-    socketService.emit("swipeFunctionalReport", payload);
-  };
   const emitGetNotification = () => {
-    socketService.emit("getNotification", "");
+    socketService.emit("getNotification","");
   };
-  const onDownloadReport = (
-    callback: (data: { notificationId: string; percent: string }) => void
-  ) => {
+  const onDownloadReport = (callback: (data: { notificationId: string; percent: string }) => void) => {
     socketService.on("progress", callback);
-  };
-
-  const emitDownloadSwipeR10Report = (payload: any) => {
-    socketService.emit("swipeMonoReport", payload);
-  };
-
-  const swipeMachineInward = (payload: any) => {
-    console.log(payload);
-    socketService.emit("swipeMachineInward", payload);
-  };
-  const emitDeviceInwardReport = (payload: any) => {
-    console.log(payload);
-    socketService.emit("deviceInwardReport", payload);
-  };
-  const emitWrongDeviceReport = (payload: any) => {
-    console.log(payload);
-    socketService.emit("fetchWrongDeviceDownload", payload);
-  };
-  const emitR8DeviceReport = (payload: any) => {
-    console.log(payload);
-    socketService.emit("r8Download", payload);
-  };
-  const emitR13Report = (payload: any) => {
-    console.log(payload);
-    socketService.emit("deviceReportDownload", payload);
-  };
-
-  const emitR11Report = (payload: any) => {
-    console.log(payload);
-    socketService.emit("bpeIssueReportDownload", payload);
-  };
-   const emitR15Report = (payload: any) => {
-    console.log(payload);
-    socketService.emit("physicalReportDownload", payload);
   };
   const onnotification = (callback: (data: NotificationData[]) => void) => {
     socketService.on("socket_receive_notification", callback);
   };
-
+  
   const off = (event: string) => {
     socketService.off(event);
   };
 
-  return (
-    <SocketContext.Provider
-      value={{
-        emitR15Report,
-        emitR11Report,
-        emitR8DeviceReport,
-        emitR13Report,
-        emitDeviceInwardReport,
-        emitWrongDeviceReport,
-        emitR6DispatchReport,
-        emitR5DispatchReport,
-        emitDownloadR1Report,
-        emitDownloadSwipeR10Report,
-        emitDownloadR17Report,
-        emitDownloadSwipeReport,
-        swipeMachineInward,
-        emitDownloadReport,
-        emitDownloadR14Report,
-        emitDownloadWrongDeviceReport,
-        onDownloadReport,
-        isConnected,
-        refreshConnection,
-        isLoading,
-        off,
-        onnotification,
-        emitGetNotification,
-        emitDownloadR4Report,
-        emitDownloadR2Report,
-        emitDownloadR10Report,
-        emitDownloadr5Report,
-        emitDownloadR3Report,
-        emitDownloadR18Report,
-      }}
-    >
-      {children}
-    </SocketContext.Provider>
-  );
+  return <SocketContext.Provider value={{ emitDownloadReport,emitDownloadR14Report,emitDownloadWrongDeviceReport, onDownloadReport, isConnected, refreshConnection, isLoading, off, onnotification,emitGetNotification,emitDownloadR4Report,emitDownloadR2Report,emitDownloadR10Report,emitDownloadr5Report }}>{children}</SocketContext.Provider>;
 };

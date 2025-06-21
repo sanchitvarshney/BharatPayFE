@@ -11,7 +11,7 @@ import ProfileSidebar from "@/components/shared/ProfileSidebar";
 import MainLayoutPopovers from "../components/shared/MainLayoutPopovers";
 import DownloadIndecator from "@/components/shared/DownloadIndecator";
 import { SiSocketdotio } from "react-icons/si";
-import { FormControl, IconButton, MenuItem, Select, Tooltip } from "@mui/material";
+import { FormControl, IconButton, MenuItem, Select } from "@mui/material";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
@@ -23,7 +23,6 @@ function MainLayout(props: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const [selectedSession, setSelectedSession] = useState('25-26');
-  const [selectedCompanyBranch, setSelectedCompanyBranch] = useState('BRMSC031');
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
   const [favoriteSheet, setFavoriteSheet] = useState<boolean>(false);
   const [logotAlert, setLogotAlert] = useState<boolean>(false);
@@ -55,7 +54,6 @@ function MainLayout(props: { children: React.ReactNode }) {
     setSheet2Open(false);
     setFavoriteSheet(false);
   };
-  
   useEffect(() => {
     if (isConnected) {
       emitGetNotification();
@@ -66,12 +64,6 @@ function MainLayout(props: { children: React.ReactNode }) {
     setSelectedSession(newSession);
     // Store the selected session in localStorage
     localStorage.setItem('session', newSession);
-  };
-
-  const handleCompanyBranchChange = (newCompanyBranch:string) => {
-    setSelectedCompanyBranch(newCompanyBranch);
-    // Store the selected company branch in localStorage
-    localStorage.setItem('companyBranch', newCompanyBranch);
   };
 
   return (
@@ -93,9 +85,8 @@ function MainLayout(props: { children: React.ReactNode }) {
           className={`  z-[7] flex  items-center justify-between h-[50px] px-[20px] fixed top-0 left-[50px] w-[calc(100vw-50px)]   ${import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ? "bg-amber-300" : "bg-neutral-300"}`}
         >
           <div className="flex gap-[20px] items-center">
-            <div className="date flex gap-[20px] items-center">
-              <FormControl sx={{ width: "200px" }}>
-                <Tooltip title="Session">
+            <div className="date">
+              <FormControl sx={{ width: "300px" }}>
                 <Select
                   defaultValue={selectedSession}
                   className="shadow"
@@ -120,33 +111,6 @@ function MainLayout(props: { children: React.ReactNode }) {
                   <MenuItem value={"23-24"}> 2023-2024</MenuItem>
                   <MenuItem value={"22-23"}> 2022-2023</MenuItem>
                 </Select>
-                </Tooltip>
-              </FormControl>
-              <FormControl sx={{ width: "200px" }}>
-                <Tooltip title="Company Branch">
-                <Select
-                  defaultValue={selectedCompanyBranch}
-                  className="shadow"
-                  sx={{
-                    background: "white",
-                    border: "none",
-                    outline: "none",
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                    },
-                    "& .MuiSelect-select": {
-                      padding: "8px 12px",
-                    },
-                  }}
-                  size="small"
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  onChange={(e) => handleCompanyBranchChange(e.target.value)}
-                >
-                  <MenuItem value={"BRMSC031"}> B88</MenuItem>
-                  <MenuItem value={"BRMSC030"}> Kortek</MenuItem>
-                </Select>
-                </Tooltip>
               </FormControl>
             </div>
           </div>

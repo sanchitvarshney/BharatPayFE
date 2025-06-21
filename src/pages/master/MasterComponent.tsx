@@ -26,7 +26,6 @@ export type createComponentdata = {
   group: OptionType | null;
   notes: string;
   module:{id:string,text:string}|null;
-  hsn:string;
 };
 const MasterComponent: React.FC = () => {
   const [update, setUpadte] = useState<boolean>(false);
@@ -49,7 +48,6 @@ const MasterComponent: React.FC = () => {
       group: null,
       notes: "",
       module:null,
-      hsn:"",
     },
   });
 
@@ -63,7 +61,7 @@ const MasterComponent: React.FC = () => {
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.uom !== null) {
-      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id,part:data.part,hsn:data.hsn };
+      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id,part:data.part };
       dispatch(createComponentAsync(newdata)).then((res: any) => {
         if (res.payload?.data?.success) {
           reset();
@@ -152,8 +150,6 @@ const MasterComponent: React.FC = () => {
                 />
 
                 {errors.uom && <span className=" text-[12px] text-red-500">{errors.uom.message}</span>}
-                <TextField placeholder=" HSN Code" fullWidth label="HSN Code"{...register("hsn")} />
-                {errors.hsn && <span className=" text-[12px] text-red-500">{errors.hsn.message}</span>}
               </div>
               {/* <div>
                 <Controller

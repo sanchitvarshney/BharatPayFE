@@ -20,7 +20,6 @@ import { showToast } from "../../utils/toasterContext";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { rangePresets } from "@/utils/rangePresets";
-import { formatNumber } from "@/utils/numberFormatUtils";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
@@ -183,10 +182,10 @@ const DeviceQuery: React.FC = () => {
                   <Divider />
                   <List>
                     <ListItem>
-                      <ListItemText primary="Opening Qty" secondary={formatNumber(q1Data?.head?.openingQty) || "--"} />
+                      <ListItemText primary="Opening Qty" secondary={q1Data?.head?.openingQty || "--"} />
                     </ListItem>
                     <ListItem>
-                      <ListItemText primary="Closing Qty" secondary={formatNumber(q1Data?.head?.closingQty) || "--"} />
+                      <ListItemText primary="Closing Qty" secondary={q1Data?.head?.closingQty || "--"} />
                     </ListItem>
                   </List>
                 </Paper>

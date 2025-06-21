@@ -239,7 +239,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
             loading={r5reportLoading || getChallanLoading}
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
-            rowData={r5report?.data|| []}
+            rowData={r5report ? r5report : []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             pagination={true}

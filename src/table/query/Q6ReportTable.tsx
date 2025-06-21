@@ -65,7 +65,6 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
         locIn: item.location,
         locOut: item.locationOut,
         insertBy: item.user,
-        moveId: item.deviceMovId
       }));
       setRowData(convertedData);
     }
@@ -119,13 +118,6 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
       width: 200,
     },
     {
-      headerName: "Move ID",
-      field: "moveId",
-      sortable: true,
-      filter: true,
-      width:250
-    },
-    {
       headerName: "Inserted By",
       field: "insertBy",
       sortable: true,
@@ -151,9 +143,8 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={true} 
+          pagination={true}
           paginationPageSize={20}
-          enableCellTextSelection
         />
       </div>
     </div>

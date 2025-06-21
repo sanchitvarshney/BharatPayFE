@@ -122,7 +122,7 @@ export type BOMState = {
   fgBomListLoading: boolean;
   changeStatusLoading: boolean;
   bomItemList: any[] | null;
-  bomDetail: any;
+  bomDetail: FGBomDetailResponse | null;
   bomDetailLoading: boolean;
   updateBomLoading: boolean;
   uploadFileLoading: boolean;

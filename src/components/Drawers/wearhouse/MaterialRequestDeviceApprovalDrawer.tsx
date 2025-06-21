@@ -192,14 +192,14 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                 Requested Details
               </Typography>
             </div>
-           <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+            <List sx={{ width: "100%", bgcolor: "background.paper" }}>
               <ListItem>
                 <ListItemAvatar>
                   <Avatar>
                     <AccountTreeIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="BOM" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.bomName ??""} />
+                <ListItemText primary="BOM" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.bomName} />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -207,7 +207,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                     <PlaceIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Req. Location:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.locationName??""} />
+                <ListItemText primary="Req. Location:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.locationName} />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -215,7 +215,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                     <AppsIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="MFG Qty:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.mfgQty ??""} />
+                <ListItemText primary="MFG Qty:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.mfgQty} />
               </ListItem>
             </List>
          
@@ -350,7 +350,6 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                               value={field.value}
                               onChange={(e) => {
                                 field.onChange(e);
-                              
                                 dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
                               }}
                               error={!!errors.picLocation}

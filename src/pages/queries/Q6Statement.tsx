@@ -5,15 +5,12 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "ag-grid-react";
 import { CardFooter } from "@/components/ui/card";
 import { getQ6Data } from "@/features/query/query/querySlice";
-import { CardContent, Divider, FormControl, List, ListItem, ListItemText, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
+import { CardContent, Divider, List, ListItem, ListItemText, Paper, TextField, Typography } from "@mui/material";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { Button } from "@/components/ui/button";
 import Q6ReportTable from "@/table/query/Q6ReportTable";
-import { showToast } from "@/utils/toasterContext";
-
 const Q6Statement: React.FC = () => {
   const [input, setInput] = useState("");
-  const [deviceType, setDeviceType] = useState<string>("");
   const { q6StatementLoading, q6Statement } = useAppSelector(
     (state) => state.query
   );
@@ -146,86 +143,31 @@ const Q6Statement: React.FC = () => {
           <div className="h-full overflow-y-auto ">
             <Paper elevation={0}>
               <CardContent>
-                <div className="flex flex-col gap-[20px] px-[20px] py-[20px]">
-                  <div className="flex flex-col gap-[10px]">
-                    <Typography
-                      variant="subtitle1"
-                      className="text-slate-600 font-medium"
-                    >
-                      Device Type
-                    </Typography>
-                    <FormControl fullWidth>
-                      <Select
-                        value={deviceType}
-                        onChange={(e) => setDeviceType(e.target.value)}
-                        displayEmpty
-                        inputProps={{ "aria-label": "Device Type" }}
-                        sx={{
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "rgb(203 213 225)",
-                          },
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "rgb(148 163 184)",
-                          },
-                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "rgb(14 116 144)",
-                          },
-                        }}
-                      >
-                        <MenuItem value="" disabled>
-                          <em>Select Device Type</em>
-                        </MenuItem>
-                        <MenuItem value="soundbox">Sound Box</MenuItem>
-                        <MenuItem value="swipe">Swipe Machine</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </div>
-                  <div className="flex flex-col gap-[10px]">
-                    <Typography
-                      variant="subtitle1"
-                      className="text-slate-600 font-medium"
-                    >
-                      IMEI / Serial Number
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          if (input) {
-                            dispatch(getQ6Data({ id: input, type: deviceType }));
-                          }
+                <div className="h-[90px] flex items-center gap-[10px] px-[20px] border-b border-neutral-300">
+                  <TextField
+                    // size="small"
+                    label="IMEI / Serial Number"
+                    sx={{ width: "400px", height: "50px" }}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (input) {
+                          dispatch(getQ6Data(input));
                         }
-                      }}
-                      inputProps={{ maxLength: deviceType === "soundbox" ? 15 : undefined }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "rgb(203 213 225)",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "rgb(148 163 184)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(14 116 144)",
-                          },
-                        },
-                      }}
-                    />
-                  </div>
+                      }
+                    }}
+                    inputProps={{ maxLength: 15 }}
+                    // className="w-full h-[50px] border-[2px] rounded-sm "
+                  />
                 </div>
               </CardContent>
               <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px]  gap-[10px]">
                 <LoadingButton
                   loadingPosition="start"
                   onClick={() => {
-                    if (input && deviceType) {
-                      dispatch(getQ6Data({ id: input, type: deviceType }));
-                    }
-                    else{
-                      showToast("Please enter IMEI or Serial Number and Device Type", "error");
+                    if (input) {
+                      dispatch(getQ6Data(input));
                     }
                   }}
                   loading={q6StatementLoading}
@@ -254,6 +196,7 @@ const Q6Statement: React.FC = () => {
                       <Icons.download fontSize="small" />
                     </LoadingButton>
                   </MuiTooltip>
+                
                 </div>
               </CardFooter>
             </Paper>

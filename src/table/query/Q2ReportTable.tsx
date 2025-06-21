@@ -31,7 +31,6 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
         insertBy: item.insertBy,
         vendor: item.vendor.name.trim(),
         vendorCode: item.vendor.code,
-        poNumber: item.poNumber,
       }));
       setRowData(convertedData);
     }
@@ -48,7 +47,6 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
     { headerName: "Location Out", field: "locOut", sortable: true, filter: true },
     { headerName: "Vendor", field: "vendor", sortable: true, filter: true },
     { headerName: "Vendor Code", field: "vendorCode", sortable: true, filter: true },
-    { headerName: "PO Number", field: "poNumber", sortable: true, filter: true },
     { headerName: "Inserted By", field: "insertBy", sortable: true, filter: true },
     { field: "category", headerName: "Category", sortable: true, filter: true },
     { field: "subCategory", headerName: "Sub Category", sortable: true, filter: true },
@@ -68,7 +66,6 @@ const Q2ReportTable: React.FC<Props> = ({ gridRef }) => {
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={20}
-          enableCellTextSelection
         />
       </div>
     </div>

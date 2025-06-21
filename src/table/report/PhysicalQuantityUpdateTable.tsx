@@ -9,13 +9,9 @@ import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import { updatePhysicalQuantity } from "@/features/report/report/reportSlice";
 import { Input } from "@/components/ui/input";
-import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
-  handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
 };
 
 const InputCellRenderer = (props: ICellRendererParams) => {
@@ -146,12 +142,7 @@ const columnDefs: ColDef[] = [
   },
 ];
 
-const PhysicalQuantityUpdateTable: React.FC<Props> = ({
-  gridRef,
-  handlePageChange,
-  handlePageSizeChange,
-  pageSize,
-}) => {
+const PhysicalQuantityUpdateTable: React.FC<Props> = ({ gridRef }) => {
   const { r15Report, r15ReportLoading } = useAppSelector(
     (state) => state.report
   );
@@ -163,7 +154,7 @@ const PhysicalQuantityUpdateTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(105vh-150px)]">
+      <div className="relative ag-theme-quartz h-[calc(105vh-100px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -173,20 +164,10 @@ const PhysicalQuantityUpdateTable: React.FC<Props> = ({
           rowData={r15Report?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={false}
-          enableCellTextSelection
+          pagination={true}
+          paginationPageSize={20}
         />
       </div>
-      {r15Report && (
-        <CustomPagination
-          currentPage={r15Report?.pagination?.currentPage as any}
-          totalPages={r15Report?.pagination?.totalPages as any}
-          totalRecords={r15Report?.pagination?.totalRecords as any}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
-        />
-      )}
     </div>
   );
 };

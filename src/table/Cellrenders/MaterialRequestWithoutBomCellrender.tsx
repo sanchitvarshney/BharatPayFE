@@ -1,17 +1,16 @@
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 import AntSkuSelect from "@/components/reusable/antSelecters/AntSkuSelect";
-import { getAvailbleQty, getSwipeAvailbleQty } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+import { getAvailbleQty } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Input } from "antd";
 import React, { useEffect, useState } from "react";
 interface MaterialInvardCellRendererProps {
   props: any;
   customFunction: () => void;
-  module?: string;
 }
 
-const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction,module }) => {
+const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererProps> = ({ props, customFunction }) => {
   const { type, availbleQtyData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const dispatch = useAppDispatch();
   const { value, colDef, data, api, column } = props;
@@ -36,16 +35,6 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
               data[colDef.field] = newValue; // update the data
 
               if (selectedValue && data?.pickLocation) {
-                if(module =="swipe"){
-                  dispatch(
-                    getSwipeAvailbleQty({
-                      itemCode: selectedValue.value || "",
-                      type: "RM",
-                      location: data?.pickLocation,
-                    })
-                  );
-                }
-                else{
                 dispatch(
                   getAvailbleQty({
                     itemCode: selectedValue.value || "",
@@ -54,7 +43,6 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
                   })
                 );
               }
-            }
               api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
             }}
             value={value}
@@ -92,16 +80,6 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
               data[colDef.field] = newValue; // update the data
 
               if (selectedValue && data?.pickLocation) {
-                if(module =="swipe"){
-                  dispatch(
-                    getSwipeAvailbleQty({
-                      itemCode: selectedValue.value || "",
-                      type: "RM",
-                      location: data?.pickLocation,
-                    })
-                  );
-                }
-                else{
                 dispatch(
                   getAvailbleQty({
                     itemCode: selectedValue.value || "",
@@ -110,7 +88,6 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
                   })
                 );
               }
-            }
               api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
             }}
             value={value}
@@ -126,16 +103,6 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
               data[colDef.field] = newValue; // update the data
 
               if (value && data?.code) {
-                if(module =="swipe"){
-                  dispatch(
-                    getSwipeAvailbleQty({
-                      itemCode: data?.code?.value? data.code.value : data?.code,
-                      type: type === "device" ? "SKU" : "RM",
-                      location: value.value,
-                    })
-                  );
-                }
-                else{
                 dispatch(
                   getAvailbleQty({
                     itemCode: data?.code?.value? data.code.value : data?.code,
@@ -143,7 +110,6 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
                     location: value.value,
                   })
                 );
-              }
               }
               api.refreshCells({ rowNodes: [props.node], columns: [column, "id", "component", "pickLocation", "orderqty", "remarks", "unit", "code"] });
             }}
@@ -159,25 +125,9 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
               min={0}
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
-                  // const inputValue = Number(e.target.value);
-                  // const availableQty =
-                  //   availbleQtyData?.find(
-                  //     (item) =>
-                  //       item.location === data?.pickLocation?.value &&
-                  //       item.item === data?.code?.value
-                  //   )?.Stock || 0;
-
-                  // if (inputValue >= 0 && inputValue <= availableQty) {
-                  //   handleInputChange(e);
-                  // } else if (inputValue > availableQty) {
-                  //   // If input is greater than available quantity, set it to available quantity
-                  //   const event = {
-                  //     target: {
-                  //       value: availableQty.toString(),
-                  //     },
-                  //   };
-                    handleInputChange(event);
-                  // }
+                  if (Number(e.target.value) >= 0) {
+                    handleInputChange(e);
+                  }
                 }
               }}
               value={value}
