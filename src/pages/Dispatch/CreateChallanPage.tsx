@@ -21,6 +21,10 @@ import {
   Stepper,
   TextField,
   Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormLabel,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -60,7 +64,8 @@ type FormDataType = {
   gstState: string;
   itemPrice: string;
   hsnCode: string;
-  materialName  : string;
+  materialName: string;
+  deviceType: string;
 };
 
 type clientDetailType = {
@@ -133,6 +138,7 @@ const CreateChallanPage: React.FC = () => {
       itemPrice: "",
       materialName: "",
       hsnCode: "",
+      deviceType: "",
     },
   });
   const formValues = watch();
@@ -162,7 +168,7 @@ const CreateChallanPage: React.FC = () => {
       return;
     }
     if (!data.clientDetail?.branchId) {
-      showToast("Please select a client branch", "error"); 
+      showToast("Please select a client branch", "error");
       return;
     }
     if (!data.clientDetail?.address1) {
@@ -255,6 +261,10 @@ const CreateChallanPage: React.FC = () => {
       showToast("Please Enter Item Price", "error");
       return;
     }
+    if (!data.deviceType) {
+      showToast("Please select Device Type", "error");
+      return;
+    }
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
@@ -272,7 +282,8 @@ const CreateChallanPage: React.FC = () => {
       gstState: data.gstState === "Inter State" ? "inter" : "local",
       itemPrice: data.itemPrice,
       hsnCode: data.hsnCode,
-      materialName  : data.materialName,
+      materialName: data.materialName,
+      deviceType: data.deviceType,
     };
     dispatch(CreateChallan(payload)).then((res: any) => {
       console.log(res);
@@ -830,7 +841,7 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                   <Controller
+                <Controller
                   name="itemPrice"
                   control={control}
                   rules={{
@@ -860,7 +871,7 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-              
+
                 <Controller
                   name="gstState"
                   rules={{
@@ -889,8 +900,7 @@ const CreateChallanPage: React.FC = () => {
                     />
                   )}
                 />
-              
-            
+
                 <Controller
                   name="gstRate"
                   control={control}
@@ -921,8 +931,8 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-             
-               <Controller
+
+                <Controller
                   name="hsnCode"
                   control={control}
                   rules={{
@@ -952,7 +962,48 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                  <Controller
+                <Controller
+                  name="deviceType"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Device Type is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.deviceType}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <FormLabel component="legend">Device Type</FormLabel>
+                      <RadioGroup
+                        {...field}
+                        row
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                      >
+                        <FormControlLabel
+                          value="soundBox"
+                          control={<Radio />}
+                          label="Sound Box"
+                        />
+                        <FormControlLabel
+                          value="swipeDevice"
+                          control={<Radio />}
+                          label="Swipe Device"
+                        />
+                      </RadioGroup>
+                      {errors.deviceType && (
+                        <FormHelperText>
+                          {errors.deviceType.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+                <Controller
                   name="otherRef"
                   control={control}
                   rules={{
@@ -984,27 +1035,27 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                </div>
-                <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
-                  <FormControl fullWidth variant="filled">
-                    <InputLabel htmlFor="materialName">Material Name</InputLabel>
-                    <FilledInput
-                      {...register("materialName")}
-                      id="materialName"
-                      multiline
-                      rows={2}
-                    />
-                  </FormControl>
-                  <FormControl fullWidth variant="filled">
-                    <InputLabel htmlFor="remark">Remarks</InputLabel>
-                    <FilledInput
-                      {...register("remark")}
-                      id="remark"
-                      multiline
-                      rows={2}
-                    />
-                  </FormControl>
-                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
+                <FormControl fullWidth variant="filled">
+                  <InputLabel htmlFor="materialName">Material Name</InputLabel>
+                  <FilledInput
+                    {...register("materialName")}
+                    id="materialName"
+                    multiline
+                    rows={2}
+                  />
+                </FormControl>
+                <FormControl fullWidth variant="filled">
+                  <InputLabel htmlFor="remark">Remarks</InputLabel>
+                  <FilledInput
+                    {...register("remark")}
+                    id="remark"
+                    multiline
+                    rows={2}
+                  />
+                </FormControl>
+              </div>
               {/* </div> */}
             </div>
           )}

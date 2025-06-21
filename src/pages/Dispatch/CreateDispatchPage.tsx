@@ -320,7 +320,7 @@ const CreateDispatchPage: React.FC = () => {
             autoFocus
             disabled={deviceDetailLoading}
             onClick={() => {
-              dispatch(getDeviceDetails({imei: imei, deviceType: formValues.deviceType})).then((res: any) => {
+              dispatch(getDeviceDetails({imei: imei, deviceType: data?.deviceType})).then((res: any) => {
                 if (res.payload.data.success) {
                   setImei("");
                   const newRowData = res?.payload?.data?.data?.map(
@@ -631,6 +631,7 @@ const CreateDispatchPage: React.FC = () => {
                           { label: "Other Reference", value: data?.otherRef },
                           { label: "GST Rate", value: data?.gstrate },
                           { label: "GST Type", value: data?.gsttype==="inter"?"Inter State":"Intra State" },
+                          {label: "Device Type", value: data?.deviceType==="soundBox"?"SoundBox":"Swipe Device"},
                           {label:"Item Rate",value:data?.itemRate},
                           {label:"HSN Code",value:data?.hsnCode},
                           {label:"Material Name",value:data?.materialName},
