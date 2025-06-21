@@ -18,8 +18,8 @@ const dateFormat = "DD-MM-YYYY";
 const R18Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [date, setDate] = useState<{ from: string; to: string } | null>(null);
-  const [pageSize, setPageSize] = useState(10);
-  const { emitDownloadR18Report } = useSocketContext();
+  const [pageSize, setPageSize] = useState(20);
+  const { emitDownloadR18Report,isConnected } = useSocketContext();
 
   const dispatch = useAppDispatch();
   const { getR17DataLoading } = useAppSelector((state) => state.report);
@@ -128,6 +128,7 @@ const R18Report: React.FC = () => {
             </LoadingButton>
             <LoadingButton
               variant="contained"
+              disabled={!isConnected}
               onClick={handleDownload}
               color="primary"
               style={{

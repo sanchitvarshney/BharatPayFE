@@ -24,13 +24,13 @@ const R6Report: React.FC = () => {
     from: null,
     to: null,
   });
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(20);
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
   const { r6ReportLoading, r6Report } = useAppSelector((state) => state.report);
   const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
-  const { emitR6DispatchReport } = useSocketContext();
+  const { emitR6DispatchReport,isConnected } = useSocketContext();
 
   const onBtExport = () => {
     if (type === "min") {
@@ -40,7 +40,7 @@ const R6Report: React.FC = () => {
       });
     } else {
       emitR6DispatchReport({
-        type: type,
+        type: type==="date"?"DATE":type,
         startDate: date.from?.format("DD-MM-YYYY") || "",
         endDate: date.to?.format("DD-MM-YYYY") || "",
       });
@@ -201,7 +201,7 @@ const R6Report: React.FC = () => {
                     </LoadingButton>
                     <MuiTooltip title="Download" placement="right">
                       <LoadingButton
-                        disabled={!r6Report}
+                        disabled={!isConnected}
                         variant="contained"
                         color="primary"
                         style={{

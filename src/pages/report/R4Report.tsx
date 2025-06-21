@@ -57,7 +57,7 @@ const R4Report: React.FC = () => {
     to: null,
   });
   const [open, setOpen] = React.useState(false);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(20);
 
   const handleClose = () => {
     setOpen(false);
@@ -98,20 +98,34 @@ const R4Report: React.FC = () => {
   }, []);
 
   const handlePageChange = (page: number) => {
+    if(filter === "DATE"){
     dispatch(
       getr4Report({
         type: "DATE",
         from: dayjs(date.from).format("DD-MM-YYYY"),
         to: dayjs(date.to).format("DD-MM-YYYY"),
         deviceType,
-        limit: page,
-        page: 1,
+        limit: pageSize,
+        page: page,
       })
     );
+  }
+  else{
+    dispatch(
+      getr4Report({
+        type: "DEVICE",
+        deviceType,
+        device: device?.id,
+        limit: pageSize,
+        page: page,
+      })
+    );
+  }
   };
 
   const handlePageSizeChange = (pageSize: number) => {
     setPageSize(pageSize);
+    if(filter === "DATE"){
     dispatch(
       getr4Report({
         type: "DATE",
@@ -121,6 +135,18 @@ const R4Report: React.FC = () => {
         limit: pageSize,
       })
     );
+  }
+  else{
+    dispatch(
+      getr4Report({
+        type: "DEVICE",
+        deviceType,
+        device: device?.id,
+        page: 1,
+        limit: pageSize,
+      })
+    );
+  }
   };
   return (
     <>

@@ -233,12 +233,16 @@ export type r6report = {
 
 export type r6reportApiResponse = {
   success: boolean;
-  data: r6report[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-  }
+  data: {
+    data: {
+      records: r6report[];
+      pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalRecords: number;
+      };
+    }
+  };
 };
 
 type R8ReportData = {
@@ -272,6 +276,11 @@ export type R8ReportDataApiResponse = {
   status: string;
   success: boolean;
   data: R8ReportData[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  };
 };
 
 export type R12ReportDataApiResponse = {
@@ -288,6 +297,11 @@ export type R11ReportDataApiResponse = {
   totalApprove: number;
   totalPending: number;
   totalReject: number;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  }
 };
 
 interface Issue {
@@ -321,6 +335,16 @@ export type R9reportResponse = {
   status: string;
   success: boolean;
   data: ProductDetails[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+    recordsPerPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    nextPage: number | null;
+    previousPage: number | null;
+  };
 };
 export type ReportStateType = {
   r1Data: DocumentData | null;
@@ -332,7 +356,7 @@ export type ReportStateType = {
   refId: string | null;
   r3report: r3reportResponse | null;
   r3reportLoading: boolean;
-  r4report:R4ReportResponse | null;
+  r4report: R4ReportResponse | null;
   r4reportLoading: boolean;
   r4ReportDetail: r4reportDetailData | null;
   r4ReportDetailLoading: boolean;
@@ -354,12 +378,12 @@ export type ReportStateType = {
     | null;
   mainR1Report: any;
   mainR1ReportLoading: boolean;
-  r6Report: r6reportApiResponse| null;
-  wrongDeviceReport: any | null;
+  r6Report: any;
+  wrongDeviceReport: any;
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;
-  r8Report: R8ReportData[] | null;
-  r9report: ProductDetails[] | null;
+  r8Report: R8ReportDataApiResponse | null;
+  r9report: R9reportResponse | null;
   r9ReportLoading: boolean;
   wrongDeviceReportLoading: boolean;
   r11ReportLoading: boolean;
@@ -393,11 +417,11 @@ export type ReportStateType = {
   };
   r17ReportPartner: string | null;
   swipeItemDetails: any | null;
-  swipeItemDetailsLoading:boolean
+  swipeItemDetailsLoading: boolean;
   transferReportLoading: boolean;
   transferReport: any | null;
   getR18DataLoading: boolean;
-  r18Report:any;
+  r18Report: any;
   paginationDateRange: {
     from: string | null;
     to: string | null;

@@ -11,37 +11,104 @@ import { getR13Report, } from "@/features/report/report/reportSlice";
 import { Divider, List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
 import R13ReportTable from "@/table/report/R13ReportTable";
 import { formatNumber } from "@/utils/numberFormatUtils";
+import { useSocketContext } from "@/components/context/SocketContext";
 
 const R13Report: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { r11ReportLoading, r11Report } = useAppSelector((state) => state.report);
-  const [dateRange, setDateRange] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+  const { r13ReportLoading, r13Report } = useAppSelector(
+    (state) => state.report
+  );
+  const { emitR13Report,isConnected } = useSocketContext();
+  const [dateRange, setDateRange] = useState<{
+    from: Dayjs | null;
+    to: Dayjs | null;
+  }>({
     from: null,
     to: null,
   });
   const gridRef = useRef<AgGridReact<any>>(null);
   const [colapse, setcolapse] = useState<boolean>(false);
-  const handleDateChange = (dates: { from: Dayjs | null; to: Dayjs | null }) => {
+  const [pageSize, setPageSize] = useState<number>(20);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const handleDateChange = (dates: {
+    from: Dayjs | null;
+    to: Dayjs | null;
+  }) => {
     setDateRange(dates);
   };
   const getreport = () => {
     if (dateRange.from && dateRange.to) {
-      dispatch(getR13Report({ from: dateRange.from.format("DD-MM-YYYY"), to: dateRange.to.format("DD-MM-YYYY") }));
+      dispatch(
+        getR13Report({
+          from: dateRange.from.format("DD-MM-YYYY"),
+          to: dateRange.to.format("DD-MM-YYYY"),
+          limit: 20,
+          page: currentPage,
+        })
+      );
     }
   };
   const onBtExport = useCallback(() => {
-    gridRef.current!.api.exportDataAsExcel({
-      sheetName: "R13 Report", // Set your desired sheet name here
-    });
-  }, []);
+    if (dateRange.from && dateRange.to) {
+      emitR13Report({
+        fromDate: dayjs(dateRange.from).format("DD-MM-YYYY"),
+        toDate: dayjs(dateRange.to).format("DD-MM-YYYY"),
+      });
+    }
+  }, [dateRange, emitR13Report]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (dateRange.from && dateRange.to) {
+      dispatch(
+        getR13Report({
+          from: dateRange.from.format("DD-MM-YYYY"),
+          to: dateRange.to.format("DD-MM-YYYY"),
+          limit: pageSize,
+          page: page,
+        })
+      );
+    }
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page when changing page size
+    if (dateRange.from && dateRange.to) {
+      dispatch(
+        getR13Report({
+          from: dateRange.from.format("DD-MM-YYYY"),
+          to: dateRange.to.format("DD-MM-YYYY"),
+          limit: newPageSize,
+          page: 1,
+        })
+      );
+    }
+  };
 
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
       <div className={` h-full flex relative   `}>
-        <div className={` transition-all h-full ${colapse ? "min-w-0 max-w-[0px]" : "min-w-[400px] max-w-[400px] "}  overflow-y-auto overflow-x-hidden border-r border-neutral-400/70   `}>
-          <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
-            <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
-              {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+        <div
+          className={` transition-all h-full ${
+            colapse ? "min-w-0 max-w-[0px]" : "min-w-[400px] max-w-[400px] "
+          }  overflow-y-auto overflow-x-hidden border-r border-neutral-400/70   `}
+        >
+          <div
+            className={`transition-all ${
+              colapse ? "left-0" : "left-[400px]"
+            } w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
+          >
+            <Button
+              onClick={() => setcolapse(!colapse)}
+              className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}
+            >
+              {colapse ? (
+                <Icons.right fontSize="small" />
+              ) : (
+                <Icons.left fontSize="small" />
+              )}
             </Button>
           </div>
           <div className="p-[20px] ">
@@ -58,11 +125,17 @@ const R13Report: React.FC = () => {
               />
             </div>
             <div className="mt-[20px] flex items-center justify-between">
-              <LoadingButton onClick={getreport} loading={r11ReportLoading} loadingPosition="start" startIcon={<Icons.search fontSize="small" />} variant="contained">
+              <LoadingButton
+                onClick={getreport}
+                loading={r13ReportLoading}
+                loadingPosition="start"
+                startIcon={<Icons.search fontSize="small" />}
+                variant="contained"
+              >
                 Search
               </LoadingButton>
               <LoadingButton
-                disabled={!r11Report}
+               disabled={!isConnected}
                 variant="contained"
                 color="primary"
                 style={{
@@ -80,30 +153,48 @@ const R13Report: React.FC = () => {
               </LoadingButton>
             </div>
           </div>
-          {r11Report && (
-              <>
-                <Paper elevation={0} className="rounded-md mt-[20px] px-[20px] ">
-                  <Typography className=" text-slate-600" fontWeight={600} gutterBottom>
-                    Device Status
-                  </Typography>
-                  <Divider />
-                  <List>
-                    <ListItem>
-                      <ListItemText primary="Total Approve" secondary={formatNumber(r11Report?.totalApprove)} />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText primary="Total Pending" secondary={formatNumber(r11Report?.totalPending)} />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText primary="Total Reject" secondary={r11Report?.totalReject || "--"} />
-                    </ListItem>
-                  </List>
-                </Paper>
-              </>
-            )}
+          {r13Report && (
+            <>
+              <Paper elevation={0} className="rounded-md mt-[20px] px-[20px] ">
+                <Typography
+                  className=" text-slate-600"
+                  fontWeight={600}
+                  gutterBottom
+                >
+                  Device Status
+                </Typography>
+                <Divider />
+                <List>
+                  <ListItem>
+                    <ListItemText
+                      primary="Total Approve"
+                      secondary={formatNumber(r13Report?.totalApprove)}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Total Pending"
+                      secondary={formatNumber(r13Report?.totalPending)}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Total Reject"
+                      secondary={r13Report?.totalReject || "--"}
+                    />
+                  </ListItem>
+                </List>
+              </Paper>
+            </>
+          )}
         </div>
         <div className="w-full">
-          <R13ReportTable gridRef={gridRef} />
+          <R13ReportTable
+            gridRef={gridRef}
+            handlePageChange={handlePageChange}
+            handlePageSizeChange={handlePageSizeChange}
+            pageSize={pageSize}
+          />
         </div>
       </div>
     </div>

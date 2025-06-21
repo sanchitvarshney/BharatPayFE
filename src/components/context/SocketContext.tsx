@@ -74,7 +74,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("r5DispatchReport", payload);
   };
 
-    const emitR6DispatchReport = (payload: any) => {
+  const emitR6DispatchReport = (payload: any) => {
     console.log("clicked", payload);
     socketService.emit("r6Download", payload);
   };
@@ -131,6 +131,31 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log(payload);
     socketService.emit("swipeMachineInward", payload);
   };
+  const emitDeviceInwardReport = (payload: any) => {
+    console.log(payload);
+    socketService.emit("deviceInwardReport", payload);
+  };
+  const emitWrongDeviceReport = (payload: any) => {
+    console.log(payload);
+    socketService.emit("fetchWrongDeviceDownload", payload);
+  };
+  const emitR8DeviceReport = (payload: any) => {
+    console.log(payload);
+    socketService.emit("r8Download", payload);
+  };
+  const emitR13Report = (payload: any) => {
+    console.log(payload);
+    socketService.emit("deviceReportDownload", payload);
+  };
+
+  const emitR11Report = (payload: any) => {
+    console.log(payload);
+    socketService.emit("bpeIssueReportDownload", payload);
+  };
+   const emitR15Report = (payload: any) => {
+    console.log(payload);
+    socketService.emit("physicalReportDownload", payload);
+  };
   const onnotification = (callback: (data: NotificationData[]) => void) => {
     socketService.on("socket_receive_notification", callback);
   };
@@ -142,6 +167,12 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   return (
     <SocketContext.Provider
       value={{
+        emitR15Report,
+        emitR11Report,
+        emitR8DeviceReport,
+        emitR13Report,
+        emitDeviceInwardReport,
+        emitWrongDeviceReport,
         emitR6DispatchReport,
         emitR5DispatchReport,
         emitDownloadR1Report,

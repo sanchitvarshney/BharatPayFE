@@ -58,7 +58,7 @@ const Deviceinreport: React.FC = () => {
     from: null,
     to: null,
   });
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(20);
   const [page, setPage] = useState<number>(1);
 
   const dispatch = useAppDispatch();
@@ -66,7 +66,7 @@ const Deviceinreport: React.FC = () => {
   const { r1Data, mainR1ReportLoading, mainR1Report } = useAppSelector(
     (state) => state.report
   );
-  const { emitDownloadR1Report } = useSocketContext();
+  const { emitDownloadR1Report,isConnected } = useSocketContext();
   const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
 
@@ -341,7 +341,7 @@ const Deviceinreport: React.FC = () => {
                     </LoadingButton>
                     <MuiTooltip title="Download" placement="right">
                       <LoadingButton
-                        disabled={!mainR1Report}
+                        disabled={!isConnected}
                         variant="contained"
                         color="primary"
                         style={{

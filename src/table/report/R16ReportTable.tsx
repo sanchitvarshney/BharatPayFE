@@ -171,7 +171,7 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
   } = useAppSelector((state) => state.report);
   const dispatch = useAppDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingButtons, setLoadingButtons] = useState<Set<string>>(new Set());
