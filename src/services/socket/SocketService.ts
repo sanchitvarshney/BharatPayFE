@@ -1,3 +1,4 @@
+import { showToast } from "@/utils/toasterContext";
 import { getToken } from "@/utils/tokenUtills";
 import { io, Socket } from "socket.io-client";
 
@@ -37,6 +38,10 @@ class SocketService implements ISocketService {
       console.error("Socket connection error:", error);
       this.isLoading = false; 
     });
+    this.socket.on("error_msg",(error_msg)=>{
+      console.log(error_msg)
+      showToast(error_msg,"error")
+    })
   
   }
 

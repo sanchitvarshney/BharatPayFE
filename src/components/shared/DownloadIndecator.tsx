@@ -24,6 +24,7 @@ const DownloadIndecator = () => {
   };
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
+
   useEffect(() => {
     const handlenotification = (data: NotificationData[]) => {
       setNotification(data);
@@ -33,6 +34,7 @@ const DownloadIndecator = () => {
     onnotification(handlenotification);
     return () => off("socket_receive_notification");
   }, [onnotification]);
+
   useEffect(() => {
     const handleDownloadReport = (data: { notificationId: string; percent: string }) => {
       setProgress(data);
