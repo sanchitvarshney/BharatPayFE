@@ -221,7 +221,7 @@ const CreateDispatchPage: React.FC = () => {
         "Total Devices should be equal to Quantity you have entered",
         "error"
       );
-    const payload: DispatchItemPayload = {
+    const payload: any = {
       docNo: data.docNo,
       // sku: data.sku?.id || "",
       sku: rowData.map((item) => item.productKey),
