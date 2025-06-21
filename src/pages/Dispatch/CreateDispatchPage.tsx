@@ -88,7 +88,6 @@ type FormDataType = {
   gstState: string;
   otherRef: string;
   gstType: string;
-  deviceType: string;
 };
 
 type clientDetailType = {
@@ -320,7 +319,7 @@ const CreateDispatchPage: React.FC = () => {
             autoFocus
             disabled={deviceDetailLoading}
             onClick={() => {
-              dispatch(getDeviceDetails({imei: imei, deviceType: formValues.deviceType})).then((res: any) => {
+              dispatch(getDeviceDetails(imei)).then((res: any) => {
                 if (res.payload.data.success) {
                   setImei("");
                   const newRowData = res?.payload?.data?.data?.map(
@@ -964,7 +963,7 @@ const CreateDispatchPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="h-[calc(100vh-250px)]">
-                    <ImeiTable setRowdata={setRowData} rowData={rowData} module="swipeDevice" />
+                    <ImeiTable setRowdata={setRowData} rowData={rowData} />
                   </div>
                 </div>
               </div>

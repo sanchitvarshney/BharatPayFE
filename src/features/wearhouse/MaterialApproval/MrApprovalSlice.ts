@@ -7,7 +7,6 @@ import {
   ApproveItemDetailApiResponse,
   ApproveItemsResponse,
   ApprovePayload,
-  ApproveSwipeRequestType,
   AprovedMaterialListPayload,
   AprovedMaterialListResponse,
   ItemDetailApiResponse,
@@ -38,22 +37,12 @@ const initialState: PendingMrRequestState = {
   approveItemDetailLoading: false,
   serial: null,
   serialLoading: false,
-  swipeDeviceData: null,
-  swipeDeviceLoading: false,
-  deviceData: null,
-  deviceLoading: false,
 };
 
 export const getPendingMaterialListsync = createAsyncThunk<AxiosResponse<PendingMrRequestResponse>>("master/getPendingMrrequst", async () => {
   const response = await axiosInstance.get("/req/data/list ");
   return response;
 });
-
-export const getPendingSwipeDeviceListsync = createAsyncThunk<AxiosResponse<PendingMrRequestResponse>>("master/getPendingSwipeDeviceListsync", async () => {
-  const response = await axiosInstance.get("/reqv2/getMaterialReqV2List ");
-  return response;
-});
-
 export const serailList = createAsyncThunk<AxiosResponse<SerialResponseData>, string>("master/serailList", async (id) => {
   const response = await axiosInstance.get(`/req/data/approvalSerial?txnID=${id}`);
   return response;
@@ -62,19 +51,8 @@ export const getProcessMrReqeustAsync = createAsyncThunk<AxiosResponse<ProcessAp
   const response = await axiosInstance.get(`/req/data/detail/${id}`);
   return response;
 });
-
-export const getProcessSwipeReqeustAsync = createAsyncThunk<AxiosResponse<ProcessApiResponse>, string>("master/getProcessMrrequst", async (id) => {
-  const response = await axiosInstance.get(`/reqv2/detail/${id}`);
-  return response;
-});
-
 export const getItemDetailsAsync = createAsyncThunk<AxiosResponse<ItemDetailApiResponse>, { txnid: string; itemKey: string; picLocation: string }>("master/getItemDetails", async (params) => {
   const response = await axiosInstance.get(`/req/data/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`);
-  return response;
-});
-
-export const getItemSwipeDetailsAsync = createAsyncThunk<AxiosResponse<ItemDetailApiResponse>, { txnid: string; itemKey: string; picLocation: string }>("master/getItemSwipeDetailsAsync", async (params) => {
-  const response = await axiosInstance.get(`/reqv2/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`);
   return response;
 });
 
@@ -86,16 +64,6 @@ export const approveDeviceRequest = createAsyncThunk<AxiosResponse<ApproveDevice
   const response = await axiosInstance.post(`/req/data/approve/${params.itemCode}/${params.txnID}`, params);
   return response;
 });
-export const approveSwipeDeviceRequest = createAsyncThunk<AxiosResponse<ApproveDeviceRequestResponse>, ApproveSwipeRequestType>("master/approveDeviceType", async (params) => {
-  const response = await axiosInstance.put(`/reqv2/approveMaterialReqV2`, params);
-  return response;
-});
-
-export const validateScan = createAsyncThunk<AxiosResponse<any>, string>("master/validateScan", async (id) => {
-  const response = await axiosInstance.get(`/backend/device?device=${id}`);
-  return response;
-});
-
 export const materialRequestReject = createAsyncThunk<AxiosResponse<MaterialRejectResponse>, MaterialRejectPayload>("master/materialRequestReject", async (params) => {
   const response = await axiosInstance.put(`/req/data/reject/${params.itemCode}/${params.txnId}`, { remarks: params.remarks });
   return response;
@@ -142,32 +110,6 @@ const MrApprovalSlice = createSlice({
         state.getPendingMrRequestLoading = false;
         state.pendingMrRequestData = [];
       })
-      .addCase(validateScan.pending, (state) => {
-        state.deviceLoading = true;
-      })
-      .addCase(validateScan.fulfilled, (state, action) => {
-        state.deviceLoading = false;
-        if (action.payload.data.success) {
-          state.deviceData = action.payload.data;
-        }
-      })
-      .addCase(validateScan.rejected, (state) => {
-        state.deviceLoading = false;
-        state.deviceData = [];
-      })
-      .addCase(getPendingSwipeDeviceListsync.pending, (state) => {
-        state.swipeDeviceLoading = true;
-      })
-      .addCase(getPendingSwipeDeviceListsync.fulfilled, (state, action) => {
-        state.swipeDeviceLoading = false;
-        if (action.payload.data.success) {
-          state.swipeDeviceData = action.payload.data.data;
-        }
-      })
-      .addCase(getPendingSwipeDeviceListsync.rejected, (state) => {
-        state.swipeDeviceLoading = false;
-        state.swipeDeviceData = [];
-      })
       .addCase(serailList.pending, (state) => {
         state.serialLoading = true;
       })
@@ -204,18 +146,6 @@ const MrApprovalSlice = createSlice({
         }
       })
       .addCase(getItemDetailsAsync.rejected, (state) => {
-        state.itemDetailLoading = false;
-      })
-      .addCase(getItemSwipeDetailsAsync.pending, (state) => {
-        state.itemDetailLoading = true;
-      })
-      .addCase(getItemSwipeDetailsAsync.fulfilled, (state, action) => {
-        state.itemDetailLoading = false;
-        if (action.payload.data.success) {
-          state.itemDetail = action.payload.data.data;
-        }
-      })
-      .addCase(getItemSwipeDetailsAsync.rejected, (state) => {
         state.itemDetailLoading = false;
       })
       .addCase(approveSelectedItemAsync.pending, (state) => {

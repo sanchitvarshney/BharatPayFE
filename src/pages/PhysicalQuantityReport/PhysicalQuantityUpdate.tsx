@@ -27,68 +27,32 @@ const PhysicalQuantityUpdate: React.FC = () => {
   const [location, setLocation] = useState<any>(null);
   const gridRef = useRef<AgGridReact<any>>(null);
   const [colapse, setcolapse] = useState<boolean>(false);
-  const [pageSize, setPageSize] = useState<number>(20);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-
   const handleDateChange = (dates: {
     from: Dayjs | null;
     to: Dayjs | null;
   }) => {
     setDateRange(dates);
   };
-  console.log(location);
+  console.log(location)
   const getreport = () => {
     if (dateRange.from && dateRange.to && location) {
-      setCurrentPage(1); // Reset to first page on new search
       dispatch(
         getR15Report({
           from: dayjs(dateRange.from).format("YYYY-MM-DD"),
           to: dayjs(dateRange.to).format("YYYY-MM-DD"),
           location: location?.id,
-          limit: pageSize,
-          page: currentPage,
         })
       );
-    } else {
-      showToast("Please select Date range and Location", "error");
+    }
+    else{
+      showToast ("Please select Date range and Location", "error");
     }
   };
   const onBtExport = useCallback(() => {
     gridRef.current!.api.exportDataAsExcel({
-      sheetName: "Physical Quantity Report", // Set your desired sheet name here
+      sheetName: "R13 Report", // Set your desired sheet name here
     });
   }, []);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    if (dateRange.from && dateRange.to && location) {
-      dispatch(
-        getR15Report({
-          from: dayjs(dateRange.from).format("YYYY-MM-DD"),
-          to: dayjs(dateRange.to).format("YYYY-MM-DD"),
-          location: location?.id,
-          page: page,
-          limit: pageSize,
-        })
-      );
-    }
-  };
-
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when changing page size
-    if (dateRange.from && dateRange.to && location) {
-      dispatch(
-        getR15Report({
-          from: dayjs(dateRange.from).format("YYYY-MM-DD"),
-          to: dayjs(dateRange.to).format("YYYY-MM-DD"),
-          location: location?.id,
-          page: 1,
-          limit: newPageSize,
-        })
-      );
-    }
-  };
 
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
@@ -163,12 +127,7 @@ const PhysicalQuantityUpdate: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <PhysicalQuantityUpdateTable
-            gridRef={gridRef}
-            handlePageChange={handlePageChange}
-            handlePageSizeChange={handlePageSizeChange}
-            pageSize={pageSize}
-          />
+          <PhysicalQuantityUpdateTable gridRef={gridRef} />
         </div>
       </div>
     </div>

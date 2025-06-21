@@ -11,29 +11,18 @@ import axiosInstance from "@/api/axiosInstance";
 import { showToast } from "@/utils/toasterContext";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 import { clearR6data } from "@/features/report/report/reportSlice";
-import { formatNumber } from "@/utils/numberFormatUtils";
-import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
-  handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
 };
 
-const R6reportTable: React.FC<Props> = ({
-  gridRef,
-  handlePageChange,
-  handlePageSizeChange,
-  pageSize,
-}) => {
+const R6reportTable: React.FC<Props> = ({ gridRef }) => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = React.useState(false);
   const [current, setCurrent] = React.useState<string>("");
-  const [rowData, setRowData] = useState<any>([]); // Holds the row data
+  const [rowData, setRowData] = useState<any[]>([]); // Holds the row data
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]); // Holds the column definitions
-  const { r6Report, r6ReportLoading, wrongDeviceReportLoading } =
-    useAppSelector((state) => state.report);
+  const { r6Report, r6ReportLoading,wrongDeviceReportLoading } = useAppSelector((state) => state.report);
   const generateprint = async (min: string) => {
     setLoading(true);
 
@@ -142,11 +131,9 @@ const R6reportTable: React.FC<Props> = ({
     const fetchGridData = async () => {
       setLoading(true);
       const r6Data: any = r6Report;
-      const header = r6Data?.data?.header; // Headers from API response
-      const data = r6Data?.data?.data; // Row data from API response
-      const filteredHeader = header?.filter(
-        (col: string) => col !== "Print" && col !== "Transaction ID"
-      );
+      const header = r6Data?.header; // Headers from API response
+      const data = r6Data?.data; // Row data from API response
+      const filteredHeader = header?.filter((col: string) => col !== "Print"&& col !== "Transaction ID");
       // Dynamically create column definitions based on the header
       const dynamicColumnDefs: ColDef[] = filteredHeader?.map(
         (col: string) => ({
@@ -180,7 +167,7 @@ const R6reportTable: React.FC<Props> = ({
                 </div>
               );
             }
-            //photo section will be done later
+            //photo section will be done later 
             // if (col === "Photo" && params.data.Photo) {
             //   console.log(params)
             //   return (
@@ -188,13 +175,8 @@ const R6reportTable: React.FC<Props> = ({
             //       View Photo
             //     </a>
             //   );
-            // }
-            if (
-              (col === "Qty" && params.data.Qty) ||
-              (col === "Rate" && params.data.Rate)
-            ) {
-              return formatNumber(params.value);
-            } else {
+            // } 
+            else {
               return params.value; // Display value for other columns
             }
           },
@@ -207,7 +189,7 @@ const R6reportTable: React.FC<Props> = ({
     };
 
     fetchGridData();
-  }, [r6Report?.data]);
+  }, [r6Report]);
 
   useEffect(() => {
     dispatch(clearR6data());
@@ -216,31 +198,20 @@ const R6reportTable: React.FC<Props> = ({
   return (
     <div>
       {loading && <FullPageLoading />}
-      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
-          loading={r6ReportLoading || wrongDeviceReportLoading}
+          loading={r6ReportLoading||wrongDeviceReportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={false}
+          pagination={true}
           paginationPageSize={20}
-          enableCellTextSelection
         />
       </div>
-      {rowData && (
-        <CustomPagination
-          currentPage={r6Report?.pagination?.currentPage as any}
-          totalPages={r6Report?.pagination?.totalPages as any}
-          totalRecords={r6Report?.pagination?.totalRecords as any}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
-        />
-      )}
     </div>
   );
 };

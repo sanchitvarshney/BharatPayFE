@@ -3,7 +3,6 @@ import SelectComponent, { ComponentType } from "@/components/reusable/SelectComp
 import { Button } from "@/components/ui/button";
 import { getQ3DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { formatNumber } from "@/utils/numberFormatUtils";
 import { showToast } from "@/utils/toasterContext";
 import { LoadingButton } from "@mui/lab";
 import { List, ListItem, ListItemText, Skeleton, TextField, Typography } from "@mui/material";
@@ -88,7 +87,7 @@ const Q3query: React.FC = () => {
               </Typography>
               <div className="flex items-center gap-[10px]">
                 <Typography>Total : </Typography>
-                <Typography>{formatNumber(q3data?.locationQty.reduce((sum, item) => sum + Number(item.closeQty), 0))}</Typography>
+                <Typography>{q3data?.locationQty.reduce((sum, item) => sum + Number(item.closeQty), 0)}</Typography>
               </div>
             </div>
             <div className="p-[20px] flex flex-wrap gap-[10px]">
@@ -98,7 +97,7 @@ const Q3query: React.FC = () => {
                     <div key={index} className="  h-[100px] max-w-max px-[50px]  rounded border bg-slate-50 flex flex-col gap-[5px] justify-center items-center">
                       <Typography fontWeight={500}>{item.locationName}</Typography>
                       <Typography fontWeight={500} className="text-slate-500">
-                        {formatNumber(item.closeQty)}
+                        {item.closeQty}
                       </Typography>
                     </div>
                   ))}

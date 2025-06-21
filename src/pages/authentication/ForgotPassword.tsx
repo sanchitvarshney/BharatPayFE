@@ -127,6 +127,7 @@ const ForgotPassword = () => {
           password: formData.confirmPassword                                                                       
         }
         dispatch(updatePassword(payload as any)).then((res: any) => {
+            console.log(res)
             if(res?.payload?.data?.success){
               navigate("/login")
             }

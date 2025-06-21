@@ -63,11 +63,6 @@ export type R2Response = {
   status: string;
   success: boolean;
   data: R2ReportData[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-  };
 };
 
 // Type for Device Issue
@@ -111,22 +106,12 @@ export type r3reportResponse = {
   code: number;
   status: string;
   data: r3report[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-  };
 };
 
 export type R4ReportResponse = {
   success: boolean;
   status: string;
   data: R4Report[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-  };
 };
 
 type R4Report = {
@@ -136,16 +121,6 @@ type R4Report = {
   productImei: string;
   productSrlNo: string;
   prodductionId: string;
-};
-
-export type R4ReportQueryParams = {
-  from?: string;
-  to?: string;
-  type: string;
-  device?: string;
-  deviceType?: string;
-  page?: number;
-  limit?: number;
 };
 
 export type r4reportDetailDataResponse = {
@@ -185,12 +160,7 @@ type R5report = {
 export type R5reportResponse = {
   status: string;
   success: boolean;
-  data: R5report[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-  };
+  data: R5report[]; // Array of dispatch records
 };
 
 type MainR1Report = {
@@ -233,16 +203,7 @@ export type r6report = {
 
 export type r6reportApiResponse = {
   success: boolean;
-  data: {
-    data: {
-      records: r6report[];
-      pagination: {
-        currentPage: number;
-        totalPages: number;
-        totalRecords: number;
-      };
-    }
-  };
+  data: r6report[];
 };
 
 type R8ReportData = {
@@ -276,11 +237,6 @@ export type R8ReportDataApiResponse = {
   status: string;
   success: boolean;
   data: R8ReportData[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-  };
 };
 
 export type R12ReportDataApiResponse = {
@@ -297,11 +253,6 @@ export type R11ReportDataApiResponse = {
   totalApprove: number;
   totalPending: number;
   totalReject: number;
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-  }
 };
 
 interface Issue {
@@ -335,55 +286,43 @@ export type R9reportResponse = {
   status: string;
   success: boolean;
   data: ProductDetails[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalRecords: number;
-    recordsPerPage: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-    nextPage: number | null;
-    previousPage: number | null;
-  };
 };
 export type ReportStateType = {
   r1Data: DocumentData | null;
   getR1DataLoading: boolean;
   getR2DataLoading: boolean;
-  r2Data: R2Response | null;
+  r2Data: R2ReportData[] | null;
   r2ReportDetail: DeviceRequestApiResponse | null;
   r2ReportDetailLoading: boolean;
   refId: string | null;
-  r3report: r3reportResponse | null;
+  r3report: r3report[] | null;
   r3reportLoading: boolean;
-  r4report: R4ReportResponse | null;
+  r4report: R4Report[] | null;
   r4reportLoading: boolean;
   r4ReportDetail: r4reportDetailData | null;
   r4ReportDetailLoading: boolean;
-  r5report: R5reportResponse | null;
+  r5report: R5report[] | null;
   r5reportLoading: boolean;
   r5reportDetailLoading: boolean;
-  r5reportDetail:
-    | {
-        slNo: string;
-        insert_dt: string;
-        shipLabel: string;
-        shipToCity: string;
-        p_name: string;
-        imei: string;
-        nfc_enable: string | null;
-        iccid: string | null;
-        qr_url: string | null;
-      }[]
-    | null;
-  mainR1Report: any;
+  r5reportDetail: {
+    slNo: string;
+    insert_dt: string;
+    shipLabel: string;
+    shipToCity: string;
+    p_name: string;
+    imei: string;
+    nfc_enable: string | null;
+    iccid: string | null;
+    qr_url: string | null;
+  }[] | null;
+  mainR1Report: MainR1Report[] | null;
   mainR1ReportLoading: boolean;
-  r6Report: any;
-  wrongDeviceReport: any;
+  r6Report: r6report[] | null;
+  wrongDeviceReport:any|null;
   r6ReportLoading: boolean;
   r8ReportLoading: boolean;
-  r8Report: R8ReportDataApiResponse | null;
-  r9report: R9reportResponse | null;
+  r8Report: R8ReportData[] | null;
+  r9report: ProductDetails[] | null;
   r9ReportLoading: boolean;
   wrongDeviceReportLoading: boolean;
   r11ReportLoading: boolean;
@@ -395,57 +334,4 @@ export type ReportStateType = {
   r15ReportLoading: boolean;
   r15Report: any | null;
   updatePhysicalQuantityLoading: boolean;
-  r16Report: R16ReportResponse | null;
-  r16ReportLoading: boolean;
-  r16ReportDateRange: {
-    from: string | null;
-    to: string | null;
-  };
-  r16ReportPartner: string | null;
-  r17Report: {
-    data: any[];
-    page: number;
-    status: string;
-    success: boolean;
-    totalPages: number;
-    totalRecords: number;
-  } | null;
-  getR17DataLoading: boolean;
-  r17ReportDateRange: {
-    from: string | null;
-    to: string | null;
-  };
-  r17ReportPartner: string | null;
-  swipeItemDetails: any | null;
-  swipeItemDetailsLoading: boolean;
-  transferReportLoading: boolean;
-  transferReport: any | null;
-  getR18DataLoading: boolean;
-  r18Report: any;
-  paginationDateRange: {
-    from: string | null;
-    to: string | null;
-  };
 };
-
-export interface R16ReportResponse {
-  status: string;
-  success: boolean;
-  page: number;
-  totalPages: number;
-  totalRecords: number;
-  data: Array<{
-    inwardLoc: string;
-    partnerName: string;
-    method: string;
-    skuName: string;
-    deviceSKU: string;
-    model: string;
-    serialNo: string;
-    imeiNo1: string;
-    imeiNo2: string;
-    txnID: string;
-    remark: string;
-    insertDt: string;
-  }>;
-}

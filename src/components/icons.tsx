@@ -63,7 +63,6 @@ import LocationCityIcon from '@mui/icons-material/LocationCity';
 import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
 import LabelIcon from '@mui/icons-material/Label';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import TabletAndroidOutlinedIcon from '@mui/icons-material/TabletAndroidOutlined';
 
 export const Icons = {
   save: SaveIcon,
@@ -83,7 +82,6 @@ export const Icons = {
   checklist: ChecklistIcon,
   alldone: DoneAllIcon,
   info: InfoIcon,
-  device:TabletAndroidOutlinedIcon,
   uploadfile: FileUploadIcon,
   search: SearchIcon,
   person: PersonIcon,

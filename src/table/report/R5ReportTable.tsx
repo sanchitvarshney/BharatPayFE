@@ -7,22 +7,17 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { Button } from "@mui/material";
 import { useSocketContext } from "@/components/context/SocketContext";
 import { DownloadIcon } from "@radix-ui/react-icons";
-import { formatNumber } from "@/utils/numberFormatUtils";
-import CustomPagination from "@/components/reusable/CustomPagination";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setTxn: React.Dispatch<React.SetStateAction<string>>;
-  handlePageChange: (page: number) => void;
-  handlePageSizeChange: (size: number) => void;
-  pageSize: number;
 };
 
 // Define new column definitions
 
 // Generate dummy data according to pagination needs
-const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, handlePageSizeChange, pageSize }) => {
-  const { emitDownloadr5Report, emitDownloadWrongDeviceReport,emitDownloadSwipeReport } =
+const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn }) => {
+  const { emitDownloadr5Report, emitDownloadWrongDeviceReport } =
     useSocketContext();
   // const dispatch = useAppDispatch();
   const columnDefs: ColDef[] = [
@@ -56,9 +51,6 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
       sortable: true,
       filter: true,
       flex: 1,
-      valueFormatter: (params: any) => {
-        return formatNumber(params.value);
-      },
     },
     {
       headerName: "Insert By",
@@ -76,12 +68,12 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
       hide: true,
     },
     {
-      headerName: "Dispatch ID",
+      headerName: "--",
       field: "dispatchId",
       sortable: true,
       filter: true,
       flex: 1,
-      hide: false,
+      hide: true,
     },
 
     {
@@ -99,10 +91,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
             const type = params?.data?.deviceType;
             if (type === "wrongDevices") {
               emitDownloadWrongDeviceReport({ txnId: id });
-            }else if(type === "swipedevice"){
-              emitDownloadSwipeReport({ txnId: id });
-            }            
-            else {
+            } else {
               emitDownloadr5Report({ txnId: id });
             }
           }}
@@ -129,29 +118,20 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           loading={r5reportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
-          rowData={r5report?.data ||  []}
+          rowData={r5report ? r5report : []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={false}
+          pagination={true}
           paginationPageSize={paginationPageSize}
-          enableCellTextSelection
         />
       </div>
-       {r5report && <CustomPagination
-          currentPage={r5report?.pagination?.currentPage}
-          totalPages={r5report?.pagination?.totalPages}
-          totalRecords={r5report?.pagination?.totalRecords}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
-        />}
     </div>
   );
 };

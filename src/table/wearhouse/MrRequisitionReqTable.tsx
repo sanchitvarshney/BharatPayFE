@@ -11,15 +11,9 @@ import { Icons } from "@/components/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@mui/material";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
-import * as XLSX from "xlsx";
 
 const MrRequisitionReqTable: React.FC = () => {
-  const {
-    approvedMaterialListData,
-    approvedMaterialListLoading,
-    serial,
-    serialLoading,
-  } = useAppSelector((state) => state.pendingMr);
+  const { approvedMaterialListData, approvedMaterialListLoading ,  serial,serialLoading} = useAppSelector((state) => state.pendingMr);
   const [detail, setDetail] = useState<boolean>();
   const [txnid, setTxnid] = useState<string>("");
   const [showserial, setShowSerial] = useState<boolean>(false);
@@ -43,15 +37,7 @@ const MrRequisitionReqTable: React.FC = () => {
     };
   }, [approvedMaterialListLoading]);
   const columnDefs: ColDef[] = [
-    {
-      headerName: "#",
-      field: "id",
-      sortable: true,
-      filter: true,
-      flex: 1,
-      valueGetter: "node.rowIndex+1",
-      maxWidth: 80,
-    },
+    { headerName: "#", field: "id", sortable: true, filter: true, flex: 1, valueGetter: "node.rowIndex+1", maxWidth: 80 },
     {
       headerName: "Request ID",
       field: "transaction",
@@ -115,6 +101,7 @@ const MrRequisitionReqTable: React.FC = () => {
       filter: false,
       flex: 1,
     },
+    
   ];
 
   return (
@@ -122,52 +109,14 @@ const MrRequisitionReqTable: React.FC = () => {
       <CustomDrawer open={showserial} onOpenChange={setShowSerial}>
         <CustomDrawerContent className="p-0 min-w-[30%] ">
           <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-300 ">
-            <div className="flex items-center justify-between w-full pr-8">
-              <CustomDrawerTitle className="text-slate-600 font-[500] p-0">
-                <Typography
-                  fontSize={16}
-                  fontWeight={500}
-                  variant="h4"
-                  component="div"
-                >
-                  #{serialid}
-                </Typography>
-              </CustomDrawerTitle>
-              <LoadingButton
-                size="small"
-                onClick={() => {
-                  // Create worksheet
-                  const ws = XLSX.utils.json_to_sheet(
-                    serial?.map((item: any) => ({
-                      "Serial Number": item.srlNo,
-                    })) || []
-                  );
-
-                  // Create workbook
-                  const wb = XLSX.utils.book_new();
-                  XLSX.utils.book_append_sheet(wb, ws, "Serial Numbers");
-
-                  // Generate Excel file
-                  XLSX.writeFile(wb, `serial_numbers_${serialid}.xlsx`);
-                }}
-                startIcon={<Icons.download fontSize="small" />}
-                variant="contained"
-              >
-                Download
-              </LoadingButton>
-            </div>
+            <CustomDrawerTitle className="text-slate-600 font-[500] p-0">
+              <Typography fontSize={16} fontWeight={500} variant="h4" component="div">
+                #{serialid}
+              </Typography>
+            </CustomDrawerTitle>
           </CustomDrawerHeader>
           <div className=" ag-theme-quartz h-[calc(100vh-50px)]">
-            <AgGridReact
-              loadingOverlayComponent={CustomLoadingOverlay}
-              loading={serialLoading}
-              overlayNoRowsTemplate={OverlayNoRowsTemplate}
-              suppressCellFocus={true}
-              rowData={serial || []}
-              columnDefs={columnDefsserial}
-              pagination={false}
-              enableCellTextSelection
-            />
+          <AgGridReact  loadingOverlayComponent={CustomLoadingOverlay} loading={serialLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={serial || []} columnDefs={columnDefsserial}  pagination={false} />
           </div>
         </CustomDrawerContent>
       </CustomDrawer>
@@ -175,32 +124,16 @@ const MrRequisitionReqTable: React.FC = () => {
         <CustomDrawerContent className="p-0 min-w-[75%]">
           <CustomDrawerHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-300 ">
             <CustomDrawerTitle className="text-slate-600 font-[500] p-0">
-              <Typography
-                fontSize={16}
-                fontWeight={500}
-                variant="h4"
-                component="div"
-              >
+              <Typography fontSize={16} fontWeight={500} variant="h4" component="div">
                 #{txnid}
               </Typography>
             </CustomDrawerTitle>
           </CustomDrawerHeader>
-          <ApprovalItemDetailTable
-            setSerialid={setSerialid}
-            setSerial={setShowSerial}
-          />
+          <ApprovalItemDetailTable setSerialid={setSerialid} setSerial={setShowSerial} />
         </CustomDrawerContent>
       </CustomDrawer>
       <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact
-          overlayNoRowsTemplate={OverlayNoRowsTemplate}
-          suppressCellFocus={true}
-          rowData={approvedMaterialListData || []}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          pagination={true}
-          paginationPageSize={20}
-        />
+        <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={approvedMaterialListData || []} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
       </div>
     </>
   );
