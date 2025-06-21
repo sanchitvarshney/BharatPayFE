@@ -524,7 +524,7 @@ const reportSlice = createSlice({
       })
       .addCase(getr5Report.pending, (state) => {
         state.r5reportLoading = true;
-        state.r5report = null;
+        // state.r5report = null;
       })
       .addCase(getr5Report.fulfilled, (state, action) => {
         state.r5reportLoading = false;
@@ -534,7 +534,7 @@ const reportSlice = createSlice({
       })
       .addCase(getr5Report.rejected, (state) => {
         state.r5reportLoading = false;
-        state.r5report = null;
+        // state.r5report = null;
       })
       .addCase(getr5ReportDetail.pending, (state) => {
         state.r5reportDetailLoading = true;

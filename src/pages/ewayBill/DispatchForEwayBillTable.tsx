@@ -13,6 +13,7 @@ import {
   printChallan,
 } from "@/features/Dispatch/DispatchSlice";
 import { showToast } from "@/utils/toasterContext";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 interface RowData {
   orderQty: number;
@@ -33,9 +34,12 @@ interface RowData {
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (size: number) => void;
+  pageSize: number;
 };
 
-const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
+const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,handlePageSizeChange}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -203,9 +207,9 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
       valueGetter: (params: { data: RowData }) =>
         params.data.isewaybill == "Y"
           ? "Yes"
-          : params.data.isewaybill == "N"
-          ? "No"
-          : "Cancelled",
+          : params.data.isewaybill == "C"
+          ? "Cancelled"
+          : "No",
     },
     {
       headerName: "Eway Bill No",
@@ -232,7 +236,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
   return (
     <>
       <div>
-        <div className="relative ag-theme-quartz h-[calc(105vh-140px)]">
+        <div className="relative ag-theme-quartz h-[calc(105vh-200px)]">
           <AgGridReact
             ref={gridRef}
             loadingOverlayComponent={CustomLoadingOverlay}
@@ -242,10 +246,18 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
             rowData={r5report?.data|| []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
-            pagination={true}
+            pagination={false}
             paginationPageSize={paginationPageSize}
           />
         </div>
+        {r5report && <CustomPagination
+          currentPage={r5report?.pagination?.currentPage}
+          totalPages={r5report?.pagination?.totalPages}
+          totalRecords={r5report?.pagination?.totalRecords}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />}
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
