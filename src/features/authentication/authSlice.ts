@@ -120,7 +120,6 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(loginUserAsync.fulfilled, (state, action:any) => {
-        console.log(action.payload);
         if (action.payload.data.success) {
           setToken(action.payload.data.data?.token);
 
@@ -139,7 +138,6 @@ const authSlice = createSlice({
         state.qrCodeLoading = true;
       })
       .addCase(verifyOtpAsync.fulfilled, (state, action:any) => {
-        console.log(action.payload);
         if (action.payload.data.success) {
           setToken(action.payload.data.data?.token);
           localStorage.setItem("showOtpPage","");

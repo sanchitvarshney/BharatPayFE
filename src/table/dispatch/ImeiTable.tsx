@@ -10,19 +10,23 @@ interface RowData {
   productKey: string;
   serialNo: number;
   modalNo:string;
-  deviceSku:string
+  deviceSku:string;
+  imei2?:string;
 }
 
 type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
+  module:string;
 };
-const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
+const ImeiTable: React.FC<Props> = ({ rowData, setRowdata ,module}) => {
+
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "serialNo", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 100 },
     {headerName:"Modal Name",field:"modalNo",sortable:true,filter:true,flex:1},
     {headerName:"Device SKU",field:"deviceSku",sortable:true,filter:true,flex:1},
     { headerName: "IMEI", field: "imei", sortable: true, filter: true, flex: 1 },
+    { headerName: "IMEI2", field: "imei2", sortable: true, filter: true, flex: 1 },
     { headerName: "SR No.", field: "srno", sortable: true, filter: true, flex: 1 },
     {
       headerName: "",
@@ -32,7 +36,12 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       cellRenderer: (params: any) => (
         <IconButton
           onClick={() => {
-            setRowdata(rowData.filter((row) => row.imei !== params.data.imei));
+            if(module ==="swipedevice"){
+              setRowdata(rowData.filter((row) => row.srno !== params.data.srno));
+            }
+            else{
+              setRowdata(rowData.filter((row) => row.imei !== params.data.imei));
+            }
           }}
         >
           <DeleteIcon fontSize="small" color="error" />

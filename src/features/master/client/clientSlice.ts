@@ -22,6 +22,8 @@ const initialState: ClientState = {
   updateBillingAddressLoading: false,
   billId: null,
   updateBasicDetailLoading: false,
+  getShippingAddressLoading: false,
+  shippingAddress: null,
 };
 
 export const createClient = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, CraeteClientPayload>("master/client/createClient", async (payload) => {
@@ -44,6 +46,12 @@ export const getDispatchFromDetail = createAsyncThunk<AxiosResponse<DispatchFrom
   const response = await axiosInstance.get(`/billingAddress/getAll`);
   return response;
 });
+
+export const getShippingAddress = createAsyncThunk<AxiosResponse<any>>("master/client/getShippingAddress", async () => {
+  const response = await axiosInstance.get(`/shippingAddress/getAll`);
+  return response;
+});
+
 export const addShipToAddress = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, AddShipToAddressPayload>("master/client/addShipToAddress", async (payload) => {
   const response = await axiosInstance.post(`/client/addShipmentAddress`, payload);
   return response;
@@ -101,6 +109,19 @@ const clientSlice = createSlice({
       .addCase(createClient.rejected, (state) => {
         state.createClientLoading = false;
       })
+      .addCase(getShippingAddress.pending, (state) => {
+        state.getShippingAddressLoading = true;
+      })
+      .addCase(getShippingAddress.fulfilled, (state, action) => {
+        state.getShippingAddressLoading = false;
+        if (action.payload.data.success) {
+          state.shippingAddress = action.payload.data.data;
+        }
+      })
+      .addCase(getShippingAddress.rejected, (state) => {
+        state.getShippingAddressLoading = false;
+      })
+
       .addCase(getClient.pending, (state) => {
         state.getClientLoading = true;
         state.clientdata = null;
