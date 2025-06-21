@@ -14,6 +14,7 @@ export type RowData = {
   insertBy: string;
   vendor: string;
   vendorCode: string;
+  poNumber?: string;
 };
 interface TransactionType {
   type: string;
@@ -33,6 +34,7 @@ export interface BodyItem {
   subCategory: string;
   IMEI: string;
   SRLNo: string;
+  poNumber?: string | undefined;
 }
 
 interface Head {
@@ -130,6 +132,7 @@ type TransactionData = {
   locationOut:string;
   method:string;
   manufacturingMonth?:string
+  deviceMovId?:string
 };
 
 export type R6ApiResponse = {

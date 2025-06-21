@@ -6,10 +6,10 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/features/Store";
 import {
   addComponentInBom,
-  fetchBomDetail,
   UpdateBom,
   addAlternativeComponent,
   getAlternativeComponent,
+  getBomItem,
 } from "@/features/master/BOM/BOMSlice";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Icons } from "@/components/icons";
@@ -88,7 +88,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
     dispatch(UpdateBom(payload)).then((res: any) => {
       if (res.payload.data.success) {
         showToast(res.payload.data?.message, "success");
-        dispatch(fetchBomDetail(id || ""));
+        dispatch(getBomItem(id || ""));
       }
     });
   };
@@ -269,7 +269,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
                     };
                     dispatch(addComponentInBom(payload)).then((res: any) => {
                       if (res.payload.data.success) {
-                        dispatch(fetchBomDetail(id || ""));
+                        dispatch(getBomItem(id || ""));
                         setOpen(false);
                         setRef("");
                         setQty("");
@@ -352,7 +352,7 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
                     dispatch(addAlternativeComponent(payload)).then(
                       (res: any) => {
                         if (res.payload.data.success) {
-                          dispatch(fetchBomDetail(id || ""));
+                          dispatch(getBomItem(id || ""));
                           setAltOpen(false);
                           setAltRef("");
                           setAltQty("");
