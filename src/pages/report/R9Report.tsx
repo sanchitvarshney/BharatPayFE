@@ -186,6 +186,7 @@ const exportWrongDeviceData =()=>{
                   { value: "DTDC", label: "DTDC", isDisabled: false },
                   { value: "dVery", label: "dVery", isDisabled: false },
                   { value: "expb", label: "XpressBees", isDisabled: false },
+                  { value: "ALL", label: "All", isDisabled: false },
                 ].map((item) => (
                   <MenuItem
                     disabled={item.isDisabled}
