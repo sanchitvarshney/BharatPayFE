@@ -61,8 +61,8 @@ const R9Report: React.FC = () => {
 const handleExport =()=>{
   if (dateRange.from && dateRange.to && partner) {
     emitDeviceInwardReport({
-        from: dayjs(dateRange.from).format("YYYY-MM-DD"),
-        to: dayjs(dateRange.to).format("YYYY-MM-DD"),
+        fromDt: dayjs(dateRange.from).format("YYYY-MM-DD"),
+        toDt: dayjs(dateRange.to).format("YYYY-MM-DD"),
         partner: partner,
       })
   }
