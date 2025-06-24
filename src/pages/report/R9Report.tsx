@@ -70,8 +70,8 @@ const handleExport =()=>{
 const exportWrongDeviceData =()=>{
   if (reportDate.from && reportDate.to && partner) {
     emitWrongDeviceReport({
-        fromDt: dayjs(reportDate.from).format("DD-MM-YYYY"),
-        toDt: dayjs(reportDate.to).format("DD-MM-YYYY"),
+        fromDate: dayjs(reportDate.from).format("DD-MM-YYYY"),
+        toDate: dayjs(reportDate.to).format("DD-MM-YYYY"),
         deliveryPartner: partner,
       })
   }
