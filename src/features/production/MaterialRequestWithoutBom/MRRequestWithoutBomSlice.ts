@@ -17,6 +17,7 @@ const initialState: MrRequestWithoutBom = {
   getAvailbleQtyLoading: false,
   availbleQtyData: null,  
   transferRequestLoading: false,
+  preQcLocation: [],
 };
 
 export const getPertCodesync = createAsyncThunk<AxiosResponse<PartCodeDataresponse>, string | null>("master/getPertCode", async (value) => {
@@ -47,6 +48,12 @@ export const getLocationAsync = createAsyncThunk<AxiosResponse<LocationApirespon
   const response = await axiosInstance.get(`/backend/search/location/${params}`);
   return response;
 });
+
+export const getPreQCLocationAsync = createAsyncThunk<AxiosResponse<LocationApiresponse>, string | null>("preQc/getLocation", async (params) => {
+  const response = await axiosInstance.get(`/preQc/pickLocation`);
+  return response;
+});
+
 export const getAvailbleQty = createAsyncThunk<AxiosResponse<AvailbleQtyResponse>, { type: string; itemCode: string; location: any }>("wearhouse/getAvailbleQty", async (params) => {
   const response = await axiosInstance.get(`/backend/stock/${params.type}/${params.itemCode}/${params.location.value ? params.location.value : params.location}`);
   return response;
@@ -140,6 +147,18 @@ const materialRequestSlice = createSlice({
         }
       })
       .addCase(getLocationAsync.rejected, (state) => {
+        state.getLocationDataLoading = false;
+      })
+      .addCase(getPreQCLocationAsync.pending, (state) => {
+        state.getLocationDataLoading = true;
+      })
+      .addCase(getPreQCLocationAsync.fulfilled, (state, action) => {
+        state.getLocationDataLoading = false;
+        if (action.payload.data.success) {
+          state.preQcLocation = action.payload.data.data;
+        }
+      })
+      .addCase(getPreQCLocationAsync.rejected, (state) => {
         state.getLocationDataLoading = false;
       })
       .addCase(getAvailbleQty.pending, (state) => {

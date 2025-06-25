@@ -93,4 +93,5 @@ export type MrRequestWithoutBom = {
   getAvailbleQtyLoading: boolean;
   availbleQtyData: AvaibleQtyData[] | null;
   transferRequestLoading: boolean;
+  preQcLocation: LocationData[] | null;
 };
