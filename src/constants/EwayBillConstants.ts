@@ -134,7 +134,7 @@ const billFrom = z.object({
     message: "State is required",
   }),
   pincode: z.string({ required_error: "Pincode is required" }),
-  email: z.string().email().optional(),
+  email: z.string().optional(),
   phone: z.string().optional(),
 });
 

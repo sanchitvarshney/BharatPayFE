@@ -267,7 +267,7 @@ const UpdateChallanPage: React.FC = () => {
           setValue("hsnCode", data?.hsnCode);
           setValue("materialName", data?.materialName);
           setValue("itemPrice", data?.itemRate);
-          setValue("deviceType", data?.deviceType);
+          setValue("deviceType", data?.deviceType==="swipedevice"?"swipeMachine":"soundBox");
         }
       });
     }

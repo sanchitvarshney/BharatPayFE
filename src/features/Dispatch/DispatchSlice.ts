@@ -82,7 +82,7 @@ export const getClientBranch = createAsyncThunk<AxiosResponse<any>, string>("mas
 });
 
 export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dispatch/getDispatchData", async (id) => {
-  const response = await axiosInstance.get(`/dispatchDivice/detail?txnId=${id}`);
+  const response = await axiosInstance.get(`/ewayBill/detail?dispatch_id=${id}`);
   return response;
 });
 
@@ -236,8 +236,8 @@ const dispatchSlice = createSlice({
       })
       .addCase(getDispatchData.fulfilled, (state, action) => {
         state.dispatchDataLoading = false;
-        if (action.payload.data.success) {
-          state.dispatchData = action.payload.data.data;
+        if (action.payload.data.status) {
+          state.dispatchData = action.payload.data;
         }
       })
       .addCase(createEwayBill.pending, (state) => {

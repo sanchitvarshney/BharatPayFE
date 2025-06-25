@@ -990,7 +990,7 @@ const CreateChallanPage: React.FC = () => {
                           label="Sound Box"
                         />
                         <FormControlLabel
-                          value="swipeDevice"
+                          value="swipeMachine"
                           control={<Radio />}
                           label="Swipe Device"
                         />
