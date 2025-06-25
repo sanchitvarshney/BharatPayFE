@@ -347,8 +347,7 @@ console.log(data,data.deviceType === "device")
                     (device: any) => {
                       console.log(device);
                       return {
-                        imei: device.device_imei || "",
-                        imei1: device.imei_no1 || "",
+                        imei: device.device_imei||device.imei_no1 || "",
                         imei2: device.imei_no2 || "",
                         srno: device.sl_no || "",
                         modalNo: device?.p_name || "",
