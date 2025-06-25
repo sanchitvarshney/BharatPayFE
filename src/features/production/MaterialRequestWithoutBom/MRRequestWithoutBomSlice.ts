@@ -49,7 +49,7 @@ export const getLocationAsync = createAsyncThunk<AxiosResponse<LocationApirespon
   return response;
 });
 
-export const getPreQCLocationAsync = createAsyncThunk<AxiosResponse<LocationApiresponse>, string | null>("preQc/getLocation", async (params) => {
+export const getPreQCLocationAsync = createAsyncThunk<AxiosResponse<LocationApiresponse>, string | null>("preQc/getLocation", async () => {
   const response = await axiosInstance.get(`/preQc/pickLocation`);
   return response;
 });
