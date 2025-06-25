@@ -225,14 +225,14 @@ const MaterialReqWithoutBom = () => {
                       </ListItemButton>
                     </div>
                   </RadioGroup>
-                  <div>
+                  {type==="device"?<div>
                     <Controller
                       name="location"
                       control={control}
                       rules={{ required: "Location is required" }}
                       render={({ field }) => (
                         <SelectLocationAcordingModule
-                          endPoint="/req/without-bom/req-location"
+                          endPoint={"/preQc/pickLocation"}
                           error={!!errors.location}
                           helperText={errors.location?.message}
                           value={field.value}
@@ -243,7 +243,25 @@ const MaterialReqWithoutBom = () => {
                         />
                       )}
                     />
-                  </div>
+                  </div>:<div>
+                    <Controller
+                      name="location"
+                      control={control}
+                      rules={{ required: "Location is required" }}
+                      render={({ field }) => (
+                        <SelectLocationAcordingModule
+                          endPoint={"/req/without-bom/req-location"}
+                          error={!!errors.location}
+                          helperText={errors.location?.message}
+                          value={field.value}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setLocation(e);
+                          }}
+                        />
+                      )}
+                    />
+                  </div>}
                   <div className="flex gap-[10px] items-center">
                     <Typography>Location Details :</Typography>
                     <span className="text-[14px] text-slate-600">{locationdetail}</span>
