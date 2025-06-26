@@ -161,49 +161,43 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
       ),
       width: 50,
     },
-    { headerName: "SKU", field: "sku", sortable: true, filter: true, flex: 1 },
+    { headerName: "SKU", field: "sku", sortable: true, filter: true,width: 150 },
     {
       headerName: "SKU Name",
       field: "skuName",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 150,
     },
     {
       headerName: "Dispatch Date",
       field: "dispatchDate",
       sortable: true,
       filter: true,
-      flex: 1,
+
+      
     },
     {
-      headerName: "Dispatch Qty",
+      headerName: "Qty",
       field: "dispatchQty",
       sortable: true,
       filter: true,
-      flex: 1,
+      width:100
     },
-    {
-      headerName: "Insert By",
-      field: "inserby",
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
+    
     {
       headerName: "TXN ID",
       field: "txnId",
       sortable: false,
       filter: true,
-      flex: 1,
-      hide: true,
+      
     },
     {
       headerName: "Eway Bill Status",
       field: "ewayBill_status",
       sortable: true,
       filter: true,
-      flex: 1,
+      
       valueGetter: (params: { data: RowData }) =>
         params.data.ewayBill_status == "Y"
           ? "Yes"
@@ -215,8 +209,14 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
       headerName: "Eway Bill No",
       field: "ewaybill_no",
       sortable: true,
+      filter: true, 
+    },
+    {
+      headerName: "Insert By",
+      field: "inserby",
+      sortable: true,
       filter: true,
-      flex: 1,
+      
     },
   ];
 
