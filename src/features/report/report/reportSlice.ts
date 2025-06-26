@@ -76,6 +76,8 @@ const initialState: ReportStateType = {
   transferReport: null,
   getR18DataLoading: false,
   r18Report: null,
+  getR19DataLoading: false,
+  r19Report: null,
   paginationDateRange: {
     from: null,
     to: null,
@@ -351,6 +353,20 @@ export const getR18Data = createAsyncThunk(
     try {
       const response = await axiosInstance.get(
         `/report/swipemachine/rejectionReport?startDate=${params.from}&endDate=${params.to}&page=${params.page}&limit=${params.limit}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
+export const getR19Data = createAsyncThunk(
+  "report/getR19Data",
+  async (params: { from: string; to: string; page: number; limit: number }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/report/preQcReport?from=${params.from}&to=${params.to}&page=${params.page}&limit=${params.limit}`
       );
       return response.data;
     } catch (error) {
@@ -704,6 +720,16 @@ const reportSlice = createSlice({
       })
       .addCase(getR18Data.rejected, (state) => {
         state.getR18DataLoading = false;
+      })
+       .addCase(getR19Data.pending, (state) => {
+        state.getR19DataLoading = true;
+      })
+      .addCase(getR19Data.fulfilled, (state, action) => {
+        state.getR19DataLoading = false;
+        state.r19Report = action.payload.data;
+      })
+      .addCase(getR19Data.rejected, (state) => {
+        state.getR19DataLoading = false;
       });
   },
 });

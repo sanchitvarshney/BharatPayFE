@@ -29,6 +29,7 @@ export const navSliderData: NavSliderData[] = [
   { path: "/report/R16", name: "R16", content: <p>Swipe MIN Report</p>},
   { path: "/report/R17", name: "R17", content: <p>Swipe Machine Functional Report</p>},
   { path: "/report/R18", name: "R18", content: <p>Swipe Machine Rejection Report</p>},
+  { path: "/report/R19", name: "R19", content: <p>Pre QC Report</p>},
 ];
 
 const NavSlider: React.FC = () => {
