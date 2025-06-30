@@ -25,6 +25,7 @@ interface RowData {
   challanId: string;
   isdispatch: string;
   isewaybill: string;
+  deviceType: string;
 }
 
 type Props = {
@@ -63,7 +64,11 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
     if (selectedRow) {
       const txnId = selectedRow.challanId;
       const shipmentId = txnId.replace(/\//g, "_");
-      navigate(`/dispatch/create/${shipmentId}`);
+      if (selectedRow.deviceType == "wrongDevices") {
+        navigate(`/dispatch/wrong-device/${shipmentId}`);
+      } else {
+        navigate(`/dispatch/create/${shipmentId}`);
+      }
       handleMenuClose();
     }
   };
@@ -113,6 +118,20 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       flex: 1,
       minWidth: 140,
+    },
+    {
+      headerName: "Type",
+      field: "deviceType",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      minWidth: 140,
+      valueGetter: (params: { data: RowData }) =>
+        params.data.deviceType == "wrongDevices"
+          ? "Wrong Device"
+          : params.data.deviceType == "swipedevice"
+          ? "Swipe Device"
+          : "Sound Box",
     },
     {
       headerName: "Client",

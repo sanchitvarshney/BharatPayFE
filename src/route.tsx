@@ -787,6 +787,16 @@ export const router = createBrowserRouter([
         ),
         path: "/dispatch/wrong-device",
       },
+      {
+        element: (
+          <MainLayout>
+            <WrongDispatchLayout>
+              <WrongDeviceDispatch />
+            </WrongDispatchLayout>
+          </MainLayout>
+        ),
+        path: "/dispatch/wrong-device/:id",
+      },
 
       //dispatch===========================================
 

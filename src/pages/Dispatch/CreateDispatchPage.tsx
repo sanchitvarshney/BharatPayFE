@@ -178,7 +178,7 @@ const CreateDispatchPage: React.FC = () => {
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
-console.log(data,data.deviceType === "device")
+
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };

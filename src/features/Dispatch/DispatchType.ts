@@ -19,13 +19,15 @@ export type DispatchItemPayload = {
 
 export type DispatchWrongItemPayload = {
   docNo: string; // required
-  dispatchQty: number; // required
+  // dispatchQty: number; // required
   remark?: string; // optional
   awb: string[];
   document: string;
-  clientDetail: any;
-  shipToDetails: any;
-  dispatchDate: string;
+  // clientDetail: any;
+  // shipToDetails: any;
+  // dispatchDate: string;
+  challanId:string;
+  dispatchDate:any
 };
 
 export type DispatchState = {

@@ -267,7 +267,7 @@ const UpdateChallanPage: React.FC = () => {
           setValue("hsnCode", data?.hsnCode);
           setValue("materialName", data?.materialName);
           setValue("itemPrice", data?.itemRate);
-          setValue("deviceType", data?.deviceType==="swipedevice"?"swipeMachine":"soundBox");
+          setValue("deviceType", data?.deviceType==="swipedevice"?"swipeMachine":data?.deviceType==="wrongDevices"?"wrongDevices":"soundBox");
         }
       });
     }
@@ -936,7 +936,7 @@ const UpdateChallanPage: React.FC = () => {
                         />
                         Sound Box
                       </label>
-                      <label>
+                      <label style={{ marginRight: 24 }}>
                         <input
                           type="radio"
                           value="swipeMachine"
@@ -944,6 +944,15 @@ const UpdateChallanPage: React.FC = () => {
                           onChange={() => field.onChange("swipeMachine")}
                         />
                         Swipe Machine
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          value="wrongDevices"
+                          checked={field.value === "wrongDevices"}
+                          onChange={() => field.onChange("wrongDevices")}
+                        />
+                        Wrong Device
                       </label>
                     </div>
                     {errors.deviceType && (

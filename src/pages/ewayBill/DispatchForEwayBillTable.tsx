@@ -275,8 +275,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
             onClick={handleCreateEwayBill}
             disabled={
               selectedRow
-                ? isEwayBillCreated(selectedRow) ||
-                  isEwayBillCancelled(selectedRow)
+                ? isEwayBillCreated(selectedRow) 
                 : false
             }
           >

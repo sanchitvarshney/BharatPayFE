@@ -994,6 +994,11 @@ const CreateChallanPage: React.FC = () => {
                           control={<Radio />}
                           label="Swipe Device"
                         />
+                         <FormControlLabel
+                          value="wrongDevice"
+                          control={<Radio />}
+                          label="Wrong Device"
+                        />
                       </RadioGroup>
                       {errors.deviceType && (
                         <FormHelperText>
