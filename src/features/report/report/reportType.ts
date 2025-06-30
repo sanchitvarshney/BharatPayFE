@@ -426,6 +426,8 @@ export type ReportStateType = {
     from: string | null;
     to: string | null;
   };
+  getR19DataLoading: boolean,
+  r19Report: any,
 };
 
 export interface R16ReportResponse {
