@@ -27,8 +27,8 @@ interface RowData {
   inserby: string;
   skuName: string;
   sku: string;
-  ewaybillNo: string;
-  isewaybill: string;
+  ewaybill_no: string;
+  ewayBill_status: string;
   challanId: string;
 }
 
@@ -97,7 +97,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
     try {
       const result = await dispatch(
         cancelEwayBill({
-          ewayBillNo: selectedRow.ewaybillNo,
+          ewayBillNo: selectedRow.ewaybill_no,
           remark: data.remarks,
           cancelRsnCode: data.cancelType,
         })
@@ -161,62 +161,62 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
       ),
       width: 50,
     },
-    { headerName: "SKU", field: "sku", sortable: true, filter: true, flex: 1 },
+    { headerName: "SKU", field: "sku", sortable: true, filter: true,width: 150 },
     {
       headerName: "SKU Name",
       field: "skuName",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 150,
     },
     {
       headerName: "Dispatch Date",
       field: "dispatchDate",
       sortable: true,
       filter: true,
-      flex: 1,
+
+      
     },
     {
-      headerName: "Dispatch Qty",
+      headerName: "Qty",
       field: "dispatchQty",
       sortable: true,
       filter: true,
-      flex: 1,
+      width:100
+    },
+    
+    {
+      headerName: "TXN ID",
+      field: "txnId",
+      sortable: false,
+      filter: true,
+      
+    },
+    {
+      headerName: "Eway Bill Status",
+      field: "ewayBill_status",
+      sortable: true,
+      filter: true,
+      
+      valueGetter: (params: { data: RowData }) =>
+        params.data.ewayBill_status == "Y"
+          ? "Yes"
+          : params.data.ewayBill_status == "C"
+          ? "Cancelled"
+          : "No",
+    },
+    {
+      headerName: "Eway Bill No",
+      field: "ewaybill_no",
+      sortable: true,
+      filter: true, 
     },
     {
       headerName: "Insert By",
       field: "inserby",
       sortable: true,
       filter: true,
-      flex: 1,
-    },
-    {
-      headerName: "TXN ID",
-      field: "txnId",
-      sortable: false,
-      filter: true,
-      flex: 1,
-      hide: true,
-    },
-    {
-      headerName: "Eway Bill Status",
-      field: "isewaybill",
-      sortable: true,
-      filter: true,
-      flex: 1,
-      valueGetter: (params: { data: RowData }) =>
-        params.data.isewaybill == "Y"
-          ? "Yes"
-          : params.data.isewaybill == "C"
-          ? "Cancelled"
-          : "No",
-    },
-    {
-      headerName: "Eway Bill No",
-      field: "ewaybillNo",
-      sortable: true,
-      filter: true,
-      flex: 1,
+      
     },
   ];
 
@@ -230,8 +230,8 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
     };
   }, []);
 
-  const isEwayBillCreated = (row: RowData) => row.isewaybill === "Y";
-  const isEwayBillCancelled = (row: RowData) => row.isewaybill === "C";
+  const isEwayBillCreated = (row: RowData) => row.ewayBill_status === "Y";
+  const isEwayBillCancelled = (row: RowData) => row.ewayBill_status === "C";
 
   return (
     <>
@@ -275,8 +275,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
             onClick={handleCreateEwayBill}
             disabled={
               selectedRow
-                ? isEwayBillCreated(selectedRow) ||
-                  isEwayBillCancelled(selectedRow)
+                ? isEwayBillCreated(selectedRow) 
                 : false
             }
           >

@@ -71,7 +71,39 @@ export default function CreateEwayBill() {
   });
 
   const onSubmit = (data: EwayBillFormData) => {
-    dispatch(createEwayBill(data)).then((res: any) => {
+    console.log(data);
+    const updatedData = {
+      ...data,
+      billFrom: {
+        ...data.billFrom,
+        state: {
+          code: data.billFrom.state?.Code,
+          name: data.billFrom.state?.Name,
+        },
+      },
+      billTo: {
+        ...data.billTo,
+        state: {
+          code: data.billTo.state?.Code,
+          name: data.billTo.state?.Name,
+        },
+      },
+      dispatchFrom: {
+        ...data.dispatchFrom,
+        state: {
+          code: data.dispatchFrom.state?.Code,
+          name: data.dispatchFrom.state?.Name,
+        },
+      },
+      shipTo: {
+        ...data.shipTo,
+        state: {
+          code: data.shipTo.state?.Code,
+          name: data.shipTo.state?.Name,
+        },
+      },
+    };
+    dispatch(createEwayBill(updatedData)).then((res: any) => {
       if (res.payload.data.status) {
         setIsEwayBillCreated(true);
         setEwayBillNo(res?.payload?.data?.data);
@@ -87,7 +119,7 @@ export default function CreateEwayBill() {
 
   useEffect(() => {
     if (dispatchData) {
-      const data = dispatchData?.header[0];
+      const data = dispatchData?.header;
       setValue("header.documentNo", dispId.replace(/_/g, "/"));
       setValue("billFrom.gstin", data.billFrom.gstin);
       setValue("billFrom.legalName", data.billFrom.legalName);

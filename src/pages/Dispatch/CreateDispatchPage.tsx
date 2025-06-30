@@ -40,6 +40,7 @@ import { LocationType } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import {
   CreateDispatch,
+  CreateSwipeDispatch,
   getChallanById,
   getClientBranch,
   uploadFile,
@@ -69,6 +70,7 @@ type RowData = {
   serialNo: number;
   modalNo: string;
   deviceSku: string;
+  imei2?: string;
 };
 
 type FormDataType = {
@@ -214,26 +216,31 @@ const CreateDispatchPage: React.FC = () => {
 
   const finalSubmit = () => {
     console.log(rowData);
-    const data = formValues;
+    const data1 = formValues;
+    console.log(data)
     // if (formdata) {
-    if (rowData.length !== Number(data.qty))
+    if (rowData.length !== Number(data1.qty))
       return showToast(
         "Total Devices should be equal to Quantity you have entered",
         "error"
       );
     const payload: any = {
-      docNo: data.docNo,
+      docNo: data1.docNo,
       // sku: data.sku?.id || "",
       sku: rowData.map((item) => item.productKey),
       // dispatchQty: Number(data.qty),
-      remark: data.remark,
+      remark: data1.remark,
       imeis: rowData.map((item) => item.imei),
+      imei1: rowData.map((item) => item.imei),
+      imei2: rowData.map((item) => item.imei2),
       srlnos: rowData.map((item) => item.srno),
-      document: data.document || "",
-      dispatchDate: dayjs(data.dispatchDate).format("DD-MM-YYYY"),
-      pickLocation: data.location?.code || "",
+      document: data1.document || "",
+      dispatchDate: dayjs(data1.dispatchDate).format("DD-MM-YYYY"),
+      pickLocation: data1.location?.code || "",
       challanId: id?.replace(/_/g, "/") || "",
     };
+   if(data.deviceType === "device"){
+    console.log("object")
     dispatch(CreateDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
         setDispatchNo(res?.payload?.data?.data?.refID);
@@ -244,6 +251,19 @@ const CreateDispatchPage: React.FC = () => {
         //  dispatch(clearFile());
       }
     });
+  }
+
+  else{
+    dispatch(CreateSwipeDispatch(payload)).then((res: any) => {
+      if (res.payload.data.success) {
+        setDispatchNo(res?.payload?.data?.data?.refID);
+        reset();
+        setRowData([]);
+        handleNext();
+        resetall();
+      }
+    });
+  }
     //  };
   };
 
@@ -327,7 +347,8 @@ const CreateDispatchPage: React.FC = () => {
                     (device: any) => {
                       console.log(device);
                       return {
-                        imei: device.device_imei || "",
+                        imei: device.device_imei||device.imei_no1 || "",
+                        imei2: device.imei_no2 || "",
                         srno: device.sl_no || "",
                         modalNo: device?.p_name || "",
                         deviceSku: device?.device_sku || "",
@@ -631,7 +652,7 @@ const CreateDispatchPage: React.FC = () => {
                           { label: "Other Reference", value: data?.otherRef },
                           { label: "GST Rate", value: data?.gstrate },
                           { label: "GST Type", value: data?.gsttype==="inter"?"Inter State":"Intra State" },
-                          {label: "Device Type", value: data?.deviceType==="soundBox"?"SoundBox":"Swipe Device"},
+                          {label: "Device Type", value: data?.deviceType==="device"?"SoundBox":"Swipe Device"},
                           {label:"Item Rate",value:data?.itemRate},
                           {label:"HSN Code",value:data?.hsnCode},
                           {label:"Material Name",value:data?.materialName},

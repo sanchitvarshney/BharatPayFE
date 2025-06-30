@@ -76,6 +76,7 @@ type FormDataType = {
   hsnCode: string;
   materialName: string;
   itemPrice: string;
+  deviceType?: string;
 };
 
 const UpdateChallanPage: React.FC = () => {
@@ -114,6 +115,8 @@ const UpdateChallanPage: React.FC = () => {
       sku: null,
       gstRate: "",
       gstState: "",
+      itemPrice: "",
+      deviceType: "",
     },
   });
   const formValues = watch();
@@ -180,6 +183,7 @@ const UpdateChallanPage: React.FC = () => {
       hsnCode: data.hsnCode,
       materialName: data.materialName,
       itemPrice: data.itemPrice,
+      deviceType: data.deviceType,
     };
     dispatch(UpdateChallan(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -263,6 +267,7 @@ const UpdateChallanPage: React.FC = () => {
           setValue("hsnCode", data?.hsnCode);
           setValue("materialName", data?.materialName);
           setValue("itemPrice", data?.itemRate);
+          setValue("deviceType", data?.deviceType==="swipedevice"?"swipeMachine":data?.deviceType==="wrongDevices"?"wrongDevices":"soundBox");
         }
       });
     }
@@ -772,7 +777,9 @@ const UpdateChallanPage: React.FC = () => {
                     fullWidth
                     variant="filled"
                   >
-                    <InputLabel htmlFor="itemPrice" shrink={!!field.value}>Rate</InputLabel>
+                    <InputLabel htmlFor="itemPrice" shrink={!!field.value}>
+                      Rate
+                    </InputLabel>
                     <FilledInput
                       {...field}
                       error={!!errors.itemPrice}
@@ -861,10 +868,7 @@ const UpdateChallanPage: React.FC = () => {
                     fullWidth
                     variant="filled"
                   >
-                    <InputLabel 
-                      htmlFor="hsnCode"
-                      shrink={!!field.value} 
-                    >
+                    <InputLabel htmlFor="hsnCode" shrink={!!field.value}>
                       HSN Code
                     </InputLabel>
                     <FilledInput
@@ -894,10 +898,7 @@ const UpdateChallanPage: React.FC = () => {
                     fullWidth
                     variant="filled"
                   >
-                    <InputLabel 
-                      htmlFor="otherRef"
-                      shrink={!!field.value}
-                    >
+                    <InputLabel htmlFor="otherRef" shrink={!!field.value}>
                       Other Reference
                     </InputLabel>
                     <FilledInput
@@ -912,10 +913,60 @@ const UpdateChallanPage: React.FC = () => {
                   </FormControl>
                 )}
               />
+              <Controller
+                name="deviceType"
+                control={control}
+                rules={{
+                  required: { value: true, message: "Device Type is required" },
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    error={!!errors.deviceType}
+                    fullWidth
+                    variant="filled"
+                  >
+                    <InputLabel shrink>Device Type</InputLabel>
+                    <div style={{ padding: "16px 0" }}>
+                      <label style={{ marginRight: 24 }}>
+                        <input
+                          type="radio"
+                          value="soundBox"
+                          checked={field.value === "soundBox"}
+                          onChange={() => field.onChange("soundBox")}
+                        />
+                        Sound Box
+                      </label>
+                      <label style={{ marginRight: 24 }}>
+                        <input
+                          type="radio"
+                          value="swipeMachine"
+                          checked={field.value === "swipeMachine"}
+                          onChange={() => field.onChange("swipeMachine")}
+                        />
+                        Swipe Machine
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          value="wrongDevices"
+                          checked={field.value === "wrongDevices"}
+                          onChange={() => field.onChange("wrongDevices")}
+                        />
+                        Wrong Device
+                      </label>
+                    </div>
+                    {errors.deviceType && (
+                      <FormHelperText>
+                        {errors.deviceType.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
             </div>
             <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
               <FormControl fullWidth variant="filled">
-                <InputLabel 
+                <InputLabel
                   htmlFor="materialName"
                   shrink={!!register("materialName")}
                 >
@@ -929,10 +980,7 @@ const UpdateChallanPage: React.FC = () => {
                 />
               </FormControl>
               <FormControl fullWidth variant="filled">
-                <InputLabel 
-                  htmlFor="remark"
-                  shrink={!!register("remark")}
-                >
+                <InputLabel htmlFor="remark" shrink={!!register("remark")}>
                   Remarks
                 </InputLabel>
                 <FilledInput
