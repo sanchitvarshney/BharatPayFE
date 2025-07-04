@@ -1,5 +1,4 @@
 export type DispatchItemPayload = {
-  docNo: string; // required
   sku: string[]; // required
   dispatchQty?: number; // required
   remark?: string; // optional
@@ -7,7 +6,6 @@ export type DispatchItemPayload = {
   imei1?: any;
   imei2?: any;
   srlnos : string[];
-  document: string; // required
   pickLocation: string;
   clientDetail?: any;
   shipToDetails?: any;
@@ -18,16 +16,8 @@ export type DispatchItemPayload = {
 };
 
 export type DispatchWrongItemPayload = {
-  docNo: string; // required
-  // dispatchQty: number; // required
-  remark?: string; // optional
   awb: string[];
-  document: string;
-  // clientDetail: any;
-  // shipToDetails: any;
-  // dispatchDate: string;
   challanId:string;
-  dispatchDate:any
 };
 
 export type DispatchState = {

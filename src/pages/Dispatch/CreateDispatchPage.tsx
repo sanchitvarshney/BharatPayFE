@@ -13,16 +13,11 @@ import {
   Button,
   CircularProgress,
   Divider,
-  FilledInput,
   FormControl,
   FormControlLabel,
-  FormHelperText,
-  IconButton,
   InputAdornment,
-  InputLabel,
-  LinearProgress,
-  ListItem,
-  ListItemText,
+ LinearProgress,
+ ListItemText,
   Radio,
   Step,
   StepLabel,
@@ -30,7 +25,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import FileUploader from "@/components/reusable/FileUploader";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
@@ -43,18 +37,13 @@ import {
   CreateSwipeDispatch,
   getChallanById,
   getClientBranch,
-  uploadFile,
 } from "@/features/Dispatch/DispatchSlice";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
 import { getDispatchFromDetail } from "@/features/master/client/clientSlice";
 import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs, { Dayjs } from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Dayjs } from "dayjs";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -125,7 +114,6 @@ type shipToDetailsType = {
 const CreateDispatchPage: React.FC = () => {
   const { id } = useParams();
   const isEditMode = Boolean(id);
-  const [filename, setFilename] = useState<string>("");
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
@@ -137,7 +125,7 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
-  const { dispatchCreateLoading, uploadFileLoading } = useAppSelector(
+  const { dispatchCreateLoading } = useAppSelector(
     (state) => state.dispatch
   );
 
@@ -187,14 +175,13 @@ const CreateDispatchPage: React.FC = () => {
     setRowData([]);
     reset();
     dispatch(resetDocumentFile());
-    setFilename("");
     dispatch(clearaddressdetail());
     formdata.delete("document");
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
-    if (!data.document)
-      return showToast("Please Upload Invoice Documents", "error");
+    // if (!data.document)
+    //   return showToast("Please Upload Invoice Documents", "error");
     dispatch(storeFormdata(data));
     handleNext();
   };
@@ -225,17 +212,12 @@ const CreateDispatchPage: React.FC = () => {
         "error"
       );
     const payload: DispatchItemPayload = {
-      docNo: data1.docNo,
-      // sku: data.sku?.id || "",
       sku: rowData.map((item) => item.productKey),
-      // dispatchQty: Number(data.qty),
       remark: data1.remark,
       imeis: rowData.map((item) => item.imei),
       imei1: rowData.map((item) => item.imei),
       imei2: rowData.map((item) => item.imei2),
       srlnos: rowData.map((item) => item.srno),
-      document: data1.document || "",
-      dispatchDate: dayjs(data1.dispatchDate).format("DD-MM-YYYY"),
       pickLocation: data1.location?.code || "",
       challanId: id?.replace(/_/g, "/") || "",
     };
@@ -677,36 +659,6 @@ const CreateDispatchPage: React.FC = () => {
                 </div>
                 <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                   <Controller
-                    name="docNo"
-                    control={control}
-                    rules={{
-                      required: {
-                        value: true,
-                        message: "Document is required",
-                      },
-                    }}
-                    render={({ field }) => (
-                      <FormControl
-                        error={!!errors.docNo}
-                        fullWidth
-                        variant="filled"
-                      >
-                        <InputLabel htmlFor="docNo">Document No</InputLabel>
-                        <FilledInput
-                          {...field}
-                          error={!!errors.docNo}
-                          id="docNo"
-                          type="text"
-                        />
-                        {errors.docNo && (
-                          <FormHelperText>
-                            {errors.docNo.message}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                    )}
-                  />
-                  <Controller
                     name="location"
                     rules={{
                       required: {
@@ -728,102 +680,6 @@ const CreateDispatchPage: React.FC = () => {
                       />
                     )}
                   />
-                  <div>
-                    <Controller
-                      name="dispatchDate"
-                      control={control}
-                      rules={{ required: " Dispatch Date is required" }}
-                      render={({ field }) => (
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            format="DD-MM-YYYY"
-                            slots={{
-                              textField: TextField,
-                            }}
-                            maxDate={dayjs()}
-                            slotProps={{
-                              textField: {
-                                variant: "filled",
-                                error: !!errors.dispatchDate,
-                                helperText: errors.dispatchDate?.message,
-                              },
-                            }}
-                            value={field.value}
-                            onChange={(value) => field.onChange(value)}
-                            sx={{ width: "100%" }}
-                            label="Dispatch Date"
-                            name="startDate"
-                          />
-                        </LocalizationProvider>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2">
-                  <div className=" flex flex-col gap-[20px] py-[20px] ">
-                    <div>
-                      <Controller
-                        name="file"
-                        control={control}
-                        render={({ field }) => (
-                          <FileUploader
-                            loading={uploadFileLoading}
-                            acceptedFileTypes={{
-                              "application/pdf": [".pdf"],
-                              "application/msword": [".doc"],
-                              "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                                [".docx"],
-                              "image/*": [],
-                            }}
-                            multiple={false}
-                            value={field.value}
-                            onFileChange={(value) => {
-                              if (value && value.length > 0) {
-                                formdata.delete("document");
-                                const file = value[0]; // Get the first file (if there's one)
-                                setFilename(value[0].name);
-                                formdata.append("document", file);
-                                dispatch(uploadFile(formdata)).then(
-                                  (res: any) => {
-                                    if (res.payload.data.success) {
-                                      const docNos = res.payload.data?.data;
-                                      setValue("document", docNos); // Update the document field in the form
-                                    }
-                                  }
-                                );
-                              }
-                            }}
-                            label="Upload Attachment"
-                          />
-                        )}
-                      />
-                      <ListItem
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          p: 0,
-                        }}
-                      >
-                        <Typography variant="body2" noWrap>
-                          {filename}
-                        </Typography>
-                        {filename && (
-                          <IconButton
-                            type="button"
-                            sx={{ paddingX: "10px", paddingY: "5px" }}
-                            onClick={() => {
-                              formdata.delete("document");
-                              setFilename("");
-                              setValue("document", "");
-                            }}
-                            color="error"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                      </ListItem>
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
