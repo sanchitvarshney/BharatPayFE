@@ -267,7 +267,14 @@ const UpdateChallanPage: React.FC = () => {
           setValue("hsnCode", data?.hsnCode);
           setValue("materialName", data?.materialName);
           setValue("itemPrice", data?.itemRate);
-          setValue("deviceType", data?.deviceType==="swipedevice"?"swipeMachine":data?.deviceType==="wrongDevices"?"wrongDevices":"soundBox");
+          setValue(
+            "deviceType",
+            data?.deviceType === "swipedevice"
+              ? "swipeMachine"
+              : data?.deviceType === "wrongDevices"
+              ? "wrongDevices"
+              : "soundBox"
+          );
         }
       });
     }
@@ -716,6 +723,72 @@ const UpdateChallanPage: React.FC = () => {
             </div>
             <div className="flex items-center w-full gap-3">
               <div className="flex items-center gap-[5px]">
+                <Icons.info />
+                <h2 className="text-lg font-semibold">Device Details</h2>
+              </div>
+              <Divider
+                sx={{
+                  borderBottomWidth: 2,
+                  borderColor: "#f59e0b",
+                  flexGrow: 1,
+                }}
+              />
+            </div>
+            <div>
+              {" "}
+              <Controller
+                name="deviceType"
+                control={control}
+                rules={{
+                  required: { value: true, message: "Device Type is required" },
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    error={!!errors.deviceType}
+                    fullWidth
+                    variant="filled"
+                  >
+                    <InputLabel shrink>Device Type</InputLabel>
+                    <div style={{ padding: "16px 0" }}>
+                      <label style={{ marginRight: 24,gap: "8px",}}>
+                        <input
+                          type="radio"
+                          value="soundBox"
+                          checked={field.value === "soundBox"}
+                          onChange={() => field.onChange("soundBox")}
+                        />
+                        Sound Box
+                      </label>
+                      <label style={{ marginRight: 24 }}>
+                        <input
+                          type="radio"
+                          value="swipeMachine"
+                          checked={field.value === "swipeMachine"}
+                          onChange={() => field.onChange("swipeMachine")}
+                        />
+                        Swipe Machine
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          value="wrongDevices"
+                          checked={field.value === "wrongDevices"}
+                          onChange={() => field.onChange("wrongDevices")}
+                        />
+                        Wrong Device
+                      </label>
+                    </div>
+                    {errors.deviceType && (
+                      <FormHelperText>
+                        {errors.deviceType.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </div>
+            <div className="flex items-center w-full gap-3">
+              <div className="flex items-center gap-[5px]">
                 <Icons.files />
                 <h2 className="text-lg font-semibold">
                   Dispatch Details and Attachments
@@ -913,56 +986,7 @@ const UpdateChallanPage: React.FC = () => {
                   </FormControl>
                 )}
               />
-              <Controller
-                name="deviceType"
-                control={control}
-                rules={{
-                  required: { value: true, message: "Device Type is required" },
-                }}
-                render={({ field }) => (
-                  <FormControl
-                    error={!!errors.deviceType}
-                    fullWidth
-                    variant="filled"
-                  >
-                    <InputLabel shrink>Device Type</InputLabel>
-                    <div style={{ padding: "16px 0" }}>
-                      <label style={{ marginRight: 24 }}>
-                        <input
-                          type="radio"
-                          value="soundBox"
-                          checked={field.value === "soundBox"}
-                          onChange={() => field.onChange("soundBox")}
-                        />
-                        Sound Box
-                      </label>
-                      <label style={{ marginRight: 24 }}>
-                        <input
-                          type="radio"
-                          value="swipeMachine"
-                          checked={field.value === "swipeMachine"}
-                          onChange={() => field.onChange("swipeMachine")}
-                        />
-                        Swipe Machine
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          value="wrongDevices"
-                          checked={field.value === "wrongDevices"}
-                          onChange={() => field.onChange("wrongDevices")}
-                        />
-                        Wrong Device
-                      </label>
-                    </div>
-                    {errors.deviceType && (
-                      <FormHelperText>
-                        {errors.deviceType.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                )}
-              />
+             
             </div>
             <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
               <FormControl fullWidth variant="filled">

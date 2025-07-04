@@ -24,7 +24,6 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel,
-  FormLabel,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -791,6 +790,67 @@ const CreateChallanPage: React.FC = () => {
               </div>
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
+                  <Icons.info />
+                  <h2 className="text-lg font-semibold">Device Details</h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div>
+                {" "}
+                <Controller
+                  name="deviceType"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Device Type is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.deviceType}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <RadioGroup
+                        {...field}
+                        row
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                      >
+                        <FormControlLabel
+                          value="soundBox"
+                          control={<Radio />}
+                          label="Sound Box"
+                        />
+                        <FormControlLabel
+                          value="swipeMachine"
+                          control={<Radio />}
+                          label="Swipe Device"
+                        />
+                        <FormControlLabel
+                          value="wrongDevice"
+                          control={<Radio />}
+                          label="Wrong Device"
+                        />
+                      </RadioGroup>
+                      {errors.deviceType && (
+                        <FormHelperText>
+                          {errors.deviceType.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </div>
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
                   <Icons.files />
                   <h2 className="text-lg font-semibold">
                     Dispatch Details and Attachments
@@ -804,6 +864,7 @@ const CreateChallanPage: React.FC = () => {
                   }}
                 />
               </div>
+
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
                   name="qty"
@@ -962,52 +1023,7 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                <Controller
-                  name="deviceType"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Device Type is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.deviceType}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <FormLabel component="legend">Device Type</FormLabel>
-                      <RadioGroup
-                        {...field}
-                        row
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                      >
-                        <FormControlLabel
-                          value="soundBox"
-                          control={<Radio />}
-                          label="Sound Box"
-                        />
-                        <FormControlLabel
-                          value="swipeMachine"
-                          control={<Radio />}
-                          label="Swipe Device"
-                        />
-                         <FormControlLabel
-                          value="wrongDevice"
-                          control={<Radio />}
-                          label="Wrong Device"
-                        />
-                      </RadioGroup>
-                      {errors.deviceType && (
-                        <FormHelperText>
-                          {errors.deviceType.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
+
                 <Controller
                   name="otherRef"
                   control={control}
