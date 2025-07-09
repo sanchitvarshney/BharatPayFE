@@ -110,6 +110,11 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("swipeRejectionReport", payload);
   };
 
+   const emitDownloadR19Report = (payload: any) => {
+    console.log(payload);
+    socketService.emit("preQcReportDownload", payload);
+  };
+
   const emitDownloadR17Report = (payload: any) => {
     console.log(payload);
     socketService.emit("swipeFunctionalReport", payload);
@@ -168,6 +173,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     <SocketContext.Provider
       value={{
         emitR15Report,
+        emitDownloadR19Report,
         emitR11Report,
         emitR8DeviceReport,
         emitR13Report,

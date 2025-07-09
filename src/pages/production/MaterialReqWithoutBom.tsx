@@ -3,14 +3,38 @@ import MaterialReqWithoutBomTable from "@/table/production/MaterialReqWithoutBom
 import { useCallback, useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { createProductRequest, getLocationAsync, getPertCodesync, getSkuAsync, setType } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+import {
+  createProductRequest,
+  getLocationAsync,
+  getPertCodesync,
+  getPreQCLocationAsync,
+  getSkuAsync,
+  setType,
+} from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, ListItemButton, ListItemText, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControlLabel,
+  ListItemButton,
+  ListItemText,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
-import SelectLocationAcordingModule, { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import SelectLocationAcordingModule, {
+  LocationType,
+} from "@/components/reusable/SelectLocationAcordingModule";
 import { CostCenterType } from "@/components/reusable/SelectCostCenter";
 
 interface RowData {
@@ -34,7 +58,8 @@ const MaterialReqWithoutBom = () => {
   const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
   const [final, setFinal] = useState<boolean>(false);
-  const { type, createProductRequestLoading, locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
+  const { type, createProductRequestLoading, locationData, craeteRequestData } =
+    useAppSelector((state) => state.materialRequestWithoutBom);
   // const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const [open, setOpen] = useState<boolean>(false);
   const [reqType, setReqType] = useState<string>("");
@@ -46,6 +71,10 @@ const MaterialReqWithoutBom = () => {
       setOpen(true);
     } else {
       dispatch(setType(e));
+      // Reset location when type changes and there are no rows
+      setLocation(null);
+      setLocationdetail("--");
+      reset({ location: null });
     }
   };
   const {
@@ -78,7 +107,7 @@ const MaterialReqWithoutBom = () => {
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
-    console.log(data)
+    console.log(data);
     if (rowData.length === 0) {
       showToast("Please Add Material Details", "error");
       return;
@@ -97,7 +126,10 @@ const MaterialReqWithoutBom = () => {
           missingFields.push("orderqty");
         }
         if (missingFields.length > 0) {
-          showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
+          showToast(
+            `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
+            "error"
+          );
           hasErrors = true;
         }
       });
@@ -107,7 +139,19 @@ const MaterialReqWithoutBom = () => {
         const picLocation = rowData.map((row) => row.pickLocation?.value || "");
         const qty = rowData.map((row) => row.orderqty);
         const remark = rowData.map((row) => row.remarks);
-        dispatch(createProductRequest({ itemKey, picLocation, qty, remark, reqType: type.toLocaleUpperCase(), putLocation: data.location!.code, comment: data.remarks, cc: data.cc?.id || "",forTrc :type==="device"?"1":data.checkbox?"1":"0" })).then((res: any) => {
+        dispatch(
+          createProductRequest({
+            itemKey,
+            picLocation,
+            qty,
+            remark,
+            reqType: type.toLocaleUpperCase(),
+            putLocation: data.location!.code,
+            comment: data.remarks,
+            cc: data.cc?.id || "",
+            forTrc: type === "device" ? "1" : data.checkbox ? "1" : "0",
+          })
+        ).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
@@ -122,19 +166,45 @@ const MaterialReqWithoutBom = () => {
     dispatch(getSkuAsync(null));
     dispatch(getPertCodesync(null));
     dispatch(getLocationAsync(null));
+    dispatch(getPreQCLocationAsync(null));
   }, []);
+
+  useEffect(() => {
+    if (type === "device") {
+      dispatch(getPreQCLocationAsync(null));
+    } else {
+      dispatch(getLocationAsync(null));
+    }
+    // Reset location state when type changes
+    setLocation(null);
+    setLocationdetail("--");
+    // Only reset the location field, not the entire form
+    reset({ location: null });
+  }, [type, dispatch, reset]);
+
   useEffect(() => {
     if (location) {
-      const locationDetail = locationData?.find((item) => item.id === location?.code)?.specification;
+      const locationDetail = locationData?.find(
+        (item) => item.id === location?.code
+      )?.specification;
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
   return (
     <div>
-      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{"Are you absolutely sure?"}</DialogTitle>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you absolutely sure?"}
+        </DialogTitle>
         <DialogContent sx={{ width: "600px" }}>
-          <DialogContentText id="alert-dialog-description">If you change [Request Type] your hole data will be reset</DialogContentText>
+          <DialogContentText id="alert-dialog-description">
+            If you change [Request Type] your hole data will be reset
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
@@ -145,6 +215,8 @@ const MaterialReqWithoutBom = () => {
               dispatch(setType(reqType));
               reset();
               setRowData([]);
+              setLocation(null);
+              setLocationdetail("--");
               setOpen(false);
             }}
             autoFocus
@@ -158,14 +230,30 @@ const MaterialReqWithoutBom = () => {
           <div className="max-h-max max-w-max flex flex-col gap-[30px]">
             <Success>
               <div className="success-animation">
-                <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                  <circle className="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
-                  <path className="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                <svg
+                  className="checkmark"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 52 52"
+                >
+                  <circle
+                    className="checkmark__circle"
+                    cx="26"
+                    cy="26"
+                    r="25"
+                    fill="none"
+                  />
+                  <path
+                    className="checkmark__check"
+                    fill="none"
+                    d="M14.1 27.2l7.1 7.2 16.7-16.8"
+                  />
                 </svg>
               </div>
             </Success>
             <div className="flex items-center gap-[10px]">
-              <p className="text-green-600">{craeteRequestData && craeteRequestData.message}</p>
+              <p className="text-green-600">
+                {craeteRequestData && craeteRequestData.message}
+              </p>
             </div>
             <div className="flex items-center justify-center">
               <Button
@@ -173,6 +261,8 @@ const MaterialReqWithoutBom = () => {
                 onClick={() => {
                   setFinal(false);
                   setLocationdetail("--");
+                  setLocation(null);
+                  reset({ location: null });
                 }}
                 variant="contained"
               >
@@ -187,7 +277,10 @@ const MaterialReqWithoutBom = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div>
                 <div className="h-[41px] border-b border-neutral-300 p-0 flex flex-col justify-center px-[20px] bg-hbg">
-                  <Typography className="text-slate-600 font-[500]" fontWeight={500}>
+                  <Typography
+                    className="text-slate-600 font-[500]"
+                    fontWeight={500}
+                  >
                     Header Details
                   </Typography>
                 </div>
@@ -207,7 +300,12 @@ const MaterialReqWithoutBom = () => {
                         onClick={() => handleTypeChange("part")}
                         selected={type === "part"}
                       >
-                        <FormControlLabel value={"part"} control={<Radio />} label={<ListItemText primary={"Material"} />} sx={{ width: "100%", margin: 0 }} />
+                        <FormControlLabel
+                          value={"part"}
+                          control={<Radio />}
+                          label={<ListItemText primary={"Material"} />}
+                          sx={{ width: "100%", margin: 0 }}
+                        />
                       </ListItemButton>
                       <ListItemButton
                         sx={{
@@ -221,32 +319,63 @@ const MaterialReqWithoutBom = () => {
                         onClick={() => handleTypeChange("device")}
                         selected={type === "device"}
                       >
-                        <FormControlLabel value={"device"} control={<Radio />} label={<ListItemText primary={"SKU"} />} sx={{ width: "100%", margin: 0 }} />
+                        <FormControlLabel
+                          value={"device"}
+                          control={<Radio />}
+                          label={<ListItemText primary={"SKU"} />}
+                          sx={{ width: "100%", margin: 0 }}
+                        />
                       </ListItemButton>
                     </div>
                   </RadioGroup>
-                  <div>
-                    <Controller
-                      name="location"
-                      control={control}
-                      rules={{ required: "Location is required" }}
-                      render={({ field }) => (
-                        <SelectLocationAcordingModule
-                          endPoint="/req/without-bom/req-location"
-                          error={!!errors.location}
-                          helperText={errors.location?.message}
-                          value={field.value}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setLocation(e);
-                          }}
-                        />
-                      )}
-                    />
-                  </div>
+                  {type === "device" ? (
+                    <div>
+                      <Controller
+                        name="location"
+                        control={control}
+                        rules={{ required: "Location is required" }}
+                        render={({ field }) => (
+                          <SelectLocationAcordingModule
+                            key={`device-${type}`}
+                            endPoint={"/preQc/pickLocation"}
+                            error={!!errors.location}
+                            helperText={errors.location?.message}
+                            value={field.value}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setLocation(e);
+                            }}
+                          />
+                        )}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <Controller
+                        name="location"
+                        control={control}
+                        rules={{ required: "Location is required" }}
+                        render={({ field }) => (
+                          <SelectLocationAcordingModule
+                            key={`part-${type}`}
+                            endPoint={"/req/without-bom/req-location"}
+                            error={!!errors.location}
+                            helperText={errors.location?.message}
+                            value={field.value}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setLocation(e);
+                            }}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
                   <div className="flex gap-[10px] items-center">
                     <Typography>Location Details :</Typography>
-                    <span className="text-[14px] text-slate-600">{locationdetail}</span>
+                    <span className="text-[14px] text-slate-600">
+                      {locationdetail}
+                    </span>
                   </div>
                   {/* cost center commented for future use */}
                   {/* <Controller
@@ -267,14 +396,28 @@ const MaterialReqWithoutBom = () => {
                     )}
                   /> */}
                   <div>
-                    <TextField fullWidth multiline rows={4} label="Remark (if any)" {...register("remarks")} />
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={4}
+                      label="Remark (if any)"
+                      {...register("remarks")}
+                    />
                   </div>
                   <div className="flex items-center ">
-                    <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" {...register("checkbox")}  checked={type === "device" || !!watch("checkbox")} // Always checked when type is "SKU"
-    disabled={type === "device"} />
-                      <label htmlFor="terms" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
-                        Directly Move To TRC
-                      </label>
+                    <Checkbox
+                      id="terms"
+                      className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400"
+                      {...register("checkbox")}
+                      checked={type === "device" || !!watch("checkbox")} // Always checked when type is "SKU"
+                      disabled={type === "device"}
+                    />
+                    <label
+                      htmlFor="terms"
+                      className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500"
+                    >
+                      Directly Move To TRC
+                    </label>
                   </div>
                 </CardContent>
                 <CardFooter className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
@@ -283,6 +426,8 @@ const MaterialReqWithoutBom = () => {
                     onClick={() => {
                       reset();
                       setRowData([]);
+                      setLocation(null);
+                      setLocationdetail("--");
                     }}
                     startIcon={<Icons.refresh fontSize="small" />}
                     variant={"contained"}
@@ -290,14 +435,24 @@ const MaterialReqWithoutBom = () => {
                   >
                     Reset
                   </LoadingButton>
-                  <LoadingButton type="submit" loadingPosition="start" loading={createProductRequestLoading} startIcon={<Icons.save fontSize="small" />} variant="contained">
+                  <LoadingButton
+                    type="submit"
+                    loadingPosition="start"
+                    loading={createProductRequestLoading}
+                    startIcon={<Icons.save fontSize="small" />}
+                    variant="contained"
+                  >
                     Submit
                   </LoadingButton>
                 </CardFooter>
               </div>
             </form>
           </div>
-          <MaterialReqWithoutBomTable addRow={addRow} setRowdata={setRowData} rowData={rowData} />
+          <MaterialReqWithoutBomTable
+            addRow={addRow}
+            setRowdata={setRowData}
+            rowData={rowData}
+          />
         </div>
       )}
     </div>
@@ -314,7 +469,8 @@ const Success = styled.div`
     stroke: #4bb71b;
     stroke-miterlimit: 10;
     box-shadow: inset 0px 0px 0px #4bb71b;
-    animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+    animation: fill 0.4s ease-in-out 0.4s forwards,
+      scale 0.3s ease-in-out 0.9s both;
     position: relative;
     top: 5px;
     right: 5px;
