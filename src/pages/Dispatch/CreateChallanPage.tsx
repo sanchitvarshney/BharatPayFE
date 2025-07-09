@@ -3,16 +3,10 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
-  clearaddressdetail,
-  getLocationAsync,
-  getVendorAsync,
-} from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import {
   resetDocumentFile,
   resetFormData,
   storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { getCurrency } from "@/features/common/commonSlice";
 import {
   Autocomplete,
@@ -27,6 +21,9 @@ import {
   Stepper,
   TextField,
   Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -37,14 +34,18 @@ import SelectClient, {
 } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
 import {
-  CreateDispatch,
+  CreateChallan,
   getClientBranch,
+  getChallanById,
 } from "@/features/Dispatch/DispatchSlice";
 import {
   getClientAddressDetail,
   getDispatchFromDetail,
 } from "@/features/master/client/clientSlice";
-import{ Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
+import { showToast } from "@/utils/toasterContext";
+import { useParams } from "react-router-dom";
+
 type FormDataType = {
   clientDetail: clientDetailType | null;
   shipToDetails: shipToDetailsType | null;
@@ -58,6 +59,12 @@ type FormDataType = {
   otherRef: string;
   document: string;
   dispatchDate: Dayjs | null;
+  gstRate: string;
+  gstState: string;
+  itemPrice: string;
+  hsnCode: string;
+  materialName: string;
+  deviceType: string;
 };
 
 type clientDetailType = {
@@ -90,13 +97,16 @@ type shipToDetailsType = {
 };
 
 const CreateChallanPage: React.FC = () => {
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const isEditMode = Boolean(id);
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
-  const dispatch = useAppDispatch();
 
-  const { dispatchCreateLoading, clientBranchList } =
-    useAppSelector((state) => state.dispatch);
+  const { createChallanLoading, clientBranchList } = useAppSelector(
+    (state) => state.dispatch
+  );
 
   const { addressDetail, dispatchFromDetails } = useAppSelector(
     (state) => state.client
@@ -122,6 +132,12 @@ const CreateChallanPage: React.FC = () => {
       remark: "",
       file: null,
       sku: null,
+      gstRate: "",
+      gstState: "",
+      itemPrice: "",
+      materialName: "",
+      hsnCode: "",
+      deviceType: "",
     },
   });
   const formValues = watch();
@@ -132,24 +148,122 @@ const CreateChallanPage: React.FC = () => {
     setActiveStep((prevStep) => prevStep + 1);
   };
 
-  const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
-  };
-
   const resetall = () => {
     reset();
     dispatch(resetDocumentFile());
-    dispatch(clearaddressdetail());
     formdata.delete("document");
   };
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
     dispatch(storeFormdata(data));
-    // handleNext();
   };
 
   const finalSubmit = () => {
     const data = formValues;
+
+    // Client validations
+    if (!data.clientDetail?.client) {
+      showToast("Please select a client", "error");
+      return;
+    }
+    if (!data.clientDetail?.branchId) {
+      showToast("Please select a client branch", "error");
+      return;
+    }
+    if (!data.clientDetail?.address1) {
+      showToast("Client address 1 is required", "error");
+      return;
+    }
+    if (!data.clientDetail?.address2) {
+      showToast("Client address 2 is required", "error");
+      return;
+    }
+    if (!data.clientDetail?.pincode) {
+      showToast("Client pincode is required", "error");
+      return;
+    }
+
+    // Ship to validations
+    if (!data.shipToDetails?.shipTo) {
+      showToast("Please select ship to details", "error");
+      return;
+    }
+    if (!data.shipToDetails?.address1) {
+      showToast("Ship to address 1 is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.address2) {
+      showToast("Ship to address 2 is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.pincode) {
+      showToast("Ship to pincode is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.mobileNo) {
+      showToast("Ship to mobile number is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.city) {
+      showToast("Ship to city is required", "error");
+      return;
+    }
+
+    // Dispatch from validations
+    if (!data.dispatchFromDetails?.dispatchFrom) {
+      showToast("Please select dispatch from details", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.address1) {
+      showToast("Dispatch from address 1 is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.address2) {
+      showToast("Dispatch from address 2 is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.pin) {
+      showToast("Dispatch from pin is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.mobileNo) {
+      showToast("Dispatch from mobile number is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.gst) {
+      showToast("Dispatch from GST is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.pan) {
+      showToast("Dispatch from PAN is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.city) {
+      showToast("Dispatch from city is required", "error");
+      return;
+    }
+
+    // Other validations
+    if (!data.qty || Number(data.qty) <= 0) {
+      showToast("Please enter a valid quantity", "error");
+      return;
+    }
+    if (!data.gstRate) {
+      showToast("Please enter GST rate", "error");
+      return;
+    }
+    if (!data.gstState) {
+      showToast("Please select GST state", "error");
+      return;
+    }
+    if (!data.itemPrice) {
+      showToast("Please Enter Item Price", "error");
+      return;
+    }
+    if (!data.deviceType) {
+      showToast("Please select Device Type", "error");
+      return;
+    }
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
@@ -163,23 +277,26 @@ const CreateChallanPage: React.FC = () => {
         : null,
       shipToDetails: data.shipToDetails || null,
       dispatchFromDetails: data.dispatchFromDetails || null,
+      gstRate: data.gstRate,
+      gstState: data.gstState === "Inter State" ? "inter" : "local",
+      itemPrice: data.itemPrice,
+      hsnCode: data.hsnCode,
+      materialName: data.materialName,
+      deviceType: data.deviceType,
     };
-    dispatch(CreateDispatch(payload)).then((res: any) => {
+    dispatch(CreateChallan(payload)).then((res: any) => {
+      console.log(res);
       if (res.payload.data.success) {
-        setDispatchNo(res?.payload?.data?.data?.refID);
+        setDispatchNo(res?.payload?.data?.data);
+        showToast(res?.payload?.data?.message, "success");
         reset();
         handleNext();
         resetall();
-        //  dispatch(clearFile());
       }
     });
-    //  };
   };
 
   useEffect(() => {
-    dispatch(getVendorAsync(null));
-    dispatch(getLocationAsync(null));
-    dispatch(getPertCodesync(null));
     dispatch(getCurrency());
     dispatch(getDispatchFromDetail());
   }, []);
@@ -189,6 +306,16 @@ const CreateChallanPage: React.FC = () => {
       dispatch(getClientBranch((formValues.clientDetail.client as any).code));
     }
   }, [formValues.clientDetail?.client]);
+
+  useEffect(() => {
+    if (isEditMode && id) {
+      const shipmentId = id.replace(/_/g, "/");
+      dispatch(getChallanById({ challanId: shipmentId })).then((res: any) => {
+        const data = res?.payload?.data?.data;
+        console.log(data);
+      });
+    }
+  }, [id, isEditMode, dispatch]);
 
   const handleClientBranchChange = (value: any) => {
     if (value) {
@@ -225,7 +352,6 @@ const CreateChallanPage: React.FC = () => {
 
   return (
     <>
-     
       <ConfirmationModel
         open={alert}
         onClose={() => setAlert(false)}
@@ -520,7 +646,7 @@ const CreateChallanPage: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="shipToDetails.shipTo"
+                  name="dispatchFromDetails.dispatchFrom"
                   rules={{
                     required: {
                       value: true,
@@ -532,7 +658,7 @@ const CreateChallanPage: React.FC = () => {
                     <Autocomplete
                       // value={field.value}
                       value={
-                        dispatchFromDetails?.data?.find(
+                        dispatchFromDetails?.find(
                           (address: any) => address.code === field.value
                         ) || null
                       }
@@ -627,7 +753,7 @@ const CreateChallanPage: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="City"
-                  className="h-[100px] resize-none"
+                  className="h-[60px] resize-none"
                   {...register("dispatchFromDetails.city")}
                 />
 
@@ -664,6 +790,67 @@ const CreateChallanPage: React.FC = () => {
               </div>
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
+                  <Icons.info />
+                  <h2 className="text-lg font-semibold">Device Details</h2>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div>
+                {" "}
+                <Controller
+                  name="deviceType"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Device Type is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.deviceType}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <RadioGroup
+                        {...field}
+                        row
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                      >
+                        <FormControlLabel
+                          value="soundBox"
+                          control={<Radio />}
+                          label="Sound Box"
+                        />
+                        <FormControlLabel
+                          value="swipeMachine"
+                          control={<Radio />}
+                          label="Swipe Device"
+                        />
+                        <FormControlLabel
+                          value="wrongDevice"
+                          control={<Radio />}
+                          label="Wrong Device"
+                        />
+                      </RadioGroup>
+                      {errors.deviceType && (
+                        <FormHelperText>
+                          {errors.deviceType.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </div>
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
                   <Icons.files />
                   <h2 className="text-lg font-semibold">
                     Dispatch Details and Attachments
@@ -677,6 +864,7 @@ const CreateChallanPage: React.FC = () => {
                   }}
                 />
               </div>
+
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
                   name="qty"
@@ -715,10 +903,73 @@ const CreateChallanPage: React.FC = () => {
                   )}
                 />
                 <Controller
-                  name="otherRef"
+                  name="itemPrice"
                   control={control}
                   rules={{
-                    required: { value: true, message: "Other Reference is required" },
+                    required: {
+                      value: true,
+                      message: "Item Price is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.itemPrice}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="itemPrice">Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.itemPrice}
+                        id="itemPrice"
+                        type="text"
+                      />
+                      {errors.itemPrice && (
+                        <FormHelperText>
+                          {errors.itemPrice.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+
+                <Controller
+                  name="gstState"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "GST Type is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={field.value}
+                      onChange={(_, newValue) => field.onChange(newValue)}
+                      disablePortal
+                      id="combo-box-demo"
+                      options={["Inter State", "Intra State"]}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="GST Type"
+                          error={!!errors.gstState}
+                          helperText={errors.gstState?.message}
+                          variant="filled"
+                        />
+                      )}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="gstRate"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "GST Rate is required",
+                    },
                   }}
                   render={({ field }) => (
                     <FormControl
@@ -726,7 +977,71 @@ const CreateChallanPage: React.FC = () => {
                       fullWidth
                       variant="filled"
                     >
-                      <InputLabel htmlFor="otherRef">Document No</InputLabel>
+                      <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.gstRate}
+                        id="gstRate"
+                        type="text"
+                      />
+                      {errors.gstRate && (
+                        <FormHelperText>
+                          {errors.gstRate.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+
+                <Controller
+                  name="hsnCode"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "HSN Code is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.hsnCode}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.hsnCode}
+                        id="hsnCode"
+                        type="text"
+                      />
+                      {errors.hsnCode && (
+                        <FormHelperText>
+                          {errors.hsnCode.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+
+                <Controller
+                  name="otherRef"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Other Reference is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.otherRef}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="otherRef">
+                        Other Reference
+                      </InputLabel>
                       <FilledInput
                         {...field}
                         error={!!errors.otherRef}
@@ -734,25 +1049,35 @@ const CreateChallanPage: React.FC = () => {
                         type="text"
                       />
                       {errors.otherRef && (
-                        <FormHelperText>{errors.otherRef.message}</FormHelperText>
+                        <FormHelperText>
+                          {errors.otherRef.message}
+                        </FormHelperText>
                       )}
                     </FormControl>
                   )}
                 />
-                
               </div>
-              <div className="grid grid-cols-2">
-                <div className="pt-10 pl-10 ">
-                  <TextField
-                    {...register("remark")}
-                    fullWidth
-                    label={"Remarks (If any)"}
-                    variant="outlined"
+              <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
+                <FormControl fullWidth variant="filled">
+                  <InputLabel htmlFor="materialName">Material Name</InputLabel>
+                  <FilledInput
+                    {...register("materialName")}
+                    id="materialName"
                     multiline
-                    rows={5}
+                    rows={2}
                   />
-                </div>
+                </FormControl>
+                <FormControl fullWidth variant="filled">
+                  <InputLabel htmlFor="remark">Remarks</InputLabel>
+                  <FilledInput
+                    {...register("remark")}
+                    id="remark"
+                    multiline
+                    rows={2}
+                  />
+                </FormControl>
               </div>
+              {/* </div> */}
             </div>
           )}
           {activeStep === 1 && (
@@ -760,13 +1085,13 @@ const CreateChallanPage: React.FC = () => {
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
-                  Dispatch Number - {dispatchNo ? dispatchNo : ""}
+                  Challan Number - {dispatchNo ?? ""}
                 </Typography>
                 <LoadingButton
                   onClick={() => setActiveStep(0)}
                   variant="contained"
                 >
-                  Create New Dispatch
+                  Create New Challan
                 </LoadingButton>
               </div>
             </div>
@@ -775,29 +1100,7 @@ const CreateChallanPage: React.FC = () => {
             {activeStep === 0 && (
               <>
                 <LoadingButton
-                  disabled={dispatchCreateLoading}
-                  sx={{ background: "white", color: "red" }}
-                  variant="contained"
-                  startIcon={<Icons.previous />}
-                  onClick={() => {
-                    handleBack();
-                  }}
-                >
-                  Back
-                </LoadingButton>
-                {/* <LoadingButton
-                  disabled={createminLoading}
-                  sx={{ background: "white", color: "red" }}
-                  variant="contained"
-                  startIcon={<Icons.refreshv2 />}
-                  onClick={() => {
-                    setAlert(true);
-                  }}
-                >
-                  Reset
-                </LoadingButton> */}
-                <LoadingButton
-                  loading={dispatchCreateLoading}
+                  loading={createChallanLoading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}

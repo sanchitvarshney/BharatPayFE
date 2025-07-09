@@ -18,6 +18,10 @@ const initialState: DispatchState = {
   ewayBillDataLoading:false,
   stateCodeLoading:false,
   stateCode:null,
+  challanList: null,
+  getChallanLoading: false,
+  createChallanLoading:false,
+  updateChallanLoading:false,
   branchLoading:false,
   branchList:null,
   rejectTransferLoading:false,
@@ -25,6 +29,31 @@ const initialState: DispatchState = {
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
   const response = await axiosInstance.post(`dispatchDivice/createDispatch`, payload);
+  return response;
+});
+
+export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateChallan", async (payload) => {
+  const response = await axiosInstance.post(`challan/create`, payload);
+  return response;
+});
+
+export const UpdateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/UpdateChallan", async (payload) => {
+  const response = await axiosInstance.post(`challan/editPerforma`, payload);
+  return response;
+});
+
+export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, { from?: string; to?: string; type: string; device?: string }>("dispatch/getChallan", async (query) => {
+  const response = await axiosInstance.post(`challan/fetchPerforma?fromDate=${query.from}&toDate=${query.to}`);
+  return response;
+});
+
+export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/getChallanById", async (data) => {
+  const response = await axiosInstance.post(`challan/fetchPerforma`, data);
+  return response;
+});
+
+export const printChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printChallan", async (data) => {
+  const response = await axiosInstance.post(`challan/generatePerforma`, data);
   return response;
 });
 
@@ -53,7 +82,7 @@ export const getClientBranch = createAsyncThunk<AxiosResponse<any>, string>("mas
 });
 
 export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dispatch/getDispatchData", async (id) => {
-  const response = await axiosInstance.get(`/dispatchDivice/detail?txnId=${id}`);
+  const response = await axiosInstance.get(`/ewayBill/detail?dispatch_id=${id}`);
   return response;
 });
 
@@ -64,6 +93,11 @@ export const fillEwayBillData = createAsyncThunk<AxiosResponse<any>, any>('/eway
 
 export const createEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/createEwayBill', async (payload) => {
   const response = await axiosInstance.post(`/ewayBill/createEWayBill`, payload);
+  return response;
+});
+
+export const cancelEwayBill = createAsyncThunk<AxiosResponse<any>, any>('/ewayBill/cancelEwayBill', async (payload) => {
+  const response = await axiosInstance.post(`/ewayBill/cancel`, payload);
   return response;
 });
 
@@ -109,6 +143,49 @@ const dispatchSlice = createSlice({
       .addCase(CreateDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
+      .addCase(CreateChallan.pending, (state) => {
+        state.createChallanLoading = true;
+      })
+      .addCase(CreateChallan.fulfilled, (state) => {
+        state.createChallanLoading = false;
+      })
+      .addCase(CreateChallan.rejected, (state) => {
+        state.createChallanLoading = false;
+      })
+      .addCase(getChallan.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(getChallan.fulfilled, (state, action) => {
+        state.getChallanLoading = false;
+        if (action.payload.data.success) {
+          state.challanList = action.payload.data.data;
+        }
+      })
+      .addCase(getChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(printChallan.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(printChallan.fulfilled, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(printChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(getChallanById.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(getChallanById.fulfilled, (state, action) => {
+        state.getChallanLoading = false;
+        if (action.payload.data.success) {
+          state.challanList = action.payload.data.data;
+        }
+      })
+      .addCase(getChallanById.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+
       .addCase(rejectTransfer.pending, (state) => {
         state.rejectTransferLoading = true;
       })
@@ -159,8 +236,8 @@ const dispatchSlice = createSlice({
       })
       .addCase(getDispatchData.fulfilled, (state, action) => {
         state.dispatchDataLoading = false;
-        if (action.payload.data.success) {
-          state.dispatchData = action.payload.data.data;
+        if (action.payload.data.status) {
+          state.dispatchData = action.payload.data;
         }
       })
       .addCase(createEwayBill.pending, (state) => {
@@ -201,6 +278,15 @@ const dispatchSlice = createSlice({
       })
       .addCase(wrongDeviceDispatch.rejected, (state) => {
         state.wrongDispatchLoading = false;
+      })
+      .addCase(UpdateChallan.pending, (state) => {
+        state.updateChallanLoading = true;
+      })
+      .addCase(UpdateChallan.fulfilled, (state) => {
+        state.updateChallanLoading = false;
+      })
+      .addCase(UpdateChallan.rejected, (state) => {
+        state.updateChallanLoading = false;
       })
       .addCase(getClient.pending, (state) => {
         state.clientLoading = true;

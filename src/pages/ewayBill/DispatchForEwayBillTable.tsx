@@ -7,7 +7,13 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
-import { getDispatchData } from "@/features/Dispatch/DispatchSlice";
+import CancelEwayBillModal from "@/components/ewayBill/CancelEwayBillModal";
+import {
+  cancelEwayBill,
+  printChallan,
+} from "@/features/Dispatch/DispatchSlice";
+import { showToast } from "@/utils/toasterContext";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 interface RowData {
   orderQty: number;
@@ -21,17 +27,26 @@ interface RowData {
   inserby: string;
   skuName: string;
   sku: string;
+  ewaybill_no: string;
+  ewayBill_status: string;
+  challanId: string;
 }
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (size: number) => void;
+  pageSize: number;
 };
 
-const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
+const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,handlePageSizeChange}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const { getChallanLoading } = useAppSelector((state) => state.dispatch);
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -46,13 +61,13 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
     // setSelectedRow(null);
   };
 
-  const handleFilloutEwayBill = () => {
-    if (selectedRow) {
-      setSheetOpen(true);
-      handleMenuClose();
-      dispatch(getDispatchData(selectedRow.txnId));
-    }
-  };
+  // const handleFilloutEwayBill = () => {
+  //   if (selectedRow) {
+  //     setSheetOpen(true);
+  //     handleMenuClose();
+  //     dispatch(getDispatchData(selectedRow.txnId));
+  //   }
+  // };
 
   const handleCreateEwayBill = () => {
     if (selectedRow) {
@@ -62,6 +77,40 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
       const shipmentId = txnId.replace(/\//g, "_");
       fnOpenNewWindow(`/create/e-waybill/${shipmentId}`);
       handleMenuClose();
+    }
+  };
+
+  const handleCancelEwayBill = () => {
+    if (selectedRow) {
+      setCancelModalOpen(true);
+      handleMenuClose();
+    }
+  };
+
+  const handleCancelConfirm = async (data: {
+    remarks: string;
+    cancelType: string;
+  }) => {
+    if (!selectedRow) return;
+
+    setCancelLoading(true);
+    try {
+      const result = await dispatch(
+        cancelEwayBill({
+          ewayBillNo: selectedRow.ewaybill_no,
+          remark: data.remarks,
+          cancelRsnCode: data.cancelType,
+        })
+      ).unwrap();
+
+      if (result.status) {
+        showToast("Eway bill cancelled successfully", "success");
+        setCancelModalOpen(false);
+      } else {
+        showToast(result.data.Message || "Failed to cancel eway bill", "error");
+      }
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -77,10 +126,23 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
     // Open the new window centered on the screen
     window.open(
       link,
-      "Spigen",
+      "BharatPe",
       `width=${width},height=${height},top=${top},left=${left},status=1,scrollbars=1,location=0,resizable=yes`
     );
   }
+
+  const handlePrintChallan = () => {
+    if (selectedRow) {
+      const txnId = selectedRow.challanId;
+      const shipmentId = txnId.replace(/\//g, "/");
+      dispatch(printChallan({ challanId: shipmentId })).then((res: any) => {
+        if (res.payload.data.success) {
+          window.open(res.payload.data.data, "_blank");
+        }
+      });
+      handleMenuClose();
+    }
+  };
 
   const columnDefs: ColDef[] = [
     {
@@ -99,50 +161,62 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
       ),
       width: 50,
     },
-    { headerName: "SKU", field: "sku", sortable: true, filter: true, flex: 1 },
+    { headerName: "SKU", field: "sku", sortable: true, filter: true,width: 150 },
     {
       headerName: "SKU Name",
       field: "skuName",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 150,
     },
     {
       headerName: "Dispatch Date",
       field: "dispatchDate",
       sortable: true,
       filter: true,
-      flex: 1,
+
+      
     },
     {
-      headerName: "Dispatch Qty",
+      headerName: "Qty",
       field: "dispatchQty",
       sortable: true,
       filter: true,
-      flex: 1,
+      width:100
+    },
+    
+    {
+      headerName: "TXN ID",
+      field: "txnId",
+      sortable: false,
+      filter: true,
+      
+    },
+    {
+      headerName: "Eway Bill Status",
+      field: "ewayBill_status",
+      sortable: true,
+      filter: true,
+      
+      valueGetter: (params: { data: RowData }) =>
+        params.data.ewayBill_status == "Y"
+          ? "Yes"
+          : params.data.ewayBill_status == "C"
+          ? "Cancelled"
+          : "No",
+    },
+    {
+      headerName: "Eway Bill No",
+      field: "ewaybill_no",
+      sortable: true,
+      filter: true, 
     },
     {
       headerName: "Insert By",
       field: "inserby",
       sortable: true,
       filter: true,
-      flex: 1,
-    },
-    {
-      headerName: "TXN ID",
-      field: "txnId",
-      sortable: false,
-      filter: true,
-      flex: 1,
-      hide: true,
-    },
-    {
-      headerName: "--",
-      field: "dispatchId",
-      sortable: true,
-      filter: true,
-      flex: 1,
-      hide: true,
+      
     },
   ];
 
@@ -156,23 +230,34 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
     };
   }, []);
 
+  const isEwayBillCreated = (row: RowData) => row.ewayBill_status === "Y";
+  const isEwayBillCancelled = (row: RowData) => row.ewayBill_status === "C";
+
   return (
     <>
       <div>
-        <div className="relative ag-theme-quartz h-[calc(105vh-140px)]">
+        <div className="relative ag-theme-quartz h-[calc(105vh-200px)]">
           <AgGridReact
             ref={gridRef}
             loadingOverlayComponent={CustomLoadingOverlay}
-            loading={r5reportLoading}
+            loading={r5reportLoading || getChallanLoading}
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
             rowData={r5report?.data|| []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
-            pagination={true}
+            pagination={false}
             paginationPageSize={paginationPageSize}
           />
         </div>
+        {r5report && <CustomPagination
+          currentPage={r5report?.pagination?.currentPage}
+          totalPages={r5report?.pagination?.totalPages}
+          totalRecords={r5report?.pagination?.totalRecords}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />}
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -186,10 +271,23 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleFilloutEwayBill}>
-            Fillout ewayBill data
+          <MenuItem
+            onClick={handleCreateEwayBill}
+            disabled={
+              selectedRow
+                ? isEwayBillCreated(selectedRow) 
+                : false
+            }
+          >
+            Create Eway Bill
           </MenuItem>
-          <MenuItem onClick={handleCreateEwayBill}>Create eway bill</MenuItem>
+          <MenuItem onClick={handlePrintChallan}>Print Challan</MenuItem>
+          <MenuItem
+            onClick={handleCancelEwayBill}
+            disabled={selectedRow ? isEwayBillCancelled(selectedRow) : false}
+          >
+            Cancel Eway Bill
+          </MenuItem>
         </Menu>
       </div>
 
@@ -197,6 +295,13 @@ const R5ReportTable: React.FC<Props> = ({ gridRef }) => {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         selectedRow={selectedRow}
+      />
+
+      <CancelEwayBillModal
+        open={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        onConfirm={handleCancelConfirm}
+        loading={cancelLoading}
       />
     </>
   );

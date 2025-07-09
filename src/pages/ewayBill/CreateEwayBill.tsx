@@ -48,6 +48,7 @@ type ewayBillData = {
 export default function CreateEwayBill() {
   const dispatch = useAppDispatch();
   const [isEwayBillCreated, setIsEwayBillCreated] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
   const [ewayBillNo, setEwayBillNo] = useState<ewayBillData>({
     alert: "",
     ewayBillNo: "",
@@ -71,7 +72,39 @@ export default function CreateEwayBill() {
   });
 
   const onSubmit = (data: EwayBillFormData) => {
-    dispatch(createEwayBill(data)).then((res: any) => {
+    console.log(data);
+    const updatedData = {
+      ...data,
+      billFrom: {
+        ...data.billFrom,
+        state: {
+          code: data.billFrom.state?.Code,
+          name: data.billFrom.state?.Name,
+        },
+      },
+      billTo: {
+        ...data.billTo,
+        state: {
+          code: data.billTo.state?.Code,
+          name: data.billTo.state?.Name,
+        },
+      },
+      dispatchFrom: {
+        ...data.dispatchFrom,
+        state: {
+          code: data.dispatchFrom.state?.Code,
+          name: data.dispatchFrom.state?.Name,
+        },
+      },
+      shipTo: {
+        ...data.shipTo,
+        state: {
+          code: data.shipTo.state?.Code,
+          name: data.shipTo.state?.Name,
+        },
+      },
+    };
+    dispatch(createEwayBill(updatedData)).then((res: any) => {
       if (res.payload.data.status) {
         setIsEwayBillCreated(true);
         setEwayBillNo(res?.payload?.data?.data);
@@ -88,7 +121,7 @@ export default function CreateEwayBill() {
 
   useEffect(() => {
     if (dispatchData) {
-      const data = dispatchData?.header[0];
+      const data = dispatchData?.header;
       setValue("header.documentNo", dispId.replace(/_/g, "/"));
       setValue("billFrom.gstin", data.billFrom.gstin);
       setValue("billFrom.legalName", data.billFrom.legalName);
@@ -126,6 +159,7 @@ export default function CreateEwayBill() {
       });
       setValue("shipTo.gstin", data.shipTo.gstin);
       setValue("shipTo.legalName", data.shipTo.legalName);
+      setValue("shipTo.tradeName", data.shipTo.tradeName);
       setValue("shipTo.addressLine1", data.shipTo.addressLine1);
       setValue("shipTo.addressLine2", data.shipTo.addressLine2);
       setValue("shipTo.location", data.shipTo.location);
@@ -134,6 +168,7 @@ export default function CreateEwayBill() {
         Name: data.shipTo.state?.name,
       });
       setValue("shipTo.pincode", data.shipTo.pincode);
+      setTotalAmount(Number(dispatchData?.data?.[0]?.item_value) + Number(dispatchData?.data?.[0]?.item_cgst) + Number(dispatchData?.data?.[0]?.item_sgst) + Number(dispatchData?.data?.[0]?.item_igst));
     }
   }, [dispatchData]);
   const formValues = control._formValues;
@@ -423,6 +458,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -441,6 +477,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -460,6 +497,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -479,6 +517,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -498,6 +537,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -517,6 +557,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -535,6 +576,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -551,6 +593,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.billFrom.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -572,6 +615,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -593,6 +637,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -624,6 +669,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -642,6 +688,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -661,6 +708,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -677,6 +725,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.billTo.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -694,7 +743,8 @@ export default function CreateEwayBill() {
                           helperText={errors.billTo?.email?.message}
                           InputLabelProps={{
                             shrink: true,
-                          }}
+                            }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -714,6 +764,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -733,6 +784,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -752,6 +804,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -772,6 +825,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -793,6 +847,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -826,6 +881,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -845,6 +901,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -861,6 +918,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.dispatchFrom.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -880,6 +938,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -902,6 +961,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -925,6 +985,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -956,6 +1017,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -967,7 +1029,7 @@ export default function CreateEwayBill() {
                         <TextField
                           {...field}
                           fullWidth
-                          label="Trade Name"
+                          label="Label"
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.shipTo?.tradeName}
@@ -975,6 +1037,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -993,6 +1056,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1012,6 +1076,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1028,6 +1093,7 @@ export default function CreateEwayBill() {
                           onChange={field.onChange}
                           value={field.value}
                           label={formValues.shipTo.state?.Name}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1047,6 +1113,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1067,6 +1134,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1088,6 +1156,7 @@ export default function CreateEwayBill() {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          disabled={true}
                         />
                       )}
                     />
@@ -1325,9 +1394,14 @@ export default function CreateEwayBill() {
             </div>
             <Card className="rounded-lg shadow-md bg-[#fff] mb-8 border border-slate-200">
               <CardHeader className="bg-[#e0f2f1] p-0 flex justify-center px-[10px] py-[8px] rounded-t-lg">
-                <h3 className="text-[18px] font-[600] text-slate-700">
-                  Item Details
-                </h3>
+                <div className="flex justify-between items-center w-full">
+                  <h3 className="text-[18px] font-[600] text-slate-700">
+                    Item Details
+                  </h3>
+                  <h3 className="text-[18px] font-[600] text-slate-700">
+                    Total Amount: {totalAmount}
+                  </h3>
+                </div>
               </CardHeader>
               <CardContent className="mt-[10px] p-6">
                 <div className="ag-theme-quartz h-[calc(100vh-140px)]">

@@ -31,6 +31,9 @@ const DispatchForEwayBill: React.FC = () => {
   const { r5reportLoading, r5report } = useAppSelector((state) => state.report);
   const [filter, setFilter] = useState<string>("DATE");
   const [device, setDevice] = useState<DeviceType | null>(null);
+  const [type, setType] = useState<string>("soundBox");
+  const [pageSize, setPageSize] = useState<number>(20);
+  const [page , setPage] = useState<number>(1);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
@@ -51,6 +54,58 @@ const DispatchForEwayBill: React.FC = () => {
       sheetName: "R5 Report", // Set your desired sheet name here
     });
   }, []);
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    if (filter === "DATE") {
+      dispatch(
+        getr5Report({
+          type: type,
+          from: dayjs(date.from).format("DD-MM-YYYY"),
+          to: dayjs(date.to).format("DD-MM-YYYY"),
+          page: 1,
+          limit: pageSize,
+          deviceType: type,
+        })
+      );
+    } else {
+      dispatch(
+        getr5Report({
+          type: "DEVICE",
+          deviceType: type,
+          device: device?.id,
+          page: 1,
+          limit: pageSize,
+        })
+      );
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+    if (filter === "DATE") {
+      dispatch(
+        getr5Report({
+          type: "DATE",
+          from: dayjs(date.from).format("DD-MM-YYYY"),
+          to: dayjs(date.to).format("DD-MM-YYYY"),
+          page: page,
+          limit: pageSize,
+          deviceType: type,
+        })
+      );
+    } else {
+      dispatch(
+        getr5Report({
+          type: "DEVICE",
+          deviceType: type,
+          device: device?.id,
+          page: page,
+          limit: pageSize,
+        })
+      );
+    }
+  };
 
   return (
     <div className="bg-white h-[calc(100vh-100px)] overflow-x-hidden relative flex">
@@ -76,6 +131,20 @@ const DispatchForEwayBill: React.FC = () => {
           </Button>
         </div>
         <div className="flex flex-col gap-[20px]  mt-[20px] p-[20px] overflow-hidden">
+        <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Device Type</InputLabel>
+              <Select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Device Type"
+              >
+                <MenuItem value={"soundBox"}>Sound Box</MenuItem>
+                <MenuItem value={"swipeMachine"}>Swipe Machine</MenuItem>
+                <MenuItem value={"wrongDevices"}>Wrong Device</MenuItem>
+              </Select>
+            </FormControl>
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
             <Select
@@ -119,7 +188,7 @@ const DispatchForEwayBill: React.FC = () => {
                     showToast("Please select a device", "error");
                   } else {
                     dispatch(
-                      getr5Report({ type: "DEVICE", device: device?.id })
+                      getr5Report({ type: "DEVICE", device: device?.id,deviceType:type,page:page , limit:20 })
                     );
                   }
                 }
@@ -132,6 +201,9 @@ const DispatchForEwayBill: React.FC = () => {
                         type: "DATE",
                         from: dayjs(date.from).format("DD-MM-YYYY"),
                         to: dayjs(date.to).format("DD-MM-YYYY"),
+                        deviceType:type,
+                        page:page,
+                        limit:pageSize,
                       })
                     );
                   }
@@ -164,7 +236,9 @@ const DispatchForEwayBill: React.FC = () => {
         </div>
       </div>
       <div className="w-full">
-        <DispatchForEwayBillTable gridRef={gridRef} />
+        <DispatchForEwayBillTable gridRef={gridRef}  handlePageChange={handlePageChange}
+            handlePageSizeChange={handlePageSizeChange}
+            pageSize={pageSize} />
       </div>
     </div>
   );
