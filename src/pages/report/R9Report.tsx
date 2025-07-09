@@ -68,11 +68,11 @@ const handleExport =()=>{
   }
 }
 const exportWrongDeviceData =()=>{
-  if (reportDate.from && reportDate.to && partner) {
+  if (reportDate.from && reportDate.to && wrongDevicePartner) {
     emitWrongDeviceReport({
         fromDate: dayjs(reportDate.from).format("DD-MM-YYYY"),
         toDate: dayjs(reportDate.to).format("DD-MM-YYYY"),
-        deliveryPartner: partner,
+        deliveryPartner: wrongDevicePartner,
       })
   }
 }
@@ -185,7 +185,8 @@ const exportWrongDeviceData =()=>{
                   { value: "eCOM", label: "eCOM", isDisabled: false },
                   { value: "DTDC", label: "DTDC", isDisabled: false },
                   { value: "dVery", label: "dVery", isDisabled: false },
-                  { value: "expb", label: "XpressBees", isDisabled: false },
+                  { value: "XPRESSBEES", label: "XpressBees", isDisabled: false },
+                  { value: "NANDAN", label: "Nandan", isDisabled: false },
                   { value: "ALL", label: "All", isDisabled: false },
                 ].map((item) => (
                   <MenuItem
@@ -287,7 +288,8 @@ const exportWrongDeviceData =()=>{
                     { value: "eCOM", label: "eCOM", isDisabled: false },
                     { value: "DTDC", label: "DTDC", isDisabled: false },
                     { value: "dVery", label: "Delhivery", isDisabled: false },
-                    { value: "expb", label: "XpressBees", isDisabled: false },
+                    { value: "XPRESSBEES", label: "XpressBees", isDisabled: false },
+                    { value: "NANDAN", label: "Nandan", isDisabled: false },
                   ].map((item) => (
                     <MenuItem
                       disabled={item.isDisabled}
@@ -302,7 +304,7 @@ const exportWrongDeviceData =()=>{
               {(reportDate.from || reportDate.to) && (
                 <div className="flex items-center justify-between">
                   <LoadingButton
-                  disabled={!isConnected}
+                  disabled={!reportDate.from || !reportDate.to || !wrongDevicePartner}
                     className="max-w-max"
                     variant="contained"
                     loading={wrongDeviceReportLoading}
@@ -331,7 +333,7 @@ const exportWrongDeviceData =()=>{
                   </LoadingButton>
                   <MuiTooltip title="Download" placement="right">
                     <LoadingButton
-                      // disabled={!r6Report}
+                      disabled={!isConnected}
                       variant="contained"
                       color="primary"
                       style={{
