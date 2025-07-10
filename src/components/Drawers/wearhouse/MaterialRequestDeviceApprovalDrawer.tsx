@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
+import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject, validateScan } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -440,12 +440,26 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 } else {
                                   if (scanned && scanned.length + 1 > parseInt(isueeQty)) {
                                     showToast("Scanned Items can't be greater than Issue Qty", "error");
-                                  } else {
-                                    scanned ? setScanned([input, ...scanned]) : setScanned([input]);
-                                    setInput("");
-                                    if (Number(isueeQty) === scanned?.length! + 1) {
-                                      e.currentTarget.blur();
-                                    }
+                                  } else  {
+                                    dispatch(
+                                      validateScan({
+                                        id: input,
+                                        type: "soundBox",
+                                      })
+                                    ).then((response: any) => {
+                                      if (response.payload.data.success) {
+                                        scanned
+                                          ? setScanned([input, ...scanned])
+                                          : setScanned([input]);
+                                        setInput("");
+                                        if (
+                                          Number(isueeQty) ===
+                                          scanned?.length! + 1
+                                        ) {
+                                          e.currentTarget.blur();
+                                        }
+                                      }
+                                    });
                                   }
                                 }
                               }
