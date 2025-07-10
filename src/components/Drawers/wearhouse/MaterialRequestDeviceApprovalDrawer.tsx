@@ -22,7 +22,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
 import AppsIcon from "@mui/icons-material/Apps";
 import Dialog from "@mui/material/Dialog";
-import { Avatar, Button, Chip, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
+import { Avatar, Button, Chip, CircularProgress, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
@@ -55,7 +55,7 @@ type Forstate = {
 };
 const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
   const [itemkey, setItemKey] = useState<string>("");
-  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading } = useAppSelector((state) => state.pendingMr);
+  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading, deviceLoading } = useAppSelector((state) => state.pendingMr);
   const [scanned, setScanned] = useState<string[] | null>(null);
   const [input, setInput] = useState<string>("");
   const [isueeQty, setIsueeQty] = useState<string>("");
@@ -423,10 +423,10 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                           value={input}
                           disabled={!isueeQty || Number(isueeQty) === scanned?.length}
                           endAdornment={
-                            <InputAdornment position="end">
-                              <QrCodeScannerIcon />
-                            </InputAdornment>
-                          }
+                                                     <InputAdornment position="end">
+                                                      {deviceLoading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}
+                                                     </InputAdornment>
+                                                   }
                           placeholder="Scan items"
                           fullWidth
                           onChange={(e) => setInput(e.target.value)}
