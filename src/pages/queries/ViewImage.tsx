@@ -57,10 +57,18 @@ const ViewImage: React.FC = () => {
     <div className="relative flex bg-white">
       {/* Left: Device Info & Search */}
       <div
-        className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)] border-r border-neutral-300 min-w-[400px] max-w-[400px] items-center justify-center`}
+        className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)] border-r border-neutral-300 min-w-[400px] max-w-[400px] items-center`}
       >
         <Paper elevation={0} className="m-8 w-full">
           <CardContent>
+            {/* Beautiful heading */}
+            <Typography
+              variant="h4"
+              className="text-slate-800 font-bold mb-3 mt-2 text-center tracking-tight"
+              style={{ letterSpacing: 1 }}
+            >
+              View Image
+            </Typography>
             <div className="flex flex-col gap-[20px] px-[20px] py-[20px]">
               <div className="flex flex-col gap-[10px]">
                 <Typography
@@ -90,8 +98,9 @@ const ViewImage: React.FC = () => {
                     <MenuItem value="" disabled>
                       <em>Select Device Type</em>
                     </MenuItem>
-                    <MenuItem value="soundbox">Sound Box</MenuItem>
-                    <MenuItem value="swipe">Swipe Machine</MenuItem>
+                    <MenuItem value="soundbox">Sound Box Image</MenuItem>
+                    <MenuItem value="swipe">Swipe Machine Image</MenuItem>
+                    <MenuItem value="sim">SIM Image</MenuItem>
                   </Select>
                 </FormControl>
               </div>
