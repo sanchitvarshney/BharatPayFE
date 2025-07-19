@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
+import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject, validateScan } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -22,7 +22,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
 import AppsIcon from "@mui/icons-material/Apps";
 import Dialog from "@mui/material/Dialog";
-import { Avatar, Button, Chip, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
+import { Avatar, Button, Chip, CircularProgress, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
@@ -55,7 +55,7 @@ type Forstate = {
 };
 const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
   const [itemkey, setItemKey] = useState<string>("");
-  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading } = useAppSelector((state) => state.pendingMr);
+  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading, deviceLoading } = useAppSelector((state) => state.pendingMr);
   const [scanned, setScanned] = useState<string[] | null>(null);
   const [input, setInput] = useState<string>("");
   const [isueeQty, setIsueeQty] = useState<string>("");
@@ -423,10 +423,10 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                           value={input}
                           disabled={!isueeQty || Number(isueeQty) === scanned?.length}
                           endAdornment={
-                            <InputAdornment position="end">
-                              <QrCodeScannerIcon />
-                            </InputAdornment>
-                          }
+                                                     <InputAdornment position="end">
+                                                      {deviceLoading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}
+                                                     </InputAdornment>
+                                                   }
                           placeholder="Scan items"
                           fullWidth
                           onChange={(e) => setInput(e.target.value)}
@@ -440,12 +440,26 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 } else {
                                   if (scanned && scanned.length + 1 > parseInt(isueeQty)) {
                                     showToast("Scanned Items can't be greater than Issue Qty", "error");
-                                  } else {
-                                    scanned ? setScanned([input, ...scanned]) : setScanned([input]);
-                                    setInput("");
-                                    if (Number(isueeQty) === scanned?.length! + 1) {
-                                      e.currentTarget.blur();
-                                    }
+                                  } else  {
+                                    dispatch(
+                                      validateScan({
+                                        id: input,
+                                        type: "soundBox",
+                                      })
+                                    ).then((response: any) => {
+                                      if (response.payload.data.success) {
+                                        scanned
+                                          ? setScanned([input, ...scanned])
+                                          : setScanned([input]);
+                                        setInput("");
+                                        if (
+                                          Number(isueeQty) ===
+                                          scanned?.length! + 1
+                                        ) {
+                                          e.currentTarget.blur();
+                                        }
+                                      }
+                                    });
                                   }
                                 }
                               }

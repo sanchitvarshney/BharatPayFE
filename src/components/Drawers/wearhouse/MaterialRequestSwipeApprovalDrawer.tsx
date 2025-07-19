@@ -421,7 +421,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                                   if (scanned && scanned.length + 1 > parseInt(isueeQty)) {
                                     showToast("Scanned Items can't be greater than Issue Qty", "error");
                                   } else {
-                                    dispatch(validateScan(input)).then((response:any)=>{
+                                    dispatch(validateScan({id:input,type:"swipeMachine"})).then((response:any)=>{
                                       if(response.payload.data.success){
                                         setDeviceData((prev: any) => prev ? [...prev, response.payload.data.data] : [response.payload.data.data]);
                                      

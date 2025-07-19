@@ -22,6 +22,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl';
+import ImageIcon from '@mui/icons-material/Image';
 
 export const Icons = {
   save: SaveIcon,
@@ -46,7 +47,8 @@ export const Icons = {
   ewaybill: LocalShippingIcon,
   Swipe:DriveFolderUploadIcon,
   transfer:SwapHorizontalCircleIcon,
-  procurement: FormatListNumberedRtlIcon
+  procurement: FormatListNumberedRtlIcon,
+  image:ImageIcon,
 };
 
 type IconName = keyof typeof Icons | string;

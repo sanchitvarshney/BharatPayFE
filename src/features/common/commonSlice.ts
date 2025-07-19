@@ -3,7 +3,24 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { Commonstate, CostCenterApiResponse, CurrencListResponse, UserApiResponse } from "./commonType";
 
-const initialState: Commonstate = {
+// Add types for device images
+export interface DeviceImage {
+  image_id: string;
+  img_name: string;
+  img_url: string[];
+}
+
+export interface DeviceImageApiResponse {
+  success: boolean;
+  message: string;
+  data: DeviceImage[];
+}
+
+const initialState: Commonstate & {
+  deviceImages: DeviceImage[] | null;
+  deviceImagesLoading: boolean;
+  deviceImagesError: string | null;
+} = {
   getUserLoading: false,
   userData: null,
   isueeList: null,
@@ -12,24 +29,54 @@ const initialState: Commonstate = {
   currencyData: null,
   costCenterLoading: false,
   costCenterData: null,
+  deviceImages: null,
+  deviceImagesLoading: false,
+  deviceImagesError: null,
 };
 
-export const getUserAsync = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getuser", async (searchinput) => {
-  const response = await axiosInstance.get(`/backend/search/user/${searchinput}`);
+export const getUserAsync = createAsyncThunk<
+  AxiosResponse<UserApiResponse>,
+  string | null
+>("common/getuser", async (searchinput) => {
+  const response = await axiosInstance.get(
+    `/backend/search/user/${searchinput}`
+  );
   return response;
 });
-export const getIsueeList = createAsyncThunk<AxiosResponse<UserApiResponse>, string | null>("common/getIsueeList", async (searchinput) => {
-  const response = await axiosInstance.get(`/backend/search/issue/${searchinput}`);
+export const getIsueeList = createAsyncThunk<
+  AxiosResponse<UserApiResponse>,
+  string | null
+>("common/getIsueeList", async (searchinput) => {
+  const response = await axiosInstance.get(
+    `/backend/search/issue/${searchinput}`
+  );
   return response;
 });
-export const getCurrency = createAsyncThunk<AxiosResponse<CurrencListResponse>>("common/getCurrency", async () => {
-  const response = await axiosInstance.get(`/backend/currencies`);
-  return response;
-});
-export const getCostCenter = createAsyncThunk<AxiosResponse<CostCenterApiResponse>>("common/getCostCenter", async () => {
+export const getCurrency = createAsyncThunk<AxiosResponse<CurrencListResponse>>(
+  "common/getCurrency",
+  async () => {
+    const response = await axiosInstance.get(`/backend/currencies`);
+    return response;
+  }
+);
+export const getCostCenter = createAsyncThunk<
+  AxiosResponse<CostCenterApiResponse>
+>("common/getCostCenter", async () => {
   const response = await axiosInstance.get(`/backend/costcenter`);
   return response;
 });
+
+// Thunk for fetching device images
+export const getDeviceImages = createAsyncThunk<
+  AxiosResponse<DeviceImageApiResponse>,
+  { deviceType: string; awbNumber: string; serialNo: string }
+>("common/getDeviceImages", async ({ deviceType, awbNumber, serialNo }) => {
+  const response = await axiosInstance.get(
+    `/swipeMachine/delivery/getImages/${deviceType}/${awbNumber}/${serialNo}`
+  );
+  return response;
+});
+
 const commonSlice = createSlice({
   name: "common",
   initialState,
@@ -83,6 +130,29 @@ const commonSlice = createSlice({
       })
       .addCase(getCostCenter.rejected, (state) => {
         state.costCenterLoading = false;
+      })
+      // Device Images
+      .addCase(getDeviceImages.pending, (state) => {
+        state.deviceImagesLoading = true;
+        state.deviceImagesError = null;
+        state.deviceImages = null;
+      })
+      .addCase(getDeviceImages.fulfilled, (state, action) => {
+        state.deviceImagesLoading = false;
+        if (
+          action.payload.data.success &&
+          action.payload.data.data.length > 0
+        ) {
+          state.deviceImages = action.payload.data.data;
+        } else {
+          state.deviceImages = [];
+          state.deviceImagesError = "No images found for this device.";
+        }
+      })
+      .addCase(getDeviceImages.rejected, (state) => {
+        state.deviceImagesLoading = false;
+        state.deviceImagesError = "Failed to fetch images. Please try again.";
+        state.deviceImages = null;
       });
   },
 });

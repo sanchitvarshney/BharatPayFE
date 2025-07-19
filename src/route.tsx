@@ -104,6 +104,7 @@ import ManagePO from "./pages/procurement/ManagePO";
 import CompletedPO from "@/pages/procurement/CompletedPO";
 import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
 import MINFromPO from "@/pages/min/MINFromPO";
+import ViewImage from "@/pages/queries/ViewImage";
 
 export const router = createBrowserRouter([
   {
@@ -840,6 +841,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "queries/:id",
+      },
+      {
+        element: (
+          <MainLayout>
+           <ViewImage/>
+          </MainLayout>
+        ),
+        path: "/view-image",
       },
       {
         element: (

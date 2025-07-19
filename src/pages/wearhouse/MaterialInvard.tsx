@@ -6,12 +6,30 @@ import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/M
 import { Button } from "@/components/ui/button";
 import { FaAngleUp } from "react-icons/fa6";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { clearaddressdetail, getLocationAsync, getVendorAddress, getVendorAsync, getVendorBranchAsync, uploadInvoiceFile } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
-import { createRawMin, resetDocumentFile, storeDocumentFile } from "@/features/wearhouse/Rawmin/RawMinSlice";
+import {
+  clearaddressdetail,
+  getLocationAsync,
+  getVendorAddress,
+  getVendorAsync,
+  getVendorBranchAsync,
+  uploadInvoiceFile,
+} from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import {
+  createRawMin,
+  resetDocumentFile,
+  storeDocumentFile,
+} from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { CreateRawMinPayloadType } from "@/features/wearhouse/Rawmin/RawMinType";
 import { getCurrency } from "@/features/common/commonSlice";
-import { FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 import SelectVendor, { VendorData } from "@/components/reusable/SelectVendor";
 import { replaceBrWithNewLine } from "@/utils/replacebrtag";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -69,10 +87,18 @@ const MaterialInvard: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [total, setTotal] = useState<Totals>({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
+  const [total, setTotal] = useState<Totals>({
+    cgst: 0,
+    sgst: 0,
+    igst: 0,
+    taxableValue: 0,
+  });
   const dispatch = useAppDispatch();
-  const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
-  const { documnetFileData, createminLoading } = useAppSelector((state) => state.rawmin);
+  const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } =
+    useAppSelector((state) => state.divicemin);
+  const { documnetFileData, createminLoading } = useAppSelector(
+    (state) => state.rawmin
+  );
 
   const {
     register,
@@ -95,7 +121,15 @@ const MaterialInvard: React.FC = () => {
   });
   const checkRequiredFields = (data: RowData[]) => {
     let hasErrors = false;
-    const requiredFields: Array<keyof RowData> = ["partComponent", "qty", "rate", "hsnCode", "gstType", "gstRate", "location"];
+    const requiredFields: Array<keyof RowData> = [
+      "partComponent",
+      "qty",
+      "rate",
+      "hsnCode",
+      "gstType",
+      "gstRate",
+      "location",
+    ];
 
     const missingDetails: string[] = [];
 
@@ -103,7 +137,12 @@ const MaterialInvard: React.FC = () => {
       const missingFields: string[] = [];
 
       requiredFields.forEach((field) => {
-        if (item[field] === "" || item[field] === 0 || item[field] === undefined || item[field] === null) {
+        if (
+          item[field] === "" ||
+          item[field] === 0 ||
+          item[field] === undefined ||
+          item[field] === null
+        ) {
           missingFields.push(field);
         }
       });
@@ -115,7 +154,10 @@ const MaterialInvard: React.FC = () => {
     });
 
     if (missingDetails.length > 0) {
-      showToast(`Some required fields are missing:\n${missingDetails.join("\n")}`, "error");
+      showToast(
+        `Some required fields are missing:\n${missingDetails.join("\n")}`,
+        "error"
+      );
     }
 
     return hasErrors;
@@ -138,7 +180,9 @@ const MaterialInvard: React.FC = () => {
       showToast("Please Upload Invoice Documents", "error");
     } else {
       if (!checkRequiredFields(rowData)) {
-        const component = rowData.map((item) => item.partComponent?.value || "");
+        const component = rowData.map(
+          (item) => item.partComponent?.value || ""
+        );
         const qty = rowData.map((item) => Number(item.qty));
         const rate = rowData.map((item) => Number(item.rate));
         const gsttype = rowData.map((item) => item.gstType);
@@ -165,6 +209,10 @@ const MaterialInvard: React.FC = () => {
           vendortype: data.vendorType || "",
           invoiceAttachment: documnetFileData || [],
           cc: "",
+          deliveryAddress: `MsCorpres Manufacturer and Refurbisher Pvt. Ltd.
+                            2nd & 3rd Floor, B-88,Sec-83,
+                            Noida Gautam Buddha Nagar, UP-201305`,
+          deliveryGst: "09AATCM1744R1ZH",
         };
         dispatch(createRawMin(payload)).then((response: any) => {
           if (response.payload.data.success) {
@@ -228,14 +276,25 @@ const MaterialInvard: React.FC = () => {
                       rules={{ required: "Vendor Type is required" }}
                       render={({ field }) => (
                         <FormControl fullWidth>
-                          <InputLabel id="demo-simple-select-label">Vendor Type</InputLabel>
-                          <Select labelId="demo-simple-select-label" id="demo-simple-select" label="Vendor Type" {...field}>
+                          <InputLabel id="demo-simple-select-label">
+                            Vendor Type
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            label="Vendor Type"
+                            {...field}
+                          >
                             <MenuItem value={"V01"}>Vendor</MenuItem>
                           </Select>
                         </FormControl>
                       )}
                     />
-                    {errors.vendorType && <span className=" text-[12px] text-red-500">{errors.vendorType.message}</span>}
+                    {errors.vendorType && (
+                      <span className=" text-[12px] text-red-500">
+                        {errors.vendorType.message}
+                      </span>
+                    )}
                   </div>
                   <div className="grid  gap-[30px] mt-[10px]">
                     <div>
@@ -254,7 +313,11 @@ const MaterialInvard: React.FC = () => {
                           />
                         )}
                       />
-                      {errors.vendor && <span className=" text-[12px] text-red-500">{errors.vendor.message}</span>}
+                      {errors.vendor && (
+                        <span className=" text-[12px] text-red-500">
+                          {errors.vendor.message}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <Controller
@@ -263,7 +326,9 @@ const MaterialInvard: React.FC = () => {
                         rules={{ required: "Vendor Branch  is required" }}
                         render={({ field }) => (
                           <FormControl disabled={!VendorBranchData} fullWidth>
-                            <InputLabel id="Vendor-simple-select-label">Vendor Branch</InputLabel>
+                            <InputLabel id="Vendor-simple-select-label">
+                              Vendor Branch
+                            </InputLabel>
                             <Select
                               labelId="Vendor-simple-select-label"
                               id="Vendor-simple-select"
@@ -271,12 +336,22 @@ const MaterialInvard: React.FC = () => {
                               value={field.value}
                               onChange={(e) => {
                                 field.onChange(e.target.value);
-                                dispatch(getVendorAddress(e.target.value)).then((response: any) => {
-                                  if (response.payload.data.success) {
-                                    setValue("vendorAddress", replaceBrWithNewLine(response.payload.data?.data?.address) || "");
-                                    setValue("gstin", response.payload.data?.data?.gstid);
+                                dispatch(getVendorAddress(e.target.value)).then(
+                                  (response: any) => {
+                                    if (response.payload.data.success) {
+                                      setValue(
+                                        "vendorAddress",
+                                        replaceBrWithNewLine(
+                                          response.payload.data?.data?.address
+                                        ) || ""
+                                      );
+                                      setValue(
+                                        "gstin",
+                                        response.payload.data?.data?.gstid
+                                      );
+                                    }
                                   }
-                                });
+                                );
                               }}
                             >
                               {VendorBranchData?.map((item) => (
@@ -286,11 +361,17 @@ const MaterialInvard: React.FC = () => {
                           </FormControl>
                         )}
                       />
-                      {errors.vendorBranch && <span className=" text-[12px] text-red-500">{errors.vendorBranch.message}</span>}
+                      {errors.vendorBranch && (
+                        <span className=" text-[12px] text-red-500">
+                          {errors.vendorBranch.message}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-[10px] text-slate-600">
                       <p className="font-[500]">GSTIN :</p>
-                      <p>{venderaddressdata ? venderaddressdata.gstid : "--"}</p>
+                      <p>
+                        {venderaddressdata ? venderaddressdata.gstid : "--"}
+                      </p>
                     </div>
                   </div>
                   <div>
@@ -304,7 +385,9 @@ const MaterialInvard: React.FC = () => {
                       fullWidth
                       label="Bill From Address"
                       className="h-[100px] resize-none"
-                      {...register("vendorAddress", { required: "Bill From Address is required" })}
+                      {...register("vendorAddress", {
+                        required: "Bill From Address is required",
+                      })}
                     />
                   </div>
                   <Controller
@@ -335,10 +418,22 @@ const MaterialInvard: React.FC = () => {
                       </LocalizationProvider>
                     )}
                   />
-                  <TextField label="Document ID" error={!!errors.documentId} helperText={errors.documentId?.message} {...register("documentId", { required: "Invoice Id  is required" })} />
+                  <TextField
+                    label="Document ID"
+                    error={!!errors.documentId}
+                    helperText={errors.documentId?.message}
+                    {...register("documentId", {
+                      required: "Invoice Id  is required",
+                    })}
+                  />
                   <div className=" flex flex-col gap-[20px] py-[20px] border-t border-neutral-400">
                     <div>
-                      <TextField fullWidth label="Document Name" value={filename} onChange={(e) => setFilename(e.target.value)} />
+                      <TextField
+                        fullWidth
+                        label="Document Name"
+                        value={filename}
+                        onChange={(e) => setFilename(e.target.value)}
+                      />
                     </div>
                     <div>
                       <FileUploader
@@ -347,7 +442,8 @@ const MaterialInvard: React.FC = () => {
                           "text/plain": [], // Text files (.txt)
                           "text/csv": [], // CSV files
                           "application/vnd.ms-excel": [], // Excel files (.xls)
-                          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [], // Excel files (.xlsx)
+                          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                            [], // Excel files (.xlsx)
                         }}
                         label="Upload Document"
                         value={file}
@@ -355,7 +451,14 @@ const MaterialInvard: React.FC = () => {
                       />
                     </div>
                     <div className="flex items-center ">
-                      <LoadingButton variant="contained" loadingPosition="start" loading={uploadInvoiceFileLoading} type="button" startIcon={<FileUploadIcon fontSize="small" />} onClick={InvoiceFileUpload}>
+                      <LoadingButton
+                        variant="contained"
+                        loadingPosition="start"
+                        loading={uploadInvoiceFileLoading}
+                        type="button"
+                        startIcon={<FileUploadIcon fontSize="small" />}
+                        onClick={InvoiceFileUpload}
+                      >
                         Upload
                       </LoadingButton>
                     </div>
@@ -363,36 +466,69 @@ const MaterialInvard: React.FC = () => {
                 </CardContent>
               </div>
               <div className="min-h-[50px]"></div>
-              <div className={`fixed bottom-0 left-[60px] w-[500px] z-[10]  transition-all bg-white ${open ? "h-[290px]" : "h-[50px]"} border-r`}>
+              <div
+                className={`fixed bottom-0 left-[60px] w-[500px] z-[10]  transition-all bg-white ${
+                  open ? "h-[290px]" : "h-[50px]"
+                } border-r`}
+              >
                 <div className="h-[50px] bg-cyan-900 flex items-center pe-[20px] gap-[10px]">
-                  <Button type="button" onClick={() => setOpen(!open)} className="bg-amber-500 hover:bg-amber-600 p-0  rounded-none h-full w-[50px]">
-                    <FaAngleUp className={`h-[20px] w-[20px] transition-transform duration-200 ${open ? "rotate-180" : "rotate-0"}`} />
+                  <Button
+                    type="button"
+                    onClick={() => setOpen(!open)}
+                    className="bg-amber-500 hover:bg-amber-600 p-0  rounded-none h-full w-[50px]"
+                  >
+                    <FaAngleUp
+                      className={`h-[20px] w-[20px] transition-transform duration-200 ${
+                        open ? "rotate-180" : "rotate-0"
+                      }`}
+                    />
                   </Button>
-                  <Typography variant="h6" component={"div"} fontWeight={500} fontSize={"17px"} className="text-white">
+                  <Typography
+                    variant="h6"
+                    component={"div"}
+                    fontWeight={500}
+                    fontSize={"17px"}
+                    className="text-white"
+                  >
                     Total GST and Tax Details
                   </Typography>
                 </div>
                 <Card className="border-0 rounded-none shadow-none">
                   <CardContent className="flex flex-col gap-[20px] pt-[20px]">
                     <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">Sub-Total value before Taxes</p>
-                      <p className="text-[14px] text-muted-foreground">{total.taxableValue}</p>
+                      <p className="text-slate-600 font-[500]">
+                        Sub-Total value before Taxes
+                      </p>
+                      <p className="text-[14px] text-muted-foreground">
+                        {total.taxableValue}
+                      </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">CGST</p>
-                      <p className="text-[14px] text-muted-foreground">(+) {total.cgst}</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {total.cgst}
+                      </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">SGST</p>
-                      <p className="text-[14px] text-muted-foreground">(+) {total.sgst}</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {total.sgst}
+                      </p>
                     </div>
                     <div className="flex justify-between">
                       <p className="text-slate-600 font-[500]">IGST</p>
-                      <p className="text-[14px] text-muted-foreground">(+) {total.igst}</p>
+                      <p className="text-[14px] text-muted-foreground">
+                        (+) {total.igst}
+                      </p>
                     </div>
                     <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">Sub-Total values after Taxes</p>
-                      <p className="text-[14px] text-muted-foreground">{total.taxableValue + (total.cgst + total.sgst + total.igst)}</p>
+                      <p className="text-slate-600 font-[500]">
+                        Sub-Total values after Taxes
+                      </p>
+                      <p className="text-[14px] text-muted-foreground">
+                        {total.taxableValue +
+                          (total.cgst + total.sgst + total.igst)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -400,14 +536,30 @@ const MaterialInvard: React.FC = () => {
             </div>
             <div>
               <div className="h-[70px] bg-white flex items-center justify-end gap-[10px] px-[20px]">
-                <LoadingButton sx={{ background: "white", color: "red" }} onClick={() => setAlert(true)} type="button" variant={"contained"} startIcon={<Icons.refresh />}>
+                <LoadingButton
+                  sx={{ background: "white", color: "red" }}
+                  onClick={() => setAlert(true)}
+                  type="button"
+                  variant={"contained"}
+                  startIcon={<Icons.refresh />}
+                >
                   Reset
                 </LoadingButton>
-                <LoadingButton loadingPosition="start" loading={createminLoading} startIcon={<Icons.save />} type="submit" variant={"contained"}>
+                <LoadingButton
+                  loadingPosition="start"
+                  loading={createminLoading}
+                  startIcon={<Icons.save />}
+                  type="submit"
+                  variant={"contained"}
+                >
                   Submit
                 </LoadingButton>
               </div>
-              <RMMaterialsAddTable rowData={rowData} setRowData={setRowData} setTotal={setTotal} />
+              <RMMaterialsAddTable
+                rowData={rowData}
+                setRowData={setRowData}
+                setTotal={setTotal}
+              />
             </div>
           </div>
         </div>
