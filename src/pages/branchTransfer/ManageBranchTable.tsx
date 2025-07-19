@@ -59,13 +59,6 @@ const ManageBranchTable = () => {
       width: 200,
     },
     {
-      headerName: "SKU",
-      field: "sku",
-      sortable: true,
-      filter: true,
-      width: 200,
-    },
-    {
       headerName: "Quantity",
       field: "qty",
       sortable: true,
@@ -74,42 +67,35 @@ const ManageBranchTable = () => {
     },
     {
       headerName: "From Branch",
-      field: "fromFranch",
+      field: "fromBranch",
       sortable: true,
       filter: true,
       width: 200,
     },
     {
       headerName: "To Branch",
-      field: "to_branch",
+      field: "toBranch",
       sortable: true,
       filter: true,
       width: 200,
     },
     {
       headerName: "From Location",
-      field: "from_location",
+      field: "fromLocation",
       sortable: true,
       filter: true,
       width: 200,
     },
     {
       headerName: "To Location",
-      field: "to_location",
-      sortable: true,
-      filter: true,
-      width: 200,
-    },
-    {
-      headerName: "Model Name",
-      field: "modelName",
+      field: "toLocation",
       sortable: true,
       filter: true,
       width: 200,
     },
     {
       headerName: "Insert Date",
-      field: "insertDate",
+      field: "insertDt",
       sortable: true,
       filter: true,
       width: 200,
@@ -127,7 +113,7 @@ const ManageBranchTable = () => {
       sortable: false,
       filter: false,
       cellRenderer: (params: any) =>
-        params.data.status === "Pending" ? (
+        params.data.status === "PEN" ? (
           <Stack direction="row" spacing={1}>
             <IconButton
               onClick={() => {

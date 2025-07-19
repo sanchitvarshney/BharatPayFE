@@ -687,7 +687,7 @@ const CreateBranchTransferPage: React.FC = () => {
                   )}
                 </div>
               </div>
-              <div
+              {/* <div
                 id="primary-item-details"
                 className="flex items-center w-full gap-3"
               >
@@ -842,7 +842,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-              </div>
+              </div> */}
             </div>
           )}
           {activeStep === 1 && (
