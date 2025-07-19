@@ -188,6 +188,10 @@ const MaterialInvardv2: React.FC = () => {
             vendortype: formdata.vendorType || "",
             invoiceAttachment: documnetFileData || [],
             cc: formdata?.cc?.id || "",
+              deliveryAddress: `MsCorpres Manufacturer and Refurbisher Pvt. Ltd.
+                            2nd & 3rd Floor, B-88,Sec-83,
+                            Noida Gautam Buddha Nagar, UP-201305`,
+          deliveryGst: "09AATCM1744R1ZH",
           };
           dispatch(createRawMin(payload)).then((response: any) => {
             if (response.payload.data.success) {
