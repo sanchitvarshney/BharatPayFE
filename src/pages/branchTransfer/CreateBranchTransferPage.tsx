@@ -107,7 +107,7 @@ const CreateBranchTransferPage: React.FC = () => {
       termsOfDelivery: "",
       docNo: "",
       dispatchThrough: "",
-      transferType: "",
+      transferType: "device", // <-- set default here
     },
   });
 
@@ -252,7 +252,7 @@ const CreateBranchTransferPage: React.FC = () => {
           </div>
 
           {activeStep === 0 && (
-            <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
+            <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto will-change-transform">
               <div
                 id="primary-item-details"
                 className="flex items-center w-full gap-3"
@@ -277,55 +277,91 @@ const CreateBranchTransferPage: React.FC = () => {
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <div>
                   <Controller
-                    name="type"
+                    name="transferType"
                     control={control}
-                    rules={{ required: "Device Type is required" }}
+                    rules={{ required: "Transfer  Type is required" }}
                     render={({ field }) => (
                       <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">
-                          Device Type
+                          Transfer Type
                         </InputLabel>
                         <Select
                           {...field}
                           labelId="demo-simple-select-label"
                           id="demo-simple-select"
-                          label="Device Type"
+                          label="Transfer Type"
                           onChange={(e) => {
                             field.onChange(e.target.value || "");
                           }}
                           value={field.value || ""}
                         >
-                          <MenuItem value="soundBox">SoundBox</MenuItem>
-                          <MenuItem value="swipeMachine">
-                            Swipe Machine
-                          </MenuItem>
+                          <MenuItem value="device">Device</MenuItem>
+                          <MenuItem value="component">Component</MenuItem>
                         </Select>
                       </FormControl>
                     )}
                   />
-                  {errors.type && (
+                  {errors.transferType && (
                     <p className="text-red-500 text-[12px]">
-                      {errors.type.message?.toString()}
+                      {errors.transferType.message?.toString()}
                     </p>
                   )}
                 </div>
-                <Controller
-                  name="product"
-                  rules={{ required: "Device is required" }}
-                  control={control}
-                  render={({ field }) => (
-                    <SelectDeviceWithType
-                      {...field}
-                      label="Search Device"
-                      error={!!errors.product}
-                      helperText={errors?.product?.message}
-                      onChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      type={watch("type") as "soundBox" | "swipeMachine"}
+                {watch("transferType") === "device" && (
+                  <>
+                    <div>
+                      <Controller
+                        name="type"
+                        control={control}
+                        rules={{ required: "Device Type is required" }}
+                        render={({ field }) => (
+                          <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">
+                              Device Type
+                            </InputLabel>
+                            <Select
+                              {...field}
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              label="Device Type"
+                              onChange={(e) => {
+                                field.onChange(e.target.value || "");
+                              }}
+                              value={field.value || ""}
+                            >
+                              <MenuItem value="soundBox">SoundBox</MenuItem>
+                              <MenuItem value="swipeMachine">
+                                Swipe Machine
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
+                        )}
+                      />
+                      {errors.type && (
+                        <p className="text-red-500 text-[12px]">
+                          {errors.type.message?.toString()}
+                        </p>
+                      )}
+                    </div>
+                    <Controller
+                      name="product"
+                      rules={{ required: "Device is required" }}
+                      control={control}
+                      render={({ field }) => (
+                        <SelectDeviceWithType
+                          {...field}
+                          label="Search Device"
+                          error={!!errors.product}
+                          helperText={errors?.product?.message}
+                          onChange={(value) => {
+                            field.onChange(value);
+                          }}
+                          type={watch("type") as "soundBox" | "swipeMachine"}
+                        />
+                      )}
                     />
-                  )}
-                />
+                  </>
+                )}
                 <Controller
                   name="quantity"
                   control={control}
@@ -390,14 +426,20 @@ const CreateBranchTransferPage: React.FC = () => {
                           }}
                           value={field.value?.branch_code || ""}
                         >
-                          {branchList?.map((branch: any) => (
-                            <MenuItem
-                              key={branch.branch_code}
-                              value={branch.branch_code}
-                            >
-                              {branch.branch_name}
-                            </MenuItem>
-                          ))}
+                          {branchList
+                            ?.filter(
+                              (branch: any) =>
+                                branch.branch_code !==
+                                watch("toBranch")?.branch_code
+                            )
+                            .map((branch: any) => (
+                              <MenuItem
+                                key={branch.branch_code}
+                                value={branch.branch_code}
+                              >
+                                {branch.branch_name}
+                              </MenuItem>
+                            ))}
                         </Select>
                         {errors.fromBranch && (
                           <FormHelperText error>
@@ -408,31 +450,36 @@ const CreateBranchTransferPage: React.FC = () => {
                     )}
                   />
 
-              {!!watch("fromLocationAddress")&&    <Paper 
-                    elevation={0}
-                    sx={{ 
-                      p: 1.5,
-                      mt: 1,
-                      backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                      border: '1px solid rgba(34, 197, 94, 0.2)',
-                      borderRadius: 1
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      fontWeight={500}
+                  {!!watch("fromLocationAddress") && (
+                    <Paper
+                      elevation={0}
                       sx={{
-                        color: 'rgb(22, 163, 74)',
-                        fontSize: '0.875rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
+                        p: 1.5,
+                        mt: 1,
+                        backgroundColor: "rgba(34, 197, 94, 0.1)",
+                        border: "1px solid rgba(34, 197, 94, 0.2)",
+                        borderRadius: 1,
                       }}
                     >
-                      <Icons.building className="text-green-600" />
-                      {watch("fromLocationAddress")?.replace(/<br\s*\/?>/gi, '\n')}
-                    </Typography>
-                  </Paper>}
+                      <Typography
+                        variant="body2"
+                        fontWeight={500}
+                        sx={{
+                          color: "rgb(22, 163, 74)",
+                          fontSize: "0.875rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <Icons.building className="text-green-600" />
+                        {watch("fromLocationAddress")?.replace(
+                          /<br\s*\/?>/gi,
+                          "\n"
+                        )}
+                      </Typography>
+                    </Paper>
+                  )}
                 </div>
                 <div>
                   <Controller
@@ -489,7 +536,6 @@ const CreateBranchTransferPage: React.FC = () => {
                     </p>
                   )}
                 </div>
-               
               </div>
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
@@ -506,73 +552,84 @@ const CreateBranchTransferPage: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <div>
-                <Controller
-                  name="toBranch"
-                  rules={{ required: "To Branch is required" }}
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth>
-                      <InputLabel id="to-branch-label">To Branch</InputLabel>
-                      <Select
-                        {...field}
-                        labelId="to-branch-label"
-                        id="to-branch-select"
-                        label="To Branch"
-                        onChange={(e) => {
-                          const selectedBranch = branchList?.find(
-                            (branch: any) =>
-                              branch.branch_code === e.target.value
-                          );
-                          setValue(
-                            "toLocationAddress",
-                            selectedBranch?.address
-                          );
-                          field.onChange(selectedBranch || null);
-                        }}
-                        value={field.value?.branch_code || ""}
-                      >
-                        {branchList?.map((branch: any) => (
-                          <MenuItem
-                            key={branch.branch_code}
-                            value={branch.branch_code}
-                          >
-                            {branch.branch_name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {errors.toBranch && (
-                        <FormHelperText error>
-                          {errors.toBranch.message?.toString()}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-                 {!!watch("toLocationAddress")&&    <Paper 
-                    elevation={0}
-                    sx={{ 
-                      p: 1.5,
-                      mt: 1,
-                      backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                      border: '1px solid rgba(34, 197, 94, 0.2)',
-                      borderRadius: 1
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      fontWeight={500}
+                  <Controller
+                    name="toBranch"
+                    rules={{ required: "To Branch is required" }}
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth>
+                        <InputLabel id="to-branch-label">To Branch</InputLabel>
+                        <Select
+                          {...field}
+                          labelId="to-branch-label"
+                          id="to-branch-select"
+                          label="To Branch"
+                          onChange={(e) => {
+                            const selectedBranch = branchList?.find(
+                              (branch: any) =>
+                                branch.branch_code === e.target.value
+                            );
+                            setValue(
+                              "toLocationAddress",
+                              selectedBranch?.address
+                            );
+                            field.onChange(selectedBranch || null);
+                          }}
+                          value={field.value?.branch_code || ""}
+                        >
+                          {branchList
+                            ?.filter(
+                              (branch: any) =>
+                                branch.branch_code !==
+                                watch("fromBranch")?.branch_code
+                            )
+                            .map((branch: any) => (
+                              <MenuItem
+                                key={branch.branch_code}
+                                value={branch.branch_code}
+                              >
+                                {branch.branch_name}
+                              </MenuItem>
+                            ))}
+                        </Select>
+                        {errors.toBranch && (
+                          <FormHelperText error>
+                            {errors.toBranch.message?.toString()}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                  {!!watch("toLocationAddress") && (
+                    <Paper
+                      elevation={0}
                       sx={{
-                        color: 'rgb(22, 163, 74)',
-                        fontSize: '0.875rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
+                        p: 1.5,
+                        mt: 1,
+                        backgroundColor: "rgba(34, 197, 94, 0.1)",
+                        border: "1px solid rgba(34, 197, 94, 0.2)",
+                        borderRadius: 1,
                       }}
                     >
-                      <Icons.building className="text-green-600" />
-                      {watch("toLocationAddress")?.replace(/<br\s*\/?>/gi, '\n')}
-                    </Typography>
-                  </Paper>}
+                      <Typography
+                        variant="body2"
+                        fontWeight={500}
+                        sx={{
+                          color: "rgb(22, 163, 74)",
+                          fontSize: "0.875rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <Icons.building className="text-green-600" />
+                        {watch("toLocationAddress")?.replace(
+                          /<br\s*\/?>/gi,
+                          "\n"
+                        )}
+                      </Typography>
+                    </Paper>
+                  )}
                 </div>
                 <div>
                   <Controller
@@ -652,7 +709,7 @@ const CreateBranchTransferPage: React.FC = () => {
                 />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                 <Controller
+                <Controller
                   name="mode"
                   control={control}
                   render={({ field }) => (
@@ -671,7 +728,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="referenceNumber"
                   control={control}
                   render={({ field }) => (
@@ -681,7 +738,7 @@ const CreateBranchTransferPage: React.FC = () => {
                         fullWidth
                         {...field}
                         value={field.value}
-                            type="text"
+                        type="text"
                         label="Reference Number & Date"
                         onChange={(e) => {
                           field.onChange(e.target.value);
@@ -690,7 +747,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="otherTerms"
                   control={control}
                   render={({ field }) => (
@@ -709,7 +766,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="termsOfDelivery"
                   control={control}
                   render={({ field }) => (
@@ -717,7 +774,7 @@ const CreateBranchTransferPage: React.FC = () => {
                       <InputLabel>Terms of Delivery</InputLabel>
                       <OutlinedInput
                         fullWidth
-                          {...field}
+                        {...field}
                         value={field.value}
                         type="text"
                         label="Terms of Delivery"
@@ -728,7 +785,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="docNo"
                   control={control}
                   render={({ field }) => (
@@ -747,7 +804,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="dispatchThrough"
                   control={control}
                   render={({ field }) => (
@@ -766,7 +823,7 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                 <Controller
+                <Controller
                   name="destination"
                   control={control}
                   render={({ field }) => (
@@ -774,7 +831,7 @@ const CreateBranchTransferPage: React.FC = () => {
                       <InputLabel>Destination</InputLabel>
                       <OutlinedInput
                         fullWidth
-                          {...field}
+                        {...field}
                         value={field.value}
                         type="text"
                         label="Destination"
@@ -785,60 +842,25 @@ const CreateBranchTransferPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
-                <Controller
-                  name="transferType"
-                  control={control}
-                  rules={{ required: "Transfer type is required" }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.transferType}
-                      component="fieldset"
-                    >
-                      <Typography variant="subtitle1" className="mb-2">
-                      Transfer Type
-                      </Typography>
-                      <RadioGroup
-                        row
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      >
-                        <FormControlLabel
-                          value="device"
-                          control={<Radio />}
-                          label="Device"
-                        />
-                        <FormControlLabel
-                          value="component"
-                          control={<Radio />}
-                          label="Component"
-                        />
-                      </RadioGroup>
-                      {errors.transferType && (
-                        <FormHelperText error>
-                          {errors.transferType.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-                
               </div>
             </div>
           )}
           {activeStep === 1 && (
             <>
-
-            {watch("transferType")==="device" ? <ManageBranchTransfer
-              formData={watch()}
-              rowData={rowData}
-              setRowData={setRowData}
-            />:
-             <div className="h-[calc(100vh-200px)]   ">
-              <ComponentTable
-                rowData={componentsRowData}
-                setRowData={setComponentsRowData}
-              />
-            </div>}
+              {watch("transferType") === "device" ? (
+                <ManageBranchTransfer
+                  formData={watch()}
+                  rowData={rowData}
+                  setRowData={setRowData}
+                />
+              ) : (
+                <div className="h-[calc(100vh-200px)]   ">
+                  <ComponentTable
+                    rowData={componentsRowData}
+                    setRowData={setComponentsRowData}
+                  />
+                </div>
+              )}
             </>
           )}
           {activeStep === 2 && (

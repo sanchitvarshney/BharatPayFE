@@ -73,6 +73,7 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
             imei2: device?.imei_no2 || "",
           };
         });
+      if(newRowData?.deviceSku!==formData?.product)return showToast("Device Type Should be same","error")
         setRowData((prevRowData: any) => [...newRowData, ...prevRowData]);
       } else {
         showToast(res.payload.data.message, "error");
@@ -148,8 +149,14 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
     <div className="h-[calc(100vh-200px)] bg-white flex w-full">
       {/* Display form data - 1/3 */}
       <div
-        className="flex flex-col gap-[20px] border-r border-neutral-300 p-[20px]"
-        style={{ flex: "1 1 0%", minWidth: 0, maxWidth: "33.3333%" }}
+        className="flex flex-col gap-[20px] border-r border-neutral-300 p-[20px] will-change-transform"
+        style={{
+          flex: "1 1 0%",
+          minWidth: 0,
+          maxWidth: "33.3333%",
+          maxHeight: "100%",
+          overflowY: "auto",
+        }}
       >
         <Accordion defaultExpanded={false}>
           <AccordionSummary
@@ -192,7 +199,10 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
                   {formData.fromBranch?.branch_name || "-"}
                 </Typography>
                 <Typography className="text-green-600 text-sm mt-1">
-                  {(formData.fromBranch?.address)?.replace(/<br\s*\/?>/gi, '\n') || "-"}
+                  {formData.fromBranch?.address?.replace(
+                    /<br\s*\/?>/gi,
+                    "\n"
+                  ) || "-"}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -213,7 +223,8 @@ const ManageBranchTransfer: React.FC<ManageBranchTransferProps> = ({
                 </Typography>
                 <Typography>{formData.toBranch?.branch_name || "-"}</Typography>
                 <Typography className="text-green-600 text-sm mt-1">
-                  {(formData.toBranch?.address)?.replace(/<br\s*\/?>/gi, '\n') || "-"}
+                  {formData.toBranch?.address?.replace(/<br\s*\/?>/gi, "\n") ||
+                    "-"}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
