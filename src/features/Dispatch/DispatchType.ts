@@ -7,11 +7,11 @@ export type DispatchItemPayload = {
   imei2?: any;
   srlnos : string[];
   pickLocation: string;
-  clientDetail?: any;
-  shipToDetails?: any;
-  dispatchDate?: string;
-  dispatchFromDetails?: any;
   challanId: string;
+  clientDetail: any;
+  shipToDetails: any;
+  dispatchDate: string;
+  dispatchFromDetails: any;
   deviceType?: string;
 };
 

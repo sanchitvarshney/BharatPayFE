@@ -124,7 +124,11 @@ const R6Report: React.FC = () => {
               )}
             </Button>
           </div>
+          
           <div className="flex flex-col   gap-[20px] p-[20px]   mt-[20px] overflow-hidden">
+            <div className="text-[20px] font-bold text-center">
+              Raw MIN Report
+            </div>
             <FormControl fullWidth>
               <Select
                 value={type}

@@ -1,5 +1,6 @@
 import { Icons } from "@/components/icons";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 import { Button } from "@/components/ui/button";
 import { getQ4DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -23,9 +24,22 @@ const Q4query: React.FC = () => {
   const [component, setComponent] = React.useState<DeviceType | null>(null);
   const [deviceType, setDeviceType] = useState<string>("");
   const dispatch = useAppDispatch();
-  const { q4Data, q4DataLoading } = useAppSelector((state) => state.query);
+  const { q4Data, q4DataLoading,q4DownloadLoading } = useAppSelector((state) => state.query);
+
+  // const handleDownload = (locationKey:string,productKey:  string) => {
+  //   dispatch(downloadQ4Data({locationKey:locationKey,productKey:productKey})).then((res: any) => {
+  //     console.log(res.payload.data)
+  //     const filePath = res?.payload?.data?.data?.filePath;
+  //     if (filePath) {
+  //       window.open(filePath, '_blank');
+  //     } else {
+  //       console.error('Issue Occurred, File path not found');
+  //     }
+  //   })
+  // };
   return (
     <div className="  h-[calc(100vh-100px)] bg-white">
+      {q4DownloadLoading && <FullPageLoading />}
       <div className={` h-full flex relative   `}>
         <div
           className={` transition-all h-full ${

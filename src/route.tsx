@@ -105,6 +105,7 @@ import CompletedPO from "@/pages/procurement/CompletedPO";
 import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
 import MINFromPO from "@/pages/min/MINFromPO";
 import ViewImage from "@/pages/queries/ViewImage";
+import ChallanEntryPage from "@/pages/ChallanEntry/ChallanEntryPage";
 
 export const router = createBrowserRouter([
   {
@@ -453,7 +454,7 @@ export const router = createBrowserRouter([
         ),
         path: "/procurement/create",
       },
-            {
+      {
         element: (
           <MainLayout>
             <ProcurementLayout>
@@ -859,6 +860,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/upload/swipe-device-status",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ChallanEntryPage />
+          </MainLayout>
+        ),
+        path: "/dispatch/swipe-device-rejecton",
       },
     ],
   },

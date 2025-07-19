@@ -42,7 +42,7 @@ import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAc
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
 import { getDispatchFromDetail } from "@/features/master/client/clientSlice";
-import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
+// import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 import { Dayjs } from "dayjs";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -211,7 +211,9 @@ const CreateDispatchPage: React.FC = () => {
         "Total Devices should be equal to Quantity you have entered",
         "error"
       );
-    const payload: DispatchItemPayload = {
+    const payload: any = {
+      docNo: data1.docNo,
+      // sku: data.sku?.id || "",
       sku: rowData.map((item) => item.productKey),
       remark: data1.remark,
       imeis: rowData.map((item) => item.imei),

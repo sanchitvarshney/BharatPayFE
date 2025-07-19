@@ -30,7 +30,6 @@ import { useEffect, useState } from "react";
 import {
   createEwayBill,
   getDispatchData,
-  getStateCode,
 } from "@/features/Dispatch/DispatchSlice";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 import SelectState from "@/components/reusable/SelectState";
@@ -116,7 +115,6 @@ export default function CreateEwayBill() {
 
   useEffect(() => {
     dispatch(getDispatchData(dispId?.replace(/_/g, "/")));
-    dispatch(getStateCode());
   }, []);
 
   useEffect(() => {
