@@ -163,6 +163,7 @@ const CreateBranchTransferPage: React.FC = () => {
         docNo: data.docNo,
         dispatchThrough: data.dispatchThrough,
         destination: data.destination,
+        transferType:data.transferType,
       })
     ).then((res: any) => {
       if (res.payload?.data.success) {

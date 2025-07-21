@@ -50,11 +50,20 @@ const SwipeDeviceUpload: React.FC = () => {
     formData.append("file", file);
 
     try {
-      await dispatch(uploadSwipeDeviceStatus(formData)).then(() => {
-        showToast("File uploaded successfully", "success");
-        setFile(null);
+      await dispatch(uploadSwipeDeviceStatus(formData)).then((res) => {
+        const payload :any= res?.payload;
+        if (payload?.success) {
+          showToast(
+            payload?.message || "File uploaded successfully",
+            "success"
+          );
+          setFile(null);
+        } else {
+          showToast(payload || "Upload failed", "error");
+        }
       });
     } catch (error) {
+      console.log(error);
       toast.error(uploadError || "Upload failed");
     }
   };
