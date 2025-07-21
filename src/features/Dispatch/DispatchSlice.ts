@@ -21,6 +21,7 @@ const initialState: DispatchState = {
   branchLoading:false,
   branchList:null,
   rejectTransferLoading:false,
+  printLoading:false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -131,6 +132,15 @@ const dispatchSlice = createSlice({
       })
       .addCase(approveTransfer.rejected, (state) => {
         state.rejectTransferLoading = false;
+      })
+      .addCase(printBranchTransferChallan.pending, (state) => {
+        state.printLoading = true;
+      })
+      .addCase(printBranchTransferChallan.fulfilled, (state) => {
+        state.printLoading = false;
+      })
+      .addCase(printBranchTransferChallan.rejected, (state) => {
+        state.printLoading = false;
       })
       .addCase(CreateSwipeDispatch.pending, (state) => {
         state.dispatchCreateLoading = true;

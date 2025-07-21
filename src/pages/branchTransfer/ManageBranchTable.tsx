@@ -55,7 +55,6 @@ const ManageBranchTable = () => {
               <MuiTooltip title="Print" placement="left">
                 <IconButton
                   onClick={() => {
-                    console.log(params.data);
                    dispatch( printBranchTransferChallan(params.data.challanId)).then(
                       (response:any) => {
                         if (response?.payload?.status===200) {
@@ -194,7 +193,7 @@ const ManageBranchTable = () => {
   const { deviceDetailLoading } = useAppSelector(
     (state) => state.batteryQcReducer
   );
-  const { rejectTransferLoading } = useAppSelector((state) => state.dispatch);
+  const { rejectTransferLoading,printLoading } = useAppSelector((state) => state.dispatch);
   const paginationPageSize = 20; // Define page size
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -335,7 +334,7 @@ const ManageBranchTable = () => {
             <AgGridReact
               // ref={gridRef}
               loadingOverlayComponent={CustomLoadingOverlay}
-              loading={transferReportLoading}
+              loading={transferReportLoading ||printLoading}
               overlayNoRowsTemplate={OverlayNoRowsTemplate}
               suppressCellFocus={true}
               rowData={transferReport ? transferReport : []}
