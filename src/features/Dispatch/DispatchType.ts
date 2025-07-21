@@ -41,4 +41,5 @@ export type DispatchState = {
   branchLoading:boolean;
   branchList:any;
   rejectTransferLoading:boolean;
+  printLoading:boolean
 };
