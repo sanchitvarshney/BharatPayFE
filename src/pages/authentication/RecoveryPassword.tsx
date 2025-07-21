@@ -24,7 +24,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: 16,
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-  position: "relative",
+  position: "relative", 
   overflow: "hidden",
 }));
 
