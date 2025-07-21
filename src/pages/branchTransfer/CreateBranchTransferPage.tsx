@@ -135,7 +135,7 @@ const CreateBranchTransferPage: React.FC = () => {
   };
 
   const onFinalSubmit: SubmitHandler<FormData> = (data) => {
-    if (rowData.length === 0) {
+    if (rowData.length === 0 && componentsRowData?.length ===0) {
       showToast("Please add at least one device", "error");
       return;
     }
@@ -164,6 +164,12 @@ const CreateBranchTransferPage: React.FC = () => {
         dispatchThrough: data.dispatchThrough,
         destination: data.destination,
         transferType:data.transferType,
+        components: componentsRowData.map((row: any) => ({
+          id: row.id,
+          qty: row.qty,
+          remarks: row.remarks,
+          hsnCode: row.hsnCode,
+        })),
       })
     ).then((res: any) => {
       if (res.payload?.data.success) {
