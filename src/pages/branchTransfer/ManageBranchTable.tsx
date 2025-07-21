@@ -55,13 +55,13 @@ const ManageBranchTable = () => {
               <MuiTooltip title="Print" placement="left">
                 <IconButton
                   onClick={() => {
-                   dispatch( printBranchTransferChallan(params.data.challanId)).then(
-                      (response:any) => {
-                        if (response?.payload?.status===200) {
-                          window.open(response.payload.data?.data, "_blank");
-                        }
+                    dispatch(
+                      printBranchTransferChallan(params.data.challanId)
+                    ).then((response: any) => {
+                      if (response?.payload?.status === 200) {
+                        window.open(response.payload.data?.data, "_blank");
                       }
-                    )
+                    });
                   }}
                   color="primary"
                 >
@@ -157,6 +157,15 @@ const ManageBranchTable = () => {
             <IconButton
               onClick={() => {
                 setSelectedRow(params.data);
+                // Map IMEI and serial arrays to objects for the table
+                const imeis = params.data.imei || [];
+                const serials = params.data.serial || [];
+                const devices = imeis.map((imei: string, idx: number) => ({
+                  imei,
+                  srno: serials[idx] || "",
+                  modalNo: params.data.product || "",
+                }));
+                setScannedDevices(devices);
                 setApproveModalOpen(true);
               }}
               color="success"
@@ -193,7 +202,9 @@ const ManageBranchTable = () => {
   const { deviceDetailLoading } = useAppSelector(
     (state) => state.batteryQcReducer
   );
-  const { rejectTransferLoading,printLoading } = useAppSelector((state) => state.dispatch);
+  const { rejectTransferLoading, printLoading } = useAppSelector(
+    (state) => state.dispatch
+  );
   const paginationPageSize = 20; // Define page size
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -334,7 +345,7 @@ const ManageBranchTable = () => {
             <AgGridReact
               // ref={gridRef}
               loadingOverlayComponent={CustomLoadingOverlay}
-              loading={transferReportLoading ||printLoading}
+              loading={transferReportLoading || printLoading}
               overlayNoRowsTemplate={OverlayNoRowsTemplate}
               suppressCellFocus={true}
               rowData={transferReport ? transferReport : []}
@@ -393,61 +404,14 @@ const ManageBranchTable = () => {
           Approve Transfer Request {selectedRow?.challanId}
         </DialogTitle>
         <DialogContent>
-          <div className="mb-4 mt-2">
-            <TextField
-              fullWidth
-              rows={2}
-              value={imei}
-              label="Scan IMEI/SR No."
-              onChange={(e) => setImei(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleImeiEnter(imei);
-                }
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {deviceDetailLoading ? (
-                      <CircularProgress size={20} color="inherit" />
-                    ) : (
-                      <QrCodeScannerIcon />
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </div>
-
           <div className="mt-4">
-            <Typography variant="subtitle1" className="mb-2">
-              Scanned Devices
-            </Typography>
             <div className="ag-theme-quartz h-[300px]">
               <AgGridReact
                 rowData={scannedDevices}
                 columnDefs={[
-                  { field: "imei", headerName: "IMEI" },
-                  { field: "srno", headerName: "SR No." },
-                  { field: "modalNo", headerName: "Model" },
-                  {
-                    headerName: "Actions",
-                    field: "",
-                    cellRenderer: (params: any) => (
-                      <IconButton
-                        onClick={() => {
-                          setScannedDevices(
-                            scannedDevices.filter(
-                              (device) => device.imei !== params.data.imei
-                            )
-                          );
-                        }}
-                      >
-                        <Icons.delete color="error" />
-                      </IconButton>
-                    ),
-                  },
+                  { field: "imei", headerName: "IMEI",flex:1 },
+                  { field: "srno", headerName: "SR No.",flex:1 },
+                  { field: "modalNo", headerName: "Model",flex:1 },
                 ]}
               />
             </div>

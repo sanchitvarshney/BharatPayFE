@@ -154,7 +154,7 @@ const CreateBranchTransferPage: React.FC = () => {
         toBranch: data.toBranch?.branch_code || "",
         toLocation: data.toLocation || "",
         product: data.product?.id || "",
-        type: data.type,
+        type: data.type||"--",
         qty: data.quantity,
         mode: data.mode,
         referenceNumber: data.referenceNumber,
@@ -294,7 +294,7 @@ const CreateBranchTransferPage: React.FC = () => {
                           value={field.value || ""}
                         >
                           <MenuItem value="device">Device</MenuItem>
-                          <MenuItem value="component">Component</MenuItem>
+                          <MenuItem value="part">Component</MenuItem>
                         </Select>
                       </FormControl>
                     )}
