@@ -52,14 +52,14 @@ const SwipeDeviceUpload: React.FC = () => {
     try {
       await dispatch(uploadSwipeDeviceStatus(formData)).then((res) => {
         const payload :any= res?.payload;
-        if (payload?.success) {
+        if (payload?.data?.success) {
           showToast(
-            payload?.message || "File uploaded successfully",
+            payload?.data?.message || "File uploaded successfully",
             "success"
           );
           setFile(null);
         } else {
-          showToast(payload || "Upload failed", "error");
+          // showToast(payload || "Upload failed", "error");
         }
       });
     } catch (error) {
