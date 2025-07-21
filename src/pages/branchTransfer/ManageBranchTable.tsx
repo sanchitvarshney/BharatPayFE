@@ -4,6 +4,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -29,13 +30,52 @@ import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import { showToast } from "@/utils/toasterContext";
 import {
   approveTransfer,
+  printBranchTransferChallan,
   rejectTransfer,
 } from "@/features/Dispatch/DispatchSlice";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
 
 // Generate dummy data according to pagination needs
 const ManageBranchTable = () => {
   const dispatch = useAppDispatch();
+
   const columnDefs: ColDef[] = [
+    {
+      field: "txnId",
+      headerName: "Print Challan",
+      sortable: true,
+      filter: true,
+      pinned: "left",
+      cellRenderer: (params: any) => {
+        return (
+          <div className="flex items-center justify-center h-full gap-[10px]">
+            {false === params.data.insertDt ? (
+              <CircularProgress size={20} />
+            ) : (
+              <MuiTooltip title="Print" placement="left">
+                <IconButton
+                  onClick={() => {
+                    console.log(params.data);
+                   dispatch( printBranchTransferChallan(params.data.challanId)).then(
+                      (response:any) => {
+                        if (response?.payload?.status===200) {
+                          window.open(response.payload.data?.data, "_blank");
+                        }
+                      }
+                    )
+                  }}
+                  color="primary"
+                >
+                  <LocalPrintshopIcon />
+                </IconButton>
+              </MuiTooltip>
+            )}
+
+            {params.value}
+          </div>
+        );
+      },
+    },
     {
       headerName: "#",
       field: "serialNo",

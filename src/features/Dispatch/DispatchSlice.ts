@@ -87,6 +87,11 @@ export const approveTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backen
   return response;
 });
 
+export const printBranchTransferChallan = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferPrint', async (challanId) => {
+  const response = await axiosInstance.get( `/deviceBranchTransfer/print?challanId=${challanId}`);
+  return response;
+});
+
 const dispatchSlice = createSlice({
   name: "dispatch",
   initialState,
