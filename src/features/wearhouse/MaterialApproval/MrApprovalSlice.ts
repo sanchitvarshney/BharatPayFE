@@ -91,8 +91,8 @@ export const approveSwipeDeviceRequest = createAsyncThunk<AxiosResponse<ApproveD
   return response;
 });
 
-export const validateScan = createAsyncThunk<AxiosResponse<any>, string>("master/validateScan", async (id) => {
-  const response = await axiosInstance.get(`/backend/device?device=${id}`);
+export const validateScan = createAsyncThunk<AxiosResponse<any>, any>("master/validateScan", async ({ id, type }) => {
+  const response = await axiosInstance.get(`/backend/device?device=${id}&type=${type}`);
   return response;
 });
 

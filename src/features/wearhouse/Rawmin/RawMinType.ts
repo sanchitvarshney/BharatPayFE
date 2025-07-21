@@ -24,6 +24,8 @@ export type CreateRawMinPayloadType = {
   hsnCode: string[];
   remarks: string[];
   cc: string; // required
+  deliveryAddress:string;
+  deliveryGst:string;
 };
 export type CreateRawMinResponse = {
   status: string;
