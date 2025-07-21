@@ -17,16 +17,12 @@ import {
   DialogActions,
   TextField,
   IconButton,
-  Typography,
   CircularProgress,
-  InputAdornment,
   Stack,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Icons } from "@/components/icons";
 import { transferBranchReport } from "@/features/report/report/reportSlice";
-import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import { showToast } from "@/utils/toasterContext";
 import {
   approveTransfer,
@@ -197,11 +193,8 @@ const ManageBranchTable = () => {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [approveModalOpen, setApproveModalOpen] = useState(false);
   const [rejectRemark, setRejectRemark] = useState("");
-  const [imei, setImei] = useState("");
   const [scannedDevices, setScannedDevices] = useState<any[]>([]);
-  const { deviceDetailLoading } = useAppSelector(
-    (state) => state.batteryQcReducer
-  );
+ 
   const { rejectTransferLoading, printLoading } = useAppSelector(
     (state) => state.dispatch
   );
@@ -213,32 +206,6 @@ const ManageBranchTable = () => {
       sortable: true,
     };
   }, []);
-
-  const handleImeiEnter = (imei: string) => {
-    dispatch(
-      getDeviceDetails({
-        imei: imei,
-        deviceType: selectedRow?.deviceType,
-      })
-    ).then((res: any) => {
-      if (res.payload.data.success) {
-        setImei("");
-        const newRowData = res?.payload?.data?.data?.map((device: any) => {
-          return {
-            imei: device.device_imei || device.imei_no1 || "",
-            srno: device.sl_no || "",
-            modalNo: device?.p_name || "",
-            deviceSku: device?.device_sku || "",
-            productKey: device?.product_key || "",
-            imei2: device?.imei_no2 || "",
-          };
-        });
-        setScannedDevices((prev) => [...newRowData, ...prev]);
-      } else {
-        showToast(res.payload.data.message, "error");
-      }
-    });
-  };
 
   const handleApprove = () => {
     if (scannedDevices.length === 0) {
