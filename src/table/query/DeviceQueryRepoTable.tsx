@@ -32,7 +32,8 @@ const DeviceQueryRepoTable: React.FC<Props> = ({ gridRef }) => {
         vendor: item.vendor.name.trim(),
         vendorCode: item.vendor.code,
         imei: item.IMEI,
-        srlNo: item.SRLNo
+        srlNo: item.SRLNo,
+        issue: item.issue,
       }));
       setRowData(convertedData);
     }

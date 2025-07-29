@@ -35,6 +35,7 @@ export interface BodyItem {
   IMEI: string;
   SRLNo: string;
   poNumber?: string | undefined;
+  issue?:string,
 }
 
 interface Head {
