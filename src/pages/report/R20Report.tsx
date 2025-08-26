@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import R20ReportTable from "@/table/report/R20ReportTable";
 import { showToast } from "@/utils/toasterContext";
-import { getR16Report, getR20Report } from "@/features/report/report/reportSlice";
+import { getR20Report } from "@/features/report/report/reportSlice";
 import { AgGridReact } from "@ag-grid-community/react";
-import { useSocketContext } from "@/components/context/SocketContext";
+// import { useSocketContext } from "@/components/context/SocketContext";
 
 const R20Report: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
@@ -29,7 +29,7 @@ const R20Report: React.FC = () => {
   const { getR20DataLoading } = useAppSelector(
     (state) => state.report
   );
-  const { swipeMachineInward,isConnected } = useSocketContext();
+  // const { swipeMachineInward,isConnected } = useSocketContext();
 
   const handleDateChange = (dates: {
     from: Dayjs | null;
@@ -38,17 +38,17 @@ const R20Report: React.FC = () => {
     setDateRange(dates);
   };
 
-  const handleExport = () => {
-      if (!dateRange.from || !dateRange.to || !partner)
-        return showToast("Please select location and date range", "error");
-      const reportPayload = {
-        partner: partner,
-        fromDate: dateRange.from?.format("DD-MM-YYYY"),
-        toDate: dateRange.to?.format("DD-MM-YYYY"),
-      };
-      swipeMachineInward(reportPayload);
-      showToast("Start downloading ", "success");
-    };
+  // const handleExport = () => {
+  //     if (!dateRange.from || !dateRange.to || !partner)
+  //       return showToast("Please select location and date range", "error");
+  //     const reportPayload = {
+  //       partner: partner,
+  //       fromDate: dateRange.from?.format("DD-MM-YYYY"),
+  //       toDate: dateRange.to?.format("DD-MM-YYYY"),
+  //     };
+  //     swipeMachineInward(reportPayload);
+  //     showToast("Start downloading ", "success");
+  //   };
   
 
   return (
@@ -138,7 +138,7 @@ const R20Report: React.FC = () => {
             >
               Search
             </LoadingButton>
-            <LoadingButton
+            {/* <LoadingButton
              disabled={!isConnected}
               onClick={handleExport}
               variant="contained"
@@ -154,7 +154,7 @@ const R20Report: React.FC = () => {
               sx={{ zIndex: 1 }}
             >
               <Icons.download />
-            </LoadingButton>
+            </LoadingButton> */}
           </div>
         </div>
       </div>
