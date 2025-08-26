@@ -82,6 +82,8 @@ const initialState: ReportStateType = {
     from: null,
     to: null,
   },
+  getR20DataLoading: false,
+  r20Report: null,
 };
 
 export const getR1Data = createAsyncThunk<
@@ -321,6 +323,22 @@ export const getR16Report = createAsyncThunk(
   }) => {
     const response = await axiosInstance.get(
       `/swipeMachine/report/${params.partner}?fromDate=${params.from}&toDate=${params.to}&page=${params.page}&limit=${params.limit}`
+    );
+    return response.data;
+  }
+);
+
+export const getR20Report = createAsyncThunk(
+  "report/getR20Report",
+  async (params: {
+    from: string;
+    to: string;
+    partner: string;
+    page: number;
+    limit: number;
+  }) => {
+    const response = await axiosInstance.get(
+      `/scan/awb/report?start_date=${params.from}&end_date=${params.to}&page=${params.page}&limit=${params.limit}&partner=${params.partner}`
     );
     return response.data;
   }
@@ -721,7 +739,18 @@ const reportSlice = createSlice({
       .addCase(getR18Data.rejected, (state) => {
         state.getR18DataLoading = false;
       })
-       .addCase(getR19Data.pending, (state) => {
+      
+       .addCase(getR20Report.pending, (state) => {
+        state.getR20DataLoading = true;
+      })
+      .addCase(getR20Report.fulfilled, (state, action) => {
+        state.getR20DataLoading = false;
+        state.r20Report = action.payload;
+      })
+      .addCase(getR20Report.rejected, (state) => {
+        state.getR20DataLoading = false;
+      })
+      .addCase(getR19Data.pending, (state) => {
         state.getR19DataLoading = true;
       })
       .addCase(getR19Data.fulfilled, (state, action) => {

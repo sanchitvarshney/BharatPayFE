@@ -53,7 +53,7 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        response.payload?.data?.message?showToast(response.payload?.data?.message, "error"):showToast("Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts", "error"); 
+        response.payload?.message?showToast(response.payload?.message, "error"):showToast("Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts", "error"); 
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }

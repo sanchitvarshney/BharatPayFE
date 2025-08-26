@@ -24,9 +24,22 @@ const initialState: AuthState = {
   recoveryLoading: false
 };
 
-export const loginUserAsync = createAsyncThunk<AxiosResponse<LoginResponse>, LoginCredentials>("auth/loginUser", async (loginCredential) => {
-  const response = await axiosInstance.post<LoginResponse>("/auth/signin", loginCredential);
-  return response;
+export const loginUserAsync = createAsyncThunk<
+  AxiosResponse<LoginResponse>,
+  LoginCredentials
+>("auth/loginUser", async (loginCredential, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post<LoginResponse>(
+      "/auth/signin",
+      loginCredential
+    );
+    return response;
+  } catch (error: any) {
+    if (error.response) {
+      return rejectWithValue(error.response.data);
+    }
+    return rejectWithValue(error);
+  }
 });
 
 // export const loginUserAsync = createAsyncThunk<
@@ -53,55 +66,80 @@ export const loginUserAsync = createAsyncThunk<AxiosResponse<LoginResponse>, Log
 //   }
 // );
 
-export const changePasswordAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, PasswordChangePayload>("auth/changePassword", async (payload) => {
+export const changePasswordAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  PasswordChangePayload
+>("auth/changePassword", async (payload) => {
   const response = await axiosInstance.put("/user/change-my-password", payload);
   return response;
 });
-export const getEmailOtpAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>>("auth/getEmailOtpAsycn", async () => {
+export const getEmailOtpAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>
+>("auth/getEmailOtpAsycn", async () => {
   const response = await axiosInstance.get("/user/get-email-otp");
   return response;
 });
 
-export const updateEmailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { emailId: string; otp: string }>("auth/updateEmailAsync", async (paylaod) => {
+export const updateEmailAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  { emailId: string; otp: string }
+>("auth/updateEmailAsync", async (paylaod) => {
   const response = await axiosInstance.put("/user/verify-email-otp", paylaod);
   return response;
 });
 
-export const getQRStatus = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { crnId: string }>("auth/getQRStatus", async () => {
+export const getQRStatus = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  { crnId: string }
+>("auth/getQRStatus", async () => {
   const response = await axiosInstance.get(`auth/qrCode`);
   return response;
 });
 
-export const getPasswordOtp = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { emailId: string }>(
-  "auth/getPasswordOtp", 
-  async (payload) => {
-    const response = await axiosInstance.get("/user/get-password-otp/", {
-      params: {
-        emailId: payload.emailId, // Send emailId as a query param
-      }
-    });
-    return response;
-  }
-);
-
-export const recoveryAccount = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { email: string }>("auth/verifyPasswordOtpAsync", async (paylaod) => {
-  const response = await axiosInstance.get(`auth/reacative-login?email=${paylaod.email}`);
+export const getPasswordOtp = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  { emailId: string }
+>("auth/getPasswordOtp", async (payload) => {
+  const response = await axiosInstance.get("/user/get-password-otp/", {
+    params: {
+      emailId: payload.emailId, // Send emailId as a query param
+    },
+  });
   return response;
 });
 
-export const updatePassword = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, PasswordChangePayload>("auth/updatePassword", async (paylaod) => {
+export const recoveryAccount = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  { email: string }
+>("auth/verifyPasswordOtpAsync", async (paylaod) => {
+  const response = await axiosInstance.get(
+    `auth/reacative-login?email=${paylaod.email}`
+  );
+  return response;
+});
+
+export const updatePassword = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  PasswordChangePayload
+>("auth/updatePassword", async (paylaod) => {
   const response = await axiosInstance.put("/user/update-password", paylaod);
   return response;
 });
 
-export const verifyMailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { otp: string }>("auth/verifyMailAsync", async (paylaod) => {
+export const verifyMailAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  { otp: string }
+>("auth/verifyMailAsync", async (paylaod) => {
   const response = await axiosInstance.put("/user/verify-mail", paylaod);
   return response;
 });
-export const verifyOtpAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, { otp: string,secret:string }>("auth/verifyOtpAsync", async (paylaod) => {
+export const verifyOtpAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  { otp: string; secret: string }
+>("auth/verifyOtpAsync", async (paylaod) => {
   const response = await axiosInstance.post("/auth/verify", paylaod);
   return response;
-})
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -119,15 +157,18 @@ const authSlice = createSlice({
       .addCase(loginUserAsync.pending, (state) => {
         state.loading = true;
       })
-      .addCase(loginUserAsync.fulfilled, (state, action:any) => {
+      .addCase(loginUserAsync.fulfilled, (state, action: any) => {
         if (action.payload.data.success) {
           setToken(action.payload.data.data?.token);
 
-          localStorage.setItem("loggedinUser", btoa(JSON.stringify(action.payload.data.data)));
+          localStorage.setItem(
+            "loggedinUser",
+            btoa(JSON.stringify(action.payload.data.data))
+          );
         }
-        if(!action.payload.data.data){
+        if (!action.payload.data.data) {
           state.qrStatus = action.payload.data;
-          localStorage.setItem("showOtpPage",action?.payload?.data?.isTwoStep);
+          localStorage.setItem("showOtpPage", action?.payload?.data?.isTwoStep);
         }
         state.loading = false;
       })
@@ -137,13 +178,16 @@ const authSlice = createSlice({
       .addCase(verifyOtpAsync.pending, (state) => {
         state.qrCodeLoading = true;
       })
-      .addCase(verifyOtpAsync.fulfilled, (state, action:any) => {
+      .addCase(verifyOtpAsync.fulfilled, (state, action: any) => {
         if (action.payload.data.success) {
           setToken(action.payload.data.data?.token);
-          localStorage.setItem("showOtpPage","");
-          localStorage.setItem("loggedinUser", btoa(JSON.stringify(action.payload.data.data)));
+          localStorage.setItem("showOtpPage", "");
+          localStorage.setItem(
+            "loggedinUser",
+            btoa(JSON.stringify(action.payload.data.data))
+          );
         }
-        if(!action.payload.data.data){
+        if (!action.payload.data.data) {
           state.qrStatus = action.payload.data;
         }
         state.qrCodeLoading = false;
