@@ -428,6 +428,8 @@ export type ReportStateType = {
   };
   getR19DataLoading: boolean,
   r19Report: any,
+  r20Report:any,
+  getR20DataLoading:boolean,
 };
 
 export interface R16ReportResponse {

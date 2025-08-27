@@ -16,8 +16,8 @@ import {
   FormControl,
   FormControlLabel,
   InputAdornment,
- LinearProgress,
- ListItemText,
+  LinearProgress,
+  ListItemText,
   Radio,
   Step,
   StepLabel,
@@ -125,9 +125,7 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
-  const { dispatchCreateLoading } = useAppSelector(
-    (state) => state.dispatch
-  );
+  const { dispatchCreateLoading } = useAppSelector((state) => state.dispatch);
 
   const {
     handleSubmit,
@@ -204,7 +202,7 @@ const CreateDispatchPage: React.FC = () => {
   const finalSubmit = () => {
     console.log(rowData);
     const data1 = formValues;
-    console.log(data)
+    console.log(data);
     // if (formdata) {
     if (rowData.length !== Number(data1.qty))
       return showToast(
@@ -268,8 +266,12 @@ const CreateDispatchPage: React.FC = () => {
 
   const onImeiSubmit = (imei: string) => {
     const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
-    console.log(imeiArray.filter((num) => num.trim() !== "").length);
-    if (imeiArray.filter((num) => num.trim() !== "").length === 30) {
+    const count = imeiArray.filter((num) => num.trim() !== "").length;
+    // If deviceType is "device", length should be 30; if "swipe", length should be 20
+    if (
+      (data.deviceType === "device" && count === 30) ||
+      (data.deviceType !== "device" && count === 20)
+    ) {
       console.log("open");
       setOpen(true);
     }
@@ -324,14 +326,37 @@ const CreateDispatchPage: React.FC = () => {
             autoFocus
             disabled={deviceDetailLoading}
             onClick={() => {
-              dispatch(getDeviceDetails({imei: imei, deviceType: data?.deviceType})).then((res: any) => {
+              // Check for duplicate serial numbers before calling API
+              const imeiArray = imei ? imei.split("\n") : [];
+              const existingSerials = rowData.map((item: any) => item.srno);
+
+              // Check if any of the new IMEIs would result in duplicate serials
+              // This is a simplified check - you might need to adjust based on your API response structure
+              const duplicateSerials = imeiArray.filter((newImei: string) =>
+                existingSerials.includes(newImei.trim())
+              );
+
+              if (duplicateSerials.length > 0) {
+                showToast(
+                  `Duplicate serial numbers detected: ${duplicateSerials.join(
+                    ", "
+                  )}`,
+                  "error"
+                );
+                setOpen(false);
+                return;
+              }
+
+              dispatch(
+                getDeviceDetails({ imei: imei, deviceType: data?.deviceType })
+              ).then((res: any) => {
                 if (res.payload.data.success) {
                   setImei("");
                   const newRowData = res?.payload?.data?.data?.map(
                     (device: any) => {
                       console.log(device);
                       return {
-                        imei: device.device_imei||device.imei_no1 || "",
+                        imei: device.device_imei || device.imei_no1 || "",
                         imei2: device.imei_no2 || "",
                         srno: device.sl_no || "",
                         modalNo: device?.p_name || "",
@@ -346,6 +371,7 @@ const CreateDispatchPage: React.FC = () => {
                   setOpen(false);
                 } else {
                   showToast(res.payload.data.message, "error");
+                  setOpen(false);
                 }
               });
             }}
@@ -635,12 +661,24 @@ const CreateDispatchPage: React.FC = () => {
                           },
                           { label: "Other Reference", value: data?.otherRef },
                           { label: "GST Rate", value: data?.gstrate },
-                          { label: "GST Type", value: data?.gsttype==="inter"?"Inter State":"Intra State" },
-                          {label: "Device Type", value: data?.deviceType==="device"?"SoundBox":"Swipe Device"},
-                          {label:"Item Rate",value:data?.itemRate},
-                          {label:"HSN Code",value:data?.hsnCode},
-                          {label:"Material Name",value:data?.materialName},
-                          {label:"Remarks",value:data?.remark},
+                          {
+                            label: "GST Type",
+                            value:
+                              data?.gsttype === "inter"
+                                ? "Inter State"
+                                : "Intra State",
+                          },
+                          {
+                            label: "Device Type",
+                            value:
+                              data?.deviceType === "device"
+                                ? "SoundBox"
+                                : "Swipe Device",
+                          },
+                          { label: "Item Rate", value: data?.itemRate },
+                          { label: "HSN Code", value: data?.hsnCode },
+                          { label: "Material Name", value: data?.materialName },
+                          { label: "Remarks", value: data?.remark },
                         ].map(({ label, value }) => (
                           <div key={label} className="py-5">
                             <Typography
@@ -844,7 +882,11 @@ const CreateDispatchPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="h-[calc(100vh-250px)]">
-                    <ImeiTable setRowdata={setRowData} rowData={rowData} module="swipeDevice" />
+                    <ImeiTable
+                      setRowdata={setRowData}
+                      rowData={rowData}
+                      module={data?.deviceType === "device" ? "device" : "swipedevice"}
+                    />
                   </div>
                 </div>
               </div>

@@ -55,9 +55,11 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
     return `${day}-${month}-${year}`;
   };
 
-  useEffect(() => {
-    if (q6Statement) {
-      const convertedData: any[] = q6Statement?.map((item) => ({
+useEffect(() => {
+  if (Array.isArray(q6Statement) && q6Statement.length > 0) {
+    const convertedData: any[] = q6Statement
+      .filter(item => item.time) // filter out any items without time
+      .map((item) => ({
         insertDate: parseDate(item.time),
         transaction: item.minNo,
         transactionType: item.transactionType,
@@ -67,12 +69,12 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
         insertBy: item.user,
         moveId: item.deviceMovId
       }));
-      setRowData(convertedData);
-    }
-    else{
-      setRowData([])
-    }
-  }, [q6Statement]);
+    setRowData(convertedData);
+  } else {
+    setRowData([]);
+  }
+}, [q6Statement]);
+
 
   const columnDefs: ColDef[] = [
     {

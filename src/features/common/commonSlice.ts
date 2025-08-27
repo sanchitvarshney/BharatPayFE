@@ -5,9 +5,11 @@ import { Commonstate, CostCenterApiResponse, CurrencListResponse, UserApiRespons
 
 // Add types for device images
 export interface DeviceImage {
-  image_id: string;
-  img_name: string;
+  image_id?: string;
+  img_name?: string;
   img_url: string[];
+  sim_no?: string;
+  operator?: string;
 }
 
 export interface DeviceImageApiResponse {
@@ -72,7 +74,7 @@ export const getDeviceImages = createAsyncThunk<
   { deviceType: string; awbNumber: string; serialNo: string }
 >("common/getDeviceImages", async ({ deviceType, awbNumber, serialNo }) => {
   const response = await axiosInstance.get(
-    `/swipeMachine/delivery/getImages/${deviceType}/${awbNumber}/${serialNo}`
+    `/swipeMachine/delivery/getImages/${deviceType}?awbNumber=${awbNumber}&serialNo=${serialNo}`
   );
   return response;
 });

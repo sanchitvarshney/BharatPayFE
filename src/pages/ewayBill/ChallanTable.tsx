@@ -184,7 +184,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
         params.data.isdispatch == "Y" ? "Yes" : "No",
     },
     {
-      headerName: "Eway Bill No",
+      headerName: "Is Eway Bill",
       field: "isewaybill",
       sortable: true,
       filter: true,

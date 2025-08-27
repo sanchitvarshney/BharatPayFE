@@ -26,9 +26,10 @@ const ViewImage: React.FC = () => {
     useAppSelector((state) => state.common);
 
   const handleSearch = async () => {
-    if (!deviceType || !awbNumber || !serialNo) {
+    if (!deviceType || !serialNo || (deviceType !== "sim" && !awbNumber)) {
       showToast(
-        "Please enter Device Type, AWB Number, and Serial Number",
+        "Please enter Device Type, Serial Number" +
+          (deviceType !== "sim" ? ", and AWB Number" : ""),
         "error"
       );
       return;
@@ -36,7 +37,6 @@ const ViewImage: React.FC = () => {
     setCurrentImageIdx(0);
     dispatch(getDeviceImages({ deviceType, awbNumber, serialNo }));
   };
-
   const handlePrev = () => {
     if (!deviceImages) return;
     setCurrentImageIdx((idx) =>
@@ -52,6 +52,11 @@ const ViewImage: React.FC = () => {
 
   const currentImage = deviceImages?.[currentImageIdx];
   const currentImgUrl = currentImage?.img_url?.[0];
+  const currentTitle =
+    currentImage?.img_name ||
+    currentImage?.operator ||
+    currentImage?.sim_no ||
+    "Image";
 
   return (
     <div className="relative flex bg-white">
@@ -104,33 +109,35 @@ const ViewImage: React.FC = () => {
                   </Select>
                 </FormControl>
               </div>
-              <div className="flex flex-col gap-[10px]">
-                <Typography
-                  variant="subtitle1"
-                  className="text-slate-600 font-medium"
-                >
-                  AWB Number
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  value={awbNumber}
-                  onChange={(e) => setAwbNumber(e.target.value)}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        borderColor: "rgb(203 213 225)",
+              {deviceType !== "sim" && (
+                <div className="flex flex-col gap-[10px]">
+                  <Typography
+                    variant="subtitle1"
+                    className="text-slate-600 font-medium"
+                  >
+                    AWB Number
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    value={awbNumber}
+                    onChange={(e) => setAwbNumber(e.target.value)}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "rgb(203 213 225)",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "rgb(148 163 184)",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "rgb(14 116 144)",
+                        },
                       },
-                      "&:hover fieldset": {
-                        borderColor: "rgb(148 163 184)",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "rgb(14 116 144)",
-                      },
-                    },
-                  }}
-                />
-              </div>
+                    }}
+                  />
+                </div>
+              )}
               <div className="flex flex-col gap-[10px]">
                 <Typography
                   variant="subtitle1"
@@ -204,15 +211,29 @@ const ViewImage: React.FC = () => {
                 <div className="flex flex-col items-center w-full">
                   <img
                     src={currentImgUrl}
-                    alt={currentImage?.img_name}
+                    alt={currentTitle}
                     className="rounded-lg object-contain max-h-[400px] max-w-full border shadow"
                   />
                   <Typography
                     variant="subtitle1"
                     className="mt-2 font-semibold text-slate-700"
                   >
-                    {currentImage?.img_name}
+                    {currentTitle}
                   </Typography>
+                  {(currentImage?.operator || currentImage?.sim_no) && (
+                    <Typography
+                      variant="caption"
+                      className="text-slate-500 mt-1"
+                    >
+                     
+                      {currentImage?.operator && currentImage?.sim_no
+                        ? " • "
+                        : ""}
+                      {currentImage?.sim_no
+                        ? `SIM No: ${currentImage.sim_no}`
+                        : ""}
+                    </Typography>
+                  )}
                 </div>
                 {deviceImages.length > 1 && (
                   <IconButton

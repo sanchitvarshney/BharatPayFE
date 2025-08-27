@@ -135,7 +135,7 @@ const CreateBranchTransferPage: React.FC = () => {
   };
 
   const onFinalSubmit: SubmitHandler<FormData> = (data) => {
-    if (rowData.length === 0) {
+    if (rowData.length === 0 && componentsRowData?.length ===0) {
       showToast("Please add at least one device", "error");
       return;
     }
@@ -154,7 +154,7 @@ const CreateBranchTransferPage: React.FC = () => {
         toBranch: data.toBranch?.branch_code || "",
         toLocation: data.toLocation || "",
         product: data.product?.id || "",
-        type: data.type,
+        type: data.type||"--",
         qty: data.quantity,
         mode: data.mode,
         referenceNumber: data.referenceNumber,
@@ -163,6 +163,13 @@ const CreateBranchTransferPage: React.FC = () => {
         docNo: data.docNo,
         dispatchThrough: data.dispatchThrough,
         destination: data.destination,
+        transferType:data.transferType,
+        components: componentsRowData.map((row: any) => ({
+          id: row.id,
+          qty: row.qty,
+          remarks: row.remarks,
+          hsnCode: row.hsnCode,
+        })),
       })
     ).then((res: any) => {
       if (res.payload?.data.success) {
@@ -293,7 +300,7 @@ const CreateBranchTransferPage: React.FC = () => {
                           value={field.value || ""}
                         >
                           <MenuItem value="device">Device</MenuItem>
-                          <MenuItem value="component">Component</MenuItem>
+                          <MenuItem value="part">Component</MenuItem>
                         </Select>
                       </FormControl>
                     )}

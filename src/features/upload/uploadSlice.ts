@@ -15,17 +15,25 @@ const initialState: UploadState = {
 export const uploadSwipeDeviceStatus = createAsyncThunk<
   AxiosResponse<{ success: boolean; message: string }>,
   FormData
->("upload/swipeDeviceStatus", async (formData) => {
-  const response = await axiosInstance.post(
-    "/swipeMachine/uploadStatus",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+>("upload/swipeDeviceStatus", async (formData, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(
+      "/swipeMachine/uploadStatus",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    // Handle error and return rejectWithValue for better error handling in slice
+    if (error.response && error.response.data && error.response.data.message) {
+      return rejectWithValue(error.response.data.message);
     }
-  );
-  return response;
+    return rejectWithValue(error.message || "Upload failed");
+  }
 });
 
 const uploadSlice = createSlice({
