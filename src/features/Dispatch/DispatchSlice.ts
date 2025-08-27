@@ -34,7 +34,7 @@ export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean;
 });
 
 export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateChallan", async (payload) => {
-  const response = await axiosInstance.post(`challan/create`, payload);
+  const response = await axiosInstance.post(`challan/createw`, payload);
   return response;
 });
 
