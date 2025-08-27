@@ -33,6 +33,9 @@ import SelectClient, {
   LocationType,
 } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
+import MultipleDeviceSelector, {
+  SelectedDeviceType,
+} from "@/components/reusable/MultipleDeviceSelector";
 import {
   CreateChallan,
   getClientBranch,
@@ -65,6 +68,7 @@ type FormDataType = {
   hsnCode: string;
   materialName: string;
   deviceType: string;
+  selectedDevices: SelectedDeviceType[];
 };
 
 type clientDetailType = {
@@ -73,6 +77,7 @@ type clientDetailType = {
   address1: string;
   address2: string;
   pincode: string;
+  gst: string;
 };
 
 type dispatchFromDetailsType = {
@@ -103,6 +108,9 @@ const CreateChallanPage: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
+  const [selectedDevices, setSelectedDevices] = useState<SelectedDeviceType[]>(
+    []
+  );
 
   const { createChallanLoading, clientBranchList } = useAppSelector(
     (state) => state.dispatch
@@ -138,6 +146,7 @@ const CreateChallanPage: React.FC = () => {
       materialName: "",
       hsnCode: "",
       deviceType: "",
+      selectedDevices: [],
     },
   });
   const formValues = watch();
@@ -150,6 +159,7 @@ const CreateChallanPage: React.FC = () => {
 
   const resetall = () => {
     reset();
+    setSelectedDevices([]);
     dispatch(resetDocumentFile());
     formdata.delete("document");
   };
@@ -244,10 +254,6 @@ const CreateChallanPage: React.FC = () => {
     }
 
     // Other validations
-    if (!data.qty || Number(data.qty) <= 0) {
-      showToast("Please enter a valid quantity", "error");
-      return;
-    }
     if (!data.gstRate) {
       showToast("Please enter GST rate", "error");
       return;
@@ -256,18 +262,58 @@ const CreateChallanPage: React.FC = () => {
       showToast("Please select GST state", "error");
       return;
     }
-    if (!data.itemPrice) {
-      showToast("Please Enter Item Price", "error");
-      return;
-    }
     if (!data.deviceType) {
       showToast("Please select Device Type", "error");
       return;
     }
+
+    // Validate selected devices for swipe machine
+    if (data.deviceType === "swipeMachine") {
+      if (selectedDevices.length === 0) {
+        showToast("Please select at least one device", "error");
+        return;
+      }
+
+      // Validate each selected device has rate, quantity and material name
+      for (let i = 0; i < selectedDevices.length; i++) {
+        const device = selectedDevices[i];
+        if (!device.rate || device.rate <= 0) {
+          showToast(
+            `Please enter a valid rate for device: ${device.device.text}`,
+            "error"
+          );
+          return;
+        }
+        if (!device.quantity || device.quantity <= 0) {
+          showToast(
+            `Please enter a valid quantity for device: ${device.device.text}`,
+            "error"
+          );
+          return;
+        }
+        if (!device.materialName || device.materialName.trim() === "") {
+          showToast(
+            `Please enter Material Name for device: ${device.device.text}`,
+            "error"
+          );
+          return;
+        }
+      }
+    } else {
+      // For non-swipe devices, validate single quantity and price
+      if (!data.qty || Number(data.qty) <= 0) {
+        showToast("Please enter a valid quantity", "error");
+        return;
+      }
+      if (!data.itemPrice) {
+        showToast("Please Enter Item Price", "error");
+        return;
+      }
+    }
+
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
-      dispatchQty: Number(data.qty),
       remark: data.remark,
       clientDetail: data.clientDetail
         ? {
@@ -279,17 +325,38 @@ const CreateChallanPage: React.FC = () => {
       dispatchFromDetails: data.dispatchFromDetails || null,
       gstRate: data.gstRate,
       gstState: data.gstState === "Inter State" ? "inter" : "local",
-      itemPrice: data.itemPrice,
-      hsnCode: data.hsnCode,
-      materialName: data.materialName,
       deviceType: data.deviceType,
     };
+
+    // Add device-specific data
+    if (data.deviceType === "swipeMachine") {
+      payload.selectedDevices = selectedDevices.map((device) => ({
+        device: device.device.id,
+        rate: device.rate,
+        quantity: device.quantity,
+        hsnCode: device.hsnCode,
+        materialName: device.materialName,
+      }));
+      payload.dispatchQty = selectedDevices.reduce(
+        (sum, device) => sum + device.quantity,
+        0
+      );
+      payload.totalAmount = selectedDevices.reduce(
+        (sum, device) => sum + device.rate * device.quantity,
+        0
+      );
+    } else {
+      payload.dispatchQty = Number(data.qty);
+      payload.itemPrice = data.itemPrice;
+      payload.materialName = data.materialName;
+    }
     dispatch(CreateChallan(payload)).then((res: any) => {
       console.log(res);
       if (res.payload.data.success) {
         setDispatchNo(res?.payload?.data?.data);
         showToast(res?.payload?.data?.message, "success");
         reset();
+        setSelectedDevices([]);
         handleNext();
         resetall();
       }
@@ -323,6 +390,12 @@ const CreateChallanPage: React.FC = () => {
       setValue("clientDetail.address1", value.addressLine1); // Update addressLine1
       setValue("clientDetail.address2", value.addressLine2); // Update addressLine2
       setValue("clientDetail.pincode", value.pinCode); // Update pincode
+      setValue("clientDetail.gst", value.gst);
+      if (value.state.stateCode === "09") {
+        setValue("gstState", "Inter State");
+      } else {
+        setValue("gstState", "Intra State");
+      }
       dispatch(getClientAddressDetail(value.addressID));
     }
   };
@@ -363,6 +436,7 @@ const CreateChallanPage: React.FC = () => {
           resetall();
           dispatch(resetDocumentFile());
           dispatch(resetFormData());
+          setSelectedDevices([]);
           setActiveStep(0);
           setAlert(false);
         }}
@@ -472,6 +546,21 @@ const CreateChallanPage: React.FC = () => {
                   label="PinCode"
                   className="h-[10px] resize-none"
                   {...register("clientDetail.pincode", {
+                    required: "PinCode is required",
+                  })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.clientDetail?.gst}
+                  helperText={errors?.clientDetail?.gst?.message}
+                  focused={!!watch("clientDetail.gst")}
+                  // multiline
+                  rows={3}
+                  fullWidth
+                  label="GST"
+                  className="h-[10px] resize-none"
+                  {...register("clientDetail.gst", {
                     required: "PinCode is required",
                   })}
                 />
@@ -849,6 +938,27 @@ const CreateChallanPage: React.FC = () => {
                   )}
                 />
               </div>
+
+              {/* Multiple Device Selector for Swipe Machine */}
+              {formValues.deviceType === "swipeMachine" && (
+                <div className="mt-4">
+                  <MultipleDeviceSelector
+                    deviceType="swipeMachine"
+                    selectedDevices={selectedDevices}
+                    onDevicesChange={setSelectedDevices}
+                    error={
+                      selectedDevices.length === 0 &&
+                      formValues.deviceType === "swipeMachine"
+                    }
+                    helperText={
+                      selectedDevices.length === 0 &&
+                      formValues.deviceType === "swipeMachine"
+                        ? "Please select at least one device"
+                        : ""
+                    }
+                  />
+                </div>
+              )}
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.files />
@@ -866,72 +976,86 @@ const CreateChallanPage: React.FC = () => {
               </div>
 
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="qty"
-                  control={control}
-                  rules={{
-                    required: { value: true, message: "Quantity is required" },
-                    min: {
-                      value: 1,
-                      message: "Quantity must be greater than 0",
-                    },
-                    pattern: {
-                      value: /^[0-9]+$/,
-                      message: "Quantity must be a number",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.qty}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="qty">Dispatch Quantity</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.qty}
-                        id="qty"
-                        type="number"
-                        endAdornment={
-                          <InputAdornment position="end">NOS</InputAdornment>
-                        }
-                      />
-                      {errors.qty && (
-                        <FormHelperText>{errors.qty.message}</FormHelperText>
+                {/* Show single quantity and price only for non-swipe devices */}
+                {formValues.deviceType !== "swipeMachine" && (
+                  <>
+                    <Controller
+                      name="qty"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "Quantity is required",
+                        },
+                        min: {
+                          value: 1,
+                          message: "Quantity must be greater than 0",
+                        },
+                        pattern: {
+                          value: /^[0-9]+$/,
+                          message: "Quantity must be a number",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          error={!!errors.qty}
+                          fullWidth
+                          variant="filled"
+                        >
+                          <InputLabel htmlFor="qty">
+                            Dispatch Quantity
+                          </InputLabel>
+                          <FilledInput
+                            {...field}
+                            error={!!errors.qty}
+                            id="qty"
+                            type="number"
+                            endAdornment={
+                              <InputAdornment position="end">
+                                NOS
+                              </InputAdornment>
+                            }
+                          />
+                          {errors.qty && (
+                            <FormHelperText>
+                              {errors.qty.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  name="itemPrice"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Item Price is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.itemPrice}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="itemPrice">Rate</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.itemPrice}
-                        id="itemPrice"
-                        type="text"
-                      />
-                      {errors.itemPrice && (
-                        <FormHelperText>
-                          {errors.itemPrice.message}
-                        </FormHelperText>
+                    />
+                    <Controller
+                      name="itemPrice"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "Item Price is required",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          error={!!errors.itemPrice}
+                          fullWidth
+                          variant="filled"
+                        >
+                          <InputLabel htmlFor="itemPrice">Rate</InputLabel>
+                          <FilledInput
+                            {...field}
+                            error={!!errors.itemPrice}
+                            id="itemPrice"
+                            type="text"
+                          />
+                          {errors.itemPrice && (
+                            <FormHelperText>
+                              {errors.itemPrice.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
-                    </FormControl>
-                  )}
-                />
+                    />
+                  </>
+                )}
 
                 <Controller
                   name="gstState"
@@ -993,36 +1117,38 @@ const CreateChallanPage: React.FC = () => {
                   )}
                 />
 
-                <Controller
-                  name="hsnCode"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "HSN Code is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.hsnCode}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
-                      <FilledInput
-                        {...field}
+                {formValues.deviceType !== "swipeMachine" && (
+                  <Controller
+                    name="hsnCode"
+                    control={control}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: "HSN Code is required",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormControl
                         error={!!errors.hsnCode}
-                        id="hsnCode"
-                        type="text"
-                      />
-                      {errors.hsnCode && (
-                        <FormHelperText>
-                          {errors.hsnCode.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
+                        fullWidth
+                        variant="filled"
+                      >
+                        <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
+                        <FilledInput
+                          {...field}
+                          error={!!errors.hsnCode}
+                          id="hsnCode"
+                          type="text"
+                        />
+                        {errors.hsnCode && (
+                          <FormHelperText>
+                            {errors.hsnCode.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                )}
 
                 <Controller
                   name="otherRef"
@@ -1058,15 +1184,19 @@ const CreateChallanPage: React.FC = () => {
                 />
               </div>
               <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
-                <FormControl fullWidth variant="filled">
-                  <InputLabel htmlFor="materialName">Material Name</InputLabel>
-                  <FilledInput
-                    {...register("materialName")}
-                    id="materialName"
-                    multiline
-                    rows={2}
-                  />
-                </FormControl>
+                {formValues.deviceType !== "swipeMachine" && (
+                  <FormControl fullWidth variant="filled">
+                    <InputLabel htmlFor="materialName">
+                      Material Name
+                    </InputLabel>
+                    <FilledInput
+                      {...register("materialName")}
+                      id="materialName"
+                      multiline
+                      rows={2}
+                    />
+                  </FormControl>
+                )}
                 <FormControl fullWidth variant="filled">
                   <InputLabel htmlFor="remark">Remarks</InputLabel>
                   <FilledInput
