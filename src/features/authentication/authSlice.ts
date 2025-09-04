@@ -135,7 +135,7 @@ export const verifyMailAsync = createAsyncThunk<
 });
 export const verifyOtpAsync = createAsyncThunk<
   AxiosResponse<{ success: boolean; message: string }>,
-  { otp: string; secret: string }
+  { otp: string; secret: string,username: string|null }
 >("auth/verifyOtpAsync", async (paylaod) => {
   const response = await axiosInstance.post("/auth/verify", paylaod);
   return response;
@@ -169,6 +169,7 @@ const authSlice = createSlice({
         if (!action.payload.data.data) {
           state.qrStatus = action.payload.data;
           localStorage.setItem("showOtpPage", action?.payload?.data?.isTwoStep);
+          localStorage.setItem("username", action?.payload?.data?.username);
         }
         state.loading = false;
       })

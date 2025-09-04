@@ -49,7 +49,8 @@ const OtpPage: React.FC = () => {
   // Handle OTP submission
   const handleOtpSubmit = () => {
     if (!otp) return showToast("Please enter the OTP", "error");
-    dispatch(verifyOtpAsync({ otp: otp, secret: secretKey })).then((res: any) => {
+    const username = localStorage.getItem("username");
+    dispatch(verifyOtpAsync({ otp: otp, secret: secretKey,username: username })).then((res: any) => {
 
       if (res.payload.data.success) {
         showToast("OTP Verified Successfully", "success");
