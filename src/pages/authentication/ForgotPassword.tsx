@@ -295,7 +295,7 @@ const ForgotPassword = () => {
                 {step === 2 && (
                   <div className=" flex justify-center">
                     <ReCAPTCHA
-                      sitekey="6LfnCN8qAAAAAGEKq5Biwbq4OqdpP6zwY1uuRiTE"
+                      sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
                       onChange={handleRecaptchaChange}
                       key={recaptchaKey}
                       ref={recaptchaRef}

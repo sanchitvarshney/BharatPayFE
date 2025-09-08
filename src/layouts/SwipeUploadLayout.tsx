@@ -4,7 +4,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
-import FileDownloadDoneIcon from '@mui/icons-material/FileDownloadDone';
+import TerminalIcon from '@mui/icons-material/Terminal';
 
 type Props = {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ const SwipeUploadLayout: React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["upload/swipe-device-status", "upload/swipe-device-status-uploaded"];
+  const tabRoutes = ["/upload/swipe-device-status", "/upload/migration-status"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -50,8 +50,8 @@ const SwipeUploadLayout: React.FC<Props> = ({ children }) => {
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <FileDownloadDoneIcon fontSize="small" />
-                Uploaded Device Status
+                <TerminalIcon fontSize="small" />
+               Upload Migration Status
               </div>
             }
           />

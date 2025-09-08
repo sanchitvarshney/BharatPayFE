@@ -105,6 +105,7 @@ import CompletedPO from "@/pages/procurement/CompletedPO";
 import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
 import MINFromPO from "@/pages/min/MINFromPO";
 import ViewImage from "@/pages/queries/ViewImage";
+import MigrationUpload from "@/pages/upload/MigrationUpload";
 
 export const router = createBrowserRouter([
   {
@@ -859,6 +860,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/upload/swipe-device-status",
+      },
+       {
+        element: (
+          <MainLayout>
+            <SwipeUploadLayout>
+              <MigrationUpload />
+            </SwipeUploadLayout>
+          </MainLayout>
+        ),
+        path: "/upload/migration-status",
       },
     ],
   },
