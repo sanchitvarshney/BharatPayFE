@@ -363,9 +363,28 @@ const CreateDispatchPage: React.FC = () => {
                       };
                     }
                   );
-                  console.log(newRowData);
-                  // Update rowData by appending newRowData to the existing rowData
-                  setRowData((prevRowData) => [...newRowData, ...prevRowData]);
+                  // Simple check: Filter out IMEIs that already exist in rowData
+                  const existingImeis = rowData.map((item: any) => item.imei);
+                  const filteredNewRowData = newRowData.filter(
+                    (device: any) => {
+                      const deviceImei = device.imei;
+                      return !existingImeis.includes(deviceImei);
+                    }
+                  );
+
+                  // Show message if some IMEIs were filtered out
+                  if (filteredNewRowData.length !== newRowData.length) {
+                    const filteredCount =
+                      newRowData.length - filteredNewRowData.length;
+                    showToast(
+                      `${filteredCount} IMEI(s) already exist and were not added.`,
+                      "warning"
+                    );
+                  }
+                  setRowData((prevRowData) => [
+                    ...filteredNewRowData,
+                    ...prevRowData,
+                  ]);
                   setOpen(false);
                 } else {
                   showToast(res.payload.data.message, "error");
