@@ -158,17 +158,26 @@ const MaterialRequestWithoutBomCellrender: React.FC<MaterialInvardCellRendererPr
               suffix={data.unit}
               min={0}
               onChange={(e) => {
-                const unit = (data?.unit || "").toString().toLowerCase();
-                const valueStr = e.target.value;
-                const isDecimalAllowed = unit === "ltr" || unit === "kg";
-                const decimalPattern = /^\d*(?:\.\d*)?$/; // allow decimals
-                const integerPattern = /^\d*$/; // integers only
+                if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                  // const inputValue = Number(e.target.value);
+                  // const availableQty =
+                  //   availbleQtyData?.find(
+                  //     (item) =>
+                  //       item.location === data?.pickLocation?.value &&
+                  //       item.item === data?.code?.value
+                  //   )?.Stock || 0;
 
-                if (
-                  (isDecimalAllowed && decimalPattern.test(valueStr)) ||
-                  (!isDecimalAllowed && integerPattern.test(valueStr))
-                ) {
-                  handleInputChange(e);
+                  // if (inputValue >= 0 && inputValue <= availableQty) {
+                  //   handleInputChange(e);
+                  // } else if (inputValue > availableQty) {
+                  //   // If input is greater than available quantity, set it to available quantity
+                  //   const event = {
+                  //     target: {
+                  //       value: availableQty.toString(),
+                  //     },
+                  //   };
+                    handleInputChange(event);
+                  // }
                 }
               }}
               value={value}
