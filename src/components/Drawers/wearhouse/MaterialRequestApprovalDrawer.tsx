@@ -355,10 +355,10 @@ const MaterialRequestApprovalDrawer: React.FC<Props> = ({ open, setOpen, approve
                           control={control}
                           rules={{ required: "Issue Qty is required" }}
                           render={({ field }) => (
-                            <FormControl disabled={!itemDetail || itemDetail[0]?.stock < 1 || itemDetail[0]?.reqQty < 1} fullWidth>
+                            <FormControl disabled={!itemDetail || itemDetail[0]?.stock < 0 || itemDetail[0]?.reqQty < 0} fullWidth>
                               <InputLabel>Issue Qty</InputLabel>
                               <OutlinedInput
-                                disabled={!itemDetail || itemDetail[0]?.stock < 1 || itemDetail[0]?.reqQty < 1}
+                                disabled={!itemDetail || itemDetail[0]?.stock < 0 || itemDetail[0]?.reqQty < 0}
                                 fullWidth
                                 error={!!errors.issueQty}
                                 {...field}
