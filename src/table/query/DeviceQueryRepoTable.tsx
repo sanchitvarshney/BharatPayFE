@@ -58,7 +58,7 @@ const DeviceQueryRepoTable: React.FC<Props> = ({ gridRef }) => {
   return (
     <div>
       <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} ref={gridRef} loading={getQ1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} />
+        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} ref={gridRef} loading={getQ1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} enableCellTextSelection />
       </div>
     </div>
   );
