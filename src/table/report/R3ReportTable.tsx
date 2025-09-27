@@ -17,6 +17,7 @@ type Props = {
 const columnDefs: ColDef[] = [
   { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
   { headerName: "IMEI", field: "imeiNo", sortable: true, filter: true,width: 150},
+  { headerName: "Serial No", field: "serialNo", sortable: true, filter: true,width: 150},
   { 
     headerName: "Transaction ID", 
     field: "txnId", 
