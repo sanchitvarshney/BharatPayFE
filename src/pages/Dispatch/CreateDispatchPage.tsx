@@ -241,6 +241,9 @@ const CreateDispatchPage: React.FC = () => {
         setRowData([]);
         handleNext();
         resetall();
+      } else {
+        showToast(res?.payload?.data?.message , "error");
+        
       }
     });
   }
