@@ -7,7 +7,11 @@ import { showToast } from "@/utils/toasterContext";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { Icons } from "@/components/icons";
 import MaterialManagementCellRenderer from "../../table/Cellrenders/MaterialManagementCellRenderer";
-import { setFromCC, setFromLoc, submitMaterialTransfer } from "@/features/materialManagement/materialManagementSlices";
+import {
+  setFromCC,
+  setFromLoc,
+  submitMaterialTransfer,
+} from "@/features/materialManagement/materialManagementSlices";
 import { CardFooter } from "@/components/ui/card";
 import { LoadingButton } from "@mui/lab";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
@@ -31,7 +35,6 @@ const MaterialManagement = () => {
   const [fromCostCenter, setFromCostCenter] = useState<any>(null);
   const [toCostCenter, setToCostCenter] = useState<any>(null);
   const [remarks, setRemarks] = useState("");
-  const [directlyMoveToTRC, setDirectlyMoveToTRC] = useState(false);
 
   const dispatch = useAppDispatch();
   const { submitLoading } = useAppSelector((state) => state.materialManagement);
@@ -162,7 +165,6 @@ const MaterialManagement = () => {
     setFromCostCenter(null);
     setToCostCenter(null);
     setRemarks("");
-    setDirectlyMoveToTRC(false);
   };
 
   // Handle submit
@@ -191,20 +193,16 @@ const MaterialManagement = () => {
 
     try {
       const submitData = {
-        fromLocation: fromLocation.value,
-        toLocation: toLocation.value,
-        fromCostCenter: fromCostCenter.value,
-        toCostCenter: toCostCenter.value,
+        fromLocation: fromLocation.code,
+        toLocation: toLocation.code,
+        fromCostCenter: fromCostCenter.id,
+        toCostCenter: toCostCenter.id,
         remarks: remarks,
-        directlyMoveToTRC: directlyMoveToTRC,
-        components: rowData.map((row) => ({
-          componentKey: row.component?.value || "",
-          quantity: parseFloat(row.quantity) || 0,
-          remarks: row.remarks,
-        })),
+        quantity: rowData.map((row) => parseFloat(row.quantity) || 0),
+        components:rowData.map((row) => (row.component?.value)),
       };
 
-      const result = await dispatch(submitMaterialTransfer(submitData));
+      const result = await dispatch(submitMaterialTransfer(submitData as any));
 
       if (submitMaterialTransfer.fulfilled.match(result)) {
         showToast(
@@ -219,7 +217,6 @@ const MaterialManagement = () => {
         setFromCostCenter(null);
         setToCostCenter(null);
         setRemarks("");
-        setDirectlyMoveToTRC(false);
       } else {
         showToast("Failed to submit material transfer request", "error");
       }
@@ -231,11 +228,11 @@ const MaterialManagement = () => {
 
   useEffect(() => {
     dispatch(setFromCC(fromCostCenter));
-  },[fromCostCenter]);
+  }, [fromCostCenter]);
 
   useEffect(() => {
     dispatch(setFromLoc(fromLocation));
-  },[fromLocation]);
+  }, [fromLocation]);
 
   return (
     <div className="h-[calc(100vh-100px)] overflow-y-hidden grid grid-cols-[450px_1fr]">
@@ -248,7 +245,6 @@ const MaterialManagement = () => {
             </Typography>
           </div>
           <CardContent className="flex flex-col gap-[20px] py-[20px]">
-           
             <SelectLocationAcordingModule
               label="From Location"
               endPoint="/material-movement/pickLocation"
