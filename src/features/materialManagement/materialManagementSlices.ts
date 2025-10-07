@@ -29,7 +29,7 @@ export const submitMaterialTransfer = createAsyncThunk(
   async (data: MaterialTransferRequest, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        "/backend/material/transfer",
+        "/material-movement/materialMovement",
         data
       );
       return response.data;
@@ -86,8 +86,8 @@ interface MaterialManagementState {
   error: string | null;
   stockQuantityData: StockQuantityData | null;
   components: ComponentInfo[];
-  fromCC: string | null;
-  fromLoc: string | null;
+  fromCC: { text: string; id: string } | null;
+  fromLoc: { name: string; code: string } | null;
 }
 
 const initialState: MaterialManagementState = {
@@ -173,6 +173,11 @@ const materialManagementSlice = createSlice({
   },
 });
 
-export const { clearError, clearStockQuantityData, clearComponents, setFromLoc, setFromCC } =
-  materialManagementSlice.actions;
+export const {
+  clearError,
+  clearStockQuantityData,
+  clearComponents,
+  setFromLoc,
+  setFromCC,
+} = materialManagementSlice.actions;
 export default materialManagementSlice.reducer;

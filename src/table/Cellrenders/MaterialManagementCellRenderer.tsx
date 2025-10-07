@@ -66,12 +66,26 @@ const MaterialManagementCellRenderer: React.FC<
             onChange={(selectedValue) => {
               const newValue = selectedValue;
               data[colDef.field] = newValue; // update the data
+
+              // Clear previous available quantity when component changes
+              data.availableqty = "--";
+
               if (selectedValue && fromLoc && fromCC) {
+                const locationCode =
+                  typeof fromLoc === "string" ? fromLoc : fromLoc.code;
+                const costCenterId =
+                  typeof fromCC === "string" ? fromCC : fromCC.id;
+
+                console.log("Fetching stock for component:", {
+                  location: locationCode,
+                  component: selectedValue.value,
+                  costCenter: costCenterId,
+                });
                 dispatch(
                   fetchStockQuantity({
-                    location: fromLoc.code,
+                    location: locationCode,
                     component: selectedValue.value || "",
-                    costCenter: fromCC.id,
+                    costCenter: costCenterId,
                   })
                 );
               }
@@ -81,7 +95,6 @@ const MaterialManagementCellRenderer: React.FC<
                   column,
                   "id",
                   "component",
-                  "pickLocation",
                   "quantity",
                   "remarks",
                   "unit",
@@ -109,9 +122,23 @@ const MaterialManagementCellRenderer: React.FC<
                 // Check if quantity exceeds available quantity
                 const availableQty = parseFloat(data.availableqty) || 0;
                 const enteredQty = parseFloat(valueStr) || 0;
-console.log(availableQty,enteredQty,"okk",data)
-                if (enteredQty > availableQty) {
-                  // Don't allow quantity greater than available
+
+                console.log("Quantity validation:", {
+                  availableQty,
+                  enteredQty,
+                  valueStr,
+                  data: data,
+                });
+
+                // Allow empty string for clearing
+                if (valueStr === "") {
+                  handleInputChange(e);
+                  return;
+                }
+
+                // Check if quantity exceeds available quantity
+                if (enteredQty > availableQty && availableQty > 0) {
+                  console.log("Quantity exceeds available quantity");
                   return;
                 }
 
@@ -144,16 +171,33 @@ console.log(availableQty,enteredQty,"okk",data)
         const [availableQty, setAvailableQty] = useState("--");
 
         useEffect(() => {
-          console.log(stockQuantityData)
+          console.log("Available qty useEffect:", {
+            stockQuantityData,
+            currentComponent: data?.component?.value,
+            currentLocation: fromLoc?.code,
+            stockComponent: stockQuantityData?.component,
+            stockLocation: stockQuantityData?.location,
+          });
+
           if (stockQuantityData && data) {
             // Check if the stock data matches the current row's component and from location
+            const locationCode =
+              typeof fromLoc === "string" ? fromLoc : fromLoc?.code;
             if (
               stockQuantityData.component === data?.component?.value &&
-              stockQuantityData.location === fromLoc?.code
+              stockQuantityData.location === locationCode
             ) {
-              setAvailableQty(stockQuantityData.balance.toString() || "--");
+              const qty = stockQuantityData.balance?.toString() || "--";
+              setAvailableQty(qty);
+              // Also update the data object for quantity validation
+              data.availableqty = qty;
+              console.log("Setting available qty for row:", qty);
             } else {
-              setAvailableQty("--");
+              // Only reset if this row doesn't have a component selected
+              if (!data?.component?.value) {
+                setAvailableQty("--");
+                data.availableqty = "--";
+              }
             }
 
             // Refresh the AG Grid cells
