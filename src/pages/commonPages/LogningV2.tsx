@@ -184,9 +184,7 @@ const LogningV2: React.FC = () => {
                    Lock and Unlock User
                 </Link></div>
               </div>
-            <div className=" flex justify-center">
-              <ReCAPTCHA sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR" onChange={handleRecaptchaChange} key = {recaptchaKey} ref={recaptchaRef} />
-            </div>
+          
               <LoadingButton loading={loading} size="large" variant="contained" fullWidth type="submit">
                 Login
               </LoadingButton>
