@@ -27,6 +27,7 @@ import client from "@/features/master/client/clientSlice";
 import dashboard from "@/features/Dashboard/Dashboard";
 import uploadReducer from "@/features/upload/uploadSlice";
 import procurementReducer from "@/features/procurement/poSlices";
+import materialManagementReducer from "@/features/materialManagement/materialManagementSlices";
 
 export const store = configureStore({
   reducer: {
@@ -57,7 +58,8 @@ export const store = configureStore({
     client: client,
     dashboard,
     upload: uploadReducer,
-    po:procurementReducer
+    po: procurementReducer,
+    materialManagement: materialManagementReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

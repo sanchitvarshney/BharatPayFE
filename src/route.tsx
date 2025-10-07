@@ -106,6 +106,8 @@ import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
 import MINFromPO from "@/pages/min/MINFromPO";
 import ViewImage from "@/pages/queries/ViewImage";
 import MigrationUpload from "@/pages/upload/MigrationUpload";
+import MaterialManagement from "@/pages/materialManagement/MaterialManagement";
+import MaterialManagementLayout from "@/layouts/MaterialManagementLayout";
 
 export const router = createBrowserRouter([
   {
@@ -870,6 +872,17 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/upload/migration-status",
+      },
+      // Material Management
+      {
+        element: (
+          <MainLayout>
+            <MaterialManagementLayout>
+              <MaterialManagement />
+            </MaterialManagementLayout>
+          </MainLayout>
+        ),
+        path: "/material-management",
       },
     ],
   },
