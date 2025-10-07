@@ -195,7 +195,6 @@ const ChallanEntryPage: React.FC = () => {
           <ImeiTable
             setRowdata={setRowData}
             rowData={rowData}
-            module="swipedevice"
           />
         </div>
       </div>

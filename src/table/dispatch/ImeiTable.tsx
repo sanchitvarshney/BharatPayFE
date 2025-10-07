@@ -16,8 +16,8 @@ interface RowData {
 }
 
 type Props = {
-  rowData: RowData[];
-  setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
+  rowData: RowData[]|any;
+  setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>|any;
 };
 const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const columnDefs: ColDef[] = [
@@ -74,10 +74,10 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
             // Delete by index instead of IMEI/SR No
             const deviceIndex = params.data.index;
             const filteredData = rowData.filter(
-              (row) => row.index !== deviceIndex
+              (row:any) => row.index !== deviceIndex
             );
             // Reassign index numbers to maintain sequential order
-            const reindexedData = filteredData.map((item, index) => ({
+            const reindexedData = filteredData.map((item:any, index:any) => ({
               ...item,
               index: index + 1,
             }));
