@@ -107,7 +107,7 @@ import MINFromPO from "@/pages/min/MINFromPO";
 import ViewImage from "@/pages/queries/ViewImage";
 import MigrationUpload from "@/pages/upload/MigrationUpload";
 import MaterialManagement from "@/pages/materialManagement/MaterialManagement";
-import MaterialManagementLayout from "@/layouts/MaterialManagementLayout";
+import MaterialMovementLayout from "@/layouts/MaterialMovementLayout";
 
 export const router = createBrowserRouter([
   {
@@ -877,12 +877,12 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <MaterialManagementLayout>
+            <MaterialMovementLayout>
               <MaterialManagement />
-            </MaterialManagementLayout>
+            </MaterialMovementLayout>
           </MainLayout>
         ),
-        path: "/material-management",
+        path: "/material-movement",
       },
     ],
   },
