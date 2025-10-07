@@ -202,24 +202,20 @@ const MaterialManagement = () => {
         components:rowData.map((row) => (row.component?.value)),
       };
 
-      const result = await dispatch(submitMaterialTransfer(submitData as any));
-
-      if (submitMaterialTransfer.fulfilled.match(result)) {
-        showToast(
-          "Material transfer request submitted successfully",
-          "success"
-        );
-
-        // Reset form
-        setRowData([]);
+      dispatch(submitMaterialTransfer(submitData as any)).then((result) => {
+        if(result.payload.data.success){
+          showToast(result.payload.data.message || "Material transfer request submitted successfully", "success");
+ setRowData([]);
         setFromLocation(null);
         setToLocation(null);
         setFromCostCenter(null);
         setToCostCenter(null);
         setRemarks("");
-      } else {
-        showToast("Failed to submit material transfer request", "error");
-      }
+        }
+        else{
+          showToast(result.payload.data.message || "Failed to submit material transfer request", "error");
+        }
+      })
     } catch (error) {
       console.error("Error submitting data:", error);
       showToast("Failed to submit material transfer request", "error");
