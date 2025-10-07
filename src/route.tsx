@@ -106,6 +106,9 @@ import UpdateProcurementLayout from "@/layouts/UpdateProcurementLayout";
 import MINFromPO from "@/pages/min/MINFromPO";
 import ViewImage from "@/pages/queries/ViewImage";
 import ChallanEntryPage from "@/pages/ChallanEntry/ChallanEntryPage";
+import MigrationUpload from "@/pages/upload/MigrationUpload";
+import MaterialManagement from "@/pages/materialManagement/MaterialManagement";
+import MaterialMovementLayout from "@/layouts/MaterialMovementLayout";
 
 export const router = createBrowserRouter([
   {
@@ -868,6 +871,27 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/dispatch/swipe-device-rejecton",
+      },
+       {
+        element: (
+          <MainLayout>
+            <SwipeUploadLayout>
+              <MigrationUpload />
+            </SwipeUploadLayout>
+          </MainLayout>
+        ),
+        path: "/upload/migration-status",
+      },
+      // Material Management
+      {
+        element: (
+          <MainLayout>
+            <MaterialMovementLayout>
+              <MaterialManagement />
+            </MaterialMovementLayout>
+          </MainLayout>
+        ),
+        path: "/material-movement",
       },
     ],
   },

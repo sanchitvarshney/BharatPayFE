@@ -17,6 +17,7 @@ type Props = {
 const columnDefs: ColDef[] = [
   { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
   { headerName: "IMEI", field: "imeiNo", sortable: true, filter: true,width: 150},
+  { headerName: "Serial No", field: "serialNo", sortable: true, filter: true,width: 150},
   { 
     headerName: "Transaction ID", 
     field: "txnId", 
@@ -55,6 +56,8 @@ const columnDefs: ColDef[] = [
   },
   { headerName: "IR (Internal Resistance)", field: "ir", sortable: true, filter: true, width: 250},
   { headerName: "Voltage", field: "volt", sortable: true, filter: true, width: 150},
+  { headerName: "New IR (Internal Resistance)", field: "newIR", sortable: true, filter: true, width: 150},
+  { headerName: "New Voltage", field: "newVolt", sortable: true, filter: true, width: 150},
   { headerName: "Battary ID", field: "batteryId", sortable: true, filter: true, width: 150 },
   { headerName: "Status", field: "status", sortable: true, filter: true, width: 150  },
   { headerName: "Insert Date", field: "insertDate", sortable: true, filter: true, width: 150 },

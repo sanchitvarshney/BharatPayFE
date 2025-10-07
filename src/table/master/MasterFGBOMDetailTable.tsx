@@ -177,15 +177,15 @@ const MasterFGBOMDetailTable: React.FC<Props> = ({ gridRef }) => {
     {
       headerName: "Components",
       field: "componentName",
-      sortable: false,
-      filter: false,
+      sortable: true,
+      filter:true,
       cellStyle: { textAlign: "center" },
     },
     {
       headerName: "Part Code",
       field: "partCode",
-      sortable: false,
-      filter: false,
+      sortable: true,
+      filter: true,
     },
 
     {

@@ -60,6 +60,7 @@ type RowData = {
   modalNo: string;
   deviceSku: string;
   imei2?: string;
+  index: number;
 };
 
 type FormDataType = {
@@ -243,6 +244,9 @@ const CreateDispatchPage: React.FC = () => {
         setRowData([]);
         handleNext();
         resetall();
+      } else {
+        showToast(res?.payload?.data?.message , "error");
+        
       }
     });
   }
@@ -353,7 +357,7 @@ const CreateDispatchPage: React.FC = () => {
                 if (res.payload.data.success) {
                   setImei("");
                   const newRowData = res?.payload?.data?.data?.map(
-                    (device: any) => {
+                    (device: any, deviceIndex: number) => {
                       console.log(device);
                       return {
                         imei: device.device_imei || device.imei_no1 || "",
@@ -362,12 +366,20 @@ const CreateDispatchPage: React.FC = () => {
                         modalNo: device?.p_name || "",
                         deviceSku: device?.device_sku || "",
                         productKey: device?.product_key || "",
+                        index: rowData.length + deviceIndex + 1, // Assign sequential index numbers
                       };
                     }
                   );
                   console.log(newRowData);
                   // Update rowData by appending newRowData to the existing rowData
-                  setRowData((prevRowData) => [...newRowData, ...prevRowData]);
+                  setRowData((prevRowData) => {
+                    const updatedData = [...newRowData, ...prevRowData];
+                    // Reassign index numbers to maintain sequential order
+                    return updatedData.map((item, index) => ({
+                      ...item,
+                      index: index + 1,
+                    }));
+                  });
                   setOpen(false);
                 } else {
                   showToast(res.payload.data.message, "error");
@@ -882,11 +894,7 @@ const CreateDispatchPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="h-[calc(100vh-250px)]">
-                    <ImeiTable
-                      setRowdata={setRowData}
-                      rowData={rowData}
-                      module={data?.deviceType === "device" ? "device" : "swipedevice"}
-                    />
+                    <ImeiTable setRowdata={setRowData} rowData={rowData} />
                   </div>
                 </div>
               </div>

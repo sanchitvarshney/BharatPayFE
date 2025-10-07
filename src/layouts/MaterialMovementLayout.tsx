@@ -3,28 +3,29 @@ import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { useNavigate, useLocation } from "react-router-dom";
-import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
-import TerminalIcon from '@mui/icons-material/Terminal';
+// import SettingsIcon from '@mui/icons-material/Settings';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
 
-type Props = {
+interface MaterialMovementLayoutProps {
   children: React.ReactNode;
-};
+}
 
-const SwipeUploadLayout: React.FC<Props> = ({ children }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Determine the active tab based on the current route
-  const tabRoutes = ["/upload/swipe-device-status", "/upload/migration-status"];
-  const currentTabIndex = tabRoutes.indexOf(location.pathname);
-
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    // Navigate to the corresponding route when tab changes
-    navigate(tabRoutes[newValue]);
-  };
-
+const MaterialMovementLayout: React.FC<MaterialMovementLayoutProps> = ({
+  children,
+}) => {
+   const navigate = useNavigate();
+   const location = useLocation();
+ 
+   // Determine the active tab based on the current route
+   const tabRoutes = ["/warehouse/material-movement"];
+   const currentTabIndex = tabRoutes.indexOf(location.pathname);
+ 
+   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+     // Navigate to the corresponding route when tab changes
+     navigate(tabRoutes[newValue]);
+   };
   return (
-    <div className="h-full">
+     <div className="h-full">
       <div className=" w-full h-[50px] border-b border-neutral-300 bg-white">
         <Tabs
           sx={{ padding: 0, width: "max-content" }}
@@ -41,20 +42,20 @@ const SwipeUploadLayout: React.FC<Props> = ({ children }) => {
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <DriveFolderUploadIcon fontSize="small" />
-                Upload Device Status
+                <WarehouseIcon fontSize="small" />
+                Material Movement
               </div>
             }
           />
-          <Tab
+          {/* <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <TerminalIcon fontSize="small" />
-               Upload Migration Status
+                <SettingsIcon fontSize="small" />
+                Manage
               </div>
             }
-          />
+          /> */}
         </Tabs>
       </div>
       <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
@@ -62,4 +63,4 @@ const SwipeUploadLayout: React.FC<Props> = ({ children }) => {
   );
 };
 
-export default SwipeUploadLayout;
+export default MaterialMovementLayout;

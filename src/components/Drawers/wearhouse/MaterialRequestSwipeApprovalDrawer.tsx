@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef,useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { approveSwipeDeviceRequest, clearItemdetail, getItemSwipeDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject, validateScan } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
@@ -61,8 +61,18 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
   const dispatch = useAppDispatch();
   const [data, setData] = useState<ProcessRequestDataBody[] | null>(null);
   const [deviceData, setDeviceData] = useState<any>(null);
+  const deviceDataRef = useRef<any[]>([]);
+  const updateDeviceData = (next: any[] | null) => {
+    setDeviceData(next);
+    deviceDataRef.current = next ?? [];
+  };
 
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
+    const scannedRef = useRef<string[]>([]);
+    const updateScanned = (next: string[] | null) => {
+      setScanned(next);
+      scannedRef.current = next ?? [];
+    };
 
   const handleChange = (value: string) => {
     setSelectedValue(value);
@@ -99,11 +109,12 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
         pickLocation: data.picLocation!.id,
         qty: data.issueQty,
         transactionId: requestDetail?.id ?? "",
-          productDetail: deviceData?.map((row:any) => ({
+          productDetail: ((deviceDataRef.current ?? deviceData )|| [])?.map((row:any) => ({
             serialNo: row.serial_no,
             imei_no1: row.imei_no1,
             imei_no2: row.imei_no2,
           }))
+          
       })
     ).then((response: any) => {
       if (response.payload.data?.success) {
@@ -111,10 +122,10 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
         setItemKey("");
         reset();
         approved ? setApproved([...approved, itemkey]) : setApproved([itemkey]);
-        setScanned(null);
+         updateScanned(null);
         setIsueeQty("");
         setSelectedValue(null);
-        setDeviceData(null);
+        updateDeviceData(null);
         handleClose();
       }
     });
@@ -122,19 +133,23 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
 
   useEffect(() => {
     if (!open) {
-      setScanned(null);
+      // setScanned(null);
+       updateScanned(null);
       setItemKey("");
       reset();
       setIsueeQty("");
       setRemarks("");
+      updateDeviceData(null);
     }
   }, [open]);
   useEffect(() => {
     dispatch(clearItemdetail());
-    setScanned(null);
+    // setScanned(null);
+     updateScanned(null);
     reset();
     setIsueeQty("");
     setRemarks("");
+    updateDeviceData(null);
   }, [selectedValue]);
   useEffect(() => {
     if (processRequestData) {
@@ -161,7 +176,9 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
               setConfirmIssueChange(false);
               setIsueeQty("");
               setValue("issueQty", "");
-              setScanned(null);
+              // setScanned(null);
+               updateScanned(null);
+               updateDeviceData(null);
             }}
             type="submit"
             variant="contained"
@@ -423,9 +440,12 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                                   } else {
                                     dispatch(validateScan({id:input,type:"swipeMachine"})).then((response:any)=>{
                                       if(response.payload.data.success){
-                                        setDeviceData((prev: any) => prev ? [...prev, response.payload.data.data] : [response.payload.data.data]);
+                                        const nextDeviceList = [...deviceDataRef.current, response.payload.data.data];
+                                        updateDeviceData(nextDeviceList);
                                      
-                                    scanned ? setScanned([input, ...scanned]) : setScanned([input]);
+                                    // scanned ? setScanned([input, ...scanned]) : setScanned([input]);
+                                         const nextList = scanned ? [input, ...scanned] : [input];
+                                        updateScanned(nextList);
                                     setInput("");
                                     if (Number(isueeQty) === scanned?.length! + 1) {
                                       e.currentTarget.blur();
@@ -461,8 +481,9 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                                       size="small"
                                       color="error"
                                       onClick={() => {
-                                        setScanned(scanned.filter((sc) => sc !== item));
-                                        setDeviceData((prev: any) => prev.filter((sc: any) => sc.serial_no !== item));
+                                        updateScanned(scanned.filter((sc) => sc !== item));
+                                        const filtered = deviceDataRef.current.filter((sc: any) => sc.serial_no !== item);
+                                        updateDeviceData(filtered);
                                       }}
                                     >
                                       <DeleteIcon fontSize="small" />

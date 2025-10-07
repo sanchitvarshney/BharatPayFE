@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Container,
@@ -18,9 +18,15 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import { MdSecurity } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/features/Store";
-import { getPasswordOtp, updatePassword } from "@/features/authentication/authSlice";
+import {
+  getPasswordOtp,
+  updatePassword,
+} from "@/features/authentication/authSlice";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
+import React from "react";
+import { showToast } from "@/utils/toasterContext";
 // import { AppDispatch } from "@/store";
 // import { useDispatch } from "react-redux";
 // import { getPasswordOtp, verifyOtp } from "@/features/authentication/authSlice";
@@ -67,7 +73,7 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const {otpLoading} = useAppSelector((state) => state.auth);
+  const { otpLoading } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -79,13 +85,18 @@ const ForgotPassword = () => {
   });
   const [errors, setErrors] = useState<any>({});
   const [step, setStep] = useState(1);
+  const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
+  const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(
+    null
+  );
+  const recaptchaRef = useRef<any>(null);
 
-  const validateEmail = (email:string) => {
+  const validateEmail = (email: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
 
-  const handleChange = (field: string) => (event:any) => {
+  const handleChange = (field: string) => (event: any) => {
     const value = event.target.value;
     setFormData({ ...formData, [field]: value });
 
@@ -107,6 +118,10 @@ const ForgotPassword = () => {
     setLoading(otpLoading);
   }, [otpLoading]);
 
+  const handleRecaptchaChange = (value: string | null) => {
+    setRecaptchaValue(value);
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
@@ -115,22 +130,30 @@ const ForgotPassword = () => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       if (step === 1) {
-        dispatch(getPasswordOtp({ emailId:formData.email })).then((res: any) => { 
-          if (res?.payload?.data?.success) {
-            setStep(2);
-          } 
-        });
+        dispatch(getPasswordOtp({ emailId: formData.email })).then(
+          (res: any) => {
+            if (res?.payload?.data?.success) {
+              setStep(2);
+            }
+          }
+        );
       } else if (step === 2) {
+        if (!recaptchaValue) {
+          showToast("Please verify the reCAPTCHA", "error");
+          return;
+        }
         const payload = {
           emailId: formData.email,
-          otp: formData.verificationCode, 
-          password: formData.confirmPassword                                                                       
-        }
+          otp: formData.verificationCode,
+          password: formData.confirmPassword,
+        };
         dispatch(updatePassword(payload as any)).then((res: any) => {
-            if(res?.payload?.data?.success){
-              navigate("/login")
-            }
-        })
+          if (res?.payload?.data?.success) {
+            navigate("/login");
+          }
+        setRecaptchaValue(null);
+        setRecaptchaKey(Math.random());
+        });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -193,21 +216,21 @@ const ForgotPassword = () => {
 
                 {step === 2 && (
                   <>
-                  <StyledTextField
-                    fullWidth
-                    label="Verification Code"
-                    value={formData.verificationCode}
-                    onChange={handleChange("verificationCode")}
-                    required
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <MdSecurity />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                   <StyledTextField
+                    <StyledTextField
+                      fullWidth
+                      label="Verification Code"
+                      value={formData.verificationCode}
+                      onChange={handleChange("verificationCode")}
+                      required
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <MdSecurity />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    <StyledTextField
                       fullWidth
                       label="New Password"
                       type={showPassword ? "text" : "password"} // Conditionally set type based on showPassword
@@ -252,16 +275,32 @@ const ForgotPassword = () => {
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
-                              onClick={() => setShowConfirmPassword(!showConfirmPassword)} // Toggle password visibility
+                              onClick={() =>
+                                setShowConfirmPassword(!showConfirmPassword)
+                              } // Toggle password visibility
                               edge="end"
                             >
-                              {showConfirmPassword ? <IoMdEyeOff /> : <IoMdEye />}
+                              {showConfirmPassword ? (
+                                <IoMdEyeOff />
+                              ) : (
+                                <IoMdEye />
+                              )}
                             </IconButton>
                           </InputAdornment>
                         ),
                       }}
                     />
                   </>
+                )}
+                {step === 2 && (
+                  <div className=" flex justify-center">
+                    <ReCAPTCHA
+                      sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                      onChange={handleRecaptchaChange}
+                      key={recaptchaKey}
+                      ref={recaptchaRef}
+                    />
+                  </div>
                 )}
 
                 <Button
