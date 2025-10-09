@@ -12,6 +12,7 @@ import {
   setDropLcn,
   submitPartCodeConversion,
   fetchComponentStock,
+  clearStockInfo,
 } from "@/features/partCodeConversion/partCodeConversionSlices";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 
@@ -97,6 +98,8 @@ const PartCodeConversion: React.FC = () => {
     // Reset form
     setInitialComponent(null);
     setInitialQty(0);
+    // Clear stock info by dispatching clear action
+    dispatch(clearStockInfo());
   };
 
   // Handle adding final component
