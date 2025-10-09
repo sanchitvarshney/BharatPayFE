@@ -16,6 +16,7 @@ import { CardFooter } from "@/components/ui/card";
 import { LoadingButton } from "@mui/lab";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import SelectCostCenter from "@/components/reusable/SelectCostCenter";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 
 interface RowData {
   id: string;
@@ -35,11 +36,74 @@ const MaterialManagement = () => {
   const [fromCostCenter, setFromCostCenter] = useState<any>(null);
   const [toCostCenter, setToCostCenter] = useState<any>(null);
 
+  // Confirmation modal state
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingChange, setPendingChange] = useState<{
+    type: "fromLocation" | "toLocation" | "fromCostCenter" | "toCostCenter";
+    value: any;
+  } | null>(null);
+
   const dispatch = useAppDispatch();
   const { submitLoading } = useAppSelector((state) => state.materialManagement);
 
   // Generate unique ID for new rows
   const generateId = () => Math.random().toString(36).substr(2, 9);
+
+  // Check if components have been added
+  const hasComponents = rowData.length > 0;
+
+  // Handle header field changes with confirmation
+  const handleHeaderChange = (
+    type: "fromLocation" | "toLocation" | "fromCostCenter" | "toCostCenter",
+    value: any
+  ) => {
+    if (hasComponents) {
+      // Show confirmation if components exist
+      setPendingChange({ type, value });
+      setShowConfirm(true);
+    } else {
+      // Directly update if no components
+      updateHeaderField(type, value);
+    }
+  };
+
+  // Update header field directly
+  const updateHeaderField = (
+    type: "fromLocation" | "toLocation" | "fromCostCenter" | "toCostCenter",
+    value: any
+  ) => {
+    switch (type) {
+      case "fromLocation":
+        setFromLocation(value);
+        break;
+      case "toLocation":
+        setToLocation(value);
+        break;
+      case "fromCostCenter":
+        setFromCostCenter(value);
+        break;
+      case "toCostCenter":
+        setToCostCenter(value);
+        break;
+    }
+  };
+
+  // Confirm header change and reset components
+  const confirmHeaderChange = () => {
+    if (pendingChange) {
+      updateHeaderField(pendingChange.type, pendingChange.value);
+      setRowData([]); // Reset components
+      showToast("Header details updated. Components have been reset.", "info");
+    }
+    setShowConfirm(false);
+    setPendingChange(null);
+  };
+
+  // Cancel header change
+  const cancelHeaderChange = () => {
+    setShowConfirm(false);
+    setPendingChange(null);
+  };
 
   // Add new row
   const handleAddRow = () => {
@@ -196,13 +260,14 @@ const MaterialManagement = () => {
         fromCostCenter: fromCostCenter.id,
         toCostCenter: toCostCenter.id,
         quantity: rowData.map((row) => parseFloat(row.quantity) || 0),
-        components:rowData.map((row) => (row.component?.value)),
+        components: rowData.map((row) => row.component?.value),
         remarks: rowData.map((row) => row.remarks),
       };
 
       dispatch(submitMaterialTransfer(submitData as any)).then((result) => {
-        if(result.payload.data.success){
-          showToast(result.payload.data.message || "Material transfer request submitted successfully", "success");
+        console.log(result)
+        if(result.payload.success){
+          showToast(result.payload.message || "Material transfer request submitted successfully", "success");
         setRowData([]);
         setFromLocation(null);
         setToLocation(null);
@@ -212,7 +277,7 @@ const MaterialManagement = () => {
         else{
           showToast(result.payload.data.message || "Failed to submit material transfer request", "error");
         }
-      })
+      });
     } catch (error) {
       console.error("Error submitting data:", error);
       showToast("Failed to submit material transfer request", "error");
@@ -243,7 +308,7 @@ const MaterialManagement = () => {
               endPoint="/material-movement/pickLocation"
               value={fromLocation}
               onChange={(e) => {
-                setFromLocation(e);
+                handleHeaderChange("fromLocation", e);
               }}
             />
 
@@ -252,7 +317,7 @@ const MaterialManagement = () => {
               <SelectLocationAcordingModule
                 endPoint="/material-movement/dropLocation"
                 value={toLocation}
-                onChange={(e) => setToLocation(e)}
+                onChange={(e) => handleHeaderChange("toLocation", e)}
                 label="To Location"
               />
             </div>
@@ -264,7 +329,7 @@ const MaterialManagement = () => {
                 value={fromCostCenter}
                 onChange={(e) => {
                   console.log(e);
-                  setFromCostCenter(e);
+                  handleHeaderChange("fromCostCenter", e);
                 }}
                 label="From Cost Center"
               />
@@ -274,7 +339,7 @@ const MaterialManagement = () => {
             <div>
               <SelectCostCenter
                 value={toCostCenter}
-                onChange={(e) => setToCostCenter(e)}
+                onChange={(e) => handleHeaderChange("toCostCenter", e)}
                 label="To Cost Center"
               />
             </div>
@@ -338,6 +403,30 @@ const MaterialManagement = () => {
           }}
         />
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModel
+        open={showConfirm}
+        onClose={cancelHeaderChange}
+        title="Confirm Header Change"
+        content={
+          <div className="space-y-4">
+            <Typography>
+              Are you sure you want to change the header details?
+            </Typography>
+            <Typography className="text-red-600">
+              <strong>Warning:</strong> This will reset all added components and
+              you'll need to add them again.
+            </Typography>
+            <Typography>
+              You have {rowData.length} component(s) that will be removed.
+            </Typography>
+          </div>
+        }
+        cancelText="Cancel"
+        confirmText="Continue"
+        onConfirm={confirmHeaderChange}
+      />
     </div>
   );
 };
