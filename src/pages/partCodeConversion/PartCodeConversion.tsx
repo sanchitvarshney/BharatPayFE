@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
+import SelectCostCenter from "@/components/reusable/SelectCostCenter";
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
 import SimpleInitialComponentsTable from "@/table/partCodeConversion/SimpleInitialComponentsTable";
 import SimpleFinalComponentsTable from "@/table/partCodeConversion/SimpleFinalComponentsTable";
@@ -48,6 +49,10 @@ const PartCodeConversion: React.FC = () => {
   const [finalComponent, setFinalComponent] = useState<any>(null);
   const [finalQty, setFinalQty] = useState<number>(0);
   const [dropLocation, setDropLocation] = useState<any>(null);
+
+  // Cost Center states
+  const [fromCostCenter, setFromCostCenter] = useState<any>(null);
+  const [toCostCenter, setToCostCenter] = useState<any>(null);
 
   // Table data
   const [initialComponents, setInitialComponents] = useState<
@@ -135,6 +140,16 @@ const PartCodeConversion: React.FC = () => {
 
   // Handle submit
   const handleSubmit = () => {
+    if (!pickLocation || !dropLocation) {
+      showToast("Please select both pick and drop locations", "error");
+      return;
+    }
+
+    if (!fromCostCenter || !toCostCenter) {
+      showToast("Please select both from and to cost centers", "error");
+      return;
+    }
+
     if (initialComponents.length === 0) {
       showToast("Please add at least one initial component", "error");
       return;
@@ -153,6 +168,8 @@ const PartCodeConversion: React.FC = () => {
       const payload = {
         pickLocation: pickLocation?.code || "",
         dropLocation: dropLocation?.code || "",
+        fromCostCenter: fromCostCenter?.id || "",
+        toCostCenter: toCostCenter?.id || "",
         initialComponents: initialComponents.map(
           (item) => item.component.value
         ),
@@ -194,6 +211,8 @@ const PartCodeConversion: React.FC = () => {
     setFinalComponent(null);
     setFinalQty(0);
     setDropLocation(null);
+    setFromCostCenter(null);
+    setToCostCenter(null);
     setFinalRemark("");
   };
 
@@ -277,155 +296,184 @@ const PartCodeConversion: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Section - Input Forms */}
-        <div className="flex border-b border-gray-200 p-6">
-          {/* Location Selectors - Stacked */}
-          <div className="w-80 mr-6">
-            <div className="space-y-4">
-              {/* Pick Location Selector */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pick Location
-                </label>
-                <SelectLocationAcordingModule
-                  label=""
-                  endPoint="/partConversion/pickLocation"
-                  value={pickLocation}
-                  onChange={setPickLocation}
-                  varient="standard"
-                  size="small"
-                />
-              </div>
+        <div className="border-b border-gray-200 p-6 space-y-6">
+          {/* First Line - Locations and Cost Centers */}
+          <div className="flex gap-6">
+            {/* From Cost Center */}
+            <div className="w-60">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                From Cost Center
+              </label>
+              <SelectCostCenter
+                variant="standard"
+                value={fromCostCenter}
+                onChange={setFromCostCenter}
+                label=""
+              />
             </div>
+            {/* Pick Location */}
+            <div className="w-60">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Pick Location
+              </label>
+              <SelectLocationAcordingModule
+                label=""
+                endPoint="/partConversion/pickLocation"
+                value={pickLocation}
+                onChange={setPickLocation}
+                varient="standard"
+                size="small"
+              />
+            </div>
+
+      {/* To Cost Center */}
+      <div className="w-60">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                To Cost Center
+              </label>
+              <SelectCostCenter
+                variant="standard"
+                value={toCostCenter}
+                onChange={setToCostCenter}
+                label=""
+              />
+            </div>
+            {/* Drop Location */}
+            <div className="w-60">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Drop Location
+              </label>
+              <SelectLocationAcordingModule
+                label=""
+                endPoint="/partConversion/dropLocation"
+                value={dropLocation}
+                onChange={setDropLocation}
+                varient="standard"
+                size="small"
+              />
+            </div>
+
+      
           </div>
 
-          {/* Initial Component Form */}
-          <div className="w-1/2 border-r border-gray-200 pr-6">
-            <div className="flex items-end gap-4">
-              {/* Component Selection */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Initial Component
-                </label>
-                <AntCompSelect
-                  value={initialComponent}
-                  onChange={handleInitialComponentChange}
-                />
+          {/* Second Line - Components and Quantities */}
+          <div className="flex gap-6">
+            {/* Initial Component Section */}
+            <div className="flex-1 border-r border-gray-200 pr-6">
+              <div className="flex items-end gap-4">
+                {/* Component Selection */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Initial Component
+                  </label>
+                  <AntCompSelect
+                    value={initialComponent}
+                    onChange={handleInitialComponentChange}
+                  />
+                </div>
+
+                {/* Quantity */}
+                <div className="w-32">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Qty
+                  </label>
+                  <TextField
+                    type="number"
+                    value={initialQty}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value) || 0;
+                      if (
+                        typeof stockInfo?.balance === "number" &&
+                        value > stockInfo.balance
+                      ) {
+                        showToast(
+                          "Quantity cannot exceed available stock",
+                          "error"
+                        );
+                        return;
+                      }
+                      setInitialQty(parseFloat(e.target.value) || 0);
+                    }}
+                    placeholder="Qty"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    inputProps={{ min: 0 }}
+                  />
+                </div>
+
+                {/* Add Button */}
+                <div className="w-24">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<Icons.add fontSize="small" />}
+                    onClick={handleAddInitialComponent}
+                    size="small"
+                    fullWidth
+                  >
+                    Add
+                  </Button>
+                </div>
               </div>
 
-              {/* Quantity */}
-              <div className="w-32">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Qty
-                </label>
-                <TextField
-                  type="number"
-                  value={initialQty}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
-                    if (
-                      typeof stockInfo?.balance === "number" &&
-                      value > stockInfo.balance
-                    ) {
-                      showToast(
-                        "Quantity cannot exceed available stock",
-                        "error"
-                      );
-                      return;
+              {/* Existing Stock Display */}
+              <div className="text-sm text-gray-600 mt-2">
+                Existing Stock:{" "}
+                {stockLoading
+                  ? "Loading..."
+                  : stockInfo
+                  ? `${stockInfo.balance} ${stockInfo.uom || ""}`
+                  : "--"}
+              </div>
+            </div>
+
+            {/* Final Component Section */}
+            <div className="flex-1 pl-6">
+              <div className="flex items-end gap-4">
+                {/* Component Selection */}
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Final Component
+                  </label>
+                  <AntCompSelect
+                    value={finalComponent}
+                    onChange={handleFinalComponentChange}
+                  />
+                </div>
+
+                {/* Quantity */}
+                <div className="w-32">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Qty
+                  </label>
+                  <TextField
+                    type="number"
+                    value={finalQty}
+                    onChange={(e) =>
+                      setFinalQty(parseFloat(e.target.value) || 0)
                     }
-                    setInitialQty(parseFloat(e.target.value) || 0);
-                  }}
-                  placeholder="Qty"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  inputProps={{ min: 0 }}
-                />
-              </div>
+                    placeholder="Qty"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    inputProps={{ min: 0 }}
+                  />
+                </div>
 
-              {/* Add Button */}
-              <div className="w-24">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<Icons.add fontSize="small" />}
-                  onClick={handleAddInitialComponent}
-                  size="small"
-                  fullWidth
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-
-            {/* Existing Stock Display */}
-            <div className="text-sm text-gray-600 mt-2">
-              Existing Stock:{" "}
-              {stockLoading
-                ? "Loading..."
-                : stockInfo
-                ? `${stockInfo.balance} ${stockInfo.uom || ""}`
-                : "--"}
-            </div>
-          </div>
-
-          {/* Final Component Form */}
-          <div className="w-1/2 pl-6">
-            <div className="flex items-end gap-4">
-              {/* Drop Location */}
-              <div className="w-60">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Drop Location
-                </label>
-                <SelectLocationAcordingModule
-                  label=""
-                  endPoint="/partConversion/dropLocation"
-                  value={dropLocation}
-                  onChange={setDropLocation}
-                  varient="standard"
-                  size="small"
-                />
-              </div>
-
-              {/* Component Selection */}
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Final Component
-                </label>
-                <AntCompSelect
-                  value={finalComponent}
-                  onChange={handleFinalComponentChange}
-                />
-              </div>
-
-              {/* Quantity */}
-              <div className="w-32">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Qty
-                </label>
-                <TextField
-                  type="number"
-                  value={finalQty}
-                  onChange={(e) => setFinalQty(parseFloat(e.target.value) || 0)}
-                  placeholder="Qty"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  inputProps={{ min: 0 }}
-                />
-              </div>
-
-              {/* Add Button */}
-              <div className="w-24">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<Icons.add fontSize="small" />}
-                  onClick={handleAddFinalComponent}
-                  size="small"
-                  fullWidth
-                >
-                  Add
-                </Button>
+                {/* Add Button */}
+                <div className="w-24">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<Icons.add fontSize="small" />}
+                    onClick={handleAddFinalComponent}
+                    size="small"
+                    fullWidth
+                  >
+                    Add
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
