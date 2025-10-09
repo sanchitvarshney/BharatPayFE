@@ -57,6 +57,7 @@ const PartCodeConversion: React.FC = () => {
 
   // Confirmation modal
   const [showConfirm, setShowConfirm] = useState(false);
+  const [finalRemark, setFinalRemark] = useState("");
 
   // Handle adding initial component
   const handleAddInitialComponent = () => {
@@ -158,16 +159,25 @@ const PartCodeConversion: React.FC = () => {
         finalComponents: finalComponents.map((item) => item.component.value),
         initialQty: initialComponents.map((item) => item.quantity),
         finalQty: finalComponents.map((item) => item.quantity),
+        remark: finalRemark,
       };
 
-      const result = await dispatch(submitPartCodeConversion(payload));
-
-      if (submitPartCodeConversion.fulfilled.match(result)) {
-        showToast("Part code conversion submitted successfully", "success");
-        handleReset();
-      } else {
-        showToast("Failed to submit part code conversion", "error");
-      }
+      dispatch(submitPartCodeConversion(payload)).then((result) => {
+        if (result.payload.data.success) {
+          showToast(
+            result.payload.data.message ||
+              "Part code conversion submitted successfully",
+            "success"
+          );
+          handleReset();
+        } else {
+          showToast(
+            result.payload.data.message ||
+              "Failed to submit part code conversion",
+            "error"
+          );
+        }
+      });
     } catch (error) {
       showToast("Failed to submit part code conversion", "error");
     }
@@ -184,10 +194,34 @@ const PartCodeConversion: React.FC = () => {
     setFinalComponent(null);
     setFinalQty(0);
     setDropLocation(null);
+    setFinalRemark("");
   };
 
   // Handle component selection for initial component
   const handleInitialComponentChange = (selectedValue: any) => {
+    if (!selectedValue) {
+      setInitialComponent(null);
+      return;
+    }
+
+    // Check if this component is already selected in final components (form)
+    if (finalComponent && selectedValue.value === finalComponent.value) {
+      showToast(
+        "This component is already selected in Final Component",
+        "error"
+      );
+      return;
+    }
+
+    // Check if this component is already added in final components (table)
+    const isInFinalTable = finalComponents.some(
+      (comp) => comp.component.value === selectedValue.value
+    );
+    if (isInFinalTable) {
+      showToast("This component is already added in Final Components", "error");
+      return;
+    }
+
     setInitialComponent(selectedValue);
     if (selectedValue && pickLocation) {
       dispatch(
@@ -201,6 +235,32 @@ const PartCodeConversion: React.FC = () => {
 
   // Handle component selection for final component
   const handleFinalComponentChange = (selectedValue: any) => {
+    if (!selectedValue) {
+      setFinalComponent(null);
+      return;
+    }
+
+    // Check if this component is already selected in initial components (form)
+    if (initialComponent && selectedValue.value === initialComponent.value) {
+      showToast(
+        "This component is already selected in Initial Component",
+        "error"
+      );
+      return;
+    }
+
+    // Check if this component is already added in initial components (table)
+    const isInInitialTable = initialComponents.some(
+      (comp) => comp.component.value === selectedValue.value
+    );
+    if (isInInitialTable) {
+      showToast(
+        "This component is already added in Initial Components",
+        "error"
+      );
+      return;
+    }
+
     setFinalComponent(selectedValue);
   };
 
@@ -449,6 +509,21 @@ const PartCodeConversion: React.FC = () => {
               <strong>{initialComponents.length} Initial Components</strong> to
               convert
             </Typography>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Final Remark (Optional)
+              </label>
+              <TextField
+                multiline
+                rows={3}
+                value={finalRemark}
+                onChange={(e) => setFinalRemark(e.target.value)}
+                placeholder="Enter any additional remarks..."
+                fullWidth
+                size="small"
+                variant="outlined"
+              />
+            </div>
           </div>
         }
         cancelText="Cancel"
