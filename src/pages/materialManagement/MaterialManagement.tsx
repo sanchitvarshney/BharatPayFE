@@ -34,7 +34,6 @@ const MaterialManagement = () => {
   const [toLocation, setToLocation] = useState<any>(null);
   const [fromCostCenter, setFromCostCenter] = useState<any>(null);
   const [toCostCenter, setToCostCenter] = useState<any>(null);
-  const [remarks, setRemarks] = useState("");
 
   const dispatch = useAppDispatch();
   const { submitLoading } = useAppSelector((state) => state.materialManagement);
@@ -164,7 +163,6 @@ const MaterialManagement = () => {
     setToLocation(null);
     setFromCostCenter(null);
     setToCostCenter(null);
-    setRemarks("");
   };
 
   // Handle submit
@@ -197,20 +195,19 @@ const MaterialManagement = () => {
         toLocation: toLocation.code,
         fromCostCenter: fromCostCenter.id,
         toCostCenter: toCostCenter.id,
-        remarks: remarks,
         quantity: rowData.map((row) => parseFloat(row.quantity) || 0),
         components:rowData.map((row) => (row.component?.value)),
+        remarks: rowData.map((row) => row.remarks),
       };
 
       dispatch(submitMaterialTransfer(submitData as any)).then((result) => {
         if(result.payload.data.success){
           showToast(result.payload.data.message || "Material transfer request submitted successfully", "success");
- setRowData([]);
+        setRowData([]);
         setFromLocation(null);
         setToLocation(null);
         setFromCostCenter(null);
         setToCostCenter(null);
-        setRemarks("");
         }
         else{
           showToast(result.payload.data.message || "Failed to submit material transfer request", "error");

@@ -109,6 +109,8 @@ import ChallanEntryPage from "@/pages/ChallanEntry/ChallanEntryPage";
 import MigrationUpload from "@/pages/upload/MigrationUpload";
 import MaterialManagement from "@/pages/materialManagement/MaterialManagement";
 import MaterialMovementLayout from "@/layouts/MaterialMovementLayout";
+import PartCodeConversion from "@/pages/partCodeConversion/PartCodeConversion";
+import PartCodeConversionLayout from "@/layouts/PartCodeConversionLayout";
 
 export const router = createBrowserRouter([
   {
@@ -849,7 +851,7 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-           <ViewImage/>
+            <ViewImage />
           </MainLayout>
         ),
         path: "/view-image",
@@ -892,6 +894,17 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/material-movement",
+      },
+      // Part Code Conversion
+      {
+        element: (
+          <MainLayout>
+            <PartCodeConversionLayout>
+              <PartCodeConversion />
+            </PartCodeConversionLayout>
+          </MainLayout>
+        ),
+        path: "/warehouse/part-code-conversion",
       },
     ],
   },

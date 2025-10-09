@@ -28,6 +28,7 @@ import dashboard from "@/features/Dashboard/Dashboard";
 import uploadReducer from "@/features/upload/uploadSlice";
 import procurementReducer from "@/features/procurement/poSlices";
 import materialManagementReducer from "@/features/materialManagement/materialManagementSlices";
+import partCodeConversionReducer from "@/features/partCodeConversion/partCodeConversionSlices";
 
 export const store = configureStore({
   reducer: {
@@ -60,6 +61,7 @@ export const store = configureStore({
     upload: uploadReducer,
     po: procurementReducer,
     materialManagement: materialManagementReducer,
+    partCodeConversion: partCodeConversionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
