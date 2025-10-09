@@ -26,7 +26,7 @@ export const submitPartCodeConversion = createAsyncThunk(
   async (data: any, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        "/conversion/saveConversion",
+        "/partConversion/partConversion",
         data
       );
       return response.data;
