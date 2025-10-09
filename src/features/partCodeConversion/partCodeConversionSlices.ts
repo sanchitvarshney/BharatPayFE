@@ -112,6 +112,7 @@ interface PartCodeConversionState {
   dropLocations: LocationInfo[];
   stockInfo: StockInfo | null;
   pickLocation: LocationInfo | null;
+  dropLocation: LocationInfo | null;
 }
 
 const initialState: PartCodeConversionState = {
@@ -127,6 +128,7 @@ const initialState: PartCodeConversionState = {
   dropLocations: [],
   stockInfo: null,
   pickLocation: null,
+  dropLocation: null,
 };
 
 // Slice
@@ -151,6 +153,9 @@ const partCodeConversionSlice = createSlice({
     },
     setpickLcn: (state, action) => {
       state.pickLocation = action.payload;
+    },
+    setDropLcn: (state, action) => {
+      state.dropLocation = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -242,5 +247,6 @@ export const {
   clearDropLocations,
   clearStockInfo,
   setpickLcn,
+  setDropLcn,
 } = partCodeConversionSlice.actions;
 export default partCodeConversionSlice.reducer;

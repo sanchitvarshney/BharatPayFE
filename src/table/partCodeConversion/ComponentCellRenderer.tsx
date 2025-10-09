@@ -3,7 +3,7 @@ import { Typography } from "@mui/material";
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { fetchComponentStock } from "@/features/partCodeConversion/partCodeConversionSlices";
-import { Input } from "antd";
+import { Input, message } from "antd";
 
 interface ComponentCellRendererProps {
   props: any;
@@ -23,24 +23,38 @@ const ComponentCellRenderer: React.FC<ComponentCellRendererProps> = ({
   const field = colDef?.field;
 
   const [localValue, setLocalValue] = useState(value || "");
+  const [availableStock, setAvailableStock] = useState<number>(0);
 
   useEffect(() => {
     setLocalValue(value || "");
   }, [value]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (showStockInfo && stockInfo && data.component?.value) {
       const newAvailableQty = `${stockInfo.balance} ${stockInfo.uom || ""}`;
       data.availableqty = newAvailableQty;
+      setAvailableStock(stockInfo.balance || 0);
       api.refreshCells({
         rowNodes: [props.node],
         columns: ["availableqty"],
       });
-    } 
+    }
   }, [stockInfo, showStockInfo, data.component?.value, api, props.node]);
 
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
+
+    // Validate quantity for initial components
+    if (field === "quantity" && showStockInfo && availableStock > 0) {
+      const enteredQty = parseFloat(newValue) || 0;
+      if (enteredQty > availableStock) {
+        message.error(
+          `Quantity cannot exceed available stock (${availableStock})`
+        );
+        return;
+      }
+    }
+
     data[colDef.field] = newValue;
     api.refreshCells({
       rowNodes: [props.node],
@@ -53,10 +67,13 @@ const ComponentCellRenderer: React.FC<ComponentCellRendererProps> = ({
     data[colDef.field] = newValue;
 
     // Clear previous available quantity when component changes
-    data.availableqty = "--";
+    if (showStockInfo) {
+      data.availableqty = "--";
+      setAvailableStock(0);
+    }
 
-    // Fetch stock for initial components only
-    if (selectedValue && pickLocation) {
+    // Fetch stock for initial components only when showStockInfo is true
+    if (selectedValue && pickLocation && showStockInfo) {
       dispatch(
         fetchComponentStock({
           component: selectedValue.value,
@@ -103,6 +120,14 @@ const ComponentCellRenderer: React.FC<ComponentCellRendererProps> = ({
             onChange={handleInputChange}
             placeholder="Enter Quantity"
             min={0}
+            max={showStockInfo ? availableStock : undefined}
+            status={
+              showStockInfo &&
+              availableStock > 0 &&
+              parseFloat(localValue) > availableStock
+                ? "error"
+                : ""
+            }
           />
         );
 
