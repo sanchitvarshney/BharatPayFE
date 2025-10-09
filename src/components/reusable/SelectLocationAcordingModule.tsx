@@ -21,7 +21,19 @@ type Props = {
   endPoint: string;
 };
 
-const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label = "Drop Location", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium", tabindex = 0, endPoint }) => {
+const SelectLocationAcordingModule: React.FC<Props> = ({
+  value,
+  onChange,
+  label = "Drop Location",
+  width = "100%",
+  error,
+  helperText,
+  varient = "outlined",
+  required = false,
+  size = "medium",
+  tabindex = 0,
+  endPoint,
+}) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -61,7 +73,8 @@ const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label 
       loading={loading}
       isOptionEqualToValue={(option, value) => option.code === value?.code}
       onInputChange={(_, newInputValue, reason) => {
-        (reason === "input" || reason === "clear") && setInputValue(newInputValue);
+        (reason === "input" || reason === "clear") &&
+          setInputValue(newInputValue);
       }}
       renderInput={(params) => (
         <TextField
@@ -77,7 +90,9 @@ const SelectLocationAcordingModule: React.FC<Props> = ({ value, onChange, label 
               ...params.InputProps,
               endAdornment: (
                 <>
-                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
                   {params.InputProps.endAdornment}
                 </>
               ),
