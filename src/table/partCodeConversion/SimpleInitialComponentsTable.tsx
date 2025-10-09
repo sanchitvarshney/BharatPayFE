@@ -53,7 +53,7 @@ const SimpleInitialComponentsTable: React.FC<Props> = ({
       headerName: "Component",
       field: "component",
       valueGetter: (params) => params.data.component?.label || "",
-      minWidth: 200,
+      minWidth: 320,
     },
     {
       headerName: "Available Qty",
