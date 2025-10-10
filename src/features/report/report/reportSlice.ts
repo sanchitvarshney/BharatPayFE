@@ -17,6 +17,7 @@ import {
   R8ReportDataApiResponse,
   R9reportResponse,
   ReportStateType,
+  PartCodeReportQueryParams,
 } from "./reportType";
 
 const initialState: ReportStateType = {
@@ -84,6 +85,10 @@ const initialState: ReportStateType = {
   },
   getR20DataLoading: false,
   r20Report: null,
+  partConversionData: null,
+  partConversionLoading: false,
+  partCodeConvDetailData: null,
+  partCodeConvDetailLoading: false,
 };
 
 export const getR1Data = createAsyncThunk<
@@ -151,6 +156,29 @@ export const getr4Report = createAsyncThunk<
   );
   return response;
 });
+
+export const getPartCodeReport = createAsyncThunk<
+  AxiosResponse<R4ReportResponse>,
+  PartCodeReportQueryParams
+>("report/getPartCodeReport", async (query) => {
+  const response = await axiosInstance.get(
+    query.type === "DATE"
+    ? `/partConversion/partConversionReport?type=${query.type}&fromDate=${query.fromDate}&toDate=${query.toDate}`
+    : `/partConversion/partConversionReport?type=${query.type}&component=${query.component}`
+  );
+  return response;
+});
+
+export const getPartCodeConversionDetail = createAsyncThunk<
+  AxiosResponse<DeviceRequestApiResponse>,
+  any
+>("report/getPartCodeConversionDetail", async (payload) => {
+  const response = await axiosInstance.get(
+    `/partConversion/partConversionConsumption?txn=${payload.txnNo}`
+  );
+  return response;
+});
+
 export const r4ReportDetail = createAsyncThunk<
   AxiosResponse<r4reportDetailDataResponse>,
   { query: string; deviceType: string }
@@ -238,7 +266,6 @@ export const getWrongDeviceReport = createAsyncThunk<
   const response = await axiosInstance.get(
     `/wrongDevice/fetch/?fromDate=${payload.from}&toDate=${payload.to}&deliveryPartner=${payload.type}&page=${payload.page}&limit=${payload.limit}`
   );
-  console.log(response);
   return response;
 });
 export const getr8Report = createAsyncThunk<
@@ -426,7 +453,19 @@ const reportSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getR1Data.pending, (state) => {
+      .addCase(getPartCodeReport.pending, (state) => {
+        state.partConversionLoading = true;
+      })
+      .addCase(getPartCodeReport.fulfilled, (state, action) => {
+        state.partConversionLoading = false;
+        if (action.payload.data.success) {
+          state.partConversionData = action.payload.data.data;
+        }
+      })
+      .addCase(getPartCodeReport.rejected, (state) => {
+        state.partConversionLoading = false;
+      })
+       .addCase(getR1Data.pending, (state) => {
         state.getR1DataLoading = true;
       })
       .addCase(getR1Data.fulfilled, (state, action) => {
@@ -499,6 +538,20 @@ const reportSlice = createSlice({
       .addCase(getR2ReportDetail.rejected, (state) => {
         state.r2ReportDetailLoading = false;
         state.r2ReportDetail = null;
+      })
+        .addCase(getPartCodeConversionDetail.pending, (state) => {
+        state.partCodeConvDetailLoading = true;
+        state.partCodeConvDetailData = null;
+      })
+      .addCase(getPartCodeConversionDetail.fulfilled, (state, action) => {
+        state.partCodeConvDetailLoading = false;
+        if (action.payload.data?.success) {
+          state.partCodeConvDetailData = action.payload.data.data;
+        }
+      })
+      .addCase(getPartCodeConversionDetail.rejected, (state) => {
+        state.partCodeConvDetailLoading = false;
+        state.partCodeConvDetailData = null;
       })
       .addCase(getr3Report.pending, (state) => {
         state.r3reportLoading = true;

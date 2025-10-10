@@ -110,6 +110,7 @@ import MaterialManagement from "@/pages/materialManagement/MaterialManagement";
 import MaterialMovementLayout from "@/layouts/MaterialMovementLayout";
 import PartCodeConversion from "@/pages/partCodeConversion/PartCodeConversion";
 import PartCodeConversionLayout from "@/layouts/PartCodeConversionLayout";
+import PartCodeConversionReport from "@/pages/partCodeConversion/PartCodeConversionReport";
 
 export const router = createBrowserRouter([
   {
@@ -896,6 +897,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/warehouse/part-code-conversion",
+      },
+      {
+        element: (
+          <MainLayout>
+            <PartCodeConversionLayout>
+              <PartCodeConversionReport />
+            </PartCodeConversionLayout>
+          </MainLayout>
+        ),
+        path: "/warehouse/part-code-conversion-report",
       },
     ],
   },

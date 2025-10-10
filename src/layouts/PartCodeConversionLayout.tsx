@@ -18,7 +18,7 @@ const PartCodeConversionLayout: React.FC<PartCodeConversionLayoutProps> = ({
    const location = useLocation();
  
    // Determine the active tab based on the current route
-   const tabRoutes = ["/warehouse/part-code-conversion"];
+   const tabRoutes = ["/warehouse/part-code-conversion","/warehouse/part-code-conversion-report"];
    const currentTabIndex = tabRoutes.indexOf(location.pathname);
  
    const handleChange = (_: React.SyntheticEvent, newValue: number) => {
