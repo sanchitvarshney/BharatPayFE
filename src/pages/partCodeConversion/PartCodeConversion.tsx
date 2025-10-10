@@ -16,6 +16,7 @@ import {
   clearStockInfo,
 } from "@/features/partCodeConversion/partCodeConversionSlices";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 interface InitialComponent {
   id: string;
@@ -180,16 +181,16 @@ const PartCodeConversion: React.FC = () => {
       };
 
       dispatch(submitPartCodeConversion(payload)).then((result) => {
-        if (result.payload.data.success) {
+        if (result.payload.success) {
           showToast(
-            result.payload.data.message ||
+            result.payload.message ||
               "Part code conversion submitted successfully",
             "success"
           );
           handleReset();
         } else {
           showToast(
-            result.payload.data.message ||
+            result.payload.message ||
               "Failed to submit part code conversion",
             "error"
           );
@@ -493,9 +494,9 @@ const PartCodeConversion: React.FC = () => {
                 onClick={handleReset}
                 size="small"
               >
-                X Clear
+                Clear
               </Button>
-              <Button
+              <LoadingButton
                 variant="contained"
                 color="success"
                 startIcon={<Icons.check fontSize="small" />}
@@ -503,8 +504,8 @@ const PartCodeConversion: React.FC = () => {
                 size="small"
                 disabled={submitLoading}
               >
-                ✓ Submit
-              </Button>
+                Submit
+              </LoadingButton>
             </div>
           </div>
 
