@@ -132,11 +132,7 @@ const MaterialManagement = () => {
   // Cell renderer components
   const components = {
     textInputCellRenderer: (params: any) => {
-      console.log("Creating cell renderer with:", {
-        fromLocation,
-        fromCostCenter,
-        field: params.colDef?.field,
-      });
+     
       return (
         <MaterialManagementCellRenderer
           props={params}
@@ -265,7 +261,6 @@ const MaterialManagement = () => {
       };
 
       dispatch(submitMaterialTransfer(submitData as any)).then((result) => {
-        console.log(result)
         if(result.payload.success){
           showToast(result.payload.message || "Material transfer request submitted successfully", "success");
         setRowData([]);
