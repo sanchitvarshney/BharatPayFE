@@ -23,9 +23,9 @@ const R2ReportDetail: React.FC = () => {
       valueGetter: "node.rowIndex + 1",
       maxWidth: 80,
     },
-    { headerName: "Part Code", field: "partNo_no", sortable: true, filter: true },
-    { headerName: "Component Name", field: "partName", sortable: true, filter: true },
-    { headerName: "Qty", field: "qty", sortable: true, filter: true },
+    { headerName: "Consumption Part Code", field: "partNo_no", sortable: true, filter: true },
+    { headerName: "Consumption Part Name", field: "partName", sortable: true, filter: true },
+    { headerName: "Consumption Quantity", field: "qty", sortable: true, filter: true },
     { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true },
     {
       headerName: "Date",
