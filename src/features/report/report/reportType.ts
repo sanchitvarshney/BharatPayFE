@@ -96,6 +96,7 @@ export type Devices = {
 export type DeviceRequestApiResponse = {
   data: Devices[];
   status: string; // "success"
+  success: boolean;
 };
 
 type r3report = {
@@ -147,6 +148,13 @@ export type R4ReportQueryParams = {
   page?: number;
   limit?: number;
 };
+export type PartCodeReportQueryParams = {
+  fromDate?: string;
+  toDate?: string;
+  type: string;
+  component?: string;
+};
+
 
 export type r4reportDetailDataResponse = {
   success: boolean;
@@ -430,6 +438,10 @@ export type ReportStateType = {
   r19Report: any,
   r20Report:any,
   getR20DataLoading:boolean,
+  partConversionData: any,
+  partConversionLoading: boolean,
+  partCodeConvDetailData: any,
+  partCodeConvDetailLoading: boolean,
 };
 
 export interface R16ReportResponse {
