@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { DatePicker } from "antd";
+import { DatePicker, Typography } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -134,6 +134,7 @@ module: moduleType
           </div>
           <div className="flex flex-col   gap-[20px] p-[20px]   mt-[20px] overflow-hidden">
             <FormControl fullWidth>
+              <div className="mb-2">Inward Type</div>
                   <Select
                     value={moduleType}
                     defaultValue="module Type"
@@ -155,6 +156,7 @@ module: moduleType
                   </Select>
                 </FormControl>
             <FormControl fullWidth>
+              <div className="mb-2">Search Type</div>
               <Select
                 value={type}
                 defaultValue="min"
