@@ -250,12 +250,13 @@ export const getr6Report = createAsyncThunk<
     to: string;
     page: number;
     limit: number;
+    module: string;
   }
 >("report/getr6Report", async (payload) => {
   const response = await axiosInstance.get(
     payload.type === "MINNO"
       ? `/report/r6/MINNO?data=${payload.data}&page=${payload.page}&limit=${payload.limit}`
-      : `/report/r6/DATE?startDate=${payload.from}&endDate=${payload.to}&page=${payload.page}&limit=${payload.limit}`
+      : `/report/r6/DATE?startDate=${payload.from}&endDate=${payload.to}&module=${payload.module}&page=${payload.page}&limit=${payload.limit}`
   );
   return response;
 });

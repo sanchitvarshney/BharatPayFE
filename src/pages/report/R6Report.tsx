@@ -19,6 +19,7 @@ import { useSocketContext } from "@/components/context/SocketContext";
 const R6Report: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("min");
+  const [moduleType, setModuleType] = useState<string>("STORE-INWARD");
   const [min, setMin] = useState<string>("");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
@@ -30,19 +31,21 @@ const R6Report: React.FC = () => {
   const { r6ReportLoading, r6Report } = useAppSelector((state) => state.report);
   const gridRef = useRef<AgGridReact<any>>(null);
   const { RangePicker } = DatePicker;
-  const { emitR6DispatchReport,isConnected } = useSocketContext();
+  const { emitR6DispatchReport, isConnected } = useSocketContext();
 
   const onBtExport = () => {
     if (type === "min") {
       emitR6DispatchReport({
         type: "MINNO",
         data: min,
+        module: moduleType
       });
     } else {
       emitR6DispatchReport({
-        type: type==="date"?"DATE":type,
+        type: type === "date" ? "DATE" : type,
         startDate: date.from?.format("DD-MM-YYYY") || "",
         endDate: date.to?.format("DD-MM-YYYY") || "",
+        module: moduleType
       });
     }
   };
@@ -57,6 +60,7 @@ const R6Report: React.FC = () => {
           data: "",
           page: page,
           limit: pageSize,
+          module: moduleType
         })
       );
     } else {
@@ -68,6 +72,7 @@ const R6Report: React.FC = () => {
           to: "",
           page: page,
           limit: pageSize,
+          module: moduleType
         })
       );
     }
@@ -84,6 +89,7 @@ const R6Report: React.FC = () => {
           data: "",
           page: 1,
           limit: pageSize,
+          module: moduleType,
         })
       );
     } else {
@@ -95,6 +101,8 @@ const R6Report: React.FC = () => {
           to: "",
           page: 1,
           limit: pageSize,
+module: moduleType
+
         })
       );
     }
@@ -130,6 +138,29 @@ const R6Report: React.FC = () => {
               Raw MIN Report
             </div>
             <FormControl fullWidth>
+              <div className="mb-2">Inward Type</div>
+                  <Select
+                    value={moduleType}
+                    defaultValue="module Type"
+                    onChange={(e) => setModuleType(e.target.value)}
+                  >
+                    {[
+                      { value: "STORE-INWARD", label: "Store", isDisabled: false },
+                      { value: "OTHERS", label: "Others", isDisabled: false },
+                     
+                    ].map((item) => (
+                      <MenuItem
+                        disabled={item.isDisabled}
+                        value={item.value}
+                        key={item.value}
+                      >
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+            <FormControl fullWidth>
+              <div className="mb-2">Search Type</div>
               <Select
                 value={type}
                 defaultValue="min"
@@ -153,6 +184,7 @@ const R6Report: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
+            
             {type === "date" ? (
               <div>
                 <RangePicker
@@ -172,6 +204,7 @@ const R6Report: React.FC = () => {
                   }}
                   presets={rangePresets}
                 />
+                
                 {(date.from || date.to) && (
                   <div className="flex justify-between mt-[20px]">
                     <LoadingButton
@@ -188,6 +221,7 @@ const R6Report: React.FC = () => {
                               data: "",
                               page: 1,
                               limit: pageSize,
+                              module: moduleType,
                             })
                           );
                         }
@@ -245,6 +279,7 @@ const R6Report: React.FC = () => {
                               to: "",
                               page: 1,
                               limit: pageSize,
+                              module: moduleType,
                             })
                           ).then((response: any) => {
                             if (response.payload?.data?.success) {
