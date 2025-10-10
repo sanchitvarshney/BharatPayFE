@@ -10,8 +10,6 @@ import { FormControl, MenuItem, Select } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
-import MuiTooltip from "@/components/reusable/MuiTooltip";
-import { useSocketContext } from "@/components/context/SocketContext";
 import SelectComponent from "@/components/reusable/SelectComponent";
 import PartCodeConversionReportTable from "@/table/report/PartCodeConversionReportTable";
 import { CustomDrawer, CustomDrawerContent, CustomDrawerHeader, CustomDrawerTitle } from "@/components/reusable/CustomDrawer";
@@ -21,9 +19,6 @@ const { RangePicker } = DatePicker;
 const PartCodeConversionReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-  const {isConnected } =
-    useSocketContext();
- 
   const [reportDate, setReportDate] = useState<{
     from: Dayjs | null;
     to: Dayjs | null;
