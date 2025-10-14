@@ -26,6 +26,7 @@ export type CreateRawMinPayloadType = {
   cc: string; // required
   deliveryAddress:string;
   deliveryGst:string;
+  minType?:string;
 };
 export type CreateRawMinResponse = {
   status: string;
