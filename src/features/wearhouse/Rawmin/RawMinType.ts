@@ -26,6 +26,16 @@ export type CreateRawMinPayloadType = {
   cc: string; // required
   deliveryAddress:string;
   deliveryGst:string;
+  minType?:string;
+};
+
+export type CreateProductReturnMINPayloadType = {
+  component: string[];
+  qty: number[];
+  location: string[];
+  hsnCode: string[];
+  remarks: string[];
+  minType:string;
 };
 export type CreateRawMinResponse = {
   status: string;
