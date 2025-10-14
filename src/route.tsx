@@ -111,6 +111,8 @@ import MaterialMovementLayout from "@/layouts/MaterialMovementLayout";
 import PartCodeConversion from "@/pages/partCodeConversion/PartCodeConversion";
 import PartCodeConversionLayout from "@/layouts/PartCodeConversionLayout";
 import PartCodeConversionReport from "@/pages/partCodeConversion/PartCodeConversionReport";
+import ProdReturnMin from "@/pages/wearhouse/ProdReturnMin";
+import ProdReturnMinLayout from "@/layouts/ProdReturnMinLayout";
 
 export const router = createBrowserRouter([
   {
@@ -448,6 +450,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/raw-min",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ProdReturnMinLayout>
+              <ProdReturnMin />
+            </ProdReturnMinLayout>
+          </MainLayout>
+        ),
+        path: "/warehouse/prod-return-MIN",
       },
       {
         element: (

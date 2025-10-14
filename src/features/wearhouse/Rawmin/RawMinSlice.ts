@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { CreateRawMinPayloadType, CreateRawMinResponse, RawminState } from "./RawMinType";
+import { CreateProductReturnMINPayloadType, CreateRawMinPayloadType, CreateRawMinResponse, RawminState } from "./RawMinType";
 import { AxiosResponse } from "axios";
 import axiosInstance from "@/api/axiosInstance";
 
@@ -11,6 +11,11 @@ const initialState: RawminState = {
 
 export const createRawMin = createAsyncThunk<AxiosResponse<CreateRawMinResponse>, CreateRawMinPayloadType>("rawmin/createRawMin", async (payload) => {
   const response = await axiosInstance.post("/transaction/min_transaction", payload);
+  return response;
+});
+
+export const createProductReturnMIN = createAsyncThunk<AxiosResponse<CreateRawMinResponse>, CreateProductReturnMINPayloadType>("rawmin/createProductReturnMIN", async (payload) => {
+  const response = await axiosInstance.post("/transaction/minProdReturn", payload);
   return response;
 });
 
