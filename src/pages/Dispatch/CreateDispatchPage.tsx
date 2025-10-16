@@ -210,13 +210,124 @@ const CreateDispatchPage: React.FC = () => {
         "Total Devices should be equal to Quantity you have entered",
         "error"
       );
+
+    // Filter out duplicates before submission
+    const allImeis = rowData
+      .map((item) => item.imei?.trim())
+      .filter((imei) => imei);
+    const allImei2s = rowData
+      .map((item) => item.imei2?.trim())
+      .filter((imei) => imei);
+    const allSerials = rowData
+      .map((item) => item.srno?.trim())
+      .filter((srno) => srno);
+
+    // Check for duplicate IMEI1
+    const duplicateImeis = allImeis.filter(
+      (imei, index) => allImeis.indexOf(imei) !== index
+    );
+
+    // Check for duplicate IMEI2
+    const duplicateImei2s = allImei2s.filter(
+      (imei, index) => allImei2s.indexOf(imei) !== index
+    );
+
+    // Check for duplicate serial numbers
+    const duplicateSerials = allSerials.filter(
+      (srno, index) => allSerials.indexOf(srno) !== index
+    );
+
+    // Check for cross-duplicates between IMEI1 and IMEI2
+    const crossDuplicates = allImeis.filter((imei) => allImei2s.includes(imei));
+
+    // Show warnings for duplicates found
+    if (duplicateImeis.length > 0) {
+      showToast(
+        `Duplicate IMEI1 found and will be filtered: ${duplicateImeis.join(
+          ", "
+        )}`,
+        "warning"
+      );
+    }
+
+    if (duplicateImei2s.length > 0) {
+      showToast(
+        `Duplicate IMEI2 found and will be filtered: ${duplicateImei2s.join(
+          ", "
+        )}`,
+        "warning"
+      );
+    }
+
+    if (duplicateSerials.length > 0) {
+      showToast(
+        `Duplicate serial numbers found and will be filtered: ${duplicateSerials.join(
+          ", "
+        )}`,
+        "warning"
+      );
+    }
+
+    if (crossDuplicates.length > 0) {
+      showToast(
+        `IMEI1 and IMEI2 conflicts found and will be filtered: ${crossDuplicates.join(
+          ", "
+        )}`,
+        "warning"
+      );
+    }
+
+    // Filter rowData to keep only unique items
+    const uniqueRowData = rowData.filter((item, index, self) => {
+      const imei = item.imei?.trim();
+      const imei2 = item.imei2?.trim();
+      const srno = item.srno?.trim();
+
+      // Check if this is the first occurrence of this IMEI1
+      const isFirstImei1 =
+        self.findIndex((i) => i.imei?.trim() === imei) === index;
+
+      // Check if this is the first occurrence of this IMEI2 (if it exists)
+      const isFirstImei2 =
+        !imei2 || self.findIndex((i) => i.imei2?.trim() === imei2) === index;
+
+      // Check if this is the first occurrence of this serial number
+      const isFirstSerial =
+        self.findIndex((i) => i.srno?.trim() === srno) === index;
+
+      // Check for cross-duplicates (IMEI1 should not equal IMEI2)
+      const noCrossDuplicate = imei !== imei2;
+
+      return isFirstImei1 && isFirstImei2 && isFirstSerial && noCrossDuplicate;
+    });
+
+    // Update rowData with unique items
+    setRowData(uniqueRowData);
+
+    // Check if we still have valid data after filtering
+    if (uniqueRowData.length === 0) {
+      showToast(
+        "No valid devices to dispatch after filtering duplicates",
+        "error"
+      );
+      return;
+    }
+
+    // Update quantity validation to use filtered data
+    if (uniqueRowData.length !== Number(data1.qty)) {
+      showToast(
+        `Total unique devices (${uniqueRowData.length}) should be equal to Quantity you have entered (${data1.qty})`,
+        "warning"
+      );
+    }
+
     const payload: DispatchItemPayload = {
-      sku: rowData.map((item) => item.productKey),
+      sku: uniqueRowData.map((item) => item.productKey),
       remark: data1.remark,
-      imeis: rowData.map((item) => item.imei),
-      imei1: rowData.map((item) => item.imei),
-      imei2: rowData.map((item) => item.imei2),
-      srlnos: rowData.map((item) => item.srno),
+      imeis: uniqueRowData.map((item) => item.imei),
+      imei1: uniqueRowData.map((item) => item.imei),
+      imei2: uniqueRowData.map((item) => item.imei2),
+      srlnos: uniqueRowData.map((item) => item.srno),
       pickLocation: data1.location?.code || "",
       challanId: id?.replace(/_/g, "/") || "",
     };
@@ -328,32 +439,84 @@ const CreateDispatchPage: React.FC = () => {
             autoFocus
             disabled={deviceDetailLoading}
             onClick={() => {
-              // Check for duplicate serial numbers before calling API
-              const imeiArray = imei ? imei.split("\n") : [];
-              const existingSerials = rowData.map((item: any) => item.srno);
+              // Get input IMEIs and clean them
+              const imeiArray = imei
+                ? imei
+                    .split("\n")
+                    .map((imei) => imei.trim())
+                    .filter((imei) => imei !== "")
+                : [];
 
-              // Check if any of the new IMEIs would result in duplicate serials
-              // This is a simplified check - you might need to adjust based on your API response structure
-              const duplicateSerials = imeiArray.filter((newImei: string) =>
-                existingSerials.includes(newImei.trim())
+              // Get existing data for validation
+              const existingImeis = rowData
+                .map((item: any) => item.imei?.trim())
+                .filter((imei) => imei);
+              const existingImei2s = rowData
+                .map((item: any) => item.imei2?.trim())
+                .filter((imei) => imei);
+              const existingSerials = rowData
+                .map((item: any) => item.srno?.trim())
+                .filter((srno) => srno);
+
+              // Check for duplicate IMEIs in input and keep only unique ones
+              const uniqueImeiArray = [...new Set(imeiArray)];
+              const duplicateInputImeis = imeiArray.filter(
+                (imei, index) => imeiArray.indexOf(imei) !== index
               );
 
-              if (duplicateSerials.length > 0) {
+              if (duplicateInputImeis.length > 0) {
                 showToast(
-                  `Duplicate serial numbers detected: ${duplicateSerials.join(
+                  `Duplicate IMEIs removed from input: ${duplicateInputImeis.join(
                     ", "
                   )}`,
-                  "error"
+                  "warning"
                 );
+                // Update the input to show only unique values
+                setImei(uniqueImeiArray.join("\n"));
+              }
+
+              // Check for duplicate IMEIs against existing data and filter them out
+              const filteredImeiArray = uniqueImeiArray.filter(
+                (newImei: string) =>
+                  !existingImeis.includes(newImei) &&
+                  !existingImei2s.includes(newImei)
+              );
+              const duplicateExistingImeis = uniqueImeiArray.filter(
+                (newImei: string) =>
+                  existingImeis.includes(newImei) ||
+                  existingImei2s.includes(newImei)
+              );
+
+              if (duplicateExistingImeis.length > 0) {
+                showToast(
+                  `IMEIs already exist, removed: ${duplicateExistingImeis.join(
+                    ", "
+                  )}`,
+                  "warning"
+                );
+                // Update the input to show only unique values that don't exist
+                setImei(filteredImeiArray.join("\n"));
+              }
+
+              // Use the final filtered IMEI array for API call
+              const finalImeiArray =
+                filteredImeiArray.length > 0
+                  ? filteredImeiArray
+                  : uniqueImeiArray;
+
+              if (finalImeiArray.length === 0) {
+                showToast("No valid IMEIs to process", "error");
                 setOpen(false);
                 return;
               }
 
               dispatch(
-                getDeviceDetails({ imei: imei, deviceType: data?.deviceType })
+                getDeviceDetails({
+                  imei: finalImeiArray.join("\n"),
+                  deviceType: data?.deviceType,
+                })
               ).then((res: any) => {
                 if (res.payload.data.success) {
-                  setImei("");
                   const newRowData = res?.payload?.data?.data?.map(
                     (device: any, deviceIndex: number) => {
                       console.log(device);
@@ -368,16 +531,130 @@ const CreateDispatchPage: React.FC = () => {
                       };
                     }
                   );
-                  console.log(newRowData);
-                  // Update rowData by appending newRowData to the existing rowData
+
+                  // Strictly deduplicate against existing + within this batch
+                  const existingImeiSet = new Set<string>([
+                    ...existingImeis,
+                    ...existingImei2s,
+                  ]);
+                  const existingSerialSet = new Set<string>([
+                    ...existingSerials,
+                  ]);
+
+                  const batchImeiSet = new Set<string>();
+                  const batchImei2Set = new Set<string>();
+                  const batchSerialSet = new Set<string>();
+
+                  const skippedImeis: string[] = [];
+                  const skippedImei2s: string[] = [];
+                  const skippedSerials: string[] = [];
+
+                  const dedupedNewRowData: any[] = [];
+                  for (const item of newRowData) {
+                    const imei1 = (item.imei ?? "").trim();
+                    const imei2 = (item.imei2 ?? "").trim();
+                    const srno = (item.srno ?? "").trim();
+
+                    // Skip empty identifiers
+                    if (!imei1 && !imei2 && !srno) {
+                      continue;
+                    }
+
+                    // Reject if any identifier already exists (current list)
+                    if (imei1 && existingImeiSet.has(imei1)) {
+                      skippedImeis.push(imei1);
+                      continue;
+                    }
+                    if (imei2 && existingImeiSet.has(imei2)) {
+                      skippedImei2s.push(imei2);
+                      continue;
+                    }
+                    if (srno && existingSerialSet.has(srno)) {
+                      skippedSerials.push(srno);
+                      continue;
+                    }
+
+                    // Reject if duplicate within this batch
+                    if (imei1 && batchImeiSet.has(imei1)) {
+                      skippedImeis.push(imei1);
+                      continue;
+                    }
+                    if (imei2 && batchImei2Set.has(imei2)) {
+                      skippedImei2s.push(imei2);
+                      continue;
+                    }
+                    if (srno && batchSerialSet.has(srno)) {
+                      skippedSerials.push(srno);
+                      continue;
+                    }
+
+                    // Reject cross-duplicate (imei1 equals imei2)
+                    if (imei1 && imei2 && imei1 === imei2) {
+                      skippedImeis.push(imei1);
+                      skippedImei2s.push(imei2);
+                      continue;
+                    }
+
+                    // Accept and update sets
+                    if (imei1) {
+                      batchImeiSet.add(imei1);
+                      existingImeiSet.add(imei1);
+                    }
+                    if (imei2) {
+                      batchImei2Set.add(imei2);
+                      existingImeiSet.add(imei2);
+                    }
+                    if (srno) {
+                      batchSerialSet.add(srno);
+                      existingSerialSet.add(srno);
+                    }
+
+                    dedupedNewRowData.push(item);
+                  }
+
+                  // Warn about any skipped identifiers
+                  const uniq = (arr: string[]) => Array.from(new Set(arr));
+                  if (skippedImeis.length > 0) {
+                    showToast(
+                      `Duplicate IMEI removed: ${uniq(skippedImeis).join(
+                        ", "
+                      )}`,
+                      "warning"
+                    );
+                  }
+                  if (skippedImei2s.length > 0) {
+                    showToast(
+                      `Duplicate IMEI2 removed: ${uniq(skippedImei2s).join(
+                        ", "
+                      )}`,
+                      "warning"
+                    );
+                  }
+                  if (skippedSerials.length > 0) {
+                    showToast(
+                      `Duplicate serial removed: ${uniq(skippedSerials).join(
+                        ", "
+                      )}`,
+                      "warning"
+                    );
+                  }
+
+                  if (dedupedNewRowData.length === 0) {
+                    showToast("No unique devices to add", "warning");
+                    setOpen(false);
+                    return;
+                  }
+
+                  // Update rowData by appending deduped list to the existing rowData
                   setRowData((prevRowData) => {
-                    const updatedData = [...newRowData, ...prevRowData];
+                    const updatedData = [...dedupedNewRowData, ...prevRowData];
                     // Reassign index numbers to maintain sequential order
                     return updatedData.map((item, index) => ({
                       ...item,
                       index: index + 1,
                     }));
                   });
+                  setImei("");
                   setOpen(false);
                 } else {
                   showToast(res.payload.data.message, "error");
