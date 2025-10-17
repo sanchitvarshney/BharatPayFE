@@ -331,34 +331,31 @@ const CreateDispatchPage: React.FC = () => {
       pickLocation: data1.location?.code || "",
       challanId: id?.replace(/_/g, "/") || "",
     };
-   if(data.deviceType === "device"){
-    console.log("object")
-    dispatch(CreateDispatch(payload)).then((res: any) => {
-      if (res.payload.data.success) {
-        setDispatchNo(res?.payload?.data?.data?.refID);
-        reset();
-        setRowData([]);
-        handleNext();
-        resetall();
-        //  dispatch(clearFile());
-      }
-    });
-  }
-
-  else{
-    dispatch(CreateSwipeDispatch(payload)).then((res: any) => {
-      if (res.payload.data.success) {
-        setDispatchNo(res?.payload?.data?.data?.refID);
-        reset();
-        setRowData([]);
-        handleNext();
-        resetall();
-      } else {
-        showToast(res?.payload?.data?.message , "error");
-        
-      }
-    });
-  }
+    if (data.deviceType === "device") {
+      console.log("object");
+      dispatch(CreateDispatch(payload)).then((res: any) => {
+        if (res.payload.data.success) {
+          setDispatchNo(res?.payload?.data?.data?.refID);
+          reset();
+          setRowData([]);
+          handleNext();
+          resetall();
+          //  dispatch(clearFile());
+        }
+      });
+    } else {
+      dispatch(CreateSwipeDispatch(payload)).then((res: any) => {
+        if (res.payload.data.success) {
+          setDispatchNo(res?.payload?.data?.data?.refID);
+          reset();
+          setRowData([]);
+          handleNext();
+          resetall();
+        } else {
+          showToast(res?.payload?.data?.message, "error");
+        }
+      });
+    }
     //  };
   };
 
@@ -550,6 +547,7 @@ const CreateDispatchPage: React.FC = () => {
                   const skippedSerials: string[] = [];
 
                   const dedupedNewRowData: any[] = [];
+
                   for (const item of newRowData) {
                     const imei1 = (item.imei ?? "").trim();
                     const imei2 = (item.imei2 ?? "").trim();
@@ -561,38 +559,45 @@ const CreateDispatchPage: React.FC = () => {
                     }
 
                     // Reject if any identifier already exists (current list)
-                    if (imei1 && existingImeiSet.has(imei1)) {
+                    if (imei1 !== "--" && existingImeiSet.has(imei1)) {
                       skippedImeis.push(imei1);
                       continue;
                     }
-                    if (imei2 && existingImeiSet.has(imei2)) {
+
+                    if (imei2 !=="--" && existingImeiSet.has(imei2)) {
                       skippedImei2s.push(imei2);
                       continue;
                     }
+
                     if (srno && existingSerialSet.has(srno)) {
                       skippedSerials.push(srno);
                       continue;
                     }
 
                     // Reject if duplicate within this batch
-                    if (imei1 && batchImeiSet.has(imei1)) {
+
+                    if (imei1 !== "--" && batchImeiSet.has(imei1)) {
                       skippedImeis.push(imei1);
                       continue;
                     }
-                    if (imei2 && batchImei2Set.has(imei2)) {
+                  
+                    if (imei2 !== "--" && batchImei2Set.has(imei2)) {
                       skippedImei2s.push(imei2);
                       continue;
                     }
+                   
                     if (srno && batchSerialSet.has(srno)) {
                       skippedSerials.push(srno);
                       continue;
                     }
 
                     // Reject cross-duplicate (imei1 equals imei2)
-                    if (imei1 && imei2 && imei1 === imei2) {
-                      skippedImeis.push(imei1);
-                      skippedImei2s.push(imei2);
-                      continue;
+                    if (imei1 !== "--") {
+                      if (imei2 && imei1 === imei2) {
+                        skippedImeis.push(imei1);
+                        skippedImei2s.push(imei2);
+                        continue;
+                      } 
                     }
 
                     // Accept and update sets
