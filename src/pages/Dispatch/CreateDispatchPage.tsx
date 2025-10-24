@@ -201,163 +201,135 @@ const CreateDispatchPage: React.FC = () => {
   }, [challanList]);
 
   const finalSubmit = () => {
-    console.log(rowData);
-    const data1 = formValues;
-    console.log(data);
-    // if (formdata) {
-    if (rowData.length !== Number(data1.qty))
-      return showToast(
-        "Total Devices should be equal to Quantity you have entered",
-        "error"
-      );
+  const data1 = formValues;
 
-    // Filter out duplicates before submission
-    const allImeis = rowData
-      .map((item) => item.imei?.trim())
-      .filter((imei) => imei);
-    const allImei2s = rowData
-      .map((item) => item.imei2?.trim())
-      .filter((imei) => imei);
-    const allSerials = rowData
-      .map((item) => item.srno?.trim())
-      .filter((srno) => srno);
-
-    // Check for duplicate IMEI1
-    const duplicateImeis = allImeis.filter(
-      (imei, index) => allImeis.indexOf(imei) !== index
+  // Initial quantity validation
+  if (rowData.length !== Number(data1.qty)) {
+    showToast(
+      `Total Devices (${rowData.length}) should be equal to Quantity you have entered (${data1.qty})`,
+      "error"
     );
+    return;
+  }
 
-    // Check for duplicate IMEI2
-    const duplicateImei2s = allImei2s.filter(
-      (imei, index) => allImei2s.indexOf(imei) !== index
+  // Collect all identifiers for duplicate checking
+  const allImeis = rowData
+    .map((item) => item.imei?.trim())
+    .filter((imei) => imei && imei !== "--");
+  const allImei2s = rowData
+    .map((item) => item.imei2?.trim())
+    .filter((imei) => imei && imei !== "--");
+  const allSerials = rowData
+    .map((item) => item.srno?.trim())
+    .filter((srno) => srno);
+
+  // Check for duplicates and show warnings
+  const duplicateImeis = allImeis.filter(
+    (imei, index) => allImeis.indexOf(imei) !== index
+  );
+  const duplicateImei2s = allImei2s.filter(
+    (imei, index) => allImei2s.indexOf(imei) !== index
+  );
+  const duplicateSerials = allSerials.filter(
+    (srno, index) => allSerials.indexOf(srno) !== index
+  );
+  const crossDuplicates = allImeis.filter((imei) => allImei2s.includes(imei));
+
+  // Show warnings but don't block submission
+  if (duplicateImeis.length > 0) {
+    showToast(
+      `Duplicate IMEI1 found: ${duplicateImeis.join(", ")}`,
+      "warning"
     );
-
-    // Check for duplicate serial numbers
-    const duplicateSerials = allSerials.filter(
-      (srno, index) => allSerials.indexOf(srno) !== index
+  }
+  if (duplicateImei2s.length > 0) {
+    showToast(
+      `Duplicate IMEI2 found: ${duplicateImei2s.join(", ")}`,
+      "warning"
     );
+  }
+  if (duplicateSerials.length > 0) {
+    showToast(
+      `Duplicate serial numbers found: ${duplicateSerials.join(", ")}`,
+      "warning"
+    );
+  }
+  if (crossDuplicates.length > 0) {
+    showToast(
+      `IMEI1 and IMEI2 conflicts found: ${crossDuplicates.join(", ")}`,
+      "warning"
+    );
+  }
 
-    // Check for cross-duplicates between IMEI1 and IMEI2
-    const crossDuplicates = allImeis.filter((imei) => allImei2s.includes(imei));
+  // Filter out invalid/duplicate entries but keep valid ones
+  const validRowData = rowData.filter((item) => {
+    const imei = item.imei?.trim();
+    const imei2 = item.imei2?.trim();
+    const srno = item.srno?.trim();
 
-    // Show warnings for duplicates found
-    if (duplicateImeis.length > 0) {
-      showToast(
-        `Duplicate IMEI1 found and will be filtered: ${duplicateImeis.join(
-          ", "
-        )}`,
-        "warning"
-      );
+    // Skip completely empty entries
+    if (!imei && !imei2 && !srno) {
+      return false;
     }
 
-    if (duplicateImei2s.length > 0) {
-      showToast(
-        `Duplicate IMEI2 found and will be filtered: ${duplicateImei2s.join(
-          ", "
-        )}`,
-        "warning"
-      );
-    }
+    // Keep entries with valid data (filter out "--" or empty critical fields)
+    return imei || imei2 || srno;
+  });
 
-    if (duplicateSerials.length > 0) {
-      showToast(
-        `Duplicate serial numbers found and will be filtered: ${duplicateSerials.join(
-          ", "
-        )}`,
-        "warning"
-      );
-    }
+  // Check if we have any valid data
+  if (validRowData.length === 0) {
+    showToast("No valid devices found in the list", "error");
+    return;
+  }
 
-    if (crossDuplicates.length > 0) {
-      showToast(
-        `IMEI1 and IMEI2 conflicts found and will be filtered: ${crossDuplicates.join(
-          ", "
-        )}`,
-        "warning"
-      );
-    }
+  // Final quantity check with valid data
+  if (validRowData.length !== Number(data1.qty)) {
+    showToast(
+      `Valid devices (${validRowData.length}) don't match quantity (${data1.qty}). Please check duplicates and empty entries.`,
+      "error"
+    );
+    return;
+  }
 
-    // Filter rowData to keep only unique items
-    const uniqueRowData = rowData.filter((item, index, self) => {
-      const imei = item.imei?.trim();
-      const imei2 = item.imei2?.trim();
-      const srno = item.srno?.trim();
-
-      // Check if this is the first occurrence of this IMEI1
-      const isFirstImei1 =
-        self.findIndex((i) => i.imei?.trim() === imei) === index;
-
-      // Check if this is the first occurrence of this IMEI2 (if it exists)
-      const isFirstImei2 =
-        !imei2 || self.findIndex((i) => i.imei2?.trim() === imei2) === index;
-
-      // Check if this is the first occurrence of this serial number
-      const isFirstSerial =
-        self.findIndex((i) => i.srno?.trim() === srno) === index;
-
-      // Check for cross-duplicates (IMEI1 should not equal IMEI2)
-      const noCrossDuplicate = imei !== imei2;
-
-      return isFirstImei1 && isFirstImei2 && isFirstSerial && noCrossDuplicate;
-    });
-
-    // Update rowData with unique items
-    setRowData(uniqueRowData);
-
-    // Check if we still have valid data after filtering
-    if (uniqueRowData.length === 0) {
-      showToast(
-        "No valid devices to dispatch after filtering duplicates",
-        "error"
-      );
-      return;
-    }
-
-    // Update quantity validation to use filtered data
-    if (uniqueRowData.length !== Number(data1.qty)) {
-      showToast(
-        `Total unique devices (${uniqueRowData.length}) should be equal to Quantity you have entered (${data1.qty})`,
-        "warning"
-      );
-    }
-
-    const payload: DispatchItemPayload = {
-      sku: uniqueRowData.map((item) => item.productKey),
-      remark: data1.remark,
-      imeis: uniqueRowData.map((item) => item.imei),
-      imei1: uniqueRowData.map((item) => item.imei),
-      imei2: uniqueRowData.map((item) => item.imei2),
-      srlnos: uniqueRowData.map((item) => item.srno),
-      pickLocation: data1.location?.code || "",
-      challanId: id?.replace(/_/g, "/") || "",
-    };
-    if (data.deviceType === "device") {
-      console.log("object");
-      dispatch(CreateDispatch(payload)).then((res: any) => {
-        if (res.payload.data.success) {
-          setDispatchNo(res?.payload?.data?.data?.refID);
-          reset();
-          setRowData([]);
-          handleNext();
-          resetall();
-          //  dispatch(clearFile());
-        }
-      });
-    } else {
-      dispatch(CreateSwipeDispatch(payload)).then((res: any) => {
-        if (res.payload.data.success) {
-          setDispatchNo(res?.payload?.data?.data?.refID);
-          reset();
-          setRowData([]);
-          handleNext();
-          resetall();
-        } else {
-          showToast(res?.payload?.data?.message, "error");
-        }
-      });
-    }
-    //  };
+  // Create payload with valid data
+  const payload: DispatchItemPayload = {
+    sku: validRowData.map((item) => item.productKey),
+    remark: data1.remark,
+    imeis: validRowData.map((item) => item.imei || ""),
+    imei1: validRowData.map((item) => item.imei || ""),
+    imei2: validRowData.map((item) => item.imei2 || ""),
+    srlnos: validRowData.map((item) => item.srno || ""),
+    pickLocation: data1.location?.code || "",
+    challanId: id?.replace(/_/g, "/") || "",
   };
+
+  // Proceed with dispatch
+  if (data.deviceType === "device") {
+    dispatch(CreateDispatch(payload)).then((res: any) => {
+      if (res.payload.data.success) {
+        setDispatchNo(res?.payload?.data?.data?.refID);
+        reset();
+        setRowData([]);
+        handleNext();
+        resetall();
+      } else {
+        showToast(res?.payload?.data?.message || "Dispatch failed", "error");
+      }
+    });
+  } else {
+    dispatch(CreateSwipeDispatch(payload)).then((res: any) => {
+      if (res.payload.data.success) {
+        setDispatchNo(res?.payload?.data?.data?.refID);
+        reset();
+        setRowData([]);
+        handleNext();
+        resetall();
+      } else {
+        showToast(res?.payload?.data?.message || "Dispatch failed", "error");
+      }
+    });
+  }
+};
 
   useEffect(() => {
     dispatch(getDispatchFromDetail());
