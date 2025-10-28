@@ -310,6 +310,7 @@ const PartCodeConversion: React.FC = () => {
                 value={fromCostCenter}
                 onChange={setFromCostCenter}
                 label=""
+                disabled={initialComponents.length > 0}
               />
             </div>
             {/* Pick Location */}
@@ -324,6 +325,7 @@ const PartCodeConversion: React.FC = () => {
                 onChange={setPickLocation}
                 varient="standard"
                 size="small"
+                disabled={initialComponents.length > 0}
               />
             </div>
 
@@ -337,6 +339,7 @@ const PartCodeConversion: React.FC = () => {
                 value={toCostCenter}
                 onChange={setToCostCenter}
                 label=""
+                disabled={initialComponents.length > 0} 
               />
             </div>
             {/* Drop Location */}
@@ -351,6 +354,7 @@ const PartCodeConversion: React.FC = () => {
                 onChange={setDropLocation}
                 varient="standard"
                 size="small"
+                disabled={initialComponents.length > 0}
               />
             </div>
 
