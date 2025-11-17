@@ -1,8 +1,4 @@
-import React, {
-  RefObject,
-  useMemo,
-  useState,
-} from "react";
+import React, { RefObject, useMemo, useState } from "react";
 import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { AgGridReact } from "@ag-grid-community/react";
@@ -151,10 +147,10 @@ const SwipeItemDetailsModal: React.FC<{
   );
 };
 
-const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
+const R21ReportTable: React.FC<Props> = ({ gridRef }) => {
   const {
-    r20Report,
-    getR20DataLoading,
+    r21Report,
+    getR21DataLoading,
     swipeItemDetails,
     swipeItemDetailsLoading,
   } = useAppSelector((state) => state.report);
@@ -169,46 +165,52 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       headerName: "#",
       field: "id",
       valueGetter: "node.rowIndex+1",
-      maxWidth: 100,
+      maxWidth: 80,
       headerClass: "font-semibold",
     },
     {
-      headerName: "AWB No.",
-      field: "awb_nos",
+      headerName: "Product",
+      field: "product",
       minWidth: 150,
       headerClass: "font-semibold",
     },
     {
-      headerName: "Qty",
-      field: "doc_qty",
-      minWidth: 100,
-      headerClass: "font-semibold",
-    },
-    {
-      headerName: "Mail cc",
-      field: "mail_cc",
+      headerName: "Delivery Partner",
+      field: "deliveryPartner",
       minWidth: 150,
       headerClass: "font-semibold",
     },
     {
-      headerName: "Mail To",
-      field: "mail_cc",
+      headerName: "Count",
+      field: "count",
+      minWidth: 100,
+      headerClass: "font-semibold",
+    },
+    {
+      headerName: "Delivery Date",
+      field: "deliveryDt",
+      minWidth: 120,
+      headerClass: "font-semibold",
+    },
+    {
+      headerName: "Remark",
+      field: "remark",
       minWidth: 150,
       headerClass: "font-semibold",
+      flex: 1,
     },
     {
-      headerName: "MIN",
-      field: "min",
-      minWidth: 100,
+      headerName: "Insert Date",
+      field: "insertDt",
+      minWidth: 180,
       headerClass: "font-semibold",
     },
     {
-      headerName: "Partner",
-      field: "partner",
-      minWidth: 100,
+      headerName: "Insert By",
+      field: "insertBy",
+      minWidth: 120,
       headerClass: "font-semibold",
     },
-    
   ];
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -220,24 +222,23 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
     };
   }, []);
 
-
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-sm">
       <div className="flex-1">
-        <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+        <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
           <AgGridReact
             ref={gridRef}
             loadingOverlayComponent={CustomLoadingOverlay}
-            loading={getR20DataLoading}
+            loading={getR21DataLoading}
             overlayNoRowsTemplate={OverlayNoRowsTemplate}
             suppressCellFocus={true}
-            rowData={r20Report?.data || []}
+            rowData={r21Report?.data || []}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             enableCellTextSelection={true}
             className="rounded-lg"
             rowClass="hover:bg-gray-50 transition-colors duration-200"
-            pagination
+            pagination={true}
           />
         </div>
       </div>
@@ -251,4 +252,4 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
   );
 };
 
-export default R20ReportTable;
+export default R21ReportTable;
