@@ -155,7 +155,6 @@ export type PartCodeReportQueryParams = {
   component?: string;
 };
 
-
 export type r4reportDetailDataResponse = {
   success: boolean;
   status: string;
@@ -249,7 +248,7 @@ export type r6reportApiResponse = {
         totalPages: number;
         totalRecords: number;
       };
-    }
+    };
   };
 };
 
@@ -309,7 +308,7 @@ export type R11ReportDataApiResponse = {
     currentPage: number;
     totalPages: number;
     totalRecords: number;
-  }
+  };
 };
 
 interface Issue {
@@ -434,14 +433,16 @@ export type ReportStateType = {
     from: string | null;
     to: string | null;
   };
-  getR19DataLoading: boolean,
-  r19Report: any,
-  r20Report:any,
-  getR20DataLoading:boolean,
-  partConversionData: any,
-  partConversionLoading: boolean,
-  partCodeConvDetailData: any,
-  partCodeConvDetailLoading: boolean,
+  getR19DataLoading: boolean;
+  r19Report: any;
+  r20Report: any;
+  getR20DataLoading: boolean;
+  getR21DataLoading: boolean;
+  r21Report: R11ReportDataApiResponse | null;
+  partConversionData: any;
+  partConversionLoading: boolean;
+  partCodeConvDetailData: any;
+  partCodeConvDetailLoading: boolean;
 };
 
 export interface R16ReportResponse {

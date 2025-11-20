@@ -26,14 +26,40 @@ const DownloadIndecator = () => {
   const id = open ? "simple-popover" : undefined;
 
   useEffect(() => {
-    const handlenotification = (data: NotificationData[]) => {
-      setNotification(data);
+    const handlenotification = (
+      data: NotificationData[] | { type: string; data: NotificationData[] }
+    ) => {
+      // Handle new format with type field
+      if (
+        data &&
+        typeof data === "object" &&
+        "type" in data &&
+        "data" in data
+      ) {
+        // Filter out notifications where type === 'notification', keep only download-related ones
+        if (data.type === "notification") {
+          // Clear download notifications when receiving general notifications
+          setNotification([]);
+        } else {
+          // For download-related types, show the notifications
+          setNotification(Array.isArray(data.data) ? data.data : []);
+        }
+      } else {
+        // Handle old format (direct array) - keep only download-related notifications
+        // Filter based on msg_type === 'file' or other download indicators
+        const downloadNotifications = Array.isArray(data)
+          ? data.filter(
+              (item) => item.msg_type === "file" || item.status !== "complete"
+            )
+          : [];
+        setNotification(downloadNotifications);
+      }
       console.log(data);
     };
 
     onnotification(handlenotification);
     return () => off("socket_receive_notification");
-  }, [onnotification]);
+  }, [onnotification, off]);
 
   useEffect(() => {
     const handleDownloadReport = (data: { notificationId: string; percent: string }) => {

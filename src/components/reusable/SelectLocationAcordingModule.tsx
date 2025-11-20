@@ -19,6 +19,7 @@ type Props = {
   size?: "small" | "medium";
   tabindex?: number;
   endPoint: string;
+  disabled?:boolean;
 };
 
 const SelectLocationAcordingModule: React.FC<Props> = ({
@@ -33,6 +34,7 @@ const SelectLocationAcordingModule: React.FC<Props> = ({
   size = "medium",
   tabindex = 0,
   endPoint,
+  disabled
 }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
@@ -76,6 +78,7 @@ const SelectLocationAcordingModule: React.FC<Props> = ({
         (reason === "input" || reason === "clear") &&
           setInputValue(newInputValue);
       }}
+      disabled={disabled}
       renderInput={(params) => (
         <TextField
           tabIndex={tabindex}
