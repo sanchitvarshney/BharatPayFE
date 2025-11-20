@@ -51,7 +51,6 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useParams } from "react-router-dom";
 import DispatchPageSkeleton from "@/components/skeletons/DispatchPageSkeleton";
-
 type RowData = {
   imei: string;
   srno: string;
@@ -292,7 +291,7 @@ const CreateDispatchPage: React.FC = () => {
   }
 
   // Create payload with valid data
-  const payload: DispatchItemPayload = {
+  const payload: any = {
     sku: validRowData.map((item) => item.productKey),
     remark: data1.remark,
     imeis: validRowData.map((item) => item.imei || ""),
