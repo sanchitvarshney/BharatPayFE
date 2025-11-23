@@ -51,6 +51,11 @@ interface Head {
 export interface Response {
   head: Head;
   body: BodyItem[];
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  };
 }
 
 export interface Q1ApiResponse {
@@ -149,6 +154,11 @@ export type QueryStateType = {
   getComponentDataLoading: boolean;
   getQ2DataLading: boolean;
   q2Data: Response | null;
+  q2Pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  } | null;
   q3data: ComponentData | null;
   q3DataLoading: boolean;
   q4Data: Q4Data | null;
