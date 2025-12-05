@@ -109,7 +109,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log(payload);
     socketService.emit("swipeRejectionReport", payload);
   };
-
+ const emitDownloadR22Report = (payload: any) => {
+    console.log(payload);
+    socketService.emit("bpeBillingReport", payload);
+  };
    const emitDownloadR19Report = (payload: any) => {
     console.log(payload);
     socketService.emit("preQcReportDownload", payload);
@@ -190,6 +193,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadR14Report,
         emitDownloadWrongDeviceReport,
         onDownloadReport,
+        emitDownloadR22Report,
         isConnected,
         refreshConnection,
         isLoading,
