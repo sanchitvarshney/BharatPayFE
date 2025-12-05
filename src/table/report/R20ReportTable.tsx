@@ -185,6 +185,12 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       headerClass: "font-semibold",
     },
     {
+      headerName: "AWB Count",
+      field: "awb_count",
+      minWidth: 100,
+      headerClass: "font-semibold",
+    },
+    {
       headerName: "Mail cc",
       field: "mail_cc",
       minWidth: 150,

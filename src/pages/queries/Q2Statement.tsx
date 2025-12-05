@@ -9,9 +9,25 @@ import Q2ReportTable from "@/table/query/Q2ReportTable";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { RowData } from "@/features/query/query/queryType";
 import { AgGridReact } from "@ag-grid-community/react";
-import { CardContent, Divider, FormControl, IconButton, List, ListItem, ListItemText, MenuItem, Paper, Select, Typography } from "@mui/material";
-import SelectComponent, { ComponentType } from "@/components/reusable/SelectComponent";
-import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import {
+  CardContent,
+  Divider,
+  FormControl,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Select,
+  Typography,
+} from "@mui/material";
+import SelectComponent, {
+  ComponentType,
+} from "@/components/reusable/SelectComponent";
+import SelectLocation, {
+  LocationType,
+} from "@/components/reusable/SelectLocation";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterIcon from "@mui/icons-material/Filter";
@@ -36,6 +52,7 @@ const Q2Statement: React.FC = () => {
   const { q2Data, getQ2DataLading } = useAppSelector((state) => state.query);
   const [value, setValue] = useState<ComponentType | null>(null);
   const [location, setLocation] = useState<LocationType | null>(null);
+  const [pageSize, setPageSize] = useState(20);
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
@@ -57,10 +74,25 @@ const Q2Statement: React.FC = () => {
   return (
     <div>
       <div className="relative flex bg-white">
-        <div className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "}`}>
-          <div className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}>
-            <Button onClick={() => setcolapse(!colapse)} className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}>
-              {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+        <div
+          className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${
+            colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "
+          }`}
+        >
+          <div
+            className={`transition-all ${
+              colapse ? "left-0" : "left-[400px]"
+            } w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
+          >
+            <Button
+              onClick={() => setcolapse(!colapse)}
+              className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}
+            >
+              {colapse ? (
+                <Icons.right fontSize="small" />
+              ) : (
+                <Icons.left fontSize="small" />
+              )}
             </Button>
           </div>
           <div className="h-full overflow-y-auto ">
@@ -68,13 +100,20 @@ const Q2Statement: React.FC = () => {
               <CardContent>
                 <div className="py-[20px] flex flex-col gap-[20px]">
                   <FormControl fullWidth>
-                    <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                    <Select
+                      value={filterType}
+                      onChange={(e) => setFilterType(e.target.value)}
+                    >
                       <MenuItem value="DATE">Date</MenuItem>
                       <MenuItem value="LOCATION">Location</MenuItem>
                     </Select>
                   </FormControl>
                   <div>
-                    <SelectComponent value={value} onChange={(e) => setValue(e)} label="-- Part --" />
+                    <SelectComponent
+                      value={value}
+                      onChange={(e) => setValue(e)}
+                      label="-- Part --"
+                    />
                   </div>
                   <div className="">
                     {filterType === "DATE" ? (
@@ -84,11 +123,17 @@ const Q2Statement: React.FC = () => {
                         onChange={handleDateChange}
                         disabledDate={(current) => current && current > dayjs()}
                         placeholder={["Start date", "End Date"]}
-                        value={date.from && date.to ? [date.from, date.to] : null} // Set value based on `from` and `to`
+                        value={
+                          date.from && date.to ? [date.from, date.to] : null
+                        } // Set value based on `from` and `to`
                         format="DD/MM/YYYY" // Update with your desired format
                       />
                     ) : (
-                      <SelectLocation value={location} onChange={(e) => setLocation(e)} label="-- Location --" />
+                      <SelectLocation
+                        value={location}
+                        onChange={(e) => setLocation(e)}
+                        label="-- Location --"
+                      />
                     )}
                   </div>
                 </div>
@@ -100,7 +145,19 @@ const Q2Statement: React.FC = () => {
                   loading={getQ2DataLading}
                   onClick={() => {
                     if (value && (date || location)) {
-                      dispatch(getQ2Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
+                      dispatch(
+                        getQ2Data({
+                          date: date
+                            ? `${dayjs(date.from).format(
+                                "DD-MM-YYYY"
+                              )}_to_${dayjs(date.to).format("DD-MM-YYYY")}`
+                            : null,
+                          value: value.id,
+                          location: location ? location.id : null,
+                          page: 1,
+                          limit: pageSize,
+                        })
+                      ).then((res: any) => {
                         if (!res.payload?.data?.success) {
                           // showToast(res.payload?.data?.message, "error");
                         } else {
@@ -144,34 +201,64 @@ const Q2Statement: React.FC = () => {
             </Paper>
             {q2Data && (
               <>
-                <Paper elevation={0} className="rounded-md mt-[20px] px-[20px] ">
-                  <Typography className=" text-slate-600" fontWeight={600} gutterBottom>
+                <Paper
+                  elevation={0}
+                  className="rounded-md mt-[20px] px-[20px] "
+                >
+                  <Typography
+                    className=" text-slate-600"
+                    fontWeight={600}
+                    gutterBottom
+                  >
                     Device Info
                   </Typography>
                   <Divider />
                   <List>
                     <ListItem>
-                      <ListItemText primary="Name" secondary={q2Data?.head?.name || "--"} />
+                      <ListItemText
+                        primary="Name"
+                        secondary={q2Data?.head?.name || "--"}
+                      />
                     </ListItem>
                     <ListItem>
-                      <ListItemText primary="Part Code" secondary={q2Data?.head?.code || "--"} />
+                      <ListItemText
+                        primary="Part Code"
+                        secondary={q2Data?.head?.code || "--"}
+                      />
                     </ListItem>
                     <ListItem>
-                      <ListItemText primary="UOM" secondary={q2Data?.head?.uom || "--"} />
+                      <ListItemText
+                        primary="UOM"
+                        secondary={q2Data?.head?.uom || "--"}
+                      />
                     </ListItem>
                   </List>
                 </Paper>
                 <Paper elevation={0} className="rounded-md px-[20px] ">
-                  <Typography className=" text-slate-600" fontWeight={600} gutterBottom>
+                  <Typography
+                    className=" text-slate-600"
+                    fontWeight={600}
+                    gutterBottom
+                  >
                     Stock Summary
                   </Typography>
                   <Divider />
                   <List>
                     <ListItem>
-                      <ListItemText primary="Opening Qty" secondary={formatNumber(q2Data?.head?.openingQty) || "--"} />
+                      <ListItemText
+                        primary="Opening Qty"
+                        secondary={
+                          formatNumber(q2Data?.head?.openingQty) || "--"
+                        }
+                      />
                     </ListItem>
                     <ListItem>
-                      <ListItemText primary="Closing Qty" secondary={formatNumber(q2Data?.head?.closingQty) || "--"} />
+                      <ListItemText
+                        primary="Closing Qty"
+                        secondary={
+                          formatNumber(q2Data?.head?.closingQty) || "--"
+                        }
+                      />
                     </ListItem>
                   </List>
                 </Paper>
@@ -180,7 +267,45 @@ const Q2Statement: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <Q2ReportTable gridRef={gridRef} />
+          <Q2ReportTable
+            gridRef={gridRef}
+            pageSize={pageSize}
+            handlePageChange={(page: number) => {
+              if (value && (date || location)) {
+                dispatch(
+                  getQ2Data({
+                    date: date
+                      ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(
+                          date.to
+                        ).format("DD-MM-YYYY")}`
+                      : null,
+                    value: value.id,
+                    location: location ? location.id : null,
+                    page: page,
+                    limit: pageSize,
+                  })
+                );
+              }
+            }}
+            handlePageSizeChange={(newPageSize: number) => {
+              setPageSize(newPageSize);
+              if (value && (date || location)) {
+                dispatch(
+                  getQ2Data({
+                    date: date
+                      ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(
+                          date.to
+                        ).format("DD-MM-YYYY")}`
+                      : null,
+                    value: value.id,
+                    location: location ? location.id : null,
+                    page: 1,
+                    limit: newPageSize,
+                  })
+                );
+              }
+            }}
+          />
         </div>
       </div>
     </div>
