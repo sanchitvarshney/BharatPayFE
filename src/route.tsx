@@ -113,6 +113,8 @@ import PartCodeConversionLayout from "@/layouts/PartCodeConversionLayout";
 import PartCodeConversionReport from "@/pages/partCodeConversion/PartCodeConversionReport";
 import ProdReturnMin from "@/pages/wearhouse/ProdReturnMin";
 import ProdReturnMinLayout from "@/layouts/ProdReturnMinLayout";
+import GPLayout from "@/layouts/GPLayout";
+import CreateGP from "@/pages/GPDCChallan/CreateGP";
 
 export const router = createBrowserRouter([
   {
@@ -470,6 +472,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/procurement/create",
+      },
+      {
+        element: (
+          <MainLayout>
+            <GPLayout>
+              <CreateGP />
+            </GPLayout>
+          </MainLayout>
+        ),
+        path: "/warehouse/create-dc",
       },
       {
         element: (
