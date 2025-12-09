@@ -47,7 +47,7 @@ const SwipeMaterialApproval: React.FC = () => {
             const remark = formJson.remark;
 
             if (remark) {
-              dispatch(materialRequestCancel({ remarks: remarks, txnID: txnId })).then((res: any) => {
+              dispatch(materialRequestCancel({ remarks: remarks, txnID: txnId,type:"SWIPE" })).then((res: any) => {
                 if (res.payload.data?.success) {
                   setRemarks("");
                   setTxnId("");

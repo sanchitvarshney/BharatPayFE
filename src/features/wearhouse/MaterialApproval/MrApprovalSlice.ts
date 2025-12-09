@@ -100,8 +100,8 @@ export const materialRequestReject = createAsyncThunk<AxiosResponse<MaterialReje
   const response = await axiosInstance.put(`/req/data/reject/${params.itemCode}/${params.txnId}`, { remarks: params.remarks });
   return response;
 });
-export const materialRequestCancel = createAsyncThunk<AxiosResponse<MaterialRejectResponse>, { txnID: string; remarks: string }>("master/materialRequestCancel", async (params) => {
-  const response = await axiosInstance.put(`/req/data/cancel/${params.txnID}`, { remark: params.remarks });
+export const materialRequestCancel = createAsyncThunk<AxiosResponse<MaterialRejectResponse>, { txnID: string; remarks: string, type: string }>("master/materialRequestCancel", async (params) => {
+  const response = await axiosInstance.put(`/req/data/cancel/${params.txnID}?type=${params.type}`, { remark: params.remarks });
   return response;
 });
 export const getApprovedMaterialList = createAsyncThunk<AxiosResponse<AprovedMaterialListResponse>, AprovedMaterialListPayload>("master/getApprovedMaterialList", async (params) => {
