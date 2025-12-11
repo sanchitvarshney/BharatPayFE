@@ -160,9 +160,7 @@ const Q2Statement: React.FC = () => {
                       ).then((res: any) => {
                         if (!res.payload?.data?.success) {
                           // showToast(res.payload?.data?.message, "error");
-                        } else {
-                          setLocation(null);
-                        }
+                        } 
                       });
                     } else {
                       showToast("Please select required fields", "error");
