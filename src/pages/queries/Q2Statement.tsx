@@ -142,33 +142,7 @@ const Q2Statement: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <LoadingButton
-                  variant="outlined"
-              
                
-                  onClick={() => {
-                    if (value && (date || location)) {
-                      const payload = {
-                           date: date
-                            ? `${dayjs(date.from).format(
-                                "DD-MM-YYYY"
-                              )}_to_${dayjs(date.to).format("DD-MM-YYYY")}`
-                            : null,
-                          value: value.id,
-                          location: location ? location.id : null,
-                      }
-                 
-                      emitDownloadQ2Report(payload);
-                    
-                    } else {
-                      showToast("Please select required fields", "error");
-                    }
-                  }}
-                  type="submit"
-                  startIcon={<Download fontSize="small" />}
-                >
-                  Download All
-                </LoadingButton>
               </CardContent>
 
               <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px]  gap-[10px]">
@@ -203,6 +177,34 @@ const Q2Statement: React.FC = () => {
                   startIcon={<SearchIcon fontSize="small" />}
                 >
                   Search
+                </LoadingButton>
+                 <LoadingButton
+                  variant="outlined"
+              
+               
+                  onClick={() => {
+                    if (value && (date || location)) {
+                      const payload = {
+                           date: date
+                            ? `${dayjs(date.from).format(
+                                "DD-MM-YYYY"
+                              )}_to_${dayjs(date.to).format("DD-MM-YYYY")}`
+                            : null,
+                          data: value.id,
+                          location: location ? location.id : null,
+                          type: filterType
+                      }
+                 
+                      emitDownloadQ2Report(payload);
+                    
+                    } else {
+                      showToast("Please select required fields", "error");
+                    }
+                  }}
+                  type="submit"
+                  startIcon={<Download fontSize="small" />}
+                >
+                  Download
                 </LoadingButton>
 
                 <div className="flex items-center gap-[5px]">
