@@ -192,7 +192,7 @@ const Q2Statement: React.FC = () => {
                             : null,
                           data: value.id,
                           location: location ? location.id : null,
-                          type: filterType
+                          type: filterType.toLowerCase(),
                       }
                  
                       emitDownloadQ2Report(payload);
