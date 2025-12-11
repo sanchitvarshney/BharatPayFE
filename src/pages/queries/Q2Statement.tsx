@@ -37,6 +37,7 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { rangePresets } from "@/utils/rangePresets";
 import { formatNumber } from "@/utils/numberFormatUtils";
+import { Download } from "@mui/icons-material";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
@@ -137,9 +138,43 @@ const Q2Statement: React.FC = () => {
                     )}
                   </div>
                 </div>
+                   <LoadingButton
+                  variant="outlined"
+                  loadingPosition="start"
+                  loading={getQ2DataLading}
+                  onClick={() => {
+                    if (value && (date || location)) {
+                      // dispatch(
+                      //   getQ2Data({
+                      //     date: date
+                      //       ? `${dayjs(date.from).format(
+                      //           "DD-MM-YYYY"
+                      //         )}_to_${dayjs(date.to).format("DD-MM-YYYY")}`
+                      //       : null,
+                      //     value: value.id,
+                      //     location: location ? location.id : null,
+                      //     page: 1,
+                      //     limit: pageSize,
+                      //   })
+                      // ).then((res: any) => {
+                      //   if (!res.payload?.data?.success) {
+                      //     // showToast(res.payload?.data?.message, "error");
+                      //   } 
+                      // });
+                    } else {
+                      showToast("Please select required fields", "error");
+                    }
+                  }}
+                  type="submit"
+                  startIcon={<Download fontSize="small" />}
+                >
+                  Download All
+                </LoadingButton>
               </CardContent>
+             
               <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px]  gap-[10px]">
-                <LoadingButton
+                
+                    <LoadingButton
                   variant="contained"
                   loadingPosition="start"
                   loading={getQ2DataLading}
@@ -171,6 +206,7 @@ const Q2Statement: React.FC = () => {
                 >
                   Search
                 </LoadingButton>
+              
                 <div className="flex items-center gap-[5px]">
                   <MuiTooltip title="Download" placement="right">
                     <LoadingButton
