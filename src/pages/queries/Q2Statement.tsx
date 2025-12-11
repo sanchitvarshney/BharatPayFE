@@ -9,6 +9,8 @@ import Q2ReportTable from "@/table/query/Q2ReportTable";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { RowData } from "@/features/query/query/queryType";
 import { AgGridReact } from "@ag-grid-community/react";
+
+
 import {
   CardContent,
   Divider,
@@ -38,10 +40,12 @@ import { Button } from "@/components/ui/button";
 import { rangePresets } from "@/utils/rangePresets";
 import { formatNumber } from "@/utils/numberFormatUtils";
 import { Download } from "@mui/icons-material";
+import { useSocketContext } from "@/components/context/SocketContext";
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
 const Q2Statement: React.FC = () => {
+   const { emitDownloadQ2Report} = useSocketContext();
   const [colapse, setcolapse] = useState<boolean>(false);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
@@ -138,29 +142,24 @@ const Q2Statement: React.FC = () => {
                     )}
                   </div>
                 </div>
-                   <LoadingButton
+                <LoadingButton
                   variant="outlined"
-                  loadingPosition="start"
-                  loading={getQ2DataLading}
+              
+               
                   onClick={() => {
                     if (value && (date || location)) {
-                      // dispatch(
-                      //   getQ2Data({
-                      //     date: date
-                      //       ? `${dayjs(date.from).format(
-                      //           "DD-MM-YYYY"
-                      //         )}_to_${dayjs(date.to).format("DD-MM-YYYY")}`
-                      //       : null,
-                      //     value: value.id,
-                      //     location: location ? location.id : null,
-                      //     page: 1,
-                      //     limit: pageSize,
-                      //   })
-                      // ).then((res: any) => {
-                      //   if (!res.payload?.data?.success) {
-                      //     // showToast(res.payload?.data?.message, "error");
-                      //   } 
-                      // });
+                      const payload = {
+                           date: date
+                            ? `${dayjs(date.from).format(
+                                "DD-MM-YYYY"
+                              )}_to_${dayjs(date.to).format("DD-MM-YYYY")}`
+                            : null,
+                          value: value.id,
+                          location: location ? location.id : null,
+                      }
+                 
+                      emitDownloadQ2Report(payload);
+                    
                     } else {
                       showToast("Please select required fields", "error");
                     }
@@ -171,10 +170,9 @@ const Q2Statement: React.FC = () => {
                   Download All
                 </LoadingButton>
               </CardContent>
-             
+
               <CardFooter className="h-[50px] p-0 flex items-center justify-between px-[20px]  gap-[10px]">
-                
-                    <LoadingButton
+                <LoadingButton
                   variant="contained"
                   loadingPosition="start"
                   loading={getQ2DataLading}
@@ -195,7 +193,7 @@ const Q2Statement: React.FC = () => {
                       ).then((res: any) => {
                         if (!res.payload?.data?.success) {
                           // showToast(res.payload?.data?.message, "error");
-                        } 
+                        }
                       });
                     } else {
                       showToast("Please select required fields", "error");
@@ -206,7 +204,7 @@ const Q2Statement: React.FC = () => {
                 >
                   Search
                 </LoadingButton>
-              
+
                 <div className="flex items-center gap-[5px]">
                   <MuiTooltip title="Download" placement="right">
                     <LoadingButton
