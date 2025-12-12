@@ -3,10 +3,11 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { getSkuAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import { resetUploadFileData } from "@/features/master/BOM/BOMSlice";
 import {
-  resetUploadFileData
-} from "@/features/master/BOM/BOMSlice";
-import { createGPDC, clearGPDCData } from "@/features/GPDCChallan/GPDCChallanSlice";
+  createGPDC,
+  clearGPDCData,
+} from "@/features/GPDCChallan/GPDCChallanSlice";
 import { showToast } from "@/utils/toasterContext";
 import {
   Button,
@@ -43,11 +44,7 @@ const CreateGP: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
   const [methodchange, setMethodChange] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { createBomLoading, uploadFileData } =
-    useAppSelector((state) => state.bom);
-  const { createGPDCLoading } = useAppSelector(
-    (state) => state.gpdcChallan
-  );
+  const { createGPDCLoading } = useAppSelector((state) => state.gpdcChallan);
   const {
     register,
     handleSubmit,
@@ -60,7 +57,7 @@ const CreateGP: React.FC = () => {
       name: "",
       mobile: "",
       email: "",
-      address: "",  
+      address: "",
       narration: "",
     },
   });
@@ -120,9 +117,7 @@ const CreateGP: React.FC = () => {
     }
 
     // Validate row data
-    const invalidRows = rowData.filter(
-      (row) => !row.component || row.qty <= 0
-    );
+    const invalidRows = rowData.filter((row) => !row.component || row.qty <= 0);
     if (invalidRows.length > 0) {
       showToast("Please fill all component details and quantities", "error");
       return;
@@ -192,7 +187,7 @@ const CreateGP: React.FC = () => {
         <div className="h-full overflow-y-auto border-r border-neutral-300 ">
           <form onSubmit={handleSubmit(onSubmit)} className="p-[20px]">
             <div className="grid grid-cols-2 gap-[20px] mt-[10px]">
-            <div>
+              <div>
                 <Controller
                   name="type"
                   control={control}
@@ -208,8 +203,12 @@ const CreateGP: React.FC = () => {
                         id="demo-simple-select"
                         label="Type"
                       >
-                        <MenuItem value={"RGP"}>RGP(Returnable Gate Pass)</MenuItem>
-                        <MenuItem value={"NRGP"}>NRGP(Non Returnable Gate Pass)</MenuItem>
+                        <MenuItem value={"RGP"}>
+                          RGP(Returnable Gate Pass)
+                        </MenuItem>
+                        <MenuItem value={"NRGP"}>
+                          NRGP(Non Returnable Gate Pass)
+                        </MenuItem>
                       </Select>
                     </FormControl>
                   )}
@@ -224,7 +223,9 @@ const CreateGP: React.FC = () => {
                 <TextField
                   fullWidth
                   label="Name of the Recipient"
-                  {...register("name", { required: "Name of the Recipient is required" })}
+                  {...register("name", {
+                    required: "Name of the Recipient is required",
+                  })}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-[12px]">
@@ -256,7 +257,6 @@ const CreateGP: React.FC = () => {
                   </p>
                 )}
               </div>
-            
             </div>
             <div className="mt-[30px]">
               <TextField
@@ -278,7 +278,9 @@ const CreateGP: React.FC = () => {
                 rows={3}
                 fullWidth
                 label="Narration"
-                {...register("narration", { required: "Narration is required" })}
+                {...register("narration", {
+                  required: "Narration is required",
+                })}
               />
               {errors.narration && (
                 <p className="text-red-500 text-[12px]">
@@ -290,9 +292,7 @@ const CreateGP: React.FC = () => {
               <Button
                 disabled={createGPDCLoading}
                 onClick={() => {
-                  rowData.length > 0
-                    ? setAlert(true)
-                    : reset();
+                  rowData.length > 0 ? setAlert(true) : reset();
                 }}
                 type="button"
                 startIcon={<RefreshIcon fontSize="small" />}

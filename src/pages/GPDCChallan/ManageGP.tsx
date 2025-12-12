@@ -5,11 +5,11 @@ import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
-  cancelPO,
-  fetchPOData,
-  getListofPo,
-  poPrint,
-} from "@/features/procurement/poSlices";
+  getListofGPDC,
+  printGPDC,
+  getGPDCById,
+  setDateRange,
+} from "@/features/GPDCChallan/GPDCChallanSlice";
 import CustomPagination from "@/components/reusable/CustomPagination";
 import { AgGridReact } from "@ag-grid-community/react";
 
@@ -22,10 +22,6 @@ import {
   MenuItem,
   Select,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
@@ -33,27 +29,21 @@ import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
-import { setDateRange } from "@/features/procurement/poSlices";
-import ViewPOModal from "@/pages/procurement/ViewPOModal";
 const ManageGP: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const dispatch = useAppDispatch();
-  const { managePoData, printLoading, dateRange, loading, cancelLoading } =
-    useAppSelector((state) => state.po);
+  const { manageGPDCData, printLoading, dateRange, getGPDCLoading } =
+    useAppSelector((state) => state.gpdcChallan);
   const [colapse, setcolapse] = useState<boolean>(false);
   const [type, setType] = useState<string>("datewise");
-  //   const [detail, setDetail] = useState<boolean>(false);
-  const [po, setPo] = useState<string>("");
+  const [gpdcNo, setGpdcNo] = useState<string>("");
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
   });
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<any>(null);
-  const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
-  const [cancelReason, setCancelReason] = useState<string>("");
-  const [openViewPOModal, setOpenViewPOModal] = useState<boolean>(false);
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -89,40 +79,44 @@ const ManageGP: React.FC = () => {
       valueGetter: "node.rowIndex+1",
     },
     {
-      headerName: "PO No.",
-      field: "po_transaction",
-      sortable: true,
-      filter: true,
-    },
-
-    {
-      headerName: "Vendor Id",
-      field: "vendor_id",
+      headerName: "GP DC No.",
+      field: "gpdc_no",
       sortable: true,
       filter: true,
     },
     {
-      headerName: "Vendor Name",
-      field: "vendor_name",
-      sortable: true,
-      filter: true,
-    },
-
-    // {
-    //   headerName: "Advance Payment",
-    //   field: "advancePayment",
-    //   sortable: true,
-    //   filter: true,
-    // },
-    {
-      headerName: "PO Created Date",
-      field: "po_reg_date",
+      headerName: "Type",
+      field: "type",
       sortable: true,
       filter: true,
     },
     {
-      headerName: "PO Created By",
-      field: "po_reg_by",
+      headerName: "Recipient Name",
+      field: "name",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Mobile",
+      field: "mobile",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Email",
+      field: "email",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Created Date",
+      field: "created_date",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Created By",
+      field: "created_by",
       sortable: true,
       filter: true,
     },
@@ -137,34 +131,34 @@ const ManageGP: React.FC = () => {
     (page: number) => {
       setCurrentPage(page);
       dispatch(
-        getListofPo({
+        getListofGPDC({
           wise: type,
-          data: dateRange,
+          data: dateRange || "",
 
           page: page,
           limit: pageSize,
         })
       );
     },
-    [dispatch, pageSize]
+    [dispatch, pageSize, type, dateRange]
   );
 
   const handlePageSizeChange = useCallback(
     (size: number) => {
       setPageSize(size);
       setCurrentPage(1); // Reset to first page when changing page size
-      if (dateRange) {
+      if (dateRange || gpdcNo) {
         dispatch(
-          getListofPo({
+          getListofGPDC({
             wise: type,
-            data: dateRange,
-            page: currentPage,
+            data: dateRange || gpdcNo || "",
+            page: 1,
             limit: size,
           })
         );
       }
     },
-    [dispatch]
+    [dispatch, type, dateRange, gpdcNo]
   );
   const handleDateChange = (dates: {
     from: Dayjs | null;
@@ -174,60 +168,27 @@ const ManageGP: React.FC = () => {
   };
 
   const handlePrintChallan = () => {
-    dispatch(poPrint({ id: selectedRow.po_transaction }));
-    setAnchorEl(null);
-  };
-
-  const handleEditChallan = () => {
-    const id = selectedRow.po_transaction.replaceAll("/", "_");
-    window.open(`/procurement/edit-po/${id}`, "_blank");
-    setAnchorEl(null);
-  };
-
-  const handleCancelPO = () => {
-    setOpenCancelModal(true);
-    setAnchorEl(null);
-  };
-
-  const handleCloseCancelModal = () => {
-    setOpenCancelModal(false);
-    setCancelReason("");
-  };
-
-  const handleSubmitCancel = async () => {
-    if (!cancelReason.trim()) {
-      showToast("Please enter reason for cancellation", "error");
-      return;
-    }
-
-    try {
-      const payload = {
-        purchase_order: selectedRow.po_transaction,
-        remark: cancelReason.trim(),
-      };
-      dispatch(cancelPO(payload)).then((res: any) => {
-        if (res.payload.data.success) {
-          showToast("PO cancelled successfully", "success");
-          handleCloseCancelModal();
-          // Refresh the PO list
-          dispatch(
-            getListofPo({
-              wise: type,
-              data: dateRange,
-              page: currentPage,
-              limit: pageSize,
-            })
-          );
+    if (selectedRow?.gpdc_no) {
+      dispatch(printGPDC({ id: selectedRow.gpdc_no })).then((res: any) => {
+        if (res.payload?.success) {
+          showToast("GP DC downloaded successfully", "success");
         }
       });
-    } catch (error) {
-      showToast("Failed to cancel PO", "error");
     }
+    setAnchorEl(null);
   };
 
-  const handleViewPO = () => {
-    setOpenViewPOModal(true);
-    dispatch(fetchPOData({ id: selectedRow.po_transaction }));
+  const handleViewGPDC = () => {
+    if (selectedRow?.gpdc_no) {
+      dispatch(getGPDCById({ gpdcId: selectedRow.gpdc_no })).then(
+        (res: any) => {
+          if (res.payload?.data?.success) {
+            // You can open a modal or navigate to view page here
+            showToast("GP DC details loaded", "success");
+          }
+        }
+      );
+    }
     setAnchorEl(null);
   };
 
@@ -259,13 +220,12 @@ const ManageGP: React.FC = () => {
             <FormControl fullWidth>
               <Select
                 value={type}
-                defaultValue="min"
+                defaultValue="datewise"
                 onChange={(e) => setType(e.target.value)}
               >
                 {[
-                  { value: "powise", label: "PO", isDisabled: false },
+                  { value: "gpdcwise", label: "GP DC No.", isDisabled: false },
                   { value: "datewise", label: "Date", isDisabled: false },
-                  { value: "vendorwise", label: "Vender", isDisabled: false },
                 ].map((item) => (
                   <MenuItem
                     disabled={item.isDisabled}
@@ -279,31 +239,32 @@ const ManageGP: React.FC = () => {
             </FormControl>
           </div>
           <div className=" p-[10px]">
-            {type === "powise" ? (
+            {type === "gpdcwise" ? (
               <div className="flex flex-col gap-[20px] ">
                 <TextField
-                  label="PO"
-                  value={po}
-                  onChange={(e) => setPo(e.target.value)}
+                  label="GP DC No."
+                  value={gpdcNo}
+                  onChange={(e) => setGpdcNo(e.target.value)}
                 />
 
                 <div className="flex items-center justify-between">
                   <LoadingButton
                     className="max-w-max"
                     variant="contained"
-                    loading={loading}
+                    loading={getGPDCLoading}
                     onClick={() => {
-                      if (po) {
+                      if (gpdcNo) {
                         dispatch(
-                          getListofPo({
-                            wise: "powise",
-                            data: po,
+                          getListofGPDC({
+                            wise: "gpdcwise",
+                            data: gpdcNo,
                             limit: pageSize,
                             page: 1,
                           })
                         );
+                        setCurrentPage(1);
                       } else {
-                        showToast("Please enter PO", "error");
+                        showToast("Please enter GP DC No.", "error");
                       }
                     }}
                     startIcon={<SearchIcon fontSize="small" />}
@@ -339,19 +300,18 @@ const ManageGP: React.FC = () => {
                         dispatch(setDateRange(dataString as any));
 
                         dispatch(
-                          getListofPo({
+                          getListofGPDC({
                             wise: "datewise",
-                            //   from: dayjs(date.from).format("DD-MM-YYYY"),
-                            //   to: dayjs(date.to).format("DD-MM-YYYY"),
                             data: dataString,
                             limit: pageSize,
-                            page: currentPage,
+                            page: 1,
                           })
                         );
+                        setCurrentPage(1);
                       }
                     }}
                     variant="contained"
-                    loading={loading}
+                    loading={getGPDCLoading}
                     //   disabled={!date || mainR1ReportLoading}
                     startIcon={<SearchIcon fontSize="small" />}
                   >
@@ -368,11 +328,11 @@ const ManageGP: React.FC = () => {
           <div className="relative ag-theme-quartz h-[calc(100vh-190px)]">
             <AgGridReact
               loadingOverlayComponent={CustomLoadingOverlay}
-              loading={loading || printLoading}
+              loading={getGPDCLoading || printLoading}
               overlayNoRowsTemplate={OverlayNoRowsTemplate}
               suppressCellFocus={true}
               rowData={
-                Array.isArray(managePoData?.data) ? managePoData.data : []
+                Array.isArray(manageGPDCData?.data) ? manageGPDCData.data : []
               }
               columnDefs={columnDefs}
               defaultColDef={defaultColDef}
@@ -382,8 +342,8 @@ const ManageGP: React.FC = () => {
           <div className="p-4 border-t">
             <CustomPagination
               currentPage={currentPage}
-              totalPages={managePoData?.pagination?.total_pages}
-              totalRecords={managePoData?.pagination?.total}
+              totalPages={manageGPDCData?.pagination?.total_pages}
+              totalRecords={manageGPDCData?.pagination?.total}
               onPageChange={handlePageChange}
               pageSize={pageSize}
               onPageSizeChange={handlePageSizeChange}
@@ -403,51 +363,9 @@ const ManageGP: React.FC = () => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleEditChallan}>Update PO</MenuItem>
-          <MenuItem onClick={handleViewPO}>View</MenuItem>
+          <MenuItem onClick={handleViewGPDC}>View</MenuItem>
           <MenuItem onClick={handlePrintChallan}>Download</MenuItem>
-          <MenuItem onClick={handleCancelPO}>Cancel</MenuItem>
         </Menu>
-
-        <Dialog
-          open={openCancelModal}
-          onClose={handleCloseCancelModal}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle>Cancel Procurement Order</DialogTitle>
-          <DialogContent>
-            <div className="mt-4">
-              <TextField
-                fullWidth
-                label="Reason for Cancellation"
-                multiline
-                rows={4}
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                required
-                error={!cancelReason.trim()}
-                helperText={!cancelReason.trim() ? "Reason is required" : ""}
-              />
-            </div>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseCancelModal}>Cancel</Button>
-            <LoadingButton
-              onClick={handleSubmitCancel}
-              loading={cancelLoading}
-              variant="contained"
-              color="error"
-            >
-              Confirm Cancel
-            </LoadingButton>
-          </DialogActions>
-        </Dialog>
-        <ViewPOModal
-          open={openViewPOModal}
-          setOpen={setOpenViewPOModal}
-          poId={selectedRow?.po_transaction}
-        />
       </div>
     </div>
   );

@@ -10,6 +10,9 @@ const initialState: GPDCChallanState = {
   getGPDCLoading: false,
   gpdcDetail: null,
   getGPDCDetailLoading: false,
+  manageGPDCData: null,
+  dateRange: null,
+  printLoading: false,
 };
 
 export const createGPDC = createAsyncThunk<
@@ -30,6 +33,55 @@ export const getGPDCList = createAsyncThunk<
   return response;
 });
 
+export const getListofGPDC = createAsyncThunk<
+  AxiosResponse<any>,
+  { wise: "gpdcwise" | "datewise" | string; data: string; limit: number; page: number }
+>("gpdc/getListofGPDC", async (payload) => {
+  const response = await axiosInstance.get(
+    payload.wise === "gpdcwise"
+      ? `/gpdc/fetch?wise=gpdcwise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
+      : `/gpdc/fetch?wise=datewise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
+  );
+  return response;
+});
+
+export const printGPDC = createAsyncThunk<AxiosResponse<any>, { id: string }>(
+  "gpdc/printGPDC",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/gpdc/print?gpdcId=${data.id}`, {
+        responseType: "blob",
+      });
+
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `GP_DC_${data.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      // Return success response
+      return {
+        success: true,
+        data: null,
+        message: "PDF downloaded successfully",
+      } as any;
+    } catch (error: any) {
+      // Return error response using rejectWithValue
+      return rejectWithValue({
+        success: false,
+        data: null,
+        message: error.message || "Failed to download PDF",
+        error: error,
+      } as any);
+    }
+  }
+);
+
 export const getGPDCById = createAsyncThunk<
   AxiosResponse<{ success: boolean; message: string; data: any }>,
   { gpdcId: string }
@@ -44,6 +96,9 @@ const gpdcChallanSlice = createSlice({
   reducers: {
     clearGPDCData: (state) => {
       state.gpdcDetail = null;
+    },
+    setDateRange: (state, action) => {
+      state.dateRange = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -83,10 +138,31 @@ const gpdcChallanSlice = createSlice({
       })
       .addCase(getGPDCById.rejected, (state) => {
         state.getGPDCDetailLoading = false;
+      })
+      .addCase(getListofGPDC.pending, (state) => {
+        state.getGPDCLoading = true;
+      })
+      .addCase(getListofGPDC.fulfilled, (state, action) => {
+        state.getGPDCLoading = false;
+        if (action.payload.data.success) {
+          state.manageGPDCData = action.payload.data.data;
+        }
+      })
+      .addCase(getListofGPDC.rejected, (state) => {
+        state.getGPDCLoading = false;
+      })
+      .addCase(printGPDC.pending, (state) => {
+        state.printLoading = true;
+      })
+      .addCase(printGPDC.fulfilled, (state) => {
+        state.printLoading = false;
+      })
+      .addCase(printGPDC.rejected, (state) => {
+        state.printLoading = false;
       });
   },
 });
 
-export const { clearGPDCData } = gpdcChallanSlice.actions;
+export const { clearGPDCData, setDateRange } = gpdcChallanSlice.actions;
 export default gpdcChallanSlice.reducer;
 

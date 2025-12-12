@@ -16,4 +16,7 @@ export type GPDCChallanState = {
   getGPDCLoading: boolean;
   gpdcDetail: any;
   getGPDCDetailLoading: boolean;
+  manageGPDCData: any;
+  dateRange: string | null;
+  printLoading: boolean;
 };
