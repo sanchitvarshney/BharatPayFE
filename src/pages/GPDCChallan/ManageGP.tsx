@@ -35,7 +35,7 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { setDateRange } from "@/features/procurement/poSlices";
 import ViewPOModal from "@/pages/procurement/ViewPOModal";
-const ManagePO: React.FC = () => {
+const ManageGP: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const dispatch = useAppDispatch();
@@ -453,4 +453,4 @@ const ManagePO: React.FC = () => {
   );
 };
 
-export default ManagePO;
+export default ManageGP;

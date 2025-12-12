@@ -30,6 +30,7 @@ const columnDefs: ColDef[] = [
   { headerName: "Requested By", field: "reqBy", sortable: true, filter: true },
   { headerName: "Insert Date", field: "insertDt", sortable: true, filter: true },
   { headerName: "Approved By", field: "approvedBy", sortable: true, filter: true },
+  { headerName: "Remark", field: "remark", sortable: true, filter: true },
 ];
 
 const R8ReportTable: React.FC<Props> = ({ gridRef, handlePageChange, handlePageSizeChange, pageSize }) => {

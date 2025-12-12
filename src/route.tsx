@@ -115,6 +115,7 @@ import ProdReturnMin from "@/pages/wearhouse/ProdReturnMin";
 import ProdReturnMinLayout from "@/layouts/ProdReturnMinLayout";
 import GPLayout from "@/layouts/GPLayout";
 import CreateGP from "@/pages/GPDCChallan/CreateGP";
+import ManageGP from "@/pages/GPDCChallan/ManageGP";
 
 export const router = createBrowserRouter([
   {
@@ -481,7 +482,17 @@ export const router = createBrowserRouter([
             </GPLayout>
           </MainLayout>
         ),
-        path: "/warehouse/create-dc",
+        path: "/warehouse/create-gp",
+      },
+      {
+        element: (
+          <MainLayout>
+            <GPLayout>
+              <ManageGP />
+            </GPLayout>
+          </MainLayout>
+        ),
+        path: "/warehouse/manage-gp",
       },
       {
         element: (
