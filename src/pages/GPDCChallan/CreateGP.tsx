@@ -4,9 +4,7 @@ import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { getSkuAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
-  createBomAsync,
-  resetUploadFileData,
-  uploadfile,
+  resetUploadFileData
 } from "@/features/master/BOM/BOMSlice";
 import {
   Button,
@@ -15,15 +13,12 @@ import {
   MenuItem,
   Select,
   TextField,
-  Typography,
 } from "@mui/material";
-import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import LoadingButton from "@mui/lab/LoadingButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SaveIcon from "@mui/icons-material/Save";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { generateUniqueId } from "@/utils/uniqueid";
-import { showToast } from "@/utils/toasterContext";
 import MasterGatePassTable from "@/table/master/MasterGatePassTable";
 interface RowData {
   id: string;
@@ -46,7 +41,7 @@ const CreateGP: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
   const [methodchange, setMethodChange] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { createBomLoading, uploadFileLoading, uploadFileData } =
+  const { createBomLoading, uploadFileData } =
     useAppSelector((state) => state.bom);
   const {
     register,
@@ -77,77 +72,79 @@ const CreateGP: React.FC = () => {
     setRowData((prev) => [newRow, ...prev]);
   }, [rowData]);
 
-  const checkRequiredFields = (data: RowData[]) => {
-    let hasErrors = false;
-    const requiredFields: Array<keyof RowData> = ["component", "qty"];
-    const miss = data.map((item) => {
-      const missingFields: string[] = [];
-      requiredFields.forEach((field) => {
-        // Check if the required field is empty
-        if (
-          item[field] === "" ||
-          item[field] === 0 ||
-          item[field] === undefined ||
-          item[field] === null
-        ) {
-          missingFields.push(field);
-        }
-      });
+  // const checkRequiredFields = (data: RowData[]) => {
+  //   let hasErrors = false;
+  //   const requiredFields: Array<keyof RowData> = ["component", "qty"];
+  //   const miss = data.map((item) => {
+  //     const missingFields: string[] = [];
+  //     requiredFields.forEach((field) => {
+  //       // Check if the required field is empty
+  //       if (
+  //         item[field] === "" ||
+  //         item[field] === 0 ||
+  //         item[field] === undefined ||
+  //         item[field] === null
+  //       ) {
+  //         missingFields.push(field);
+  //       }
+  //     });
 
-      if (missingFields.length > 0) {
-        return `${item.id}`;
-      }
-    });
+  //     if (missingFields.length > 0) {
+  //       return `${item.id}`;
+  //     }
+  //   });
 
-    if (miss.filter((item) => item !== undefined).length > 0) {
-      showToast(
-        `Some required fields are empty: ${miss
-          .filter((item) => item !== undefined)
-          .reverse()
-          .join(", ")}`,
-        "error"
-      );
-      hasErrors = true;
-    }
+  //   if (miss.filter((item) => item !== undefined).length > 0) {
+  //     showToast(
+  //       `Some required fields are empty: ${miss
+  //         .filter((item) => item !== undefined)
+  //         .reverse()
+  //         .join(", ")}`,
+  //       "error"
+  //     );
+  //     hasErrors = true;
+  //   }
 
-    return hasErrors;
-  };
+  //   return hasErrors;
+  // };
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    if (uploadFileData) {
-      const component = uploadFileData.map((item) => item.compKey);
-      const qty = uploadFileData.map((item) => item.quantity.toString());
-      const reference = uploadFileData.map((item) => item.ref);
-      const remark = uploadFileData.map((item) => item.remarks);
-      const items = { component, qty, remark, reference };
-      dispatch(
-        createBomAsync({
-          items,
-        })
-      ).then((res: any) => {
-        if (res.payload.data.success) {
-          setRowData([]);
-          reset();
-          dispatch(resetUploadFileData());
-        }
-      });
-    } else {
-      if (rowData.length === 0) {
-        showToast("Add Material Details", "error");
-      } else {
-        if (!checkRequiredFields(rowData)) {
-          dispatch(
-            createBomAsync({
-            })
-          ).then((res: any) => {
-            if (res.payload.data.success) {
-              setRowData([]);
-              reset();
-            }
-          });
-        }
-      }
-    }
+    console.log(data)
+    // if (uploadFileData) {
+    //   const component = uploadFileData.map((item) => item.compKey);
+    //   const qty = uploadFileData.map((item) => item.quantity.toString());
+    //   const reference = uploadFileData.map((item) => item.ref);
+    //   const remark = uploadFileData.map((item) => item.remarks);
+    //   const items = { component, qty, remark, reference };
+    //   dispatch(
+    //     createBomAsync({
+    //       items,
+    //     })
+    //   ).then((res: any) => {
+    //     if (res.payload.data.success) {
+    //       setRowData([]);
+    //       reset();
+    //       dispatch(resetUploadFileData());
+    //     }
+    //   });
+    // } else {
+    //   if (rowData.length === 0) {
+    //     showToast("Add Material Details", "error");
+    //   } else {
+    //     // if (!checkRequiredFields(rowData)) {
+    //     //   dispatch(
+    //     //     createBomAsync({
+    //     //     })
+    //     //   ).then((res: any) => {
+    //     //     if (res.payload.data.success) {
+    //     //       setRowData([]);
+    //     //       reset();
+    //     //     }
+    //     //   });
+    //     // }
+    //     console.log("object")
+    //   }
+    // }
   };
 
   useEffect(() => {
