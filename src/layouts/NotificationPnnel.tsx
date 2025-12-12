@@ -1,18 +1,59 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import { Badge, CircularProgress, IconButton } from "@mui/material";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
+import {
+  NotificationData,
+  useSocketContext,
+} from "@/components/context/SocketContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+type GeneralNotification = {
+  ID: number;
+  title: string;
+  description: string;
+  notificationId: string;
+  insertDt: string;
+  [key: string]: any;
+};
+
 const NotificationPnnel: React.FC = () => {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const { onnotification, off } = useSocketContext();
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
   const [loading, setLoading] = React.useState(false);
+  const [notifications, setNotifications] = React.useState<
+    GeneralNotification[]
+  >([]);
+
+  useEffect(() => {
+    const handlenotification = (
+      data: NotificationData[] | { type: string; data: any[] }
+    ) => {
+      // Handle new format with type field
+      if (
+        data &&
+        typeof data === "object" &&
+        "type" in data &&
+        "data" in data
+      ) {
+        // Only handle notifications where type === 'notification'
+        if (data.type === "notification" && Array.isArray(data.data)) {
+          setNotifications(data.data);
+        }
+      }
+    };
+
+    onnotification(handlenotification);
+    return () => off("socket_receive_notification");
+  }, [onnotification, off]);
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+    setLoading(false);
   };
 
   const handleClose = () => {
@@ -21,8 +62,6 @@ const NotificationPnnel: React.FC = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-
-
 
   return (
     <>
@@ -39,7 +78,7 @@ const NotificationPnnel: React.FC = () => {
           onClick={handleClick}
           aria-label="delete"
         >
-          <Badge badgeContent={0} color="primary">
+          <Badge badgeContent={notifications?.length || 0} color="primary">
             <NotificationsActiveIcon />
           </Badge>
         </IconButton>
@@ -65,11 +104,60 @@ const NotificationPnnel: React.FC = () => {
           },
         }}
       >
-        <div className="w-[300px] bg-neutral-200 p-[10px]">
-          <div className="min-h-[50px]">
-            <Typography sx={{ p: 2 }}>Notification</Typography>
+        <div className="w-[350px] bg-neutral-200 p-[10px]">
+          <div className="min-h-[50px] flex justify-between">
+            <Typography sx={{ p: 2 }}>Notifications</Typography>
           </div>
-          <div className="bg-white h-[300px] rounded flex items-center justify-center">{loading && <CircularProgress size={40} />}</div>
+          <div className="bg-white rounded justify-center gap-[10px] overflow-y-auto">
+            {loading ? (
+              <div className="h-[300px] flex items-center justify-center">
+                <CircularProgress size={40} />
+              </div>
+            ) : (
+              <ScrollArea className="w-full flex flex-col gap-[10px] h-[300px] p-[10px] pr-[15px]">
+                {notifications?.length > 0 ? (
+                  notifications.map((item, index) => (
+                    <div
+                      key={index}
+                      className="w-full p-[10px] border rounded-md mb-[10px]"
+                    >
+                      <div>
+                        <Typography
+                          fontSize={14}
+                          variant="body2"
+                          fontWeight="medium"
+                        >
+                          {item.title || "Notification"}
+                        </Typography>
+                        <Typography
+                          color="text.secondary"
+                          fontSize={12}
+                          variant="body2"
+                          sx={{ mt: 0.5 }}
+                        >
+                          {item.description || "No description"}
+                        </Typography>
+                        <Typography
+                          color="text.secondary"
+                          fontSize={11}
+                          variant="body2"
+                          sx={{ mt: 0.5 }}
+                        >
+                          {item.insertDt || item.insert_date}
+                        </Typography>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="h-full flex items-center justify-center">
+                    <Typography color="text.secondary" fontSize={14}>
+                      No notifications
+                    </Typography>
+                  </div>
+                )}
+              </ScrollArea>
+            )}
+          </div>
         </div>
       </Popover>
     </>

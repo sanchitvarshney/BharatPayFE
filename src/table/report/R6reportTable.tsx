@@ -13,6 +13,7 @@ import FullPageLoading from "@/components/shared/FullPageLoading";
 import { clearR6data } from "@/features/report/report/reportSlice";
 import { formatNumber } from "@/utils/numberFormatUtils";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { VisibilityOutlined } from "@mui/icons-material";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
@@ -156,27 +157,47 @@ const R6reportTable: React.FC<Props> = ({
           filter: true,
           resizable: true,
           autoHeight: true,
+          width: 250,
           cellRenderer: (params: any) => {
             // Check if it's the MINNo column and if the print option is true
             if (col === "MINNo" && params.data.Print) {
               return (
-                <div className="flex items-center justify-center gap-[10px]">
+                <div className="flex items-center justify-center gap-2">
                   {loading && current === params.data["Insert Date"] ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <MuiTooltip title="Print" placement="left">
-                      <IconButton
-                        color="primary"
-                        onClick={() => {
-                          generateprint(params.value); // Call the print function
-                          setCurrent(params.data["Insert Date"]); // Set current for loading indicator
-                        }}
-                      >
-                        <LocalPrintshopIcon />
-                      </IconButton>
-                    </MuiTooltip>
+                    <>
+                      <MuiTooltip title="Print" placement="left">
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          onClick={() => {
+                            generateprint(params.value); // Call the print function
+                            setCurrent(params.data["Insert Date"]); // Set current for loading indicator
+                          }}
+                        >
+                          <LocalPrintshopIcon fontSize="small" />
+                        </IconButton>
+                      </MuiTooltip>
+                      <MuiTooltip title="View" placement="left">
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          onClick={() => {
+                            window.open(
+                              params.data["Invoice File Date"],
+                              "_blank",
+                              "noopener,noreferrer"
+                            );
+                          }}
+                        >
+                          <VisibilityOutlined fontSize="small" />
+                        </IconButton>
+                      </MuiTooltip>
+                    </>
                   )}
-                  {params.value} {/* Display MINNo value */}
+                  <span className="ml-2">{params.value}</span>{" "}
+                  {/* Display MINNo value */}
                 </div>
               );
             }

@@ -59,7 +59,12 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("r4Download", payload);
   };
 
-  const emitDownloadR2Report = (payload: any) => {
+  const emitDownloadQ2Report = (payload: any) => {
+    
+    socketService.emit("q2ReportDownload", payload);
+  };
+
+    const emitDownloadR2Report = (payload: any) => {
     console.log("clicked");
     socketService.emit("r2_download", payload);
   };
@@ -109,7 +114,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log(payload);
     socketService.emit("swipeRejectionReport", payload);
   };
-
+ const emitDownloadR22Report = (payload: any) => {
+    console.log(payload);
+    socketService.emit("bpeBillingReport", payload);
+  };
    const emitDownloadR19Report = (payload: any) => {
     console.log(payload);
     socketService.emit("preQcReportDownload", payload);
@@ -190,6 +198,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadR14Report,
         emitDownloadWrongDeviceReport,
         onDownloadReport,
+        emitDownloadR22Report,
         isConnected,
         refreshConnection,
         isLoading,
@@ -202,6 +211,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadr5Report,
         emitDownloadR3Report,
         emitDownloadR18Report,
+        emitDownloadQ2Report,
       }}
     >
       {children}

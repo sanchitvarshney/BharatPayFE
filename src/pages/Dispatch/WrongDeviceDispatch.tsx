@@ -10,9 +10,14 @@ import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import Success from "@/components/reusable/Success";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 import { LocationType } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
-import {  getClientBranch, wrongDeviceDispatch } from "@/features/Dispatch/DispatchSlice";
+import {
+  getClientBranch,
+  wrongDeviceDispatch,
+  getChallanById,
+} from "@/features/Dispatch/DispatchSlice";
 import { DispatchWrongItemPayload } from "@/features/Dispatch/DispatchType";
 import { Dayjs } from "dayjs";
 import WrongDeviceImeiTable from "@/table/dispatch/WrongDeviceImeiTable";
@@ -61,8 +66,9 @@ const WrongDeviceDispatch: React.FC = () => {
   const dispatch = useAppDispatch();
   const { deviceDetailLoading } = useAppSelector((state) => state.batteryQcReducer);
 
-  const { wrongDispatchLoading } = useAppSelector((state) => state.dispatch);
-
+  const { wrongDispatchLoading, getChallanLoading } = useAppSelector(
+    (state) => state.dispatch
+  );
 
   const {
     handleSubmit,
@@ -86,9 +92,6 @@ const WrongDeviceDispatch: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Form Details", "Add Component Details", "Review & Submit"];
   const formdata = new FormData();
-  const { challanList } = useAppSelector(
-    (state) => state.dispatch
-  );
   const { id } = useParams();
 
   const handleNext = () => {
@@ -112,14 +115,25 @@ const WrongDeviceDispatch: React.FC = () => {
     dispatch(storeFormdata(data));
     handleNext();
   };
-
   useEffect(() => {
-    if (challanList) {
-      setData(challanList?.[0]);
-      setValue("remark", challanList?.[0]?.remark);
-      setValue("qty", challanList?.[0]?.dispatchQty);
+    if (id) {
+      // Convert the id parameter back to challanId format (replace _ with /)
+      // e.g., "DC_Ref_0384" becomes "DC/Ref/0384"
+      const challanId = id.replace(/_/g, "/");
+      // Fetch challan details from API using the challanId
+      dispatch(getChallanById({ challanId })).then((res: any) => {
+        if (res?.payload?.data?.success) {
+          const challanData =
+            res?.payload?.data?.data?.[0] || res?.payload?.data?.data;
+          if (challanData) {
+            setData(challanData);
+            setValue("remark", challanData?.remark || "");
+            setValue("qty", challanData?.dispatchQty || "");
+          }
+        }
+      });
     }
-  }, [challanList]);
+  }, [id, dispatch, setValue]);
 
   const finalSubmit = () => {
     const data = formValues;
@@ -148,8 +162,9 @@ const WrongDeviceDispatch: React.FC = () => {
     }
   }, [formValues.clientDetail?.client]);
 
-
   return (
+    <>
+      {getChallanLoading && <FullPageLoading />}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
 
@@ -551,6 +566,7 @@ const WrongDeviceDispatch: React.FC = () => {
           </div>
         </div>
       </form>
+    </>
   );
 };
 

@@ -10,6 +10,7 @@ const initialState: QueryStateType = {
   componentData: null,
   getQ2DataLading: false,
   q2Data: null,
+  q2Pagination: null,
   q3data: null,
   q3DataLoading: false,
   q4Data: null,
@@ -25,8 +26,10 @@ export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: 
   const response = await axiosInstance.get(params.location ? `/query/log/DV?data=${params.value}&location=${params.location}` : `/query/log/DV?date=${params.date}&data=${params.value}`);
   return response;
 });
-export const getQ2Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null }>("query/getQ2", async (params) => {
-  const response = await axiosInstance.get(params.location ? `/query/q2/log/RM?data=${params.value}&location=${params.location}&type=location` : `/query/q2/log/RM?date=${params.date}&data=${params.value}&type=date`);
+export const getQ2Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null; page?: number; limit?: number }>("query/getQ2", async (params) => {
+  const pageParam = params.page ? `&page=${params.page}` : '';
+  const limitParam = params.limit ? `&limit=${params.limit}` : '';
+  const response = await axiosInstance.get(params.location ? `/query/q2/log/RM?data=${params.value}&location=${params.location}&type=location${pageParam}${limitParam}` : `/query/q2/log/RM?date=${params.date}&data=${params.value}&type=date${pageParam}${limitParam}`);
   return response;
 });
 
@@ -91,11 +94,13 @@ const querySlice = createSlice({
         state.getQ2DataLading = false;
         if (action.payload.data.success) {
           state.q2Data = action.payload.data.response;
+          state.q2Pagination = action.payload.data.response?.pagination || null;
         }
       })
       .addCase(getQ2Data.rejected, (state) => {
         state.getQ2DataLading = false;
         state.q2Data = null;
+        state.q2Pagination = null;
       })
       .addCase(getQ3DatA.pending, (state) => {
         state.q3DataLoading = true;

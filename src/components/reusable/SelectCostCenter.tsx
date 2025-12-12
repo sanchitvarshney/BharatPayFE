@@ -17,6 +17,7 @@ type Props = {
   variant?: "outlined" | "standard" | "filled";
   required?: boolean;
   size?: "small" | "medium";
+  disabled?: boolean;
 };
 
 const SelectCostCenter: React.FC<Props> = ({
@@ -29,6 +30,7 @@ const SelectCostCenter: React.FC<Props> = ({
   variant = "outlined",
   required = false,
   size = "medium",
+  disabled = false
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [costCenterList, setCostCenterList] = useState<CostCenterType[]>([]);
@@ -62,6 +64,7 @@ const SelectCostCenter: React.FC<Props> = ({
       }}
       loading={loading}
       isOptionEqualToValue={(option, value) => option.id === value?.id}
+      disabled ={disabled}
       renderInput={(params) => (
         <TextField
           required={required}

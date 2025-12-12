@@ -29,6 +29,7 @@ import uploadReducer from "@/features/upload/uploadSlice";
 import procurementReducer from "@/features/procurement/poSlices";
 import materialManagementReducer from "@/features/materialManagement/materialManagementSlices";
 import partCodeConversionReducer from "@/features/partCodeConversion/partCodeConversionSlices";
+import gpdcChallanReducer from "@/features/GPDCChallan/GPDCChallanSlice";
 
 export const store = configureStore({
   reducer: {
@@ -62,6 +63,7 @@ export const store = configureStore({
     po: procurementReducer,
     materialManagement: materialManagementReducer,
     partCodeConversion: partCodeConversionReducer,
+    gpdcChallan: gpdcChallanReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

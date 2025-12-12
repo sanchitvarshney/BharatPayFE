@@ -224,6 +224,15 @@ const PartCodeConversion: React.FC = () => {
       return;
     }
 
+    // Enforce prerequisite selections before choosing initial component
+    if (!fromCostCenter || !toCostCenter || !pickLocation || !dropLocation) {
+      showToast(
+        "Please select From/To Cost Center and Pick/Drop Locations first",
+        "error"
+      );
+      return;
+    }
+
     // Check if this component is already selected in final components (form)
     if (finalComponent && selectedValue.value === finalComponent.value) {
       showToast(
@@ -310,6 +319,9 @@ const PartCodeConversion: React.FC = () => {
                 value={fromCostCenter}
                 onChange={setFromCostCenter}
                 label=""
+                disabled={Boolean(
+                  initialComponent || initialComponents.length > 0
+                )}
               />
             </div>
             {/* Pick Location */}
@@ -324,6 +336,9 @@ const PartCodeConversion: React.FC = () => {
                 onChange={setPickLocation}
                 varient="standard"
                 size="small"
+                disabled={Boolean(
+                  initialComponent || initialComponents.length > 0
+                )}
               />
             </div>
 
@@ -337,6 +352,9 @@ const PartCodeConversion: React.FC = () => {
                 value={toCostCenter}
                 onChange={setToCostCenter}
                 label=""
+                disabled={Boolean(
+                  initialComponent || initialComponents.length > 0
+                )}
               />
             </div>
             {/* Drop Location */}
@@ -351,6 +369,9 @@ const PartCodeConversion: React.FC = () => {
                 onChange={setDropLocation}
                 varient="standard"
                 size="small"
+                disabled={Boolean(
+                  initialComponent || initialComponents.length > 0
+                )}
               />
             </div>
 
