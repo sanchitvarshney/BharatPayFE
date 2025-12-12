@@ -311,7 +311,7 @@ const CreateGP: React.FC = () => {
             addRow={addRow}
             rowData={rowData}
             setRowdata={setRowData}
-          />{" "}
+          />
         </div>
       </div>
     </>

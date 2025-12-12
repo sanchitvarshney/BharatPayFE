@@ -63,8 +63,8 @@ const SwipeMaterialApproval: React.FC = () => {
       >
         <DialogTitle>Are you sure?</DialogTitle>
         <DialogContent sx={{ width: "600px" }}>
-          <DialogContentText>do you want to cancel the material request?</DialogContentText>
-          <TextField autoComplete="off" autoFocus margin="dense" id="name" name="remark" label="Remark (required)" fullWidth variant="standard" />
+          <DialogContentText>Do you want to cancel the material request?</DialogContentText>
+          <TextField autoComplete="off" autoFocus margin="dense" id="name" name="remark" label="Remark (required)" fullWidth variant="standard" onChange={(e) => setRemarks(e.target.value)} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAlert(false)}>No</Button>
