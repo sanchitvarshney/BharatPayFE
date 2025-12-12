@@ -59,7 +59,12 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("r4Download", payload);
   };
 
-  const emitDownloadR2Report = (payload: any) => {
+  const emitDownloadQ2Report = (payload: any) => {
+    
+    socketService.emit("q2ReportDownload", payload);
+  };
+
+    const emitDownloadR2Report = (payload: any) => {
     console.log("clicked");
     socketService.emit("r2_download", payload);
   };
@@ -206,6 +211,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadr5Report,
         emitDownloadR3Report,
         emitDownloadR18Report,
+        emitDownloadQ2Report,
       }}
     >
       {children}
