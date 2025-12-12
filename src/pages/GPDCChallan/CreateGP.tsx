@@ -6,6 +6,8 @@ import { getSkuAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetUploadFileData
 } from "@/features/master/BOM/BOMSlice";
+import { createGPDC, clearGPDCData } from "@/features/GPDCChallan/GPDCChallanSlice";
+import { showToast } from "@/utils/toasterContext";
 import {
   Button,
   FormControl,
@@ -43,6 +45,9 @@ const CreateGP: React.FC = () => {
   const dispatch = useAppDispatch();
   const { createBomLoading, uploadFileData } =
     useAppSelector((state) => state.bom);
+  const { createGPDCLoading } = useAppSelector(
+    (state) => state.gpdcChallan
+  );
   const {
     register,
     handleSubmit,
@@ -109,42 +114,44 @@ const CreateGP: React.FC = () => {
   // };
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    console.log(data)
-    // if (uploadFileData) {
-    //   const component = uploadFileData.map((item) => item.compKey);
-    //   const qty = uploadFileData.map((item) => item.quantity.toString());
-    //   const reference = uploadFileData.map((item) => item.ref);
-    //   const remark = uploadFileData.map((item) => item.remarks);
-    //   const items = { component, qty, remark, reference };
-    //   dispatch(
-    //     createBomAsync({
-    //       items,
-    //     })
-    //   ).then((res: any) => {
-    //     if (res.payload.data.success) {
-    //       setRowData([]);
-    //       reset();
-    //       dispatch(resetUploadFileData());
-    //     }
-    //   });
-    // } else {
-    //   if (rowData.length === 0) {
-    //     showToast("Add Material Details", "error");
-    //   } else {
-    //     // if (!checkRequiredFields(rowData)) {
-    //     //   dispatch(
-    //     //     createBomAsync({
-    //     //     })
-    //     //   ).then((res: any) => {
-    //     //     if (res.payload.data.success) {
-    //     //       setRowData([]);
-    //     //       reset();
-    //     //     }
-    //     //   });
-    //     // }
-    //     console.log("object")
-    //   }
-    // }
+    if (rowData.length === 0) {
+      showToast("Add Material Details", "error");
+      return;
+    }
+
+    // Validate row data
+    const invalidRows = rowData.filter(
+      (row) => !row.component || row.qty <= 0
+    );
+    if (invalidRows.length > 0) {
+      showToast("Please fill all component details and quantities", "error");
+      return;
+    }
+
+    const components = rowData.map((row) => row.component?.value || "");
+    const qty = rowData.map((row) => row.qty);
+    const remark = rowData.map((row) => row.remark || "");
+
+    // Dispatch create GPDC action
+    dispatch(
+      createGPDC({
+        type: data.type,
+        name: data.name,
+        mobile: data.mobile,
+        email: data.email,
+        address: data.address,
+        narration: data.narration,
+        components,
+        qty,
+        remark,
+      })
+    ).then((res: any) => {
+      if (res.payload?.data?.success) {
+        setRowData([]);
+        reset();
+        dispatch(clearGPDCData());
+      }
+    });
   };
 
   useEffect(() => {
@@ -281,9 +288,9 @@ const CreateGP: React.FC = () => {
             </div>
             <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end mt-[30px]">
               <Button
-                disabled={createBomLoading}
+                disabled={createGPDCLoading}
                 onClick={() => {
-                  rowData.length > 0 || uploadFileData
+                  rowData.length > 0
                     ? setAlert(true)
                     : reset();
                 }}
@@ -298,7 +305,7 @@ const CreateGP: React.FC = () => {
                 loadingPosition="start"
                 type="submit"
                 variant="contained"
-                loading={createBomLoading}
+                loading={createGPDCLoading}
                 startIcon={<SaveIcon fontSize="small" />}
               >
                 Submit
