@@ -21,6 +21,7 @@ import R18Report from "@/pages/report/R18Report";
 import R19Report from "@/pages/report/R19Report";
 import R20Report from "@/pages/report/R20Report";
 import R21Report from "@/pages/report/R21Report";
+import BillingReport from "./BillingReport";
 
 const Report: React.FC = () => {
   const { id } = useParams();
@@ -87,6 +88,9 @@ const Report: React.FC = () => {
   }
   if(id === "R21"){
     return <R21Report/>
+  }
+    if(id === "R22"){
+    return <BillingReport/>
   }
   return <div>this is {id} Report</div>;
 };
