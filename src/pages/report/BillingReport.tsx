@@ -76,9 +76,7 @@ const BillingReport: React.FC = () => {
           fontWeight={400}
           className="text-center"
         >
-          This report provides detailed information about all devices, including
-          serial number, operator, SIM number, SIM status, QR URL, inserted by,
-          date, and time
+          Download Billing Report
         </Typography>
 
         <FormControl fullWidth>
