@@ -1,4 +1,4 @@
-import React   from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import Deviceinreport from "./Deviceinreport";
 import R2Report from "./R2Report";
@@ -26,14 +26,11 @@ import { useUser } from "@/hooks/useUser";
 import { visibaleArr } from "@/components/shared/Navslider";
 import NotPermissionPage from "../commonPages/NotPermissionPage";
 
-
-
 const Report: React.FC = () => {
   const { id } = useParams();
   const { user } = useUser();
 
   const canSeeR22 = user?.crn_id ? visibaleArr.includes(user.crn_id) : null;
-
 
   if (id === "R1") {
     return <Deviceinreport />;
@@ -62,56 +59,54 @@ const Report: React.FC = () => {
   if (id === "R9") {
     return <R9Report />;
   }
-  if(id === "R10"){
-    return <R10Report/>
+  if (id === "R10") {
+    return <R10Report />;
   }
-  if(id === "R11"){
-    return <R11Report/>
+  if (id === "R11") {
+    return <R11Report />;
   }
-  if(id === "R12"){
-    return <R12Report/>
+  if (id === "R12") {
+    return <R12Report />;
   }
-  if(id === "R13"){
-    return <R13Report/>
+  if (id === "R13") {
+    return <R13Report />;
   }
-  if(id === "R14"){
-    return <R14Report/>
+  if (id === "R14") {
+    return <R14Report />;
   }
-  if(id === "R15"){
-    return <R15Report/>
+  if (id === "R15") {
+    return <R15Report />;
   }
-  if(id === "R16"){
-    return <R16Report/>
+  if (id === "R16") {
+    return <R16Report />;
   }
-  if(id === "R17"){
-    return <R17Report/>
+  if (id === "R17") {
+    return <R17Report />;
   }
-  if(id === "R18"){
-    return <R18Report/>
+  if (id === "R18") {
+    return <R18Report />;
   }
-   if(id === "R19"){
-    return <R19Report/>
+  if (id === "R19") {
+    return <R19Report />;
   }
-  if(id === "R20"){
-    return <R20Report/>
+  if (id === "R20") {
+    return <R20Report />;
   }
-  if(id === "R21"){
-    return <R21Report/>
+  if (id === "R21") {
+    return <R21Report />;
   }
-  if(id === "R22"){
-    // Show loading state while user is being loaded
+  if (id === "R22") {
     if (canSeeR22 === null) {
       return (
         <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
         </div>
       );
     }
-    // Only show NotPermissionPage if user is loaded and doesn't have permission
     if (!canSeeR22) {
       return <NotPermissionPage />;
     }
-    return <BillingReport/>
+    return <BillingReport />;
   }
   return <div>this is {id} Report</div>;
 };
