@@ -45,8 +45,8 @@ const BillingReport: React.FC = () => {
       return showToast("Please select date range", "error");
 
     const reportPayload = {
-      startDate: date.from?.format("DD-MM-YYYY"),
-      endDate: date.to?.format("DD-MM-YYYY"),
+      startDate: date.from?.format("YYYY-MM-DD"),
+      endDate: date.to?.format("YYYY-MM-DD"),
     };
 
     if (deviceType === "SWIPE") {
