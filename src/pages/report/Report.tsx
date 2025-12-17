@@ -1,5 +1,5 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Deviceinreport from "./Deviceinreport";
 import R2Report from "./R2Report";
 import R3Report from "./R3Report";
@@ -22,9 +22,22 @@ import R19Report from "@/pages/report/R19Report";
 import R20Report from "@/pages/report/R20Report";
 import R21Report from "@/pages/report/R21Report";
 import BillingReport from "./BillingReport";
+import { useUser } from "@/hooks/useUser";
+import { visibaleArr } from "@/components/shared/Navslider";
+
+
 
 const Report: React.FC = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useUser();
+  const canSeeR22 = visibaleArr.includes(user?.crn_id);
+
+  useEffect(() => {
+    if (id === "R22" && !canSeeR22) {
+      navigate("/not-permission");
+    }
+  }, [id, canSeeR22, navigate]);
 
   if (id === "R1") {
     return <Deviceinreport />;
@@ -89,7 +102,11 @@ const Report: React.FC = () => {
   if(id === "R21"){
     return <R21Report/>
   }
-    if(id === "R22"){
+  if(id === "R22"){
+   
+    if (!canSeeR22) {
+      return null;
+    }
     return <BillingReport/>
   }
   return <div>this is {id} Report</div>;

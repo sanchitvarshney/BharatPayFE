@@ -11,7 +11,7 @@ interface NavSliderData {
   content: React.ReactNode;
 }
 
-const visibaleArr: any[] = [
+export const visibaleArr: any[] = [
   "CRN1245062",
   "CRN28960",
   "CRN2913859",
