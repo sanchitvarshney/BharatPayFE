@@ -24,6 +24,7 @@ import R21Report from "@/pages/report/R21Report";
 import BillingReport from "./BillingReport";
 import { useUser } from "@/hooks/useUser";
 import { visibaleArr } from "@/components/shared/Navslider";
+import NotPermissionPage from "../commonPages/NotPermissionPage";
 
 
 
@@ -99,7 +100,7 @@ const Report: React.FC = () => {
   if(id === "R22"){
    
     if (!canSeeR22) {
-      return null;
+      return <NotPermissionPage />;
     }
     return <BillingReport/>
   }
