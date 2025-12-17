@@ -97,7 +97,7 @@ const LogningV2: React.FC = () => {
         navigate("/");
       } else {
         response.payload?.message
-          ? showToast(response.payload?.data?.message, "error")
+          ? showToast(response.payload?.message, "error")
           : showToast(
               "Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts",
               "error"
@@ -321,36 +321,34 @@ const LogningV2: React.FC = () => {
                 />
               </div>
               <LoadingButton
-              
                 loading={loading}
                 size="large"
                 variant="contained"
                 fullWidth
                 type="submit"
-                sx={{m:"0px !impotent"}}
+                sx={{ m: "0px !impotent" }}
               >
                 Login
               </LoadingButton>
-              {
-                !loading && (
-                  <Typography textAlign={"center"} variant="subtitle2">OR</Typography>
-                )
-              }
-              <div>
-                {!loading && (<>
-                 <GoogleLogin
-                    onSuccess={(credentialResponse) => {
-                      handleLoginWithGoogle(credentialResponse);
-                    }}
-                    onError={() => {
-                      showToast("Login failed", "error");
-                    }}
-                    logo_alignment="center"
-                  />
-                </>
-                 
+              {!loading && (
+                <Typography textAlign={"center"} variant="subtitle2">
+                  OR
+                </Typography>
+              )}
+              <div className="flex justify-center w-full items-center ">
+                {!loading && (
+                  <>
+                    <GoogleLogin
+                      onSuccess={(credentialResponse) => {
+                        handleLoginWithGoogle(credentialResponse);
+                      }}
+                      onError={() => {
+                        showToast("Login failed", "error");
+                      }}
+                      shape="circle"
+                    />
+                  </>
                 )}
-              
               </div>
             </div>
             <div className="mt-[30px]">
