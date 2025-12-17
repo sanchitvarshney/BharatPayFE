@@ -31,7 +31,8 @@ import NotPermissionPage from "../commonPages/NotPermissionPage";
 const Report: React.FC = () => {
   const { id } = useParams();
   const { user } = useUser();
-  const canSeeR22 = visibaleArr.includes(user?.crn_id);
+
+  const canSeeR22 = user?.crn_id ? visibaleArr.includes(user.crn_id) : null;
 
 
   if (id === "R1") {
@@ -98,7 +99,15 @@ const Report: React.FC = () => {
     return <R21Report/>
   }
   if(id === "R22"){
-   
+    // Show loading state while user is being loaded
+    if (canSeeR22 === null) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      );
+    }
+    // Only show NotPermissionPage if user is loaded and doesn't have permission
     if (!canSeeR22) {
       return <NotPermissionPage />;
     }
