@@ -1,4 +1,14 @@
-import { Card, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, Link, OutlinedInput, Typography } from "@mui/material";
+import {
+  Card,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  Link,
+  OutlinedInput,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -13,16 +23,22 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PhonelinkLockRoundedIcon from "@mui/icons-material/PhonelinkLockRounded";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { LoginCredentials, loginUserAsync } from "@/features/authentication/authSlice";
+import {
+  LoginCredentials,
+  loginUserAsync,
+  loginUserGoogle,
+} from "@/features/authentication/authSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkPermissions } from "@/helper/checkPermissions";
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
-
+import { GoogleLogin } from "@react-oauth/google";
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
-  const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(null); // Add state to track the reCAPTCHA value
+  const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(
+    null
+  ); // Add state to track the reCAPTCHA value
   const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
   const recaptchaRef = useRef<any>(null);
   const dispatch = useAppDispatch();
@@ -41,8 +57,7 @@ const LogningV2: React.FC = () => {
   } = useForm<LoginCredentials>();
   const { loading } = useAppSelector((state) => state.auth);
 
-  
-  const onSubmit: SubmitHandler<LoginCredentials> = (data:any) => {
+  const onSubmit: SubmitHandler<LoginCredentials> = (data: any) => {
     if (!recaptchaValue) {
       showToast("Please verify the reCAPTCHA", "error");
       return;
@@ -53,7 +68,12 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        response.payload?.message?showToast(response.payload?.message, "error"):showToast("Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts", "error"); 
+        response.payload?.message
+          ? showToast(response.payload?.message, "error")
+          : showToast(
+              "Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts",
+              "error"
+            );
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
@@ -65,6 +85,30 @@ const LogningV2: React.FC = () => {
 
   const handleRecaptchaChange = (value: string | null) => {
     setRecaptchaValue(value);
+  };
+
+  const handleLoginWithGoogle = (googleResponse: any) => {
+    const data: any = {
+      credential: googleResponse.credential,
+    };
+    dispatch(loginUserGoogle(data)).then((response: any) => {
+      if (response.payload?.data?.success) {
+        showToast(response.payload?.data?.message, "success");
+        navigate("/");
+      } else {
+        response.payload?.message
+          ? showToast(response.payload?.data?.message, "error")
+          : showToast(
+              "Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts",
+              "error"
+            );
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
+        }
+        setRecaptchaValue(null);
+        setRecaptchaKey(Math.random());
+      }
+    });
   };
 
   return (
@@ -84,15 +128,30 @@ const LogningV2: React.FC = () => {
         >
           <SwiperSlide>
             <div className="h-[50vh] bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center ">
-              <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
+              <Typography
+                variant="h1"
+                fontSize={50}
+                fontWeight={500}
+                className="text-white"
+              >
                 Welcome to the Future of ERP
               </Typography>
             </div>
             <div className="h-[50vh] py-[20px] px-[50px] bg-neutral-100  ">
-              <Typography variant="h2" fontSize={25} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h2"
+                fontSize={25}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Revolutionizing Business Operations
               </Typography>
-              <Typography variant="h3" fontSize={17} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h3"
+                fontSize={17}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Scalable, secure, and tailored to grow with your business.
               </Typography>
               <ul className="flex flex-col gap-[15px] mt-[20px] ml-2 h-[calc(50vh-120px)] overflow-y-auto ">
@@ -113,15 +172,30 @@ const LogningV2: React.FC = () => {
           </SwiperSlide>
           <SwiperSlide>
             <div className="h-[50vh]  bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center">
-              <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
+              <Typography
+                variant="h1"
+                fontSize={50}
+                fontWeight={500}
+                className="text-white"
+              >
                 Powering Smarter Operations
               </Typography>
             </div>
             <div className="h-[50vh] py-[20px] px-[50px] bg-neutral-100  ">
-              <Typography variant="h2" fontSize={25} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h2"
+                fontSize={25}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Effortless Inventory Management
               </Typography>
-              <Typography variant="h3" fontSize={17} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h3"
+                fontSize={17}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Track, manage, and optimize your inventory with ease.
               </Typography>
               <ul className="flex flex-col gap-[15px] mt-[20px] ml-2 h-[calc(50vh-120px)] overflow-y-auto ">
@@ -144,18 +218,33 @@ const LogningV2: React.FC = () => {
       </div>
       <div className="relative flex items-center justify-center w-full h-full">
         <Card elevation={4} sx={{ width: "500px", padding: "20px" }}>
-          <Typography color="primary" variant="h1" component={"div"} className="flex items-center justify-center  text-slate-600 gap-[5px]" fontSize={35} fontWeight={500}>
+          <Typography
+            color="primary"
+            variant="h1"
+            component={"div"}
+            className="flex items-center justify-center  text-slate-600 gap-[5px]"
+            fontSize={35}
+            fontWeight={500}
+          >
             <PhonelinkLockRoundedIcon fontSize="large" />
             Secure Login
           </Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="mt-[50px] flex flex-col gap-[30px]">
-              <FormControl error={!!errors.username} fullWidth variant="outlined">
-                <InputLabel htmlFor="input-with-icon-adornment">Username</InputLabel>
+            <div className="mt-[50px] flex flex-col gap-[20px]">
+              <FormControl
+                error={!!errors.username}
+                fullWidth
+                variant="outlined"
+              >
+                <InputLabel htmlFor="input-with-icon-adornment">
+                  Username
+                </InputLabel>
                 <OutlinedInput
                   autoFocus
                   autoComplete="off"
-                  {...register("username", { required: "username is required" })}
+                  {...register("username", {
+                    required: "username is required",
+                  })}
                   label="Username"
                   id="input-with-icon-adornment"
                   startAdornment={
@@ -164,14 +253,26 @@ const LogningV2: React.FC = () => {
                     </InputAdornment>
                   }
                 />
-                {errors.username && <FormHelperText id="component-error-text">{errors.username.message}</FormHelperText>}
+                {errors.username && (
+                  <FormHelperText id="component-error-text">
+                    {errors.username.message}
+                  </FormHelperText>
+                )}
               </FormControl>
               <div className="flex flex-col items-end gap-[3px]">
-                <FormControl error={!!errors.password} fullWidth variant="outlined">
-                  <InputLabel htmlFor="input-with-password-adornment">Password</InputLabel>
+                <FormControl
+                  error={!!errors.password}
+                  fullWidth
+                  variant="outlined"
+                >
+                  <InputLabel htmlFor="input-with-password-adornment">
+                    Password
+                  </InputLabel>
                   <OutlinedInput
                     autoComplete="off"
-                    {...register("password", { required: "password is required" })}
+                    {...register("password", {
+                      required: "password is required",
+                    })}
                     type={showPassword ? "text" : "password"}
                     label="Password"
                     id="input-with-password-adornment"
@@ -182,33 +283,84 @@ const LogningV2: React.FC = () => {
                     }
                     endAdornment={
                       <InputAdornment position="end">
-                        <IconButton size="small" onClick={() => setShowPassword(!showPassword)} edge="end">
-                          {showPassword ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+                        <IconButton
+                          size="small"
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          {showPassword ? (
+                            <VisibilityIcon fontSize="small" />
+                          ) : (
+                            <VisibilityOffIcon fontSize="small" />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     }
                   />
-                  {errors.password && <FormHelperText id="component-error-text">{errors.password.message}</FormHelperText>}
+                  {errors.password && (
+                    <FormHelperText id="component-error-text">
+                      {errors.password.message}
+                    </FormHelperText>
+                  )}
                 </FormControl>
                 <div className="flex gap-[20px]">
-                <Link href="/forgot-password" fontSize={12} className="">
-                  Forgot Password
-                </Link>
-                <Link href="/password-recovery" fontSize={12} className="">
-                   Lock and Unlock User
-                </Link></div>
+                  <Link href="/forgot-password" fontSize={12} className="">
+                    Forgot Password
+                  </Link>
+                  <Link href="/password-recovery" fontSize={12} className="">
+                    Lock and Unlock User
+                  </Link>
+                </div>
               </div>
-            <div className=" flex justify-center">
-              <ReCAPTCHA sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR" onChange={handleRecaptchaChange} key = {recaptchaKey} ref={recaptchaRef} />
-            </div>
-              <LoadingButton loading={loading} size="large" variant="contained" fullWidth type="submit">
+              <div className=" flex justify-center">
+                <ReCAPTCHA
+                  sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                  onChange={handleRecaptchaChange}
+                  key={recaptchaKey}
+                  ref={recaptchaRef}
+                />
+              </div>
+              <LoadingButton
+              
+                loading={loading}
+                size="large"
+                variant="contained"
+                fullWidth
+                type="submit"
+                sx={{m:"0px !impotent"}}
+              >
                 Login
               </LoadingButton>
+              {
+                !loading && (
+                  <Typography textAlign={"center"} variant="subtitle2">OR</Typography>
+                )
+              }
+              <div>
+                {!loading && (<>
+                 <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      handleLoginWithGoogle(credentialResponse);
+                    }}
+                    onError={() => {
+                      showToast("Login failed", "error");
+                    }}
+                  />
+                </>
+                 
+                )}
+              
+              </div>
             </div>
             <div className="mt-[30px]">
               <Typography fontSize={12} className="text-center">
-                This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply. For more info, please visit
-                <Link sx={{ ml: "4px" }} href="https://www.mscorpres.com" target="_blank">
+                This site is protected by reCAPTCHA and the Google Privacy
+                Policy and Terms of Service apply. For more info, please visit
+                <Link
+                  sx={{ ml: "4px" }}
+                  href="https://www.mscorpres.com"
+                  target="_blank"
+                >
                   www.mscorpres.com
                 </Link>
                 .

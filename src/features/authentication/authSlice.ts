@@ -21,7 +21,8 @@ const initialState: AuthState = {
   otpLoading: false,
   qrStatus: null,
   qrCodeLoading: false,
-  recoveryLoading: false
+  recoveryLoading: false,
+ 
 };
 
 export const loginUserAsync = createAsyncThunk<
@@ -33,6 +34,24 @@ export const loginUserAsync = createAsyncThunk<
       "/auth/signin",
       loginCredential
     );
+    return response;
+  } catch (error: any) {
+    if (error.response) {
+      return rejectWithValue(error.response.data);
+    }
+    return rejectWithValue(error);
+  }
+});
+export const loginUserGoogle = createAsyncThunk<
+  AxiosResponse<LoginResponse>,
+  LoginCredentials
+>("auth/loginGoogle", async (loginCredential, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post<LoginResponse>(
+      "/auth/auth/google",
+      loginCredential
+    );
+    
     return response;
   } catch (error: any) {
     if (error.response) {
@@ -279,7 +298,29 @@ const authSlice = createSlice({
       })
       .addCase(verifyMailAsync.rejected, (state) => {
         state.verifyMailLoading = false;
-      });
+      })
+       .addCase(loginUserGoogle.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(loginUserGoogle.fulfilled, (state, action: any) => {
+        if (action.payload.data.success) {
+          setToken(action.payload.data.data?.token);
+
+          localStorage.setItem(
+            "loggedinUser",
+            btoa(JSON.stringify(action.payload.data.data))
+          );
+        }
+        if (!action.payload.data.data) {
+          state.qrStatus = action.payload.data;
+          localStorage.setItem("showOtpPage", action?.payload?.data?.isTwoStep);
+          localStorage.setItem("username", action?.payload?.data?.username);
+        }
+        state.loading = false;
+      })
+      .addCase(loginUserGoogle.rejected, (state) => {
+        state.loading = false;
+      })
   },
 });
 
