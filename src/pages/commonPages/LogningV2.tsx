@@ -345,6 +345,7 @@ const LogningV2: React.FC = () => {
                     onError={() => {
                       showToast("Login failed", "error");
                     }}
+                    logo_alignment="center"
                   />
                 </>
                  
