@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React   from "react";
+import { useParams } from "react-router-dom";
 import Deviceinreport from "./Deviceinreport";
 import R2Report from "./R2Report";
 import R3Report from "./R3Report";
@@ -29,15 +29,9 @@ import { visibaleArr } from "@/components/shared/Navslider";
 
 const Report: React.FC = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { user } = useUser();
   const canSeeR22 = visibaleArr.includes(user?.crn_id);
 
-  useEffect(() => {
-    if (id === "R22" && !canSeeR22) {
-      navigate("/not-permission");
-    }
-  }, [id, canSeeR22, navigate]);
 
   if (id === "R1") {
     return <Deviceinreport />;
