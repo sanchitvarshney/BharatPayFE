@@ -116,6 +116,9 @@ import ProdReturnMinLayout from "@/layouts/ProdReturnMinLayout";
 import GPLayout from "@/layouts/GPLayout";
 import CreateGP from "@/pages/GPDCChallan/CreateGP";
 import ManageGP from "@/pages/GPDCChallan/ManageGP";
+import { AddAreaReport } from "./pages/areaReport/AddAreaReport";
+import AddAreaReportLayout from "./layouts/AddAreareportLayout";
+import ViewAreaReport from "./pages/areaReport/ViewAreaReport";
 
 export const router = createBrowserRouter([
   {
@@ -180,6 +183,26 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/dashboard",
+      },
+            {
+        element: (
+          <MainLayout>
+            <AddAreaReportLayout>
+            <AddAreaReport />
+            </AddAreaReportLayout>
+          </MainLayout>
+        ),
+        path: "/worker-data",
+      },
+               {
+        element: (
+          <MainLayout>
+            <AddAreaReportLayout>
+            <ViewAreaReport />
+            </AddAreaReportLayout>
+          </MainLayout>
+        ),
+        path: "/view-worker-data",
       },
       {
         element: (
