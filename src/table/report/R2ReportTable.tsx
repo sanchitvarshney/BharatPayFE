@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef } from "ag-grid-community";
+import { ColDef, FilterChangedEvent } from "ag-grid-community";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
@@ -15,10 +15,12 @@ type Props = {
   pageSize: number;
   handlePageChange: (page: number) => void;
   handlePageSizeChange: (pageSize: number) => void;
+  onFilterChange?: (filters: Record<string, string>) => void;
 };
-const R2ReportTable: React.FC<Props> = ({ setOpen, pageSize, handlePageChange, handlePageSizeChange }) => {
+const R2ReportTable: React.FC<Props> = ({ setOpen, pageSize, handlePageChange, handlePageSizeChange, onFilterChange }) => {
   const { r2Data, getR2DataLoading, r2ReportDetailLoading } = useAppSelector((state) => state.report);
   const dispatch = useAppDispatch();
+  const gridRef = useRef<AgGridReact>(null);
   const columnDefs: ColDef[] = [
     { headerName: "#", field: "srNo", sortable: true, filter: true, valueGetter: "node.rowIndex + 1", maxWidth: 80 },
     { headerName: "Requested By", field: "requestBy", sortable: true, filter: true },
@@ -64,9 +66,62 @@ const R2ReportTable: React.FC<Props> = ({ setOpen, pageSize, handlePageChange, h
     },
   ];
 
+  const handleFilterChanged = useCallback((event: FilterChangedEvent) => {
+    if (!gridRef.current || !onFilterChange) return;
+    
+    const filterModel = gridRef.current.api.getFilterModel();
+    const filters: Record<string, string> = {};
+    
+    // Extract filter values from AG Grid filter model
+    Object.keys(filterModel).forEach((field) => {
+      const filter = filterModel[field];
+      if (filter) {
+        // Handle different filter types
+        if (filter.filterType === 'text') {
+          // Text filter - supports contains, equals, startsWith, endsWith, etc.
+          if (filter.filter && filter.filter.trim() !== '') {
+            filters[field] = filter.filter.trim();
+          }
+        } else if (filter.filterType === 'number') {
+          // Number filter
+          if (filter.filter !== undefined && filter.filter !== null && filter.filter !== '') {
+            filters[field] = String(filter.filter);
+          }
+        } else if (filter.filterType === 'date') {
+          // Date filter
+          if (filter.dateFrom) {
+            filters[field] = filter.dateFrom;
+          }
+        } else if (filter.values && Array.isArray(filter.values)) {
+          // Set filter (multi-select)
+          if (filter.values.length > 0) {
+            filters[field] = filter.values.join(',');
+          }
+        } else if (filter.filter !== undefined && filter.filter !== null && filter.filter !== '') {
+          // Generic filter - fallback for any other filter type
+          filters[field] = String(filter.filter).trim();
+        }
+      }
+    });
+    
+    // Call the callback to trigger API call with filters
+    onFilterChange(filters);
+  }, [onFilterChange]);
+
   return (
     <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
-      <AgGridReact loading={getR2DataLoading} loadingOverlayComponent={CustomLoadingOverlay} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus columnDefs={columnDefs} rowData={r2Data?.data || []} pagination={false} enableCellTextSelection = {true} />
+      <AgGridReact 
+        ref={gridRef}
+        loading={getR2DataLoading} 
+        loadingOverlayComponent={CustomLoadingOverlay} 
+        overlayNoRowsTemplate={OverlayNoRowsTemplate} 
+        suppressCellFocus 
+        columnDefs={columnDefs} 
+        rowData={r2Data?.data || []} 
+        pagination={false} 
+        enableCellTextSelection={true}
+        onFilterChanged={handleFilterChanged}
+      />
      {r2Data && <CustomPagination
         currentPage={r2Data?.pagination?.currentPage}
         totalPages={r2Data?.pagination?.totalPages}

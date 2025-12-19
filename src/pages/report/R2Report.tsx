@@ -33,6 +33,7 @@ const R2Report: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [pageSize, setPageSize] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const { emitDownloadR2Report, onDownloadReport,isConnected } = useSocketContext();
 
   const dispatch = useAppDispatch();
@@ -52,12 +53,42 @@ const R2Report: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    dispatch(getR2Data({ from: date?.from || "", to: date?.to || "", type: reportType, page: page, limit: pageSize }));
+    dispatch(getR2Data({ 
+      from: date?.from || "", 
+      to: date?.to || "", 
+      type: reportType, 
+      page: page, 
+      limit: pageSize,
+      filters: filters
+    }));
   };
 
   const handlePageSizeChange = (pageSize: number) => {
     setPageSize(pageSize);
-    dispatch(getR2Data({ from: date?.from || "", to: date?.to || "", type: reportType, page: 1, limit: pageSize }));
+    setCurrentPage(1);
+    dispatch(getR2Data({ 
+      from: date?.from || "", 
+      to: date?.to || "", 
+      type: reportType, 
+      page: 1, 
+      limit: pageSize,
+      filters: filters
+    }));
+  };
+
+  const handleFilterChange = (newFilters: Record<string, string>) => {
+    setFilters(newFilters);
+    setCurrentPage(1); // Reset to first page when filters change
+    if (date) {
+      dispatch(getR2Data({ 
+        from: date.from, 
+        to: date.to, 
+        type: reportType, 
+        page: 1, 
+        limit: pageSize,
+        filters: newFilters
+      }));
+    }
   };
 
   return (
@@ -142,6 +173,7 @@ const R2Report: React.FC = () => {
                         type: reportType,
                         page: currentPage,
                         limit: pageSize,
+                        filters: filters,
                       })
                     ).then((res: any) => {
                       if (res.payload?.data?.status === "success") {
@@ -178,7 +210,13 @@ const R2Report: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <R2ReportTable setOpen={setOpen} pageSize={pageSize} handlePageChange={handlePageChange} handlePageSizeChange={handlePageSizeChange} />
+          <R2ReportTable 
+            setOpen={setOpen} 
+            pageSize={pageSize} 
+            handlePageChange={handlePageChange} 
+            handlePageSizeChange={handlePageSizeChange}
+            onFilterChange={handleFilterChange}
+          />
         </div>
       </div>
     </>

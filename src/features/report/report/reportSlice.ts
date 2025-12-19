@@ -124,9 +124,18 @@ export const getR2Data = createAsyncThunk<
   AxiosResponse<R2Response>,
   { from: string; to: string; type: string; page: number; limit: number }
 >("report/getR2Data", async (date) => {
-  const response = await axiosInstance.get(
-    `report/r2?from=${date.from}&to=${date.to}&type=${date.type}&page=${date.page}&limit=${date.limit}`
-  );
+  let url = `report/r2?from=${date.from}&to=${date.to}&type=${date.type}&page=${date.page}&limit=${date.limit}`;
+  
+  // Add filter parameters if they exist
+  if (date.filters) {
+    Object.entries(date.filters).forEach(([key, value]) => {
+      if (value && value.trim() !== "") {
+        url += `&${key}=${encodeURIComponent(value)}`;
+      }
+    });
+  }
+  
+  const response = await axiosInstance.get(url);
   return response;
 });
 export const getR2ReportDetail = createAsyncThunk<
