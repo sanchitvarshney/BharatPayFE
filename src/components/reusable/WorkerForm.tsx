@@ -227,7 +227,7 @@ const WorkerForm
             disableClearable
             multiple
             renderTags={() => null}
-            getOptionLabel={(option: any) => option.text || ""}
+           getOptionLabel={(option: any) => `${option.text} (${option.id})` || ""}
             filterOptions={(options) => options}
             loading={empLoading}
             value={selectedEmployee}
