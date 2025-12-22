@@ -34,7 +34,7 @@ export const getDepartment = createAsyncThunk<AxiosResponse<any>>(
 export const getWorkingData = createAsyncThunk<AxiosResponse<any>>(
   "master/place/view-data",
   async (payload: any) => {
-    const response = await axiosInstance.get(`/worker/viewData?date=${payload.from}&to=${payload.to}&place=${payload.place}&department=${payload.department}`);
+    const response = await axiosInstance.get(`/worker/viewData?from=${payload.from}&to=${payload.to}&place=${payload.place}&department=${payload.department}`);
     return response;
   }
 );
