@@ -12,7 +12,7 @@ const initialState: InitialAreaType = {
   empLoading: false,
   submitLoading: false,
   workingDataLoading: false,
-  workingData: [],
+  workingData: []
 };
 
 export const getMasterPlace = createAsyncThunk<AxiosResponse<any>>(
