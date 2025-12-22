@@ -49,6 +49,7 @@ const WorkerForm
     departmentLoading,
     empList,
     empLoading,
+    submitLoading
   } = useSelector((state: any) => state.placeMaster);
   const [area, setArea] = useState<AreaType | null>(null);
   const [department, setDepartment] = useState<DepartmentType | null>(null);
@@ -318,7 +319,7 @@ const WorkerForm
           variant="contained"
           color="primary"
           className=" mt-[20px] mb-[20px] bg-cyan-400 hover:bg-cyan-600"
-          loading={false}
+          loading={submitLoading}
               sx={{ minWidth: "120px" }}
         >
           Submit

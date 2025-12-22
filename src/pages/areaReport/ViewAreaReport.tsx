@@ -46,6 +46,13 @@ const columnDefs: ColDef[] = [
     flex: 1,
     cellRenderer: (params:any) => params.node.rowIndex + 1,
   },
+    {
+    headerName: "Code",
+    field: "code",
+    sortable: true,
+    filter: true,
+    flex: 1,
+  },
   {
     headerName: "Place",
     field: "place",
@@ -107,7 +114,7 @@ const ViewAreaReport: React.FC = () => {
     //@ts-ignore
     dispatch(getWorkingData(payload)).then((res: any) => {
       if (res.payload?.data?.success) {
-        reset();
+      
 
         toast({
           description: res.payload.data.message,
@@ -270,7 +277,7 @@ const ViewAreaReport: React.FC = () => {
               loadingPosition="start"
               type="submit"
               variant="contained"
-              loading={false}
+              loading={workingDataLoading}
             >
               Submit
             </LoadingButton>

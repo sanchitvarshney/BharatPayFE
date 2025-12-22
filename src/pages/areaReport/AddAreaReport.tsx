@@ -72,6 +72,7 @@ export const AddAreaReport = () => {
       key={formKey}
         onFormChange={handleFormChange}
         onclick={handleSubmit}
+      
       />
     </div>
   );
