@@ -61,6 +61,7 @@ const WorkerForm
   const [employeeList, setEmployeeList] = useState<EmployeeType[]>([]);
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeType[]>([]);
+  const [inputValue, setInputValue] = useState<string>("");
 
 
    
@@ -88,7 +89,11 @@ const WorkerForm
   }, [departmentList]);
 
   useEffect(() => {
-    setEmployeeList(empList);
+    if(empList) {
+      setEmployeeList(empList);
+    } else {
+      setEmployeeList([]);
+    }
   }, [empList]);
 
   const fetchDepartments = async (areaId: string) => {
@@ -221,21 +226,31 @@ const WorkerForm
             options={employeeList}
             disableClearable
             multiple
-             renderTags={() => null}
-            getOptionLabel={(option: any) => option.text}
-            
+            renderTags={() => null}
+            getOptionLabel={(option: any) => option.text || ""}
+            filterOptions={(options) => options}
             loading={empLoading}
             value={selectedEmployee}
-            onChange={(event, newValue) => {
+            inputValue={inputValue}
+            onInputChange={(event, value, reason) => {
               console.log(event)
-              setSelectedEmployee(newValue)}}
-            onInputChange={(event, value) => {
-              console.log(event)
-              if (value) {
-                debouncedSearchEmployees(value);
+              setInputValue(value);
+             
+              if (reason === 'input') {
+                if (value.trim().length > 0) {
+                  debouncedSearchEmployees(value.trim());
+                } else {
+
+                  setEmployeeList([]);
+                }
               }
             }}
+            onChange={(event, newValue) => {
+               console.log(event)
+              setSelectedEmployee(newValue);
+            }}
             isOptionEqualToValue={(option, value) => option.id === value.id}
+            noOptionsText="No employees found"
             renderInput={(params) => (
               <TextField
                 {...params}
