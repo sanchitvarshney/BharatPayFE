@@ -12,7 +12,7 @@ import {
   Box,
   Checkbox,
 } from "@mui/material";
-import { DataGrid, GridRenderCellParams, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
 
 import { AreaType, DepartmentType, Props } from "@/types/workerTypes";
 import {
