@@ -30,6 +30,7 @@ import procurementReducer from "@/features/procurement/poSlices";
 import materialManagementReducer from "@/features/materialManagement/materialManagementSlices";
 import partCodeConversionReducer from "@/features/partCodeConversion/partCodeConversionSlices";
 import gpdcChallanReducer from "@/features/GPDCChallan/GPDCChallanSlice";
+import placeSlice from "@/features/areaSlice/areaSlice";
 
 export const store = configureStore({
   reducer: {
@@ -64,6 +65,7 @@ export const store = configureStore({
     materialManagement: materialManagementReducer,
     partCodeConversion: partCodeConversionReducer,
     gpdcChallan: gpdcChallanReducer,
+    placeMaster: placeSlice
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
