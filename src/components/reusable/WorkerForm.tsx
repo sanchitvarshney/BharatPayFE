@@ -150,8 +150,6 @@ const WorkerForm: React.FC<Props> = ({
     },
   ];
 
-  
-
   return (
     <div>
       <div className="grid grid-cols-3 gap-[20px]">
@@ -245,10 +243,10 @@ const WorkerForm: React.FC<Props> = ({
                 },
               },
             }}
+            disableColumnSelector
             loading={empLoading}
             pageSizeOptions={[10]}
             disableRowSelectionOnClick
-           
             showToolbar={true}
             
             sx={{
