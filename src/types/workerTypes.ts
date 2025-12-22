@@ -14,9 +14,8 @@ export type DepartmentType = {
 
 export type EmployeeType = {
   id: string;
-  name: string;
-  code?: string;
-  email?: string;
+  text: string;
+
 };
 
 export type Props = {

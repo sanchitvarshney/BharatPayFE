@@ -40,9 +40,9 @@ export const getWorkingData = createAsyncThunk<AxiosResponse<any>>(
 );
 export const getEmployees = createAsyncThunk<AxiosResponse<any>>(
   "master/place/emp",
-  async (payload: any) => {
+  async () => {
     const response = await axiosInstance.get(
-      `/hrms/fetchEmployee?search=${payload.search}`
+      `/hrms/fetchEmployee`
     );
     return response;
   }

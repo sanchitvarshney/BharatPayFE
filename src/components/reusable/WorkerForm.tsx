@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import {
@@ -8,20 +9,14 @@ import {
   MenuItem,
   SelectChangeEvent,
   CircularProgress,
-  TextField,
-  Autocomplete,
   Box,
-  Typography,
-  ListItem,
-  ListItemText,
-  List,
-  IconButton,
+  Checkbox,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { DataGrid,  GridRenderCellParams } from "@mui/x-data-grid";
+
 import {
   AreaType,
   DepartmentType,
-  EmployeeType,
   Props,
 } from "@/types/workerTypes";
 import {
@@ -32,14 +27,11 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { PlaceType } from "@/features/areaSlice/areaType";
 import { LoadingButton } from "@mui/lab";
-import useDebouncedCallback from "@/hooks/useDebouncedCallback";
 
-const WorkerForm
-: React.FC<Props> = ({
+const WorkerForm: React.FC<Props> = ({
   onFormChange,
   initialDate,
   onclick,
-
 }) => {
   const dispatch = useDispatch<any>();
   const {
@@ -49,32 +41,17 @@ const WorkerForm
     departmentLoading,
     empList,
     empLoading,
-    submitLoading
+    submitLoading,
   } = useSelector((state: any) => state.placeMaster);
   const [area, setArea] = useState<AreaType | null>(null);
   const [department, setDepartment] = useState<DepartmentType | null>(null);
-  const [employees, setEmployees] = useState<EmployeeType[]>([]);
+
+  const [selectedEmployeeIds, setSelectedEmployeeIds] =
+    useState<string[]>([]);
   const [date] = useState<Dayjs>(initialDate || dayjs());
 
   const [areaList, setAreaList] = useState<AreaType[]>([]);
   const [deptList, setDeptList] = useState<DepartmentType[]>([]);
-  const [employeeList, setEmployeeList] = useState<EmployeeType[]>([]);
-  const [selectedEmployee, setSelectedEmployee] =
-    useState<EmployeeType[]>([]);
-  const [inputValue, setInputValue] = useState<string>("");
-
-
-   
-
-  const searchEmployees = (value: string) => {
-    const payload: any = {
-      search: value,
-    };
-    //@ts-ignore
-    dispatch(getEmployees(payload));
-  };
-
-  const debouncedSearchEmployees = useDebouncedCallback(searchEmployees, 500);
 
   useEffect(() => {
     dispatch(getMasterPlace());
@@ -89,12 +66,8 @@ const WorkerForm
   }, [departmentList]);
 
   useEffect(() => {
-    if(empList) {
-      setEmployeeList(empList);
-    } else {
-      setEmployeeList([]);
-    }
-  }, [empList]);
+    dispatch(getEmployees());
+  }, []);
 
   const fetchDepartments = async (areaId: string) => {
     const payload: any = {
@@ -114,27 +87,30 @@ const WorkerForm
     }
   }, [area]);
 
-  useEffect(() => {
-    setEmployees(selectedEmployee);
-  }, [selectedEmployee]);
+  const selectedEmployees = empList.filter((emp:any) =>
+    selectedEmployeeIds.includes(emp.id)
+  );
+
+  const handleCheckboxChange = (employeeId: string) => {
+    setSelectedEmployeeIds((prev) => {
+      if (prev.includes(employeeId)) {
+        return prev.filter((id) => id !== employeeId);
+      } else {
+        return [...prev, employeeId];
+      }
+    });
+  };
 
   useEffect(() => {
     if (onFormChange) {
       onFormChange({
         area,
         department,
-        employees,
+        employees: selectedEmployees,
         date,
       });
     }
-  }, [area, department, employees, date, onFormChange]);
-
-  const handleDeleteEmployee = (employeeId: string) => {
-    const updatedEmployees = selectedEmployee.filter(
-      (emp) => emp.id !== employeeId
-    );
-    setSelectedEmployee(updatedEmployees);
-  };
+  }, [area, department, selectedEmployees, date, onFormChange]);
 
   const handleAreaChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
@@ -149,7 +125,36 @@ const WorkerForm
   };
 
 
-
+  const columns: any = [
+    {
+      field: "select",
+      headerName: "Select",
+      width: 100,
+      sortable: false,
+      renderCell: (params: GridRenderCellParams) => {
+        const isSelected = selectedEmployeeIds.includes(params.row.id);
+        return (
+          <Checkbox
+            checked={isSelected}
+            onChange={() => handleCheckboxChange(params.row.id)}
+            onClick={(e) => e.stopPropagation()}
+          />
+        );
+      },
+    },
+    {
+      field: "id",
+      headerName: "Code",
+      width: 150,
+      editable: true,
+    },
+    {
+      field: "text",
+      headerName: "Full Name",
+      width: 150,
+      editable: true,
+    },
+  ];
 
   return (
     <div>
@@ -208,70 +213,15 @@ const WorkerForm
           </Select>
         </FormControl>
 
-        
         {/* Date Field */}
         <FormControl fullWidth>
           <DatePicker
             className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
             value={date}
             format="DD/MM/YYYY"
-            
             style={{ cursor: "not-allowed" }}
           />
         </FormControl>
-
-        {/* Employee Multi-Select */}
-        <FormControl fullWidth>
-          <Autocomplete
-            options={employeeList}
-            disableClearable
-            multiple
-            renderTags={() => null}
-           getOptionLabel={(option: any) => `${option.text} (${option.id})` || ""}
-            filterOptions={(options) => options}
-            loading={empLoading}
-            value={selectedEmployee}
-            inputValue={inputValue}
-            onInputChange={(event, value, reason) => {
-              console.log(event)
-              setInputValue(value);
-             
-              if (reason === 'input') {
-                if (value.trim().length > 0) {
-                  debouncedSearchEmployees(value.trim());
-                } else {
-
-                  setEmployeeList([]);
-                }
-              }
-            }}
-            onChange={(event, newValue) => {
-               console.log(event)
-              setSelectedEmployee(newValue);
-            }}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            noOptionsText="No employees found"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search Employee"
-                variant="outlined"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {empLoading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-          />
-        </FormControl>
-
       </div>
 
       {/* Selected Employees List */}
@@ -282,60 +232,38 @@ const WorkerForm
             p: 2,
             border: "1px solid #e0e0e0",
             borderRadius: 1,
-            backgroundColor: "#f5f5f5",
-            minHeight:"calc(100vh - 390px)",
-              maxHeight:"calc(100vh - 390px)",
-              overflowY:"auto"
+            backgroundColor: "#fff",
+            minHeight: "calc(100vh - 330px)",
+            maxHeight: "calc(100vh - 330px)",
+            overflowY: "auto",
           }}
         >
-          {selectedEmployee.length === 0 ? (
-            <Typography color="text.secondary" textAlign={"center"} sx={{ my: 2 }}>
-              No employees selected
-            </Typography>
-          ) : (
-            <List sx={{ width: "100%", p: 0 }}>
-              {selectedEmployee.map((emp: any, index) => (
-                <ListItem
-                  key={emp.id}
-                  secondaryAction={
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => handleDeleteEmployee(emp.id)}
-                      color="error"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  }
-                  sx={{
-                    borderBottom: "1px solid #e0e0e0",
-                    "&:last-child": {
-                      borderBottom: "none",
-                    },
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.04)",
-                    },
-                  }}
-                >
-                  <ListItemText primary={`${index + 1}. ${emp.text} (${emp.id})`} />
-                </ListItem>
-              ))}
-            </List>
-          )}
+          <DataGrid
+            getRowId={(row) => row.id}
+            rows={empList || []}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                },
+              },
+            }}
+            loading={empLoading}
+            pageSizeOptions={[10]}
+            disableRowSelectionOnClick
+          />
         </Box>
       </div>
 
-     
       <div className="flex justify-end  mt-[15px] mb-[15px]">
-      
         <LoadingButton
-        
-         onClick={onclick}
+          onClick={onclick}
           variant="contained"
           color="primary"
           className=" mt-[20px] mb-[20px] bg-cyan-400 hover:bg-cyan-600"
           loading={submitLoading}
-              sx={{ minWidth: "120px" }}
+          sx={{ minWidth: "120px" }}
         >
           Submit
         </LoadingButton>
@@ -344,5 +272,4 @@ const WorkerForm
   );
 };
 
-export default WorkerForm
-;
+export default WorkerForm;
