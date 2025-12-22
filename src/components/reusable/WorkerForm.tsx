@@ -12,13 +12,9 @@ import {
   Box,
   Checkbox,
 } from "@mui/material";
-import { DataGrid,  GridRenderCellParams } from "@mui/x-data-grid";
+import { DataGrid, GridRenderCellParams, GridToolbar } from "@mui/x-data-grid";
 
-import {
-  AreaType,
-  DepartmentType,
-  Props,
-} from "@/types/workerTypes";
+import { AreaType, DepartmentType, Props } from "@/types/workerTypes";
 import {
   getDepartment,
   getEmployees,
@@ -46,8 +42,7 @@ const WorkerForm: React.FC<Props> = ({
   const [area, setArea] = useState<AreaType | null>(null);
   const [department, setDepartment] = useState<DepartmentType | null>(null);
 
-  const [selectedEmployeeIds, setSelectedEmployeeIds] =
-    useState<string[]>([]);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
   const [date] = useState<Dayjs>(initialDate || dayjs());
 
   const [areaList, setAreaList] = useState<AreaType[]>([]);
@@ -87,7 +82,7 @@ const WorkerForm: React.FC<Props> = ({
     }
   }, [area]);
 
-  const selectedEmployees = empList.filter((emp:any) =>
+  const selectedEmployees = empList.filter((emp: any) =>
     selectedEmployeeIds.includes(emp.id)
   );
 
@@ -124,7 +119,6 @@ const WorkerForm: React.FC<Props> = ({
     setDepartment(selectedDepartment || null);
   };
 
-
   const columns: any = [
     {
       field: "select",
@@ -146,15 +140,17 @@ const WorkerForm: React.FC<Props> = ({
       field: "id",
       headerName: "Code",
       width: 150,
-      editable: true,
+      editable: false,
     },
     {
       field: "text",
       headerName: "Full Name",
       width: 150,
-      editable: true,
+      editable: false,
     },
   ];
+
+  
 
   return (
     <div>
@@ -233,9 +229,9 @@ const WorkerForm: React.FC<Props> = ({
             border: "1px solid #e0e0e0",
             borderRadius: 1,
             backgroundColor: "#fff",
-            minHeight: "calc(100vh - 330px)",
-            maxHeight: "calc(100vh - 330px)",
-            overflowY: "auto",
+            height: "calc(100vh - 330px)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <DataGrid
@@ -252,6 +248,15 @@ const WorkerForm: React.FC<Props> = ({
             loading={empLoading}
             pageSizeOptions={[10]}
             disableRowSelectionOnClick
+           
+            showToolbar={true}
+            
+            sx={{
+              flex: 1,
+              "& .MuiDataGrid-toolbarContainer": {
+                padding: "8px",
+              },
+            }}
           />
         </Box>
       </div>
