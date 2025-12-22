@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -45,10 +44,11 @@ const columnDefs: ColDef[] = [
     sortable: true,
     filter: true,
     flex: 1,
+    cellRenderer: (params:any) => params.node.rowIndex + 1,
   },
   {
-    headerName: "Area",
-    field: "area",
+    headerName: "Place",
+    field: "place",
     sortable: true,
     filter: true,
     flex: 1,
@@ -71,11 +71,9 @@ const columnDefs: ColDef[] = [
 
 const ViewAreaReport: React.FC = () => {
   const dispatch: any = useDispatch();
-  const { placeList, placeLoading, departmentList, departmentLoading } =
+  const { placeList, placeLoading, departmentList, departmentLoading,workingData, workingDataLoading } =
     useSelector((state: any) => state.placeMaster);
-  const { workingData, workingDataLoading } = useAppSelector(
-    (state) => state.placeMaster
-  );
+
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -115,12 +113,14 @@ const ViewAreaReport: React.FC = () => {
           description: res.payload.data.message,
           variant: "success",
           className: "font-[500]",
+          duration: 1500,
         });
       } else {
         toast({
           description: res.payload?.data?.message || "Something went wrong",
           variant: "destructive",
           className: "font-[500]",
+          duration: 1500,
         });
       }
     });
@@ -144,6 +144,8 @@ const ViewAreaReport: React.FC = () => {
       fetchDepartments(selectedAreaId);
     }
   }, [selectedAreaId]);
+
+  console.log("working data", workingData)
 
   return (
     <div className="grid  w-full grid-cols-[1fr_2fr]  bg-white">
