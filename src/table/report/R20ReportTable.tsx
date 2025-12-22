@@ -214,7 +214,12 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
     },
-    
+    {
+      headerName: "Insert Date",
+      field: "insert_dt",
+      minWidth: 100,
+      headerClass: "font-semibold",
+    },
   ];
 
   const defaultColDef = useMemo<ColDef>(() => {

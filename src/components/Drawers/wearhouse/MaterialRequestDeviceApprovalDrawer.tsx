@@ -459,6 +459,9 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                           e.currentTarget.blur();
                                         }
                                       }
+                                      else {
+                                        showToast(response.payload.data.message, "error");
+                                      }
                                     });
                                   }
                                 }

@@ -418,7 +418,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                       <FormControl fullWidth>
                         <OutlinedInput
                           value={input}
-                          disabled={!isueeQty || Number(isueeQty) === scanned?.length}
+                          // disabled={!isueeQty || Number(isueeQty) === scanned?.length}
                           endAdornment={
                             <InputAdornment position="end">
                              {deviceLoading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}
@@ -450,6 +450,9 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                                     if (Number(isueeQty) === scanned?.length! + 1) {
                                       e.currentTarget.blur();
                                     }
+                                  }
+                                  else{
+                                    showToast(response.payload.data.message, "error");
                                   }
                                 })
                                   }
