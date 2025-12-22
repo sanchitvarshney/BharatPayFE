@@ -12,11 +12,7 @@ import {
   Box,
   Checkbox,
 } from "@mui/material";
-import {
-  DataGrid,
-  GridRenderCellParams,
-
-} from "@mui/x-data-grid";
+import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
 
 import { AreaType, DepartmentType, Props } from "@/types/workerTypes";
 import {
@@ -53,8 +49,10 @@ const WorkerForm: React.FC<Props> = ({
   const [deptList, setDeptList] = useState<DepartmentType[]>([]);
 
   useEffect(() => {
-    dispatch(getMasterPlace());
-  }, []);
+    if (placeList.length === 0) {
+      dispatch(getMasterPlace());
+    }
+  }, [placeList]);
 
   useEffect(() => {
     setAreaList(placeList);
@@ -65,8 +63,10 @@ const WorkerForm: React.FC<Props> = ({
   }, [departmentList]);
 
   useEffect(() => {
-    dispatch(getEmployees());
-  }, []);
+    if (empList.length === 0) {
+      dispatch(getEmployees());
+    }
+  }, [empList]);
 
   const fetchDepartments = async (areaId: string) => {
     const payload: any = {
@@ -153,7 +153,6 @@ const WorkerForm: React.FC<Props> = ({
       editable: false,
     },
   ];
-
 
   return (
     <div>

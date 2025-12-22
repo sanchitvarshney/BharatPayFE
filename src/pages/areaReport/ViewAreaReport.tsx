@@ -22,8 +22,6 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
-import RefreshIcon from "@mui/icons-material/Refresh";
-import SaveIcon from "@mui/icons-material/Save";
 import { DatePicker } from "antd";
 import { rangePresets } from "@/utils/rangePresets";
 import dayjs from "dayjs";
@@ -44,9 +42,16 @@ const columnDefs: ColDef[] = [
     sortable: true,
     filter: true,
     flex: 1,
-    cellRenderer: (params:any) => params.node.rowIndex + 1,
+    cellRenderer: (params: any) => params.node.rowIndex + 1,
   },
-    {
+  {
+    headerName: "Full Name",
+    field: "name",
+    sortable: true,
+    filter: true,
+    flex: 1,
+  },
+  {
     headerName: "Code",
     field: "code",
     sortable: true,
@@ -78,9 +83,14 @@ const columnDefs: ColDef[] = [
 
 const ViewAreaReport: React.FC = () => {
   const dispatch: any = useDispatch();
-  const { placeList, placeLoading, departmentList, departmentLoading,workingData, workingDataLoading } =
-    useSelector((state: any) => state.placeMaster);
-
+  const {
+    placeList,
+    placeLoading,
+    departmentList,
+    departmentLoading,
+    workingData,
+    workingDataLoading,
+  } = useSelector((state: any) => state.placeMaster);
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -114,8 +124,6 @@ const ViewAreaReport: React.FC = () => {
     //@ts-ignore
     dispatch(getWorkingData(payload)).then((res: any) => {
       if (res.payload?.data?.success) {
-      
-
         toast({
           description: res.payload.data.message,
           variant: "success",
@@ -135,8 +143,10 @@ const ViewAreaReport: React.FC = () => {
   const selectedAreaId = watch("areaId");
 
   useEffect(() => {
-    dispatch(getMasterPlace());
-  }, []);
+    if (placeList.length === 0) {
+      dispatch(getMasterPlace());
+    }
+  }, [placeList]);
 
   const fetchDepartments = async (areaId: string) => {
     const payload: any = {
@@ -152,12 +162,10 @@ const ViewAreaReport: React.FC = () => {
     }
   }, [selectedAreaId]);
 
-  console.log("working data", workingData)
-
   return (
     <div className="grid  w-full grid-cols-[1fr_2fr]  bg-white">
       <div className="w-full border-r border-neutral-300">
-        <form onSubmit={handleSubmit(onSubmit)} className="p-[30px]">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-[20px]">
           <div className="py-[20px] flex flex-col gap-[30px]">
             <div>
               <Controller
@@ -265,7 +273,6 @@ const ViewAreaReport: React.FC = () => {
           </div>
           <div className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
             <Button
-              startIcon={<RefreshIcon fontSize="small" />}
               onClick={() => reset()}
               variant="contained"
               sx={{ background: "white", color: "red" }}
@@ -273,13 +280,12 @@ const ViewAreaReport: React.FC = () => {
               Reset
             </Button>
             <LoadingButton
-              startIcon={<SaveIcon fontSize="small" />}
               loadingPosition="start"
               type="submit"
               variant="contained"
               loading={workingDataLoading}
             >
-              Submit
+              Search
             </LoadingButton>
           </div>
         </form>
