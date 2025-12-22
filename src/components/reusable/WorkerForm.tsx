@@ -12,7 +12,11 @@ import {
   Box,
   Checkbox,
 } from "@mui/material";
-import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridRenderCellParams,
+
+} from "@mui/x-data-grid";
 
 import { AreaType, DepartmentType, Props } from "@/types/workerTypes";
 import {
@@ -150,6 +154,7 @@ const WorkerForm: React.FC<Props> = ({
     },
   ];
 
+
   return (
     <div>
       <div className="grid grid-cols-3 gap-[20px]">
@@ -248,11 +253,16 @@ const WorkerForm: React.FC<Props> = ({
             pageSizeOptions={[10]}
             disableRowSelectionOnClick
             showToolbar={true}
-            
             sx={{
               flex: 1,
               "& .MuiDataGrid-toolbarContainer": {
                 padding: "8px",
+              },
+              "& .MuiDataGrid-toolbarContainer button[aria-label='Density']": {
+                display: "none",
+              },
+              "& .MuiDataGrid-toolbarContainer button[aria-label='Export']": {
+                display: "none",
               },
             }}
           />
