@@ -52,7 +52,7 @@ const WorkerForm: React.FC<Props> = ({
     if (placeList.length === 0) {
       dispatch(getMasterPlace());
     }
-  }, [placeList]);
+  }, []);
 
   useEffect(() => {
     setAreaList(placeList);
@@ -66,7 +66,7 @@ const WorkerForm: React.FC<Props> = ({
     if (empList.length === 0) {
       dispatch(getEmployees());
     }
-  }, [empList]);
+  }, []);
 
   const fetchDepartments = async (areaId: string) => {
     const payload: any = {

@@ -146,7 +146,7 @@ const ViewAreaReport: React.FC = () => {
     if (placeList.length === 0) {
       dispatch(getMasterPlace());
     }
-  }, [placeList]);
+  }, []);
 
   const fetchDepartments = async (areaId: string) => {
     const payload: any = {
