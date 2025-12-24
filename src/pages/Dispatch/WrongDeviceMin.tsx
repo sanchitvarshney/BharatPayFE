@@ -254,9 +254,10 @@ const WrongDeviceMin: React.FC = () => {
       categoryId: formValues.categoryId,
       locationId: formValues.locationId?.code || formValues.locationId,
       partnerId: formValues.partnerId,
-      awbNo: combinedRowData.map((row) => row.awbNo).filter(Boolean),
-      serialNo: combinedRowData.map((row) => row.serialNo).filter(Boolean),
-      imeiNo: combinedRowData.map((row) => row.imeiNo).filter(Boolean),
+      awbNo: combinedRowData.map((row) => row.awbNo || ""),
+      serialNo: combinedRowData.map((row) => row.serialNo || ""),
+      imeiNo: combinedRowData.map((row) => row.imeiNo || ""),
+      remark: combinedRowData.map((row) => row.remark || ""),
     };
 
     // Submit the form
