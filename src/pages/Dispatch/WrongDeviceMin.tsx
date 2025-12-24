@@ -192,7 +192,7 @@ const WrongDeviceMin: React.FC = () => {
   } = useForm<any>({
     defaultValues: {
       categoryId: "",
-      locationId: "",
+      locationId: null,
       partnerId: "",
     },
   });
@@ -252,11 +252,11 @@ const WrongDeviceMin: React.FC = () => {
     // Prepare payload
     const payload = {
       categoryId: formValues.categoryId,
-      locationId: formValues.locationId,
+      locationId: formValues.locationId?.code || formValues.locationId,
       partnerId: formValues.partnerId,
-      awbNo:combinedRowData.map((row) => row.awbNo),
-      serialNo: combinedRowData.map((row) => row.serialNo),
-      imeiNo: combinedRowData.map((row) => row.imeiNo),
+      awbNo: combinedRowData.map((row) => row.awbNo).filter(Boolean),
+      serialNo: combinedRowData.map((row) => row.serialNo).filter(Boolean),
+      imeiNo: combinedRowData.map((row) => row.imeiNo).filter(Boolean),
     };
 
     // Submit the form
@@ -318,7 +318,10 @@ const WrongDeviceMin: React.FC = () => {
                 render={({ field }) => (
                   <SelectLocationAcordingModule
                     endPoint="/deviceMin/device-inward-location"
-                    {...field}
+                    value={field.value || null}
+                    onChange={(value) => {
+                      field.onChange(value);
+                    }}
                     error={!!errors.locationId}
                     label="Location"
                   />
