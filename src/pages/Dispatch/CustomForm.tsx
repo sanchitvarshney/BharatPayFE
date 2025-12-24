@@ -1,10 +1,12 @@
-import React, {  useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 
 import { showToast } from "@/utils/toasterContext";
 import { useDispatch, useSelector } from "react-redux";
 import { getWorkingData } from "@/features/areaSlice/areaSlice";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
+import { submitCustomForm } from "@/features/Dispatch/DispatchSlice";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   Button,
   FormControl,
@@ -51,7 +53,9 @@ const CustomForm: React.FC = () => {
   const [serialNo, setSerialNo] = useState<string>("");
   const [combinedRowData, setCombinedRowData] = useState<any[]>([]);
   const dispatch: any = useDispatch();
+  const appDispatch = useAppDispatch();
   const { workingDataLoading } = useSelector((state: any) => state.placeMaster);
+  const { submitCustomFormLoading } = useAppSelector((state) => state.dispatch);
 
   // Refs for input fields to manage focus
   const awbNoInputRef = useRef<HTMLInputElement>(null);
@@ -111,6 +115,7 @@ const CustomForm: React.FC = () => {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
@@ -119,6 +124,8 @@ const CustomForm: React.FC = () => {
       partnerId: "",
     },
   });
+
+  const formValues = watch();
 
   const onSubmit = (data: any) => {
     const payload: any = {
@@ -144,6 +151,53 @@ const CustomForm: React.FC = () => {
           className: "font-[500]",
           duration: 1500,
         });
+      }
+    });
+  };
+
+  const handleSubmitForm = () => {
+    // Validate form fields
+    if (!formValues.categoryId) {
+      showToast("Please select a category", "error");
+      return;
+    }
+    if (!formValues.locationId) {
+      showToast("Please select a location", "error");
+      return;
+    }
+    if (!formValues.partnerId) {
+      showToast("Please select a partner", "error");
+      return;
+    }
+    if (combinedRowData.length === 0) {
+      showToast(
+        "Please add at least one device (AWB, Serial, or IMEI)",
+        "error"
+      );
+      return;
+    }
+
+    // Prepare payload
+    const payload = {
+      categoryId: formValues.categoryId,
+      locationId: formValues.locationId,
+      partnerId: formValues.partnerId,
+      devices: combinedRowData.map((row) => ({
+        awbNo: row.awbNo || "",
+        serialNo: row.serialNo || "",
+        imeiNo: row.imeiNo || "",
+      })),
+    };
+
+    // Submit the form
+    appDispatch(submitCustomForm(payload)).then((res: any) => {
+      if (res.payload?.data?.success) {
+        // Reset form on success
+        reset();
+        setCombinedRowData([]);
+        setAwbNo("");
+        setSerialNo("");
+        setImei("");
       }
     });
   };
@@ -205,7 +259,7 @@ const CustomForm: React.FC = () => {
           <div className="flex flex-col gap-[10px]">
             <div>
               <Controller
-                name="departmentId"
+                name="partnerId"
                 control={control}
                 rules={{ required: "Partner is required" }}
                 render={({ field }) => (
@@ -275,7 +329,11 @@ const CustomForm: React.FC = () => {
           </div>
 
           <div>
-            <FormControl sx={{ width: "400px", mb: "10px" }} variant="outlined" disabled>
+            <FormControl
+              sx={{ width: "400px", mb: "10px" }}
+              variant="outlined"
+              disabled
+            >
               <TextField
                 rows={2}
                 value={serialNo}
@@ -317,7 +375,11 @@ const CustomForm: React.FC = () => {
           </div>
           {/* imie */}
           <div>
-            <FormControl sx={{ width: "400px", mb: "10px" }} variant="outlined" disabled>
+            <FormControl
+              sx={{ width: "400px", mb: "10px" }}
+              variant="outlined"
+              disabled
+            >
               <TextField
                 rows={2}
                 value={imei}
@@ -366,22 +428,32 @@ const CustomForm: React.FC = () => {
           />
         </div>
 
-        <div className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
-          <Button
-            onClick={() => reset()}
-            variant="contained"
-            sx={{ background: "white", color: "red" }}
-          >
-            Reset
-          </Button>
-          <LoadingButton
-            loadingPosition="start"
-            type="submit"
-            variant="contained"
-            loading={workingDataLoading}
-          >
-            Search
-          </LoadingButton>
+        {/* Action Buttons Section */}
+        <div className="border-t border-neutral-300 mt-[20px] pt-[20px]">
+          <div className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
+            <Button
+              onClick={() => {
+                reset();
+                setCombinedRowData([]);
+                setAwbNo("");
+                setSerialNo("");
+                setImei("");
+              }}
+              variant="outlined"
+              disabled={submitCustomFormLoading || workingDataLoading}
+            >
+              Reset
+            </Button>
+            <LoadingButton
+              loadingPosition="start"
+              onClick={handleSubmitForm}
+              variant="contained"
+              loading={submitCustomFormLoading}
+              disabled={combinedRowData.length === 0 || workingDataLoading}
+            >
+              Submit
+            </LoadingButton>
+          </div>
         </div>
       </form>
     </div>

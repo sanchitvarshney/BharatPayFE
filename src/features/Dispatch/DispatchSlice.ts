@@ -26,6 +26,7 @@ const initialState: DispatchState = {
   branchList:null,
   rejectTransferLoading:false,
   printLoading:false,
+  submitCustomFormLoading:false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -124,6 +125,11 @@ export const approveTransfer = createAsyncThunk<AxiosResponse<any>,any>('/backen
 
 export const printBranchTransferChallan = createAsyncThunk<AxiosResponse<any>,any>('/backend/branchtransferPrint', async (challanId) => {
   const response = await axiosInstance.get( `/deviceBranchTransfer/print?challanId=${challanId}`);
+  return response;
+});
+
+export const submitCustomForm = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, any>("min/submitCustomForm", async (payload) => {
+  const response = await axiosInstance.post(`/customForm/submit`, payload);
   return response;
 });
 
@@ -339,6 +345,18 @@ const dispatchSlice = createSlice({
       })
       .addCase(uploadFile.rejected, (state) => {
         state.uploadFileLoading = false;
+      })
+      .addCase(submitCustomForm.pending, (state) => {
+        state.submitCustomFormLoading = true;
+      })
+      .addCase(submitCustomForm.fulfilled, (state, action) => {
+        state.submitCustomFormLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(submitCustomForm.rejected, (state) => {
+        state.submitCustomFormLoading = false;
       });
   },
 });

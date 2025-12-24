@@ -41,5 +41,6 @@ export type DispatchState = {
   branchLoading:boolean;
   branchList:any;
   rejectTransferLoading:boolean;
-  printLoading:boolean
+  printLoading:boolean;
+  submitCustomFormLoading:boolean;
 };
