@@ -128,8 +128,8 @@ export const printBranchTransferChallan = createAsyncThunk<AxiosResponse<any>,an
   return response;
 });
 
-export const submitCustomForm = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, any>("min/submitCustomForm", async (payload) => {
-  const response = await axiosInstance.post(`/customForm/submit`, payload);
+export const wrongDeviceMin = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, any>("min/wrongDeviceMin", async (payload) => {
+  const response = await axiosInstance.post(`/wrongDevice/add`, payload);
   return response;
 });
 
@@ -346,16 +346,16 @@ const dispatchSlice = createSlice({
       .addCase(uploadFile.rejected, (state) => {
         state.uploadFileLoading = false;
       })
-      .addCase(submitCustomForm.pending, (state) => {
+      .addCase(wrongDeviceMin.pending, (state) => {
         state.submitCustomFormLoading = true;
       })
-      .addCase(submitCustomForm.fulfilled, (state, action) => {
+      .addCase(wrongDeviceMin.fulfilled, (state, action) => {
         state.submitCustomFormLoading = false;
         if (action.payload.data.success) {
           showToast(action.payload.data.message, "success");
         }
       })
-      .addCase(submitCustomForm.rejected, (state) => {
+      .addCase(wrongDeviceMin.rejected, (state) => {
         state.submitCustomFormLoading = false;
       });
   },

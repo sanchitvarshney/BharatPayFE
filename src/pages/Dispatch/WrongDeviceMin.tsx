@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getWorkingData } from "@/features/areaSlice/areaSlice";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
-import { submitCustomForm } from "@/features/Dispatch/DispatchSlice";
+import { wrongDeviceMin } from "@/features/Dispatch/DispatchSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   Button,
@@ -47,7 +47,47 @@ const PartnerData = [
   { value: "BLUEDART", text: "BLUEDART" },
 ];
 
-const CustomForm: React.FC = () => {
+// AWB Length validation mapping based on partner
+const getAWBLengthRange = (
+  partnerId: string
+): { min: number; max: number } | null => {
+  switch (partnerId) {
+    case "eCOM":
+      return { min: 9, max: 12 };
+    case "eKart":
+      return { min: 12, max: 14 };
+    case "dVery":
+      return { min: 13, max: 14 };
+    case "DTDC":
+      return { min: 8, max: 14 };
+    case "F1":
+      return { min: 3, max: 10 };
+    case "PLADA":
+      return { min: 8, max: 10 };
+    case "BILLBOX":
+      return { min: 8, max: 10 };
+    case "XPRESSBEES":
+      return { min: 14, max: 15 };
+    case "DARTX":
+      return { min: 8, max: 10 };
+    case "NANDAN":
+      return { min: 8, max: 13 };
+    case "DSKCargo":
+      return { min: 7, max: 13 };
+    case "ShipRocket":
+      return { min: 7, max: 13 };
+    case "ShadowFox":
+      return { min: 12, max: 18 };
+    case "GMS":
+      return { min: 9, max: 10 };
+    case "BLUEDART":
+      return { min: 11, max: 13 };
+    default:
+      return null;
+  }
+};
+
+const WrongDeviceMin: React.FC = () => {
   const [imei, setImei] = useState<string>("");
   const [awbNo, setAwbNo] = useState<string>("");
   const [serialNo, setSerialNo] = useState<string>("");
@@ -67,14 +107,46 @@ const CustomForm: React.FC = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
+  // Helper function to validate AWB length based on partner
+  const validateAWBLength = (awbValue: string, partnerId: string): boolean => {
+    if (!partnerId) {
+      showToast("Please select a partner first", "error");
+      return false;
+    }
+
+    const lengthRange = getAWBLengthRange(partnerId);
+    if (!lengthRange) {
+      showToast("Invalid delivery partner selected.", "error");
+      return false;
+    }
+
+    const awbLength = awbValue.trim().length;
+    if (awbLength < lengthRange.min || awbLength > lengthRange.max) {
+      showToast(
+        `AWB length must be between ${lengthRange.min} and ${lengthRange.max} characters for the selected partner.`,
+        "error"
+      );
+      return false;
+    }
+
+    return true;
+  };
+
   // Helper function to add or update row
   const addOrUpdateRow = (
     field: "awbNo" | "serialNo" | "imeiNo",
     value: string
   ) => {
-    setCombinedRowData((prevData) => {
-      const trimmedValue = value.trim();
+    const trimmedValue = value.trim();
 
+    // Validate AWB length if it's an AWB field
+    if (field === "awbNo") {
+      if (!validateAWBLength(trimmedValue, formValues.partnerId)) {
+        return;
+      }
+    }
+
+    setCombinedRowData((prevData) => {
       // Check for duplicate across all rows
       const isDuplicate = prevData.some(
         (row) => row[field] === trimmedValue && trimmedValue !== ""
@@ -182,15 +254,13 @@ const CustomForm: React.FC = () => {
       categoryId: formValues.categoryId,
       locationId: formValues.locationId,
       partnerId: formValues.partnerId,
-      devices: combinedRowData.map((row) => ({
-        awbNo: row.awbNo || "",
-        serialNo: row.serialNo || "",
-        imeiNo: row.imeiNo || "",
-      })),
+      awbNo:combinedRowData.map((row) => row.awbNo),
+      serialNo: combinedRowData.map((row) => row.serialNo),
+      imeiNo: combinedRowData.map((row) => row.imeiNo),
     };
 
     // Submit the form
-    appDispatch(submitCustomForm(payload)).then((res: any) => {
+    appDispatch(wrongDeviceMin(payload)).then((res: any) => {
       if (res.payload?.data?.success) {
         // Reset form on success
         reset();
@@ -460,4 +530,4 @@ const CustomForm: React.FC = () => {
   );
 };
 
-export default CustomForm;
+export default WrongDeviceMin;

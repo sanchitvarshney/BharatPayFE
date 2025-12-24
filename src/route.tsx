@@ -119,8 +119,8 @@ import ManageGP from "@/pages/GPDCChallan/ManageGP";
 import { AddAreaReport } from "./pages/areaReport/AddAreaReport";
 import AddAreaReportLayout from "./layouts/AddAreareportLayout";
 import ViewAreaReport from "./pages/areaReport/ViewAreaReport";
-import CustomForm from "./pages/Dispatch/CustomForm";
-import FormLayout from "./layouts/FormLayout";
+import WrongDeviceMin from "./pages/Dispatch/WrongDeviceMin";
+import FormLayout from "./layouts/WrongDeviceMINLayout";
 
 export const router = createBrowserRouter([
   {
@@ -200,11 +200,11 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <FormLayout>
-              <CustomForm />
+              <WrongDeviceMin />
             </FormLayout>
           </MainLayout>
         ),
-        path: "/form-worker-data",
+        path: "/wrong-device-min",
       },
       {
         element: (
