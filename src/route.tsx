@@ -119,6 +119,8 @@ import ManageGP from "@/pages/GPDCChallan/ManageGP";
 import { AddAreaReport } from "./pages/areaReport/AddAreaReport";
 import AddAreaReportLayout from "./layouts/AddAreareportLayout";
 import ViewAreaReport from "./pages/areaReport/ViewAreaReport";
+import CustomForm from "./pages/Dispatch/CustomForm";
+import FormLayout from "./layouts/FormLayout";
 
 export const router = createBrowserRouter([
   {
@@ -184,21 +186,31 @@ export const router = createBrowserRouter([
         ),
         path: "/dashboard",
       },
-            {
+      {
         element: (
           <MainLayout>
             <AddAreaReportLayout>
-            <AddAreaReport />
+              <AddAreaReport />
             </AddAreaReportLayout>
           </MainLayout>
         ),
         path: "/worker-data",
       },
-               {
+      {
+        element: (
+          <MainLayout>
+            <FormLayout>
+              <CustomForm />
+            </FormLayout>
+          </MainLayout>
+        ),
+        path: "/form-worker-data",
+      },
+      {
         element: (
           <MainLayout>
             <AddAreaReportLayout>
-            <ViewAreaReport />
+              <ViewAreaReport />
             </AddAreaReportLayout>
           </MainLayout>
         ),
