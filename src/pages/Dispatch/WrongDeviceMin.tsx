@@ -270,6 +270,9 @@ const WrongDeviceMin: React.FC = () => {
         setSerialNo("");
         setImei("");
       }
+      else{
+        showToast(res.payload?.data?.message || "Something went wrong", "error");
+      }
     });
   };
 
