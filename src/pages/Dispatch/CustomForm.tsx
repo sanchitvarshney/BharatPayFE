@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {  useState, useRef } from "react";
 
 import { showToast } from "@/utils/toasterContext";
 import { useDispatch, useSelector } from "react-redux";
-import { getDepartment, getWorkingData } from "@/features/areaSlice/areaSlice";
+import { getWorkingData } from "@/features/areaSlice/areaSlice";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -52,7 +52,7 @@ const CustomForm: React.FC = () => {
   const [combinedRowData, setCombinedRowData] = useState<any[]>([]);
   const dispatch: any = useDispatch();
   const { workingDataLoading } = useSelector((state: any) => state.placeMaster);
-  
+
   // Refs for input fields to manage focus
   const awbNoInputRef = useRef<HTMLInputElement>(null);
   const serialNoInputRef = useRef<HTMLInputElement>(null);
@@ -64,33 +64,43 @@ const CustomForm: React.FC = () => {
   };
 
   // Helper function to add or update row
-  const addOrUpdateRow = (field: 'awbNo' | 'serialNo' | 'imeiNo', value: string) => {
+  const addOrUpdateRow = (
+    field: "awbNo" | "serialNo" | "imeiNo",
+    value: string
+  ) => {
     setCombinedRowData((prevData) => {
       const trimmedValue = value.trim();
-      
+
       // Check for duplicate across all rows
-      const isDuplicate = prevData.some((row) => row[field] === trimmedValue && trimmedValue !== "");
+      const isDuplicate = prevData.some(
+        (row) => row[field] === trimmedValue && trimmedValue !== ""
+      );
       if (isDuplicate) {
-        showToast(`This ${field === 'awbNo' ? 'AWB' : field === 'serialNo' ? 'Serial' : 'IMEI'} already exists`, "error");
+        showToast(
+          `This ${
+            field === "awbNo" ? "AWB" : field === "serialNo" ? "Serial" : "IMEI"
+          } already exists`,
+          "error"
+        );
         return prevData;
       }
 
-      // Check if last row exists and is incomplete (has at least one empty field)
+      // Check if last row exists and the same field is empty in that row
       const lastRow = prevData[0]; // Since we add to the beginning, first item is the last added
-      const hasIncompleteRow = lastRow && (!lastRow.awbNo || !lastRow.serialNo || !lastRow.imeiNo);
-      
-      if (hasIncompleteRow) {
-        // Update the incomplete row with the new value
-        return prevData.map((row, index) => 
+      const canUpdateLastRow = lastRow && !lastRow[field];
+
+      if (canUpdateLastRow) {
+        // Update the last row with the new value for this field
+        return prevData.map((row, index) =>
           index === 0 ? { ...row, [field]: trimmedValue } : row
         );
       } else {
-        // Create a new row
+        // Create a new row with only the entered field filled
         const newRow = {
           id: generateId(),
-          awbNo: field === 'awbNo' ? trimmedValue : "",
-          serialNo: field === 'serialNo' ? trimmedValue : "",
-          imeiNo: field === 'imeiNo' ? trimmedValue : "",
+          awbNo: field === "awbNo" ? trimmedValue : "",
+          serialNo: field === "serialNo" ? trimmedValue : "",
+          imeiNo: field === "imeiNo" ? trimmedValue : "",
         };
         return [newRow, ...prevData];
       }
@@ -99,7 +109,6 @@ const CustomForm: React.FC = () => {
 
   const {
     control,
-    watch,
     handleSubmit,
     reset,
     formState: { errors },
@@ -138,21 +147,6 @@ const CustomForm: React.FC = () => {
       }
     });
   };
-  const selectedAreaId = watch("areaId");
-
-  const fetchDepartments = async (areaId: string) => {
-    const payload: any = {
-      place: areaId,
-    };
-    //@ts-ignore
-    dispatch(getDepartment(payload));
-  };
-
-  useEffect(() => {
-    if (selectedAreaId) {
-      fetchDepartments(selectedAreaId);
-    }
-  }, [selectedAreaId]);
 
   return (
     <div className=" w-full   bg-white">
@@ -240,7 +234,7 @@ const CustomForm: React.FC = () => {
         <div className="grid grid-cols-3 gap-[20px] my-[10px] ">
           {/* Awb no */}
           <div>
-            <FormControl sx={{ width: "400px", mb:"10px" }} variant="outlined">
+            <FormControl sx={{ width: "400px", mb: "10px" }} variant="outlined">
               <TextField
                 rows={2}
                 value={awbNo}
@@ -256,11 +250,11 @@ const CustomForm: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     if (awbNo.trim()) {
-                      addOrUpdateRow('awbNo', awbNo);
+                      addOrUpdateRow("awbNo", awbNo);
                       setAwbNo("");
-                      // Move focus to Serial Device field
+                      // Keep focus on AWB No field
                       setTimeout(() => {
-                        serialNoInputRef.current?.focus();
+                        awbNoInputRef.current?.focus();
                       }, 0);
                     }
                     e.preventDefault();
@@ -281,10 +275,11 @@ const CustomForm: React.FC = () => {
           </div>
 
           <div>
-            <FormControl sx={{ width: "400px", mb:"10px" }} variant="outlined">
+            <FormControl sx={{ width: "400px", mb: "10px" }} variant="outlined" disabled>
               <TextField
                 rows={2}
                 value={serialNo}
+                disabled
                 label="Serial Device"
                 id="standard-adornment-qty"
                 aria-describedby="standard-weight-helper-text"
@@ -297,11 +292,11 @@ const CustomForm: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     if (serialNo.trim()) {
-                      addOrUpdateRow('serialNo', serialNo);
+                      addOrUpdateRow("serialNo", serialNo);
                       setSerialNo("");
-                      // Move focus to IMEI Device field
+                      // Keep focus on Serial No field
                       setTimeout(() => {
-                        imeiInputRef.current?.focus();
+                        serialNoInputRef.current?.focus();
                       }, 0);
                     }
                     e.preventDefault();
@@ -322,10 +317,11 @@ const CustomForm: React.FC = () => {
           </div>
           {/* imie */}
           <div>
-            <FormControl sx={{ width: "400px", mb:"10px" }} variant="outlined">
+            <FormControl sx={{ width: "400px", mb: "10px" }} variant="outlined" disabled>
               <TextField
                 rows={2}
                 value={imei}
+                disabled
                 label="IMEI Device"
                 id="standard-adornment-qty"
                 aria-describedby="standard-weight-helper-text"
@@ -338,9 +334,9 @@ const CustomForm: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     if (imei.trim()) {
-                      addOrUpdateRow('imeiNo', imei);
+                      addOrUpdateRow("imeiNo", imei);
                       setImei("");
-                      
+
                       setTimeout(() => {
                         awbNoInputRef.current?.focus();
                       }, 0);
@@ -363,7 +359,6 @@ const CustomForm: React.FC = () => {
           </div>
         </div>
 
-     
         <div className="h-[calc(100vh-350px)] my-[10px]">
           <FormTables
             setRowdata={setCombinedRowData}
