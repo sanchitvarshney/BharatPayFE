@@ -147,15 +147,22 @@ const WrongDeviceMin: React.FC = () => {
     }
 
     setCombinedRowData((prevData) => {
-      // Check for duplicate across all rows
-      const isDuplicate = prevData.some(
-        (row) => row[field] === trimmedValue && trimmedValue !== ""
-      );
+      // Check for duplicate across all rows and all fields (AWB, Serial, IMEI)
+      const isDuplicate = prevData.some((row) => {
+        if (trimmedValue === "") return false;
+        // Check if the scanned value exists in any field of any row
+        return (
+          row.awbNo === trimmedValue ||
+          row.serialNo === trimmedValue ||
+          row.imeiNo === trimmedValue
+        );
+      });
+
       if (isDuplicate) {
+        const deviceType =
+          field === "awbNo" ? "AWB" : field === "serialNo" ? "Serial" : "IMEI";
         showToast(
-          `This ${
-            field === "awbNo" ? "AWB" : field === "serialNo" ? "Serial" : "IMEI"
-          } already exists`,
+          `Device already scanned. This ${deviceType} number has already been added.`,
           "error"
         );
         return prevData;
@@ -269,9 +276,11 @@ const WrongDeviceMin: React.FC = () => {
         setAwbNo("");
         setSerialNo("");
         setImei("");
-      }
-      else{
-        showToast(res.payload?.data?.message || "Something went wrong", "error");
+      } else {
+        showToast(
+          res.payload?.data?.message || "Something went wrong",
+          "error"
+        );
       }
     });
   };
