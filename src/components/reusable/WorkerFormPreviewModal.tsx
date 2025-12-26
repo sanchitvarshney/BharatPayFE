@@ -4,6 +4,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Button,
   Typography,
   Paper,
   Table,
@@ -18,6 +19,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
 import { Dayjs } from "dayjs";
 import { AreaType, DepartmentType, EmployeeType } from "@/types/workerTypes";
@@ -36,6 +38,7 @@ interface WorkerFormPreviewModalProps {
   submitLoading: boolean;
   onClose: () => void;
   onDeleteEmployee: (employeeId: string) => void;
+  onUpdate: () => void;
   onConfirm: () => void;
 }
 
@@ -45,6 +48,7 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
   submitLoading,
   onClose,
   onDeleteEmployee,
+  onUpdate,
   onConfirm,
 }) => {
   return (
@@ -164,6 +168,14 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2, gap: 1 }}>
+        <Button
+          onClick={onUpdate}
+          color="primary"
+          variant="outlined"
+          startIcon={<EditIcon />}
+        >
+          Update
+        </Button>
         <LoadingButton
           onClick={onConfirm}
           variant="contained"

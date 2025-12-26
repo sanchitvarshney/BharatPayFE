@@ -172,14 +172,6 @@ const WorkerForm: React.FC<Props> = ({
     setPreviewOpen(true);
   };
 
-  const handleSubmit = () => {
-    if (!area || !department || selectedEmployees.length === 0) {
-      return;
-    }
-    if (onclick) {
-      onclick();
-    }
-  };
 
   const handlePreviewConfirm = () => {
     if (onclick && previewData) {
@@ -202,6 +194,23 @@ const WorkerForm: React.FC<Props> = ({
         ...previewData,
         employees: updatedEmployees,
       });
+    }
+  };
+
+  const handlePreviewUpdate = () => {
+    if (previewData) {
+      setArea(previewData.area);
+      setSelectedEmployeeIds(previewData.employees.map((emp) => emp.id));
+      setDate(previewData.date);
+      if (previewData.area?.id) {
+        setPendingDepartment(previewData.department);
+        fetchDepartments(previewData.area.id);
+      } else {
+        setDepartment(previewData.department);
+      }
+      
+      setPreviewOpen(false);
+      setPreviewData(null);
     }
   };
 
@@ -249,7 +258,6 @@ const WorkerForm: React.FC<Props> = ({
   return (
     <div>
       <div className="grid grid-cols-3 gap-[20px]">
-        {/* Area Select */}
         <FormControl fullWidth variant="outlined">
           <InputLabel id="area-select-label">Select Place</InputLabel>
           <Select
@@ -275,7 +283,6 @@ const WorkerForm: React.FC<Props> = ({
           </Select>
         </FormControl>
 
-        {/* Department Select */}
         <FormControl fullWidth variant="outlined">
           <InputLabel id="department-select-label">
             Select Department
@@ -303,7 +310,6 @@ const WorkerForm: React.FC<Props> = ({
           </Select>
         </FormControl>
 
-        {/* Date Field */}
         <FormControl fullWidth>
           <DatePicker
             className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
@@ -314,7 +320,6 @@ const WorkerForm: React.FC<Props> = ({
         </FormControl>
       </div>
 
-      {/* Selected Employees List */}
       <div className="mt-4 mb-4">
         <h3 className="text-lg font-semibold mb-3">Selected Employees</h3>
         <Box
@@ -371,26 +376,16 @@ const WorkerForm: React.FC<Props> = ({
         >
           Preview
         </LoadingButton>
-        <LoadingButton
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-          className="mt-[20px] mb-[20px] bg-cyan-400 hover:bg-cyan-600"
-          loading={submitLoading}
-          sx={{ minWidth: "120px" }}
-          disabled={!area || !department || selectedEmployees.length === 0}
-        >
-          Submit
-        </LoadingButton>
+     
       </div>
 
-      {/* Preview Modal */}
       <WorkerFormPreviewModal
         open={previewOpen}
         previewData={previewData}
         submitLoading={submitLoading}
         onClose={handleClosePreview}
         onDeleteEmployee={handleDeleteEmployee}
+        onUpdate={handlePreviewUpdate}
         onConfirm={handlePreviewConfirm}
       />
     </div>
