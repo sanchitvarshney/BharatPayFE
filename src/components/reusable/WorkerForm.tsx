@@ -158,7 +158,7 @@ const WorkerForm: React.FC<Props> = ({
     setDepartment(selectedDepartment || null);
   };
 
-  const handleSubmit = () => {
+  const handlePreview = () => {
     if (!area || !department || selectedEmployees.length === 0) {
       return;
     }
@@ -172,41 +172,36 @@ const WorkerForm: React.FC<Props> = ({
     setPreviewOpen(true);
   };
 
+  const handleSubmit = () => {
+    if (!area || !department || selectedEmployees.length === 0) {
+      return;
+    }
+    if (onclick) {
+      onclick();
+    }
+  };
+
   const handlePreviewConfirm = () => {
     if (onclick && previewData) {
       onclick();
       setPreviewOpen(false);
+      setPreviewData(null);
     }
   };
 
-  const handlePreviewDelete = () => {
-    setPreviewOpen(false);
-    setPreviewData(null);
-    // Reset form
-    setArea(null);
-    setDepartment(null);
-    setSelectedEmployeeIds([]);
-    setDate(dayjs());
-  };
-
-  const handlePreviewUpdate = () => {
+  const handleDeleteEmployee = (employeeId: string) => {
+    // Remove employee from selected list
+    setSelectedEmployeeIds((prev) => prev.filter((id) => id !== employeeId));
+    
+    // Update preview data if modal is open
     if (previewData) {
-      // Populate form with preview data
-      setArea(previewData.area);
-      setSelectedEmployeeIds(previewData.employees.map((emp) => emp.id));
-      setDate(previewData.date);
-      
-      // Fetch departments if area is selected
-      if (previewData.area?.id) {
-        // Store department to set after departments are loaded
-        setPendingDepartment(previewData.department);
-        fetchDepartments(previewData.area.id);
-      } else {
-        setDepartment(previewData.department);
-      }
-      
-      setPreviewOpen(false);
-      setPreviewData(null);
+      const updatedEmployees = previewData.employees.filter(
+        (emp) => emp.id !== employeeId
+      );
+      setPreviewData({
+        ...previewData,
+        employees: updatedEmployees,
+      });
     }
   };
 
@@ -365,12 +360,22 @@ const WorkerForm: React.FC<Props> = ({
         </Box>
       </div>
 
-      <div className="flex justify-end  mt-[15px] mb-[15px]">
+      <div className="flex justify-end gap-3 mt-[15px] mb-[15px]">
+        <LoadingButton
+          onClick={handlePreview}
+          variant="outlined"
+          color="primary"
+          className="mt-[20px] mb-[20px]"
+          sx={{ minWidth: "120px" }}
+          disabled={!area || !department || selectedEmployees.length === 0}
+        >
+          Preview
+        </LoadingButton>
         <LoadingButton
           onClick={handleSubmit}
           variant="contained"
           color="primary"
-          className=" mt-[20px] mb-[20px] bg-cyan-400 hover:bg-cyan-600"
+          className="mt-[20px] mb-[20px] bg-cyan-400 hover:bg-cyan-600"
           loading={submitLoading}
           sx={{ minWidth: "120px" }}
           disabled={!area || !department || selectedEmployees.length === 0}
@@ -385,8 +390,7 @@ const WorkerForm: React.FC<Props> = ({
         previewData={previewData}
         submitLoading={submitLoading}
         onClose={handleClosePreview}
-        onDelete={handlePreviewDelete}
-        onUpdate={handlePreviewUpdate}
+        onDeleteEmployee={handleDeleteEmployee}
         onConfirm={handlePreviewConfirm}
       />
     </div>

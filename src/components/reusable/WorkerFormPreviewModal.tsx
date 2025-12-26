@@ -4,7 +4,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   Typography,
   Paper,
   Table,
@@ -15,9 +14,9 @@ import {
   TableRow,
   IconButton,
   Box,
+  Tooltip,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import { Dayjs } from "dayjs";
@@ -36,8 +35,7 @@ interface WorkerFormPreviewModalProps {
   previewData: PreviewData | null;
   submitLoading: boolean;
   onClose: () => void;
-  onDelete: () => void;
-  onUpdate: () => void;
+  onDeleteEmployee: (employeeId: string) => void;
   onConfirm: () => void;
 }
 
@@ -46,8 +44,7 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
   previewData,
   submitLoading,
   onClose,
-  onDelete,
-  onUpdate,
+  onDeleteEmployee,
   onConfirm,
 }) => {
   return (
@@ -122,17 +119,32 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                                 <TableCell sx={{ fontWeight: "bold" }}>
                                   Name
                                 </TableCell>
-                                     <TableCell sx={{ fontWeight: "bold" }}>
+                                <TableCell sx={{ fontWeight: "bold" }}>
                                   Department
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: "bold", width: "100px" }}>
+                                  Action
                                 </TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {previewData.employees.map((emp:any) => (
+                              {previewData.employees.map((emp: any) => (
                                 <TableRow key={emp.id}>
                                   <TableCell>{emp.id}</TableCell>
                                   <TableCell>{emp.text}</TableCell>
-                                   <TableCell>{emp.department}</TableCell>
+                                  <TableCell>{emp.department || "N/A"}</TableCell>
+                                  <TableCell>
+                                    <Tooltip title="Delete Employee">
+                                      <IconButton
+                                        size="small"
+                                        color="error"
+                                        onClick={() => onDeleteEmployee(emp.id)}
+                                        aria-label="delete employee"
+                                      >
+                                        <DeleteIcon fontSize="small" />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -152,28 +164,13 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
         )}
       </DialogContent>
       <DialogActions sx={{ p: 2, gap: 1 }}>
-        <Button
-          onClick={onDelete}
-          color="error"
-          variant="outlined"
-          startIcon={<DeleteIcon />}
-        >
-          Delete
-        </Button>
-        <Button
-          onClick={onUpdate}
-          color="primary"
-          variant="outlined"
-          startIcon={<EditIcon />}
-        >
-          Update
-        </Button>
         <LoadingButton
           onClick={onConfirm}
           variant="contained"
           color="primary"
           loading={submitLoading}
           className="bg-cyan-400 hover:bg-cyan-600"
+          disabled={!previewData || previewData.employees.length === 0}
         >
           Confirm Submit
         </LoadingButton>
