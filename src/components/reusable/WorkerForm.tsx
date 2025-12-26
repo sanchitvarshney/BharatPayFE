@@ -23,10 +23,16 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { PlaceType } from "@/features/areaSlice/areaType";
 import { LoadingButton } from "@mui/lab";
+import WorkerFormPreviewModal, {
+  PreviewData,
+} from "./WorkerFormPreviewModal";
 
 const WorkerForm: React.FC<Props> = ({
   onFormChange,
   initialDate,
+  initialArea,
+  initialDepartment,
+  initialEmployees,
   onclick,
 }) => {
   const dispatch = useDispatch<any>();
@@ -39,14 +45,21 @@ const WorkerForm: React.FC<Props> = ({
     empLoading,
     submitLoading,
   } = useSelector((state: any) => state.placeMaster);
-  const [area, setArea] = useState<AreaType | null>(null);
-  const [department, setDepartment] = useState<DepartmentType | null>(null);
+  const [area, setArea] = useState<AreaType | null>(initialArea || null);
+  const [department, setDepartment] = useState<DepartmentType | null>(
+    initialDepartment || null
+  );
 
-  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
-  const [date] = useState<Dayjs>(initialDate || dayjs());
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
+    initialEmployees?.map((emp) => emp.id) || []
+  );
+  const [date, setDate] = useState<Dayjs>(initialDate || dayjs());
 
   const [areaList, setAreaList] = useState<AreaType[]>([]);
   const [deptList, setDeptList] = useState<DepartmentType[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<PreviewData | null>(null);
+  const [pendingDepartment, setPendingDepartment] = useState<DepartmentType | null>(null);
 
   useEffect(() => {
     if (placeList.length === 0) {
@@ -60,13 +73,35 @@ const WorkerForm: React.FC<Props> = ({
 
   useEffect(() => {
     setDeptList(departmentList);
-  }, [departmentList]);
+    if (pendingDepartment && departmentList.length > 0) {
+      const dept = departmentList.find((d:any) => d.id === pendingDepartment.id);
+      if (dept) {
+        setDepartment(dept);
+        setPendingDepartment(null);
+      }
+    }
+  }, [departmentList, pendingDepartment]);
 
   useEffect(() => {
     if (empList.length === 0) {
       dispatch(getEmployees());
     }
   }, []);
+
+  useEffect(() => {
+    if (initialArea) {
+      setArea(initialArea);
+      if (initialArea.id) {
+        fetchDepartments(initialArea.id);
+      }
+    }
+  }, [initialArea]);
+
+  useEffect(() => {
+    if (initialDepartment && deptList.length > 0) {
+      setDepartment(initialDepartment);
+    }
+  }, [initialDepartment, deptList]);
 
   const fetchDepartments = async (areaId: string) => {
     const payload: any = {
@@ -123,6 +158,62 @@ const WorkerForm: React.FC<Props> = ({
     setDepartment(selectedDepartment || null);
   };
 
+  const handleSubmit = () => {
+    if (!area || !department || selectedEmployees.length === 0) {
+      return;
+    }
+    const data = {
+      area,
+      department,
+      employees: selectedEmployees,
+      date,
+    };
+    setPreviewData(data);
+    setPreviewOpen(true);
+  };
+
+  const handlePreviewConfirm = () => {
+    if (onclick && previewData) {
+      onclick();
+      setPreviewOpen(false);
+    }
+  };
+
+  const handlePreviewDelete = () => {
+    setPreviewOpen(false);
+    setPreviewData(null);
+    // Reset form
+    setArea(null);
+    setDepartment(null);
+    setSelectedEmployeeIds([]);
+    setDate(dayjs());
+  };
+
+  const handlePreviewUpdate = () => {
+    if (previewData) {
+      // Populate form with preview data
+      setArea(previewData.area);
+      setSelectedEmployeeIds(previewData.employees.map((emp) => emp.id));
+      setDate(previewData.date);
+      
+      // Fetch departments if area is selected
+      if (previewData.area?.id) {
+        // Store department to set after departments are loaded
+        setPendingDepartment(previewData.department);
+        fetchDepartments(previewData.area.id);
+      } else {
+        setDepartment(previewData.department);
+      }
+      
+      setPreviewOpen(false);
+      setPreviewData(null);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewOpen(false);
+  };
+
   const columns: any = [
     {
       field: "select",
@@ -149,6 +240,12 @@ const WorkerForm: React.FC<Props> = ({
     {
       field: "text",
       headerName: "Full Name",
+      width: 150,
+      editable: false,
+    },
+        {
+      field: "department",
+      headerName: "Department",
       width: 150,
       editable: false,
     },
@@ -216,8 +313,8 @@ const WorkerForm: React.FC<Props> = ({
           <DatePicker
             className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
             value={date}
+            onChange={(newDate) => newDate && setDate(newDate)}
             format="DD/MM/YYYY"
-            style={{ cursor: "not-allowed" }}
           />
         </FormControl>
       </div>
@@ -270,16 +367,28 @@ const WorkerForm: React.FC<Props> = ({
 
       <div className="flex justify-end  mt-[15px] mb-[15px]">
         <LoadingButton
-          onClick={onclick}
+          onClick={handleSubmit}
           variant="contained"
           color="primary"
           className=" mt-[20px] mb-[20px] bg-cyan-400 hover:bg-cyan-600"
           loading={submitLoading}
           sx={{ minWidth: "120px" }}
+          disabled={!area || !department || selectedEmployees.length === 0}
         >
           Submit
         </LoadingButton>
       </div>
+
+      {/* Preview Modal */}
+      <WorkerFormPreviewModal
+        open={previewOpen}
+        previewData={previewData}
+        submitLoading={submitLoading}
+        onClose={handleClosePreview}
+        onDelete={handlePreviewDelete}
+        onUpdate={handlePreviewUpdate}
+        onConfirm={handlePreviewConfirm}
+      />
     </div>
   );
 };
