@@ -43,7 +43,7 @@ const DeletionMonoPage = () => {
       const response = await axiosInstance.post(
         `/swipeMachine/packaging/deleteMono`,
         {
-          data: { serial: monoInput.trim() },
+          serial: monoInput.trim() ,
         }
       );
 
@@ -93,7 +93,7 @@ const DeletionMonoPage = () => {
           </Alert>
           <TextField
             fullWidth
-            label="Enter Mono to Delete"
+            label="Enter Mono Number"
             variant="outlined"
             value={monoInput}
             onChange={(e) => setMonoInput(e.target.value)}
