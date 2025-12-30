@@ -121,6 +121,7 @@ import AddAreaReportLayout from "./layouts/AddAreareportLayout";
 import ViewAreaReport from "./pages/areaReport/ViewAreaReport";
 import WrongDeviceMin from "./pages/Dispatch/WrongDeviceMin";
 import FormLayout from "./layouts/WrongDeviceMINLayout";
+import DeletionMonoPage from "./pages/master/DeletionMonoPage";
 
 export const router = createBrowserRouter([
   {
@@ -233,6 +234,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-uom",
+      },
+        {
+        element: (
+          <MainLayout>
+            <DeletionMonoPage />
+          </MainLayout>
+        ),
+        path: "/master-mono-delete",
       },
       {
         element: (
