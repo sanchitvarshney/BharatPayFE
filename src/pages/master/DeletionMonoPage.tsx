@@ -40,7 +40,7 @@ const DeletionMonoPage = () => {
 
     setDeleteLoading(true);
     try {
-      const response = await axiosInstance.delete(
+      const response = await axiosInstance.post(
         `/swipeMachine/packaging/deleteMono`,
         {
           data: { serial: monoInput.trim() },
