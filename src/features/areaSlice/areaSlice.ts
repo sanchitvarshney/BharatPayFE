@@ -12,8 +12,65 @@ const initialState: InitialAreaType = {
   empLoading: false,
   submitLoading: false,
   workingDataLoading: false,
-  workingData: []
+  workingData: [],
+  fromLocationLoading: false,
+  fromLocationList: [],
+  partCodeLoading: false,
+  partCodeList: [],
+  totalQty: 0,
+  toLocationLoading: false,
+  toLocationList: [],
 };
+
+// for tranferPartCode
+
+export const getAvailableQty = createAsyncThunk<AxiosResponse<any>>(
+  "part/code/qty",
+  async (payload: any) => {
+    const response = await axiosInstance.get(
+      `/rejectionTransfer/getQuantity/?itemKey=${encodeURIComponent(
+        payload?.itemKey
+      )}&fromLocation=${encodeURIComponent(payload?.fromLocation)}`
+    );
+
+    return response;
+  }
+);
+
+export const getFromLocation = createAsyncThunk<AxiosResponse<any>>(
+  "part/code/loc",
+  async () => {
+    const response = await axiosInstance.get(`/rejectionTransfer/pickLocation`);
+    return response;
+  }
+);
+
+export const getDropLocation = createAsyncThunk<AxiosResponse<any>>(
+  "part/code/dropLocation",
+  async () => {
+    const response = await axiosInstance.get(`/rejectionTransfer/dropLocation`);
+    return response;
+  }
+);
+
+export const submitPartCodeTransfer = createAsyncThunk<
+  AxiosResponse<any>,
+  any
+>("part/code/submit", async (payload) => {
+  const response = await axiosInstance.post(`/rejectionTransfer/partRejectionTransfer`, payload);
+  return response;
+});
+export const getPartCode = createAsyncThunk<
+  AxiosResponse<any>,
+  string | undefined
+>("part/code", async (searchQuery: any) => {
+  const url = `/rejectionTransfer/getAllPartCode?search=${encodeURIComponent(
+    searchQuery
+  )}`;
+
+  const response = await axiosInstance.get(url);
+  return response;
+});
 
 export const getMasterPlace = createAsyncThunk<AxiosResponse<any>>(
   "master/place",
@@ -22,6 +79,7 @@ export const getMasterPlace = createAsyncThunk<AxiosResponse<any>>(
     return response;
   }
 );
+
 export const getDepartment = createAsyncThunk<AxiosResponse<any>>(
   "master/place/department",
   async (payload: any) => {
@@ -34,21 +92,19 @@ export const getDepartment = createAsyncThunk<AxiosResponse<any>>(
 export const getWorkingData = createAsyncThunk<AxiosResponse<any>>(
   "master/place/view-data",
   async (payload: any) => {
-    const response = await axiosInstance.get(`/worker/viewData?from=${payload.from}&to=${payload.to}&place=${payload.place}&department=${payload.department}`);
+    const response = await axiosInstance.get(
+      `/worker/viewData?from=${payload.from}&to=${payload.to}&place=${payload.place}&department=${payload.department}`
+    );
     return response;
   }
 );
 export const getEmployees = createAsyncThunk<AxiosResponse<any>>(
   "master/place/emp",
   async () => {
-    const response = await axiosInstance.get(
-      `/hrms/fetchEmployee`
-    );
+    const response = await axiosInstance.get(`/hrms/fetchEmployee`);
     return response;
   }
 );
-
-
 
 export const submitData = createAsyncThunk<AxiosResponse<any>>(
   "master/place/submit",
@@ -123,6 +179,66 @@ const placeSlice = createSlice({
       })
       .addCase(getWorkingData.rejected, (state) => {
         state.workingDataLoading = false;
+      })
+      //from part code
+      .addCase(getFromLocation.pending, (state) => {
+        state.fromLocationLoading = true;
+      })
+      .addCase(getFromLocation.fulfilled, (state, action) => {
+        state.fromLocationLoading = false;
+        if (action.payload.data.success) {
+          state.fromLocationList = action.payload.data.data;
+        }
+      })
+      .addCase(getFromLocation.rejected, (state) => {
+        state.fromLocationLoading = false;
+      })
+
+      .addCase(getPartCode.pending, (state) => {
+        state.partCodeLoading = true;
+      })
+      .addCase(getPartCode.fulfilled, (state, action) => {
+        state.partCodeLoading = false;
+        if (action.payload.data.success) {
+          state.partCodeList = action.payload.data.data;
+        }
+      })
+      .addCase(getPartCode.rejected, (state) => {
+        state.partCodeLoading = false;
+      })
+      .addCase(getAvailableQty.pending, () => {
+       
+      })
+      .addCase(getAvailableQty.fulfilled, (state, action) => {
+    
+
+        if (action.payload.data.success) {
+          state.totalQty = action.payload.data.data;
+        }
+      })
+      .addCase(getAvailableQty.rejected, () => {
+      
+      })
+      .addCase(getDropLocation.pending, (state) => {
+        state.toLocationLoading = true;
+      })
+      .addCase(getDropLocation.fulfilled, (state, action) => {
+        state.toLocationLoading = false;
+        if (action.payload.data.success) {
+          state.toLocationList = action.payload.data.data;
+        }
+      })
+      .addCase(getDropLocation.rejected, (state) => {
+        state.toLocationLoading = false;
+      })
+      .addCase(submitPartCodeTransfer.pending, (state) => {
+        state.submitLoading = true;
+      })
+      .addCase(submitPartCodeTransfer.fulfilled, (state) => {
+        state.submitLoading = false;
+      })
+      .addCase(submitPartCodeTransfer.rejected, (state) => {
+        state.submitLoading = false;
       });
   },
 });

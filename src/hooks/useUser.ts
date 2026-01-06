@@ -62,9 +62,15 @@ export function useUser() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("loggedinUser");
+    if (!storedUser) {
+      navigate("/login");
+      return
+    }
+    
     if (storedUser) {
       if (isValidBase64(storedUser)) {
-        const decodedUser = atob(storedUser); // Decode the Base64 string
+        const decodedUser = atob(storedUser); 
+      
         if (isValidJSON(decodedUser)) {
           setUser(JSON.parse(decodedUser));
         } else {
@@ -78,6 +84,8 @@ export function useUser() {
         window.location.reload();
       }
     }
+
+   
   }, [navigate,dispatch]);
 
   const saveUser = (userData: LoggedInUser | null) => {

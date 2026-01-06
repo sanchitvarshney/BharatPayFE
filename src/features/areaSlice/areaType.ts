@@ -12,4 +12,12 @@ export interface InitialAreaType {
   submitLoading: boolean;
   workingDataLoading: boolean;
   workingData: any[];
+  fromLocationLoading: boolean;
+  fromLocationList: any[];
+  partCodeLoading: boolean;
+  partCodeList: any[];
+
+  totalQty: number | any;
+  toLocationLoading: boolean;
+  toLocationList: any[];
 }
