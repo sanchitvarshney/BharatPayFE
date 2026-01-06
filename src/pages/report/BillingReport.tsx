@@ -20,7 +20,7 @@ type DeviceType = "MONO" | "SWIPE";
 
 const BillingReport: React.FC = () => {
   const { isConnected } = useSocketContext();
-  const { emitDownloadBillingReport } =
+  const { emitDownloadBillingReport,emitDownloadBillingReportSound } =
     useSocketContext();
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
@@ -52,9 +52,9 @@ const BillingReport: React.FC = () => {
     if (deviceType === "SWIPE") {
       emitDownloadBillingReport(reportPayload);
     }
-    // } else {
-    //   emitDownloadSwipeR10Report(reportPayload);
-    // }
+     else {
+      emitDownloadBillingReportSound(reportPayload);
+    }
 
     showToast(`Start downloading ${deviceType} report`, "success");
   };
@@ -90,6 +90,7 @@ const BillingReport: React.FC = () => {
           >
             {/* <MenuItem value="MONO">Soundbox</MenuItem> */}
             <MenuItem value="SWIPE">Swipe Device</MenuItem>
+             <MenuItem value="SOUND">Sound Box</MenuItem>
           </Select>
         </FormControl>
 
