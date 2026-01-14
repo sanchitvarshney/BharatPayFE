@@ -68,12 +68,12 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        response.payload?.message
-          ? showToast(response.payload?.message, "error")
-          : showToast(
-              "Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts",
-              "error"
-            );
+        // Check for message in different possible locations
+        const errorMessage =
+          response.payload?.data?.message || response.payload?.message;
+        if (errorMessage) {
+          showToast(errorMessage, "error");
+        }
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
@@ -96,12 +96,12 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        response.payload?.message
-          ? showToast(response.payload?.message, "error")
-          : showToast(
-              "Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts",
-              "error"
-            );
+        // Check for message in different possible locations
+        const errorMessage =
+          response.payload?.data?.message || response.payload?.message;
+        if (errorMessage) {
+          showToast(errorMessage, "error");
+        }
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
