@@ -29,6 +29,8 @@ export interface PreviewData {
   department: DepartmentType | null;
   employees: EmployeeType[];
   date: Dayjs;
+  startTime: Dayjs | null;
+  endTime: Dayjs | null;
   id?: string;
 }
 
@@ -102,6 +104,28 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                     </TableCell>
                     <TableCell>
                       {previewData.date.format("DD/MM/YYYY")}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      component="th"
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      Start Time
+                    </TableCell>
+                    <TableCell>
+                      {previewData.startTime ? previewData.startTime.format("hh:mm A") : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      component="th"
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      End Time
+                    </TableCell>
+                    <TableCell>
+                      {previewData.endTime ? previewData.endTime.format("hh:mm A") : "N/A"}
                     </TableCell>
                   </TableRow>
                   <TableRow>

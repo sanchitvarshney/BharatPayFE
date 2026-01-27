@@ -22,6 +22,8 @@ export const AddAreaReport = () => {
     department: DepartmentType | null;
     employees: EmployeeType[];
     date: Dayjs;
+    startTime: Dayjs | null;
+    endTime: Dayjs | null;
   } | null>(null);
 
    const reset = () => {
@@ -34,13 +36,14 @@ export const AddAreaReport = () => {
     department: DepartmentType | null;
     employees: EmployeeType[];
     date: Dayjs;
+    startTime: Dayjs | null;
+    endTime: Dayjs | null;
   }) => {
     setFormData(data);
   };
 
   const handleSubmit = async () => {
     if (!formData) {
-      console.log(formData)
       showToast("Please fill all the fields", "error");
       return;
     }
@@ -49,6 +52,8 @@ export const AddAreaReport = () => {
       department: formData.department ? formData.department.id : null,
       code: formData.employees ? formData.employees.map((item) => item.id) : [],
       date: dayjs(formData.date).format("DD-MM-YYYY"),
+      startTime: formData.startTime ? formData.startTime.format("HH:mm") : null,
+      endTime: formData.endTime ? formData.endTime.format("HH:mm") : null,
     };
     //@ts-ignore
 
