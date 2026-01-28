@@ -54,7 +54,13 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
   onConfirm,
 }) => {
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog 
+      open={open} 
+      onClose={submitLoading ? undefined : onClose} 
+      maxWidth="md" 
+      fullWidth
+      disableEscapeKeyDown={submitLoading}
+    >
       <DialogTitle>
         <div className="flex justify-between items-center">
           <Typography variant="h6" component="div">
@@ -63,6 +69,7 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
           <IconButton
             aria-label="close"
             onClick={onClose}
+            disabled={submitLoading}
             sx={{ color: (theme) => theme.palette.grey[500] }}
           >
             <CloseIcon />
@@ -85,10 +92,7 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                     <TableCell>{previewData.area?.text || "N/A"}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell
-                      component="th"
-                      sx={{ fontWeight: "bold" }}
-                    >
+                    <TableCell component="th" sx={{ fontWeight: "bold" }}>
                       Department
                     </TableCell>
                     <TableCell>
@@ -96,10 +100,7 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell
-                      component="th"
-                      sx={{ fontWeight: "bold" }}
-                    >
+                    <TableCell component="th" sx={{ fontWeight: "bold" }}>
                       Date
                     </TableCell>
                     <TableCell>
@@ -107,32 +108,27 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell
-                      component="th"
-                      sx={{ fontWeight: "bold" }}
-                    >
+                    <TableCell component="th" sx={{ fontWeight: "bold" }}>
                       Start Time
                     </TableCell>
                     <TableCell>
-                      {previewData.startTime ? previewData.startTime.format("hh:mm A") : "N/A"}
+                      {previewData.startTime
+                        ? previewData.startTime.format("hh:mm A")
+                        : "N/A"}
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell
-                      component="th"
-                      sx={{ fontWeight: "bold" }}
-                    >
+                    <TableCell component="th" sx={{ fontWeight: "bold" }}>
                       End Time
                     </TableCell>
                     <TableCell>
-                      {previewData.endTime ? previewData.endTime.format("hh:mm A") : "N/A"}
+                      {previewData.endTime
+                        ? previewData.endTime.format("hh:mm A")
+                        : "N/A"}
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell
-                      component="th"
-                      sx={{ fontWeight: "bold" }}
-                    >
+                    <TableCell component="th" sx={{ fontWeight: "bold" }}>
                       Selected Employees
                     </TableCell>
                     <TableCell>
@@ -150,7 +146,9 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                                 <TableCell sx={{ fontWeight: "bold" }}>
                                   Department
                                 </TableCell>
-                                <TableCell sx={{ fontWeight: "bold", width: "100px" }}>
+                                <TableCell
+                                  sx={{ fontWeight: "bold", width: "100px" }}
+                                >
                                   Action
                                 </TableCell>
                               </TableRow>
@@ -160,7 +158,9 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                                 <TableRow key={emp.id}>
                                   <TableCell>{emp.id}</TableCell>
                                   <TableCell>{emp.text}</TableCell>
-                                  <TableCell>{emp.department || "N/A"}</TableCell>
+                                  <TableCell>
+                                    {emp.department || "N/A"}
+                                  </TableCell>
                                   <TableCell>
                                     <Tooltip title="Delete Employee">
                                       <IconButton
@@ -197,11 +197,16 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
           color="primary"
           variant="outlined"
           startIcon={<EditIcon />}
+          disabled={submitLoading}
         >
           Update
         </Button>
         <LoadingButton
-          onClick={onConfirm}
+          onClick={() => {
+            if (!submitLoading) {
+              onConfirm();
+            }
+          }}
           variant="contained"
           color="primary"
           loading={submitLoading}
@@ -216,4 +221,3 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
 };
 
 export default WorkerFormPreviewModal;
-

@@ -100,8 +100,8 @@ export const getWorkingData = createAsyncThunk<AxiosResponse<any>>(
 );
 export const getEmployees = createAsyncThunk<AxiosResponse<any>>(
   "master/place/emp",
-  async () => {
-    const response = await axiosInstance.get(`/hrms/fetchEmployee`);
+  async ({date}:any) => {
+    const response = await axiosInstance.get(`/hrms/fetchEmployees?date=${date}`);
     return response;
   }
 );

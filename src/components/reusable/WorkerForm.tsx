@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { DatePicker, TimePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
@@ -23,9 +23,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { PlaceType } from "@/features/areaSlice/areaType";
 import { LoadingButton } from "@mui/lab";
-import WorkerFormPreviewModal, {
-  PreviewData,
-} from "./WorkerFormPreviewModal";
+import WorkerFormPreviewModal, { PreviewData } from "./WorkerFormPreviewModal";
 
 const WorkerForm: React.FC<Props> = ({
   onFormChange,
@@ -47,11 +45,11 @@ const WorkerForm: React.FC<Props> = ({
   } = useSelector((state: any) => state.placeMaster);
   const [area, setArea] = useState<AreaType | null>(initialArea || null);
   const [department, setDepartment] = useState<DepartmentType | null>(
-    initialDepartment || null
+    initialDepartment || null,
   );
 
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
-    initialEmployees?.map((emp) => emp.id) || []
+    initialEmployees?.map((emp) => emp.id) || [],
   );
   const [date, setDate] = useState<Dayjs>(initialDate || dayjs());
   const [startTime, setStartTime] = useState<Dayjs | null>(null);
@@ -61,7 +59,9 @@ const WorkerForm: React.FC<Props> = ({
   const [deptList, setDeptList] = useState<DepartmentType[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
-  const [pendingDepartment, setPendingDepartment] = useState<DepartmentType | null>(null);
+  const [pendingDepartment, setPendingDepartment] =
+    useState<DepartmentType | null>(null);
+  const prevSubmitLoadingRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (placeList.length === 0) {
@@ -76,7 +76,9 @@ const WorkerForm: React.FC<Props> = ({
   useEffect(() => {
     setDeptList(departmentList);
     if (pendingDepartment && departmentList.length > 0) {
-      const dept = departmentList.find((d:any) => d.id === pendingDepartment.id);
+      const dept = departmentList.find(
+        (d: any) => d.id === pendingDepartment.id,
+      );
       if (dept) {
         setDepartment(dept);
         setPendingDepartment(null);
@@ -85,10 +87,11 @@ const WorkerForm: React.FC<Props> = ({
   }, [departmentList, pendingDepartment]);
 
   useEffect(() => {
-    if (empList.length === 0) {
-      dispatch(getEmployees());
+    if (date ) {
+//@ts-ignore
+      dispatch(getEmployees({date: dayjs(date).format("DD-MM-YYYY")}));
     }
-  }, []);
+  }, [date]);
 
   useEffect(() => {
     if (initialArea) {
@@ -124,7 +127,7 @@ const WorkerForm: React.FC<Props> = ({
   }, [area]);
 
   const selectedEmployees = empList.filter((emp: any) =>
-    selectedEmployeeIds.includes(emp.id)
+    selectedEmployeeIds.includes(emp.id),
   );
 
   const handleCheckboxChange = (employeeId: string) => {
@@ -148,7 +151,15 @@ const WorkerForm: React.FC<Props> = ({
         endTime,
       });
     }
-  }, [area, department, selectedEmployees, date, startTime, endTime, onFormChange]);
+  }, [
+    area,
+    department,
+    selectedEmployees,
+    date,
+    startTime,
+    endTime,
+    onFormChange,
+  ]);
 
   const handleAreaChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
@@ -178,23 +189,28 @@ const WorkerForm: React.FC<Props> = ({
     setPreviewOpen(true);
   };
 
-
   const handlePreviewConfirm = () => {
-    if (onclick && previewData) {
+    if (onclick && previewData && !submitLoading) {
       onclick();
-      setPreviewOpen(false);
-      setPreviewData(null);
     }
   };
 
+  useEffect(() => {
+    if (prevSubmitLoadingRef.current && !submitLoading && previewOpen) {
+      const timer = setTimeout(() => {
+        setPreviewOpen(false);
+        setPreviewData(null);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+    prevSubmitLoadingRef.current = submitLoading;
+  }, [submitLoading, previewOpen]);
+
   const handleDeleteEmployee = (employeeId: string) => {
-    // Remove employee from selected list
     setSelectedEmployeeIds((prev) => prev.filter((id) => id !== employeeId));
-    
-    // Update preview data if modal is open
     if (previewData) {
       const updatedEmployees = previewData.employees.filter(
-        (emp) => emp.id !== employeeId
+        (emp) => emp.id !== employeeId,
       );
       setPreviewData({
         ...previewData,
@@ -216,21 +232,24 @@ const WorkerForm: React.FC<Props> = ({
       } else {
         setDepartment(previewData.department);
       }
-      
+
       setPreviewOpen(false);
       setPreviewData(null);
     }
   };
 
   const handleClosePreview = () => {
-    setPreviewOpen(false);
+    // Prevent closing while submitting
+    if (!submitLoading) {
+      setPreviewOpen(false);
+    }
   };
 
   const columns: any = [
     {
       field: "select",
       headerName: "Select",
-      width: 100,
+      maxWidth: 90,
       sortable: false,
       renderCell: (params: GridRenderCellParams) => {
         const isSelected = selectedEmployeeIds.includes(params.row.id);
@@ -246,19 +265,40 @@ const WorkerForm: React.FC<Props> = ({
     {
       field: "id",
       headerName: "Code",
-      width: 150,
+    maxWidth: 100,
       editable: false,
     },
     {
       field: "text",
       headerName: "Full Name",
-      width: 150,
+      width:200,
+      maxWidth: 200,
+      editable: false,
+    },
+    {
+      field: "department",
+      headerName: "Department",
+      width:200,
+        maxWidth: 200,
+      editable: false,
+    },
+      {
+      field: "place",
+      headerName: "Place",
+      width:200,
+    maxWidth: 200,
+      editable: false,
+    },
+      {
+      field: "startTime",
+      headerName: "Start Time",
+        maxWidth: 200,
       editable: false,
     },
         {
-      field: "department",
-      headerName: "Department",
-      width: 150,
+      field: "endTime",
+      headerName: "End Time",
+         maxWidth: 200,
       editable: false,
     },
   ];
@@ -322,11 +362,13 @@ const WorkerForm: React.FC<Props> = ({
           <DatePicker
             className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
             value={date}
-            onChange={(newDate) => newDate && setDate(newDate)}
+            onChange={(newDate) => {
+              
+              newDate &&  setDate(newDate)}}
             format="DD/MM/YYYY"
           />
         </FormControl>
-           <FormControl fullWidth>
+        <FormControl fullWidth>
           <TimePicker
             className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
             value={startTime}
@@ -348,7 +390,6 @@ const WorkerForm: React.FC<Props> = ({
           />
         </FormControl>
       </div>
-
 
       <div className="mt-4 mb-4">
         <h3 className="text-lg font-semibold mb-3">Selected Employees</h3>
@@ -406,7 +447,6 @@ const WorkerForm: React.FC<Props> = ({
         >
           Preview
         </LoadingButton>
-     
       </div>
 
       <WorkerFormPreviewModal
