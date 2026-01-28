@@ -23,7 +23,6 @@ export const AddAreaReport = () => {
     employees: EmployeeType[];
     date: Dayjs;
     startTime: Dayjs | null;
-    endTime: Dayjs | null;
   } | null>(null);
 
    const reset = () => {
@@ -37,7 +36,6 @@ export const AddAreaReport = () => {
     employees: EmployeeType[];
     date: Dayjs;
     startTime: Dayjs | null;
-    endTime: Dayjs | null;
   }) => {
     setFormData(data);
   };
@@ -53,7 +51,6 @@ export const AddAreaReport = () => {
       code: formData.employees ? formData.employees.map((item) => item.id) : [],
       date: dayjs(formData.date).format("DD-MM-YYYY"),
       startTime: formData.startTime ? formData.startTime.format("HH:mm") : null,
-      endTime: formData.endTime ? formData.endTime.format("HH:mm") : null,
     };
     //@ts-ignore
 
