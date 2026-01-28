@@ -29,7 +29,6 @@ export type Props = {
     employees: EmployeeType[];
     date: Dayjs;
     startTime: Dayjs | null;
-    endTime: Dayjs | null;
   }) => void;
   initialArea?: AreaType | null;
   initialDepartment?: DepartmentType | null;

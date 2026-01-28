@@ -30,7 +30,6 @@ export interface PreviewData {
   employees: EmployeeType[];
   date: Dayjs;
   startTime: Dayjs | null;
-  endTime: Dayjs | null;
   id?: string;
 }
 
@@ -117,16 +116,7 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
                         : "N/A"}
                     </TableCell>
                   </TableRow>
-                  <TableRow>
-                    <TableCell component="th" sx={{ fontWeight: "bold" }}>
-                      End Time
-                    </TableCell>
-                    <TableCell>
-                      {previewData.endTime
-                        ? previewData.endTime.format("hh:mm A")
-                        : "N/A"}
-                    </TableCell>
-                  </TableRow>
+             
                   <TableRow>
                     <TableCell component="th" sx={{ fontWeight: "bold" }}>
                       Selected Employees

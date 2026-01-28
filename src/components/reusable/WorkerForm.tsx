@@ -53,7 +53,6 @@ const WorkerForm: React.FC<Props> = ({
   );
   const [date, setDate] = useState<Dayjs>(initialDate || dayjs());
   const [startTime, setStartTime] = useState<Dayjs | null>(null);
-  const [endTime, setEndTime] = useState<Dayjs | null>(null);
 
   const [areaList, setAreaList] = useState<AreaType[]>([]);
   const [deptList, setDeptList] = useState<DepartmentType[]>([]);
@@ -147,8 +146,7 @@ const WorkerForm: React.FC<Props> = ({
         department,
         employees: selectedEmployees,
         date,
-        startTime,
-        endTime,
+        startTime
       });
     }
   }, [
@@ -157,7 +155,6 @@ const WorkerForm: React.FC<Props> = ({
     selectedEmployees,
     date,
     startTime,
-    endTime,
     onFormChange,
   ]);
 
@@ -182,8 +179,7 @@ const WorkerForm: React.FC<Props> = ({
       department,
       employees: selectedEmployees,
       date,
-      startTime,
-      endTime,
+      startTime
     };
     setPreviewData(data);
     setPreviewOpen(true);
@@ -225,7 +221,6 @@ const WorkerForm: React.FC<Props> = ({
       setSelectedEmployeeIds(previewData.employees.map((emp) => emp.id));
       setDate(previewData.date);
       setStartTime(previewData.startTime || null);
-      setEndTime(previewData.endTime || null);
       if (previewData.area?.id) {
         setPendingDepartment(previewData.department);
         fetchDepartments(previewData.area.id);
@@ -379,16 +374,6 @@ const WorkerForm: React.FC<Props> = ({
           />
         </FormControl>
 
-        <FormControl fullWidth>
-          <TimePicker
-            className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
-            value={endTime}
-            onChange={(newTime) => setEndTime(newTime)}
-            format="hh:mm"
-            placeholder="Select End Time"
-            inputReadOnly
-          />
-        </FormControl>
       </div>
 
       <div className="mt-4 mb-4">
