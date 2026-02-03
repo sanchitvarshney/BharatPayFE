@@ -2,13 +2,14 @@ import React, { useState, useRef } from "react";
 
 import { showToast } from "@/utils/toasterContext";
 import { useDispatch, useSelector } from "react-redux";
-import { getWorkingData } from "@/features/areaSlice/areaSlice";
+import { getWorkingData, getFromFieldData } from "@/features/areaSlice/areaSlice";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { wrongDeviceMin } from "@/features/Dispatch/DispatchSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   Button,
+  CircularProgress,
   FormControl,
   InputAdornment,
   InputLabel,
@@ -49,7 +50,7 @@ const PartnerData = [
 
 // AWB Length validation mapping based on partner
 const getAWBLengthRange = (
-  partnerId: string
+  partnerId: string,
 ): { min: number; max: number } | null => {
   switch (partnerId) {
     case "eCOM":
@@ -91,12 +92,12 @@ const WrongDeviceMin: React.FC = () => {
   const [imei, setImei] = useState<string>("");
   const [awbNo, setAwbNo] = useState<string>("");
   const [serialNo, setSerialNo] = useState<string>("");
-  
+
   const [combinedRowData, setCombinedRowData] = useState<any[]>([]);
   const dispatch: any = useDispatch();
   const appDispatch = useAppDispatch();
-  const { workingDataLoading } = useSelector((state: any) => state.placeMaster);
-  const { submitCustomFormLoading } = useAppSelector((state) => state.dispatch);
+  const { workingDataLoading,fieldLoading  } = useSelector((state: any) => state.placeMaster);
+  const { submitCustomFormLoading  } = useAppSelector((state) => state.dispatch);
 
   // Refs for input fields to manage focus
   const awbNoInputRef = useRef<HTMLInputElement>(null);
@@ -125,7 +126,7 @@ const WrongDeviceMin: React.FC = () => {
     if (awbLength < lengthRange.min || awbLength > lengthRange.max) {
       showToast(
         `AWB length must be between ${lengthRange.min} and ${lengthRange.max} characters for the selected partner.`,
-        "error"
+        "error",
       );
       return false;
     }
@@ -136,7 +137,7 @@ const WrongDeviceMin: React.FC = () => {
   // Helper function to add or update row
   const addOrUpdateRow = (
     field: "awbNo" | "serialNo" | "imeiNo",
-    value: string
+    value: string,
   ) => {
     const trimmedValue = value.trim();
 
@@ -148,26 +149,6 @@ const WrongDeviceMin: React.FC = () => {
     }
 
     setCombinedRowData((prevData) => {
-      // Check for duplicate across all rows and all fields (AWB, Serial, IMEI)
-      const isDuplicate = prevData.some((row) => {
-        if (trimmedValue === "") return false;
-        // Check if the scanned value exists in any field of any row
-        return (
-          row.awbNo === trimmedValue ||
-          row.serialNo === trimmedValue ||
-          row.imeiNo === trimmedValue
-        );
-      });
-
-      if (isDuplicate) {
-        const deviceType =
-          field === "awbNo" ? "AWB" : field === "serialNo" ? "Serial" : "IMEI";
-        showToast(
-          `Device already scanned. This ${deviceType} number has already been added.`,
-          "error"
-        );
-        return prevData;
-      }
 
       // Check if last row exists and the same field is empty in that row
       const lastRow = prevData[0]; // Since we add to the beginning, first item is the last added
@@ -176,7 +157,7 @@ const WrongDeviceMin: React.FC = () => {
       if (canUpdateLastRow) {
         // Update the last row with the new value for this field
         return prevData.map((row, index) =>
-          index === 0 ? { ...row, [field]: trimmedValue } : row
+          index === 0 ? { ...row, [field]: trimmedValue } : row,
         );
       } else {
         // Create a new row with only the entered field filled
@@ -235,57 +216,91 @@ const WrongDeviceMin: React.FC = () => {
     });
   };
 
-  const handleSubmitForm = () => {
-    // Validate form fields
-    if (!formValues.categoryId) {
-      showToast("Please select a category", "error");
-      return;
-    }
-    if (!formValues.locationId) {
-      showToast("Please select a location", "error");
-      return;
-    }
-    if (!formValues.partnerId) {
-      showToast("Please select a partner", "error");
-      return;
-    }
-    if (combinedRowData.length === 0) {
-      showToast(
-        "Please add at least one device (AWB, Serial, or IMEI)",
-        "error"
-      );
-      return;
-    }
+const handleSubmitForm = () => {
 
-    // Prepare payload
-    const payload = {
-      categoryId: formValues.categoryId,
-      locationId: formValues.locationId?.code || formValues.locationId,
-      partnerId: formValues.partnerId,
-      awbNo: combinedRowData.map((row) => row.awbNo || ""),
-      serialNo: combinedRowData.map((row) => row.serialNo || ""),
-      imeiNo: combinedRowData.map((row) => row.imeiNo || ""),
-      remark: combinedRowData.map((row) => row.remark || ""),
-      unique: combinedRowData.map((row) => row.uniqueNo || ""),
-    };
+  if (!formValues.categoryId) {
+    showToast("Please select a category", "error");
+    return;
+  }
 
-    // Submit the form
-    appDispatch(wrongDeviceMin(payload)).then((res: any) => {
-      if (res.payload?.data?.success) {
-        // Reset form on success
-        reset();
-        setCombinedRowData([]);
+  if (!formValues.locationId) {
+    showToast("Please select a location", "error");
+    return;
+  }
+
+  if (!formValues.partnerId) {
+    showToast("Please select a partner", "error");
+    return;
+  }
+
+  if (combinedRowData.length === 0) {
+    showToast("Please add at least one device (AWB, Serial, or IMEI)", "error");
+    return;
+  }
+
+
+  const uniqueValues = combinedRowData
+    .map(row => row.uniqueNo?.trim())
+    .filter(Boolean);
+
+  const hasDuplicateUnique =
+    new Set(uniqueValues).size !== uniqueValues.length;
+
+  if (hasDuplicateUnique) {
+    showToast("Duplicate Unique Number found", "error");
+    return;
+  }
+
+  // Prepare payload
+  const payload = {
+    categoryId: formValues.categoryId,
+    locationId: formValues.locationId?.code || formValues.locationId,
+    partnerId: formValues.partnerId,
+    awbNo: combinedRowData.map(row => row.awbNo || ""),
+    serialNo: combinedRowData.map(row => row.serialNo || ""),
+    imeiNo: combinedRowData.map(row => row.imeiNo || ""),
+    remark: combinedRowData.map(row => row.remark || ""),
+    unique: combinedRowData.map(row => row.uniqueNo || ""),
+  };
+
+  appDispatch(wrongDeviceMin(payload)).then((res: any) => {
+    if (res.payload?.data?.success) {
+      reset();
+      setCombinedRowData([]);
+      setAwbNo("");
+      setSerialNo("");
+      setImei("");
+    } else {
+      showToast(res.payload?.data?.message || "Something went wrong", "error");
+    }
+  });
+};
+
+
+  const handleAwbNoKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && awbNo && formValues.partnerId) {
+     const payload:any = {
+       awbNo: awbNo,
+       partner: formValues.partnerId 
+     }
+     try {
+      //@ts-ignore
+      const res = await dispatch(getFromFieldData(payload)).unwrap();
+     
+      
+        addOrUpdateRow("awbNo", awbNo);
         setAwbNo("");
-        setSerialNo("");
-        setImei("");
+        // Keep focus on AWB No field
+        setTimeout(() => {
+          awbNoInputRef.current?.focus();
+        }, 0);
+    
+      event.preventDefault();
+     } catch (error) {
+      
+     }
 
-      } else {
-        showToast(
-          res.payload?.data?.message || "Something went wrong",
-          "error"
-        );
-      }
-    });
+    }
   };
 
   return (
@@ -390,25 +405,13 @@ const WrongDeviceMin: React.FC = () => {
                 onChange={(e) => {
                   setAwbNo(e.target.value);
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    if (awbNo.trim()) {
-                      addOrUpdateRow("awbNo", awbNo);
-                      setAwbNo("");
-                      // Keep focus on AWB No field
-                      setTimeout(() => {
-                        awbNoInputRef.current?.focus();
-                      }, 0);
-                    }
-                    e.preventDefault();
-                  }
-                }}
+                onKeyDown={handleAwbNoKeyDown}
                 inputRef={awbNoInputRef}
                 slotProps={{
                   input: {
                     endAdornment: (
                       <InputAdornment position="end">
-                        {<QrCodeScanner />}
+                        {fieldLoading ?  <CircularProgress size={20} /> :  <QrCodeScanner />}
                       </InputAdornment>
                     ),
                   },

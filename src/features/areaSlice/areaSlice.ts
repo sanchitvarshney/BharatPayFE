@@ -20,21 +20,30 @@ const initialState: InitialAreaType = {
   totalQty: 0,
   toLocationLoading: false,
   toLocationList: [],
+  fieldLoading: false,
 };
 
 // for tranferPartCode
+
+export const getFromFieldData = createAsyncThunk<AxiosResponse<any>>(
+  "part/code/filed-data",
+  async (payload:any) => {
+    const response = await axiosInstance.get(`/wrongDevice/checkAwb?awbNo=${payload.awbNo}&partner=${payload.partner}`);
+    return response;
+  },
+);
 
 export const getAvailableQty = createAsyncThunk<AxiosResponse<any>>(
   "part/code/qty",
   async (payload: any) => {
     const response = await axiosInstance.get(
       `/rejectionTransfer/getQuantity/?itemKey=${encodeURIComponent(
-        payload?.itemKey
-      )}&fromLocation=${encodeURIComponent(payload?.fromLocation)}`
+        payload?.itemKey,
+      )}&fromLocation=${encodeURIComponent(payload?.fromLocation)}`,
     );
 
     return response;
-  }
+  },
 );
 
 export const getFromLocation = createAsyncThunk<AxiosResponse<any>>(
@@ -42,7 +51,7 @@ export const getFromLocation = createAsyncThunk<AxiosResponse<any>>(
   async () => {
     const response = await axiosInstance.get(`/rejectionTransfer/pickLocation`);
     return response;
-  }
+  },
 );
 
 export const getDropLocation = createAsyncThunk<AxiosResponse<any>>(
@@ -50,22 +59,25 @@ export const getDropLocation = createAsyncThunk<AxiosResponse<any>>(
   async () => {
     const response = await axiosInstance.get(`/rejectionTransfer/dropLocation`);
     return response;
-  }
+  },
 );
 
-export const submitPartCodeTransfer = createAsyncThunk<
-  AxiosResponse<any>,
-  any
->("part/code/submit", async (payload) => {
-  const response = await axiosInstance.post(`/rejectionTransfer/partRejectionTransfer`, payload);
-  return response;
-});
+export const submitPartCodeTransfer = createAsyncThunk<AxiosResponse<any>, any>(
+  "part/code/submit",
+  async (payload) => {
+    const response = await axiosInstance.post(
+      `/rejectionTransfer/partRejectionTransfer`,
+      payload,
+    );
+    return response;
+  },
+);
 export const getPartCode = createAsyncThunk<
   AxiosResponse<any>,
   string | undefined
 >("part/code", async (searchQuery: any) => {
   const url = `/rejectionTransfer/getAllPartCode?search=${encodeURIComponent(
-    searchQuery
+    searchQuery,
   )}`;
 
   const response = await axiosInstance.get(url);
@@ -77,33 +89,35 @@ export const getMasterPlace = createAsyncThunk<AxiosResponse<any>>(
   async () => {
     const response = await axiosInstance.get(`/master/fetchMasterPlace`);
     return response;
-  }
+  },
 );
 
 export const getDepartment = createAsyncThunk<AxiosResponse<any>>(
   "master/place/department",
   async (payload: any) => {
     const response = await axiosInstance.get(
-      `/master/fetchDepartmentPlace/?place=${payload.place}`
+      `/master/fetchDepartmentPlace/?place=${payload.place}`,
     );
     return response;
-  }
+  },
 );
 export const getWorkingData = createAsyncThunk<AxiosResponse<any>>(
   "master/place/view-data",
   async (payload: any) => {
     const response = await axiosInstance.get(
-      `/worker/viewData?from=${payload.from}&to=${payload.to}&place=${payload.place}&department=${payload.department}`
+      `/worker/viewData?from=${payload.from}&to=${payload.to}&place=${payload.place}&department=${payload.department}`,
     );
     return response;
-  }
+  },
 );
 export const getEmployees = createAsyncThunk<AxiosResponse<any>>(
   "master/place/emp",
-  async ({date}:any) => {
-    const response = await axiosInstance.get(`/hrms/fetchEmployees?date=${date}`);
+  async ({ date }: any) => {
+    const response = await axiosInstance.get(
+      `/hrms/fetchEmployees?date=${date}`,
+    );
     return response;
-  }
+  },
 );
 
 export const submitData = createAsyncThunk<AxiosResponse<any>>(
@@ -111,10 +125,10 @@ export const submitData = createAsyncThunk<AxiosResponse<any>>(
   async (payload: any) => {
     const response = await axiosInstance.post(
       `/worker/submitDailyData`,
-      payload
+      payload,
     );
     return response;
-  }
+  },
 );
 
 const placeSlice = createSlice({
@@ -206,19 +220,13 @@ const placeSlice = createSlice({
       .addCase(getPartCode.rejected, (state) => {
         state.partCodeLoading = false;
       })
-      .addCase(getAvailableQty.pending, () => {
-       
-      })
+      .addCase(getAvailableQty.pending, () => {})
       .addCase(getAvailableQty.fulfilled, (state, action) => {
-    
-
         if (action.payload.data.success) {
           state.totalQty = action.payload.data.data;
         }
       })
-      .addCase(getAvailableQty.rejected, () => {
-      
-      })
+      .addCase(getAvailableQty.rejected, () => {})
       .addCase(getDropLocation.pending, (state) => {
         state.toLocationLoading = true;
       })
@@ -239,6 +247,15 @@ const placeSlice = createSlice({
       })
       .addCase(submitPartCodeTransfer.rejected, (state) => {
         state.submitLoading = false;
+      })
+      .addCase(getFromFieldData.pending, (state) => {
+        state.fieldLoading = true;
+      })
+      .addCase(getFromFieldData.fulfilled, (state) => {
+        state.fieldLoading = false;
+      })
+      .addCase(getFromFieldData.rejected, (state) => {
+        state.fieldLoading = false;
       });
   },
 });

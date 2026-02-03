@@ -20,4 +20,5 @@ export interface InitialAreaType {
   totalQty: number | any;
   toLocationLoading: boolean;
   toLocationList: any[];
+  fieldLoading: boolean;
 }
