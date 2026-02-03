@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { IconButton } from "@mui/material";
+import { FormControl, IconButton, InputAdornment, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Popover,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { Input } from "antd";
+import { QrCodeScanner } from "@mui/icons-material";
 
 
 const remarkOptions = [
@@ -52,9 +53,11 @@ const RemarkCellRenderer: React.FC<any> = ({ value, data, api, column, node, set
 
     data.remark = selectedValue;
 
-    const updatedRowData = rowData.map((row: any) =>
-      row.id === data.id ? { ...row, remark: selectedValue } : row
-    );
+    const updatedRowData = Array.isArray(rowData)
+      ? rowData.map((row: any) =>
+          row.id === data.id ? { ...row, remark: selectedValue } : row
+        )
+      : rowData;
     setRowdata(updatedRowData);
 
     // Refresh the grid
@@ -72,10 +75,11 @@ const RemarkCellRenderer: React.FC<any> = ({ value, data, api, column, node, set
     if (customRemark.trim()) {
       data.remark = customRemark.trim();
 
-      // Update the rowData array
-      const updatedRowData = rowData.map((row: any) =>
-        row.id === data.id ? { ...row, remark: customRemark.trim() } : row
-      );
+      const updatedRowData = Array.isArray(rowData)
+        ? rowData.map((row: any) =>
+            row.id === data.id ? { ...row, remark: customRemark.trim() } : row
+          )
+        : rowData;
       setRowdata(updatedRowData);
 
       // Refresh the grid
@@ -184,6 +188,47 @@ const RemarkCellRenderer: React.FC<any> = ({ value, data, api, column, node, set
   );
 };
 
+
+const UniqueCellRenderer: React.FC<any> = ({ data, setRowdata }) => {
+  const [localValue, setLocalValue] = useState(data?.uniqueNo ?? "");
+
+  // Sync local state when row data changes from outside (e.g. new row)
+  useEffect(() => {
+    setLocalValue(data?.uniqueNo ?? "");
+  }, [data?.id, data?.uniqueNo]);
+
+  const handleBlur = () => {
+    const val = localValue.trim();
+    setRowdata((prev: any) =>
+      Array.isArray(prev)
+        ? prev.map((row: any) =>
+            row.id === data.id ? { ...row, uniqueNo: val } : row
+          )
+        : prev
+    );
+  };
+
+  return (
+    <FormControl sx={{ width: "100%", my: 0.35 }}>
+      <TextField
+        size="small"
+        value={localValue}
+        placeholder="Enter Unique No"
+        onChange={(e) => setLocalValue(e.target.value)}
+        onBlur={handleBlur}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <QrCodeScanner fontSize="small" />
+            </InputAdornment>
+          ),
+        }}
+      />
+    </FormControl>
+  );
+};
+
+
 type Props = {
   rowData: any;
   setRowdata: any;
@@ -195,6 +240,17 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
     { headerName: "AWB No.", field: "awbNo", sortable: true, filter: true, flex: 1 },
     { headerName: "Serial No.", field: "serialNo", sortable: true, filter: true, flex: 1 },
     { headerName: "IMEI No.", field: "imeiNo", sortable: true, filter: true, flex: 1 },
+    {
+      headerName: "Unique No.",
+      field: "uniqueNo",
+      sortable: true,
+      filter: true,
+      minWidth: 350,
+      flex: 1,
+      cellRenderer: (params: any) => (
+        <UniqueCellRenderer {...params} setRowdata={setRowdata} />
+      )},
+
     {
       headerName: "Remark",
       field: "remark",
@@ -218,7 +274,11 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
       cellRenderer: (params: any) => (
         <IconButton
           onClick={() => {
-            setRowdata(rowData.filter((row: any) => row.id !== params.data.id));
+            setRowdata(
+              Array.isArray(rowData)
+                ? rowData.filter((row: any) => row.id !== params.data.id)
+                : []
+            );
           }}
         >
           <DeleteIcon fontSize="small" color="error" />
@@ -228,9 +288,11 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
     },
   ];
 
+  const gridRowData = Array.isArray(rowData) ? rowData : [];
+
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-300px)] ">
-      <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
+      <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={gridRowData} columnDefs={columnDefs} />
     </div>
   );
 };

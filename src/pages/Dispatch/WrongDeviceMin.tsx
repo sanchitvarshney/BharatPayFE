@@ -91,6 +91,7 @@ const WrongDeviceMin: React.FC = () => {
   const [imei, setImei] = useState<string>("");
   const [awbNo, setAwbNo] = useState<string>("");
   const [serialNo, setSerialNo] = useState<string>("");
+  
   const [combinedRowData, setCombinedRowData] = useState<any[]>([]);
   const dispatch: any = useDispatch();
   const appDispatch = useAppDispatch();
@@ -265,6 +266,7 @@ const WrongDeviceMin: React.FC = () => {
       serialNo: combinedRowData.map((row) => row.serialNo || ""),
       imeiNo: combinedRowData.map((row) => row.imeiNo || ""),
       remark: combinedRowData.map((row) => row.remark || ""),
+      unique: combinedRowData.map((row) => row.uniqueNo || ""),
     };
 
     // Submit the form
@@ -276,6 +278,7 @@ const WrongDeviceMin: React.FC = () => {
         setAwbNo("");
         setSerialNo("");
         setImei("");
+
       } else {
         showToast(
           res.payload?.data?.message || "Something went wrong",
