@@ -401,13 +401,13 @@ const WorkerForm: React.FC<Props> = ({
             initialState={{
               pagination: {
                 paginationModel: {
-                  pageSize: 10,
+                  pageSize: 50,
                 },
               },
             }}
             disableColumnSelector
             loading={empLoading}
-            pageSizeOptions={[10]}
+            pageSizeOptions={[50]}
             disableRowSelectionOnClick
             showToolbar={true}
             sx={{
