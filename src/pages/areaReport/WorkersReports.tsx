@@ -8,9 +8,10 @@ import { ColDef } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import React, {  useMemo } from 'react'
+import React, {  useMemo, useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+
 const { RangePicker } = DatePicker;
 
 const CustomLoadingCellRenderer: React.FC = () => {
@@ -24,25 +25,18 @@ const CustomLoadingCellRenderer: React.FC = () => {
 const columnDefs: any[] = [
   {
     headerName: "Date",
-    // children: [
-    //   {
-    //     headerName: "#",
-    //     field: "1"
-    //   }
-    // ],
     field: "date",
-    sortable: true,
-    filter: true,
     minWidth: 200,
+  
     flex: 1,
-    // cellRenderer: (params: any) => params.node.rowIndex + 1,
   },
   {
     headerName: "Swipe (Production / Sales) Cost",
      children: [
       {
         headerName: "P12",
-        field: "swipe_p12"
+        field: "swipe_p12",
+      
       }, {
         headerName: "P10",
         field: "swipe_p10"
@@ -68,8 +62,7 @@ const columnDefs: any[] = [
       }
     ],
    
-    sortable: true,
-    filter: true,
+ 
     minWidth: 200,
   },
   {
@@ -97,8 +90,7 @@ const columnDefs: any[] = [
       }
     ],
     field: "",
-    sortable: true,
-    filter: true,
+ 
     minWidth: 200,
   },
   {
@@ -117,8 +109,7 @@ const columnDefs: any[] = [
       }
     ],
     field: "",
-    sortable: true,
-    filter: true,
+ 
     minWidth: 200,
   },
   {
@@ -137,8 +128,7 @@ const columnDefs: any[] = [
       }
     ],
     field: "",
-    sortable: true,
-    filter: true,
+ 
     minWidth: 200,
   },
   {
@@ -160,8 +150,7 @@ const columnDefs: any[] = [
       }
     ],
     field: "",
-    sortable: true,
-    filter: true,
+ 
     minWidth: 200,
   },
   {
@@ -175,7 +164,7 @@ const columnDefs: any[] = [
         headerName: "Depreciation",
         field: "contribution_depreciation"
       }, {
-        headerName: "Cosnumable",
+        headerName: "Consumable",
         field: "contribution_consumable"
       }, {
         headerName: "Other",
@@ -186,30 +175,41 @@ const columnDefs: any[] = [
       }
     ],
     field: "",
-    sortable: true,
-    filter: true,
+ 
     minWidth: 200,
   },
 
 ];
 
 const WorkersReports = () => {
-
+  const gridRef = useRef(null);
       const dispatch: any = useDispatch();
   const {
     workerReports,
  
     isReportLoading,
   } = useSelector((state: any) => state.placeMaster);
-  console.log(workerReports,"data")
+ 
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: true,
+      filter: "agTextColumnFilter",
       floatingFilter: true,
-       valueFormatter: (params: any) => params.value ?? 0
+      sortable: true,
+      
+      resizable: true,
+            cellRenderer: (params: any) => {
+        return params.value === null || params.value === undefined ? 0 : params.value;
+      },
+      cellStyle: { textAlign: 'center' },
     };
   }, []);
+  //   const sideBar = useMemo(() => {
+  //   return {
+  //     toolPanels: ["columns", "filters"],
+  //     defaultToolPanel: "columns",
+  //   };
+  // }, []);
 
   const {
     control,
@@ -294,7 +294,7 @@ const WorkersReports = () => {
               loadingPosition="start"
               type="submit"
               variant="contained"
-              loading={isReportLoading}
+             
               disabled={isReportLoading }
 
             >
@@ -305,12 +305,15 @@ const WorkersReports = () => {
       </div>
       <div className="ag-theme-quartz h-[calc(100vh-100px)]">
         <AgGridReact
+          ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           suppressCellFocus={true}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           rowData={workerReports ?? []}
-          loading={false}
+          loading={isReportLoading}
+           sideBar={"columns"}
           columnDefs={columnDefs}
+
           defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={50}

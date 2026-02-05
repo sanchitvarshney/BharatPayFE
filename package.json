@@ -69,7 +69,6 @@
     "@tiptap/react": "^2.10.3",
     "@tiptap/starter-kit": "^2.10.3",
     "ag-grid-community": "^32.0.2",
-    "ag-grid-enterprise": "^32.0.2",
     "ag-grid-react": "^32.0.2",
     "antd": "^5.19.2",
     "axios": "^1.7.7",
