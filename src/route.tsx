@@ -124,6 +124,7 @@ import FormLayout from "./layouts/WrongDeviceMINLayout";
 import DeletionMonoPage from "./pages/master/DeletionMonoPage";
 import AddPartCodeLayout from "./layouts/AddPartCodeLayout";
 import TransferPartData from "./pages/tranferPartCode/TransferPartData";
+import WorkersReports from "./pages/areaReport/WorkersReports";
 
 export const router = createBrowserRouter([
   {
@@ -228,6 +229,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/view-worker-data",
+      },
+          {
+        element: (
+          <MainLayout>
+            <AddAreaReportLayout>
+              <WorkersReports />
+            </AddAreaReportLayout>
+          </MainLayout>
+        ),
+        path: "/workers/reports",
       },
       {
         element: (

@@ -21,4 +21,6 @@ export interface InitialAreaType {
   toLocationLoading: boolean;
   toLocationList: any[];
   fieldLoading: boolean;
+  workerReports: any[];
+  isReportLoading: boolean;
 }

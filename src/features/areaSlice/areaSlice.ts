@@ -21,6 +21,8 @@ const initialState: InitialAreaType = {
   toLocationLoading: false,
   toLocationList: [],
   fieldLoading: false,
+  workerReports: [],
+  isReportLoading: false,
 };
 
 // for tranferPartCode
@@ -97,6 +99,15 @@ export const getDepartment = createAsyncThunk<AxiosResponse<any>>(
   async (payload: any) => {
     const response = await axiosInstance.get(
       `/master/fetchDepartmentPlace/?place=${payload.place}`,
+    );
+    return response;
+  },
+);
+export const getWorkerReport = createAsyncThunk<AxiosResponse<any>>(
+  "master/place/worker-data/report",
+  async (payload: any) => {
+    const response = await axiosInstance.get(
+      `/costing/report?from=${payload.from}&to=${payload.to}`,
     );
     return response;
   },
@@ -256,6 +267,18 @@ const placeSlice = createSlice({
       })
       .addCase(getFromFieldData.rejected, (state) => {
         state.fieldLoading = false;
+      })
+        .addCase(getWorkerReport.pending, (state) => {
+        state.isReportLoading = true;
+      })
+      .addCase(getWorkerReport.fulfilled, (state,action) => {
+        state.isReportLoading = false;
+          if (action.payload.data.success) {
+          state.workingData = action.payload.data.data;
+        }
+      })
+      .addCase(getWorkerReport.rejected, (state) => {
+        state.isReportLoading = false;
       });
   },
 });
