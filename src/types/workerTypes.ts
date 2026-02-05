@@ -34,4 +34,5 @@ export type Props = {
   initialDepartment?: DepartmentType | null;
   initialEmployees?: EmployeeType[];
   initialDate?: Dayjs;
+  crnID?: string
 };

@@ -32,6 +32,7 @@ const WorkerForm: React.FC<Props> = ({
   initialDepartment,
   initialEmployees,
   onclick,
+  crnID,
 }) => {
   const dispatch = useDispatch<any>();
   const {
@@ -53,7 +54,7 @@ const WorkerForm: React.FC<Props> = ({
   );
   const [date, setDate] = useState<Dayjs>(initialDate || dayjs());
   const [startTime, setStartTime] = useState<Dayjs | null>(null);
-
+  const [endTime, setEndTime] = useState<Dayjs | null>(null);
   const [areaList, setAreaList] = useState<AreaType[]>([]);
   const [deptList, setDeptList] = useState<DepartmentType[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -86,9 +87,9 @@ const WorkerForm: React.FC<Props> = ({
   }, [departmentList, pendingDepartment]);
 
   useEffect(() => {
-    if (date ) {
-//@ts-ignore
-      dispatch(getEmployees({date: dayjs(date).format("DD-MM-YYYY")}));
+    if (date) {
+      //@ts-ignore
+      dispatch(getEmployees({ date: dayjs(date).format("DD-MM-YYYY") }));
     }
   }, [date]);
 
@@ -146,17 +147,10 @@ const WorkerForm: React.FC<Props> = ({
         department,
         employees: selectedEmployees,
         date,
-        startTime
+        startTime,
       });
     }
-  }, [
-    area,
-    department,
-    selectedEmployees,
-    date,
-    startTime,
-    onFormChange,
-  ]);
+  }, [area, department, selectedEmployees, date, startTime, onFormChange]);
 
   const handleAreaChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
@@ -179,7 +173,7 @@ const WorkerForm: React.FC<Props> = ({
       department,
       employees: selectedEmployees,
       date,
-      startTime
+      startTime,
     };
     setPreviewData(data);
     setPreviewOpen(true);
@@ -260,40 +254,40 @@ const WorkerForm: React.FC<Props> = ({
     {
       field: "id",
       headerName: "Code",
-    maxWidth: 100,
+      maxWidth: 100,
       editable: false,
     },
     {
       field: "text",
       headerName: "Full Name",
-      width:200,
+      width: 200,
       maxWidth: 200,
       editable: false,
     },
     {
       field: "department",
       headerName: "Department",
-      width:200,
-        maxWidth: 200,
+      width: 200,
+      maxWidth: 200,
       editable: false,
     },
-      {
+    {
       field: "place",
       headerName: "Place",
-      width:200,
-    maxWidth: 200,
+      width: 200,
+      maxWidth: 200,
       editable: false,
     },
-      {
+    {
       field: "startTime",
       headerName: "Start Time",
-        maxWidth: 200,
+      maxWidth: 200,
       editable: false,
     },
-        {
+    {
       field: "endTime",
       headerName: "End Time",
-         maxWidth: 200,
+      maxWidth: 200,
       editable: false,
     },
   ];
@@ -358,8 +352,8 @@ const WorkerForm: React.FC<Props> = ({
             className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
             value={date}
             onChange={(newDate) => {
-              
-              newDate &&  setDate(newDate)}}
+              newDate && setDate(newDate);
+            }}
             format="DD/MM/YYYY"
           />
         </FormControl>
@@ -373,7 +367,18 @@ const WorkerForm: React.FC<Props> = ({
             inputReadOnly
           />
         </FormControl>
-
+        {crnID === "CRN7218718" && (
+          <FormControl fullWidth>
+            <TimePicker
+              className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
+              value={endTime}
+              onChange={(newTime) => setEndTime(newTime)}
+              format="hh:mm"
+              placeholder="Select End Time"
+              inputReadOnly
+            />
+          </FormControl>
+        )}
       </div>
 
       <div className="mt-4 mb-4">
