@@ -23,18 +23,19 @@ const CustomLoadingCellRenderer: React.FC = () => {
 
 const columnDefs: any[] = [
   {
-    headerName: "",
-    children: [
-      {
-        headerName: "#",
-        field: "1"
-      }
-    ],
-    field: "ID",
+    headerName: "Date",
+    // children: [
+    //   {
+    //     headerName: "#",
+    //     field: "1"
+    //   }
+    // ],
+    field: "date",
     sortable: true,
     filter: true,
+    minWidth: 200,
     flex: 1,
-    cellRenderer: (params: any) => params.node.rowIndex + 1,
+    // cellRenderer: (params: any) => params.node.rowIndex + 1,
   },
   {
     headerName: "Swipe (Production / Sales) Cost",
@@ -200,11 +201,13 @@ const WorkersReports = () => {
  
     isReportLoading,
   } = useSelector((state: any) => state.placeMaster);
+  console.log(workerReports,"data")
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
       floatingFilter: true,
+       valueFormatter: (params: any) => params.value ?? 0
     };
   }, []);
 
@@ -228,7 +231,7 @@ const WorkersReports = () => {
 
     //@ts-ignore
     dispatch(getWorkerReport(payload)).then((res: any) => {
-      if (res.payload?.data?.success) {
+      if (res.payload?.data?.status) {
         toast({
           description: res.payload.data.message,
           variant: "success",

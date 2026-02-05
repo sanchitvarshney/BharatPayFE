@@ -273,8 +273,8 @@ const placeSlice = createSlice({
       })
       .addCase(getWorkerReport.fulfilled, (state,action) => {
         state.isReportLoading = false;
-          if (action.payload.data.success) {
-          state.workingData = action.payload.data.data;
+          if (action.payload.data.status) {
+          state.workerReports = action.payload.data.data;
         }
       })
       .addCase(getWorkerReport.rejected, (state) => {
