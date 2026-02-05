@@ -74,6 +74,9 @@ const WorkerFormPreviewModal: React.FC<WorkerFormPreviewModalProps> = ({
             <CloseIcon />
           </IconButton>
         </div>
+        <div>
+          <Typography variant="subtitle2" >Selected Employees ({previewData?.employees.length || 0}) </Typography>
+        </div>
       </DialogTitle>
       <DialogContent>
         {previewData && (
