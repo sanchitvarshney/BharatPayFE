@@ -120,13 +120,28 @@ export const getMainR1Data = createAsyncThunk<
   );
   return response;
 });
+export type GetR2DataParams = {
+  from: string;
+  to: string;
+  type: string;
+  page: number;
+  limit: number;
+  filters?: Record<string, string>;
+};
+
 export const getR2Data = createAsyncThunk<
   AxiosResponse<R2Response>,
-  { from: string; to: string; type: string; page: number; limit: number }
+  GetR2DataParams
 >("report/getR2Data", async (date) => {
-  const response = await axiosInstance.get(
-    `report/r2?from=${date.from}&to=${date.to}&type=${date.type}&page=${date.page}&limit=${date.limit}`
-  );
+  let url = `report/r2?from=${date.from}&to=${date.to}&type=${date.type}&page=${date.page}&limit=${date.limit}`;
+  if (date.filters && typeof date.filters === "object") {
+    const filterParams = Object.entries(date.filters)
+      .filter(([, v]) => typeof v === "string" && v.trim() !== "")
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent((v as string).trim())}`)
+      .join("&");
+    if (filterParams) url += `&${filterParams}`;
+  }
+  const response = await axiosInstance.get(url);
   return response;
 });
 export const getR2ReportDetail = createAsyncThunk<
