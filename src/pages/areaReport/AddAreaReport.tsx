@@ -53,7 +53,6 @@ export const AddAreaReport = () => {
       }),
     };
     //@ts-ignore
-
     dispatch(submitData(payload))
       .then((res: any) => {
         if (res.payload.data.success) {
