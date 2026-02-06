@@ -109,6 +109,7 @@
     "react-router-dom": "^6.23.1",
     "react-select": "^5.8.0",
     "react-toastify": "^10.0.5",
+    "react-webcam": "^7.2.0",
     "socket.io-client": "^4.8.1",
     "sonner": "^1.5.0",
     "styled-components": "^6.1.13",
