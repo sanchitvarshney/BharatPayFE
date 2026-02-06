@@ -33,14 +33,7 @@ export const AddAreaReport = () => {
       setFormKey(formKey + 1);
     };
 
-  const handleFormChange = (data: {
-    area: AreaType | null;
-    department: DepartmentType | null;
-    employees: EmployeeType[];
-    date: Dayjs;
-    startTime: Dayjs | null;
-    endTime?: Dayjs | null;
-  }) => {
+  const handleFormChange = (data: any) => {
     setFormData(data);
   };
 

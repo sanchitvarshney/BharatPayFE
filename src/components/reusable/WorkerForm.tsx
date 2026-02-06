@@ -148,9 +148,10 @@ const WorkerForm: React.FC<Props> = ({
         employees: selectedEmployees,
         date,
         startTime,
+        endTime,
       });
     }
-  }, [area, department, selectedEmployees, date, startTime, onFormChange]);
+  }, [area, department, selectedEmployees, date, startTime, endTime,onFormChange]);
 
   const handleAreaChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
@@ -174,6 +175,7 @@ const WorkerForm: React.FC<Props> = ({
       employees: selectedEmployees,
       date,
       startTime,
+      endTime,
     };
     setPreviewData(data);
     setPreviewOpen(true);
@@ -215,6 +217,7 @@ const WorkerForm: React.FC<Props> = ({
       setSelectedEmployeeIds(previewData.employees.map((emp) => emp.id));
       setDate(previewData.date);
       setStartTime(previewData.startTime || null);
+      setEndTime(previewData.endTime || null);
       if (previewData.area?.id) {
         setPendingDepartment(previewData.department);
         fetchDepartments(previewData.area.id);
