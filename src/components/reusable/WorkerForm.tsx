@@ -360,7 +360,9 @@ const WorkerForm: React.FC<Props> = ({
             format="DD/MM/YYYY"
           />
         </FormControl>
-        <FormControl fullWidth>
+    
+        {crnID === "CRN7218718" && (
+            <>  <FormControl fullWidth>
           <TimePicker
             className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
             value={startTime}
@@ -370,7 +372,6 @@ const WorkerForm: React.FC<Props> = ({
             inputReadOnly
           />
         </FormControl>
-        {crnID === "CRN7218718" && (
           <FormControl fullWidth>
             <TimePicker
               className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
@@ -380,7 +381,7 @@ const WorkerForm: React.FC<Props> = ({
               placeholder="Select End Time"
               inputReadOnly
             />
-          </FormControl>
+          </FormControl></>
         )}
       </div>
 

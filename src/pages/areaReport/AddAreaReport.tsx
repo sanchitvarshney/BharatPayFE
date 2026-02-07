@@ -47,6 +47,7 @@ export const AddAreaReport = () => {
       department: formData.department ? formData.department.id : null,
       code: formData.employees ? formData.employees.map((item) => item.id) : [],
       date: dayjs(formData.date).format("DD-MM-YYYY"),
+      
       startTime: formData.startTime ? formData.startTime.format("HH:mm") : null,
             ...(crn_id === "CRN7218718" && {
         endTime: formData.endTime ? formData.endTime.format("HH:mm") : null,
