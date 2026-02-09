@@ -117,12 +117,14 @@ const DeviceTransfer = () => {
           const response = await fetch(image);
           const blob = await response.blob();
           formData.append("file", blob, "capture.png");
-          const payload = {
-            imei : data.imeinumber,
-            body : formData
-          }
-          //@ts-ignore
-          dispatch(submitImage(payload)).then((res: any) => {
+
+          dispatch(
+            //@ts-ignore
+            submitImage({
+              imei: data.imeinumber,
+              body: formData,
+            }),
+          ).then((res: any) => {
             if (res.payload.data.success) {
               showToast(res.payload.data.message, "success");
               reset();
@@ -326,7 +328,7 @@ const DeviceTransfer = () => {
                             //@ts-ignore
                             fetchDeviceDetails({
                               deviceCode: field.value.trim(),
-                              deviceModel,
+                              deviceModel: deviceModel?.id,
                             }),
                           );
                         }
@@ -361,11 +363,14 @@ const DeviceTransfer = () => {
                 control={control}
                 rules={{ required: "Issue is required" }}
                 render={({ field }) => (
-                  <RadioGroup {...field}   sx={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, 1fr)",
-                        gap: 1,
-                      }}>
+                  <RadioGroup
+                    {...field}
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, 1fr)",
+                      gap: 1,
+                    }}
+                  >
                     {issueData?.map((item: any) => (
                       <FormControlLabel
                         key={item.id}

@@ -55,10 +55,15 @@ export const submitTransferData = createAsyncThunk<AxiosResponse<any>>(
 );
 export const submitImage = createAsyncThunk<AxiosResponse<any>>(
   "master/transfer/image-submit",
-  async (payload: any) => {
+  async ({imei, body}:any) => {
     const response = await axiosInstance.post(
-      `/device-movement/ber/uploadImages/${payload.imei}`,
-      payload.body,
+      `/device-movement/ber/uploadImages/${imei}`,
+      body,
+       {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return response;
   },
