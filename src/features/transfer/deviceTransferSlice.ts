@@ -10,6 +10,7 @@ const initialState: any = {
   costCenter: [],
   loadingCostCenter: false,
   isSubmitLoading: false,
+  isImageLoading: false,
 };
 type FetchDeviceDetailsArgs = {
   deviceCode: string;
@@ -48,6 +49,16 @@ export const submitTransferData = createAsyncThunk<AxiosResponse<any>>(
     const response = await axiosInstance.post(
       `/device-movement/device-transfer`,
       payload,
+    );
+    return response;
+  },
+);
+export const submitImage = createAsyncThunk<AxiosResponse<any>>(
+  "master/transfer/image-submit",
+  async (payload: any) => {
+    const response = await axiosInstance.post(
+      `/device-movement/ber/uploadImages/${payload.imei}`,
+      payload.data,
     );
     return response;
   },
@@ -105,6 +116,16 @@ const transferSlice = createSlice({
       })
       .addCase(submitTransferData.rejected, (state) => {
         state.isSubmitLoading = false;
+      })
+       .addCase(submitImage.pending, (state) => {
+        state.isImageLoading = true;
+      })
+      .addCase(submitImage.fulfilled, (state) => {
+        state.isImageLoading = false;
+       
+      })
+      .addCase(submitImage.rejected, (state) => {
+        state.isImageLoading = false;
       });
   },
 });

@@ -25,6 +25,7 @@ import { QrCodeScanner } from "@mui/icons-material";
 import {
   fetchDeviceDetails,
   fetchIssue,
+  submitImage,
   submitTransferData,
 } from "@/features/transfer/deviceTransferSlice";
 import { showToast } from "@/utils/toasterContext";
@@ -41,7 +42,7 @@ const DeviceTransfer = () => {
   const [image, setImage] = useState(null);
   const [devices, setDevices] = useState<any[]>([]);
   const [deviceId, setDeviceId] = useState("");
-  const { deviceDetailsData, loadingDeviceDetails, issueData } = useAppSelector(
+  const { deviceDetailsData, loadingDeviceDetails, issueData, isImageLoading, isSubmitLoading } = useAppSelector(
     (state) => state.deviceTransfer,
   );
   const videoConstraints = {
@@ -90,6 +91,7 @@ const DeviceTransfer = () => {
   }, []);
 
  const onSubmit = async (data: any) => {
+  
   try {
     const formData = new FormData();
 
@@ -107,16 +109,29 @@ const DeviceTransfer = () => {
       );
     }
 
-    if (image) {
-      const response = await fetch(image);
-      const blob = await response.blob();
-      formData.append("image", blob, "capture.png");
-    }
+   
     //@ts-ignore
     const result:any = await dispatch(submitTransferData(formData)).unwrap();
 
     if (result?.success) {
       showToast(result?.message);
+       if (image) {
+     
+        const formData:any = new FormData();
+      const response = await fetch(image);
+      const blob = await response.blob();
+      formData.append("file", blob, "capture.png");
+     //@ts-ignore
+      dispatch(submitImage(formData)).then((res: any) => {
+        if (res.payload.data.success) {
+          showToast(res.payload.data.message, "success");
+          reset();
+        } else {
+          showToast(res.payload.data.message, "error");
+        }
+
+      })
+    }
     }else {
       showToast(result?.message, "error");
     }
@@ -518,6 +533,7 @@ const DeviceTransfer = () => {
               loadingPosition="start"
               onClick={handleSubmitForm}
               variant="contained"
+              loading={isImageLoading || isSubmitLoading}
             >
               Submit
             </LoadingButton>
