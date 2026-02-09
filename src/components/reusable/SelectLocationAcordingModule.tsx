@@ -6,6 +6,8 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 export type LocationType = {
   code: string;
   name: string;
+  sku: string;
+  text:string
 };
 type Props = {
   onChange: (value: LocationType | null) => void;
@@ -20,12 +22,14 @@ type Props = {
   tabindex?: number;
   endPoint: string;
   disabled?:boolean;
+  placeholder?:string;
+  isSearch?:boolean
 };
 
 const SelectLocationAcordingModule: React.FC<Props> = ({
   value,
   onChange,
-  label = "Drop Location",
+  label = "",
   width = "100%",
   error,
   helperText,
@@ -34,7 +38,10 @@ const SelectLocationAcordingModule: React.FC<Props> = ({
   size = "medium",
   tabindex = 0,
   endPoint,
-  disabled
+  disabled,
+  placeholder,
+  isSearch=true
+
 }) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
@@ -44,8 +51,9 @@ const SelectLocationAcordingModule: React.FC<Props> = ({
 
   const fetchLocations = async (query: string) => {
     setLoading(true);
+   const  searchParam =  isSearch ?`?search=${query}`:"";
     try {
-      const response = await axiosInstance.get(`${endPoint}?search=${query}`);
+      const response = await axiosInstance.get(`${endPoint}${searchParam}`);
       setLocationList(response.data.data);
     } catch (error) {
       console.error("Error fetching locations:", error);
@@ -67,13 +75,15 @@ const SelectLocationAcordingModule: React.FC<Props> = ({
       value={value}
       size={size}
       options={locationList || []}
-      getOptionLabel={(option) => `${option.name}`}
+      getOptionLabel={(option) => `${option.name ?? option.text} `}
       filterSelectedOptions
+      
       onChange={(_, value) => {
+      
         onChange(value);
       }}
       loading={loading}
-      isOptionEqualToValue={(option, value) => option.code === value?.code}
+      isOptionEqualToValue={(option, value) => option.code === value?.code || option.sku === value?.sku}
       onInputChange={(_, newInputValue, reason) => {
         (reason === "input" || reason === "clear") &&
           setInputValue(newInputValue);
@@ -87,6 +97,7 @@ const SelectLocationAcordingModule: React.FC<Props> = ({
           helperText={helperText}
           {...params}
           label={label}
+          placeholder={placeholder}
           variant={varient}
           slotProps={{
             input: {
@@ -106,7 +117,7 @@ const SelectLocationAcordingModule: React.FC<Props> = ({
       renderOption={(props, option) => (
         <li {...props}>
           <div>
-            <p className="text-[13px]">{`${option.name}`}</p>
+            <p className="text-[13px]">{`${option.name ?? option.text}`}</p>
           </div>
         </li>
       )}

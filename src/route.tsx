@@ -125,6 +125,8 @@ import DeletionMonoPage from "./pages/master/DeletionMonoPage";
 import AddPartCodeLayout from "./layouts/AddPartCodeLayout";
 import TransferPartData from "./pages/tranferPartCode/TransferPartData";
 import WorkersReports from "./pages/areaReport/WorkersReports";
+import DeviceTransferLayout from "./layouts/DeviceTransferLayout";
+import DeviceTransfer from "./pages/transferDevice/DeviceTransfer";
 
 export const router = createBrowserRouter([
   {
@@ -200,7 +202,7 @@ export const router = createBrowserRouter([
         ),
         path: "/worker-data",
       },
-            {
+      {
         element: (
           <MainLayout>
             <AddPartCodeLayout>
@@ -230,7 +232,7 @@ export const router = createBrowserRouter([
         ),
         path: "/view-worker-data",
       },
-          {
+      {
         element: (
           <MainLayout>
             <AddAreaReportLayout>
@@ -239,6 +241,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/workers/reports",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DeviceTransferLayout>
+              <DeviceTransfer />
+            </DeviceTransferLayout>
+          </MainLayout>
+        ),
+        path: "/device/transfer",
       },
       {
         element: (
@@ -258,7 +270,7 @@ export const router = createBrowserRouter([
         ),
         path: "/master-uom",
       },
-        {
+      {
         element: (
           <MainLayout>
             <DeletionMonoPage />
