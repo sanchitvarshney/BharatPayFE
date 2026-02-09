@@ -92,13 +92,14 @@ const DeviceTransfer = () => {
 
  const onSubmit = async (data: any) => {
   
+  
   try {
     const formData = new FormData();
 
-    formData.append("deviceId", data.deviceId ?? "");
-    formData.append("locationfromId", data.locationfromId ?? "");
-    formData.append("locationtoId", data.locationtoId ?? "");
-    formData.append("costcenterId", data.costcenterId ?? "");
+    formData.append("deviceId", data.deviceId?.id ?? "");
+    formData.append("locationfromId", data.locationfromId?.code ?? "");
+    formData.append("locationtoId", data.locationtoId?.code ?? "");
+    formData.append("costcenterId", data.costcenterId?.id ?? "");
     formData.append("imeinumber", data.imeinumber ?? "");
     formData.append("returnissue", data.returnissue ?? "");
     formData.append("remark", data.remark ?? "");
