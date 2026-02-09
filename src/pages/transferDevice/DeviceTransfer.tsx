@@ -6,14 +6,14 @@ import {
   Button,
   Card,
   CardContent,
-  Checkbox,
   CircularProgress,
   Divider,
   FormControlLabel,
-  FormGroup,
   Grid,
   InputAdornment,
   MenuItem,
+  Radio,
+  RadioGroup,
   Select,
   TextField,
   Typography,
@@ -42,9 +42,13 @@ const DeviceTransfer = () => {
   const [image, setImage] = useState(null);
   const [devices, setDevices] = useState<any[]>([]);
   const [deviceId, setDeviceId] = useState("");
-  const { deviceDetailsData, loadingDeviceDetails, issueData, isImageLoading, isSubmitLoading } = useAppSelector(
-    (state) => state.deviceTransfer,
-  );
+  const {
+    deviceDetailsData,
+    loadingDeviceDetails,
+    issueData,
+    isImageLoading,
+    isSubmitLoading,
+  } = useAppSelector((state) => state.deviceTransfer);
   const videoConstraints = {
     deviceId: deviceId ? { exact: deviceId } : undefined,
     width: 200,
@@ -90,56 +94,50 @@ const DeviceTransfer = () => {
     dispatch(fetchIssue());
   }, []);
 
- const onSubmit = async (data: any) => {
-  
-  
-  try {
-    const formData = new FormData();
+  const onSubmit = async (data: any) => {
+    try {
+      const payload = {
+        skuId: data.deviceId?.id,
+        fromLocation: data.locationfromId?.code,
+        toLocation: data.locationtoId?.code,
+        cc: data.costcenterId?.id,
+        imeiNo: [data.imeinumber],
+        srlNo: [deviceDetailsData?.sl_no],
+        issue: data.issue,
+        return_reason: data.returnissue,
+        remark: data.remark,
+      };
 
-    formData.append("deviceId", data.deviceId?.id ?? "");
-    formData.append("locationfromId", data.locationfromId?.code ?? "");
-    formData.append("locationtoId", data.locationtoId?.code ?? "");
-    formData.append("costcenterId", data.costcenterId?.id ?? "");
-    formData.append("imeinumber", data.imeinumber ?? "");
-    formData.append("returnissue", data.returnissue ?? "");
-    formData.append("remark", data.remark ?? "");
-
-    if (Array.isArray(data.issue)) {
-      data.issue.forEach((val: string) =>
-        formData.append("issue[]", val)
-      );
-    }
-
-   
-    //@ts-ignore
-    const result:any = await dispatch(submitTransferData(formData)).unwrap();
-
-    if (result?.success) {
-      showToast(result?.message);
-       if (image) {
-     
-        const formData:any = new FormData();
-      const response = await fetch(image);
-      const blob = await response.blob();
-      formData.append("file", blob, "capture.png");
-     //@ts-ignore
-      dispatch(submitImage(formData)).then((res: any) => {
-        if (res.payload.data.success) {
-          showToast(res.payload.data.message, "success");
-          reset();
-        } else {
-          showToast(res.payload.data.message, "error");
+      //@ts-ignore
+      const result: any = await dispatch(submitTransferData(payload)).unwrap();
+      if (result?.success) {
+        showToast(result?.message);
+        if (image) {
+          const formData: any = new FormData();
+          const response = await fetch(image);
+          const blob = await response.blob();
+          formData.append("file", blob, "capture.png");
+          const payload = {
+            imei : data.imeinumber,
+            body : formData
+          }
+          //@ts-ignore
+          dispatch(submitImage(payload)).then((res: any) => {
+            if (res.payload.data.success) {
+              showToast(res.payload.data.message, "success");
+              reset();
+            } else {
+              showToast(res.payload.data.message, "error");
+            }
+          });
         }
-
-      })
+      } else {
+        showToast(result?.message, "error");
+      }
+    } catch (error: any) {
+      showToast(error, "error");
     }
-    }else {
-      showToast(result?.message, "error");
-    }
-  } catch (error:any) {
-    showToast(error, "error");
-  }
-};
+  };
 
   const handleSubmitForm = () => {
     handleSubmit(onSubmit)();
@@ -361,44 +359,23 @@ const DeviceTransfer = () => {
               <Controller
                 name="issue"
                 control={control}
-                rules={{
-                  validate: (value) =>
-                    value.length > 0 || "At least one issue is required",
-                }}
-                render={({ field }) => {
-                  const handleChange = (value: any) => {
-                    if (field?.value?.includes(value)) {
-                      field.onChange(
-                        field.value.filter((v: any) => v !== value),
-                      );
-                    } else {
-                      field.onChange([...field.value, value]);
-                    }
-                  };
-
-                  return (
-                    <FormGroup
-                      sx={{
+                rules={{ required: "Issue is required" }}
+                render={({ field }) => (
+                  <RadioGroup {...field}   sx={{
                         display: "grid",
                         gridTemplateColumns: "repeat(2, 1fr)",
                         gap: 1,
-                      }}
-                    >
-                      {issueData?.map((item: any) => (
-                        <FormControlLabel
-                          key={item.id}
-                          control={
-                            <Checkbox
-                              checked={field?.value?.includes(item.id)}
-                              onChange={() => handleChange(item.id)}
-                            />
-                          }
-                          label={item.text}
-                        />
-                      ))}
-                    </FormGroup>
-                  );
-                }}
+                      }}>
+                    {issueData?.map((item: any) => (
+                      <FormControlLabel
+                        key={item.id}
+                        value={item.id}
+                        control={<Radio />}
+                        label={item.text}
+                      />
+                    ))}
+                  </RadioGroup>
+                )}
               />
             </div>
             <div>

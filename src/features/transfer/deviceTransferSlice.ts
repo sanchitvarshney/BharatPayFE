@@ -50,7 +50,7 @@ export const submitTransferData = createAsyncThunk<AxiosResponse<any>>(
       `/device-movement/device-transfer`,
       payload,
     );
-    return response;
+    return response?.data;
   },
 );
 export const submitImage = createAsyncThunk<AxiosResponse<any>>(
@@ -58,7 +58,7 @@ export const submitImage = createAsyncThunk<AxiosResponse<any>>(
   async (payload: any) => {
     const response = await axiosInstance.post(
       `/device-movement/ber/uploadImages/${payload.imei}`,
-      payload.data,
+      payload.body,
     );
     return response;
   },
