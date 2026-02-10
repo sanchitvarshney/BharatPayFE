@@ -10,17 +10,35 @@ import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import React, { useMemo, useRef } from "react";
 
-
 const NUMERIC_FIELDS = [
-  "swipe_p12", "swipe_p10", "swipe_g24g", "swipe_ingenico", "swipe_assembly",
-  "swipe_storeAdmin", "swipe_cost", "swipe_profitLoss",
-  "soundbox_production", "soundbox_assemblycost", "soundbox_trc", "soundbox_storeAdmin",
-  "soundbox_totalcost", "soundbox_profitLoss",
-  "cleaning_production", "cleaning_cost", "cleaning_profitLoss",
-  "preqc_production", "preqc_cost",
-  "gtotal_production", "gtotal_cost", "gtotal_contribution", "gtotal_difference",
-  "contribution_staff", "contribution_depreciation", "contribution_consumable",
-  "contribution_other", "contribution_total",
+  "swipe_p12",
+  "swipe_p10",
+  "swipe_g24g",
+  "swipe_ingenico",
+  "swipe_assembly",
+  "swipe_storeAdmin",
+  "swipe_cost",
+  "swipe_profitLoss",
+  "soundbox_production",
+  "soundbox_assemblycost",
+  "soundbox_trc",
+  "soundbox_storeAdmin",
+  "soundbox_totalcost",
+  "soundbox_profitLoss",
+  "cleaning_production",
+  "cleaning_cost",
+  "cleaning_profitLoss",
+  "preqc_production",
+  "preqc_cost",
+  "gtotal_production",
+  "gtotal_cost",
+  "gtotal_contribution",
+  "gtotal_difference",
+  "contribution_staff",
+  "contribution_depreciation",
+  "contribution_consumable",
+  "contribution_other",
+  "contribution_total",
 ];
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,17 +57,17 @@ const WR_GROUP_0 = "wr-group-0";
 const WR_GROUP_1 = "wr-group-1";
 const WR_GROUP_2 = "wr-group-2";
 const WR_GROUP_3 = "wr-group-3";
-const WR_GROUP_4 = "wr-group-4";
+// const WR_GROUP_4 = "wr-group-4";
 const WR_GROUP_5 = "wr-group-5";
-const WR_GROUP_6 = "wr-group-6";
+// const WR_GROUP_6 = "wr-group-6";
 
 const WR_LAST_0 = "wr-last-0";
 const WR_LAST_1 = "wr-last-1";
 const WR_LAST_2 = "wr-last-2";
 const WR_LAST_3 = "wr-last-3";
-const WR_LAST_4 = "wr-last-4";
+// const WR_LAST_4 = "wr-last-4";
 const WR_LAST_5 = "wr-last-5";
-const WR_LAST_6 = "wr-last-6";
+// const WR_LAST_6 = "wr-last-6";
 
 const columnDefs: any[] = [
   {
@@ -61,11 +79,11 @@ const columnDefs: any[] = [
     cellClass: WR_LAST_0,
   },
   {
-    headerName: "Swipe (Production / Sales) Cost",
+    headerName: "Swipe Sales Cost",
     headerClass: `${WR_GROUP_1} ${WR_LAST_1}`,
     children: [
       {
-        headerName: "P12",
+        headerName: "P12 Revenue",
         field: "swipe_p12",
         headerClass: WR_GROUP_1,
         minWidth: 150,
@@ -73,7 +91,7 @@ const columnDefs: any[] = [
         maxWidth: 250,
       },
       {
-        headerName: "P10",
+        headerName: "P10 Revenue",
         field: "swipe_p10",
         headerClass: WR_GROUP_1,
         minWidth: 150,
@@ -81,7 +99,7 @@ const columnDefs: any[] = [
         maxWidth: 250,
       },
       {
-        headerName: "G2 4G",
+        headerName: "G2 4G Revenue",
         field: "swipe_g24g",
         headerClass: WR_GROUP_1,
         minWidth: 150,
@@ -89,7 +107,7 @@ const columnDefs: any[] = [
         maxWidth: 250,
       },
       {
-        headerName: "Ingenico",
+        headerName: "Ingenico Revenue",
         field: "swipe_ingenico",
         headerClass: WR_GROUP_1,
         minWidth: 150,
@@ -132,7 +150,7 @@ const columnDefs: any[] = [
     ],
   },
   {
-    headerName: "Sound Box (Production / Sales) Cost",
+    headerName: "Sound Box Sales Cost",
     headerClass: `${WR_GROUP_2} ${WR_LAST_2}`,
     field: "",
     children: [
@@ -219,38 +237,38 @@ const columnDefs: any[] = [
       },
     ],
   },
-  {
-    headerName: "Pre QC Sound Box",
-    headerClass: `${WR_GROUP_4} ${WR_LAST_4}`,
-    field: "",
-    children: [
-      {
-        headerName: "Production",
-        field: "preqc_production",
-        headerClass: WR_GROUP_4,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-      {
-        headerName: "Cost",
-        field: "preqc_cost",
-        headerClass: WR_GROUP_4,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-      {
-        headerName: "Profit / Loss",
-        field: "preqc_production",
-        headerClass: `${WR_GROUP_4} ${WR_LAST_4}`,
-        cellClass: WR_LAST_4,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-    ],
-  },
+  // {
+  //   headerName: "Pre QC Sound Box",
+  //   headerClass: `${WR_GROUP_4} ${WR_LAST_4}`,
+  //   field: "",
+  //   children: [
+  //     {
+  //       headerName: "Production",
+  //       field: "preqc_production",
+  //       headerClass: WR_GROUP_4,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //     {
+  //       headerName: "Cost",
+  //       field: "preqc_cost",
+  //       headerClass: WR_GROUP_4,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //     {
+  //       headerName: "Profit / Loss",
+  //       field: "preqc_production",
+  //       headerClass: `${WR_GROUP_4} ${WR_LAST_4}`,
+  //       cellClass: WR_LAST_4,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //   ],
+  // },
   {
     headerName: "G. Total",
     headerClass: `${WR_GROUP_5} ${WR_LAST_5}`,
@@ -291,54 +309,54 @@ const columnDefs: any[] = [
       },
     ],
   },
-  {
-    headerName: "Contribution Cost",
-    headerClass: `${WR_GROUP_6} ${WR_LAST_6}`,
-    field: "",
-    children: [
-      {
-        headerName: "Staff Cost",
-        field: "contribution_staff",
-        headerClass: WR_GROUP_6,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-      {
-        headerName: "Depreciation",
-        field: "contribution_depreciation",
-        headerClass: WR_GROUP_6,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-      {
-        headerName: "Consumable",
-        field: "contribution_consumable",
-        headerClass: WR_GROUP_6,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-      {
-        headerName: "Other",
-        field: "contribution_other",
-        headerClass: WR_GROUP_6,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-      {
-        headerName: "Total",
-        field: "contribution_total",
-        headerClass: `${WR_GROUP_6} ${WR_LAST_6}`,
-        cellClass: WR_LAST_6,
-        minWidth: 150,
-        width: 170,
-        maxWidth: 250,
-      },
-    ],
-  },
+  // {
+  //   headerName: "Contribution Cost",
+  //   headerClass: `${WR_GROUP_6} ${WR_LAST_6}`,
+  //   field: "",
+  //   children: [
+  //     {
+  //       headerName: "Staff Cost",
+  //       field: "contribution_staff",
+  //       headerClass: WR_GROUP_6,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //     {
+  //       headerName: "Depreciation",
+  //       field: "contribution_depreciation",
+  //       headerClass: WR_GROUP_6,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //     {
+  //       headerName: "Consumable",
+  //       field: "contribution_consumable",
+  //       headerClass: WR_GROUP_6,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //     {
+  //       headerName: "Other",
+  //       field: "contribution_other",
+  //       headerClass: WR_GROUP_6,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //     {
+  //       headerName: "Total",
+  //       field: "contribution_total",
+  //       headerClass: `${WR_GROUP_6} ${WR_LAST_6}`,
+  //       cellClass: WR_LAST_6,
+  //       minWidth: 150,
+  //       width: 170,
+  //       maxWidth: 250,
+  //     },
+  //   ],
+  // },
 ];
 
 const WorkersReports = () => {
@@ -358,9 +376,10 @@ const WorkersReports = () => {
 
       resizable: true,
       cellRenderer: (params: any) => {
-        return params.value === null || params.value === undefined
-          ? 0
-          : params.value;
+        const v = params.value;
+        if (v === null || v === undefined) return 0;
+        if (typeof v === "number" && !Number.isFinite(v)) return 0;
+        return v;
       },
       cellStyle: { textAlign: "center" },
     };
@@ -399,16 +418,63 @@ const WorkersReports = () => {
     const rows = workerReports ?? [];
     if (rows.length === 0) return [];
 
+    const toNum = (val: unknown): number => {
+      if (val === null || val === undefined) return 0;
+      const n = Number(val);
+      return Number.isFinite(n) ? n : 0;
+    };
+
     const totalRow: Record<string, string | number> = { date: "Total" };
     NUMERIC_FIELDS.forEach((field) => {
-      const sum = rows.reduce((acc:any, row:any) => {
-        const val = row[field];
-        const num = typeof val === "number" ? val : Number(val) || 0;
-        return acc + num;
-      }, 0);
-      totalRow[field] = sum;
+      const sum = rows.reduce((acc:any, row:any) => acc + toNum(row[field]), 0);
+      totalRow[field] = Number.isFinite(sum) ? sum : 0;
     });
     return [totalRow];
+  }, [workerReports]);
+
+  const profitPercentages:any = useMemo(() => {
+    const rows = workerReports ?? [];
+    if (rows.length === 0) return null;
+
+    const toNum = (val: unknown): number => {
+      if (val === null || val === undefined) return 0;
+      const n = Number(val);
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    const sumField = (field: string): number =>
+      rows.reduce((acc: any, row: any) => acc + toNum(row[field]), 0);
+
+
+    const pct = (profit: number, cost: number): number | null => {
+      if (!Number.isFinite(profit) || !Number.isFinite(cost) || cost === 0)
+        return null;
+      const value = (cost / profit) * 100;
+      return Number.isFinite(value) ? value : null;
+    };
+
+    const sp1 = sumField("swipe_p12");
+    const sp2 = sumField("swipe_p10");
+    const sp3 = sumField("swipe_g24g");
+    const sp4 = sumField("swipe_ingenico");
+    const sP = sumField("swipe_profitLoss");
+
+    const soundp = sumField("soundbox_production");
+    const sound = sumField("soundbox_profitLoss");
+    const cleanp = sumField("cleaning_production");
+    const clean = sumField("cleaning_profitLoss");
+    const gtotalp = sumField("gtotal_production");
+    const gtotalc1 = sumField("gtotal_cost");
+    const gtotalc2 = sumField("gtotal_contribution");
+
+
+    return {
+      swipe: pct(sp1 + sp2 + sp3 + sp4, sP),
+      soundbox: pct(soundp, sound),
+      cleaning: pct(cleanp, clean),
+      gtotal: pct(gtotalp, gtotalc1 + gtotalc2),
+   
+    };
   }, [workerReports]);
 
   const onSubmit = (data: any) => {
@@ -485,27 +551,103 @@ const WorkersReports = () => {
           </div>
         </form>
       </div>
-      <div className="ag-theme-quartz workers-report-grid h-[calc(100vh-100px)]">
-        <AgGridReact
-          ref={gridRef}
-          loadingOverlayComponent={CustomLoadingOverlay}
-          suppressCellFocus={true}
-          suppressMenuHide={true}
-          overlayNoRowsTemplate={OverlayNoRowsTemplate}
-          rowData={workerReports ?? []}
-          pinnedBottomRowData={pinnedBottomRowData}
-          getRowClass={(params) => (params.node?.rowPinned === "bottom" ? "wr-total-row" : undefined)}
-          loading={isReportLoading}
-          sideBar={sideBar}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          pagination={true}
-          paginationPageSize={50}
-          components={{
-            customLoadingCellRenderer: CustomLoadingCellRenderer,
-          }}
-          loadingCellRenderer="customLoadingCellRenderer"
-        />
+      <div className="flex flex-col w-full min-h-0 h-[calc(100vh-100px)]">
+        {profitPercentages && (
+          <div className="flex flex-wrap items-center gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 shrink-0">
+            <span className="text-sm font-semibold text-slate-600">
+              Profit / Loss %
+            </span>
+            {Number.isFinite(profitPercentages.swipe) && (
+              <span className="text-sm">
+                <span className="text-slate-500">Swipe:</span>{" "}
+                <span
+                  className={
+                    profitPercentages.swipe >= 0
+                      ? "text-emerald-600 font-medium"
+                      : "text-red-600 font-medium"
+                  }
+                >
+                  {profitPercentages.swipe >= 0
+                    ? `${profitPercentages.swipe.toFixed(1)}% profit`
+                    : `${profitPercentages.swipe.toFixed(1)}% loss`}
+                </span>
+              </span>
+            )}
+               {Number.isFinite(profitPercentages.soundbox) && (
+              <span className="text-sm">
+                <span className="text-slate-500">Soundbox:</span>{" "}
+                <span
+                  className={
+                    profitPercentages.soundbox >= 0
+                      ? "text-emerald-600 font-medium"
+                      : "text-red-600 font-medium"
+                  }
+                >
+                  {profitPercentages.soundbox >= 0
+                    ? `${profitPercentages.soundbox.toFixed(1)}% profit`
+                    : `${profitPercentages.soundbox.toFixed(1)}% loss`}
+                </span>
+              </span>
+            )}
+               {Number.isFinite(profitPercentages.cleaning) && (
+              <span className="text-sm">
+                <span className="text-slate-500">Cleaning:</span>{" "}
+                <span
+                  className={
+                    profitPercentages.cleaning >= 0
+                      ? "text-emerald-600 font-medium"
+                      : "text-red-600 font-medium"
+                  }
+                >
+                  {profitPercentages.cleaning >= 0
+                    ? `${profitPercentages.cleaning.toFixed(1)}% profit`
+                    : `${profitPercentages.cleaning.toFixed(1)}% loss`}
+                </span>
+              </span>
+            )}
+               {Number.isFinite(profitPercentages.gtotal) && (
+              <span className="text-sm">
+                <span className="text-slate-500">G.Total:</span>{" "}
+                <span
+                  className={
+                    profitPercentages.gtotal >= 0
+                      ? "text-emerald-600 font-medium"
+                      : "text-red-600 font-medium"
+                  }
+                >
+                  {profitPercentages.gtotal >= 0
+                    ? `${profitPercentages.gtotal.toFixed(1)}% profit`
+                    : `${profitPercentages.gtotal.toFixed(1)}% loss`}
+                </span>
+              </span>
+            )}
+
+          </div>
+        )}
+        <div className="ag-theme-quartz workers-report-grid flex-1 min-h-0">
+          <AgGridReact
+            ref={gridRef}
+            loadingOverlayComponent={CustomLoadingOverlay}
+            suppressCellFocus={true}
+            suppressMenuHide={true}
+            overlayNoRowsTemplate={OverlayNoRowsTemplate}
+            rowData={workerReports ?? []}
+            pinnedBottomRowData={pinnedBottomRowData}
+            getRowClass={(params) =>
+              params.node?.rowPinned === "bottom" ? "wr-total-row" : undefined
+            }
+            loading={isReportLoading}
+            sideBar={sideBar}
+            columnDefs={columnDefs}
+            defaultColDef={defaultColDef}
+            pagination={true}
+            paginationPageSize={50}
+            components={{
+              customLoadingCellRenderer: CustomLoadingCellRenderer,
+            }}
+            loadingCellRenderer="customLoadingCellRenderer"
+          />
+        </div>
       </div>
     </div>
   );
