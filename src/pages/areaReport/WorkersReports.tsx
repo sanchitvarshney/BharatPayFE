@@ -22,176 +22,108 @@ const CustomLoadingCellRenderer: React.FC = () => {
   );
 };
 
+
+const WR_GROUP_0 = "wr-group-0"; 
+const WR_GROUP_1 = "wr-group-1"; 
+const WR_GROUP_2 = "wr-group-2"; 
+const WR_GROUP_3 = "wr-group-3"; 
+const WR_GROUP_4 = "wr-group-4"; 
+const WR_GROUP_5 = "wr-group-5"; 
+const WR_GROUP_6 = "wr-group-6"; 
+
+
+const WR_LAST_0 = "wr-last-0";
+const WR_LAST_1 = "wr-last-1";
+const WR_LAST_2 = "wr-last-2";
+const WR_LAST_3 = "wr-last-3";
+const WR_LAST_4 = "wr-last-4";
+const WR_LAST_5 = "wr-last-5";
+const WR_LAST_6 = "wr-last-6";
+
 const columnDefs: any[] = [
   {
     headerName: "Date",
     field: "date",
-    minWidth: 200,
-
+    minWidth: 150,
     flex: 1,
+    headerClass: `${WR_GROUP_0} ${WR_LAST_0}`,
+    cellClass: WR_LAST_0,
   },
   {
     headerName: "Swipe (Production / Sales) Cost",
+    headerClass: `${WR_GROUP_1} ${WR_LAST_1}`,
     children: [
-      {
-        headerName: "P12",
-        field: "swipe_p12",
-      },
-      {
-        headerName: "P10",
-        field: "swipe_p10",
-      },
-      {
-        headerName: "G2 4G",
-        field: "swipe_g24g",
-      },
-      {
-        headerName: "Ingenico",
-        field: "swipe_ingenico",
-      },
-      {
-        headerName: "Assembly",
-        field: "swipe_assembly",
-      },
-      {
-        headerName: "Store + Admin",
-        field: "swipe_storeAdmin",
-      },
-      {
-        headerName: "Cost",
-        field: "swipe_cost",
-      },
-      {
-        headerName: "Profit / Loss",
-        field: "swipe_profitLoss",
-      },
+      { headerName: "P12", field: "swipe_p12", headerClass: WR_GROUP_1, minWidth: 150 , maxWidth: 150 },
+      { headerName: "P10", field: "swipe_p10", headerClass: WR_GROUP_1,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "G2 4G", field: "swipe_g24g", headerClass: WR_GROUP_1,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Ingenico", field: "swipe_ingenico", headerClass: WR_GROUP_1,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Assembly", field: "swipe_assembly", headerClass: WR_GROUP_1,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Store + Admin", field: "swipe_storeAdmin", headerClass: WR_GROUP_1,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Cost", field: "swipe_cost", headerClass: WR_GROUP_1,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Profit / Loss", field: "swipe_profitLoss", headerClass: `${WR_GROUP_1} ${WR_LAST_1}`, cellClass: WR_LAST_1,  minWidth: 150 , maxWidth: 150 },
     ],
-
-    minWidth: 200,
+ 
   },
   {
     headerName: "Sound Box (Production / Sales) Cost",
-    children: [
-      {
-        headerName: "Production",
-        field: "soundbox_production",
-      },
-      {
-        headerName: "Assembly / Cost",
-        field: "soundbox_assemblycost",
-      },
-      {
-        headerName: "TRC",
-        field: "soundbox_trc",
-      },
-      {
-        headerName: "Store + Admin",
-        field: "soundbox_storeAdmin",
-      },
-      {
-        headerName: "Total Cost",
-        field: "soundbox_totalcost",
-      },
-      {
-        headerName: "Profit / Loss",
-        field: "soundbox_profitLoss",
-      },
-    ],
+    headerClass: `${WR_GROUP_2} ${WR_LAST_2}`,
     field: "",
-
-    minWidth: 200,
+    children: [
+      { headerName: "Production", field: "soundbox_production", headerClass: WR_GROUP_2,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Assembly / Cost", field: "soundbox_assemblycost", headerClass: WR_GROUP_2,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "TRC", field: "soundbox_trc", headerClass: WR_GROUP_2,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Store + Admin", field: "soundbox_storeAdmin", headerClass: WR_GROUP_2 ,  minWidth: 150 , maxWidth: 150},
+      { headerName: "Total Cost", field: "soundbox_totalcost", headerClass: WR_GROUP_2,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Profit / Loss", field: "soundbox_profitLoss", headerClass: `${WR_GROUP_2} ${WR_LAST_2}`, cellClass: WR_LAST_2,  minWidth: 150 , maxWidth: 150 },
+    ],
+ 
   },
   {
     headerName: "Cleaning Production",
-    children: [
-      {
-        headerName: "Production",
-        field: "cleaning_production",
-      },
-      {
-        headerName: "Cost",
-        field: "cleaning_cost",
-      },
-      {
-        headerName: "Profit / Loss",
-        field: "cleaning_profitLoss",
-      },
-    ],
+    headerClass: `${WR_GROUP_3} ${WR_LAST_3}`,
     field: "",
-
-    minWidth: 200,
+    children: [
+      { headerName: "Production", field: "cleaning_production", headerClass: WR_GROUP_3,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Cost", field: "cleaning_cost", headerClass: WR_GROUP_3,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Profit / Loss", field: "cleaning_profitLoss", headerClass: `${WR_GROUP_3} ${WR_LAST_3}`, cellClass: WR_LAST_3,  minWidth: 150 , maxWidth: 150 },
+    ],
+  
   },
   {
     headerName: "Pre QC Sound Box",
-    children: [
-      {
-        headerName: "Production",
-        field: "preqc_production",
-      },
-      {
-        headerName: "Cost",
-        field: "preqc_cost",
-      },
-      {
-        headerName: "Profit / Loss",
-        field: "preqc_production",
-      },
-    ],
+    headerClass: `${WR_GROUP_4} ${WR_LAST_4}`,
     field: "",
-
-    minWidth: 200,
+    children: [
+      { headerName: "Production", field: "preqc_production", headerClass: WR_GROUP_4,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Cost", field: "preqc_cost", headerClass: WR_GROUP_4,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Profit / Loss", field: "preqc_production", headerClass: `${WR_GROUP_4} ${WR_LAST_4}`, cellClass: WR_LAST_4,  minWidth: 150 , maxWidth: 150 },
+    ],
+   
   },
   {
     headerName: "G. Total",
-    children: [
-      {
-        headerName: "Production",
-        field: "gtotal_production",
-      },
-      {
-        headerName: "Cost",
-        field: "gtotal_cost",
-      },
-      {
-        headerName: "Contribution Cost",
-        field: "gtotal_contribution",
-      },
-      {
-        headerName: "Difference",
-        field: "gtotal_difference",
-      },
-    ],
+    headerClass: `${WR_GROUP_5} ${WR_LAST_5}`,
     field: "",
-
-    minWidth: 200,
+    children: [
+      { headerName: "Production", field: "gtotal_production", headerClass: WR_GROUP_5,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Cost", field: "gtotal_cost", headerClass: WR_GROUP_5,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Contribution Cost", field: "gtotal_contribution", headerClass: WR_GROUP_5 ,  minWidth: 150 , maxWidth: 150},
+      { headerName: "Difference", field: "gtotal_difference", headerClass: `${WR_GROUP_5} ${WR_LAST_5}`, cellClass: WR_LAST_5,  minWidth: 150 , maxWidth: 150 },
+    ],
+  
   },
   {
     headerName: "Contribution Cost",
-    children: [
-      {
-        headerName: "Staff Cost",
-        field: "contribution_staff",
-      },
-      {
-        headerName: "Depreciation",
-        field: "contribution_depreciation",
-      },
-      {
-        headerName: "Consumable",
-        field: "contribution_consumable",
-      },
-      {
-        headerName: "Other",
-        field: "contribution_other",
-      },
-      {
-        headerName: "Total",
-        field: "contribution_total",
-      },
-    ],
+    headerClass: `${WR_GROUP_6} ${WR_LAST_6}`,
     field: "",
+    children: [
+      { headerName: "Staff Cost", field: "contribution_staff", headerClass: WR_GROUP_6,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Depreciation", field: "contribution_depreciation", headerClass: WR_GROUP_6,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Consumable", field: "contribution_consumable", headerClass: WR_GROUP_6 ,  minWidth: 150 , maxWidth: 150},
+      { headerName: "Other", field: "contribution_other", headerClass: WR_GROUP_6,  minWidth: 150 , maxWidth: 150 },
+      { headerName: "Total", field: "contribution_total", headerClass: `${WR_GROUP_6} ${WR_LAST_6}`, cellClass: WR_LAST_6 ,  minWidth: 150 , maxWidth: 150},
+    ],
 
-    minWidth: 200,
   },
 ];
 
@@ -323,7 +255,7 @@ const WorkersReports = () => {
           </div>
         </form>
       </div>
-      <div className="ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="ag-theme-quartz workers-report-grid h-[calc(100vh-100px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}

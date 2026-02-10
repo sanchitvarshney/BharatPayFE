@@ -16,11 +16,97 @@
 .ag-theme-quartz .ag-header-group-cell {
   font-weight: bold;
   font-size: 16px;
-  
 }
+
 .ag-theme-quartz .ag-header-cell {
   font-size: 15px;
 }
+
+/* Workers report: different color per parent group, same color for children of that group */
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-0,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-0 {
+  background-color: #0e7490 !important;
+  color: #fff;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-1,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-1 {
+  background-color: #155e75 !important;
+  color: #fff;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-2,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-2 {
+  background-color: #0f766e !important;
+  color: #fff;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-3,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-3 {
+  background-color: #0d9488 !important;
+  color: #fff;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-4,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-4 {
+  background-color: #14b8a6 !important;
+  color: #fff;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-5,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-5 {
+  background-color: #2dd4bf !important;
+  color: #0f172a;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-6,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-6 {
+  background-color: #5eead4 !important;
+  color: #0f172a;
+}
+
+/* Vertical borders: header + data (column separators through full grid) */
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell,
+.ag-theme-quartz.workers-report-grid .ag-header-cell {
+  border-right: 1px solid rgba(15, 23, 42, 0.12);
+}
+.ag-theme-quartz.workers-report-grid .ag-cell {
+  border-right: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+/* Last column of each parent group: right border = same color as parent header (header + body) */
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-last-0,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-0,
+.ag-theme-quartz.workers-report-grid .ag-cell.wr-last-0 {
+  border-right: 4px solid #0e7490 !important;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-last-1,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-1,
+.ag-theme-quartz.workers-report-grid .ag-cell.wr-last-1 {
+  border-right: 4px solid #155e75 !important;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-last-2,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-2,
+.ag-theme-quartz.workers-report-grid .ag-cell.wr-last-2 {
+  border-right: 4px solid #0f766e !important;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-last-3,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-3,
+.ag-theme-quartz.workers-report-grid .ag-cell.wr-last-3 {
+  border-right: 4px solid #0d9488 !important;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-last-4,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-4,
+.ag-theme-quartz.workers-report-grid .ag-cell.wr-last-4 {
+  border-right: 4px solid #14b8a6 !important;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-last-5,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-5,
+.ag-theme-quartz.workers-report-grid .ag-cell.wr-last-5 {
+  border-right: 4px solid #2dd4bf !important;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-last-6,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-6,
+.ag-theme-quartz.workers-report-grid .ag-cell.wr-last-6 {
+  border-right: 4px solid #5eead4 !important;
+}
+
+/* Bottom border under child header row when fixed */
+
 .ag-theme-quartz .ag-root-wrapper {
   border-radius: 0;
 }
