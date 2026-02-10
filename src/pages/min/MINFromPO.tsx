@@ -213,6 +213,7 @@ const MINFromPO = () => {
             value: item.componentKey,
           },
           qty: Number(item.orderqty) || 0,
+          pendingQty: Number(item.pendingQty) || 0,
           updaterow: item.access_code,
           rate: Number(item.orderrate) || 0,
           taxableValue: Number(item.totalValue) || 0,
@@ -293,6 +294,10 @@ const MINFromPO = () => {
       headerName: "Qty",
       field: "qty",
       cellRenderer: "textInputCellRenderer",
+    },
+    {
+      headerName: "Pending Qty",
+      field: "pendingQty",
     },
     {
       headerName: "Rate",

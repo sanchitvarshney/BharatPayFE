@@ -3,6 +3,7 @@ import React, { useEffect, useCallback } from "react";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 import { formatNumber } from "@/utils/numberFormatUtils";
+import { showToast } from "@/utils/toasterContext";
 
 interface POCellRendererProps {
   props: any;
@@ -123,15 +124,22 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
             onChange={(e) => {
               if (/^-?\d*\.?\d*$/.test(e.target.value)) {
                 const newValue = e.target.value;
+                const pendingQty = Number(data.pendingQty) || 0;
+                const numQty = Number(newValue) || 0;
+                // Block input: do not allow qty greater than pending qty
+                if (newValue !== "" && pendingQty > 0 && numQty > pendingQty) {
+                  showToast("Qty cannot exceed pending qty", "error");
+                  return;
+                }
                 updateCellAndRefresh(newValue, colDef.field);
 
                 // Recalculate taxable value
-                let taxableValue = Number(newValue) * Number(data.rate);
+                let taxableValue = numQty * Number(data.rate);
                 if (data.excRate != 0 && data.excRate != "") {
                   taxableValue =
-                    Number(newValue) * Number(data.rate) * Number(data.excRate);
+                    numQty * Number(data.rate) * Number(data.excRate);
                   updateCellAndRefresh(
-                    Number(newValue) * Number(data.rate),
+                    numQty * Number(data.rate),
                     "foreignValue"
                   );
                 }
