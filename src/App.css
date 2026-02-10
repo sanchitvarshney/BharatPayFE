@@ -62,10 +62,10 @@
 /* Vertical borders: header + data (column separators through full grid) */
 .ag-theme-quartz.workers-report-grid .ag-header-group-cell,
 .ag-theme-quartz.workers-report-grid .ag-header-cell {
-  border-right: 1px solid rgba(15, 23, 42, 0.12);
+  border-right: 1px solid rgba(15, 23, 42, 0.28);
 }
 .ag-theme-quartz.workers-report-grid .ag-cell {
-  border-right: 1px solid rgba(15, 23, 42, 0.12);
+  border-right: 1px solid rgba(15, 23, 42, 0.28);
 }
 
 /* Last column of each parent group: right border = same color as parent header (header + body) */
@@ -103,6 +103,13 @@
 .ag-theme-quartz.workers-report-grid .ag-header-cell.wr-last-6,
 .ag-theme-quartz.workers-report-grid .ag-cell.wr-last-6 {
   border-right: 4px solid #5eead4 !important;
+}
+
+/* Pinned Total row at bottom */
+.ag-theme-quartz.workers-report-grid .ag-row.wr-total-row .ag-cell {
+  font-weight: 700;
+  background-color: #f0fdfa !important;
+  border-top: 2px solid #0e7490;
 }
 
 /* Bottom border under child header row when fixed */
