@@ -127,6 +127,8 @@ import TransferPartData from "./pages/tranferPartCode/TransferPartData";
 import WorkersReports from "./pages/areaReport/WorkersReports";
 import DeviceTransferLayout from "./layouts/DeviceTransferLayout";
 import DeviceTransfer from "./pages/transferDevice/DeviceTransfer";
+import CreatePartCodeChallan from "@/pages/partCodeChallan/CreatePartCodeChallan";
+import CreatePartCodeChallanLayout from "@/layouts/CreatePartCodeChallanLayout";
 
 export const router = createBrowserRouter([
   {
@@ -857,6 +859,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/create-challan",
+      },
+      {
+        element: (
+          <MainLayout>
+            <CreatePartCodeChallanLayout>
+              <CreatePartCodeChallan />
+            </CreatePartCodeChallanLayout>
+          </MainLayout>
+        ),
+        path: "/create-part-code-challan",
       },
       {
         element: (
