@@ -11,6 +11,7 @@ const initialState: InitialAreaType = {
   empList: [],
   empLoading: false,
   submitLoading: false,
+  updateWorkerDataLoading: false,
   workingDataLoading: false,
   workingData: [],
   fromLocationLoading: false,
@@ -142,6 +143,17 @@ export const submitData = createAsyncThunk<AxiosResponse<any>>(
   },
 );
 
+export const updateWorkerData = createAsyncThunk<AxiosResponse<any>, any>(
+  "master/place/updateWorkerData",
+  async (payload: { id: string | number; place: string; department: string }) => {
+    const response = await axiosInstance.put(
+      `/worker/editData`,
+      payload,
+    );
+    return response;
+  },
+);
+
 const placeSlice = createSlice({
   name: "place",
   initialState,
@@ -192,6 +204,15 @@ const placeSlice = createSlice({
       })
       .addCase(submitData.rejected, (state) => {
         state.submitLoading = false;
+      })
+      .addCase(updateWorkerData.pending, (state) => {
+        state.updateWorkerDataLoading = true;
+      })
+      .addCase(updateWorkerData.fulfilled, (state) => {
+        state.updateWorkerDataLoading = false;
+      })
+      .addCase(updateWorkerData.rejected, (state) => {
+        state.updateWorkerDataLoading = false;
       })
       .addCase(getWorkingData.pending, (state) => {
         state.workingDataLoading = true;

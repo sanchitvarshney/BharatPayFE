@@ -10,6 +10,7 @@ export interface InitialAreaType {
    placeLoading: boolean;
   placeList: PlaceType[];
   submitLoading: boolean;
+  updateWorkerDataLoading: boolean;
   workingDataLoading: boolean;
   workingData: any[];
   fromLocationLoading: boolean;
