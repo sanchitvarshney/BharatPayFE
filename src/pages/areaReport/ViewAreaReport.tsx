@@ -91,8 +91,15 @@ const ViewAreaReport: React.FC = () => {
         minWidth: 200,
       },
       {
-        headerName: "Date",
+        headerName: "Insert Date",
         field: "date",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+       {
+        headerName: "Date",
+        field: "punchDate",
         sortable: true,
         filter: true,
         minWidth: 200,

@@ -24,4 +24,5 @@ export interface InitialAreaType {
   fieldLoading: boolean;
   workerReports: any[];
   isReportLoading: boolean;
+  isSyncReportLoading: boolean;
 }

@@ -1,7 +1,10 @@
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { toast } from "@/components/ui/use-toast";
-import { getWorkerReport } from "@/features/areaSlice/areaSlice";
+import {
+  getWorkerReport,
+  syncWorkerReport,
+} from "@/features/areaSlice/areaSlice";
 import { rangePresets } from "@/utils/rangePresets";
 import { LoadingButton, Skeleton } from "@mui/lab";
 import { ColDef } from "@ag-grid-community/core";
@@ -42,6 +45,8 @@ const NUMERIC_FIELDS = [
 ];
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { Button, CircularProgress } from "@mui/material";
+import { Sync } from "@mui/icons-material";
 
 const { RangePicker } = DatePicker;
 
@@ -362,11 +367,9 @@ const columnDefs: any[] = [
 const WorkersReports = () => {
   const gridRef = useRef(null);
   const dispatch: any = useDispatch();
-  const {
-    workerReports,
-
-    isReportLoading,
-  } = useSelector((state: any) => state.placeMaster);
+  const { workerReports, isSyncReportLoading, isReportLoading } = useSelector(
+    (state: any) => state.placeMaster,
+  );
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -414,6 +417,34 @@ const WorkersReports = () => {
     },
   });
 
+  const handleSyncReport =async () => {
+    try {
+      const res = await dispatch(syncWorkerReport()).unwrap();
+      if (res?.data?.success) {
+        toast({
+          description: res?.data?.message || "Report Synced Successfully",
+          variant: "success",
+          className: "font-[500]",
+          duration: 1500,
+        });
+      }  else {
+        toast({
+          description: res?.data?.message || "Something went wrong",
+          variant: "destructive",
+          className: "font-[500]",
+          duration: 1500,
+        });
+      }
+    } catch (error:any) {
+      toast({
+        description: error?.message,
+        variant: "destructive",
+        className: "font-[500]",
+        duration: 1500,
+      });
+    }
+  };
+
   const pinnedBottomRowData = useMemo(() => {
     const rows = workerReports ?? [];
     if (rows.length === 0) return [];
@@ -426,13 +457,16 @@ const WorkersReports = () => {
 
     const totalRow: Record<string, string | number> = { date: "Total" };
     NUMERIC_FIELDS.forEach((field) => {
-      const sum = rows.reduce((acc:any, row:any) => acc + toNum(row[field]), 0);
+      const sum = rows.reduce(
+        (acc: any, row: any) => acc + toNum(row[field]),
+        0,
+      );
       totalRow[field] = Number.isFinite(sum) ? sum : 0;
     });
     return [totalRow];
   }, [workerReports]);
 
-  const profitPercentages:any = useMemo(() => {
+  const profitPercentages: any = useMemo(() => {
     const rows = workerReports ?? [];
     if (rows.length === 0) return null;
 
@@ -444,7 +478,6 @@ const WorkersReports = () => {
 
     const sumField = (field: string): number =>
       rows.reduce((acc: any, row: any) => acc + toNum(row[field]), 0);
-
 
     const pct = (profit: number, cost: number): number | null => {
       if (!Number.isFinite(profit) || !Number.isFinite(cost) || cost === 0)
@@ -467,13 +500,11 @@ const WorkersReports = () => {
     const gtotalc1 = sumField("gtotal_cost");
     const gtotalc2 = sumField("gtotal_contribution");
 
-
     return {
       swipe: pct(sp1 + sp2 + sp3 + sp4, sP),
       soundbox: pct(soundp, sound),
       cleaning: pct(cleanp, clean),
       gtotal: pct(gtotalp, gtotalc1 + gtotalc2),
-   
     };
   }, [workerReports]);
 
@@ -573,7 +604,7 @@ const WorkersReports = () => {
                 </span>
               </span>
             )}
-               {Number.isFinite(profitPercentages.soundbox) && (
+            {Number.isFinite(profitPercentages.soundbox) && (
               <span className="text-sm">
                 <span className="text-slate-500">Soundbox:</span>{" "}
                 <span
@@ -589,7 +620,7 @@ const WorkersReports = () => {
                 </span>
               </span>
             )}
-               {Number.isFinite(profitPercentages.cleaning) && (
+            {Number.isFinite(profitPercentages.cleaning) && (
               <span className="text-sm">
                 <span className="text-slate-500">Cleaning:</span>{" "}
                 <span
@@ -605,7 +636,7 @@ const WorkersReports = () => {
                 </span>
               </span>
             )}
-               {Number.isFinite(profitPercentages.gtotal) && (
+            {Number.isFinite(profitPercentages.gtotal) && (
               <span className="text-sm">
                 <span className="text-slate-500">G.Total:</span>{" "}
                 <span
@@ -621,9 +652,26 @@ const WorkersReports = () => {
                 </span>
               </span>
             )}
-
           </div>
         )}
+        <div className="flex flex-wrap justify-end gap-3 p-2 ">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={
+              isSyncReportLoading ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <Sync fontSize="small" color="inherit" />
+              )
+            }
+            onClick={handleSyncReport}
+            disabled={isSyncReportLoading}
+            size="small"
+          >
+            Sync
+          </Button>
+        </div>
         <div className="ag-theme-quartz workers-report-grid flex-1 min-h-0">
           <AgGridReact
             ref={gridRef}
