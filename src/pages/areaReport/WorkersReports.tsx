@@ -191,6 +191,13 @@ const columnDefs: any[] = [
         width: 170,
         maxWidth: 250,
       },
+           {   headerName: "PreQC Cost",
+        field: "preqc_cost",
+        headerClass: WR_GROUP_2,
+        minWidth: 150,
+        width: 170,
+        maxWidth: 250,
+      },
       {
         headerName: "Total Cost",
         field: "soundbox_totalcost",
