@@ -38,34 +38,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 
 interface RowData {
+  id: string;
   partComponent: { lable: string; value: string } | null;
   qty: number;
   rate: string;
-  taxableValue: number;
-  foreignValue: number;
-  hsnCode: string;
-  gstType: string;
-  gstRate: number;
-  cgst: number;
-  sgst: number;
-  igst: number;
-  location: { lable: string; value: string } | null;
-  autoConsump: string;
   remarks: string;
-  id: string;
-  currency: string;
   isNew?: boolean;
   excRate: number;
   uom: string;
+  currency?: string;
   updaterow?: string;
-  poid?: string;
 }
 
 interface Totals {
-  cgst: number;
-  sgst: number;
-  igst: number;
-  taxableValue: number;
+  totalAmount?: number;
 }
 
 interface BillAddress {
@@ -118,12 +104,7 @@ const CreatePartCodeChallan: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const [total, setTotal] = useState<Totals>({
-    cgst: 0,
-    sgst: 0,
-    igst: 0,
-    taxableValue: 0,
-  });
+  const [total, setTotal] = useState<Totals>({ totalAmount: 0 });
   const dispatch = useAppDispatch();
   const { loading } = useAppSelector((state) => state.po);
   const { formData } = useAppSelector((state) => state.po);
@@ -176,9 +157,6 @@ const CreatePartCodeChallan: React.FC = () => {
       "partComponent",
       "qty",
       "rate",
-      "hsnCode",
-      "gstType",
-      "gstRate",
     ];
 
     const missingDetails: string[] = [];
@@ -215,7 +193,7 @@ const CreatePartCodeChallan: React.FC = () => {
 
   const resetall = () => {
     setRowData([]);
-    setTotal({ cgst: 0, sgst: 0, igst: 0, taxableValue: 0 });
+    setTotal({ totalAmount: 0 });
     reset();
     dispatch(resetDocumentFile());
     dispatch(clearaddressdetail());
@@ -249,18 +227,12 @@ const CreatePartCodeChallan: React.FC = () => {
           );
           const qty = rowData.map((item) => Number(item.qty));
           const rate = rowData.map((item) => Number(item.rate));
-          const gsttype = rowData.map((item) => item.gstType);
-          const gstrate = rowData.map((item) => Number(item.gstRate));
-          const hsncode = rowData.map((item) => item.hsnCode);
-          const remark = rowData.map((item) => item.remarks);
+          const remark = rowData.map((item) => item.remarks ?? "");
 
           const payload: any = {
             component,
             qty,
             rate,
-            gsttype,
-            gstrate,
-            hsncode,
             remark,
             currency: formData.currency?.value || "",
             billaddressid: formData.billaddressid || "",
@@ -399,50 +371,19 @@ const CreatePartCodeChallan: React.FC = () => {
               qty: Number(item.orderqty) || 0,
               updaterow: item.updateid,
               rate: Number(item.rate) || 0,
-              taxableValue: Number(item.taxablevalue) || 0,
-              foreignValue: Number(item.exchangetaxablevalue),
-              hsnCode: item.hsncode,
-              gstType: item.gsttype[0]?.id,
-              gstRate: Number(item.gstrate),
-              cgst: Number(item.cgst) || 0,
-              sgst: Number(item.sgst) || 0,
-              igst: Number(item.igst) || 0,
-              remarks: item.remark,
-              currency: {
-                value: item.header?.currency?.value,
-                label: item.header?.currency?.label,
-              },
+              remarks: item.remark ?? "",
               isNew: true,
-              excRate: item.header?.exchangerate || 1,
-              uom: item.uom,
+              excRate: Number(item.header?.exchangerate) || 1,
+              uom: item.uom ?? "",
+              currency: item.header?.currency?.value,
             }))
           );
-          setTotal({
-            cgst: Number(
-              materials.reduce(
-                (acc: number, item: any) => acc + Number(item.cgst),
-                0
-              )
-            ),
-            sgst: Number(
-              materials.reduce(
-                (acc: number, item: any) => acc + Number(item.sgst),
-                0
-              )
-            ),
-            igst: Number(
-              materials.reduce(
-                (acc: number, item: any) => acc + Number(item.igst),
-                0
-              )
-            ),
-            taxableValue: Number(
-              materials.reduce(
-                (acc: number, item: any) => acc + Number(item.taxablevalue),
-                0
-              )
-            ),
-          });
+          const totalAmount = materials.reduce(
+            (acc: number, item: any) =>
+              acc + (Number(item.orderqty) || 0) * (Number(item.rate) || 0),
+            0
+          );
+          setTotal({ totalAmount });
         }
       });
     }
@@ -891,9 +832,8 @@ const CreatePartCodeChallan: React.FC = () => {
                 rowData={rowData}
                 setRowData={setRowData}
                 setTotal={setTotal}
-                exchange={formData?.exchange}
-                currency={formData?.currency?.value}
-                gstTypeStatus="L"
+                exchange={formData?.exchange ?? 0}
+                currency={formData?.currency?.value ?? ""}
               />
             </div>
           )}
@@ -939,46 +879,15 @@ const CreatePartCodeChallan: React.FC = () => {
                     fontSize={"17px"}
                     className="text-white"
                   >
-                    Total GST and Tax Details
+                    Total
                   </Typography>
                 </div>
                 <Card className="border-0 rounded-none shadow-none">
                   <CardContent className="flex flex-col gap-[20px] pt-[20px]">
                     <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">
-                        Sub-Total value before Taxes
-                      </p>
+                      <p className="text-slate-600 font-[500]">Total</p>
                       <p className="text-[14px] text-muted-foreground">
-                        {total.taxableValue.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">CGST</p>
-                      <p className="text-[14px] text-muted-foreground">
-                        (+) {total.cgst.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">SGST</p>
-                      <p className="text-[14px] text-muted-foreground">
-                        (+) {total.sgst.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">IGST</p>
-                      <p className="text-[14px] text-muted-foreground">
-                        (+) {total.igst.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">
-                        Sub-Total values after Taxes
-                      </p>
-                      <p className="text-[14px] text-muted-foreground">
-                        {(
-                          total.taxableValue +
-                          (total.cgst + total.sgst + total.igst)
-                        ).toFixed(2)}
+                        {(total.totalAmount ?? 0).toFixed(2)}
                       </p>
                     </div>
                   </CardContent>

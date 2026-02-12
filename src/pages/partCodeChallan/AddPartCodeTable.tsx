@@ -2,61 +2,53 @@ import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { StatusPanelDef } from "@ag-grid-community/core";
-import { calculateTotals } from "@/utils/calculateTotalMin";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { Button, IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { generateUniqueId } from "@/utils/uniqueid";
-import POCellRenderer from "@/table/Cellrenders/POCellRenderer";
+import PartCodeChallanCellRenderer from "@/table/Cellrenders/PartCodeChallanCellRenderer";
+
 interface RowData {
+  id: string;
   partComponent: { lable: string; value: string } | null;
   qty: number;
   rate: string;
-  taxableValue: number;
-  foreignValue: number;
-  hsnCode: string;
-  gstType: string;
-  gstRate: number;
-  cgst: number;
-  sgst: number;
-  igst: number;
-  location: { lable: string; value: string } | null;
-  autoConsump: string;
   remarks: string;
-  id: string;
-  currency: string;
   isNew?: boolean;
   excRate: number;
   uom: string;
+  currency?: string;
 }
+
 interface Totals {
-  cgst: number;
-  sgst: number;
-  igst: number;
-  taxableValue: number;
+  totalAmount?: number;
 }
+
 type Props = {
   rowData: RowData[];
   setRowData: React.Dispatch<React.SetStateAction<RowData[]>>;
   setTotal: React.Dispatch<React.SetStateAction<Totals>>;
-  exchange:any
-  currency:any
-  gstTypeStatus:string
+  exchange: number | string;
+  currency: string;
 };
-const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency,gstTypeStatus }) => {
+
+const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
+
   const getAllTableData = () => {
     const allData: RowData[] = [];
-
     const rowCount = gridRef.current?.api.getDisplayedRowCount() ?? 0;
     for (let i = 0; i < rowCount; i++) {
       const rowNode = gridRef.current?.api.getDisplayedRowAtIndex(i);
-
       if (rowNode && rowNode.data) {
         allData.push(rowNode.data);
       }
     }
-    setTotal(calculateTotals(allData));
+    const totalAmount = allData.reduce(
+      (sum, row) => sum + (Number(row.qty) || 0) * (Number(row.rate) || 0),
+      0
+    );
+    setTotal({ totalAmount });
   };
 
   const handleAddRow = () => {
@@ -66,21 +58,11 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       partComponent: null,
       qty: 0,
       rate: "",
-      taxableValue: 0,
-      foreignValue: 0,
-      hsnCode: "",
-      gstType: gstTypeStatus,
-      gstRate: 0,
-      cgst: 0,
-      sgst: 0,
-      igst: 0,
-      location: null,
-      autoConsump: "",
       remarks: "",
-      currency: currency,
       isNew: true,
-      excRate: exchange,
+      excRate: Number(exchange) || 0,
       uom: "",
+      currency,
     };
     setRowData([newRow, ...rowData]);
   };
@@ -101,11 +83,13 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
 
   const components = useMemo(
     () => ({
-      textInputCellRenderer: (params: any) => <POCellRenderer props={params} customFunction={getAllTableData} />,
-      
+      challanCellRenderer: (params: any) => (
+        <PartCodeChallanCellRenderer props={params} customFunction={getAllTableData} />
+      ),
     }),
     []
   );
+
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
@@ -149,81 +133,34 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
     {
       headerName: "",
       field: "excRate",
-      cellRenderer: "textInputCellRenderer",
+      cellRenderer: "challanCellRenderer",
       hide: true,
     },
     {
       headerName: "Part Component",
       field: "partComponent",
-      cellRenderer: "textInputCellRenderer",
+      cellRenderer: "challanCellRenderer",
       minWidth: 300,
     },
     {
       headerName: "Qty",
       field: "qty",
-      cellRenderer: "textInputCellRenderer",
+      cellRenderer: "challanCellRenderer",
     },
     {
       headerName: "Rate",
       field: "rate",
-      cellRenderer: "textInputCellRenderer",
+      cellRenderer: "challanCellRenderer",
       width: 200,
-    },
-    // {
-    //   headerName: "",
-    //   field: "currency",
-    //   cellRenderer: "textInputCellRenderer",
-    //   width: 80,
-    // },
-    {
-      headerName: "Taxable Value",
-      field: "taxableValue",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "Foreign Value",
-      field: "foreignValue",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "HSN Code",
-      field: "hsnCode",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "GST Type",
-      field: "gstType",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "GST Rate",
-      field: "gstRate",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "CGST",
-      field: "cgst",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "SGST",
-      field: "sgst",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "IGST",
-      field: "igst",
-      cellRenderer: "textInputCellRenderer",
     },
     {
       headerName: "Remarks",
       field: "remarks",
-      cellRenderer: "textInputCellRenderer",
+      cellRenderer: "challanCellRenderer",
     },
     {
       headerName: "uom",
       field: "uom",
-
       hide: true,
     },
   ];
