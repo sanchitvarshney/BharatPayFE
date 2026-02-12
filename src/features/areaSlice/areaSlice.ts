@@ -11,6 +11,7 @@ const initialState: InitialAreaType = {
   empList: [],
   empLoading: false,
   submitLoading: false,
+  updateWorkerDataLoading: false,
   workingDataLoading: false,
   workingData: [],
   fromLocationLoading: false,
@@ -23,6 +24,7 @@ const initialState: InitialAreaType = {
   fieldLoading: false,
   workerReports: [],
   isReportLoading: false,
+  isSyncReportLoading: false,
 };
 
 // for tranferPartCode
@@ -103,6 +105,15 @@ export const getDepartment = createAsyncThunk<AxiosResponse<any>>(
     return response;
   },
 );
+export const syncWorkerReport = createAsyncThunk<AxiosResponse<any>>(
+  "master/place/worker-data/sync",
+  async () => {
+    const response = await axiosInstance.post(
+      `/worker/autoPunch`,
+    );
+    return response;
+  },
+);
 export const getWorkerReport = createAsyncThunk<AxiosResponse<any>>(
   "master/place/worker-data/report",
   async (payload: any) => {
@@ -136,6 +147,17 @@ export const submitData = createAsyncThunk<AxiosResponse<any>>(
   async (payload: any) => {
     const response = await axiosInstance.post(
       `/worker/submitDailyData`,
+      payload,
+    );
+    return response;
+  },
+);
+
+export const updateWorkerData = createAsyncThunk<AxiosResponse<any>, any>(
+  "master/place/updateWorkerData",
+  async (payload: { id: string | number; place: string; department: string }) => {
+    const response = await axiosInstance.put(
+      `/worker/editData`,
       payload,
     );
     return response;
@@ -192,6 +214,15 @@ const placeSlice = createSlice({
       })
       .addCase(submitData.rejected, (state) => {
         state.submitLoading = false;
+      })
+      .addCase(updateWorkerData.pending, (state) => {
+        state.updateWorkerDataLoading = true;
+      })
+      .addCase(updateWorkerData.fulfilled, (state) => {
+        state.updateWorkerDataLoading = false;
+      })
+      .addCase(updateWorkerData.rejected, (state) => {
+        state.updateWorkerDataLoading = false;
       })
       .addCase(getWorkingData.pending, (state) => {
         state.workingDataLoading = true;
@@ -279,6 +310,16 @@ const placeSlice = createSlice({
       })
       .addCase(getWorkerReport.rejected, (state) => {
         state.isReportLoading = false;
+      })
+        .addCase(syncWorkerReport.pending, (state) => {
+        state.isSyncReportLoading = true;
+      })
+      .addCase(syncWorkerReport.fulfilled, (state) => {
+        state.isSyncReportLoading = false;
+          
+      })
+      .addCase(syncWorkerReport.rejected, (state) => {
+        state.isSyncReportLoading = false;
       });
   },
 });

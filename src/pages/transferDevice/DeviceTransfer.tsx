@@ -127,7 +127,7 @@ const DeviceTransfer = () => {
           ).then((res: any) => {
             if (res.payload.data.success) {
               showToast(res.payload.data.message, "success");
-              reset();
+              setImage(null);
             } else {
               showToast(res.payload.data.message, "error");
             }

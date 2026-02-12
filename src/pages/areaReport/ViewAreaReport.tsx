@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,7 @@ import {
   Button,
   CircularProgress,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -26,6 +27,8 @@ import { DatePicker } from "antd";
 import { rangePresets } from "@/utils/rangePresets";
 import dayjs from "dayjs";
 import { PlaceType } from "@/features/areaSlice/areaType";
+import { Edit } from "@mui/icons-material";
+import EditWorkerDataModal from "./EditWorkerDataModal";
 const { RangePicker } = DatePicker;
 const CustomLoadingCellRenderer: React.FC = () => {
   return (
@@ -35,68 +38,10 @@ const CustomLoadingCellRenderer: React.FC = () => {
   );
 };
 
-const columnDefs: ColDef[] = [
-  {
-    headerName: "#",
-    field: "ID",
-    sortable: true,
-    filter: true,
-    flex: 1,
-    cellRenderer: (params: any) => params.node.rowIndex + 1,
-  },
-  {
-    headerName: "Full Name",
-    field: "name",
-    sortable: true,
-    filter: true,
-    minWidth: 200,
-  },
-  {
-    headerName: "Code",
-    field: "code",
-    sortable: true,
-    filter: true,
-    minWidth: 200,
-  },
-  {
-    headerName: "Place",
-    field: "place",
-    sortable: true,
-    filter: true,
-    minWidth: 200,
-  },
-  {
-    headerName: "Department",
-    field: "department",
-    sortable: true,
-    filter: true,
-    minWidth: 200,
-  },
-  {
-    headerName: "Date",
-    field: "date",
-    sortable: true,
-    filter: true,
-    minWidth: 200,
-  },
-  {
-    headerName: "Start Time",
-    field: "startTime",
-    sortable: true,
-    filter: true,
-    minWidth: 200,
-  },
-  {
-    headerName: "End Time",
-    field: "endTime",
-    sortable: true,
-    filter: true,
-    minWidth: 200,
-  },
-];
-
 const ViewAreaReport: React.FC = () => {
   const dispatch: any = useDispatch();
+  const [updateData, setUpdateData] = useState<any>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const {
     placeList,
     placeLoading,
@@ -106,10 +51,103 @@ const ViewAreaReport: React.FC = () => {
     workingDataLoading,
   } = useSelector((state: any) => state.placeMaster);
 
+  const columnDefs = useMemo<ColDef[]>(
+    () => [
+      {
+        headerName: "#",
+        field: "ID",
+        sortable: true,
+        filter: true,
+        flex: 1,
+        minWidth: 100,
+        cellRenderer: (params: any) => params.node.rowIndex + 1,
+      },
+      {
+        headerName: "Full Name",
+        field: "name",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+      {
+        headerName: "Code",
+        field: "code",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+      {
+        headerName: "Place",
+        field: "place",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+      {
+        headerName: "Department",
+        field: "department",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+      {
+        headerName: "Insert Date",
+        field: "date",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+       {
+        headerName: "Date",
+        field: "punchDate",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+      {
+        headerName: "Start Time",
+        field: "startTime",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+      {
+        headerName: "End Time",
+        field: "endTime",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+      },
+      {
+        headerName: "Action",
+        field: "",
+        sortable: true,
+        filter: true,
+        minWidth: 200,
+        headerClass: "last-column ag-header-cell-center",
+        cellStyle: { display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" },
+        cellRenderer: (params: any) => (
+          <IconButton
+            onClick={() => {
+              setUpdateData(params?.data ?? null);
+              setEditModalOpen(true);
+            }}
+            size="small"
+          >
+            <Edit fontSize="small" />
+          </IconButton>
+        ),
+      },
+    ],
+    []
+  );
+
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
       floatingFilter: true,
+      cellStyle: { textAlign: "center" },
+      headerClass: "ag-header-cell-center",
     };
   }, []);
 
@@ -118,6 +156,7 @@ const ViewAreaReport: React.FC = () => {
     watch,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
@@ -321,6 +360,29 @@ const ViewAreaReport: React.FC = () => {
           loadingCellRenderer="customLoadingCellRenderer"
         />
       </div>
+
+      <EditWorkerDataModal
+        open={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setUpdateData(null);
+        }}
+        data={updateData}
+        onSuccess={() => {
+          const values = getValues();
+          if (values?.date?.[0] && values?.date?.[1] && values?.areaId && values?.departmentId) {
+            dispatch(
+              //@ts-ignore
+              getWorkingData({
+                from: dayjs(values.date[0]).format("DD-MM-YYYY"),
+                to: dayjs(values.date[1]).format("DD-MM-YYYY"),
+                place: values.areaId,
+                department: values.departmentId,
+              })
+            );
+          }
+        }}
+      />
     </div>
   );
 };
