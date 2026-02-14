@@ -309,17 +309,24 @@ const DeviceTransfer = () => {
               <Controller
                 name="imeinumber"
                 control={control}
-                rules={{ required: "IMIE Number is required" }}
+                rules={{
+                  required: "IMIE Number is required",
+                  validate: (v) =>
+                    !v || /^\d{15}$/.test(v) || "IMEI must be exactly 15 digits",
+                }}
                 render={({ field }) => (
                   <TextField
-                    placeholder="Enter IMEI Number"
+                    placeholder="Enter IMEI Number (15 digits)"
                     value={field.value || ""}
                     fullWidth
                     inputProps={{
                       "aria-label": "weight",
+                      maxLength: 15,
+                     
                     }}
                     onChange={(e) => {
-                      field.onChange(e.target.value);
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 15);
+                      field.onChange(val);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -481,7 +488,6 @@ const DeviceTransfer = () => {
               <Controller
                 name="remark"
                 control={control}
-                rules={{ required: "Remark is required" }}
                 render={({ field }) => (
                   <TextField
                     {...field}
