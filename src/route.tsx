@@ -130,6 +130,8 @@ import DeviceTransferLayout from "./layouts/DeviceTransferLayout";
 import DeviceTransfer from "./pages/transferDevice/DeviceTransfer";
 import CreatePartCodeChallan from "@/pages/partCodeChallan/CreatePartCodeChallan";
 import CreatePartCodeChallanLayout from "@/layouts/CreatePartCodeChallanLayout";
+import SwipeTransferLayout from "./layouts/SwipeTransferLayout";
+import SwipeTransfer from "./pages/transferDevice/SwipeTransfer";
 
 export const router = createBrowserRouter([
   {
@@ -254,6 +256,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/device/transfer",
+      },
+       {
+        element: (
+          <MainLayout>
+            <SwipeTransferLayout>
+              <SwipeTransfer />
+            </SwipeTransferLayout>
+          </MainLayout>
+        ),
+        path: "/swipe/transfer",
       },
       {
         element: (

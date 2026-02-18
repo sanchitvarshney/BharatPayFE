@@ -11,6 +11,7 @@ const initialState: any = {
   loadingCostCenter: false,
   isSubmitLoading: false,
   isImageLoading: false,
+  isSubmitSwipeLoading: false,
 };
 type FetchDeviceDetailsArgs = {
   deviceCode: string;
@@ -43,11 +44,32 @@ export const fetchDeviceDetails = createAsyncThunk<
   return response.data;
 });
 
+export const fetchSwipeDeviceDetails = createAsyncThunk<
+  AxiosResponse<any>,
+  string
+>("device/transfer/fetchSwipeDeviceBySerial", async (serialNo) => {
+  const response = await axiosInstance.get(
+    `/backend/getDeviceDetail/${serialNo}?type=swipe`,
+  );
+  return response.data;
+});
+
 export const submitTransferData = createAsyncThunk<AxiosResponse<any>>(
   "master/transfer/submit",
   async (payload: any) => {
     const response = await axiosInstance.post(
       `/device-movement/device-transfer`,
+      payload,
+    );
+    return response?.data;
+  },
+);
+
+export const submitSwipeTransferData = createAsyncThunk<AxiosResponse<any>>(
+  "master/swipe-transfer/submit",
+  async (payload: any) => {
+    const response = await axiosInstance.post(
+      `/swiper/deviceMovement`,
       payload,
     );
     return response?.data;
@@ -101,6 +123,18 @@ const transferSlice = createSlice({
       .addCase(fetchDeviceDetails.rejected, (state) => {
         state.loadingDeviceDetails = false;
       })
+      .addCase(fetchSwipeDeviceDetails.pending, (state) => {
+        state.loadingDeviceDetails = true;
+      })
+      .addCase(fetchSwipeDeviceDetails.fulfilled, (state, action: any) => {
+        state.loadingDeviceDetails = false;
+        if (action.payload?.success) {
+          state.deviceDetailsData = action.payload?.data?.[0];
+        }
+      })
+      .addCase(fetchSwipeDeviceDetails.rejected, (state) => {
+        state.loadingDeviceDetails = false;
+      })
       .addCase(fetchCostCenter.pending, (state) => {
         state.loadingCostCenter = true;
       })
@@ -131,6 +165,15 @@ const transferSlice = createSlice({
       })
       .addCase(submitImage.rejected, (state) => {
         state.isImageLoading = false;
+      })    .addCase(submitSwipeTransferData.pending, (state) => {
+        state.isSubmitSwipeLoading = true;
+      })
+      .addCase(submitSwipeTransferData.fulfilled, (state) => {
+        state.isSubmitSwipeLoading = false;
+       
+      })
+      .addCase(submitSwipeTransferData.rejected, (state) => {
+        state.isSubmitSwipeLoading = false;
       });
   },
 });
