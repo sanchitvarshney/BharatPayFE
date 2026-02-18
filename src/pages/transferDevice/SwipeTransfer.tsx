@@ -315,13 +315,7 @@ const SwipeTransfer = () => {
                             boxNoValue ?? "",
                             field.value,
                             () => field.onChange(""),
-                            () => {
-                              if ('setValue' in control && typeof control.setValue === 'function') {
-                                // @ts-ignore
-                                control.setValue("boxNo", "");
-                              }
-                            },
-                            // () => control.setValue("boxNo", ""),
+                            () => control.setValue("boxNo", ""),
                           );
                         }
                       }}

@@ -15,7 +15,7 @@ const CreatePartCodeChallanLayout : React.FC<Props> = ({ children }) => {
   const location = useLocation();
 
   // Determine the active tab based on the current route
-  const tabRoutes = ["/create-part-code-challan", "/manage-challan"];
+  const tabRoutes = ["/create-part-code-challan", "/manage-part-code-challan"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
