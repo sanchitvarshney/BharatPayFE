@@ -7,14 +7,12 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { QrCodeScanner } from "@mui/icons-material";
 
-import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import { showToast } from "@/utils/toasterContext";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { CircularProgress } from "@mui/material";
 import { submitSwipeTransferData } from "@/features/transfer/deviceTransferSlice";
 
 export type SwipeTableRow = {
@@ -31,92 +29,76 @@ export type SwipeTableRow = {
   sl_no?: string;
 };
 
+const BOX_CODE_INDEX = 0;
+const EXPECTED_IDS_PER_SCAN = 63;
+
 const SwipeTransfer = () => {
   const dispatch = useDispatch<any>();
   const [tableRows, setTableRows] = useState<SwipeTableRow[]>([]);
-  const serialInputRef = useRef<HTMLInputElement>(null);
-  const boxNoInputRef = useRef<HTMLInputElement>(null);
+  const scannerInputRef = useRef<HTMLInputElement>(null);
 
-  const { isSubmitLoading } = useAppSelector((state) => state.deviceTransfer);
-  const { deviceDetailLoading } = useAppSelector(
-    (state) => state.batteryQcReducer,
-  );
+  const { isSubmitSwipeLoading } = useAppSelector((state) => state.deviceTransfer);
 
   const {
     control,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
       locationfromId: "",
       locationtoId: "",
-      boxNo: "",
-      serialNo: "",
+      scannerInput: "",
     },
   });
 
-  const boxNoValue = watch("boxNo");
+  const parseScannerInput = (input: string): { boxNo: string; serialIds: string[] } => {
+    const tokens = input.trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return { boxNo: "", serialIds: [] };
+    const boxNo = tokens[BOX_CODE_INDEX] ?? "";
+    const serialIds = tokens.slice(1, 1 + EXPECTED_IDS_PER_SCAN);
+    return { boxNo, serialIds };
+  };
 
-  const handleSerialKeyDown = async (
-    boxNoValue: string,
-    serialValue: string,
-    clearSerial: () => void,
-    clearBoxNo: () => void,
-  ) => {
-    const trimmed = serialValue?.trim();
+  const processScan = (inputValue: string, clearInput: () => void) => {
+    const trimmed = inputValue?.trim();
     if (!trimmed) return;
 
-    const exists = tableRows.some(
-      (r) => r.serialNo === trimmed || r.sl_no === trimmed,
-    );
-    if (exists) {
-      showToast("Serial number already added", "error");
+    const { boxNo, serialIds } = parseScannerInput(trimmed);
+    if (!boxNo || serialIds.length === 0) {
+      showToast("Scan should contain box code followed by at least one device ID (space separated)", "error");
       return;
     }
 
-    const boxNoTrimmed = boxNoValue?.trim() ?? "";
-
-    try {
-      const res: any = await dispatch(
-        getDeviceDetails({
-          imei: trimmed,
-          deviceType: "swipeMachine",
-        }),
-      ).unwrap();
-
-      const apiData = res?.data;
-      if (apiData?.success && apiData?.data?.[0]) {
-        const detail = apiData.data[0];
-        const row: SwipeTableRow = {
-          id: `${trimmed}-${Date.now()}`,
-          boxNo: boxNoTrimmed,
-          serialNo: trimmed,
-          p_name: detail.p_name,
-          device_imei: detail.device_imei ?? detail.imei_no1,
-          device_model: detail.device_model,
-          device_sku: detail.device_sku,
-          mfgBy: detail.mfgBy,
-          mfgMonth: detail.mfgMonth,
-          mfgYear: detail.mfgYear,
-          sl_no: detail.sl_no ?? trimmed,
-        };
-        setTableRows((prev) => [...prev, row]);
-        clearSerial();
-        clearBoxNo();
-        setTimeout(() => boxNoInputRef.current?.focus(), 0);
-      } else {
-        showToast(apiData?.message || "Device not found", "error");
-      }
-    } catch (error: any) {
-      showToast(
-        error?.message ||
-          error?.response?.data?.message ||
-          "Failed to fetch device",
-        "error",
-      );
+    const existingSerials = new Set(
+      tableRows.map((r) => r.serialNo ?? r.sl_no).filter(Boolean),
+    );
+    const toAdd = serialIds.filter((id) => {
+      const s = id.trim();
+      return s && !existingSerials.has(s);
+    });
+    const duplicates = serialIds.length - toAdd.length;
+    if (duplicates > 0) {
+      showToast(`${duplicates} duplicate ID(s) skipped`, "info");
     }
+    if (toAdd.length === 0) {
+      clearInput();
+      return;
+    }
+
+    const newRows: SwipeTableRow[] = toAdd.map((serialId) => {
+      const idTrimmed = serialId.trim();
+      return {
+        id: `${idTrimmed}-${Date.now()}-${Math.random()}`,
+        boxNo,
+        serialNo: idTrimmed,
+        sl_no: idTrimmed,
+      };
+    });
+    setTableRows((prev) => [...prev, ...newRows]);
+    showToast(`Added ${newRows.length} device(s) for box ${boxNo}`, "success");
+    clearInput();
+    scannerInputRef.current?.focus();
   };
 
   const removeRow = (id: string) => {
@@ -223,10 +205,10 @@ const SwipeTransfer = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-100px)] bg-white">
-      <form onSubmit={handleSubmit(onSubmit)} className="p-0">
-        <div className="w-full h-[calc(100vh-170px)] overflow-y-auto">
-          <div className="w-full grid grid-cols-1 gap-12 p-4">
+    <div className="h-[calc(100vh-100px)] bg-white flex flex-col">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 p-0">
+        <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden">
+          <div className="w-full flex-shrink-0 p-4 pb-2">
             <div className="flex flex-wrap items-end gap-3">
               <div className="min-w-[200px] flex-1 max-w-[280px]">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
@@ -269,65 +251,45 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
-              <div className="min-w-[200px] flex-1 max-w-[280px]">
+              <div className="min-w-[300px] flex-[2] max-w-[600px]">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                  Box No
+                  Scanner (Box code + 63 device IDs, space separated)
                 </Typography>
                 <Controller
-                  name="boxNo"
+                  name="scannerInput"
                   control={control}
                   render={({ field }) => (
                     <TextField
-                      inputRef={boxNoInputRef}
-                      placeholder="Enter Box No"
+                      inputRef={scannerInputRef}
+                      placeholder="e.g. 0DRPJJSI0M0004 G2R0W3A3976 G2R0W385594 ... (1 box code + 63 IDs)"
                       value={field.value || ""}
                       fullWidth
+                      multiline
+                      minRows={2}
+                      maxRows={4}
                       onChange={(e) => field.onChange(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
-                          serialInputRef.current?.focus();
-                        }
-                      }}
-                    />
-                  )}
-                />
-              </div>
-
-              <div className="min-w-[200px] flex-1 max-w-[280px]">
-                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                  Enter Serial Number
-                </Typography>
-                <Controller
-                  name="serialNo"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      inputRef={serialInputRef}
-                      placeholder="Enter Serial No. and press Enter"
-                      value={field.value || ""}
-                      fullWidth
-                      onChange={(e) => field.onChange(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleSerialKeyDown(
-                            boxNoValue ?? "",
+                          processScan(
                             field.value,
                             () => field.onChange(""),
-                            () => control.setValue("boxNo", ""),
                           );
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const pasted = e.clipboardData?.getData("text") ?? "";
+                        const tokenCount = pasted.trim().split(/\s+/).filter(Boolean).length;
+                        if (tokenCount >= 2) {
+                          e.preventDefault();
+                          processScan(pasted, () => field.onChange(""));
                         }
                       }}
                       slotProps={{
                         input: {
                           endAdornment: (
                             <InputAdornment position="end">
-                              {deviceDetailLoading ? (
-                                <CircularProgress size={20} />
-                              ) : (
-                                <QrCodeScanner />
-                              )}
+                              <QrCodeScanner />
                             </InputAdornment>
                           ),
                         },
@@ -339,25 +301,26 @@ const SwipeTransfer = () => {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="w-full px-4 pb-4">
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+          {/* Table - fills remaining space */}
+          <div className="flex-1 flex flex-col min-h-0 w-full px-4 pb-4">
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }} className="flex-shrink-0">
               Added devices ({tableRows.length})
             </Typography>
-            <div className="ag-theme-quartz h-[280px]">
+            <div className="ag-theme-quartz flex-1 min-h-0">
               <AgGridReact<SwipeTableRow>
                 rowData={tableRows}
                 columnDefs={columnDefs}
                 overlayNoRowsTemplate={OverlayNoRowsTemplate}
                 suppressCellFocus={true}
                 defaultColDef={{ resizable: true }}
+                domLayout="normal"
               />
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="border-t border-neutral-300 py-3 absolute bottom-0 left-0 right-0 bg-white">
+        <div className="border-t border-neutral-300 py-3 flex-shrink-0 bg-white">
           <div className="h-[50px] px-5 flex items-center gap-3 justify-end">
             <Button onClick={onReset} variant="outlined">
               Reset
@@ -366,7 +329,7 @@ const SwipeTransfer = () => {
               loadingPosition="start"
               type="submit"
               variant="contained"
-              loading={isSubmitLoading}
+              loading={isSubmitSwipeLoading}
               disabled={tableRows.length === 0}
             >
               Submit
