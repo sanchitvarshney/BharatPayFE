@@ -11,7 +11,7 @@ import { LocationType } from "@/components/reusable/SelectLocationAcordingModule
 
 interface RowData {
   id: string;
-  partComponent: { lable: string; value: string } | null;
+  partComponent: { label: string; value: string } | null;
   hsn?: string;
   qty: number;
   rate: string;
