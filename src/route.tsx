@@ -117,6 +117,19 @@ import ProdReturnMinLayout from "@/layouts/ProdReturnMinLayout";
 import GPLayout from "@/layouts/GPLayout";
 import CreateGP from "@/pages/GPDCChallan/CreateGP";
 import ManageGP from "@/pages/GPDCChallan/ManageGP";
+import { AddAreaReport } from "./pages/areaReport/AddAreaReport";
+import AddAreaReportLayout from "./layouts/AddAreareportLayout";
+import ViewAreaReport from "./pages/areaReport/ViewAreaReport";
+import WrongDeviceMin from "./pages/Dispatch/WrongDeviceMin";
+import FormLayout from "./layouts/WrongDeviceMINLayout";
+import DeletionMonoPage from "./pages/master/DeletionMonoPage";
+import AddPartCodeLayout from "./layouts/AddPartCodeLayout";
+import TransferPartData from "./pages/tranferPartCode/TransferPartData";
+import WorkersReports from "./pages/areaReport/WorkersReports";
+import DeviceTransferLayout from "./layouts/DeviceTransferLayout";
+import DeviceTransfer from "./pages/transferDevice/DeviceTransfer";
+import CreatePartCodeChallan from "@/pages/partCodeChallan/CreatePartCodeChallan";
+import CreatePartCodeChallanLayout from "@/layouts/CreatePartCodeChallanLayout";
 
 export const router = createBrowserRouter([
   {
@@ -185,6 +198,66 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <AddAreaReportLayout>
+              <AddAreaReport />
+            </AddAreaReportLayout>
+          </MainLayout>
+        ),
+        path: "/worker-data",
+      },
+      {
+        element: (
+          <MainLayout>
+            <AddPartCodeLayout>
+              <TransferPartData />
+            </AddPartCodeLayout>
+          </MainLayout>
+        ),
+        path: "/transfer-part-data",
+      },
+      {
+        element: (
+          <MainLayout>
+            <FormLayout>
+              <WrongDeviceMin />
+            </FormLayout>
+          </MainLayout>
+        ),
+        path: "/wrong-device-min",
+      },
+      {
+        element: (
+          <MainLayout>
+            <AddAreaReportLayout>
+              <ViewAreaReport />
+            </AddAreaReportLayout>
+          </MainLayout>
+        ),
+        path: "/view-worker-data",
+      },
+      {
+        element: (
+          <MainLayout>
+            <AddAreaReportLayout>
+              <WorkersReports />
+            </AddAreaReportLayout>
+          </MainLayout>
+        ),
+        path: "/workers/reports",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DeviceTransferLayout>
+              <DeviceTransfer />
+            </DeviceTransferLayout>
+          </MainLayout>
+        ),
+        path: "/device/transfer",
+      },
+      {
+        element: (
+          <MainLayout>
             <ProfilePage />
           </MainLayout>
         ),
@@ -199,6 +272,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-uom",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DeletionMonoPage />
+          </MainLayout>
+        ),
+        path: "/master-mono-delete",
       },
       {
         element: (
@@ -779,6 +860,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/create-challan",
+      },
+      {
+        element: (
+          <MainLayout>
+            <CreatePartCodeChallanLayout>
+              <CreatePartCodeChallan />
+            </CreatePartCodeChallanLayout>
+          </MainLayout>
+        ),
+        path: "/create-part-code-challan",
       },
       {
         element: (

@@ -10,6 +10,9 @@ export interface DeviceImage {
   img_url: string[];
   sim_no?: string;
   operator?: string;
+  serial?: string;
+  imei?: string;
+  insertDt?: string;
 }
 
 export interface DeviceImageApiResponse {
@@ -73,8 +76,13 @@ export const getDeviceImages = createAsyncThunk<
   AxiosResponse<DeviceImageApiResponse>,
   { deviceType: string; awbNumber: string; serialNo: string }
 >("common/getDeviceImages", async ({ deviceType, awbNumber, serialNo }) => {
+  const isBerDevice = deviceType === "ber";
+  const query =
+    isBerDevice
+      ? `serialNo=${serialNo}`
+      : `awbNumber=${awbNumber}&serialNo=${serialNo}`;
   const response = await axiosInstance.get(
-    `/swipeMachine/delivery/getImages/${deviceType}?awbNumber=${awbNumber}&serialNo=${serialNo}`
+    `/swipeMachine/delivery/getImages/${deviceType}?${query}`
   );
   return response;
 });

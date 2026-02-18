@@ -70,6 +70,21 @@ export const getPODetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPODe
   const response = await axiosInstance.get(`/po/fetchData4Update?pono=${payload.id}`);
   return response.data;
 });
+
+export const createPartCodeChallan = createAsyncThunk<AxiosResponse<any>, any>("po/createPartCodeChallan", async (payload) => {
+  const response = await axiosInstance.post("/partcodeChallan/create", payload);
+  return response;
+});
+
+export const updatePartCodeChallan = createAsyncThunk<AxiosResponse<any>, any>("po/updatePartCodeChallan", async (payload) => {
+  const response = await axiosInstance.post("/challan/editPerforma", payload);
+  return response;
+});
+
+export const getPartCodeChallanDetail = createAsyncThunk<AxiosResponse<any>, { id: string }>("po/getPartCodeChallanDetail", async (payload) => {
+  const response = await axiosInstance.post("/challan/fetchPerforma", { challanId: payload.id });
+  return response;
+});
 export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
   const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
   return response;
@@ -270,6 +285,36 @@ const procurementPoSlice = createSlice({
         state.loading = false;
       })
       .addCase(updatePO.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(createPartCodeChallan.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createPartCodeChallan.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(createPartCodeChallan.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updatePartCodeChallan.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updatePartCodeChallan.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updatePartCodeChallan.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getPartCodeChallanDetail.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPartCodeChallanDetail.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(getPartCodeChallanDetail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

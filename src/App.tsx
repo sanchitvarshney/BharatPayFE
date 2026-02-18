@@ -13,6 +13,7 @@ import OtpPage from "@/pages/commonPages/otpPage";
 dayjs.extend(customParseFormat);
 function App() {
   const { user } = useUser();
+ 
   const [isOffline, setIsOffline] = useState<boolean>(false);
   const showDispatchPage= localStorage.getItem("showOtpPage");
   useEffect(() => {

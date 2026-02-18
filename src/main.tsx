@@ -14,8 +14,13 @@ import { ToasterProvider, ToasterConsumer } from "@/utils/toasterContext.tsx";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme/index.ts";
 import { SocketProvider } from "./components/context/SocketContext.tsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
+
 moduleregistri();
 ReactDOM.createRoot(document.getElementById("root")!).render(
+  <GoogleOAuthProvider clientId={googleId}>
   <Provider store={store}>
     <ConfigProvider
       theme={{
@@ -68,4 +73,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       </ThemeProvider>
     </ConfigProvider>
   </Provider>
+  </GoogleOAuthProvider>
 );

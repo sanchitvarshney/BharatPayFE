@@ -23,6 +23,9 @@ import SaveIcon from "@mui/icons-material/Save";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { generateUniqueId } from "@/utils/uniqueid";
 import MasterGatePassTable from "@/table/master/MasterGatePassTable";
+import SelectLocationAcordingModule, {
+  LocationType,
+} from "@/components/reusable/SelectLocationAcordingModule";
 interface RowData {
   id: string;
   component: { lable: string; value: string } | null;
@@ -38,6 +41,7 @@ type FormState = {
   email: string;
   address: string;
   narration: string;
+  location: LocationType | null;
 };
 const CreateGP: React.FC = () => {
   const [rowData, setRowData] = useState<RowData[]>([]);
@@ -59,6 +63,7 @@ const CreateGP: React.FC = () => {
       email: "",
       address: "",
       narration: "",
+      location: null,
     },
   });
 
@@ -254,6 +259,29 @@ const CreateGP: React.FC = () => {
                 {errors.email && (
                   <p className="text-red-500 text-[12px]">
                     {errors.email.message}
+                  </p>
+                )}
+              </div>
+              <div className="col-span-2">
+                <Controller
+                  name="location"
+                  control={control}
+                  rules={{ required: "Location is required" }}
+                  render={({ field }) => (
+                    <SelectLocationAcordingModule
+                      endPoint={"/gpdc/pickLocation"}
+                      error={!!errors.location}
+                      helperText={errors.location?.message}
+                      value={field.value as LocationType}
+                      onChange={(e) => {
+                        field.onChange(e);
+                      }}
+                    />
+                  )}
+                />
+                {errors.location && (
+                  <p className="text-red-500 text-[12px]">
+                    {errors.location.message}
                   </p>
                 )}
               </div>

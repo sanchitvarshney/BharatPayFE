@@ -21,10 +21,17 @@ import R18Report from "@/pages/report/R18Report";
 import R19Report from "@/pages/report/R19Report";
 import R20Report from "@/pages/report/R20Report";
 import R21Report from "@/pages/report/R21Report";
+import BillingReport from "./BillingReport";
+import { useUser } from "@/hooks/useUser";
+import { visibaleArr } from "@/components/shared/Navslider";
+import NotPermissionPage from "../commonPages/NotPermissionPage";
 import R22Report from "@/pages/report/R22Report";
 
 const Report: React.FC = () => {
   const { id } = useParams();
+  const { user } = useUser();
+
+  const canSeeR22 = user?.crn_id ? visibaleArr.includes(user.crn_id) : null;
 
   if (id === "R1") {
     return <Deviceinreport />;
@@ -53,41 +60,54 @@ const Report: React.FC = () => {
   if (id === "R9") {
     return <R9Report />;
   }
-  if(id === "R10"){
-    return <R10Report/>
+  if (id === "R10") {
+    return <R10Report />;
   }
-  if(id === "R11"){
-    return <R11Report/>
+  if (id === "R11") {
+    return <R11Report />;
   }
-  if(id === "R12"){
-    return <R12Report/>
+  if (id === "R12") {
+    return <R12Report />;
   }
-  if(id === "R13"){
-    return <R13Report/>
+  if (id === "R13") {
+    return <R13Report />;
   }
-  if(id === "R14"){
-    return <R14Report/>
+  if (id === "R14") {
+    return <R14Report />;
   }
-  if(id === "R15"){
-    return <R15Report/>
+  if (id === "R15") {
+    return <R15Report />;
   }
-  if(id === "R16"){
-    return <R16Report/>
+  if (id === "R16") {
+    return <R16Report />;
   }
-  if(id === "R17"){
-    return <R17Report/>
+  if (id === "R17") {
+    return <R17Report />;
   }
-  if(id === "R18"){
-    return <R18Report/>
+  if (id === "R18") {
+    return <R18Report />;
   }
-   if(id === "R19"){
-    return <R19Report/>
+  if (id === "R19") {
+    return <R19Report />;
   }
-  if(id === "R20"){
-    return <R20Report/>
+  if (id === "R20") {
+    return <R20Report />;
   }
-  if(id === "R21"){
-    return <R21Report/>
+  if (id === "R21") {
+    return <R21Report />;
+  }
+  if (id === "R22") {
+    if (canSeeR22 === null) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
+        </div>
+      );
+    }
+    if (!canSeeR22) {
+      return <NotPermissionPage />;
+    }
+    return <BillingReport />;
   }
   if (id === "R22") {
     return <R22Report  />

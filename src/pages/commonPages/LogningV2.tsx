@@ -1,4 +1,14 @@
-import { Card, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, Link, OutlinedInput, Typography } from "@mui/material";
+import {
+  Card,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  Link,
+  OutlinedInput,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -13,7 +23,10 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PhonelinkLockRoundedIcon from "@mui/icons-material/PhonelinkLockRounded";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { LoginCredentials, loginUserAsync } from "@/features/authentication/authSlice";
+import {
+  LoginCredentials,
+  loginUserAsync,
+} from "@/features/authentication/authSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkPermissions } from "@/helper/checkPermissions";
 import { showToast } from "@/utils/toasterContext";
@@ -44,7 +57,12 @@ const LogningV2: React.FC = () => {
         showToast(response.payload?.data?.message, "success");
         navigate("/");
       } else {
-        response.payload?.message?showToast(response.payload?.message, "error"):showToast("Your account has been deactivated for 3hrs due to (3) consecutive unsuccessful attempts", "error"); 
+        // Check for message in different possible locations
+        const errorMessage =
+          response.payload?.data?.message || response.payload?.message;
+        if (errorMessage) {
+          showToast(errorMessage, "error");
+        }
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
@@ -69,15 +87,30 @@ const LogningV2: React.FC = () => {
         >
           <SwiperSlide>
             <div className="h-[50vh] bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center ">
-              <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
+              <Typography
+                variant="h1"
+                fontSize={50}
+                fontWeight={500}
+                className="text-white"
+              >
                 Welcome to the Future of ERP
               </Typography>
             </div>
             <div className="h-[50vh] py-[20px] px-[50px] bg-neutral-100  ">
-              <Typography variant="h2" fontSize={25} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h2"
+                fontSize={25}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Revolutionizing Business Operations
               </Typography>
-              <Typography variant="h3" fontSize={17} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h3"
+                fontSize={17}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Scalable, secure, and tailored to grow with your business.
               </Typography>
               <ul className="flex flex-col gap-[15px] mt-[20px] ml-2 h-[calc(50vh-120px)] overflow-y-auto ">
@@ -98,15 +131,30 @@ const LogningV2: React.FC = () => {
           </SwiperSlide>
           <SwiperSlide>
             <div className="h-[50vh]  bg-[url(/loginv2bg2.svg)] bg-cover flex items-center justify-center">
-              <Typography variant="h1" fontSize={50} fontWeight={500} className="text-white">
+              <Typography
+                variant="h1"
+                fontSize={50}
+                fontWeight={500}
+                className="text-white"
+              >
                 Powering Smarter Operations
               </Typography>
             </div>
             <div className="h-[50vh] py-[20px] px-[50px] bg-neutral-100  ">
-              <Typography variant="h2" fontSize={25} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h2"
+                fontSize={25}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Effortless Inventory Management
               </Typography>
-              <Typography variant="h3" fontSize={17} fontWeight={500} className="text-stone-700">
+              <Typography
+                variant="h3"
+                fontSize={17}
+                fontWeight={500}
+                className="text-stone-700"
+              >
                 Track, manage, and optimize your inventory with ease.
               </Typography>
               <ul className="flex flex-col gap-[15px] mt-[20px] ml-2 h-[calc(50vh-120px)] overflow-y-auto ">
@@ -130,18 +178,33 @@ const LogningV2: React.FC = () => {
       <div className="relative flex flex-col items-center gap-[20px] justify-center w-full h-full">
         <SelectEndPoint />
         <Card elevation={4} sx={{ width: "500px", padding: "20px" }}>
-          <Typography color="primary" variant="h1" component={"div"} className="flex items-center justify-center  text-slate-600 gap-[5px]" fontSize={35} fontWeight={500}>
+          <Typography
+            color="primary"
+            variant="h1"
+            component={"div"}
+            className="flex items-center justify-center  text-slate-600 gap-[5px]"
+            fontSize={35}
+            fontWeight={500}
+          >
             <PhonelinkLockRoundedIcon fontSize="large" />
             Secure Login
           </Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="mt-[50px] flex flex-col gap-[30px]">
-              <FormControl error={!!errors.username} fullWidth variant="outlined">
-                <InputLabel htmlFor="input-with-icon-adornment">Username</InputLabel>
+            <div className="mt-[50px] flex flex-col gap-[20px]">
+              <FormControl
+                error={!!errors.username}
+                fullWidth
+                variant="outlined"
+              >
+                <InputLabel htmlFor="input-with-icon-adornment">
+                  Username
+                </InputLabel>
                 <OutlinedInput
                   autoFocus
                   autoComplete="off"
-                  {...register("username", { required: "username is required" })}
+                  {...register("username", {
+                    required: "username is required",
+                  })}
                   label="Username"
                   id="input-with-icon-adornment"
                   startAdornment={
@@ -150,14 +213,26 @@ const LogningV2: React.FC = () => {
                     </InputAdornment>
                   }
                 />
-                {errors.username && <FormHelperText id="component-error-text">{errors.username.message}</FormHelperText>}
+                {errors.username && (
+                  <FormHelperText id="component-error-text">
+                    {errors.username.message}
+                  </FormHelperText>
+                )}
               </FormControl>
               <div className="flex flex-col items-end gap-[3px]">
-                <FormControl error={!!errors.password} fullWidth variant="outlined">
-                  <InputLabel htmlFor="input-with-password-adornment">Password</InputLabel>
+                <FormControl
+                  error={!!errors.password}
+                  fullWidth
+                  variant="outlined"
+                >
+                  <InputLabel htmlFor="input-with-password-adornment">
+                    Password
+                  </InputLabel>
                   <OutlinedInput
                     autoComplete="off"
-                    {...register("password", { required: "password is required" })}
+                    {...register("password", {
+                      required: "password is required",
+                    })}
                     type={showPassword ? "text" : "password"}
                     label="Password"
                     id="input-with-password-adornment"
@@ -168,31 +243,54 @@ const LogningV2: React.FC = () => {
                     }
                     endAdornment={
                       <InputAdornment position="end">
-                        <IconButton size="small" onClick={() => setShowPassword(!showPassword)} edge="end">
-                          {showPassword ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+                        <IconButton
+                          size="small"
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          {showPassword ? (
+                            <VisibilityIcon fontSize="small" />
+                          ) : (
+                            <VisibilityOffIcon fontSize="small" />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     }
                   />
-                  {errors.password && <FormHelperText id="component-error-text">{errors.password.message}</FormHelperText>}
+                  {errors.password && (
+                    <FormHelperText id="component-error-text">
+                      {errors.password.message}
+                    </FormHelperText>
+                  )}
                 </FormControl>
                 <div className="flex gap-[20px]">
-                <Link href="/forgot-password" fontSize={12} className="">
-                  Forgot Password
-                </Link>
-                <Link href="/password-recovery" fontSize={12} className="">
-                   Lock and Unlock User
-                </Link></div>
+                  <Link href="/forgot-password" fontSize={12} className="">
+                    Forgot Password
+                  </Link>
+                  <Link href="/password-recovery" fontSize={12} className="">
+                    Lock and Unlock User
+                  </Link>
+                </div>
               </div>
           
               <LoadingButton loading={loading} size="large" variant="contained" fullWidth type="submit">
                 Login
               </LoadingButton>
+              {!loading && (
+                <Typography textAlign={"center"} variant="subtitle2">
+                  OR
+                </Typography>
+              )}
             </div>
             <div className="mt-[30px]">
               <Typography fontSize={12} className="text-center">
-                This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply. For more info, please visit
-                <Link sx={{ ml: "4px" }} href="https://www.mscorpres.com" target="_blank">
+                This site is protected by reCAPTCHA and the Google Privacy
+                Policy and Terms of Service apply. For more info, please visit
+                <Link
+                  sx={{ ml: "4px" }}
+                  href="https://www.mscorpres.com"
+                  target="_blank"
+                >
                   www.mscorpres.com
                 </Link>
                 .

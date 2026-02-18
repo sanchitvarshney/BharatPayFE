@@ -53,10 +53,12 @@ axiosInstance.interceptors.response.use(
       localStorage.clear();
       window.location.href = "/login";
     }
+  
     showToast((error.response?.data?.message?.msg ? error.response?.data?.message?.msg : error.response?.data?.message) || "An unexpected error occurred", "error");
 
     return Promise.reject(error);
   }
+ 
 );
 
 export default axiosInstance;

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "./useReduxHook";
 
 interface FavPage {
@@ -38,7 +37,6 @@ interface LoggedInUser {
 
 export function useUser() {
  const  dispatch = useAppDispatch()
-  const navigate = useNavigate();
   const [user, setUser] = useState<LoggedInUser | null>(null);
 
   // Utility function to check if a string is valid JSON
@@ -62,9 +60,12 @@ export function useUser() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("loggedinUser");
+
+    
     if (storedUser) {
       if (isValidBase64(storedUser)) {
-        const decodedUser = atob(storedUser); // Decode the Base64 string
+        const decodedUser = atob(storedUser); 
+      
         if (isValidJSON(decodedUser)) {
           setUser(JSON.parse(decodedUser));
         } else {
@@ -73,12 +74,20 @@ export function useUser() {
           window.location.reload();
         }
       } else {
+        
         console.error("Invalid Base64 in loggedinUser");
         localStorage.clear();
         window.location.reload();
       }
-    }
-  }, [navigate,dispatch]);
+    }  else {
+        
+        console.error("Invalid Base64 in loggedinUser");
+        localStorage.clear();
+        window.location.reload();
+      }
+
+   
+  }, [dispatch]);
 
   const saveUser = (userData: LoggedInUser | null) => {
     if (userData) {
