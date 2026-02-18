@@ -490,7 +490,10 @@ const WorkersReports = () => {
       if (!Number.isFinite(profit) || !Number.isFinite(cost) || cost === 0)
         return null;
       const value = (cost / profit) * 100;
-      return Number.isFinite(value) ? value : null;
+      if (!Number.isFinite(value)) return null;
+      // Cap profit/loss % to 100% and -100% for display
+      if (value >= 0) return Math.min(100, value);
+      return Math.max(-100, value);
     };
 
     const sp1 = sumField("swipe_p12");
@@ -507,11 +510,21 @@ const WorkersReports = () => {
     const gtotalc1 = sumField("gtotal_cost");
     const gtotalc2 = sumField("gtotal_contribution");
 
+    // G total % = (Sum of Production - (Sum of Cost + Sum of contribution)) / Sum of production * 100
+    let gtotal: number | null = null;
+    if (Number.isFinite(gtotalp) && gtotalp !== 0) {
+      const value =
+        ((gtotalp - (gtotalc1 + gtotalc2)) / gtotalp) * 100;
+      if (Number.isFinite(value)) {
+        gtotal = Math.min(100, Math.max(-100, value));
+      }
+    }
+
     return {
       swipe: pct(sp1 + sp2 + sp3 + sp4, sP),
       soundbox: pct(soundp, sound),
       cleaning: pct(cleanp, clean),
-      gtotal: pct(gtotalp, gtotalc1 + gtotalc2),
+      gtotal,
     };
   }, [workerReports]);
 
