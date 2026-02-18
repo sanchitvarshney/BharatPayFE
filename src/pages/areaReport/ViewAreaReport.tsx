@@ -22,6 +22,7 @@ import {
   Select,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import * as XLSX from "xlsx";
 
 import { DatePicker } from "antd";
 import { rangePresets } from "@/utils/rangePresets";
@@ -195,6 +196,47 @@ const ViewAreaReport: React.FC = () => {
   };
   const selectedAreaId = watch("areaId");
 
+  const isDownloadDisabled = workingDataLoading || !workingData?.length;
+
+  const handleDownloadExcel = () => {
+    if (isDownloadDisabled) return;
+    const headers = [
+      "#",
+      "Full Name",
+      "Code",
+      "Place",
+      "Department",
+      "Insert Date",
+      "Date",
+      "Start Time",
+      "End Time",
+    ];
+    const exportData = (workingData ?? []).map((row: any, index: number) => ({
+      "#": index + 1,
+      "Full Name": row?.name ?? "",
+      "Code": row?.code ?? "",
+      "Place": row?.place ?? "",
+      "Department": row?.department ?? "",
+      "Insert Date": row?.date ?? "",
+      "Date": row?.punchDate ?? "",
+      "Start Time": row?.startTime ?? "",
+      "End Time": row?.endTime ?? "",
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(exportData, { header: headers });
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Area Report");
+    XLSX.writeFile(
+      workbook,
+      `AreaReport_${dayjs().format("DD-MM-YYYY_HH-mm")}.xlsx`
+    );
+    toast({
+      description: "Report downloaded successfully",
+      variant: "success",
+      className: "font-[500]",
+      duration: 1500,
+    });
+  };
+
   useEffect(() => {
     if (placeList.length === 0) {
       dispatch(getMasterPlace());
@@ -325,6 +367,18 @@ const ViewAreaReport: React.FC = () => {
             </div>
           </div>
           <div className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
+            <Button
+              onClick={handleDownloadExcel}
+              disabled={isDownloadDisabled}
+              variant="contained"
+              sx={{
+                background: "white",
+                color: "green",
+                "&.Mui-disabled": { background: "#f5f5f5", color: "#9e9e9e" },
+              }}
+            >
+              Download
+            </Button>
             <Button
               onClick={() => reset()}
               variant="contained"
