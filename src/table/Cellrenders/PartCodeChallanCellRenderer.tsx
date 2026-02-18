@@ -159,7 +159,15 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
         return <span className="flex items-center h-full">{stockDisplay}</span>;
       }
       case "hsn":
-        return <span className="flex items-center h-full">{value ?? ""}</span>;
+        return (
+          <Input
+            onChange={(e) => updateAndRefresh("hsn", e.target.value)}
+            value={value ?? ""}
+            type="text"
+            placeholder="HSN (editable)"
+            className="w-[100%] custom-input"
+          />
+        );
       default:
         return <span>{value != null ? String(value) : ""}</span>;
     }
@@ -179,7 +187,22 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     return <span className="flex items-center h-full">{stockDisplay}</span>;
   }
   if (colDef.field === "hsn") {
-    return <span className="flex items-center h-full">{value ?? ""}</span>;
+    return (
+      <Input
+        onChange={(e) => {
+          data.hsn = e.target.value;
+          api.refreshCells({
+            rowNodes: [props.node],
+            columns: [column, ...COLUMNS_TO_REFRESH],
+          });
+          customFunction();
+        }}
+        value={value ?? ""}
+        type="text"
+        placeholder="HSN (editable)"
+        className="w-[100%] custom-input"
+      />
+    );
   }
 
   return <span>{value != null ? String(value) : ""}</span>;

@@ -40,7 +40,7 @@ import SelectLocationAcordingModule, {
 
 interface RowData {
   id: string;
-  partComponent: { lable: string; value: string } | null;
+  partComponent: { label: string; value: string } | null;
   hsn?: string;
   qty: number;
   rate: string;
@@ -56,7 +56,7 @@ interface Totals {
   totalAmount?: number;
 }
 
-interface BillAddress {
+interface dispatchFromaddress {
   id: number;
   city: string;
   gst: string;
@@ -81,8 +81,8 @@ interface FormData {
   location: string;
   pickLocation: LocationType | null;
   dropLocation: LocationType | null;
-  billaddressid: 0;
-  billaddress: BillAddress;
+  dispatchFromaddressid: 0;
+  dispatchFromaddress: dispatchFromaddress;
   shipaddressid: 0;
   shipaddress: ShippingAddress;
   deliveryNoteNo: string;
@@ -110,7 +110,7 @@ const CreatePartCodeChallan: React.FC = () => {
   const { loading } = useAppSelector((state) => state.po);
   const { formData } = useAppSelector((state) => state.po);
   const { shippingAddress } = useAppSelector((state) => state.client) as any;
-
+console.log(rowData)
   const {
     register,
     handleSubmit,
@@ -201,8 +201,8 @@ const CreatePartCodeChallan: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    if (!data.billaddressid) {
-      showToast("Please select a Bill To address", "error");
+    if (!data.dispatchFromaddressid) {
+      showToast("Please select a Dispatch From address", "error");
       return;
     }
     if (!data.shipaddressid) {
@@ -234,21 +234,24 @@ const CreatePartCodeChallan: React.FC = () => {
           const component = rowData.map(
             (item) => item.partComponent?.value || ""
           );
+          const materialName = rowData.map(
+            (item) => item.partComponent?.label ?? ""
+          );
           const qty = rowData.map((item) => Number(item.qty));
           const rate = rowData.map((item) => Number(item.rate));
           const remark = rowData.map((item) => item.remarks ?? "");
           const hsn = rowData.map((item) => item.hsn ?? "");
 
-          const billingDetails = formData.billaddress
+          const dispatchFromDetails = formData.dispatchFromaddress
             ? {
-                id: formData.billaddressid || formData.billaddress?.id,
-                label: formData.billaddress?.label ?? "",
-                city: formData.billaddress?.city ?? "",
-                gst: formData.billaddress?.gst ?? "",
-                pin: formData.billaddress?.pin ?? "",
-                pan: formData.billaddress?.pan ?? "",
-                addressLine1: formData.billaddress?.addressLine1 ?? "",
-                addressLine2: formData.billaddress?.addressLine2 ?? "",
+                id: formData.dispatchFromaddressid || formData.dispatchFromaddress?.id,
+                label: formData.dispatchFromaddress?.label ?? "",
+                city: formData.dispatchFromaddress?.city ?? "",
+                gst: formData.dispatchFromaddress?.gst ?? "",
+                pin: formData.dispatchFromaddress?.pin ?? "",
+                pan: formData.dispatchFromaddress?.pan ?? "",
+                addressLine1: formData.dispatchFromaddress?.addressLine1 ?? "",
+                addressLine2: formData.dispatchFromaddress?.addressLine2 ?? "",
               }
             : {};
 
@@ -267,13 +270,14 @@ const CreatePartCodeChallan: React.FC = () => {
 
           const payload: any = {
             component,
+            materialName,
             qty,
             rate,
             remark,
             hsn,
             pickLocation: formData.pickLocation?.code ?? formData.pickLocation?.sku ?? "",
             dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
-            billingDetails,
+            dispatchFromDetails,
             shippingDetails,
             deliveryNoteNo: formData.deliveryNoteNo || watch("deliveryNoteNo") || "",
             referenceNoAndDate: formData.referenceNoAndDate || watch("referenceNoAndDate") || "",
@@ -319,16 +323,16 @@ const CreatePartCodeChallan: React.FC = () => {
     dispatch(getShippingAddress());
   }, []);
 
-  const handleBillAddressChange = (value: any) => {
+  const handledispatchFromaddressChange = (value: any) => {
     if (value) {
-      setValue("billaddressid", value.code);
-      setValue("billaddress.label", value.label);
-      setValue("billaddress.addressLine1", value.addressLine1);
-      setValue("billaddress.addressLine2", value.addressLine2);
-      setValue("billaddress.city", value.city);
-      setValue("billaddress.gst", value.gst);
-      setValue("billaddress.pan", value.pan);
-      setValue("billaddress.pin", value.pin);
+      setValue("dispatchFromaddressid", value.code);
+      setValue("dispatchFromaddress.label", value.label);
+      setValue("dispatchFromaddress.addressLine1", value.addressLine1);
+      setValue("dispatchFromaddress.addressLine2", value.addressLine2);
+      setValue("dispatchFromaddress.city", value.city);
+      setValue("dispatchFromaddress.gst", value.gst);
+      setValue("dispatchFromaddress.pan", value.pan);
+      setValue("dispatchFromaddress.pin", value.pin);
     }
   };
   const handleShipAddressChange = (value: any) => {
@@ -343,11 +347,11 @@ const CreatePartCodeChallan: React.FC = () => {
       setValue("shipaddress.pin", value.pin);
     }
   };
-  const billLabel = watch("billaddress.label");
+  const billLabel = watch("dispatchFromaddress.label");
   const shipLabel = watch("shipaddress.label");
   const shippingList = Array.isArray(shippingAddress) ? shippingAddress : (shippingAddress?.data ?? []);
   const isKortek = (addr: any) => addr?.label?.toLowerCase().includes("kortek");
-  const billSelected = shippingList.find((a: any) => a.code === watch("billaddressid"));
+  const billSelected = shippingList.find((a: any) => a.code === watch("dispatchFromaddressid"));
   const shipSelected = shippingList.find((a: any) => a.code === watch("shipaddressid"));
   const billToOptions = shippingList.filter((addr: any) => {
     if (shipSelected && isKortek(shipSelected) && isKortek(addr)) return false;
@@ -364,8 +368,8 @@ const CreatePartCodeChallan: React.FC = () => {
         if (res?.success && res?.data) {
           const { bill, ship, materials, header } = res.data;
 
-          setValue("billaddressid", bill?.code || "");
-          handleBillAddressChange(bill || "");
+          setValue("dispatchFromaddressid", bill?.code || "");
+          handledispatchFromaddressChange(bill || "");
           setValue("shipaddressid", ship?.code || "");
           handleShipAddressChange(ship || "");
           setValue("deliveryNoteNo", header?.deliveryNoteNo || "");
@@ -392,7 +396,7 @@ const CreatePartCodeChallan: React.FC = () => {
             materials.map((item: any, index: number) => ({
               id: item.id || item.updateid || `edit-row-${index}`,
               partComponent: {
-                lable: item.component_short,
+                label: item.component_short,
                 value: item.componentKey,
               },
               hsn: item.hsn ?? "",
@@ -452,7 +456,7 @@ const CreatePartCodeChallan: React.FC = () => {
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.shipping />
-                  <h2 className="text-lg font-semibold">Bill To</h2>
+                  <h2 className="text-lg font-semibold">Dispatch From</h2>
                 </div>
                 <Divider
                   sx={{
@@ -464,11 +468,11 @@ const CreatePartCodeChallan: React.FC = () => {
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
-                  name="billaddressid"
+                  name="dispatchFromaddressid"
                   rules={{
                     required: {
                       value: true,
-                      message: "Bill To address is required",
+                      message: "Dispatch From address is required",
                     },
                   }}
                   control={control}
@@ -480,7 +484,7 @@ const CreatePartCodeChallan: React.FC = () => {
                         ) || null
                       }
                       onChange={(_, newValue) =>
-                        handleBillAddressChange(newValue)
+                        handledispatchFromaddressChange(newValue)
                       }
                       disablePortal
                       id="combo-box-billto"
@@ -489,9 +493,9 @@ const CreatePartCodeChallan: React.FC = () => {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label={(billLabel || "Bill To") as any}
-                          error={!!errors.billaddress}
-                          helperText={errors.billaddress?.message}
+                          label={(billLabel || "Dispatch From") as any}
+                          error={!!errors.dispatchFromaddress}
+                          helperText={errors.dispatchFromaddress?.message}
                           variant="filled"
                         />
                       )}
@@ -502,15 +506,15 @@ const CreatePartCodeChallan: React.FC = () => {
                 <TextField
                   variant="filled"
                   // sx={{ mb: 1 }}
-                  error={!!errors.billaddress?.pin}
-                  helperText={errors?.billaddress?.pin?.message}
-                  focused={!!watch("billaddress.pin")}
+                  error={!!errors.dispatchFromaddress?.pin}
+                  helperText={errors?.dispatchFromaddress?.pin?.message}
+                  focused={!!watch("dispatchFromaddress.pin")}
                   // multiline
                   rows={3}
                   fullWidth
                   label="PinCode"
                   className="h-[10px] resize-none"
-                  {...register("billaddress.pin", {
+                  {...register("dispatchFromaddress.pin", {
                     required: "PinCode is required",
                   })}
                 />
@@ -518,45 +522,45 @@ const CreatePartCodeChallan: React.FC = () => {
                 <TextField
                   variant="filled"
                   // sx={{ mb: 1 }}
-                  error={!!errors.billaddress?.city}
-                  helperText={errors?.billaddress?.city?.message}
-                  focused={!!watch("billaddress.city")}
+                  error={!!errors.dispatchFromaddress?.city}
+                  helperText={errors?.dispatchFromaddress?.city?.message}
+                  focused={!!watch("dispatchFromaddress.city")}
                   // multiline
                   rows={3}
                   fullWidth
                   label="City"
                   className="h-[10px] resize-none"
-                  {...register("billaddress.city", {
+                  {...register("dispatchFromaddress.city", {
                     required: "City is required",
                   })}
                 />
                 <TextField
                   variant="filled"
                   // sx={{ mb: 1 }}
-                  error={!!errors.billaddress?.gst}
-                  helperText={errors?.billaddress?.gst?.message}
-                  focused={!!watch("billaddress.gst")}
+                  error={!!errors.dispatchFromaddress?.gst}
+                  helperText={errors?.dispatchFromaddress?.gst?.message}
+                  focused={!!watch("dispatchFromaddress.gst")}
                   // multiline
                   rows={3}
                   fullWidth
                   label="GST"
                   className="h-[10px] resize-none"
-                  {...register("billaddress.gst", {
+                  {...register("dispatchFromaddress.gst", {
                     required: "GST is required",
                   })}
                 />
                 <TextField
                   variant="filled"
                   sx={{ mb: 5 }}
-                  error={!!errors.billaddress?.pan}
-                  helperText={errors?.billaddress?.pan?.message}
-                  focused={!!watch("billaddress.pan")}
+                  error={!!errors.dispatchFromaddress?.pan}
+                  helperText={errors?.dispatchFromaddress?.pan?.message}
+                  focused={!!watch("dispatchFromaddress.pan")}
                   // multiline
                   rows={3}
                   fullWidth
                   label="PAN"
                   className="h-[10px] resize-none"
-                  {...register("billaddress.pan", {
+                  {...register("dispatchFromaddress.pan", {
                     required: "PAN is required",
                   })}
                 />
@@ -565,30 +569,30 @@ const CreatePartCodeChallan: React.FC = () => {
                 <TextField
                   variant="filled"
                   sx={{ mb: 1 }}
-                  error={!!errors.billaddress?.addressLine1}
-                  helperText={errors?.billaddress?.addressLine1?.message}
-                  focused={!!watch("billaddress.addressLine1")}
+                  error={!!errors.dispatchFromaddress?.addressLine1}
+                  helperText={errors?.dispatchFromaddress?.addressLine1?.message}
+                  focused={!!watch("dispatchFromaddress.addressLine1")}
                   multiline
                   rows={3}
                   fullWidth
                   label="Dispatch From Address 1"
                   className="h-[100px] resize-none"
-                  {...register("billaddress.addressLine1", {
+                  {...register("dispatchFromaddress.addressLine1", {
                     required: "Address 1 is required",
                   })}
                 />
                 <TextField
                   variant="filled"
                   sx={{ mb: 1 }}
-                  error={!!errors.billaddress?.addressLine2}
-                  helperText={errors?.billaddress?.addressLine2?.message}
-                  focused={!!watch("billaddress.addressLine2")}
+                  error={!!errors.dispatchFromaddress?.addressLine2}
+                  helperText={errors?.dispatchFromaddress?.addressLine2?.message}
+                  focused={!!watch("dispatchFromaddress.addressLine2")}
                   multiline
                   rows={3}
                   fullWidth
                   label="Dispatch From Address 2"
                   className="h-[100px] resize-none"
-                  {...register("billaddress.addressLine2", {
+                  {...register("dispatchFromaddress.addressLine2", {
                     required: "Address 2 is required",
                   })}
                 />
