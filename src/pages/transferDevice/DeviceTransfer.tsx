@@ -138,16 +138,14 @@ const DeviceTransfer = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-100px)] bg-white flex flex-col">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 p-0">
-        <div className="flex-1 min-h-0 overflow-hidden flex flex-col w-full px-2 py-2">
-          <div className="flex flex-col flex-1 min-h-0 gap-2 w-full">
-            {/* IMEI */}
-            <div className="flex flex-wrap items-end gap-2 flex-shrink-0">
-              <div className="w-full sm:w-auto sm:min-w-[200px] sm:max-w-[280px]">
-                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                  Enter IMEI Number
-                </Typography>
+    <div className="h-[calc(100vh-100px)] bg-white flex flex-col overflow-hidden">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 p-0 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden w-full px-4 py-2 flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4 items-start w-full max-w-full flex-1 min-h-0 overflow-hidden">
+            {/* Left: IMEI, Select Issue, Return Issue, Remark */}
+            <div className="flex flex-col gap-2 min-w-0 max-w-lg flex-shrink-0 overflow-hidden">
+              <div className="flex flex-col gap-1">
+                <Typography variant="subtitle2">Enter IMEI Number</Typography>
                 <Controller
                   name="imeinumber"
                   control={control}
@@ -161,7 +159,7 @@ const DeviceTransfer = () => {
                       placeholder="Enter IMEI (15 digits) and press Enter"
                       value={field.value || ""}
                       fullWidth
-                      size="medium"
+                      size="small"
                       inputProps={{ "aria-label": "IMEI", maxLength: 15 }}
                       onChange={(e) => {
                         const val = e.target.value.replace(/\D/g, "").slice(0, 15);
@@ -198,12 +196,9 @@ const DeviceTransfer = () => {
                   </span>
                 )}
               </div>
-            </div>
 
-            {/* Select Issue, Return Issue, Remark - aligned in a row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-shrink-0 items-start">
-              <div className="min-w-0">
-                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Select Issue</Typography>
+              <div className="flex flex-col gap-1">
+                <Typography variant="subtitle2">Select Issue</Typography>
                 <Controller
                   name="issue"
                   control={control}
@@ -217,7 +212,7 @@ const DeviceTransfer = () => {
                         <FormControlLabel
                           key={item.id}
                           value={item.id}
-                          control={<Radio size="medium" />}
+                          control={<Radio size="small" />}
                           label={item.text}
                           sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
                         />
@@ -229,15 +224,16 @@ const DeviceTransfer = () => {
                   <span className="text-xs text-red-500">Issue is required</span>
                 )}
               </div>
-              <div className="min-w-0">
-                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Return Issue</Typography>
+
+              <div className="flex flex-col gap-1">
+                <Typography variant="subtitle2">Return Issue</Typography>
                 <Controller
                   name="returnissue"
                   control={control}
                   rules={{ required: "Return Issue is required" }}
                   render={({ field }) => (
                     <Select
-                      size="medium"
+                      size="small"
                       value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.value)}
                       displayEmpty
@@ -257,8 +253,9 @@ const DeviceTransfer = () => {
                   )}
                 />
               </div>
-              <div className="min-w-0">
-                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Remark</Typography>
+
+              <div className="flex flex-col gap-1">
+                <Typography variant="subtitle2">Remark</Typography>
                 <Controller
                   name="remark"
                   control={control}
@@ -267,7 +264,7 @@ const DeviceTransfer = () => {
                       {...field}
                       multiline
                       rows={2}
-                      size="medium"
+                      size="small"
                       placeholder="Enter Remark"
                       variant="outlined"
                       fullWidth
@@ -279,12 +276,12 @@ const DeviceTransfer = () => {
               </div>
             </div>
 
-            {/* Camera + Capture */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 flex-1 min-h-0 min-w-0 content-start">
-              <div className="flex-shrink-0">
-                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Select Camera</Typography>
+            {/* Right: Select Camera, Webcam + Captured image side by side - same page */}
+            <div className="flex flex-col gap-2 min-w-0 flex-1 min-h-0 overflow-hidden">
+              <div className="flex flex-col gap-1 flex-shrink-0">
+                <Typography variant="subtitle2">Select Camera</Typography>
                 <Select
-                  size="medium"
+                  size="small"
                   value={deviceId}
                   onChange={(e: any) => setDeviceId(e.target.value)}
                   fullWidth
@@ -296,35 +293,37 @@ const DeviceTransfer = () => {
                   ))}
                 </Select>
               </div>
-              {deviceId && (
-                <div className="flex flex-col gap-1 min-w-0 max-h-[220px]">
-                  <div className="flex-1 min-h-[160px] w-full overflow-hidden rounded border bg-black">
-                    <Webcam
-                      key={deviceId}
-                      ref={webcamRef}
-                      screenshotFormat="image/png"
-                      videoConstraints={videoConstraints}
-                      minScreenshotHeight={360}
-                      minScreenshotWidth={640}
-                      style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                    />
+              <div className="flex gap-2 flex-1 min-h-0 items-start flex-nowrap overflow-hidden">
+                {deviceId && (
+                  <div className="flex flex-col gap-1 flex-shrink-0">
+                    <div className="w-[240px] h-[160px] min-w-[240px] overflow-hidden rounded border bg-black">
+                      <Webcam
+                        key={deviceId}
+                        ref={webcamRef}
+                        screenshotFormat="image/png"
+                        videoConstraints={videoConstraints}
+                        minScreenshotHeight={360}
+                        minScreenshotWidth={640}
+                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                      />
+                    </div>
+                    <Button size="small" variant="contained" onClick={capture}>Capture</Button>
                   </div>
-                  <Button size="medium" variant="contained" onClick={capture}>Capture</Button>
-                </div>
-              )}
-              {image && (
-                <div className="flex flex-col gap-1 items-start min-w-0 flex-shrink-0">
-                  <img src={image} alt="captured" className="max-w-full max-h-[180px] object-contain rounded border" />
-                  <Button size="medium" variant="contained" color="error" onClick={() => setImage(null)}>Remove</Button>
-                </div>
-              )}
+                )}
+                {image && (
+                  <div className="flex flex-col gap-1 flex-shrink-0">
+                    <img src={image} alt="captured" className="w-[240px] h-[160px] min-w-[240px] object-contain rounded border bg-black/5" />
+                    <Button size="small" variant="contained" color="error" onClick={() => setImage(null)}>Remove</Button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="border-t border-neutral-300 py-2 absolute bottom-0 left-0 right-0 bg-white">
-          <div className="h-12 flex items-center gap-2 px-4 justify-end">
+        <div className="border-t border-neutral-300 py-1.5 flex-shrink-0 bg-white">
+          <div className="px-4 h-10 flex items-center gap-2 justify-end">
             <Button
               onClick={() => {
                 reset();
