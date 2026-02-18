@@ -490,7 +490,10 @@ const WorkersReports = () => {
       if (!Number.isFinite(profit) || !Number.isFinite(cost) || cost === 0)
         return null;
       const value = (cost / profit) * 100;
-      return Number.isFinite(value) ? value : null;
+      if (!Number.isFinite(value)) return null;
+      // Cap profit/loss % to 100% and -100% for display
+      if (value >= 0) return Math.min(100, value);
+      return Math.max(-100, value);
     };
 
     const sp1 = sumField("swipe_p12");
