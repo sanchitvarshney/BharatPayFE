@@ -6,6 +6,7 @@ const initialState: any = {
   issueData: [],
   loadingissue: false,
   deviceDetails: [],
+  deviceDetailsData: null,
   loadingDeviceDetails: false,
   costCenter: [],
   loadingCostCenter: false,
@@ -58,7 +59,7 @@ export const submitTransferData = createAsyncThunk<AxiosResponse<any>>(
   "master/transfer/submit",
   async (payload: any) => {
     const response = await axiosInstance.post(
-      `/device-movement/device-transfer`,
+      `/device-movement/ber-device-transfer`,
       payload,
     );
     return response?.data;
@@ -115,9 +116,9 @@ const transferSlice = createSlice({
       })
       .addCase(fetchDeviceDetails.fulfilled, (state, action: any) => {
         state.loadingDeviceDetails = false;
-
-        if (action.payload.success) {
-          state.deviceDetailsData = action.payload.data?.[0];
+        if (action.payload?.success && action.payload?.data != null) {
+          const data = action.payload.data;
+          state.deviceDetailsData = Array.isArray(data) ? data[0] : data;
         }
       })
       .addCase(fetchDeviceDetails.rejected, (state) => {

@@ -1,15 +1,9 @@
-import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import Webcam from "react-webcam";
 import { LoadingButton } from "@mui/lab";
 import {
   Button,
-  Card,
-  CardContent,
-  CircularProgress,
-  Divider,
   FormControlLabel,
-  Grid,
   InputAdornment,
   MenuItem,
   Radio,
@@ -44,7 +38,6 @@ const DeviceTransfer = () => {
   const [deviceId, setDeviceId] = useState("");
   const {
     deviceDetailsData,
-    loadingDeviceDetails,
     issueData,
     isImageLoading,
     isSubmitLoading,
@@ -72,37 +65,35 @@ const DeviceTransfer = () => {
     control,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
-      deviceId: "",
-      locationfromId: "",
-      locationtoId: "",
-      optionValue: "serialNo",
-      costcenterId: "",
       imeinumber: "",
       issue: [],
       returnissue: "",
       remark: "",
     },
   });
-  const deviceModel = watch("deviceId");
+  const DEFAULT_DEVICE_MODEL = "soundBox";
 
   useEffect(() => {
     //@ts-ignore
     dispatch(fetchIssue());
   }, []);
 
+  const getErrorMessage = (err: unknown): string => {
+    if (err == null) return "Something went wrong.";
+    if (typeof err === "string") return err;
+    const ax = err as { response?: { data?: { message?: string; error?: string } }; message?: string };
+    return ax?.response?.data?.message ?? ax?.response?.data?.error ?? ax?.message ?? "Something went wrong.";
+  };
+
   const onSubmit = async (data: any) => {
     try {
+      const slNo = deviceDetailsData?.sl_no != null ? String(deviceDetailsData.sl_no) : null;
       const payload = {
-        skuId: data.deviceId?.id,
-        fromLocation: data.locationfromId?.code,
-        toLocation: data.locationtoId?.code,
-        cc: data.costcenterId?.id,
         imeiNo: [data.imeinumber],
-        srlNo: [deviceDetailsData?.sl_no],
+        srlNo: slNo != null ? [slNo] : [],
         issue: data.issue,
         return_reason: data.returnissue,
         remark: data.remark,
@@ -111,7 +102,7 @@ const DeviceTransfer = () => {
       //@ts-ignore
       const result: any = await dispatch(submitTransferData(payload)).unwrap();
       if (result?.success) {
-        showToast(result?.message);
+        showToast(result?.message || "Success", "success");
         if (image) {
           const formData: any = new FormData();
           const response = await fetch(image);
@@ -129,15 +120,16 @@ const DeviceTransfer = () => {
               showToast(res.payload.data.message, "success");
               setImage(null);
             } else {
-              showToast(res.payload.data.message, "error");
+              showToast(getErrorMessage(res.payload?.data) || res.payload?.data?.message || "Upload failed", "error");
             }
           });
         }
       } else {
-        showToast(result?.message, "error");
+        const msg = result?.message ?? result?.error ?? "Request failed.";
+        showToast(typeof msg === "string" ? msg : "Something went wrong.", "error");
       }
-    } catch (error: any) {
-      showToast(error, "error");
+    } catch (error: unknown) {
+      showToast(getErrorMessage(error), "error");
     }
   };
 
@@ -145,370 +137,194 @@ const DeviceTransfer = () => {
     handleSubmit(onSubmit)();
   };
 
-  const showDetails = (
-    <Card
-      elevation={0}
-      sx={{ mt: 2, borderRadius: 2, boxShadow: "0 0 12px rgba(0,0,0,0.12)" }}
-    >
-      <CardContent>
-        <div className="flex justify-between items-center">
-          <Typography variant="h6" fontWeight={600} gutterBottom>
-            Device Details
-          </Typography>
-          {loadingDeviceDetails && <CircularProgress size={20} />}
-        </div>
-
-        <Divider sx={{ mb: 2 }} />
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <LabelValue
-              label="Product Name"
-              value={deviceDetailsData?.p_name}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LabelValue label="IMEI" value={deviceDetailsData?.device_imei} />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LabelValue label="Model" value={deviceDetailsData?.device_model} />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LabelValue label="SKU" value={deviceDetailsData?.device_sku} />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LabelValue label="Manufacturer" value={deviceDetailsData?.mfgBy} />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LabelValue
-              label="Manufactured On"
-              value={`${deviceDetailsData?.mfgMonth ?? "-"}/${deviceDetailsData?.mfgYear ?? "-"}`}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LabelValue label="Serial No" value={deviceDetailsData?.sl_no} />
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
-  );
-
   return (
-    <div className="h-[calc(100vh-100px)]  bg-white">
-      <form onSubmit={handleSubmit(onSubmit)} className="p-[0px]  ">
-        <div className="w-full h-[calc(100vh-170px)] overflow-y-auto  ">
-          <div className="w-full grid grid-cols-3 gap-[20px] p-[15px]   ">
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Device Model
-              </Typography>
-              <Controller
-                name="deviceId"
-                control={control}
-                rules={{
-                  required: "Device Model is required",
-                }}
-                render={({ field }) => (
-                  <SelectLocationAcordingModule
-                    endPoint="/product/bySku/null?type=soundBox"
-                    value={field.value || null}
-                    onChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    error={!!errors.deviceId}
-                    placeholder="Device Model"
-                    isSearch={false}
-                  />
+    <div className="h-[calc(100vh-100px)] bg-white flex flex-col">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 p-0">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col w-full px-2 py-2">
+          <div className="flex flex-col flex-1 min-h-0 gap-2 w-full">
+            {/* IMEI */}
+            <div className="flex flex-wrap items-end gap-2 flex-shrink-0">
+              <div className="w-full sm:w-auto sm:min-w-[200px] sm:max-w-[280px]">
+                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
+                  Enter IMEI Number
+                </Typography>
+                <Controller
+                  name="imeinumber"
+                  control={control}
+                  rules={{
+                    required: "IMEI Number is required",
+                    validate: (v) =>
+                      !v || /^\d{15}$/.test(v) || "IMEI must be exactly 15 digits",
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      placeholder="Enter IMEI (15 digits) and press Enter"
+                      value={field.value || ""}
+                      fullWidth
+                      size="medium"
+                      inputProps={{ "aria-label": "IMEI", maxLength: 15 }}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 15);
+                        field.onChange(val);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (field.value.trim()) {
+                            dispatch(
+                              fetchDeviceDetails({
+                                deviceCode: field.value.trim(),
+                                deviceModel: DEFAULT_DEVICE_MODEL,
+                              }) as any,
+                            );
+                          }
+                        }
+                      }}
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <QrCodeScanner />
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
+                  )}
+                />
+                {errors.imeinumber && (
+                  <span className="text-xs text-red-500">
+                    {(errors.imeinumber as { message?: string })?.message}
+                  </span>
                 )}
-              />
-              {errors.date && (
-                <span className=" text-[12px] text-red-500">
-                  {/* @ts-ignore */}
-                  {errors.date.message}
-                </span>
+              </div>
+            </div>
+
+            {/* Select Issue, Return Issue, Remark - aligned in a row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-shrink-0 items-start">
+              <div className="min-w-0">
+                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Select Issue</Typography>
+                <Controller
+                  name="issue"
+                  control={control}
+                  rules={{ required: "Issue is required" }}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 0.5 }}
+                    >
+                      {issueData?.map((item: any) => (
+                        <FormControlLabel
+                          key={item.id}
+                          value={item.id}
+                          control={<Radio size="medium" />}
+                          label={item.text}
+                          sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
+                        />
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+                {errors.issue && (
+                  <span className="text-xs text-red-500">Issue is required</span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Return Issue</Typography>
+                <Controller
+                  name="returnissue"
+                  control={control}
+                  rules={{ required: "Return Issue is required" }}
+                  render={({ field }) => (
+                    <Select
+                      size="medium"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      displayEmpty
+                      fullWidth
+                      renderValue={(selected) => {
+                        if (!selected) return "Return Issue";
+                        const found = issueTypes.find((item) => item.id === selected);
+                        return found?.text || "Return Issue";
+                      }}
+                      error={!!errors.returnissue}
+                    >
+                      <MenuItem value="" disabled>Return Issue</MenuItem>
+                      {issueTypes.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>{item.text}</MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+              </div>
+              <div className="min-w-0">
+                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Remark</Typography>
+                <Controller
+                  name="remark"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      multiline
+                      rows={2}
+                      size="medium"
+                      placeholder="Enter Remark"
+                      variant="outlined"
+                      fullWidth
+                      value={field?.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Camera + Capture */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 flex-1 min-h-0 min-w-0 content-start">
+              <div className="flex-shrink-0">
+                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>Select Camera</Typography>
+                <Select
+                  size="medium"
+                  value={deviceId}
+                  onChange={(e: any) => setDeviceId(e.target.value)}
+                  fullWidth
+                >
+                  {devices.map((device, i) => (
+                    <MenuItem key={i} value={device.deviceId}>
+                      {device.label || `Camera ${i + 1}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </div>
+              {deviceId && (
+                <div className="flex flex-col gap-1 min-w-0 max-h-[220px]">
+                  <div className="flex-1 min-h-[160px] w-full overflow-hidden rounded border bg-black">
+                    <Webcam
+                      key={deviceId}
+                      ref={webcamRef}
+                      screenshotFormat="image/png"
+                      videoConstraints={videoConstraints}
+                      minScreenshotHeight={360}
+                      minScreenshotWidth={640}
+                      style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                    />
+                  </div>
+                  <Button size="medium" variant="contained" onClick={capture}>Capture</Button>
+                </div>
+              )}
+              {image && (
+                <div className="flex flex-col gap-1 items-start min-w-0 flex-shrink-0">
+                  <img src={image} alt="captured" className="max-w-full max-h-[180px] object-contain rounded border" />
+                  <Button size="medium" variant="contained" color="error" onClick={() => setImage(null)}>Remove</Button>
+                </div>
               )}
             </div>
-
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Location from
-              </Typography>
-              <Controller
-                name="locationfromId"
-                control={control}
-                rules={{ required: "Location from is required" }}
-                render={({ field }) => (
-                  <SelectLocationAcordingModule
-                    endPoint="/device-movement/pickLocation"
-                    value={field.value || null}
-                    onChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    error={!!errors.locationfromId}
-                    placeholder="Location from"
-                    isSearch={false}
-                  />
-                )}
-              />
-            </div>
-
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Location to
-              </Typography>
-              <Controller
-                name="locationtoId"
-                control={control}
-                rules={{ required: "Location to is required" }}
-                render={({ field }) => (
-                  <SelectLocationAcordingModule
-                    endPoint="/device-movement/dropLocation"
-                    value={field.value || null}
-                    onChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    error={!!errors.locationtoId}
-                    placeholder="Location to"
-                    isSearch={false}
-                  />
-                )}
-              />
-            </div>
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Cost Center (CC)
-              </Typography>
-              <Controller
-                name="costcenterId"
-                control={control}
-                rules={{ required: "Cost Center is required" }}
-                render={({ field }) => (
-                  <SelectLocationAcordingModule
-                    endPoint="/backend/costcenter"
-                    value={field.value || null}
-                    onChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    error={!!errors.costcenterId}
-                    placeholder="Cost Center (CC)"
-                    isSearch={false}
-                  />
-                )}
-              />
-            </div>
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Enter IMEI Number
-              </Typography>
-              <Controller
-                name="imeinumber"
-                control={control}
-                rules={{
-                  required: "IMIE Number is required",
-                  validate: (v) =>
-                    !v || /^\d{15}$/.test(v) || "IMEI must be exactly 15 digits",
-                }}
-                render={({ field }) => (
-                  <TextField
-                    placeholder="Enter IMEI Number (15 digits)"
-                    value={field.value || ""}
-                    fullWidth
-                    inputProps={{
-                      "aria-label": "weight",
-                      maxLength: 15,
-                     
-                    }}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "").slice(0, 15);
-                      field.onChange(val);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        if (field.value.trim() && deviceModel) {
-                          dispatch(
-                            //@ts-ignore
-                            fetchDeviceDetails({
-                              deviceCode: field.value.trim(),
-                              deviceModel: deviceModel?.id,
-                            }),
-                          );
-                        }
-                        e.preventDefault();
-                      }
-                    }}
-                    slotProps={{
-                      input: {
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {<QrCodeScanner />}
-                          </InputAdornment>
-                        ),
-                      },
-                    }}
-                  />
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="w-full grid grid-cols-2 gap-[20px] p-[15px] ">
-            {showDetails}
-          </div>
-          <div className="w-full grid grid-cols-3 gap-[20px] p-[15px] ">
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Select Issue
-              </Typography>
-              <Controller
-                name="issue"
-                control={control}
-                rules={{ required: "Issue is required" }}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(2, 1fr)",
-                      gap: 1,
-                    }}
-                  >
-                    {issueData?.map((item: any) => (
-                      <FormControlLabel
-                        key={item.id}
-                        value={item.id}
-                        control={<Radio />}
-                        label={item.text}
-                      />
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-            </div>
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Return Issue
-              </Typography>
-              <Controller
-                name="returnissue"
-                control={control}
-                rules={{ required: "Return Issue is required" }}
-                render={({ field }) => (
-                  <Select
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    displayEmpty
-                    renderValue={(selected) => {
-                      if (!selected) return "Return Issue";
-
-                      const found = issueTypes.find(
-                        (item) => item.id === selected,
-                      );
-
-                      return found?.text || "Return Issue";
-                    }}
-                    className="w-[100%]"
-                    error={!!errors.returnissue}
-                  >
-                    <MenuItem value="" disabled>
-                      Return Issue
-                    </MenuItem>
-
-                    {issueTypes.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.text}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
-          <div className="w-full grid grid-cols-3 gap-[20px] p-[15px]">
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Select Camera
-              </Typography>
-              <Select
-                value={deviceId}
-                onChange={(e: any) => setDeviceId(e.target.value)}
-                className="w-[100%]"
-              >
-                {devices.map((device, i) => (
-                  <MenuItem key={i} value={device.deviceId}>
-                    {device.label || `Camera ${i + 1}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </div>
-            {deviceId && (
-              <div className="flex flex-col items-center gap-[10px] col-span-1 min-w-0">
-                <Webcam
-                  key={deviceId}
-                  ref={webcamRef}
-                  screenshotFormat="image/png"
-                  videoConstraints={videoConstraints}
-                  minScreenshotHeight={720}
-                  minScreenshotWidth={1280}
-                  style={{ width: "100%", maxWidth: 1280, aspectRatio: "16/9" }}
-                />
-                <Button variant="contained" onClick={capture}>
-                  Capture
-                </Button>
-              </div>
-            )}
-            <div className="flex flex-col items-center gap-[10px]">
-              {image && (
-                <>
-                  {" "}
-                  <img src={image} alt="captured" />
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => setImage(null)}
-                  >
-                    Remove
-                  </Button>
-                </>
-              )}{" "}
-            </div>
-          </div>
-          {/* show textfile for remark */}
-          <div className="w-full grid grid-cols-2 gap-[20px] p-[15px]">
-            <div>
-              <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                Remark
-              </Typography>
-              <Controller
-                name="remark"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    multiline
-                    rows={4}
-                    placeholder="Enter Remark"
-                    variant="outlined"
-                    sx={{ width: "100%" }}
-                    value={field?.value ?? ""}
-                    onChange={(e) => {
-                      field.onChange(e.target.value);
-                    }}
-                  />
-                )}
-              />
-            </div>
           </div>
         </div>
 
-        {/* Action Buttons Section */}
-        <div className="border-t border-neutral-300 py-[10px] absolute bottom-0 left-0 right-0">
-          <div className="h-[50px] p-0 flex items-center  gap-[10px] px-[20px] justify-end">
+        {/* Action Buttons */}
+        <div className="border-t border-neutral-300 py-2 absolute bottom-0 left-0 right-0 bg-white">
+          <div className="h-12 flex items-center gap-2 px-4 justify-end">
             <Button
               onClick={() => {
                 reset();
@@ -533,14 +349,3 @@ const DeviceTransfer = () => {
 };
 
 export default DeviceTransfer;
-
-const LabelValue = ({ label, value }: any) => (
-  <div>
-    <Typography variant="caption" color="text.secondary">
-      {label}
-    </Typography>
-    <Typography variant="body2" fontWeight={500}>
-      {value || "-"}
-    </Typography>
-  </div>
-);

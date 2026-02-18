@@ -510,11 +510,21 @@ const WorkersReports = () => {
     const gtotalc1 = sumField("gtotal_cost");
     const gtotalc2 = sumField("gtotal_contribution");
 
+    // G total % = (Sum of Production - (Sum of Cost + Sum of contribution)) / Sum of production * 100
+    let gtotal: number | null = null;
+    if (Number.isFinite(gtotalp) && gtotalp !== 0) {
+      const value =
+        ((gtotalp - (gtotalc1 + gtotalc2)) / gtotalp) * 100;
+      if (Number.isFinite(value)) {
+        gtotal = Math.min(100, Math.max(-100, value));
+      }
+    }
+
     return {
       swipe: pct(sp1 + sp2 + sp3 + sp4, sP),
       soundbox: pct(soundp, sound),
       cleaning: pct(cleanp, clean),
-      gtotal: pct(gtotalp, gtotalc1 + gtotalc2),
+      gtotal,
     };
   }, [workerReports]);
 
