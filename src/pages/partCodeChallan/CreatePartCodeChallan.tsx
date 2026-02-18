@@ -100,7 +100,6 @@ const CreatePartCodeChallan: React.FC = () => {
   const isEdit = Boolean(routeId);
   const id = routeId || "";
   const [alert, setAlert] = useState<boolean>(false);
-  const [isNext, setIsNext] = useState<boolean>(true);
   const [minNo, setMinno] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
@@ -931,7 +930,6 @@ const CreatePartCodeChallan: React.FC = () => {
                   endIcon={<Icons.next />}
                   onClick={() => {
                     onSubmit(watch());
-                    setIsNext(false);
                   }}
                 >
                   Next
