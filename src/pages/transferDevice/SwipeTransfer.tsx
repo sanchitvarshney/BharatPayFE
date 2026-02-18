@@ -170,11 +170,23 @@ const SwipeTransfer = () => {
     }
 
     try {
+      const byBox = tableRows.reduce<Record<string, string[]>>((acc, r) => {
+        const box = r.boxNo?.trim() ?? "";
+        const serial = (r.serialNo || r.sl_no)?.trim?.() ?? "";
+        if (!box || !serial) return acc;
+        if (!acc[box]) acc[box] = [];
+        acc[box].push(serial);
+        return acc;
+      }, {});
+      const dataPayload = Object.entries(byBox).map(([boxNo, serial]) => ({
+        boxNo,
+        serial,
+      }));
+
       const payload: any = {
         fromLocation: data.locationfromId.code,
         toLocation: data.locationtoId.code,
-        boxNo: tableRows.map((r) => r.boxNo).filter(Boolean),
-        srlNo: tableRows.map((r) => r.serialNo || r.sl_no).filter(Boolean),
+        data: dataPayload,
       };
 
       const result: any = await dispatch(

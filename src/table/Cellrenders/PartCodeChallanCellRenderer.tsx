@@ -5,6 +5,7 @@ import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
 import { getPOComponentDetail } from "@/features/procurement/poSlices";
 import { getAvailbleQty } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
+import { showToast } from "@/utils/toasterContext";
 
 interface PartCodeChallanCellRendererProps {
   props: any;
@@ -12,7 +13,7 @@ interface PartCodeChallanCellRendererProps {
   pickLocation?: LocationType | null;
 }
 
-const COLUMNS_TO_REFRESH = ["partComponent", "qty", "rate", "remarks", "stock"];
+const COLUMNS_TO_REFRESH = ["partComponent", "hsn", "qty", "rate", "remarks", "stock"];
 
 const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = ({
   props,
@@ -36,6 +37,17 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     customFunction();
   };
 
+  const getStockForRow = (): number | null => {
+    const locationCode = pickLocation?.code ?? pickLocation?.sku ?? "";
+    const itemCode = data?.partComponent?.value ?? "";
+    const matchingItem = availbleQtyData?.find(
+      (item) => item.location === locationCode && item.item === itemCode
+    );
+    if (matchingItem == null) return null;
+    const stock = Number(matchingItem.Stock);
+    return Number.isFinite(stock) ? stock : null;
+  };
+
   const renderContent = () => {
     switch (colDef.field) {
       case "partComponent":
@@ -45,13 +57,24 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
               data.uom = uomValue;
               api.refreshCells({
                 rowNodes: [props.node],
-                columns: [column, "partComponent", "qty", "rate", "remarks", "uom", "stock"],
+                columns: [column, "partComponent", "hsn", "qty", "rate", "remarks", "uom", "stock"],
               });
               customFunction();
             }}
             onChange={(selectedValue: { label?: string; value?: string } | null) => {
               if (selectedValue?.value) {
-                dispatch(getPOComponentDetail(selectedValue.value));
+                dispatch(getPOComponentDetail(selectedValue.value)).then((response: any) => {
+                  const res = response?.payload?.data;
+                  const hsn = res?.data?.hsn;
+                  if (hsn != null) {
+                    data.hsn = hsn;
+                  }
+                  api.refreshCells({
+                    rowNodes: [props.node],
+                    columns: [column, ...COLUMNS_TO_REFRESH],
+                  });
+                  customFunction();
+                });
                 if (pickLocation) {
                   const locationCode = pickLocation.code ?? pickLocation.sku ?? "";
                   dispatch(
@@ -80,20 +103,28 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
             }
           />
         );
-      case "qty":
+      case "qty": {
+        const maxStock = getStockForRow();
         return (
           <Input
             suffix={data.uom}
             onChange={(e) => {
-              if (/^-?\d*\.?\d*$/.test(e.target.value)) {
-                updateAndRefresh("qty", e.target.value);
+              const raw = e.target.value;
+              if (!/^-?\d*\.?\d*$/.test(raw)) return;
+              const numVal = raw === "" || raw === "-" ? null : Number(raw);
+              if (maxStock != null && numVal != null && numVal > maxStock) {
+                showToast(`Qty cannot exceed stock (${maxStock})`, "error");
+                updateAndRefresh("qty", String(maxStock));
+                return;
               }
+              updateAndRefresh("qty", raw);
             }}
             value={value}
-            placeholder={colDef.headerName}
+            placeholder={maxStock != null ? `Max ${maxStock}` : colDef.headerName}
             className="w-[100%] custom-input"
           />
         );
+      }
       case "rate":
         return (
           <Input
@@ -127,6 +158,8 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
         const stockDisplay = matchingItem != null ? String(matchingItem.Stock) : "--";
         return <span className="flex items-center h-full">{stockDisplay}</span>;
       }
+      case "hsn":
+        return <span className="flex items-center h-full">{value ?? ""}</span>;
       default:
         return <span>{value != null ? String(value) : ""}</span>;
     }
@@ -144,6 +177,9 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     );
     const stockDisplay = matchingItem != null ? String(matchingItem.Stock) : "--";
     return <span className="flex items-center h-full">{stockDisplay}</span>;
+  }
+  if (colDef.field === "hsn") {
+    return <span className="flex items-center h-full">{value ?? ""}</span>;
   }
 
   return <span>{value != null ? String(value) : ""}</span>;

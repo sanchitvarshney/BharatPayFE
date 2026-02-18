@@ -12,6 +12,7 @@ import { LocationType } from "@/components/reusable/SelectLocationAcordingModule
 interface RowData {
   id: string;
   partComponent: { lable: string; value: string } | null;
+  hsn?: string;
   qty: number;
   rate: string;
   remarks: string;
@@ -58,6 +59,7 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
     const newRow: RowData = {
       id: generateUniqueId(),
       partComponent: null,
+      hsn: "",
       qty: 0,
       rate: "",
       remarks: "",
@@ -147,6 +149,12 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
     {
       headerName: "Stock",
       field: "stock",
+      cellRenderer: "challanCellRenderer",
+      width: 120,
+    },
+    {
+      headerName: "HSN",
+      field: "hsn",
       cellRenderer: "challanCellRenderer",
       width: 120,
     },
