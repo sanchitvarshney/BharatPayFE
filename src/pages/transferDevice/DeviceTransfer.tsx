@@ -51,8 +51,8 @@ const DeviceTransfer = () => {
   } = useAppSelector((state) => state.deviceTransfer);
   const videoConstraints = {
     deviceId: deviceId ? { exact: deviceId } : undefined,
-    width: 200,
-    height: 200,
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
   };
 
   useEffect(() => {
@@ -447,16 +447,15 @@ const DeviceTransfer = () => {
               </Select>
             </div>
             {deviceId && (
-              <div className="flex flex-col items-center gap-[10px]">
+              <div className="flex flex-col items-center gap-[10px] col-span-1 min-w-0">
                 <Webcam
                   key={deviceId}
                   ref={webcamRef}
                   screenshotFormat="image/png"
                   videoConstraints={videoConstraints}
-                  minScreenshotHeight={200}
-                  minScreenshotWidth={200}
-                  width={200}
-                  height={200}
+                  minScreenshotHeight={720}
+                  minScreenshotWidth={1280}
+                  style={{ width: "100%", maxWidth: 1280, aspectRatio: "16/9" }}
                 />
                 <Button variant="contained" onClick={capture}>
                   Capture

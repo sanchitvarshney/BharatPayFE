@@ -9,7 +9,6 @@ import {
   resetFormData,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { getCurrency } from "@/features/common/commonSlice";
 import {
   Autocomplete,
   Divider,
@@ -26,7 +25,6 @@ import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
 import { getShippingAddress } from "@/features/master/client/clientSlice";
-import { transformSkuCode } from "@/utils/transformUtills";
 import AddPOTable from "./AddPartCodeTable";
 import {
   createPartCodeChallan,
@@ -36,6 +34,9 @@ import {
 } from "@/features/procurement/poSlices";
 import { useNavigate, useParams } from "react-router-dom";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+import SelectLocationAcordingModule, {
+  LocationType,
+} from "@/components/reusable/SelectLocationAcordingModule";
 
 interface RowData {
   id: string;
@@ -76,13 +77,13 @@ interface ShippingAddress {
   label: string;
 }
 interface FormData {
-  currency: { value: string; label: string };
   location: string;
+  pickLocation: LocationType | null;
+  dropLocation: LocationType | null;
   billaddressid: 0;
   billaddress: BillAddress;
   shipaddressid: 0;
   shipaddress: ShippingAddress;
-  exchange: 0;
   deliveryNoteNo: string;
   referenceNoAndDate: string;
   otherReferences: string;
@@ -99,7 +100,6 @@ const CreatePartCodeChallan: React.FC = () => {
   const isEdit = Boolean(routeId);
   const id = routeId || "";
   const [alert, setAlert] = useState<boolean>(false);
-  const [isNext, setIsNext] = useState<boolean>(true);
   const [minNo, setMinno] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
@@ -109,8 +109,6 @@ const CreatePartCodeChallan: React.FC = () => {
   const { loading } = useAppSelector((state) => state.po);
   const { formData } = useAppSelector((state) => state.po);
   const { shippingAddress } = useAppSelector((state) => state.client) as any;
-
-  const { currencyData } = useAppSelector((state) => state.common);
 
   const {
     register,
@@ -122,6 +120,8 @@ const CreatePartCodeChallan: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
+      pickLocation: null,
+      dropLocation: null,
       deliveryNoteNo: "",
       referenceNoAndDate: "",
       otherReferences: "",
@@ -208,6 +208,14 @@ const CreatePartCodeChallan: React.FC = () => {
       showToast("Please select a Ship To address", "error");
       return;
     }
+    if (!data.pickLocation) {
+      showToast("Please select a Pick Location", "error");
+      return;
+    }
+    if (!data.dropLocation) {
+      showToast("Please select a Drop Location", "error");
+      return;
+    }
     try {
       dispatch(setFormData(data as any));
       setActiveStep(1);
@@ -229,21 +237,41 @@ const CreatePartCodeChallan: React.FC = () => {
           const rate = rowData.map((item) => Number(item.rate));
           const remark = rowData.map((item) => item.remarks ?? "");
 
+          const billingDetails = formData.billaddress
+            ? {
+                id: formData.billaddressid || formData.billaddress?.id,
+                label: formData.billaddress?.label ?? "",
+                mobileNo: formData.billaddress?.mobileNo ?? "",
+                gst: formData.billaddress?.gst ?? "",
+                pin: formData.billaddress?.pin ?? "",
+                pan: formData.billaddress?.pan ?? "",
+                addressLine1: formData.billaddress?.addressLine1 ?? "",
+                addressLine2: formData.billaddress?.addressLine2 ?? "",
+              }
+            : {};
+
+          const shippingDetails = formData.shipaddress
+            ? {
+                id: formData.shipaddressid || formData.shipaddress?.id,
+                label: formData.shipaddress?.label ?? "",
+                pin: formData.shipaddress?.pin ?? "",
+                gst: formData.shipaddress?.gst ?? "",
+                pan: formData.shipaddress?.pan ?? "",
+                city: formData.shipaddress?.city ?? "",
+                addressLine1: formData.shipaddress?.addressLine1 ?? "",
+                addressLine2: formData.shipaddress?.addressLine2 ?? "",
+              }
+            : {};
+
           const payload: any = {
             component,
             qty,
             rate,
             remark,
-            currency: formData.currency?.value || "",
-            billaddressid: formData.billaddressid || "",
-            shipaddressid: formData.shipaddressid || "",
-            billaddress:
-              formData.billaddress?.addressLine1 +
-                (formData.billaddress?.addressLine2 || "") || "",
-            shipaddress:
-              formData.shipaddress?.addressLine1 +
-                (formData.shipaddress?.addressLine2 || "") || "",
-            exchange: formData.exchange || "",
+            pickLocation: formData.pickLocation?.code ?? formData.pickLocation?.sku ?? "",
+            dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
+            billingDetails,
+            shippingDetails,
             deliveryNoteNo: formData.deliveryNoteNo || watch("deliveryNoteNo") || "",
             referenceNoAndDate: formData.referenceNoAndDate || watch("referenceNoAndDate") || "",
             otherReferences: formData.otherReferences || watch("otherReferences") || "",
@@ -285,7 +313,6 @@ const CreatePartCodeChallan: React.FC = () => {
   useEffect(() => {
     dispatch(getLocationAsync(null));
     dispatch(getPertCodesync(null));
-    dispatch(getCurrency());
     dispatch(getShippingAddress());
   }, []);
 
@@ -334,11 +361,6 @@ const CreatePartCodeChallan: React.FC = () => {
         if (res?.success && res?.data) {
           const { bill, ship, materials, header } = res.data;
 
-          setValue("exchange", header?.exchangerate ?? "");
-          setValue("currency", {
-            value: header?.currency?.value,
-            label: header?.currency?.label,
-          });
           setValue("billaddressid", bill?.code || "");
           handleBillAddressChange(bill || "");
           setValue("shipaddressid", ship?.code || "");
@@ -352,6 +374,8 @@ const CreatePartCodeChallan: React.FC = () => {
           setValue("destination", header?.destination || "");
           setValue("termsOfDelivery", header?.termsOfDelivery || header?.termsofcondition || "");
           setValue("remarks", header?.remarks || header?.poRemarks || "");
+          if (header?.pickLocation) setValue("pickLocation", header.pickLocation);
+          if (header?.dropLocation) setValue("dropLocation", header.dropLocation);
 
           dispatch(
             setFormData({
@@ -373,9 +397,8 @@ const CreatePartCodeChallan: React.FC = () => {
               rate: Number(item.rate) || 0,
               remarks: item.remark ?? "",
               isNew: true,
-              excRate: Number(item.header?.exchangerate) || 1,
+              excRate: 1,
               uom: item.uom ?? "",
-              currency: item.header?.currency?.value,
             }))
           );
           const totalAmount = materials.reduce(
@@ -722,45 +745,38 @@ const CreatePartCodeChallan: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] py-[20px]">
                 <Controller
-                  name="currency"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Currency is required",
-                    },
-                  }}
+                  name="pickLocation"
                   control={control}
+                  rules={{ required: "Pick Location is required" }}
                   render={({ field }) => (
-                    <Autocomplete
-                      value={field.value as any}
-                      onChange={(_, newValue) => field.onChange(newValue)}
-                      disablePortal
-                      id="combo-box-currency"
-                      options={transformSkuCode(currencyData) || []}
-                      getOptionLabel={(option: any) => option?.label ?? ""}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label={isEdit && isNext ? watch("currency")?.label : "Currency"}
-                          error={!!errors.currency}
-                          helperText={errors.currency?.message}
-                          variant="filled"
-                        />
-                      )}
+                    <SelectLocationAcordingModule
+                      endPoint="/req/without-bom/pick-location"
+                      label="Pick Location"
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.pickLocation}
+                      helperText={errors.pickLocation?.message}
+                      varient="filled"
+                      required
                     />
                   )}
                 />
-                <TextField
-                  variant="filled"
-                  error={!!errors.exchange}
-                  helperText={errors?.exchange?.message}
-                  focused={!!watch("exchange")}
-                  fullWidth
-                  label="Exchange Rate"
-                  className="h-[10px] resize-none"
-                  {...register("exchange", {
-                    required: "Exchange Rate is required",
-                  })}
+                <Controller
+                  name="dropLocation"
+                  control={control}
+                  rules={{ required: "Drop Location is required" }}
+                  render={({ field }) => (
+                    <SelectLocationAcordingModule
+                      endPoint="/req/without-bom/req-location"
+                      label="Drop Location"
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.dropLocation}
+                      helperText={errors.dropLocation?.message}
+                      varient="filled"
+                      required
+                    />
+                  )}
                 />
                 <TextField
                   variant="filled"
@@ -832,8 +848,9 @@ const CreatePartCodeChallan: React.FC = () => {
                 rowData={rowData}
                 setRowData={setRowData}
                 setTotal={setTotal}
-                exchange={formData?.exchange ?? 0}
-                currency={formData?.currency?.value ?? ""}
+                exchange={0}
+                currency=""
+                pickLocation={formData?.pickLocation ?? null}
               />
             </div>
           )}
@@ -913,7 +930,6 @@ const CreatePartCodeChallan: React.FC = () => {
                   endIcon={<Icons.next />}
                   onClick={() => {
                     onSubmit(watch());
-                    setIsNext(false);
                   }}
                 >
                   Next

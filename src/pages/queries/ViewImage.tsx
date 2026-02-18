@@ -26,16 +26,17 @@ const ViewImage: React.FC = () => {
     useAppSelector((state) => state.common);
 
   const handleSearch = async () => {
-    if (!deviceType || !serialNo || (deviceType !== "sim" && !awbNumber)) {
+    const needsAwb = deviceType && deviceType !== "sim" && deviceType !== "ber";
+    if (!deviceType || !serialNo || (needsAwb && !awbNumber)) {
       showToast(
         "Please enter Device Type, Serial Number" +
-          (deviceType !== "sim" ? ", and AWB Number" : ""),
+          (needsAwb ? ", and AWB Number" : ""),
         "error"
       );
       return;
     }
     setCurrentImageIdx(0);
-    dispatch(getDeviceImages({ deviceType, awbNumber, serialNo }));
+    dispatch(getDeviceImages({ deviceType, awbNumber: awbNumber || "", serialNo }));
   };
   const handlePrev = () => {
     if (!deviceImages) return;
@@ -106,10 +107,11 @@ const ViewImage: React.FC = () => {
                     <MenuItem value="soundbox">Sound Box Image</MenuItem>
                     <MenuItem value="swipe">Swipe Machine Image</MenuItem>
                     <MenuItem value="sim">SIM Image</MenuItem>
+                    <MenuItem value="ber">BER Device</MenuItem>
                   </Select>
                 </FormControl>
               </div>
-              {deviceType !== "sim" && (
+              {deviceType !== "sim" && deviceType !== "ber" && (
                 <div className="flex flex-col gap-[10px]">
                   <Typography
                     variant="subtitle1"
@@ -177,6 +179,56 @@ const ViewImage: React.FC = () => {
               Search
             </LoadingButton>
           </div>
+          {deviceType === "ber" &&
+           deviceImages && deviceImages?.length > 0 &&
+            (() => {
+              const berInfo = deviceImages[currentImageIdx] ?? deviceImages[0];
+              const hasBerInfo =
+                berInfo?.serial ?? berInfo?.imei ?? berInfo?.insertDt;
+              if (!hasBerInfo) return null;
+              return (
+                <CardContent className="pt-0">
+                  <Typography
+                    variant="subtitle1"
+                    className="text-slate-700 font-semibold mb-2 px-[20px]"
+                  >
+                    Device details
+                  </Typography>
+                  <div className="flex flex-col gap-[12px] px-[20px] pb-4">
+                    {berInfo.serial && (
+                      <div>
+                        <Typography variant="caption" className="text-slate-500">
+                          Serial
+                        </Typography>
+                        <Typography variant="body2" className="font-medium">
+                          {berInfo.serial}
+                        </Typography>
+                      </div>
+                    )}
+                    {berInfo.imei && (
+                      <div>
+                        <Typography variant="caption" className="text-slate-500">
+                          IMEI
+                        </Typography>
+                        <Typography variant="body2" className="font-medium">
+                          {berInfo.imei}
+                        </Typography>
+                      </div>
+                    )}
+                    {berInfo.insertDt && (
+                      <div>
+                        <Typography variant="caption" className="text-slate-500">
+                          Insert date
+                        </Typography>
+                        <Typography variant="body2" className="font-medium">
+                          {berInfo.insertDt}
+                        </Typography>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              );
+            })()}
         </Paper>
       </div>
       {/* Right: Image Carousel & Device Info */}
