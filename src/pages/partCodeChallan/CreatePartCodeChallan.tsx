@@ -9,7 +9,6 @@ import {
   resetFormData,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
-import { getCurrency } from "@/features/common/commonSlice";
 import {
   Autocomplete,
   Divider,
@@ -26,7 +25,6 @@ import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
 import { getShippingAddress } from "@/features/master/client/clientSlice";
-import { transformSkuCode } from "@/utils/transformUtills";
 import AddPOTable from "./AddPartCodeTable";
 import {
   createPartCodeChallan,
@@ -79,7 +77,6 @@ interface ShippingAddress {
   label: string;
 }
 interface FormData {
-  currency: { value: string; label: string };
   location: string;
   pickLocation: LocationType | null;
   dropLocation: LocationType | null;
@@ -87,7 +84,6 @@ interface FormData {
   billaddress: BillAddress;
   shipaddressid: 0;
   shipaddress: ShippingAddress;
-  exchange: 0;
   deliveryNoteNo: string;
   referenceNoAndDate: string;
   otherReferences: string;
@@ -114,8 +110,6 @@ const CreatePartCodeChallan: React.FC = () => {
   const { loading } = useAppSelector((state) => state.po);
   const { formData } = useAppSelector((state) => state.po);
   const { shippingAddress } = useAppSelector((state) => state.client) as any;
-
-  const { currencyData } = useAppSelector((state) => state.common);
 
   const {
     register,
@@ -215,6 +209,14 @@ const CreatePartCodeChallan: React.FC = () => {
       showToast("Please select a Ship To address", "error");
       return;
     }
+    if (!data.pickLocation) {
+      showToast("Please select a Pick Location", "error");
+      return;
+    }
+    if (!data.dropLocation) {
+      showToast("Please select a Drop Location", "error");
+      return;
+    }
     try {
       dispatch(setFormData(data as any));
       setActiveStep(1);
@@ -241,7 +243,6 @@ const CreatePartCodeChallan: React.FC = () => {
             qty,
             rate,
             remark,
-            currency: formData.currency?.value || "",
             pickLocation: formData.pickLocation?.code ?? formData.pickLocation?.sku ?? "",
             dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
             billaddressid: formData.billaddressid || "",
@@ -252,7 +253,6 @@ const CreatePartCodeChallan: React.FC = () => {
             shipaddress:
               formData.shipaddress?.addressLine1 +
                 (formData.shipaddress?.addressLine2 || "") || "",
-            exchange: formData.exchange || "",
             deliveryNoteNo: formData.deliveryNoteNo || watch("deliveryNoteNo") || "",
             referenceNoAndDate: formData.referenceNoAndDate || watch("referenceNoAndDate") || "",
             otherReferences: formData.otherReferences || watch("otherReferences") || "",
@@ -294,7 +294,6 @@ const CreatePartCodeChallan: React.FC = () => {
   useEffect(() => {
     dispatch(getLocationAsync(null));
     dispatch(getPertCodesync(null));
-    dispatch(getCurrency());
     dispatch(getShippingAddress());
   }, []);
 
@@ -343,11 +342,6 @@ const CreatePartCodeChallan: React.FC = () => {
         if (res?.success && res?.data) {
           const { bill, ship, materials, header } = res.data;
 
-          setValue("exchange", header?.exchangerate ?? "");
-          setValue("currency", {
-            value: header?.currency?.value,
-            label: header?.currency?.label,
-          });
           setValue("billaddressid", bill?.code || "");
           handleBillAddressChange(bill || "");
           setValue("shipaddressid", ship?.code || "");
@@ -384,9 +378,8 @@ const CreatePartCodeChallan: React.FC = () => {
               rate: Number(item.rate) || 0,
               remarks: item.remark ?? "",
               isNew: true,
-              excRate: Number(item.header?.exchangerate) || 1,
+              excRate: 1,
               uom: item.uom ?? "",
-              currency: item.header?.currency?.value,
             }))
           );
           const totalAmount = materials.reduce(
@@ -733,49 +726,9 @@ const CreatePartCodeChallan: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] py-[20px]">
                 <Controller
-                  name="currency"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Currency is required",
-                    },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      value={field.value as any}
-                      onChange={(_, newValue) => field.onChange(newValue)}
-                      disablePortal
-                      id="combo-box-currency"
-                      options={transformSkuCode(currencyData) || []}
-                      getOptionLabel={(option: any) => option?.label ?? ""}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label={isEdit && isNext ? watch("currency")?.label : "Currency"}
-                          error={!!errors.currency}
-                          helperText={errors.currency?.message}
-                          variant="filled"
-                        />
-                      )}
-                    />
-                  )}
-                />
-                <TextField
-                  variant="filled"
-                  error={!!errors.exchange}
-                  helperText={errors?.exchange?.message}
-                  focused={!!watch("exchange")}
-                  fullWidth
-                  label="Exchange Rate"
-                  className="h-[10px] resize-none"
-                  {...register("exchange", {
-                    required: "Exchange Rate is required",
-                  })}
-                />
-                <Controller
                   name="pickLocation"
                   control={control}
+                  rules={{ required: "Pick Location is required" }}
                   render={({ field }) => (
                     <SelectLocationAcordingModule
                       endPoint="/req/without-bom/pick-location"
@@ -785,12 +738,14 @@ const CreatePartCodeChallan: React.FC = () => {
                       error={!!errors.pickLocation}
                       helperText={errors.pickLocation?.message}
                       varient="filled"
+                      required
                     />
                   )}
                 />
                 <Controller
                   name="dropLocation"
                   control={control}
+                  rules={{ required: "Drop Location is required" }}
                   render={({ field }) => (
                     <SelectLocationAcordingModule
                       endPoint="/req/without-bom/req-location"
@@ -800,6 +755,7 @@ const CreatePartCodeChallan: React.FC = () => {
                       error={!!errors.dropLocation}
                       helperText={errors.dropLocation?.message}
                       varient="filled"
+                      required
                     />
                   )}
                 />
@@ -873,8 +829,8 @@ const CreatePartCodeChallan: React.FC = () => {
                 rowData={rowData}
                 setRowData={setRowData}
                 setTotal={setTotal}
-                exchange={formData?.exchange ?? 0}
-                currency={formData?.currency?.value ?? ""}
+                exchange={0}
+                currency=""
                 pickLocation={formData?.pickLocation ?? null}
               />
             </div>
