@@ -238,6 +238,32 @@ const CreatePartCodeChallan: React.FC = () => {
           const rate = rowData.map((item) => Number(item.rate));
           const remark = rowData.map((item) => item.remarks ?? "");
 
+          const billingDetails = formData.billaddress
+            ? {
+                id: formData.billaddressid || formData.billaddress?.id,
+                label: formData.billaddress?.label ?? "",
+                mobileNo: formData.billaddress?.mobileNo ?? "",
+                gst: formData.billaddress?.gst ?? "",
+                pin: formData.billaddress?.pin ?? "",
+                pan: formData.billaddress?.pan ?? "",
+                addressLine1: formData.billaddress?.addressLine1 ?? "",
+                addressLine2: formData.billaddress?.addressLine2 ?? "",
+              }
+            : {};
+
+          const shippingDetails = formData.shipaddress
+            ? {
+                id: formData.shipaddressid || formData.shipaddress?.id,
+                label: formData.shipaddress?.label ?? "",
+                pin: formData.shipaddress?.pin ?? "",
+                gst: formData.shipaddress?.gst ?? "",
+                pan: formData.shipaddress?.pan ?? "",
+                city: formData.shipaddress?.city ?? "",
+                addressLine1: formData.shipaddress?.addressLine1 ?? "",
+                addressLine2: formData.shipaddress?.addressLine2 ?? "",
+              }
+            : {};
+
           const payload: any = {
             component,
             qty,
@@ -245,14 +271,8 @@ const CreatePartCodeChallan: React.FC = () => {
             remark,
             pickLocation: formData.pickLocation?.code ?? formData.pickLocation?.sku ?? "",
             dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
-            billaddressid: formData.billaddressid || "",
-            shipaddressid: formData.shipaddressid || "",
-            billaddress:
-              formData.billaddress?.addressLine1 +
-                (formData.billaddress?.addressLine2 || "") || "",
-            shipaddress:
-              formData.shipaddress?.addressLine1 +
-                (formData.shipaddress?.addressLine2 || "") || "",
+            billingDetails,
+            shippingDetails,
             deliveryNoteNo: formData.deliveryNoteNo || watch("deliveryNoteNo") || "",
             referenceNoAndDate: formData.referenceNoAndDate || watch("referenceNoAndDate") || "",
             otherReferences: formData.otherReferences || watch("otherReferences") || "",
