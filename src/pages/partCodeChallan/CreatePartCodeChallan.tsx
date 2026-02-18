@@ -41,6 +41,7 @@ import SelectLocationAcordingModule, {
 interface RowData {
   id: string;
   partComponent: { lable: string; value: string } | null;
+  hsn?: string;
   qty: number;
   rate: string;
   remarks: string;
@@ -57,7 +58,7 @@ interface Totals {
 
 interface BillAddress {
   id: number;
-  mobileNo: string;
+  city: string;
   gst: string;
   pin: string;
   pan: string;
@@ -236,12 +237,13 @@ const CreatePartCodeChallan: React.FC = () => {
           const qty = rowData.map((item) => Number(item.qty));
           const rate = rowData.map((item) => Number(item.rate));
           const remark = rowData.map((item) => item.remarks ?? "");
+          const hsn = rowData.map((item) => item.hsn ?? "");
 
           const billingDetails = formData.billaddress
             ? {
                 id: formData.billaddressid || formData.billaddress?.id,
                 label: formData.billaddress?.label ?? "",
-                mobileNo: formData.billaddress?.mobileNo ?? "",
+                city: formData.billaddress?.city ?? "",
                 gst: formData.billaddress?.gst ?? "",
                 pin: formData.billaddress?.pin ?? "",
                 pan: formData.billaddress?.pan ?? "",
@@ -268,6 +270,7 @@ const CreatePartCodeChallan: React.FC = () => {
             qty,
             rate,
             remark,
+            hsn,
             pickLocation: formData.pickLocation?.code ?? formData.pickLocation?.sku ?? "",
             dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
             billingDetails,
@@ -322,7 +325,7 @@ const CreatePartCodeChallan: React.FC = () => {
       setValue("billaddress.label", value.label);
       setValue("billaddress.addressLine1", value.addressLine1);
       setValue("billaddress.addressLine2", value.addressLine2);
-      setValue("billaddress.mobileNo", value.mobileNo);
+      setValue("billaddress.city", value.city);
       setValue("billaddress.gst", value.gst);
       setValue("billaddress.pan", value.pan);
       setValue("billaddress.pin", value.pin);
@@ -392,6 +395,7 @@ const CreatePartCodeChallan: React.FC = () => {
                 lable: item.component_short,
                 value: item.componentKey,
               },
+              hsn: item.hsn ?? "",
               qty: Number(item.orderqty) || 0,
               updaterow: item.updateid,
               rate: Number(item.rate) || 0,
@@ -514,16 +518,16 @@ const CreatePartCodeChallan: React.FC = () => {
                 <TextField
                   variant="filled"
                   // sx={{ mb: 1 }}
-                  error={!!errors.billaddress?.mobileNo}
-                  helperText={errors?.billaddress?.mobileNo?.message}
-                  focused={!!watch("billaddress.mobileNo")}
+                  error={!!errors.billaddress?.city}
+                  helperText={errors?.billaddress?.city?.message}
+                  focused={!!watch("billaddress.city")}
                   // multiline
                   rows={3}
                   fullWidth
-                  label="Mobile No"
+                  label="City"
                   className="h-[10px] resize-none"
-                  {...register("billaddress.mobileNo", {
-                    required: "Mobile No is required",
+                  {...register("billaddress.city", {
+                    required: "City is required",
                   })}
                 />
                 <TextField
