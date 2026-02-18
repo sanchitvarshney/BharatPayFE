@@ -36,6 +36,9 @@ import {
 } from "@/features/procurement/poSlices";
 import { useNavigate, useParams } from "react-router-dom";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+import SelectLocationAcordingModule, {
+  LocationType,
+} from "@/components/reusable/SelectLocationAcordingModule";
 
 interface RowData {
   id: string;
@@ -78,6 +81,8 @@ interface ShippingAddress {
 interface FormData {
   currency: { value: string; label: string };
   location: string;
+  pickLocation: LocationType | null;
+  dropLocation: LocationType | null;
   billaddressid: 0;
   billaddress: BillAddress;
   shipaddressid: 0;
@@ -122,6 +127,8 @@ const CreatePartCodeChallan: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
+      pickLocation: null,
+      dropLocation: null,
       deliveryNoteNo: "",
       referenceNoAndDate: "",
       otherReferences: "",
@@ -235,6 +242,8 @@ const CreatePartCodeChallan: React.FC = () => {
             rate,
             remark,
             currency: formData.currency?.value || "",
+            pickLocation: formData.pickLocation?.code ?? formData.pickLocation?.sku ?? "",
+            dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
             billaddressid: formData.billaddressid || "",
             shipaddressid: formData.shipaddressid || "",
             billaddress:
@@ -352,6 +361,8 @@ const CreatePartCodeChallan: React.FC = () => {
           setValue("destination", header?.destination || "");
           setValue("termsOfDelivery", header?.termsOfDelivery || header?.termsofcondition || "");
           setValue("remarks", header?.remarks || header?.poRemarks || "");
+          if (header?.pickLocation) setValue("pickLocation", header.pickLocation);
+          if (header?.dropLocation) setValue("dropLocation", header.dropLocation);
 
           dispatch(
             setFormData({
@@ -762,6 +773,36 @@ const CreatePartCodeChallan: React.FC = () => {
                     required: "Exchange Rate is required",
                   })}
                 />
+                <Controller
+                  name="pickLocation"
+                  control={control}
+                  render={({ field }) => (
+                    <SelectLocationAcordingModule
+                      endPoint="/req/without-bom/pick-location"
+                      label="Pick Location"
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.pickLocation}
+                      helperText={errors.pickLocation?.message}
+                      varient="filled"
+                    />
+                  )}
+                />
+                <Controller
+                  name="dropLocation"
+                  control={control}
+                  render={({ field }) => (
+                    <SelectLocationAcordingModule
+                      endPoint="/req/without-bom/req-location"
+                      label="Drop Location"
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.dropLocation}
+                      helperText={errors.dropLocation?.message}
+                      varient="filled"
+                    />
+                  )}
+                />
                 <TextField
                   variant="filled"
                   fullWidth
@@ -834,6 +875,7 @@ const CreatePartCodeChallan: React.FC = () => {
                 setTotal={setTotal}
                 exchange={formData?.exchange ?? 0}
                 currency={formData?.currency?.value ?? ""}
+                pickLocation={formData?.pickLocation ?? null}
               />
             </div>
           )}

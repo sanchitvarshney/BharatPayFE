@@ -7,6 +7,7 @@ import { Button, IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { generateUniqueId } from "@/utils/uniqueid";
 import PartCodeChallanCellRenderer from "@/table/Cellrenders/PartCodeChallanCellRenderer";
+import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 
 interface RowData {
   id: string;
@@ -30,9 +31,10 @@ type Props = {
   setTotal: React.Dispatch<React.SetStateAction<Totals>>;
   exchange: number | string;
   currency: string;
+  pickLocation?: LocationType | null;
 };
 
-const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency }) => {
+const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency, pickLocation = null }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
 
   const getAllTableData = () => {
@@ -84,10 +86,10 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
   const components = useMemo(
     () => ({
       challanCellRenderer: (params: any) => (
-        <PartCodeChallanCellRenderer props={params} customFunction={getAllTableData} />
+        <PartCodeChallanCellRenderer props={params} customFunction={getAllTableData} pickLocation={pickLocation} />
       ),
     }),
-    []
+    [pickLocation]
   );
 
   const columnDefs: ColDef[] = [
@@ -141,6 +143,12 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       field: "partComponent",
       cellRenderer: "challanCellRenderer",
       minWidth: 300,
+    },
+    {
+      headerName: "Stock",
+      field: "stock",
+      cellRenderer: "challanCellRenderer",
+      width: 120,
     },
     {
       headerName: "Qty",
