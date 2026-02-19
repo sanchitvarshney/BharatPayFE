@@ -50,6 +50,7 @@ interface RowData {
   uom: string;
   currency?: string;
   updaterow?: string;
+  pickLocation?: { label?: string; value?: string } | null;
 }
 
 interface Totals {
@@ -209,10 +210,6 @@ console.log(rowData)
       showToast("Please select a Ship To address", "error");
       return;
     }
-    if (!data.pickLocation) {
-      showToast("Please select a Pick Location", "error");
-      return;
-    }
     if (!data.dropLocation) {
       showToast("Please select a Drop Location", "error");
       return;
@@ -241,7 +238,7 @@ console.log(rowData)
           const rate = rowData.map((item) => Number(item.rate));
           const remark = rowData.map((item) => item.remarks ?? "");
           const hsn = rowData.map((item) => item.hsn ?? "");
-
+          const pickLocation = rowData.map((item) => item.pickLocation?.value ?? "");
           const dispatchFromDetails = formData.dispatchFromaddress
             ? {
                 id: formData.dispatchFromaddressid || formData.dispatchFromaddress?.id,
@@ -275,7 +272,7 @@ console.log(rowData)
             rate,
             remark,
             hsn,
-            pickLocation: formData.pickLocation?.code ?? formData.pickLocation?.sku ?? "",
+            pickLocation,
             dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
             dispatchFromDetails,
             shippingDetails,
@@ -752,23 +749,6 @@ console.log(rowData)
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] py-[20px]">
-                <Controller
-                  name="pickLocation"
-                  control={control}
-                  rules={{ required: "Pick Location is required" }}
-                  render={({ field }) => (
-                    <SelectLocationAcordingModule
-                      endPoint="/req/without-bom/pick-location"
-                      label="Pick Location"
-                      value={field.value}
-                      onChange={field.onChange}
-                      error={!!errors.pickLocation}
-                      helperText={errors.pickLocation?.message}
-                      varient="filled"
-                      required
-                    />
-                  )}
-                />
                 <Controller
                   name="dropLocation"
                   control={control}

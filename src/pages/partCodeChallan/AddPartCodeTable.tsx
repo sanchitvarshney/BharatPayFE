@@ -20,6 +20,7 @@ interface RowData {
   excRate: number;
   uom: string;
   currency?: string;
+  pickLocation?: { label?: string; value?: string } | null;
 }
 
 interface Totals {
@@ -67,6 +68,7 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       excRate: Number(exchange) || 0,
       uom: "",
       currency,
+      pickLocation: null,
     };
     setRowData([newRow, ...rowData]);
   };
@@ -143,6 +145,12 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
     {
       headerName: "Part Component",
       field: "partComponent",
+      cellRenderer: "challanCellRenderer",
+      minWidth: 300,
+    },
+    {
+      headerName: "Pick Location",
+      field: "pickLocation",
       cellRenderer: "challanCellRenderer",
       minWidth: 300,
     },
