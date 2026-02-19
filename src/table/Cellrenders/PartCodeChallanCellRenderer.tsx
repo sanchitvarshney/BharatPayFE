@@ -6,6 +6,7 @@ import { getPOComponentDetail } from "@/features/procurement/poSlices";
 import { getAvailbleQty } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import { showToast } from "@/utils/toasterContext";
+import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 
 interface PartCodeChallanCellRendererProps {
   props: any;
@@ -36,12 +37,10 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     });
     customFunction();
   };
-
   const getStockForRow = (): number | null => {
-    const locationCode = pickLocation?.code ?? pickLocation?.sku ?? "";
     const itemCode = data?.partComponent?.value ?? "";
     const matchingItem = availbleQtyData?.find(
-      (item) => item.location === locationCode && item.item === itemCode
+      (item) => item.item === itemCode
     );
     if (matchingItem == null) return null;
     const stock = Number(matchingItem.Stock);
@@ -103,6 +102,29 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
             }
           />
         );
+        case "pickLocation":
+          return (
+            <AntLocationSelectAcordinttoModule
+              endpoint="/req/without-bom/pick-location"
+              onChange={(value: { label?: string; value?: string } | null) => {
+                data.pickLocation = value;
+                api.refreshCells({
+                  rowNodes: [props.node],
+                  columns: [column, ...COLUMNS_TO_REFRESH],
+                });
+                customFunction();
+                dispatch(getAvailbleQty({
+                  itemCode: data?.partComponent?.value || "",
+                  type: "RM",
+                  location: value,
+                }));
+              }}
+              value={value ? {
+                ...value,
+                label: value?.label || value?.text || value?.lable,
+              } : null}
+            />
+          );
       case "qty": {
         const maxStock = getStockForRow();
         return (
@@ -150,10 +172,9 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
           />
         );
       case "stock": {
-        const locationCode = pickLocation?.code ?? pickLocation?.sku ?? "";
         const itemCode = data?.partComponent?.value ?? "";
         const matchingItem = availbleQtyData?.find(
-          (item) => item.location === locationCode && item.item === itemCode
+          (item) =>item.item === itemCode
         );
         const stockDisplay = matchingItem != null ? String(matchingItem.Stock) : "--";
         return <span className="flex items-center h-full">{stockDisplay}</span>;
