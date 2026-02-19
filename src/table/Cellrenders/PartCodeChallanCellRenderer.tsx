@@ -38,7 +38,6 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     customFunction();
   };
   const getStockForRow = (): number | null => {
-    const locationCode = pickLocation?.code ?? pickLocation?.sku ?? "";
     const itemCode = data?.partComponent?.value ?? "";
     const matchingItem = availbleQtyData?.find(
       (item) => item.item === itemCode
