@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { QrCodeScanner } from "@mui/icons-material";
@@ -56,9 +56,15 @@ const DeviceTransfer = () => {
     });
   }, []);
 
-  const capture = () => {
-    const screenshot = webcamRef.current.getScreenshot();
-    setImage(screenshot);
+  const capture = useCallback(() => {
+    if (webcamRef.current) {
+      const screenshot = webcamRef.current.getScreenshot();
+      setImage(screenshot);
+    }
+  }, []);
+
+  const handleRemoveImage = () => {
+    setImage(null);
   };
 
   const {
@@ -133,9 +139,25 @@ const DeviceTransfer = () => {
     }
   };
 
-  const handleSubmitForm = () => {
+  const handleSubmitForm = useCallback(() => {
     handleSubmit(onSubmit)();
-  };
+  }, [handleSubmit, onSubmit]);
+
+  // F2 = capture image, F5 = submit form
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F2") {
+        e.preventDefault();
+        capture();
+      }
+      if (e.key === "F5") {
+        e.preventDefault();
+        handleSubmitForm();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleSubmitForm, capture]);
 
   return (
     <div className="h-[calc(100vh-100px)] bg-white flex flex-col overflow-hidden">
@@ -276,7 +298,7 @@ const DeviceTransfer = () => {
               </div>
             </div>
 
-            {/* Right: Select Camera, Webcam + Captured image side by side - same page */}
+            {/* Right: Select Camera, then either Webcam or Captured image in same place */}
             <div className="flex flex-col gap-2 min-w-0 flex-1 min-h-0 overflow-hidden">
               <div className="flex flex-col gap-1 flex-shrink-0">
                 <Typography variant="subtitle2">Select Camera</Typography>
@@ -293,28 +315,33 @@ const DeviceTransfer = () => {
                   ))}
                 </Select>
               </div>
-              <div className="flex gap-2 flex-1 min-h-0 items-start flex-nowrap overflow-hidden">
+              <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-hidden">
                 {deviceId && (
-                  <div className="flex flex-col gap-1 flex-shrink-0">
-                    <div className="w-[240px] h-[160px] min-w-[240px] overflow-hidden rounded border bg-black">
-                      <Webcam
-                        key={deviceId}
-                        ref={webcamRef}
-                        screenshotFormat="image/png"
-                        videoConstraints={videoConstraints}
-                        minScreenshotHeight={360}
-                        minScreenshotWidth={640}
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                      />
-                    </div>
-                    <Button size="small" variant="contained" onClick={capture}>Capture</Button>
-                  </div>
-                )}
-                {image && (
-                  <div className="flex flex-col gap-1 flex-shrink-0">
-                    <img src={image} alt="captured" className="w-[240px] h-[160px] min-w-[240px] object-contain rounded border bg-black/5" />
-                    <Button size="small" variant="contained" color="error" onClick={() => setImage(null)}>Remove</Button>
-                  </div>
+                  <>
+                    {image ? (
+                      <div className="flex flex-col gap-2 flex-1 min-h-0 min-w-0">
+                        <div className="flex-1 min-h-[320px] w-full max-h-[420px] overflow-hidden rounded border bg-black/5 flex items-center justify-center">
+                          <img src={image} alt="captured" className="max-w-full max-h-full w-full object-contain rounded" />
+                        </div>
+                        <Button size="small" variant="contained" color="error" onClick={handleRemoveImage}>Remove</Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-2 flex-1 min-h-0 min-w-0">
+                        <div className="flex-1 min-h-[320px] w-full max-h-[420px] overflow-hidden rounded border bg-black">
+                          <Webcam
+                            key={deviceId}
+                            ref={webcamRef}
+                            screenshotFormat="image/png"
+                            videoConstraints={videoConstraints}
+                            minScreenshotHeight={360}
+                            minScreenshotWidth={640}
+                            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                          />
+                        </div>
+                        <Button size="small" variant="contained" onClick={capture}>Capture</Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
