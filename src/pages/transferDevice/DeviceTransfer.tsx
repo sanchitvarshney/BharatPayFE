@@ -36,12 +36,8 @@ const DeviceTransfer = () => {
   const [image, setImage] = useState(null);
   const [devices, setDevices] = useState<any[]>([]);
   const [deviceId, setDeviceId] = useState("");
-  const {
-    deviceDetailsData,
-    issueData,
-    isImageLoading,
-    isSubmitLoading,
-  } = useAppSelector((state) => state.deviceTransfer);
+  const { deviceDetailsData, issueData, isImageLoading, isSubmitLoading } =
+    useAppSelector((state) => state.deviceTransfer);
   const videoConstraints = {
     deviceId: deviceId ? { exact: deviceId } : undefined,
     width: { ideal: 1280 },
@@ -71,6 +67,7 @@ const DeviceTransfer = () => {
     control,
     handleSubmit,
     reset,
+    resetField,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
@@ -90,13 +87,24 @@ const DeviceTransfer = () => {
   const getErrorMessage = (err: unknown): string => {
     if (err == null) return "Something went wrong.";
     if (typeof err === "string") return err;
-    const ax = err as { response?: { data?: { message?: string; error?: string } }; message?: string };
-    return ax?.response?.data?.message ?? ax?.response?.data?.error ?? ax?.message ?? "Something went wrong.";
+    const ax = err as {
+      response?: { data?: { message?: string; error?: string } };
+      message?: string;
+    };
+    return (
+      ax?.response?.data?.message ??
+      ax?.response?.data?.error ??
+      ax?.message ??
+      "Something went wrong."
+    );
   };
 
   const onSubmit = async (data: any) => {
     try {
-      const slNo = deviceDetailsData?.sl_no != null ? String(deviceDetailsData.sl_no) : null;
+      const slNo =
+        deviceDetailsData?.sl_no != null
+          ? String(deviceDetailsData.sl_no)
+          : null;
       const payload = {
         imeiNo: [data.imeinumber],
         srlNo: slNo != null ? [slNo] : [],
@@ -123,16 +131,25 @@ const DeviceTransfer = () => {
             }),
           ).then((res: any) => {
             if (res.payload.data.success) {
+              resetField("imeinumber");
               showToast(res.payload.data.message, "success");
               setImage(null);
             } else {
-              showToast(getErrorMessage(res.payload?.data) || res.payload?.data?.message || "Upload failed", "error");
+              showToast(
+                getErrorMessage(res.payload?.data) ||
+                  res.payload?.data?.message ||
+                  "Upload failed",
+                "error",
+              );
             }
           });
         }
       } else {
         const msg = result?.message ?? result?.error ?? "Request failed.";
-        showToast(typeof msg === "string" ? msg : "Something went wrong.", "error");
+        showToast(
+          typeof msg === "string" ? msg : "Something went wrong.",
+          "error",
+        );
       }
     } catch (error: unknown) {
       showToast(getErrorMessage(error), "error");
@@ -161,7 +178,10 @@ const DeviceTransfer = () => {
 
   return (
     <div className="h-[calc(100vh-100px)] bg-white flex flex-col overflow-hidden">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 p-0 overflow-hidden">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col flex-1 min-h-0 p-0 overflow-hidden"
+      >
         <div className="flex-1 min-h-0 overflow-hidden w-full px-4 py-2 flex flex-col">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4 items-start w-full max-w-full flex-1 min-h-0 overflow-hidden">
             {/* Left: IMEI, Select Issue, Return Issue, Remark */}
@@ -174,7 +194,9 @@ const DeviceTransfer = () => {
                   rules={{
                     required: "IMEI Number is required",
                     validate: (v) =>
-                      !v || /^\d{15}$/.test(v) || "IMEI must be exactly 15 digits",
+                      !v ||
+                      /^\d{15}$/.test(v) ||
+                      "IMEI must be exactly 15 digits",
                   }}
                   render={({ field }) => (
                     <TextField
@@ -184,7 +206,9 @@ const DeviceTransfer = () => {
                       size="small"
                       inputProps={{ "aria-label": "IMEI", maxLength: 15 }}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "").slice(0, 15);
+                        const val = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 15);
                         field.onChange(val);
                       }}
                       onKeyDown={(e) => {
@@ -196,7 +220,7 @@ const DeviceTransfer = () => {
                                 deviceCode: field.value.trim(),
                                 deviceModel: DEFAULT_DEVICE_MODEL,
                               }) as any,
-                            );
+                            )
                           }
                         }
                       }}
@@ -222,13 +246,19 @@ const DeviceTransfer = () => {
               <div className="flex flex-col gap-1">
                 <Typography variant="subtitle2">Select Issue</Typography>
                 <Controller
+                disabled={!deviceDetailsData}
                   name="issue"
                   control={control}
                   rules={{ required: "Issue is required" }}
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
-                      sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 0.5 }}
+                      
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, 1fr)",
+                        gap: 0.5,
+                      }}
                     >
                       {issueData?.map((item: any) => (
                         <FormControlLabel
@@ -236,25 +266,34 @@ const DeviceTransfer = () => {
                           value={item.id}
                           control={<Radio size="small" />}
                           label={item.text}
-                          sx={{ "& .MuiFormControlLabel-label": { fontSize: "0.875rem" } }}
+                          sx={{
+                            "& .MuiFormControlLabel-label": {
+                              fontSize: "0.875rem",
+                            },
+                          }}
+                          disabled={!deviceDetailsData}
                         />
                       ))}
                     </RadioGroup>
                   )}
                 />
                 {errors.issue && (
-                  <span className="text-xs text-red-500">Issue is required</span>
+                  <span className="text-xs text-red-500">
+                    Issue is required
+                  </span>
                 )}
               </div>
 
               <div className="flex flex-col gap-1">
                 <Typography variant="subtitle2">Return Issue</Typography>
                 <Controller
+                disabled={ !deviceDetailsData}
                   name="returnissue"
                   control={control}
                   rules={{ required: "Return Issue is required" }}
                   render={({ field }) => (
                     <Select
+                    disabled={!deviceDetailsData}
                       size="small"
                       value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.value)}
@@ -262,14 +301,20 @@ const DeviceTransfer = () => {
                       fullWidth
                       renderValue={(selected) => {
                         if (!selected) return "Return Issue";
-                        const found = issueTypes.find((item) => item.id === selected);
+                        const found = issueTypes.find(
+                          (item) => item.id === selected,
+                        );
                         return found?.text || "Return Issue";
                       }}
                       error={!!errors.returnissue}
                     >
-                      <MenuItem value="" disabled>Return Issue</MenuItem>
+                      <MenuItem value="" disabled>
+                        Return Issue
+                      </MenuItem>
                       {issueTypes.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>{item.text}</MenuItem>
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.text}
+                        </MenuItem>
                       ))}
                     </Select>
                   )}
@@ -279,6 +324,7 @@ const DeviceTransfer = () => {
               <div className="flex flex-col gap-1">
                 <Typography variant="subtitle2">Remark</Typography>
                 <Controller
+                disabled={ !deviceDetailsData}
                   name="remark"
                   control={control}
                   render={({ field }) => (
@@ -321,9 +367,20 @@ const DeviceTransfer = () => {
                     {image ? (
                       <div className="flex flex-col gap-2 flex-1 min-h-0 min-w-0">
                         <div className="flex-1 min-h-[320px] w-full max-h-[420px] overflow-hidden rounded border bg-black/5 flex items-center justify-center">
-                          <img src={image} alt="captured" className="max-w-full max-h-full w-full object-contain rounded" />
+                          <img
+                            src={image}
+                            alt="captured"
+                            className="max-w-full max-h-full w-full object-contain rounded"
+                          />
                         </div>
-                        <Button size="small" variant="contained" color="error" onClick={handleRemoveImage}>Remove</Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="error"
+                          onClick={handleRemoveImage}
+                        >
+                          Remove
+                        </Button>
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2 flex-1 min-h-0 min-w-0">
@@ -335,10 +392,20 @@ const DeviceTransfer = () => {
                             videoConstraints={videoConstraints}
                             minScreenshotHeight={360}
                             minScreenshotWidth={640}
-                            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                            }}
                           />
                         </div>
-                        <Button size="small" variant="contained" onClick={capture}>Capture</Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={capture}
+                        >
+                          Capture
+                        </Button>
                       </div>
                     )}
                   </>
@@ -363,7 +430,7 @@ const DeviceTransfer = () => {
               loadingPosition="start"
               onClick={handleSubmitForm}
               variant="contained"
-              loading={isImageLoading || isSubmitLoading}
+              loading={isImageLoading || isSubmitLoading || !deviceDetailsData}
             >
               Submit
             </LoadingButton>
