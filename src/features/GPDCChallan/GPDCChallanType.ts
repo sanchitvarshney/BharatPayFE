@@ -5,6 +5,7 @@ export type CreateGPDCPayload = {
   email: string;
   address: string;
   narration: string;
+fromLocation: string;
   components: string[];
   qty: number[];
   remark: string[];
