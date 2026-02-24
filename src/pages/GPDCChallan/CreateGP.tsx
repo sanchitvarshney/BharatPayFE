@@ -144,7 +144,7 @@ const CreateGP: React.FC = () => {
         fromLocation: data.location,
         narration: data.narration,
         components,
-        qty,
+        quantity: qty,
         remark,
       })
     ).then((res: any) => {
