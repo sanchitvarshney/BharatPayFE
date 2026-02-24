@@ -140,6 +140,8 @@ const CreateGP: React.FC = () => {
         mobile: data.mobile,
         email: data.email,
         address: data.address,
+        //@ts-ignore
+        fromLocation: data.location,
         narration: data.narration,
         components,
         qty,
