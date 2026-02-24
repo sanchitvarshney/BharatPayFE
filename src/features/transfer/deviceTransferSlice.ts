@@ -13,6 +13,7 @@ const initialState: any = {
   isSubmitLoading: false,
   isImageLoading: false,
   isSubmitSwipeLoading: false,
+  isCheckBoxLocationLoading: false,
 };
 type FetchDeviceDetailsArgs = {
   deviceCode: string;
@@ -63,6 +64,32 @@ export const submitTransferData = createAsyncThunk<AxiosResponse<any>>(
       payload,
     );
     return response?.data;
+  },
+);
+
+export type CheckBoxLocationPayload = {
+  boxNo: string;
+  serial: string[];
+  fromLocation: string;
+};
+
+export type CheckBoxLocationResponse = {
+  success?: boolean;
+  message?: string;
+  data?: Record<string, unknown>[];
+};
+
+export const checkBoxLocation = createAsyncThunk<
+  CheckBoxLocationResponse,
+  CheckBoxLocationPayload
+>(
+  "device/transfer/checkBoxLocation",
+  async (payload) => {
+    const response = await axiosInstance.post<CheckBoxLocationResponse>(
+      "/swipeMovement/checkBoxLocation",
+      payload,
+    );
+    return response?.data ?? response;
   },
 );
 
@@ -166,15 +193,23 @@ const transferSlice = createSlice({
       })
       .addCase(submitImage.rejected, (state) => {
         state.isImageLoading = false;
-      })    .addCase(submitSwipeTransferData.pending, (state) => {
+      })          .addCase(submitSwipeTransferData.pending, (state) => {
         state.isSubmitSwipeLoading = true;
       })
       .addCase(submitSwipeTransferData.fulfilled, (state) => {
         state.isSubmitSwipeLoading = false;
-       
       })
       .addCase(submitSwipeTransferData.rejected, (state) => {
         state.isSubmitSwipeLoading = false;
+      })
+      .addCase(checkBoxLocation.pending, (state) => {
+        state.isCheckBoxLocationLoading = true;
+      })
+      .addCase(checkBoxLocation.fulfilled, (state) => {
+        state.isCheckBoxLocationLoading = false;
+      })
+      .addCase(checkBoxLocation.rejected, (state) => {
+        state.isCheckBoxLocationLoading = false;
       });
   },
 });
