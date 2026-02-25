@@ -155,18 +155,18 @@ const WorkerForm: React.FC<Props> = ({
 
   const handleAreaChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
-    const selectedArea = areaList.find((a) => a.id === value);
+    const selectedArea = areaList?.find((a) => a.id === value);
     setArea(selectedArea || null);
   };
 
   const handleDepartmentChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
-    const selectedDepartment = deptList.find((d) => d.id === value);
+    const selectedDepartment = deptList?.find((d) => d.id === value);
     setDepartment(selectedDepartment || null);
   };
 
   const handlePreview = () => {
-    if (!area || !department || selectedEmployees.length === 0) {
+    if (!area || !department || selectedEmployees?.length === 0) {
       return;
     }
     const data = {
@@ -213,16 +213,16 @@ const WorkerForm: React.FC<Props> = ({
 
   const handlePreviewUpdate = () => {
     if (previewData) {
-      setArea(previewData.area);
-      setSelectedEmployeeIds(previewData.employees.map((emp) => emp.id));
-      setDate(previewData.date);
-      setStartTime(previewData.startTime || null);
-      setEndTime(previewData.endTime || null);
-      if (previewData.area?.id) {
-        setPendingDepartment(previewData.department);
-        fetchDepartments(previewData.area.id);
+      setArea(previewData?.area);
+      setSelectedEmployeeIds(previewData?.employees?.map((emp) => emp?.id));
+      setDate(previewData?.date);
+      setStartTime(previewData?.startTime || null);
+      setEndTime(previewData?.endTime || null);
+      if (previewData?.area?.id) {
+        setPendingDepartment(previewData?.department);
+        fetchDepartments(previewData?.area?.id);
       } else {
-        setDepartment(previewData.department);
+        setDepartment(previewData?.department);
       }
 
       setPreviewOpen(false);
@@ -244,11 +244,11 @@ const WorkerForm: React.FC<Props> = ({
       maxWidth: 90,
       sortable: false,
       renderCell: (params: GridRenderCellParams) => {
-        const isSelected = selectedEmployeeIds.includes(params.row.id);
+        const isSelected = selectedEmployeeIds?.includes(params?.row?.id);
         return (
           <Checkbox
             checked={isSelected}
-            onChange={() => handleCheckboxChange(params.row.id)}
+            onChange={() => handleCheckboxChange(params?.row?.id)}
             onClick={(e) => e.stopPropagation()}
           />
         );
