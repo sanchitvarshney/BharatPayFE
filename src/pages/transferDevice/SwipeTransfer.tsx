@@ -34,10 +34,12 @@ export type SwipeTableRow = {
 
 const BOX_CODE_INDEX = 0;
 const EXPECTED_IDS_PER_SCAN = 63;
+const MAX_DEVICES = 1575;
 
 const SwipeTransfer = () => {
   const dispatch = useDispatch<any>();
   const [tableRows, setTableRows] = useState<SwipeTableRow[]>([]);
+  const [fieldsLocked, setFieldsLocked] = useState(false);
   const scannerInputRef = useRef<HTMLInputElement>(null);
 
   const { isSubmitSwipeLoading, isCheckBoxLocationLoading } = useAppSelector(
@@ -104,7 +106,13 @@ const SwipeTransfer = () => {
 
     const locationFrom = getValues("locationfromId");
     if (!locationFrom?.code) {
-      showToast("Please select location", "error");
+      showToast("Please select location from", "error");
+      return;
+    }
+
+    const locationTo = getValues("locationtoId");
+    if (!locationTo?.code) {
+      showToast("Please select location to", "error");
       return;
     }
 
@@ -152,8 +160,28 @@ const SwipeTransfer = () => {
             };
           });
       if (newRows.length > 0) {
-        setTableRows((prev) => [...prev, ...newRows]);
-        showToast(`Added ${newRows.length} device(s) for box ${boxNo}`, "success");
+        const currentTotal = tableRows.length;
+        const afterAdd = currentTotal + newRows.length;
+        if (afterAdd > MAX_DEVICES) {
+          const canAdd = MAX_DEVICES - currentTotal;
+          if (canAdd <= 0) {
+            showToast(`Maximum ${MAX_DEVICES} devices allowed. Cannot add more.`, "error");
+            clearInput();
+            scannerInputRef.current?.focus();
+            return;
+          }
+          const toAddCapped = newRows.slice(0, canAdd);
+          setTableRows((prev) => [...prev, ...toAddCapped]);
+          setFieldsLocked(true);
+          showToast(
+            `Added ${toAddCapped.length} device(s) for box ${boxNo}. Maximum ${MAX_DEVICES} devices reached.`,
+            "success",
+          );
+        } else {
+          setTableRows((prev) => [...prev, ...newRows]);
+          setFieldsLocked(true);
+          showToast(`Added ${newRows.length} device(s) for box ${boxNo}`, "success");
+        }
       }
       clearInput();
       scannerInputRef.current?.focus();
@@ -269,6 +297,7 @@ const SwipeTransfer = () => {
         );
         reset();
         setTableRows([]);
+        setFieldsLocked(false);
       } else {
         showToast(result?.message ?? "Submit failed", "error");
       }
@@ -283,6 +312,7 @@ const SwipeTransfer = () => {
   const onReset = () => {
     reset();
     setTableRows([]);
+    setFieldsLocked(false);
   };
 
   return (
@@ -307,6 +337,7 @@ const SwipeTransfer = () => {
                       error={!!errors.locationfromId}
                       placeholder="Location from"
                       isSearch={false}
+                      disabled={fieldsLocked}
                     />
                   )}
                 />
@@ -328,6 +359,7 @@ const SwipeTransfer = () => {
                       error={!!errors.locationtoId}
                       placeholder="Location to"
                       isSearch={false}
+                      disabled={fieldsLocked}
                     />
                   )}
                 />
@@ -341,7 +373,12 @@ const SwipeTransfer = () => {
                   control={control}
                   rules={{ required: "SKU is required" }}
                   render={({ field }) => (
-                    <SelectSku varient="outlined" onChange={(e) => field.onChange(e)} value={field.value} />
+                    <SelectSku
+                      varient="outlined"
+                      onChange={(e) => field.onChange(e)}
+                      value={field.value}
+                      disabled={fieldsLocked}
+                    />
                   )}
                 />
               </div>
@@ -361,7 +398,7 @@ const SwipeTransfer = () => {
                       multiline
                       minRows={2}
                       maxRows={4}
-                      disabled={isCheckBoxLocationLoading}
+                      disabled={isCheckBoxLocationLoading || tableRows.length >= MAX_DEVICES}
                       onChange={(e) => field.onChange(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
@@ -408,7 +445,7 @@ const SwipeTransfer = () => {
           {/* Table - fills remaining space */}
           <div className="flex-1 flex flex-col min-h-0 w-full px-4 pb-4">
             <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }} className="flex-shrink-0">
-              Added devices ({tableRows.length})
+              Added devices ({tableRows.length} / {MAX_DEVICES})
             </Typography>
             <div className="ag-theme-quartz flex-1 min-h-0">
               <AgGridReact<SwipeTableRow>
