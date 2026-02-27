@@ -6,7 +6,6 @@ import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { QrCodeScanner } from "@mui/icons-material";
-
 import { showToast } from "@/utils/toasterContext";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
@@ -17,6 +16,7 @@ import {
   checkBoxLocation,
   submitSwipeTransferData,
 } from "@/features/transfer/deviceTransferSlice";
+import SelectSku from "@/components/reusable/SelectSku";
 
 export type SwipeTableRow = {
   id: string;
@@ -55,6 +55,7 @@ const SwipeTransfer = () => {
       locationfromId: "",
       locationtoId: "",
       scannerInput: "",
+      sku: null,
     },
   });
 
@@ -107,12 +108,19 @@ const SwipeTransfer = () => {
       return;
     }
 
+    const sku = getValues("sku");
+    if (!sku?.sku) {
+      showToast("Please select SKU", "error");
+      return;
+    }
+
     try {
       const data = await dispatch(
         checkBoxLocation({
           boxNo,
           serial: toAdd,
           fromLocation: locationFrom.code,
+          sku: sku.sku,
         }),
       ).unwrap();
       if (!data?.success) {
@@ -247,6 +255,7 @@ const SwipeTransfer = () => {
         fromLocation: data.locationfromId.code,
         toLocation: data.locationtoId.code,
         data: dataPayload,
+        sku: data.sku?.sku,
       };
 
       const result: any = await dispatch(
@@ -323,9 +332,22 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
-              <div className="min-w-[300px] flex-[2] max-w-[600px]">
+              <div className="min-w-[200px] flex-1 max-w-[280px]">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                  Scanner (1 box code + 63 device IDs, space or newline separated)
+                  SKU
+                </Typography>
+                <Controller
+                  name="sku"
+                  control={control}
+                  rules={{ required: "SKU is required" }}
+                  render={({ field }) => (
+                    <SelectSku varient="outlined" onChange={(e) => field.onChange(e)} value={field.value} />
+                  )}
+                />
+              </div>
+              <div className="min-w-[300px] flex-[2] max-w-[400px]">
+                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
+                  Scanner (1 box code + 63 device IDs)
                 </Typography>
                 <Controller
                   name="scannerInput"

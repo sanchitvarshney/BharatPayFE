@@ -71,6 +71,7 @@ export type CheckBoxLocationPayload = {
   boxNo: string;
   serial: string[];
   fromLocation: string;
+  sku: string;
 };
 
 export type CheckBoxLocationResponse = {
@@ -97,7 +98,7 @@ export const submitSwipeTransferData = createAsyncThunk<AxiosResponse<any>>(
   "master/swipe-transfer/submit",
   async (payload: any) => {
     const response = await axiosInstance.post(
-      `/swiper/deviceMovement`,
+      `/swipeMovement/deviceMovement`,
       payload,
     );
     return response?.data;
