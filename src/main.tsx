@@ -15,6 +15,7 @@ import { ThemeProvider } from "@mui/material";
 import theme from "./theme/index.ts";
 import { SocketProvider } from "./components/context/SocketContext.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import RootLayout from "./layouts/layout.tsx";
 
 const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -65,8 +66,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Toaster />
         <ToasterProvider>
           <SocketProvider>
+            <RootLayout>
             {" "}
             <RouterProvider router={router} />
+            </RootLayout>
             <ToasterConsumer />
           </SocketProvider>
         </ToasterProvider>
