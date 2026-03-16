@@ -1,9 +1,57 @@
 import { useEffect, useRef, useCallback } from "react";
 
-export function useTawkTo({ propertyId, widgetId }: any) {
+const LOGGED_IN_USER_KEY = "loggedinUser";
+
+export interface TawkToVisitor {
+  name?: string;
+  email?: string;
+  id?: string | number;
+}
+
+export interface UseTawkToOptions {
+  propertyId: string;
+  widgetId: string;
+}
+
+/** Read current_user (id, name, email) from localStorage (loggedinUser – base64 JSON). */
+function getVisitorFromLocalStorage(): TawkToVisitor | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LOGGED_IN_USER_KEY);
+    if (!raw) return null;
+    const decoded = atob(raw);
+    const data = JSON.parse(decoded) as { username?: string; crn_email?: string; crn_id?: string };
+    if (!data) return null;
+    const name = data.username ?? "";
+    const email = data.crn_email ?? "";
+    const id = data.crn_id ?? "";
+    if (!name && !email && !id) return null;
+    return { name: name || undefined, email: email || undefined, id: id || undefined };
+  } catch {
+    return null;
+  }
+}
+
+function setTawkVisitorAttributes(visitor: TawkToVisitor | null | undefined) {
+  if (!visitor) return;
+  const attrs: Record<string, string> = {};
+  if (visitor.name != null && visitor.name !== "") attrs.name = visitor.name;
+  if (visitor.email != null && visitor.email !== "") attrs.email = visitor.email;
+  if (visitor.id != null && visitor.id !== "") attrs.id = String(visitor.id);
+  if (Object.keys(attrs).length === 0) return;
+  //@ts-ignore
+  if (typeof window.Tawk_API?.setAttributes === "function") {
+    //@ts-ignore
+    window.Tawk_API.setAttributes(attrs, (error: unknown) => {
+      if (error) console.warn("Tawk setAttributes error:", error);
+    });
+  }
+}
+
+export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
   const loadedRef = useRef(false);
   const readyRef = useRef(false);
-  const pendingActionRef = useRef(null);
+  const pendingActionRef = useRef<{ department?: string | null } | null>(null);
 
   useEffect(() => {
     // Setup Tawk_API early so callbacks work
@@ -15,13 +63,22 @@ export function useTawkTo({ propertyId, widgetId }: any) {
       //@ts-ignore
       window.Tawk_API.hideWidget();
 
+      // Set visitor attributes from localStorage when widget loads
+      setTawkVisitorAttributes(getVisitorFromLocalStorage());
+
       // If there's a pending action (open + department), fire it now
       if (pendingActionRef.current) {
         const { department } = pendingActionRef.current;
+        const attrs: Record<string, string> = {};
+        if (department) attrs.department = department;
+        const v = getVisitorFromLocalStorage();
+        if (v?.name != null && v.name !== "") attrs.name = v.name;
+        if (v?.email != null && v.email !== "") attrs.email = v.email;
+        if (v?.id != null && v.id !== "") attrs.id = String(v.id);
         //@ts-ignore
-        if (department && typeof window.Tawk_API.setAttributes === "function") {
+        if (Object.keys(attrs).length > 0 && typeof window.Tawk_API.setAttributes === "function") {
           //@ts-ignore
-          window.Tawk_API.setAttributes({ department }, () => {});
+          window.Tawk_API.setAttributes(attrs, () => {});
         }
         //@ts-ignore
         if (typeof window.Tawk_API.maximize === "function") {
@@ -63,16 +120,21 @@ export function useTawkTo({ propertyId, widgetId }: any) {
       }
 
       if (!readyRef.current) {
-        //@ts-ignore
         pendingActionRef.current = { department };
         return;
       }
 
-      // Tawk.to has no setDepartment(); pass department as visitor attribute so agents see it
+      // Set visitor attributes from localStorage + department so agents see user and department
+      const attrs: Record<string, string> = {};
+      if (department) attrs.department = department;
+      const v = getVisitorFromLocalStorage();
+      if (v?.name != null && v.name !== "") attrs.name = v.name;
+      if (v?.email != null && v.email !== "") attrs.email = v.email;
+      if (v?.id != null && v.id !== "") attrs.id = String(v.id);
       //@ts-ignore
-      if (department && typeof window.Tawk_API?.setAttributes === "function") {
+      if (Object.keys(attrs).length > 0 && typeof window.Tawk_API?.setAttributes === "function") {
         //@ts-ignore
-        window.Tawk_API.setAttributes({ department }, () => {});
+        window.Tawk_API.setAttributes(attrs, () => {});
       }
       //@ts-ignore
       if (typeof window.Tawk_API?.maximize === "function") {
