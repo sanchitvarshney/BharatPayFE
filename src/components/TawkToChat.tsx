@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { useTawkTo } from "../hooks/useTawkTo";
+import { useUser } from "../hooks/useUser";
 //@ts-ignore
 import styles from "../theme/TawkToChat.module.css";
 
 // ─── CONFIG — Replace these with your actual IDs ───────────────────────────
-const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79" 
-const TAWK_WIDGET_ID = "1jjlctou9"
+const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79";
+const TAWK_WIDGET_ID = "1jjlctou9";
 
-console.log(TAWK_PROPERTY_ID, TAWK_WIDGET_ID);
+/** Paths where Tawk chat must be hidden (login, forgot password, two-factor). */
+const HIDE_TAWK_PATHS = ["/login", "/forgot-password", "/verify-otp", "/password-recovery"];
 
 const BUBBLE_SIZE = 62;
 const DEFAULT_OFFSET = 28;
@@ -39,13 +42,20 @@ function getDefaultPosition(): { left: number; bottom: number } {
 }
 
 export default function TawkToChat() {
+  const { user } = useUser();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(null);
+  const [loading, setLoading] = useState<string | null>(null);
   const [position, setPosition] = useState<{ left: number; bottom: number }>(getDefaultPosition);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
   const dragStartRef = useRef<{ x: number; y: number; left: number; bottom: number } | null>(null);
   const hasDraggedRef = useRef(false);
+
+  const shouldHideTawk =
+    !user ||
+    HIDE_TAWK_PATHS.includes(location.pathname) ||
+    localStorage.getItem("showOtpPage") === "Y";
 
   const { openChat } = useTawkTo({
     propertyId: TAWK_PROPERTY_ID,
@@ -152,14 +162,17 @@ export default function TawkToChat() {
     setLoading(dept.id);
     setIsOpen(false);
     await openChat(dept.tawkName);
-    setLoading(null);
+    // Loading clears when chat opens (onChatMaximized); fallback in case it never fires
+    setTimeout(() => setLoading(null), 5000);
   }
 
-  const wrapperStyle = {
+  const wrapperStyle: React.CSSProperties = {
     left: position.left,
     bottom: position.bottom,
-    right: "auto" as const,
+    right: "auto",
   };
+
+  if (shouldHideTawk) return null;
 
   return (
     <div className={styles.wrapper} style={wrapperStyle}>
@@ -199,17 +212,21 @@ export default function TawkToChat() {
         </div>
       </div>
 
-      {/* Floating bubble button */}
+      {/* Floating bubble button — show loading overlay when opening chat */}
       <button
         ref={buttonRef}
-        className={`${styles.bubble} ${isOpen ? styles.bubbleActive : ""}`}
+        className={`${styles.bubble} ${isOpen ? styles.bubbleActive : ""} ${loading ? styles.bubbleLoading : ""}`}
         onMouseDown={handlePointerDown}
         onTouchStart={handlePointerDown}
         onClick={handleBubbleClick}
         aria-label="Open chat"
         aria-expanded={isOpen}
         aria-haspopup="menu"
+        disabled={!!loading}
       >
+        {loading && (
+          <span className={styles.bubbleLoadingSpinner} aria-hidden="true" />
+        )}
         <span className={`${styles.bubbleIcon} ${styles.chatIcon}`}>
           <svg
             viewBox="0 0 24 24"
