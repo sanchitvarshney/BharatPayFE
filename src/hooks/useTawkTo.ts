@@ -49,11 +49,16 @@ function getVisitorFromLocalStorage(): TawkToVisitor | null {
 function setTawkVisitorAttributes(visitor: TawkToVisitor | null | undefined) {
   if (!visitor) return;
   const attrs: Record<string, string> = {};
+  const MAX_INT = 2147483647;
   if (visitor.name != null && visitor.name !== "") attrs.name = visitor.name;
   if (visitor.email != null && visitor.email !== "")
     attrs.email = visitor.email;
   if (visitor.id != null && visitor.id !== "") attrs.id = String(visitor.id);
-  if (visitor.mobile != null && visitor.mobile !== "") {
+  if (
+    visitor.mobile != null &&
+    visitor.mobile !== "" &&
+    String(visitor.mobile) !== String(MAX_INT)
+  ) {
     attrs.mobile = visitor.mobile;
   }
   if (Object.keys(attrs).length === 0) return;
@@ -88,11 +93,16 @@ export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
         const { department } = pendingActionRef.current;
         const attrs: Record<string, string> = {};
         if (department) attrs.department = department;
+        const MAX_INT = 2147483647;
         const v = getVisitorFromLocalStorage();
         if (v?.name != null && v.name !== "") attrs.name = v.name;
         if (v?.email != null && v.email !== "") attrs.email = v.email;
         if (v?.id != null && v.id !== "") attrs.id = String(v.id);
-        if (v?.mobile != null && v.mobile !== "")
+        if (
+          v?.mobile != null &&
+          v.mobile !== "" &&
+          String(v.mobile) !== String(MAX_INT)
+        )
           attrs.mobile = String(v.mobile);
 
         if (
@@ -114,6 +124,7 @@ export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
   }, []);
 
   const loadWidget = useCallback(() => {
+     
     return new Promise((resolve: any) => {
       if (loadedRef.current) {
         resolve();
@@ -144,13 +155,19 @@ export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
         pendingActionRef.current = { department };
         return;
       }
+      const MAX_INT = 2147483647;
+
       const attrs: Record<string, string> = {};
       if (department) attrs.department = department;
       const v = getVisitorFromLocalStorage();
       if (v?.name != null && v.name !== "") attrs.name = v.name;
       if (v?.email != null && v.email !== "") attrs.email = v.email;
       if (v?.id != null && v.id !== "") attrs.id = String(v.id);
-      if (v?.mobile != null && v.mobile !== "") {
+      if (
+        v?.mobile != null &&
+        v.mobile !== "" &&
+        String(v.mobile) !== String(MAX_INT) // skip placeholder value
+      ) {
         attrs.mobile = v.mobile;
       }
 
@@ -161,6 +178,7 @@ export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
       ) {
         //@ts-ignore
         window.Tawk_API.setAttributes(attrs, () => {});
+      
       }
       //@ts-ignore
       if (typeof window.Tawk_API?.maximize === "function") {
