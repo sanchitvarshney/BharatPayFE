@@ -27,6 +27,7 @@ const initialState: DispatchState = {
   rejectTransferLoading:false,
   printLoading:false,
   submitCustomFormLoading:false,
+  checkBoxValidLoading: false,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -64,6 +65,25 @@ export const CreateSwipeDispatch = createAsyncThunk<AxiosResponse<{ success: boo
   return response;
 });
 
+export type CreateDispatchScrapPayload = {
+  pickLocation: string;
+  data: Array<{ boxNo: string; serial: string[] }>;
+  sku: string;
+  remark: string;
+  challanId: string;
+};
+
+export const createDispatchScrap = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string; data?: { refID?: string } }>,
+  CreateDispatchScrapPayload
+>("dispatch/createDispatchScrap", async (payload) => {
+  const response = await axiosInstance.post(
+    "dispatchDivice/createDispatchScrap",
+    payload
+  );
+  return response;
+});
+
 export const wrongDeviceDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchWrongItemPayload>("dispatch/CreateWrongDispatch", async (payload) => {
   const response = await axiosInstance.post(`/wrongDevice/createWrongDispatch`, payload);
   return response;
@@ -73,6 +93,34 @@ export const uploadFile = createAsyncThunk<AxiosResponse<{ success: boolean; mes
   const response = await axiosInstance.post(`/dispatchDivice/upload`, formdata, { headers: { "Content-Type": "multipart/form-data" } });
   return response;
 });
+
+export type CheckBoxValidPayload = {
+  boxNo: string;
+  serial: string[];
+  fromLocation: string;
+  sku: string;
+};
+
+export type CheckBoxValidResponse = {
+  success?: boolean;
+  message?: string;
+  data?: Record<string, unknown>[];
+};
+
+export const checkBoxValid = createAsyncThunk<
+  CheckBoxValidResponse,
+  CheckBoxValidPayload
+>(
+  "dispatch/checkBoxValid",
+  async (payload) => {
+    const response = await axiosInstance.post<CheckBoxValidResponse>(
+      "/dispatchDivice/checkBoxValid",
+      payload,
+    );
+    return response?.data ?? response;
+  },
+);
+
 export const getClient = createAsyncThunk<AxiosResponse<any>>("master/client/getclient", async () => {
   const response = await axiosInstance.get(`/backend/client`);
   return response;
@@ -237,6 +285,18 @@ const dispatchSlice = createSlice({
       .addCase(CreateSwipeDispatch.rejected, (state) => {
         state.dispatchCreateLoading = false;
       })
+      .addCase(createDispatchScrap.pending, (state) => {
+        state.dispatchCreateLoading = true;
+      })
+      .addCase(createDispatchScrap.fulfilled, (state, action) => {
+        state.dispatchCreateLoading = false;
+        if (action.payload?.data?.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(createDispatchScrap.rejected, (state) => {
+        state.dispatchCreateLoading = false;
+      })
       .addCase(getStateCode.pending, (state) => {
         state.stateCodeLoading = true;
       })
@@ -357,6 +417,15 @@ const dispatchSlice = createSlice({
       })
       .addCase(wrongDeviceMin.rejected, (state) => {
         state.submitCustomFormLoading = false;
+      })
+      .addCase(checkBoxValid.pending, (state) => {
+        state.checkBoxValidLoading = true;
+      })
+      .addCase(checkBoxValid.fulfilled, (state) => {
+        state.checkBoxValidLoading = false;
+      })
+      .addCase(checkBoxValid.rejected, (state) => {
+        state.checkBoxValidLoading = false;
       });
   },
 });

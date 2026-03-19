@@ -43,4 +43,5 @@ export type DispatchState = {
   rejectTransferLoading:boolean;
   printLoading:boolean;
   submitCustomFormLoading:boolean;
+  checkBoxValidLoading: boolean;
 };
