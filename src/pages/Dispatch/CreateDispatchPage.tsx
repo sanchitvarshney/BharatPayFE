@@ -348,7 +348,7 @@ const CreateDispatchPage: React.FC = () => {
   }
 
   // Create payload with valid data (device / swipe)
-  const payload: DispatchItemPayload = {
+  const payload: any = {
     sku: validRowData.map((item) => item.productKey),
     remark: data1.remark,
     imeis: validRowData.map((item) => item.imei || ""),
