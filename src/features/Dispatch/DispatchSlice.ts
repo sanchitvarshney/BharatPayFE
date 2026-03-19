@@ -97,7 +97,7 @@ export const uploadFile = createAsyncThunk<AxiosResponse<{ success: boolean; mes
 export type CheckBoxValidPayload = {
   boxNo: string;
   serial: string[];
-  fromLocation: string;
+  pickLocation: string;
   sku: string;
 };
 

@@ -451,7 +451,7 @@ const CreateDispatchPage: React.FC = () => {
       const result = await dispatch(
         checkBoxValid({
           ...payload,
-       fromLocation,
+       pickLocation: fromLocation,
           sku,
         })
       ).unwrap();

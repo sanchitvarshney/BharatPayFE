@@ -179,6 +179,19 @@ const ScrapScannerTable: React.FC<ScrapScannerTableProps> = ({
     if (!trimmed) return;
 
     const { boxNo, serialIds } = parseScannerInput(trimmed);
+
+    // Limit to maximum 30 distinct boxes across the table
+    const existingBoxNos = new Set(
+      rowData.map((r) => (r.boxNo ?? "").trim()).filter(Boolean)
+    );
+    const isNewBox = boxNo && !existingBoxNos.has(boxNo);
+    if (isNewBox && existingBoxNos.size >= 30) {
+      showToast("Maximum 30 boxes can be scanned in one dispatch.", "error");
+      setScannerInput("");
+      scannerInputRef.current?.focus();
+      return;
+    }
+
     if (!boxNo || serialIds.length !== EXPECTED_IDS_PER_SCAN) {
       showToast(
         `Enter box code followed by exactly ${EXPECTED_IDS_PER_SCAN} device IDs (space or newline separated)`,
@@ -218,17 +231,33 @@ const ScrapScannerTable: React.FC<ScrapScannerTableProps> = ({
 
       const devices = res?.data;
       const list = Array.isArray(devices) ? devices : [];
-      const mapped: ScrapScannerRow[] = list.map(
-        (device: unknown, deviceIndex: number) =>
-          mapDeviceToRow(
-            (device ?? {}) as Record<string, unknown>,
-            boxNo,
-            rowData.length + deviceIndex + 1
-          )
-      );
+      const mapped: ScrapScannerRow[] =
+        list.length > 0
+          ? list.map(
+              (device: unknown, deviceIndex: number) =>
+                mapDeviceToRow(
+                  (device ?? {}) as Record<string, unknown>,
+                  boxNo,
+                  rowData.length + deviceIndex + 1
+                )
+            )
+          : toAdd.map((serialId, deviceIndex) => {
+              const srno = serialId.trim();
+              return {
+                boxNo,
+                srno,
+                imei: "--",
+                imei2: "--",
+                modalNo: "",
+                deviceSku: "",
+                productKey: "",
+                serialNo: 0,
+                index: rowData.length + deviceIndex + 1,
+              };
+            });
 
       if (mapped.length === 0) {
-        showToast("No devices returned for this scan", "warning");
+        showToast("No devices to add for this scan", "warning");
         return;
       }
 
