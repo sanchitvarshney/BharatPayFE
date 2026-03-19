@@ -5,6 +5,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useEffect, useState } from "react";
 import InternetStatusBar from "./components/shared/InternetStatusBar";
 import BugAndChat from "./components/shared/BugAndChat";
+import TawkToChat from "./components/TawkToChat";
 import { useUser } from "./hooks/useUser";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
@@ -53,6 +54,7 @@ function App() {
           <div className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}>
             <Outlet />
             {(import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME") && <BugAndChat />}
+            <TawkToChat />
           </div>
         </>
       );
