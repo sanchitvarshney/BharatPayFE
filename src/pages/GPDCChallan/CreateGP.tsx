@@ -131,7 +131,7 @@ const CreateGP: React.FC = () => {
     const components = rowData.map((row) => row.component?.value || "");
     const qty = rowData.map((row) => row.qty);
     const remark = rowData.map((row) => row.remark || "");
-
+   
     // Dispatch create GPDC action
     dispatch(
       createGPDC({
@@ -140,9 +140,11 @@ const CreateGP: React.FC = () => {
         mobile: data.mobile,
         email: data.email,
         address: data.address,
+        //@ts-ignore
+        fromLocation: data.location?.code,
         narration: data.narration,
         components,
-        qty,
+        quantity: qty,
         remark,
       })
     ).then((res: any) => {

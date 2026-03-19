@@ -12,6 +12,8 @@ export interface TawkToVisitor {
 export interface UseTawkToOptions {
   propertyId: string;
   widgetId: string;
+  onChatMaximized?: () => void;
+  onChatMinimized?: () => void;
 }
 
 /** Read current_user (id, name, email, mobile) from localStorage (loggedinUser – base64 JSON). */
@@ -71,10 +73,19 @@ function setTawkVisitorAttributes(visitor: TawkToVisitor | null | undefined) {
   }
 }
 
-export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
+export function useTawkTo({
+  propertyId,
+  widgetId,
+  onChatMaximized,
+  onChatMinimized,
+}: UseTawkToOptions) {
   const loadedRef = useRef(false);
   const readyRef = useRef(false);
   const pendingActionRef = useRef<{ department?: string | null } | null>(null);
+  const onChatMaximizedRef = useRef(onChatMaximized);
+  const onChatMinimizedRef = useRef(onChatMinimized);
+  onChatMaximizedRef.current = onChatMaximized;
+  onChatMinimizedRef.current = onChatMinimized;
 
   useEffect(() => {
     // Setup Tawk_API early so callbacks work
@@ -85,6 +96,23 @@ export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
       readyRef.current = true;
       //@ts-ignore
       window.Tawk_API.hideWidget();
+      //@ts-ignore
+      window.Tawk_API.onChatMaximized = function () {
+        onChatMaximizedRef.current?.();
+      };
+      //@ts-ignore
+      window.Tawk_API.onChatMinimized = function () {
+        onChatMinimizedRef.current?.();
+      };
+      // Also treat chat hidden/ended as \"closed\" so we can re-show the bubble
+      //@ts-ignore
+      window.Tawk_API.onChatHidden = function () {
+        onChatMinimizedRef.current?.();
+      };
+      //@ts-ignore
+      window.Tawk_API.onChatEnded = function () {
+        onChatMinimizedRef.current?.();
+      };
 
       setTawkVisitorAttributes(getVisitorFromLocalStorage());
 
@@ -117,6 +145,8 @@ export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
         if (typeof window.Tawk_API.maximize === "function") {
           //@ts-ignore
           window.Tawk_API.maximize();
+          // Ensure chat-open callback runs even if Tawk onChatMaximized doesn't fire
+          onChatMaximizedRef.current?.();
         }
         pendingActionRef.current = null;
       }
@@ -178,12 +208,13 @@ export function useTawkTo({ propertyId, widgetId }: UseTawkToOptions) {
       ) {
         //@ts-ignore
         window.Tawk_API.setAttributes(attrs, () => {});
-      
       }
       //@ts-ignore
       if (typeof window.Tawk_API?.maximize === "function") {
         //@ts-ignore
         window.Tawk_API.maximize();
+        // Ensure chat-open callback runs even if Tawk onChatMaximized doesn't fire
+        onChatMaximizedRef.current?.();
       }
     },
     [loadWidget],

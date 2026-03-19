@@ -31,16 +31,19 @@ import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import Success from "@/components/reusable/Success";
 import { LocationType } from "@/components/reusable/editor/SelectClient";
-import { DeviceType } from "@/components/reusable/SelectSku";
 import {
+  checkBoxValid,
+  createDispatchScrap,
   CreateDispatch,
   CreateSwipeDispatch,
   getChallanById,
   getClientBranch,
 } from "@/features/Dispatch/DispatchSlice";
 import SelectLocationAcordingModule from "@/components/reusable/SelectLocationAcordingModule";
+import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import { getDeviceDetails } from "@/features/production/Batteryqc/BatteryQcSlice";
 import ImeiTable from "@/table/dispatch/ImeiTable";
+import ScrapScannerTable from "@/table/dispatch/ScrapScannerTable";
 import { getDispatchFromDetail } from "@/features/master/client/clientSlice";
 // import { DispatchItemPayload } from "@/features/Dispatch/DispatchType";
 import { Dayjs } from "dayjs";
@@ -60,6 +63,7 @@ type RowData = {
   deviceSku: string;
   imei2?: string;
   index: number;
+  boxNo?: string;
 };
 
 type FormDataType = {
@@ -125,7 +129,9 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
-  const { dispatchCreateLoading } = useAppSelector((state) => state.dispatch);
+  const { dispatchCreateLoading, checkBoxValidLoading } = useAppSelector(
+    (state) => state.dispatch
+  );
 
   const {
     handleSubmit,
@@ -290,8 +296,59 @@ const CreateDispatchPage: React.FC = () => {
     return;
   }
 
-  // Create payload with valid data
-  const payload: any = {
+  if (data.deviceType === "scrapDevice") {
+    const byBox = validRowData.reduce<Record<string, string[]>>((acc, r) => {
+      const box = r.boxNo?.trim() ?? "";
+      const serial = (r.srno ?? "").trim();
+      if (!box || !serial) return acc;
+      if (!acc[box]) acc[box] = [];
+      acc[box].push(serial);
+      return acc;
+    }, {});
+    const scrapData = Object.entries(byBox).map(([boxNo, serial]) => ({
+      boxNo,
+      serial,
+    }));
+    const skuValue = data1.sku as (DeviceType & { sku?: string }) | null | undefined;
+    const sku = skuValue?.sku ?? skuValue?.id ?? "";
+
+    if (scrapData.length === 0) {
+      showToast("No valid box/serial data to submit", "error");
+      return;
+    }
+    if (!data1.location?.code) {
+      showToast("Pick Location is required", "error");
+      return;
+    }
+    if (!sku) {
+      showToast("SKU is required", "error");
+      return;
+    }
+
+    const scrapPayload = {
+      pickLocation: data1.location.code,
+      data: scrapData,
+      sku,
+      remark: data1.remark ?? "",
+      challanId: id?.replace(/_/g, "/") ?? "",
+    };
+
+    dispatch(createDispatchScrap(scrapPayload)).then((res: any) => {
+      if (res.payload?.data?.success) {
+        setDispatchNo(res?.payload?.data?.data?.refID);
+        reset();
+        setRowData([]);
+        handleNext();
+        resetall();
+      } else {
+        showToast(res?.payload?.data?.message || "Dispatch failed", "error");
+      }
+    });
+    return;
+  }
+
+  // Create payload with valid data (device / swipe)
+  const payload: DispatchItemPayload = {
     sku: validRowData.map((item) => item.productKey),
     remark: data1.remark,
     imeis: validRowData.map((item) => item.imei || ""),
@@ -302,7 +359,6 @@ const CreateDispatchPage: React.FC = () => {
     challanId: id?.replace(/_/g, "/") || "",
   };
 
-  // Proceed with dispatch
   if (data.deviceType === "device") {
     dispatch(CreateDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -367,6 +423,42 @@ const CreateDispatchPage: React.FC = () => {
   const handleClose = (_: object, reason: string) => {
     if (reason === "backdropClick") return; // Prevent closing on outside click
     setOpen(false);
+  };
+
+  const isScrapDevice = data?.deviceType === "scrapDevice";
+
+  const handleScrapCheckBoxValid = async (payload: {
+    boxNo: string;
+    serial: string[];
+  }) => {
+    const fromLocation = formValues.location?.code;
+    const skuValue = formValues.sku as (DeviceType & { sku?: string }) | null | undefined;
+    const sku =
+      skuValue?.sku ??
+      skuValue?.id ??
+      data?.productKey ??
+      data?.deviceSku ??
+      "";
+    if (!fromLocation) {
+      showToast("Please select Pick Location", "error");
+      return { success: false, message: "Pick Location is required" };
+    }
+    if (!sku) {
+      showToast("Please select SKU for scrap device scan", "error");
+      return { success: false, message: "SKU is required" };
+    }
+    try {
+      const result = await dispatch(
+        checkBoxValid({
+          ...payload,
+       fromLocation,
+          sku,
+        })
+      ).unwrap();
+      return result;
+    } catch {
+      return { success: false, message: "Check box validation failed" };
+    }
   };
 
   console.log(formValues);
@@ -936,6 +1028,8 @@ const CreateDispatchPage: React.FC = () => {
                             value:
                               data?.deviceType === "device"
                                 ? "SoundBox"
+                                : data?.deviceType === "scrapDevice"
+                                ? "Scrap Device"
                                 : "Swipe Device",
                           },
                           { label: "Item Rate", value: data?.itemRate },
@@ -983,171 +1077,194 @@ const CreateDispatchPage: React.FC = () => {
                       />
                     )}
                   />
+                  {isScrapDevice && (
+                    <Controller
+                      name="sku"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "SKU is required for scrap device",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <SelectSku
+                          varient="filled"
+                          size="medium"
+                          label="SKU"
+                          value={field.value}
+                          onChange={field.onChange}
+                          error={!!errors.sku}
+                          helperText={errors.sku?.message}
+                        />
+                      )}
+                    />
+                  )}
                 </div>
               </div>
             )}
             {activeStep === 1 && (
-              <div className="h-[calc(100vh-200px)]   ">
-                {/* <RMMaterialsAddTablev2
-                rowData={rowData}
-                setRowData={setRowData}
-                setTotal={setTotal}
-              /> */}
-                <div>
-                  <div className="flex items-center gap-4 pl-10">
-                    <FormControlLabel
-                      control={
-                        <Radio
-                          checked={isMultiple}
-                          onChange={() => setIsMultiple(true)} // Select multiple IMEIs
-                          value="multiple"
-                          name="imei-type"
-                          color="primary"
-                        />
-                      }
-                      label="Multiple IMEIs"
+              <div className="h-[calc(100vh-200px)]">
+                {isScrapDevice ? (
+                  <div className="h-full min-h-0 flex flex-col px-6 pl-10 pt-4 pb-2">
+                    <ScrapScannerTable
+                      rowData={rowData}
+                      setRowData={setRowData}
+                      onCheckBoxValid={handleScrapCheckBoxValid}
+                      loading={checkBoxValidLoading}
                     />
-                    <FormControlLabel
-                      control={
-                        <Radio
-                          checked={!isMultiple}
-                          onChange={() => setIsMultiple(false)} // Select single IMEI
-                          value="single"
-                          name="imei-type"
-                          color="primary"
-                        />
-                      }
-                      label="Single IMEI"
-                    />
-
-                    <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
-                      {isMultiple ? (
-                        <FormControl sx={{ width: "400px" }} variant="outlined">
-                          <TextField
-                            multiline
-                            rows={2}
-                            value={imei}
-                            label="IMEI/SR No."
-                            id="standard-adornment-qty"
-                            aria-describedby="standard-weight-helper-text"
-                            inputProps={{
-                              "aria-label": "weight",
-                            }}
-                            onChange={(e) => {
-                              setImei(e.target.value);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                onImeiSubmit(imei);
-                              }
-                            }}
-                            slotProps={{
-                              input: {
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    {deviceDetailLoading ? (
-                                      <CircularProgress
-                                        size={20}
-                                        color="inherit"
-                                      />
-                                    ) : (
-                                      <QrCodeScannerIcon />
-                                    )}
-                                  </InputAdornment>
-                                ),
-                              },
-                            }}
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex items-center gap-4 pl-10">
+                      <FormControlLabel
+                        control={
+                          <Radio
+                            checked={isMultiple}
+                            onChange={() => setIsMultiple(true)} // Select multiple IMEIs
+                            value="multiple"
+                            name="imei-type"
+                            color="primary"
                           />
-                        </FormControl>
-                      ) : (
-                        <FormControl sx={{ width: "400px" }} variant="outlined">
-                          <TextField
-                            rows={2}
-                            value={imei}
-                            label="Single IMEI/SR No."
-                            id="standard-adornment-qty"
-                            aria-describedby="standard-weight-helper-text"
-                            inputProps={{
-                              "aria-label": "weight",
-                            }}
-                            onChange={(e) => {
-                              setImei(e.target.value);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                onSingleImeiSubmit(imei);
-                              }
-                            }}
-                            slotProps={{
-                              input: {
-                                endAdornment: (
-                                  <InputAdornment position="end">
-                                    {deviceDetailLoading ? (
-                                      <CircularProgress
-                                        size={20}
-                                        color="inherit"
-                                      />
-                                    ) : (
-                                      <QrCodeScannerIcon />
-                                    )}
-                                  </InputAdornment>
-                                ),
-                              },
-                            }}
+                        }
+                        label="Multiple IMEIs"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Radio
+                            checked={!isMultiple}
+                            onChange={() => setIsMultiple(false)} // Select single IMEI
+                            value="single"
+                            name="imei-type"
+                            color="primary"
                           />
-                        </FormControl>
-                      )}
+                        }
+                        label="Single IMEI"
+                      />
 
-                      <div className="flex items-center p-4 space-x-6 bg-white rounded-lg">
-                        <p className="text-lg font-semibold text-blue-600">
-                          Total Devices:
-                          <span className="pl-1 text-gray-800">
-                            {rowData.length}
-                          </span>
-                        </p>
-                        <p className="text-lg font-semibold text-green-600">
-                          Total L Devices:
-                          <span className="pl-1 text-gray-800">
-                            {
-                              rowData.filter((item: any) =>
-                                item.modalNo.includes("(L)")
-                              )?.length
-                            }
-                          </span>
-                        </p>
-                        <p className="text-lg font-semibold text-red-600">
-                          Total E Devices:
-                          <span className="pl-1 text-gray-800">
-                            {
-                              rowData.filter((item: any) =>
-                                item.modalNo.includes("(E)")
-                              )?.length
-                            }
-                          </span>
-                        </p>
-                        <p className="text-lg font-semibold text-yellow-700">
-                          Total F Devices:
-                          <span className="pl-1 text-gray-800">
-                            {
-                              rowData.filter((item: any) =>
-                                item.modalNo.includes("(F)")
-                              )?.length
-                            }
-                          </span>
-                        </p>
+                      <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
+                        {isMultiple ? (
+                          <FormControl sx={{ width: "400px" }} variant="outlined">
+                            <TextField
+                              multiline
+                              rows={2}
+                              value={imei}
+                              label="IMEI/SR No."
+                              id="standard-adornment-qty"
+                              aria-describedby="standard-weight-helper-text"
+                              inputProps={{
+                                "aria-label": "weight",
+                              }}
+                              onChange={(e) => {
+                                setImei(e.target.value);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  onImeiSubmit(imei);
+                                }
+                              }}
+                              slotProps={{
+                                input: {
+                                  endAdornment: (
+                                    <InputAdornment position="end">
+                                      {deviceDetailLoading ? (
+                                        <CircularProgress
+                                          size={20}
+                                          color="inherit"
+                                        />
+                                      ) : (
+                                        <QrCodeScannerIcon />
+                                      )}
+                                    </InputAdornment>
+                                  ),
+                                },
+                              }}
+                            />
+                          </FormControl>
+                        ) : (
+                          <FormControl sx={{ width: "400px" }} variant="outlined">
+                            <TextField
+                              rows={2}
+                              value={imei}
+                              label="Single IMEI/SR No."
+                              id="standard-adornment-qty"
+                              aria-describedby="standard-weight-helper-text"
+                              inputProps={{
+                                "aria-label": "weight",
+                              }}
+                              onChange={(e) => {
+                                setImei(e.target.value);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  onSingleImeiSubmit(imei);
+                                }
+                              }}
+                              slotProps={{
+                                input: {
+                                  endAdornment: (
+                                    <InputAdornment position="end">
+                                      {deviceDetailLoading ? (
+                                        <CircularProgress
+                                          size={20}
+                                          color="inherit"
+                                        />
+                                      ) : (
+                                        <QrCodeScannerIcon />
+                                      )}
+                                    </InputAdornment>
+                                  ),
+                                },
+                              }}
+                            />
+                          </FormControl>
+                        )}
+
+                        <div className="flex items-center p-4 space-x-6 bg-white rounded-lg">
+                          <p className="text-lg font-semibold text-blue-600">
+                            Total Devices:
+                            <span className="pl-1 text-gray-800">
+                              {rowData.length}
+                            </span>
+                          </p>
+                          <p className="text-lg font-semibold text-green-600">
+                            Total L Devices:
+                            <span className="pl-1 text-gray-800">
+                              {
+                                rowData.filter((item: any) =>
+                                  item.modalNo.includes("(L)")
+                                )?.length
+                              }
+                            </span>
+                          </p>
+                          <p className="text-lg font-semibold text-red-600">
+                            Total E Devices:
+                            <span className="pl-1 text-gray-800">
+                              {
+                                rowData.filter((item: any) =>
+                                  item.modalNo.includes("(E)")
+                                )?.length
+                              }
+                            </span>
+                          </p>
+                          <p className="text-lg font-semibold text-yellow-700">
+                            Total F Devices:
+                            <span className="pl-1 text-gray-800">
+                              {
+                                rowData.filter((item: any) =>
+                                  item.modalNo.includes("(F)")
+                                )?.length
+                              }
+                            </span>
+                          </p>
+                        </div>
                       </div>
-
-                      {/* <div className="flex items-center gap-[10px]">
-                <LoadingButton loadingPosition="start" loading={dispatchCreateLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
-                  Submit
-                </LoadingButton>
-              </div> */}
+                    </div>
+                    <div className="h-[calc(100vh-250px)]">
+                      <ImeiTable setRowdata={setRowData} rowData={rowData} />
                     </div>
                   </div>
-                  <div className="h-[calc(100vh-250px)]">
-                    <ImeiTable setRowdata={setRowData} rowData={rowData} />
-                  </div>
-                </div>
+                )}
               </div>
             )}
             {activeStep === 2 && (

@@ -43,6 +43,26 @@
   transform: scale(0.96);
 }
 
+.bubbleLoading {
+  cursor: wait;
+}
+
+.bubbleLoading .bubbleIcon,
+.bubbleLoading .pulse {
+  opacity: 0.4;
+}
+
+.bubbleLoadingSpinner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  z-index: 1;
+}
+
 /* Icon swap on open/close */
 .bubbleIcon {
   position: absolute;

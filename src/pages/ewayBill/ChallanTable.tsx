@@ -131,6 +131,8 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
           ? "Wrong Device"
           : params.data.deviceType == "swipedevice"
           ? "Swipe Device"
+          : params.data.deviceType == "scrapDevice"
+          ? "Scrap Device"
           : "Sound Box",
     },
     {
