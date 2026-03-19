@@ -1,13 +1,13 @@
 // Vite/React: do NOT use <html> or <body> — they already exist in index.html.
 // This layout only wraps app content + TawkToChat.
 
-import TawkToChat from "@/components/TawkToChat";
+// import TawkToChat from "@/components/TawkToChat";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
-      <TawkToChat />
+      {/* <TawkToChat /> */}
     </>
   );
 }
