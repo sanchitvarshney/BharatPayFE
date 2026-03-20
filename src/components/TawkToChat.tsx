@@ -1,14 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useState } from "react";
 import { useUser } from "../hooks/useUser";
 
-// ─── CONFIG — Replace these with your actual IDs ───────────────────────────
+// ─── CONFIG ────────────────────────────────────────────────────────────────
 const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79";
 const TAWK_WIDGET_ID = "1jjlctou9";
 
-/** Paths where Tawk chat must be hidden (login, forgot password, two-factor). */
-const HIDE_TAWK_PATHS = ["/login", "/forgot-password", "/verify-otp", "/password-recovery"];
+// This must match EXACTLY the department name in tawk.to dashboard
+const TAWK_DEPARTMENT = "Bharatpe";
+
+/** Paths where Tawk chat must be hidden */
+const HIDE_TAWK_PATHS = [
+  "/login",
+  "/forgot-password",
+  "/verify-otp",
+  "/password-recovery",
+];
 
 const LOGGED_IN_USER_KEY = "loggedinUser";
 
@@ -59,7 +68,8 @@ function setTawkVisitorAttributes(visitor: TawkVisitor | null | undefined) {
   const MAX_INT = 2147483647;
 
   if (visitor.name != null && visitor.name !== "") attrs.name = visitor.name;
-  if (visitor.email != null && visitor.email !== "") attrs.email = visitor.email;
+  if (visitor.email != null && visitor.email !== "")
+    attrs.email = visitor.email;
   if (visitor.id != null && visitor.id !== "") attrs.id = String(visitor.id);
 
   if (
@@ -127,13 +137,14 @@ function usePathnameForTawk() {
   return pathname;
 }
 
-export default function TawkToChat() {
+export default function TawkToChatOakter() {
   const { user } = useUser();
   const pathname = usePathnameForTawk();
 
   const shouldHideTawk = useMemo(() => {
     const showOtpPage =
-      typeof window !== "undefined" && localStorage.getItem("showOtpPage") === "Y";
+      typeof window !== "undefined" &&
+      localStorage.getItem("showOtpPage") === "Y";
     return !user || HIDE_TAWK_PATHS.includes(pathname) || showOtpPage;
   }, [pathname, user]);
 
@@ -145,19 +156,29 @@ export default function TawkToChat() {
     const scriptSrc = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
 
     // Keep the latest hide/show intent accessible to the one-time onLoad handler.
-    w.__tawkBharatShouldHide = shouldHideTawk;
+    w.__tawkOakterShouldHide = shouldHideTawk;
 
-    // Setup the onLoad callback once, so visitor attributes can be applied.
-    if (!w.__tawkBharatOnLoadSet) {
-      w.__tawkBharatOnLoadSet = true;
+    // Setup the onLoad callback once
+    if (!w.__tawkOakterOnLoadSet) {
+      w.__tawkOakterOnLoadSet = true;
 
       // @ts-ignore
       window.Tawk_API = window.Tawk_API || {};
       // @ts-ignore
       window.Tawk_API.onLoad = function () {
+        // Set visitor attributes
         setTawkVisitorAttributes(getVisitorFromLocalStorage());
+
+        // ── Auto-route to Oakter department ──────────────────────
         // @ts-ignore
-        if (w.__tawkBharatShouldHide) {
+        if (typeof window.Tawk_API?.setDepartment === "function") {
+          // @ts-ignore
+          window.Tawk_API.setDepartment(TAWK_DEPARTMENT);
+        }
+
+        // Hide or show based on auth state
+        // @ts-ignore
+        if (w.__tawkOakterShouldHide) {
           // @ts-ignore
           window.Tawk_API.hideWidget?.();
         } else {
@@ -167,19 +188,29 @@ export default function TawkToChat() {
       };
     }
 
-    // If the widget API is ready, hide/show immediately on route changes.
+    // If the widget API is already ready, update hide/show immediately on route change
     if (w.Tawk_API) {
       // @ts-ignore
-      if (shouldHideTawk) w.Tawk_API.hideWidget?.();
-      // @ts-ignore
-      else w.Tawk_API.showWidget?.();
+      if (shouldHideTawk) {
+        // @ts-ignore
+        w.Tawk_API.hideWidget?.();
+      } else {
+        // @ts-ignore
+        w.Tawk_API.showWidget?.();
+        // Re-apply department on route change in case it was reset
+        // @ts-ignore
+        if (typeof w.Tawk_API?.setDepartment === "function") {
+          // @ts-ignore
+          w.Tawk_API.setDepartment(TAWK_DEPARTMENT);
+        }
+      }
     }
 
-    // Load the widget script only if we should show it.
+    // Load the widget script only when we should show it
     if (!shouldHideTawk) {
       const existing = document.getElementById(scriptId);
-      if (!existing && !w.__tawkBharatScriptRequested) {
-        w.__tawkBharatScriptRequested = true;
+      if (!existing && !w.__tawkOakterScriptRequested) {
+        w.__tawkOakterScriptRequested = true;
         const script = document.createElement("script");
         script.id = scriptId;
         script.async = true;
@@ -191,6 +222,5 @@ export default function TawkToChat() {
     }
   }, [shouldHideTawk]);
 
-  // The Tawk script injects its own UI into the DOM.
   return null;
 }
