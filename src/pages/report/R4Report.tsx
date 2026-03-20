@@ -333,6 +333,7 @@ const R4Report: React.FC = () => {
                 </MenuItem>
                 <MenuItem value="soundbox">Sound Box</MenuItem>
                 <MenuItem value="swipemachine">Swipe Machine</MenuItem>
+                <MenuItem value="scrapDevice">Scrap Device</MenuItem>
               </Select>
             </FormControl>
             {filter === "DEVICE" && (
