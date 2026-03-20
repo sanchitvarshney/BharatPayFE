@@ -1,11 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import { useTawkTo } from "../hooks/useTawkTo";
+import { useEffect, useMemo, useState } from "react";
 import { useUser } from "../hooks/useUser";
-//@ts-ignore
-import styles from "../theme/TawkToChat.module.css";
 
 // ─── CONFIG — Replace these with your actual IDs ───────────────────────────
 const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79";
@@ -14,249 +10,187 @@ const TAWK_WIDGET_ID = "1jjlctou9";
 /** Paths where Tawk chat must be hidden (login, forgot password, two-factor). */
 const HIDE_TAWK_PATHS = ["/login", "/forgot-password", "/verify-otp", "/password-recovery"];
 
-const BUBBLE_SIZE = 62;
-const DEFAULT_OFFSET = 28;
-/** Default distance from right edge so bubble is visible on laptop/smaller screens */
-const DEFAULT_RIGHT_MARGIN = 300;
+const LOGGED_IN_USER_KEY = "loggedinUser";
 
-const DEPARTMENTS = [
-  {
-    id: "BharatPe",
-    label: "BharatPe",
-    description: "Queries related to BharatPe",
-    tawkName: "BharatPe",
-    color: "#6366f1",
-    icon: "A",
-  },
-];
+type TawkVisitor = {
+  name?: string;
+  email?: string;
+  id?: string | number;
+  mobile?: string;
+};
 
-// ───────────────────────────────────────────────────────────────────────────
+function getVisitorFromLocalStorage(): TawkVisitor | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LOGGED_IN_USER_KEY);
+    if (!raw) return null;
 
-function getDefaultPosition(): { left: number; bottom: number } {
-  if (typeof window === "undefined") return { left: 0, bottom: DEFAULT_OFFSET };
-  const maxLeft = Math.max(0, window.innerWidth - BUBBLE_SIZE);
-  const maxBottom = Math.max(0, window.innerHeight - BUBBLE_SIZE);
-  const left = Math.min(window.innerWidth - DEFAULT_RIGHT_MARGIN - BUBBLE_SIZE, maxLeft);
-  const bottom = Math.min(DEFAULT_OFFSET, maxBottom);
-  return { left: Math.max(0, left), bottom: Math.max(0, bottom) };
+    const decoded = atob(raw);
+    const data = JSON.parse(decoded) as {
+      username?: string;
+      crn_email?: string;
+      crn_id?: string;
+      crn_mobile?: string;
+    };
+
+    if (!data) return null;
+
+    const name = data.username ?? "";
+    const email = data.crn_email ?? "";
+    const id = data.crn_id ?? "";
+    const mobile = data.crn_mobile ?? "";
+
+    if (!name && !email && !id && !mobile) return null;
+
+    return {
+      name: name || undefined,
+      email: email || undefined,
+      id: id || undefined,
+      mobile: mobile || undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function setTawkVisitorAttributes(visitor: TawkVisitor | null | undefined) {
+  if (!visitor) return;
+  const attrs: Record<string, string> = {};
+  const MAX_INT = 2147483647;
+
+  if (visitor.name != null && visitor.name !== "") attrs.name = visitor.name;
+  if (visitor.email != null && visitor.email !== "") attrs.email = visitor.email;
+  if (visitor.id != null && visitor.id !== "") attrs.id = String(visitor.id);
+
+  if (
+    visitor.mobile != null &&
+    visitor.mobile !== "" &&
+    String(visitor.mobile) !== String(MAX_INT)
+  ) {
+    attrs.mobile = visitor.mobile;
+  }
+
+  if (Object.keys(attrs).length === 0) return;
+
+  // @ts-ignore
+  if (typeof window.Tawk_API?.setAttributes === "function") {
+    // @ts-ignore
+    window.Tawk_API.setAttributes(attrs, (error: unknown) => {
+      if (error) console.warn("Tawk setAttributes error:", error);
+    });
+  }
+}
+
+function usePathnameForTawk() {
+  const [pathname, setPathname] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.location.pathname;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const w = window as any;
+    const eventName = "tawk-location-change";
+
+    if (!w.__tawkHistoryPatched) {
+      w.__tawkHistoryPatched = true;
+
+      const notify = () => window.dispatchEvent(new Event(eventName));
+
+      const pushState = history.pushState;
+      history.pushState = function (...args: any[]) {
+        const ret = pushState.apply(this, args as any);
+        notify();
+        return ret;
+      };
+
+      const replaceState = history.replaceState;
+      history.replaceState = function (...args: any[]) {
+        const ret = replaceState.apply(this, args as any);
+        notify();
+        return ret;
+      };
+    }
+
+    const onChange = () => setPathname(window.location.pathname);
+
+    window.addEventListener("popstate", onChange);
+    window.addEventListener(eventName, onChange as any);
+
+    return () => {
+      window.removeEventListener("popstate", onChange);
+      window.removeEventListener(eventName, onChange as any);
+    };
+  }, []);
+
+  return pathname;
 }
 
 export default function TawkToChat() {
   const { user } = useUser();
-  const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState<string | null>(null);
-  const [position, setPosition] = useState<{ left: number; bottom: number }>(getDefaultPosition);
-  const menuRef = useRef(null);
-  const buttonRef = useRef(null);
-  const dragStartRef = useRef<{ x: number; y: number; left: number; bottom: number } | null>(null);
-  const hasDraggedRef = useRef(false);
+  const pathname = usePathnameForTawk();
 
-  const shouldHideTawk =
-    !user ||
-    HIDE_TAWK_PATHS.includes(location.pathname) ||
-    localStorage.getItem("showOtpPage") === "Y";
+  const shouldHideTawk = useMemo(() => {
+    const showOtpPage =
+      typeof window !== "undefined" && localStorage.getItem("showOtpPage") === "Y";
+    return !user || HIDE_TAWK_PATHS.includes(pathname) || showOtpPage;
+  }, [pathname, user]);
 
-  const { openChat } = useTawkTo({
-    propertyId: TAWK_PROPERTY_ID,
-    widgetId: TAWK_WIDGET_ID,
-  });
-
-  const clampPosition = useCallback((left: number, bottom: number) => {
-    if (typeof window === "undefined") return { left: 0, bottom: DEFAULT_OFFSET };
-    const maxLeft = Math.max(0, window.innerWidth - BUBBLE_SIZE);
-    const maxBottom = Math.max(0, window.innerHeight - BUBBLE_SIZE);
-    return {
-      left: Math.max(0, Math.min(left, maxLeft)),
-      bottom: Math.max(0, Math.min(bottom, maxBottom)),
-    };
-  }, []);
-
-  // Client-only: set initial position to bottom-right so bubble is visible from first render
   useEffect(() => {
-    setPosition(clampPosition(
-      window.innerWidth - DEFAULT_RIGHT_MARGIN - BUBBLE_SIZE,
-      DEFAULT_OFFSET
-    ));
-  }, [clampPosition]);
+    if (typeof window === "undefined") return;
 
-  const handlePointerDown = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      const clientX = "touches" in e ? e.touches[0]?.clientX : e.clientX;
-      const clientY = "touches" in e ? e.touches[0]?.clientY : e.clientY;
-      if (typeof clientX !== "number" || typeof clientY !== "number") return;
-      dragStartRef.current = {
-        x: clientX,
-        y: clientY,
-        left: position.left,
-        bottom: position.bottom,
+    const w = window as any;
+    const scriptId = `tawk-embed-${TAWK_PROPERTY_ID}-${TAWK_WIDGET_ID}`;
+    const scriptSrc = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
+
+    // Keep the latest hide/show intent accessible to the one-time onLoad handler.
+    w.__tawkBharatShouldHide = shouldHideTawk;
+
+    // Setup the onLoad callback once, so visitor attributes can be applied.
+    if (!w.__tawkBharatOnLoadSet) {
+      w.__tawkBharatOnLoadSet = true;
+
+      // @ts-ignore
+      window.Tawk_API = window.Tawk_API || {};
+      // @ts-ignore
+      window.Tawk_API.onLoad = function () {
+        setTawkVisitorAttributes(getVisitorFromLocalStorage());
+        // @ts-ignore
+        if (w.__tawkBharatShouldHide) {
+          // @ts-ignore
+          window.Tawk_API.hideWidget?.();
+        } else {
+          // @ts-ignore
+          window.Tawk_API.showWidget?.();
+        }
       };
-      hasDraggedRef.current = false;
-    },
-    [position]
-  );
+    }
 
-  useEffect(() => {
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      if (!dragStartRef.current) return;
-      let clientX: number;
-      let clientY: number;
-      if ("touches" in e && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else if ("clientX" in e) {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      } else return;
-      const dx = clientX - dragStartRef.current.x;
-      const dy = clientY - dragStartRef.current.y;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasDraggedRef.current = true;
-      const left = dragStartRef.current.left + dx;
-      const bottom = dragStartRef.current.bottom - dy;
-      const next = clampPosition(left, bottom);
-      if (Number.isFinite(next.left) && Number.isFinite(next.bottom)) {
-        setPosition(next);
-      }
-    };
+    // If the widget API is ready, hide/show immediately on route changes.
+    if (w.Tawk_API) {
+      // @ts-ignore
+      if (shouldHideTawk) w.Tawk_API.hideWidget?.();
+      // @ts-ignore
+      else w.Tawk_API.showWidget?.();
+    }
 
-    const handleUp = () => {
-      dragStartRef.current = null;
-    };
-
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseup", handleUp);
-    document.addEventListener("touchmove", handleMove, { passive: true });
-    document.addEventListener("touchend", handleUp);
-    return () => {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleUp);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleUp);
-    };
-  }, [clampPosition]);
-
-  // Close menu on outside click
-  useEffect(() => {
-    function handleOutside(e: any) {
-      if (
-        menuRef.current &&
-        //@ts-ignore
-        !menuRef.current.contains(e.target) &&
-        buttonRef.current &&
-        //@ts-ignore
-        !buttonRef.current.contains(e.target)
-      ) {
-        setIsOpen(false);
+    // Load the widget script only if we should show it.
+    if (!shouldHideTawk) {
+      const existing = document.getElementById(scriptId);
+      if (!existing && !w.__tawkBharatScriptRequested) {
+        w.__tawkBharatScriptRequested = true;
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.async = true;
+        script.src = scriptSrc;
+        script.charset = "UTF-8";
+        script.setAttribute("crossorigin", "*");
+        document.head.appendChild(script);
       }
     }
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, []);
+  }, [shouldHideTawk]);
 
-  const handleBubbleClick = useCallback(() => {
-    if (hasDraggedRef.current) return;
-    setIsOpen((prev) => !prev);
-  }, []);
-
-  async function handleSelectDepartment(dept: any) {
-    setLoading(dept.id);
-    setIsOpen(false);
-    await openChat(dept.tawkName);
-    // Loading clears when chat opens (onChatMaximized); fallback in case it never fires
-    setTimeout(() => setLoading(null), 5000);
-  }
-
-  const wrapperStyle: React.CSSProperties = {
-    left: position.left,
-    bottom: position.bottom,
-    right: "auto",
-  };
-
-  if (shouldHideTawk) return null;
-
-  return (
-    <div className={styles.wrapper} style={wrapperStyle}>
-      {/* Department selector menu */}
-      <div
-        ref={menuRef}
-        className={`${styles.menu} ${isOpen ? styles.menuVisible : ""}`}
-        role="menu"
-        aria-label="Select department"
-      >
-        <p className={styles.menuHeading}>How can we help?</p>
-        <p className={styles.menuSub}>Choose the right team</p>
-
-        <div className={styles.deptList}>
-          {DEPARTMENTS.map((dept) => (
-            <button
-              key={dept.id}
-              className={styles.deptButton}
-              onClick={() => handleSelectDepartment(dept)}
-              disabled={loading === dept.id}
-              role="menuitem"
-              //@ts-ignore
-              style={{ "--dept-color": dept.color }}
-            >
-              <span className={styles.deptIcon}>{dept.icon}</span>
-              <span className={styles.deptInfo}>
-                <span className={styles.deptLabel}>{dept.label}</span>
-                <span className={styles.deptDesc}>{dept.description}</span>
-              </span>
-              {loading === dept.id ? (
-                <span className={styles.spinner} aria-hidden="true" />
-              ) : (
-                <span className={styles.arrow}>→</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Floating bubble button — show loading overlay when opening chat */}
-      <button
-        ref={buttonRef}
-        className={`${styles.bubble} ${isOpen ? styles.bubbleActive : ""} ${loading ? styles.bubbleLoading : ""}`}
-        onMouseDown={handlePointerDown}
-        onTouchStart={handlePointerDown}
-        onClick={handleBubbleClick}
-        aria-label="Open chat"
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-        disabled={!!loading}
-      >
-        {loading && (
-          <span className={styles.bubbleLoadingSpinner} aria-hidden="true" />
-        )}
-        <span className={`${styles.bubbleIcon} ${styles.chatIcon}`}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
-              fill="currentColor"
-            />
-          </svg>
-        </span>
-        <span className={`${styles.bubbleIcon} ${styles.closeIcon}`}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M18 6L6 18M6 6L18 18"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </span>
-
-        {/* Pulse ring */}
-        <span className={styles.pulse} aria-hidden="true" />
-      </button>
-    </div>
-  );
+  // The Tawk script injects its own UI into the DOM.
+  return null;
 }
