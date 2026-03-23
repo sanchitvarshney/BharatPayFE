@@ -71,19 +71,19 @@ export function useUser() {
         } else {
           console.error("Invalid JSON in loggedinUser");
           localStorage.clear();
-          window.location.reload();
+          // window.location.reload();
         }
       } else {
         
         console.error("Invalid Base64 in loggedinUser");
         localStorage.clear();
-        window.location.reload();
+        // window.location.reload();
       }
     }  else {
         
         console.error("Invalid Base64 in loggedinUser");
         localStorage.clear();
-        window.location.reload();
+        // window.location.reload();
       }
 
    
