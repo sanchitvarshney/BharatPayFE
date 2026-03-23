@@ -1,14 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useState } from "react";
 import { useUser } from "../hooks/useUser";
 
-// ─── CONFIG — Replace these with your actual IDs ───────────────────────────
+// ─── CONFIG ────────────────────────────────────────────────────────────────
 const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79";
 const TAWK_WIDGET_ID = "1jjlctou9";
 
-/** Paths where Tawk chat must be hidden (login, forgot password, two-factor). */
-const HIDE_TAWK_PATHS = ["/login", "/forgot-password", "/verify-otp", "/password-recovery"];
+// This must match EXACTLY the department name in tawk.to dashboard
+const TAWK_DEPARTMENT = "Bharatpe";
+
+/** Paths where Tawk chat must be hidden */
+const HIDE_TAWK_PATHS = [
+  "/login",
+  "/forgot-password",
+  "/verify-otp",
+  "/password-recovery",
+];
 
 const LOGGED_IN_USER_KEY = "loggedinUser";
 
@@ -59,7 +68,8 @@ function setTawkVisitorAttributes(visitor: TawkVisitor | null | undefined) {
   const MAX_INT = 2147483647;
 
   if (visitor.name != null && visitor.name !== "") attrs.name = visitor.name;
-  if (visitor.email != null && visitor.email !== "") attrs.email = visitor.email;
+  if (visitor.email != null && visitor.email !== "")
+    attrs.email = visitor.email;
   if (visitor.id != null && visitor.id !== "") attrs.id = String(visitor.id);
 
   if (
@@ -127,15 +137,197 @@ function usePathnameForTawk() {
   return pathname;
 }
 
-export default function TawkToChat() {
+export default function TawkToChatOakter() {
   const { user } = useUser();
   const pathname = usePathnameForTawk();
 
   const shouldHideTawk = useMemo(() => {
     const showOtpPage =
-      typeof window !== "undefined" && localStorage.getItem("showOtpPage") === "Y";
+      typeof window !== "undefined" &&
+      localStorage.getItem("showOtpPage") === "Y";
     return !user || HIDE_TAWK_PATHS.includes(pathname) || showOtpPage;
   }, [pathname, user]);
+
+// Remove Tawk.to branding (2026): hides footer branding, "Add Chat to your website",
+  // popout icon/button, and common tawk branding containers inside the widget iframe.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Guard: don't re-init if this component remounts.
+    const w = window as any;
+    if (w.__tawkOakterBrandingRemovalInit) return;
+    w.__tawkOakterBrandingRemovalInit = true;
+
+    var STYLE_ID = "hide-tawk-branding";
+
+    // NOTE: Avoid `:has()`/`:contains()` because older browser support is inconsistent.
+    var BRANDING_CSS = [
+      "a[href*='tawk.to'] { display: none !important; }",
+      "a[href*='utm_source=tawk-messenger'] { display: none !important; }",
+      "a[title*='Add Chat to your website'] { display: none !important; }",
+      ".tawk-branding { display: none !important; }",
+      "[class*='tawk-branding'] { display: none !important; }",
+        "[class*='tawk-bottom-navbar'] {  bottom: 0px !important; }",
+         "[class*='tawk-toolbar-menu'] { display: none !important; }",
+    ].join("\n");
+
+    var RETRY_DELAY_MS = 1500;
+
+    var processedIframes = new WeakSet();
+    var pendingRetries = new Map();
+    var debounceTimer:any = null;
+
+    function injectStyle(doc:any) {
+      try {
+        if (!doc || !doc.createElement) return false;
+        if (doc.getElementById && doc.getElementById(STYLE_ID)) return true;
+
+        var style = doc.createElement("style");
+        style.id = STYLE_ID;
+        style.textContent = BRANDING_CSS;
+
+        var target = doc.head || doc.documentElement;
+        if (target) {
+          target.appendChild(style);
+          return true;
+        }
+      } catch (_) {
+        // Cross-origin — expected.
+      }
+      return false;
+    }
+
+    function hidePopoutButtons(doc:any) {
+      try {
+        if (!doc || !doc.querySelectorAll) return;
+        // Primary strategy: hide by class. This also acts as a fallback
+        // for any cases where CSS selectors inside BRANDING_CSS miss.
+        var icons = doc.querySelectorAll(".tawk-icon-popout");
+        for (var i = 0; i < icons.length; i++) {
+          var btn = icons[i].closest && icons[i].closest("button");
+          if (btn && btn.style) {
+            btn.style.setProperty("display", "none", "important");
+          }
+        }
+      } catch (_) {}
+    }
+
+    function injectIntoIframe(iframe:any) {
+      try {
+        var doc = iframe.contentDocument;
+        if (!doc) {
+          // Schedule a single retry if iframe not ready yet
+          if (!pendingRetries.has(iframe)) {
+            var timeout = setTimeout(function () {
+              pendingRetries.delete(iframe);
+              injectIntoIframe(iframe);
+            }, RETRY_DELAY_MS);
+            pendingRetries.set(iframe, timeout);
+          }
+          return;
+        }
+
+        injectStyle(doc);
+        hidePopoutButtons(doc);
+      } catch (_) {
+        // Cross-origin — expected.
+      }
+    }
+
+    function handleIframe(iframe:any) {
+      if (processedIframes.has(iframe)) return;
+
+      var title = ((iframe.title || "") + "").toLowerCase();
+      if (title.indexOf("chat") === -1) return;
+
+      processedIframes.add(iframe);
+
+      // Inject immediately (may already be loaded)
+      injectIntoIframe(iframe);
+
+      // Re-inject on subsequent loads (SPA navigation, widget rebuild).
+      iframe.addEventListener("load", function () {
+        injectIntoIframe(iframe);
+      });
+    }
+
+    function scanIframes() {
+      try {
+        var iframes = document.querySelectorAll
+          ? document.querySelectorAll("iframe")
+          : [];
+        for (var i = 0; i < iframes.length; i++) {
+          handleIframe(iframes[i]);
+        }
+      } catch (_) {}
+    }
+
+    function onMutations(mutations:any) {
+      var foundNewIframe = false;
+
+      for (var i = 0; i < mutations.length; i++) {
+        var added = mutations[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var node = added[j];
+          if (node && node.nodeName === "IFRAME") {
+            handleIframe(node);
+            foundNewIframe = true;
+          } else if (node && node.nodeType === 1 && node.querySelectorAll) {
+            var nested = node.querySelectorAll("iframe");
+            if (nested.length) {
+              for (var k = 0; k < nested.length; k++) {
+                handleIframe(nested[k]);
+              }
+              foundNewIframe = true;
+            }
+          }
+        }
+      }
+
+      // Debounced re-scan: Tawk sometimes rebuilds widget DOM entirely.
+      if (foundNewIframe && !debounceTimer) {
+        debounceTimer = setTimeout(function () {
+          debounceTimer = null;
+          scanIframes();
+          hidePopoutButtons(document);
+        }, 500);
+      }
+    }
+
+    // Bootstrap: main document branding (outside iframes)
+    injectStyle(document);
+    hidePopoutButtons(document);
+
+    // Initial iframe scan
+    scanIframes();
+
+    // Watch for dynamically added iframes
+    var observer:any = null;
+    if (typeof MutationObserver !== "undefined" && document.body) {
+      observer = new MutationObserver(onMutations);
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    return () => {
+      try {
+        if (observer) observer.disconnect();
+      } catch (_) {}
+
+      pendingRetries.forEach(function (t) {
+        clearTimeout(t);
+      });
+      pendingRetries.clear();
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
+      }
+    };
+  }, []);
+
+
+
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -145,19 +337,29 @@ export default function TawkToChat() {
     const scriptSrc = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
 
     // Keep the latest hide/show intent accessible to the one-time onLoad handler.
-    w.__tawkBharatShouldHide = shouldHideTawk;
+    w.__tawkOakterShouldHide = shouldHideTawk;
 
-    // Setup the onLoad callback once, so visitor attributes can be applied.
-    if (!w.__tawkBharatOnLoadSet) {
-      w.__tawkBharatOnLoadSet = true;
+    // Setup the onLoad callback once
+    if (!w.__tawkOakterOnLoadSet) {
+      w.__tawkOakterOnLoadSet = true;
 
       // @ts-ignore
       window.Tawk_API = window.Tawk_API || {};
       // @ts-ignore
       window.Tawk_API.onLoad = function () {
+        // Set visitor attributes
         setTawkVisitorAttributes(getVisitorFromLocalStorage());
+
+        // ── Auto-route to Oakter department ──────────────────────
         // @ts-ignore
-        if (w.__tawkBharatShouldHide) {
+        if (typeof window.Tawk_API?.setDepartment === "function") {
+          // @ts-ignore
+          window.Tawk_API.setDepartment(TAWK_DEPARTMENT);
+        }
+
+        // Hide or show based on auth state
+        // @ts-ignore
+        if (w.__tawkOakterShouldHide) {
           // @ts-ignore
           window.Tawk_API.hideWidget?.();
         } else {
@@ -167,19 +369,29 @@ export default function TawkToChat() {
       };
     }
 
-    // If the widget API is ready, hide/show immediately on route changes.
+    // If the widget API is already ready, update hide/show immediately on route change
     if (w.Tawk_API) {
       // @ts-ignore
-      if (shouldHideTawk) w.Tawk_API.hideWidget?.();
-      // @ts-ignore
-      else w.Tawk_API.showWidget?.();
+      if (shouldHideTawk) {
+        // @ts-ignore
+        w.Tawk_API.hideWidget?.();
+      } else {
+        // @ts-ignore
+        w.Tawk_API.showWidget?.();
+        // Re-apply department on route change in case it was reset
+        // @ts-ignore
+        if (typeof w.Tawk_API?.setDepartment === "function") {
+          // @ts-ignore
+          w.Tawk_API.setDepartment(TAWK_DEPARTMENT);
+        }
+      }
     }
 
-    // Load the widget script only if we should show it.
+    // Load the widget script only when we should show it
     if (!shouldHideTawk) {
       const existing = document.getElementById(scriptId);
-      if (!existing && !w.__tawkBharatScriptRequested) {
-        w.__tawkBharatScriptRequested = true;
+      if (!existing && !w.__tawkOakterScriptRequested) {
+        w.__tawkOakterScriptRequested = true;
         const script = document.createElement("script");
         script.id = scriptId;
         script.async = true;
@@ -191,6 +403,5 @@ export default function TawkToChat() {
     }
   }, [shouldHideTawk]);
 
-  // The Tawk script injects its own UI into the DOM.
   return null;
 }
