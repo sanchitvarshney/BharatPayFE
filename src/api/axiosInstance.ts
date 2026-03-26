@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { getLocation } from "@/helper/getLocation";
 import { showToast } from "@/utils/toasterContext";
+import { getIndianFYSessionKeyForDate, isPlausibleFYSessionKey } from "@/utils/indianFinancialYear";
 const getFingerprint = async () => {
   try {
     const fp = await FingerprintJS.load();
@@ -26,7 +27,11 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getToken();
-  const savedSession = localStorage.getItem("session") || "25-26";
+  const rawSession = localStorage.getItem("session");
+  const savedSession =
+    rawSession && isPlausibleFYSessionKey(rawSession)
+      ? rawSession
+      : getIndianFYSessionKeyForDate();
   const savedCompanyBranch = localStorage.getItem("companyBranch") || "BRMSC031";
  
   if (token) {

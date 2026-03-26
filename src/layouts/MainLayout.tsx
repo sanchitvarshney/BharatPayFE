@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FaCircleUser } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
 import styled from "styled-components";
@@ -16,13 +16,25 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
+import {
+  buildIndianFYSessionOptions,
+  getInitialIndianFYSession,
+} from "@/utils/indianFinancialYear";
+
+/** Indian FY dropdown: current year + this many prior years (5 rows total). */
+const SESSION_YEARS_BACK = 4;
 
 function MainLayout(props: { children: React.ReactNode }) {
- 
   const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
   const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
-  const [selectedSession, setSelectedSession] = useState('25-26');
+  const [selectedSession, setSelectedSession] = useState(() =>
+    getInitialIndianFYSession(SESSION_YEARS_BACK),
+  );
+  const sessionOptions = useMemo(
+    () => buildIndianFYSessionOptions(SESSION_YEARS_BACK),
+    [],
+  );
   const [selectedCompanyBranch, setSelectedCompanyBranch] = useState('BRMSC031');
   const [sheet2Open, setSheet2Open] = useState<boolean>(false);
   const [favoriteSheet, setFavoriteSheet] = useState<boolean>(false);
@@ -97,7 +109,7 @@ function MainLayout(props: { children: React.ReactNode }) {
               <FormControl sx={{ width: "200px" }}>
                 <Tooltip title="Session">
                 <Select
-                  defaultValue={selectedSession}
+                  value={selectedSession}
                   className="shadow"
                   sx={{
                     background: "white",
@@ -115,10 +127,11 @@ function MainLayout(props: { children: React.ReactNode }) {
                   id="demo-simple-select"
                   onChange={(e) => handleSessionChange(e.target.value)}
                 >
-                  <MenuItem value={"25-26"}> 2025-2026</MenuItem>
-                  <MenuItem value={"24-25"}> 2024-2025</MenuItem>
-                  <MenuItem value={"23-24"}> 2023-2024</MenuItem>
-                  <MenuItem value={"22-23"}> 2022-2023</MenuItem>
+                  {sessionOptions.map((opt) => (
+                    <MenuItem value={opt.value} key={opt.value}>
+                      {opt.label}
+                    </MenuItem>
+                  ))}
                 </Select>
                 </Tooltip>
               </FormControl>
