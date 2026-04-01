@@ -306,11 +306,14 @@ const WorkerForm: React.FC<Props> = ({
   ];
 
   const selectItemByEnter = (model: any) => {
+   
     if (model?.quickFilterValues?.length > 0) {
-      const firstId = model?.quickFilterValues[0];
+      const firstId = model?.quickFilterValues[0].toUpperCase();
+      
       if (empList?.length > 0) {
         const firstItem = empList?.find((emp: any) => emp.id === firstId);
         if (firstItem) {
+       
           setGetItemBySearch(firstItem);
         } else {
           setGetItemBySearch(null);
@@ -322,6 +325,7 @@ const WorkerForm: React.FC<Props> = ({
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
+     
         if (getItemBySearch?.id) {
           setSelectedEmployeeIds((prev) => {
             if (!prev.includes(getItemBySearch.id)) {
