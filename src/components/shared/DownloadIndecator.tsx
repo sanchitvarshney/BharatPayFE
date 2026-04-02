@@ -149,7 +149,7 @@ const DownloadIndecator = () => {
                         size="small"
                         color="success"
                         onClick={() => {
-                          window.location.href = `${import.meta.env.VITE_SOKET_URL}/${JSON.parse(item.other_data)?.fileUrl}`;
+                          window.location.href = `${import.meta.env.VITE_SOKET_URL.split(":")[0]}/${JSON.parse(item.other_data)?.fileUrl}`;
                         }}
                       >
                         <Icons.download fontSize="small" />
