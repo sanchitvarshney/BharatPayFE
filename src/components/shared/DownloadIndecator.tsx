@@ -167,10 +167,17 @@ const DownloadIndecator = () => {
                         color="success"
                         onClick={() => {
                           const baseUrl =
-                            import.meta.env.VITE_SOKET_URL.replace(/:\d+$/, ""); 
+                            import.meta.env.VITE_SOKET_URL.replace(/:\d+$/, "");
                           const fileUrl = JSON.parse(item.other_data)?.fileUrl;
 
-                          window.open(`${baseUrl}/${fileUrl}`, "_blank");
+                      
+                          const finalUrl = new URL(fileUrl, baseUrl).href;
+
+                          window.open(
+                            finalUrl,
+                            "_blank",
+                            "noopener,noreferrer",
+                          );
                         }}
                       >
                         <Icons.download fontSize="small" />
