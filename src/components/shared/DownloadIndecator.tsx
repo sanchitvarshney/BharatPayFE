@@ -12,9 +12,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { showToast } from "@/utils/toasterContext";
 const DownloadIndecator = () => {
   const { onDownloadReport, off, onnotification } = useSocketContext();
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const [notification, setNotification] = React.useState<NotificationData[]>([]);
-  const [progress, setProgress] = React.useState<{ notificationId: string; percent: string } | null>(null);
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null,
+  );
+  const [notification, setNotification] = React.useState<NotificationData[]>(
+    [],
+  );
+  const [progress, setProgress] = React.useState<{
+    notificationId: string;
+    percent: string;
+  } | null>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -27,7 +34,7 @@ const DownloadIndecator = () => {
 
   useEffect(() => {
     const handlenotification = (
-      data: NotificationData[] | { type: string; data: NotificationData[] }
+      data: NotificationData[] | { type: string; data: NotificationData[] },
     ) => {
       // Handle new format with type field
       if (
@@ -49,7 +56,7 @@ const DownloadIndecator = () => {
         // Filter based on msg_type === 'file' or other download indicators
         const downloadNotifications = Array.isArray(data)
           ? data.filter(
-              (item) => item.msg_type === "file" || item.status !== "complete"
+              (item) => item.msg_type === "file" || item.status !== "complete",
             )
           : [];
         setNotification(downloadNotifications);
@@ -62,7 +69,10 @@ const DownloadIndecator = () => {
   }, [onnotification, off]);
 
   useEffect(() => {
-    const handleDownloadReport = (data: { notificationId: string; percent: string }) => {
+    const handleDownloadReport = (data: {
+      notificationId: string;
+      percent: string;
+    }) => {
       setProgress(data);
       console.log(data);
       if (Number(data.percent) === 100) {
@@ -134,13 +144,20 @@ const DownloadIndecator = () => {
           <div className="bg-white rounded justify-center gap-[10px] overflow-y-auto ">
             <ScrollArea className="w-full flex flex-col gap-[10px] h-[300px] p-[10px] pr-[15px]">
               {notification?.map((item, index) => (
-                <div key={index} className="w-full p-[5px] border rounded-md mb-[10px]">
+                <div
+                  key={index}
+                  className="w-full p-[5px] border rounded-md mb-[10px]"
+                >
                   <div className="flex items-center justify-between">
                     <div>
                       <Typography fontSize={14} variant="body2">
                         {item.req_code}
                       </Typography>
-                      <Typography color="text.secondary" fontSize={12} variant="body2">
+                      <Typography
+                        color="text.secondary"
+                        fontSize={12}
+                        variant="body2"
+                      >
                         {item.insert_date}
                       </Typography>
                     </div>
@@ -149,14 +166,26 @@ const DownloadIndecator = () => {
                         size="small"
                         color="success"
                         onClick={() => {
-                          window.location.href = `${import.meta.env.VITE_SOKET_URL.split(":")[0]}/${JSON.parse(item.other_data)?.fileUrl}`;
+                          const baseUrl =
+                            import.meta.env.VITE_SOKET_URL.replace(/:\d+$/, ""); 
+                          const fileUrl = JSON.parse(item.other_data)?.fileUrl;
+
+                          window.open(`${baseUrl}/${fileUrl}`, "_blank");
                         }}
                       >
                         <Icons.download fontSize="small" />
                       </IconButton>
                     )}
                   </div>
-                  {item.status !== "complete" && <ProgressWithParcentage value={item.reactNotificationId === progress?.notificationId ? parseInt(progress?.percent) : 0} />}
+                  {item.status !== "complete" && (
+                    <ProgressWithParcentage
+                      value={
+                        item.reactNotificationId === progress?.notificationId
+                          ? parseInt(progress?.percent)
+                          : 0
+                      }
+                    />
+                  )}
                 </div>
               ))}
             </ScrollArea>
