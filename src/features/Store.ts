@@ -32,6 +32,7 @@ import partCodeConversionReducer from "@/features/partCodeConversion/partCodeCon
 import gpdcChallanReducer from "@/features/GPDCChallan/GPDCChallanSlice";
 import placeSlice from "@/features/areaSlice/areaSlice";
 import transferSlice from "@/features/transfer/deviceTransferSlice";
+import crmRemarkReducer from "@/features/crmRemark/crmRemarkSlice";
 
 export const store = configureStore({
   reducer: {
@@ -67,7 +68,8 @@ export const store = configureStore({
     partCodeConversion: partCodeConversionReducer,
     gpdcChallan: gpdcChallanReducer,
     placeMaster: placeSlice,
-    deviceTransfer: transferSlice
+    deviceTransfer: transferSlice,
+    crmRemark: crmRemarkReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
