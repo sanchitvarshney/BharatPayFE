@@ -22,7 +22,9 @@ export const fetchCrmSerials = createAsyncThunk(
   "crmRemark/fetchCrmSerials",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/deviceMinV2/fetchDeviceRemarkPending");
+      const res = await axiosInstance.get(
+        "/deviceMinV2/fetchDeviceRemarkPending",
+      );
       const data = Array.isArray(res.data?.data) ? res.data.data : [];
       return data as CrmSerialRow[];
     } catch (error: any) {
@@ -41,16 +43,22 @@ export type SubmitCrmSerialsResponse = {
 
 export const submitCrmSerials = createAsyncThunk(
   "crmRemark/submitCrmSerials",
-  async (serialNumbers: string[], { rejectWithValue }) => {
+  async (
+    { serialNumbers, remark }: { serialNumbers: string[]; remark: string[] },
+    { rejectWithValue },
+  ) => {
     try {
       const res = await axiosInstance.post<SubmitCrmSerialsResponse>(
         "/deviceMinV2/changeRemarkStatus",
-        { serial: serialNumbers },
+        { serial: serialNumbers,status: remark },
       );
+
       const data = res.data;
+
       if (data?.success === true) {
         return data;
       }
+
       return rejectWithValue(
         data?.message || "Failed to submit CRM serial numbers",
       );
@@ -92,4 +100,3 @@ const crmRemarkSlice = createSlice({
 });
 
 export default crmRemarkSlice.reducer;
-

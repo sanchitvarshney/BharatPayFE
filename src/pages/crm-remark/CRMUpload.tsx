@@ -23,6 +23,42 @@ import { showToast } from "@/utils/toasterContext";
 
 type PreviewRow = Record<string, unknown>;
 
+const ALLOWED_REMARKS = new Set(["DONE", "QC_PENDING", "HOLD"]);
+
+const findRemarkColumnKey = (columnKeys: string[]): string | null =>
+  columnKeys.find((k) => k.trim().toLowerCase() === "remark") ?? null;
+
+const validateRowsForRemark = (
+  rows: PreviewRow[],
+  columnKeys: string[],
+): { ok: true } | { ok: false; message: string } => {
+  const remarkKey = findRemarkColumnKey(columnKeys);
+  if (!remarkKey) {
+    return {
+      ok: false,
+      message:
+        "Excel must include a 'remark' column. Each row must use one of: DONE, QC_PENDING, HOLD.",
+    };
+  }
+  for (let i = 0; i < rows.length; i++) {
+    const raw = rows[i][remarkKey];
+    const normalized = String(raw ?? "").trim().toUpperCase();
+    if (!normalized) {
+      return {
+        ok: false,
+        message: `Row ${i + 2}: remark is required (DONE, QC_PENDING, or HOLD).`,
+      };
+    }
+    if (!ALLOWED_REMARKS.has(normalized)) {
+      return {
+        ok: false,
+        message: `Row ${i + 2}: invalid remark "${String(raw).trim()}". Allowed: DONE, QC_PENDING, HOLD.`,
+      };
+    }
+  }
+  return { ok: true };
+};
+
 const CRMUpload = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -34,7 +70,6 @@ const CRMUpload = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-
     setPreviewRows([]);
     setColumns([]);
 
@@ -45,7 +80,6 @@ const CRMUpload = () => {
 
     const ext = selectedFile.name.split(".").pop()?.toLowerCase();
     if (!ext || !["xls", "xlsx", "csv"].includes(ext)) {
-     
       setFile(null);
       return;
     }
@@ -70,16 +104,23 @@ const CRMUpload = () => {
         });
 
         if (!json.length) {
-      
           setPreviewRows([]);
           setColumns([]);
         } else {
           const cols = Object.keys(json[0]);
-          setColumns(cols);
-          setPreviewRows(json);
+          const validation = validateRowsForRemark(json, cols);
+          if (!validation.ok) {
+            showToast(validation.message);
+            showToast(validation.message, "error");
+            setPreviewRows([]);
+            setColumns([]);
+          } else {
+            setColumns(cols);
+            setPreviewRows(json);
+          }
         }
       } catch (err) {
-       
+        showToast("Unable to read the file. Please check the format and try again.");
         setPreviewRows([]);
         setColumns([]);
       } finally {
@@ -88,7 +129,6 @@ const CRMUpload = () => {
     };
 
     reader.onerror = () => {
-    
       setIsParsing(false);
     };
 
@@ -96,9 +136,8 @@ const CRMUpload = () => {
   };
 
   const handleDownloadSample = () => {
-    const header = ["serial_number"];
-    const sampleData = [{ serial_number: "00067972330" }];
-    const worksheet = XLSX.utils.json_to_sheet(sampleData, { header });
+    const sampleData = [{ serial_number: "00067972330", remark: "DONE" }];
+    const worksheet = XLSX.utils.json_to_sheet(sampleData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sample");
     XLSX.writeFile(workbook, "crm_remark_sample.xlsx");
@@ -107,17 +146,47 @@ const CRMUpload = () => {
   const handleSubmit = async () => {
     if (!file || !previewRows.length) return;
 
-    // Extract serial numbers from parsed rows (expects `serial_number` column)
-    const serialNumbers = previewRows
-      .map((row) => String(row.serial_number ?? "").trim())
-      .filter((v) => v.length > 0);
-
-    if (!serialNumbers.length) {
-     
+    const validation = validateRowsForRemark(previewRows, columns);
+    if (!validation.ok) {
+      showToast(validation.message, "error");
       return;
     }
 
-    const action = await dispatch(submitCrmSerials(serialNumbers));
+    const remarkKey = findRemarkColumnKey(columns);
+    if (!remarkKey) {
+      showToast(
+        "Excel must include a 'remark' column (DONE, QC_PENDING, or HOLD).",
+        "error",
+      );
+      return;
+    }
+
+    const pairs = previewRows
+      .map((row) => ({
+        serial: String(row.serial_number ?? "").trim(),
+        remark: String(row[remarkKey] ?? "").trim().toUpperCase(),
+      }))
+      .filter((p) => p.serial.length > 0);
+
+    if (!pairs.length) {
+      showToast("No valid serial numbers found in the file.", "error");
+      return;
+    }
+
+    for (let i = 0; i < pairs.length; i++) {
+      if (!ALLOWED_REMARKS.has(pairs[i].remark)) {
+        showToast(
+          `Row ${i + 2}: invalid remark. Allowed: DONE, QC_PENDING, HOLD.`,
+          "error",
+        );
+        return;
+      }
+    }
+
+    const serialNumbers = pairs.map((p) => p.serial);
+    const remark = pairs.map((p) => p.remark);
+
+    const action = await dispatch(submitCrmSerials({ serialNumbers, remark }));
 
     if (submitCrmSerials.fulfilled.match(action)) {
       const payload = action.payload;
@@ -130,8 +199,9 @@ const CRMUpload = () => {
       }
     } else if (submitCrmSerials.rejected.match(action)) {
       const message =
-        (action.payload as string) || "Failed to submit data. Please try again.";
-    
+        (action.payload as string) ||
+        "Failed to submit data. Please try again.";
+
       showToast(message, "error");
     }
   };
@@ -146,7 +216,7 @@ const CRMUpload = () => {
   };
 
   const isSubmitDisabled =
-    !file || !previewRows.length  || isParsing || submitLoading;
+    !file || !previewRows.length || isParsing || submitLoading;
 
   return (
     <Box sx={{ p: 0, height: "calc(100vh - 100px)" }}>
@@ -206,7 +276,8 @@ const CRMUpload = () => {
               </Button>
             </Stack>
             <Typography variant="caption" color="text.disabled">
-              Supported formats: .xls, .xlsx, .csv
+              Supported formats: .xls, .xlsx, .csv — remark must be DONE,
+              QC_PENDING, or HOLD.
             </Typography>
           </Box>
 

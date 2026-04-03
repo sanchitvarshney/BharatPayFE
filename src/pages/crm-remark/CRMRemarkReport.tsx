@@ -59,6 +59,12 @@ const CRMRemarkReport: React.FC = () => {
       minWidth: 200,
       headerClass: "font-semibold",
     },
+      {
+      headerName: "Status",
+      field: "status",
+      minWidth: 200,
+      headerClass: "font-semibold",
+    },
   ];
 
   const defaultColDef = useMemo<ColDef>(
