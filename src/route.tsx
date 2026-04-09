@@ -131,6 +131,9 @@ import CreatePartCodeChallan from "@/pages/partCodeChallan/CreatePartCodeChallan
 import CreatePartCodeChallanLayout from "@/layouts/CreatePartCodeChallanLayout";
 import SwipeTransferLayout from "./layouts/SwipeTransferLayout";
 import SwipeTransfer from "./pages/transferDevice/SwipeTransfer";
+import CRMRemarkLayout from "./layouts/CRMRemarkLayout";
+import CRMRemarkReport from "./pages/crm-remark/CRMRemarkReport";
+import CRMUpload from "./pages/crm-remark/CRMUpload";
 
 export const router = createBrowserRouter([
   {
@@ -556,6 +559,26 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/warehouse/prod-return-MIN",
+      },
+           {
+        element: (
+          <MainLayout>
+            <CRMRemarkLayout>
+              <CRMRemarkReport />
+            </CRMRemarkLayout>
+          </MainLayout>
+        ),
+        path: "/crm/report",
+      },
+              {
+        element: (
+          <MainLayout>
+            <CRMRemarkLayout>
+              <CRMUpload />
+            </CRMRemarkLayout>
+          </MainLayout>
+        ),
+        path: "/crm/upload-excel",
       },
       {
         element: (
