@@ -9,6 +9,7 @@ import { loginUserAsync } from "@/features/authentication/authSlice";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { checkPermissions } from "@/helper/checkPermissions";
+import { consumeReturnTo } from "@/utils/returnTo";
 const LoginPage = () => {
   const [permissionsGranted, setPermissionsGranted] = useState<boolean | null>(null);
 
@@ -39,7 +40,7 @@ const LoginPage = () => {
       dispatch(loginUserAsync(data)).then((response: any) => {
         if (response.payload?.data?.success) {
           toast({ title: response.payload?.data?.message, variant: "success", duration: 3000 });
-          navigate("/");
+          navigate(consumeReturnTo() || "/", { replace: true });
         } else {
           toast({ title: response.payload?.data?.message, variant: "destructive", duration: 3000 });
         }

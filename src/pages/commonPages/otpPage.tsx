@@ -12,6 +12,7 @@ import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
 import { getQRStatus, verifyOtpAsync } from "@/features/authentication/authSlice";
 import { Button } from "@/components/ui/button";
+import { consumeReturnTo } from "@/utils/returnTo";
 
 const OtpPage: React.FC = () => {
   const { qrStatus } = useAppSelector((state) => state.auth);
@@ -54,8 +55,7 @@ const OtpPage: React.FC = () => {
 
       if (res.payload.data.success) {
         showToast("OTP Verified Successfully", "success");
-        // window.location.reload();
-        window.location.replace("/"); // Assuming "/dashboard" is the user landing page
+        window.location.replace(consumeReturnTo() || "/");
       } else {
         showToast("Invalid OTP, please try again", "error");
       }

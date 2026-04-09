@@ -5,6 +5,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { getLocation } from "@/helper/getLocation";
 import { showToast } from "@/utils/toasterContext";
 import { getIndianFYSessionKeyForDate, isPlausibleFYSessionKey } from "@/utils/indianFinancialYear";
+import { setReturnTo } from "@/utils/returnTo";
 const getFingerprint = async () => {
   try {
     const fp = await FingerprintJS.load();
@@ -57,6 +58,9 @@ axiosInstance.interceptors.response.use(
   (error) => {
    
     if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        setReturnTo(`${window.location.pathname}${window.location.search}`);
+      }
       localStorage.clear();
       window.location.href = "/login";
     }
