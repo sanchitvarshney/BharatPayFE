@@ -6,15 +6,38 @@ import { getLocation } from "@/helper/getLocation";
 import { showToast } from "@/utils/toasterContext";
 import { getIndianFYSessionKeyForDate, isPlausibleFYSessionKey } from "@/utils/indianFinancialYear";
 import { setReturnTo } from "@/utils/returnTo";
-const getFingerprint = async () => {
-  try {
-    const fp = await FingerprintJS.load();
-    const result = await fp.get();
-    return result.visitorId;
-  } catch (error) {
-    console.error("Failed to get fingerprint", error);
-    return null;
-  }
+
+let cachedFingerprint = "unknown";
+let fingerprintLoading: Promise<void> | null = null;
+let cachedLocation = "";
+let locationLastUpdatedAt = 0;
+const LOCATION_CACHE_TTL_MS = 5 * 60 * 1000;
+
+const warmFingerprint = () => {
+  if (fingerprintLoading) return fingerprintLoading;
+  fingerprintLoading = (async () => {
+    try {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      cachedFingerprint = result.visitorId || "unknown";
+    } catch (error) {
+      console.error("Failed to get fingerprint", error);
+    }
+  })();
+  return fingerprintLoading;
+};
+
+const warmLocation = () => {
+  const now = Date.now();
+  if (now - locationLastUpdatedAt < LOCATION_CACHE_TTL_MS) return;
+  locationLastUpdatedAt = now;
+  getLocation()
+    .then((location) => {
+      cachedLocation = location || "";
+    })
+    .catch(() => {
+      cachedLocation = "";
+    });
 };
 
 
@@ -37,15 +60,17 @@ axiosInstance.interceptors.request.use(async (config) => {
  
   if (token) {
     const uniqueid = uuidv4();
-    const fingerprint = await getFingerprint();
-    const location = await getLocation();
+    // Keep request path fast: use cached telemetry, refresh it in background.
+    warmFingerprint();
+    warmLocation();
     config.headers.Authorization = `Bearer ${token}`;
     config.headers["authorization"] = token;
     config.headers["session"] = savedSession;
     config.headers["companyBranch"] = savedCompanyBranch;
     config.headers["x-click-token"] = uniqueid;
-    config.headers["x-location"] = location ||"";
-    config.headers["x-fingerprint"] = fingerprint || "unknown";
+    config.headers["x-location"] = cachedLocation;
+    config.headers["x-fingerprint"] = cachedFingerprint;
+    config.headers["menuKey"] = sessionStorage.getItem("menuKey") || "";
     config.headers["ngrok-skip-browser-warning"] = "69420";
   }
   return config;
@@ -58,11 +83,11 @@ axiosInstance.interceptors.response.use(
   (error) => {
    
     if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        setReturnTo(`${window.location.pathname}${window.location.search}`);
+      if (globalThis.window !== undefined) {
+        setReturnTo(`${globalThis.window.location.pathname}${globalThis.window.location.search}`);
       }
       localStorage.clear();
-      window.location.href = "/login";
+      globalThis.window.location.href = "/login";
     }
   
     showToast((error.response?.data?.message?.msg ? error.response?.data?.message?.msg : error.response?.data?.message) || "An unexpected error occurred", "error");
