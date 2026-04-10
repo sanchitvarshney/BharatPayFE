@@ -54,6 +54,10 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useParams } from "react-router-dom";
 import DispatchPageSkeleton from "@/components/skeletons/DispatchPageSkeleton";
+import {
+  blockedScrapMessage,
+  isBlockedScrapBox,
+} from "@/constants/blockedScrapBoxes";
 
 type RowData = {
   imei: string;
@@ -313,6 +317,12 @@ const CreateDispatchPage: React.FC = () => {
     const skuValue = data1.sku as (DeviceType & { sku?: string }) | null | undefined;
     const sku = skuValue?.sku ?? skuValue?.id ?? "";
 
+    const blockedBox = scrapData.find((item) => isBlockedScrapBox(item.boxNo));
+    if (blockedBox) {
+      showToast(blockedScrapMessage(blockedBox.boxNo), "error");
+      return;
+    }
+
     if (scrapData.length === 0) {
       showToast("No valid box/serial data to submit", "error");
       return;
@@ -432,6 +442,12 @@ const CreateDispatchPage: React.FC = () => {
     boxNo: string;
     serial: string[];
   }) => {
+    if (isBlockedScrapBox(payload.boxNo)) {
+      const message = blockedScrapMessage(payload.boxNo);
+      showToast(message, "error");
+      return { success: false, message };
+    }
+
     const fromLocation = formValues.location?.code;
     const skuValue = formValues.sku as (DeviceType & { sku?: string }) | null | undefined;
     const sku =
