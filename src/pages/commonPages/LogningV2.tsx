@@ -32,6 +32,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkPermissions } from "@/helper/checkPermissions";
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
+import { consumeReturnTo } from "@/utils/returnTo";
 import ReCAPTCHA from "react-google-recaptcha";
 import { GoogleLogin } from "@react-oauth/google";
 const LogningV2: React.FC = () => {
@@ -66,7 +67,7 @@ const LogningV2: React.FC = () => {
     dispatch(loginUserAsync(data)).then((response: any) => {
       if (response.payload?.data?.success) {
         showToast(response.payload?.data?.message, "success");
-        navigate("/");
+        navigate(consumeReturnTo() || "/", { replace: true });
       } else {
         // Check for message in different possible locations
         const errorMessage =
@@ -94,7 +95,7 @@ const LogningV2: React.FC = () => {
     dispatch(loginUserGoogle(data)).then((response: any) => {
       if (response.payload?.data?.success) {
         showToast(response.payload?.data?.message, "success");
-        navigate("/");
+        navigate(consumeReturnTo() || "/", { replace: true });
       } else {
         // Check for message in different possible locations
         const errorMessage =

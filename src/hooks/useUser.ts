@@ -61,32 +61,25 @@ export function useUser() {
   useEffect(() => {
     const storedUser = localStorage.getItem("loggedinUser");
 
-    
-    if (storedUser) {
-      if (isValidBase64(storedUser)) {
-        const decodedUser = atob(storedUser); 
-      
-        if (isValidJSON(decodedUser)) {
-          setUser(JSON.parse(decodedUser));
-        } else {
-          console.error("Invalid JSON in loggedinUser");
-          localStorage.clear();
-          // window.location.reload();
-        }
-      } else {
-        
-        console.error("Invalid Base64 in loggedinUser");
-        localStorage.clear();
-        // window.location.reload();
-      }
-    }  else {
-        
-        console.error("Invalid Base64 in loggedinUser");
-        localStorage.clear();
-        // window.location.reload();
-      }
+    if (!storedUser) {
+      return;
+    }
 
-   
+    if (!isValidBase64(storedUser)) {
+      console.error("Invalid Base64 in loggedinUser");
+      localStorage.removeItem("loggedinUser");
+      return;
+    }
+
+    const decodedUser = atob(storedUser);
+
+    if (!isValidJSON(decodedUser)) {
+      console.error("Invalid JSON in loggedinUser");
+      localStorage.removeItem("loggedinUser");
+      return;
+    }
+
+    setUser(JSON.parse(decodedUser));
   }, [dispatch]);
 
   const saveUser = (userData: LoggedInUser | null) => {
