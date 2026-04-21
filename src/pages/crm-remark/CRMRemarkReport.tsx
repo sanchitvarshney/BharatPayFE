@@ -59,6 +59,12 @@ const CRMRemarkReport: React.FC = () => {
       minWidth: 200,
       headerClass: "font-semibold",
     },
+         {
+      headerName: "Remark Updated Date",
+      field: "date",
+      minWidth: 200,
+      headerClass: "font-semibold",
+    },
       {
       headerName: "Status",
       field: "status",
