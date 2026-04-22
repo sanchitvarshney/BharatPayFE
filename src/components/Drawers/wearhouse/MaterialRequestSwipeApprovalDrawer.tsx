@@ -60,10 +60,9 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
   const [remarks, setRemarks] = useState<string>("");
   const dispatch = useAppDispatch();
   const [data, setData] = useState<ProcessRequestDataBody[] | null>(null);
-  const [deviceData, setDeviceData] = useState<any>(null);
   const deviceDataRef = useRef<any[]>([]);
   const updateDeviceData = (next: any[] | null) => {
-    setDeviceData(next);
+  
     deviceDataRef.current = next ?? [];
   };
 
@@ -86,7 +85,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
     setRemarks("");
     setIsueeQty("");
     setItemKey("");
-    setScanned(null);
+    updateScanned(null);
     setInput("");
   };
   const {
@@ -103,17 +102,22 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
     },
   });
   const onSubmit: SubmitHandler<Forstate> = (data) => {
+    const scannedSet = new Set((scannedRef.current ?? []).map((code) => code.trim()));
+    const productDetail = (deviceDataRef.current ?? [])
+      .filter((row: any) => scannedSet.has((row?.serial_no ?? "").trim()))
+      .map((row: any) => ({
+        serialNo: row.serial_no,
+        imei_no1: row.imei_no1,
+        imei_no2: row.imei_no2,
+      }));
+
     dispatch(
       approveSwipeDeviceRequest({
         productKey: itemkey,
         pickLocation: data.picLocation!.id,
         qty: data.issueQty,
         transactionId: requestDetail?.id ?? "",
-          productDetail: ((deviceDataRef.current ?? deviceData )|| [])?.map((row:any) => ({
-            serialNo: row.serial_no,
-            imei_no1: row.imei_no1,
-            imei_no2: row.imei_no2,
-          }))
+        productDetail
           
       })
     ).then((response: any) => {
@@ -484,8 +488,9 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({ open, setOpen, ap
                                       size="small"
                                       color="error"
                                       onClick={() => {
-                                        updateScanned(scanned.filter((sc) => sc !== item));
-                                        const filtered = deviceDataRef.current.filter((sc: any) => sc.serial_no !== item);
+                                        const currentCode = item.trim();
+                                        updateScanned((scanned ?? []).filter((sc) => sc.trim() !== currentCode));
+                                        const filtered = deviceDataRef.current.filter((sc: any) => (sc?.serial_no ?? "").trim() !== currentCode);
                                         updateDeviceData(filtered);
                                       }}
                                     >
