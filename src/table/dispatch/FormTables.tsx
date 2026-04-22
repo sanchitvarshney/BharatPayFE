@@ -38,7 +38,6 @@ const remarkOptions = [
 ];
 
 const RemarkCellRenderer: React.FC<any> = ({
-  value,
   data,
   api,
   column,
@@ -57,22 +56,34 @@ const RemarkCellRenderer: React.FC<any> = ({
     }
   }, [showCustomInput]);
 
+  const normalizeValue = (value: any) =>
+    (typeof value === "string" ? value : String(value ?? ""))
+      .trim()
+      .toLowerCase();
+
+  const hasDuplicateRemarkForSameAwb = (remarkValue: string) => {
+    const currentAwb = normalizeValue(data?.awbNo);
+    const currentRemark = normalizeValue(remarkValue);
+
+    if (!currentAwb || !currentRemark) return false;
+
+    return rowData.some((row: any) => {
+      if (row.id === data.id) return false;
+      const rowAwb = normalizeValue(row?.awbNo);
+      const rowRemark = normalizeValue(row?.remark);
+      return rowAwb === currentAwb && rowRemark === currentRemark;
+    });
+  };
+
   const handleRemarkSelect = (selectedValue: string) => {
     if (selectedValue === "__CUSTOM__") {
       setShowCustomInput(true);
       return;
     }
 
-    data.remark = selectedValue;
-
-    const existingDublicationRemarks = rowData.filter(
-      (row: any) =>
-        row?.remark?.toLowerCase() === selectedValue?.toLowerCase() &&
-        row.id !== data.id,
-    );
-    if (existingDublicationRemarks.length > 0) {
+    if (hasDuplicateRemarkForSameAwb(selectedValue)) {
       showToast(
-        `The remark "${selectedValue}" is already used in another row.`,
+        `The remark "${selectedValue}" already used for this AWB.`,
         "error",
       );
       return;
@@ -97,21 +108,14 @@ const RemarkCellRenderer: React.FC<any> = ({
   };
 
   const handleCustomRemarkSubmit = () => {
-    const exsistingDublicationRemarks = rowData.filter(
-      (row: any) =>
-        row?.remark?.toLowerCase() === customRemark?.trim()?.toLowerCase() &&
-        row.id !== data.id,
-    );
-    if (exsistingDublicationRemarks.length > 0) {
+    if (hasDuplicateRemarkForSameAwb(customRemark)) {
       showToast(
-        `The remark "${customRemark.trim()}" is already used in another row.`,
+        `The remark "${customRemark.trim()}" already used for this AWB.`,
         "error",
       );
       return;
     }
     if (customRemark.trim()) {
-      data.remark = customRemark.trim();
-
       const updatedRowData = Array.isArray(rowData)
         ? rowData.map((row: any) =>
             row.id === data.id ? { ...row, remark: customRemark.trim() } : row,
@@ -132,7 +136,16 @@ const RemarkCellRenderer: React.FC<any> = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          setShowCustomInput(false);
+          setCustomRemark("");
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -141,7 +154,7 @@ const RemarkCellRenderer: React.FC<any> = ({
           className="w-full justify-between  text-slate-600 items-center border-slate-400 shadow-none h-8 text-xs"
         >
           <span className="truncate">
-            {value || data.remark || "Select Remark"}
+            {data?.remark || "Select Remark"}
           </span>
           <FaSortDown className="w-4 h-4 ml-2 mb-1 opacity-50 shrink-0" />
         </Button>
@@ -358,6 +371,7 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
         suppressCellFocus={true}
         rowData={gridRowData}
         columnDefs={columnDefs}
+        getRowId={(params) => String(params?.data?.id ?? "")}
       />
     </div>
   );

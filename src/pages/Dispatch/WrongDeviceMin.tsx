@@ -152,22 +152,12 @@ const WrongDeviceMin: React.FC = () => {
       }
     }
 
-    const existingSameAWBRow = combinedRowData.find(
-      (row) => row?.awbNo?.toLowerCase() === trimmedValue?.toLowerCase() && field === "awbNo",
-    );
-
-    if (existingSameAWBRow) {
-      showToast(`AWB "${trimmedValue}" already exists in the table.`, "error");
-      return;
-    }
-
+  
     setCombinedRowData((prevData) => {
- 
       const lastRow = prevData[0];
       const canUpdateLastRow = lastRow && !lastRow[field];
 
       if (canUpdateLastRow) {
-      
         return prevData.map((row, index) =>
           index === 0 ? { ...row, [field]: trimmedValue } : row,
         );
