@@ -2,7 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { FormControl, IconButton, InputAdornment, TextField } from "@mui/material";
+import {
+  FormControl,
+  IconButton,
+  InputAdornment,
+  TextField,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Popover,
@@ -20,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "antd";
 import { QrCodeScanner } from "@mui/icons-material";
-
+import { showToast } from "@/utils/toasterContext";
 
 const remarkOptions = [
   "Paytm Speaker",
@@ -29,11 +34,18 @@ const remarkOptions = [
   "Phonepay Swipe",
   "Googlepay Speaker",
   "Googlepay Swipe",
-  "Other"
+  "Other",
 ];
 
-
-const RemarkCellRenderer: React.FC<any> = ({ value, data, api, column, node, setRowdata, rowData }) => {
+const RemarkCellRenderer: React.FC<any> = ({
+  value,
+  data,
+  api,
+  column,
+  node,
+  setRowdata,
+  rowData,
+}) => {
   const [open, setOpen] = useState(false);
   const [customRemark, setCustomRemark] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -53,9 +65,22 @@ const RemarkCellRenderer: React.FC<any> = ({ value, data, api, column, node, set
 
     data.remark = selectedValue;
 
+    const existingDublicationRemarks = rowData.filter(
+      (row: any) =>
+        row?.remark?.toLowerCase() === selectedValue?.toLowerCase() &&
+        row.id !== data.id,
+    );
+    if (existingDublicationRemarks.length > 0) {
+      showToast(
+        `The remark "${selectedValue}" is already used in another row.`,
+        "error",
+      );
+      return;
+    }
+
     const updatedRowData = Array.isArray(rowData)
       ? rowData.map((row: any) =>
-          row.id === data.id ? { ...row, remark: selectedValue } : row
+          row.id === data.id ? { ...row, remark: selectedValue } : row,
         )
       : rowData;
     setRowdata(updatedRowData);
@@ -72,12 +97,24 @@ const RemarkCellRenderer: React.FC<any> = ({ value, data, api, column, node, set
   };
 
   const handleCustomRemarkSubmit = () => {
+    const exsistingDublicationRemarks = rowData.filter(
+      (row: any) =>
+        row?.remark?.toLowerCase() === customRemark?.trim()?.toLowerCase() &&
+        row.id !== data.id,
+    );
+    if (exsistingDublicationRemarks.length > 0) {
+      showToast(
+        `The remark "${customRemark.trim()}" is already used in another row.`,
+        "error",
+      );
+      return;
+    }
     if (customRemark.trim()) {
       data.remark = customRemark.trim();
 
       const updatedRowData = Array.isArray(rowData)
         ? rowData.map((row: any) =>
-            row.id === data.id ? { ...row, remark: customRemark.trim() } : row
+            row.id === data.id ? { ...row, remark: customRemark.trim() } : row,
           )
         : rowData;
       setRowdata(updatedRowData);
@@ -188,7 +225,6 @@ const RemarkCellRenderer: React.FC<any> = ({ value, data, api, column, node, set
   );
 };
 
-
 const UniqueCellRenderer: React.FC<any> = ({ data, setRowdata }) => {
   const [localValue, setLocalValue] = useState(data?.uniqueNo ?? "");
 
@@ -202,9 +238,9 @@ const UniqueCellRenderer: React.FC<any> = ({ data, setRowdata }) => {
     setRowdata((prev: any) =>
       Array.isArray(prev)
         ? prev.map((row: any) =>
-            row.id === data.id ? { ...row, uniqueNo: val } : row
+            row.id === data.id ? { ...row, uniqueNo: val } : row,
           )
-        : prev
+        : prev,
     );
   };
 
@@ -228,18 +264,42 @@ const UniqueCellRenderer: React.FC<any> = ({ data, setRowdata }) => {
   );
 };
 
-
 type Props = {
   rowData: any;
   setRowdata: any;
-  headername?: string
+  headername?: string;
 };
 const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
   const columnDefs: ColDef[] = [
-    { headerName: "#", field: "rowIndex", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 100 },
-    { headerName: "AWB No.", field: "awbNo", sortable: true, filter: true, flex: 1 },
-    { headerName: "Serial No.", field: "serialNo", sortable: true, filter: true, flex: 1 },
-    { headerName: "IMEI No.", field: "imeiNo", sortable: true, filter: true, flex: 1 },
+    {
+      headerName: "#",
+      field: "rowIndex",
+      sortable: true,
+      filter: true,
+      valueGetter: "node.rowIndex+1",
+      width: 100,
+    },
+    {
+      headerName: "AWB No.",
+      field: "awbNo",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "Serial No.",
+      field: "serialNo",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "IMEI No.",
+      field: "imeiNo",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
     {
       headerName: "Unique No.",
       field: "uniqueNo",
@@ -249,7 +309,8 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
       flex: 1,
       cellRenderer: (params: any) => (
         <UniqueCellRenderer {...params} setRowdata={setRowdata} />
-      )},
+      ),
+    },
 
     {
       headerName: "Remark",
@@ -277,7 +338,7 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
             setRowdata(
               Array.isArray(rowData)
                 ? rowData.filter((row: any) => row.id !== params.data.id)
-                : []
+                : [],
             );
           }}
         >
@@ -292,7 +353,12 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-300px)] ">
-      <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={gridRowData} columnDefs={columnDefs} />
+      <AgGridReact
+        overlayNoRowsTemplate={OverlayNoRowsTemplate}
+        suppressCellFocus={true}
+        rowData={gridRowData}
+        columnDefs={columnDefs}
+      />
     </div>
   );
 };

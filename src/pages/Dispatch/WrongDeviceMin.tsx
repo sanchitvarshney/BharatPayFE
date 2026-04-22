@@ -2,7 +2,10 @@ import React, { useState, useRef } from "react";
 
 import { showToast } from "@/utils/toasterContext";
 import { useDispatch, useSelector } from "react-redux";
-import { getWorkingData, getFromFieldData } from "@/features/areaSlice/areaSlice";
+import {
+  getWorkingData,
+  getFromFieldData,
+} from "@/features/areaSlice/areaSlice";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { wrongDeviceMin } from "@/features/Dispatch/DispatchSlice";
@@ -96,8 +99,10 @@ const WrongDeviceMin: React.FC = () => {
   const [combinedRowData, setCombinedRowData] = useState<any[]>([]);
   const dispatch: any = useDispatch();
   const appDispatch = useAppDispatch();
-  const { workingDataLoading,fieldLoading  } = useSelector((state: any) => state.placeMaster);
-  const { submitCustomFormLoading  } = useAppSelector((state) => state.dispatch);
+  const { workingDataLoading, fieldLoading } = useSelector(
+    (state: any) => state.placeMaster,
+  );
+  const { submitCustomFormLoading } = useAppSelector((state) => state.dispatch);
 
   // Refs for input fields to manage focus
   const awbNoInputRef = useRef<HTMLInputElement>(null);
@@ -141,21 +146,28 @@ const WrongDeviceMin: React.FC = () => {
   ) => {
     const trimmedValue = value.trim();
 
-    // Validate AWB length if it's an AWB field
     if (field === "awbNo") {
       if (!validateAWBLength(trimmedValue, formValues.partnerId)) {
         return;
       }
     }
 
-    setCombinedRowData((prevData) => {
+    const existingSameAWBRow = combinedRowData.find(
+      (row) => row?.awbNo?.toLowerCase() === trimmedValue?.toLowerCase() && field === "awbNo",
+    );
 
-      // Check if last row exists and the same field is empty in that row
-      const lastRow = prevData[0]; // Since we add to the beginning, first item is the last added
+    if (existingSameAWBRow) {
+      showToast(`AWB "${trimmedValue}" already exists in the table.`, "error");
+      return;
+    }
+
+    setCombinedRowData((prevData) => {
+ 
+      const lastRow = prevData[0];
       const canUpdateLastRow = lastRow && !lastRow[field];
 
       if (canUpdateLastRow) {
-        // Update the last row with the new value for this field
+      
         return prevData.map((row, index) =>
           index === 0 ? { ...row, [field]: trimmedValue } : row,
         );
@@ -216,90 +228,91 @@ const WrongDeviceMin: React.FC = () => {
     });
   };
 
-const handleSubmitForm = () => {
+  const handleSubmitForm = () => {
+    if (!formValues.categoryId) {
+      showToast("Please select a category", "error");
+      return;
+    }
 
-  if (!formValues.categoryId) {
-    showToast("Please select a category", "error");
-    return;
-  }
+    if (!formValues.locationId) {
+      showToast("Please select a location", "error");
+      return;
+    }
 
-  if (!formValues.locationId) {
-    showToast("Please select a location", "error");
-    return;
-  }
+    if (!formValues.partnerId) {
+      showToast("Please select a partner", "error");
+      return;
+    }
 
-  if (!formValues.partnerId) {
-    showToast("Please select a partner", "error");
-    return;
-  }
+    if (combinedRowData.length === 0) {
+      showToast(
+        "Please add at least one device (AWB, Serial, or IMEI)",
+        "error",
+      );
+      return;
+    }
 
-  if (combinedRowData.length === 0) {
-    showToast("Please add at least one device (AWB, Serial, or IMEI)", "error");
-    return;
-  }
+    const uniqueValues = combinedRowData
+      .map((row) => row.uniqueNo?.trim())
+      .filter(Boolean);
 
+    const hasDuplicateUnique =
+      new Set(uniqueValues).size !== uniqueValues.length;
 
-  const uniqueValues = combinedRowData
-    .map(row => row.uniqueNo?.trim())
-    .filter(Boolean);
+    if (hasDuplicateUnique) {
+      showToast("Duplicate Unique Number found", "error");
+      return;
+    }
 
-  const hasDuplicateUnique =
-    new Set(uniqueValues).size !== uniqueValues.length;
+    // Prepare payload
+    const payload = {
+      categoryId: formValues.categoryId,
+      locationId: formValues.locationId?.code || formValues.locationId,
+      partnerId: formValues.partnerId,
+      awbNo: combinedRowData.map((row) => row.awbNo || ""),
+      serialNo: combinedRowData.map((row) => row.serialNo || ""),
+      imeiNo: combinedRowData.map((row) => row.imeiNo || ""),
+      remark: combinedRowData.map((row) => row.remark || ""),
+      unique: combinedRowData.map((row) => row.uniqueNo || ""),
+    };
 
-  if (hasDuplicateUnique) {
-    showToast("Duplicate Unique Number found", "error");
-    return;
-  }
-
-  // Prepare payload
-  const payload = {
-    categoryId: formValues.categoryId,
-    locationId: formValues.locationId?.code || formValues.locationId,
-    partnerId: formValues.partnerId,
-    awbNo: combinedRowData.map(row => row.awbNo || ""),
-    serialNo: combinedRowData.map(row => row.serialNo || ""),
-    imeiNo: combinedRowData.map(row => row.imeiNo || ""),
-    remark: combinedRowData.map(row => row.remark || ""),
-    unique: combinedRowData.map(row => row.uniqueNo || ""),
+    appDispatch(wrongDeviceMin(payload)).then((res: any) => {
+      if (res.payload?.data?.success) {
+        reset();
+        setCombinedRowData([]);
+        setAwbNo("");
+        setSerialNo("");
+        setImei("");
+      } else {
+        showToast(
+          res.payload?.data?.message || "Something went wrong",
+          "error",
+        );
+      }
+    });
   };
 
-  appDispatch(wrongDeviceMin(payload)).then((res: any) => {
-    if (res.payload?.data?.success) {
-      reset();
-      setCombinedRowData([]);
-      setAwbNo("");
-      setSerialNo("");
-      setImei("");
-    } else {
-      showToast(res.payload?.data?.message || "Something went wrong", "error");
-    }
-  });
-};
-
-
-  const handleAwbNoKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleAwbNoKeyDown = async (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (event.key === "Enter" && awbNo && formValues.partnerId) {
-     const payload:any = {
-       awbNo: awbNo,
-       partner: formValues.partnerId 
-     }
-     try {
-      //@ts-ignore
-      const res = await dispatch(getFromFieldData(payload)).unwrap();
-     
-      
+      const payload: any = {
+        awbNo: awbNo,
+        partner: formValues.partnerId,
+      };
+      try {
+        //@ts-ignore
+        const res = await dispatch(getFromFieldData(payload)).unwrap();
+
         addOrUpdateRow("awbNo", awbNo);
         setAwbNo("");
         // Keep focus on AWB No field
         setTimeout(() => {
           awbNoInputRef.current?.focus();
         }, 0);
-    
-      event.preventDefault();
-     } catch (error) {
-      
-     }
 
+        event.preventDefault();
+      } catch (error) {}
     }
   };
 
@@ -411,7 +424,11 @@ const handleSubmitForm = () => {
                   input: {
                     endAdornment: (
                       <InputAdornment position="end">
-                        {fieldLoading ?  <CircularProgress size={20} /> :  <QrCodeScanner />}
+                        {fieldLoading ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <QrCodeScanner />
+                        )}
                       </InputAdornment>
                     ),
                   },
