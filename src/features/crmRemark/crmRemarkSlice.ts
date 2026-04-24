@@ -6,6 +6,8 @@ export type CrmSerialRow = {
   [key: string]: any;
 };
 
+export type CrmDeviceType = "SWIPE" | "SOUND";
+
 interface CrmRemarkState {
   serials: CrmSerialRow[];
   loading: boolean;
@@ -20,10 +22,15 @@ const initialState: CrmRemarkState = {
 
 export const fetchCrmSerials = createAsyncThunk(
   "crmRemark/fetchCrmSerials",
-  async (_, { rejectWithValue }) => {
+  async (deviceType: CrmDeviceType = "SWIPE", { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
         "/deviceMinV2/fetchDeviceRemarkPending",
+        {
+          params: {
+            type: deviceType,
+          },
+        },
       );
       const data = Array.isArray(res.data?.data) ? res.data.data : [];
       return data as CrmSerialRow[];
