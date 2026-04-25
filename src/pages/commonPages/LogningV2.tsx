@@ -62,7 +62,6 @@ const LogningV2: React.FC = () => {
       }
     });
   };
-
   const handleRecaptchaChange = (value: string | null) => {
     setRecaptchaValue(value);
   };
