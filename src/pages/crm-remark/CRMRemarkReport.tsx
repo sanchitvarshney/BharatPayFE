@@ -46,9 +46,13 @@ const CRMRemarkReport: React.FC = () => {
     }
     const data = serials.map((row) => ({
       serial_number: row.serial,
+      remark_updated_date: row.date,
+      insert_date: row.insertDt,
+      status: row.status,
     }));
     const worksheet = XLSX.utils.json_to_sheet(data, {
-      header: ["serial_number"],
+      header: ["serial_number", "remark_updated_date", "insert_date", "status"],
+
     });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "CRM Serials");
