@@ -436,7 +436,7 @@ const WrongDeviceMin: React.FC = () => {
               <TextField
                 rows={2}
                 value={serialNo}
-                disabled
+                disabled={formValues.categoryId !== "bdc8d26f-47c3-4bm7-a8c6-753bc77547ld"}
                 label="Serial Device"
                 id="standard-adornment-qty"
                 aria-describedby="standard-weight-helper-text"
