@@ -15,10 +15,13 @@ import {
   TableHead,
   TableRow,
   Stack,
+  FormControl,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { submitCrmSerials } from "@/features/crmRemark/crmRemarkSlice";
+import { CrmDeviceType, submitCrmSerials } from "@/features/crmRemark/crmRemarkSlice";
 import { showToast } from "@/utils/toasterContext";
 
 type PreviewRow = Record<string, unknown>;
@@ -61,12 +64,17 @@ const validateRowsForRemark = (
 
 const CRMUpload = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [deviceType, setDeviceType] = useState<CrmDeviceType>("SWIPE");
   const [file, setFile] = useState<File | null>(null);
   const [previewRows, setPreviewRows] = useState<PreviewRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [isParsing, setIsParsing] = useState(false);
   const dispatch = useAppDispatch();
   const { submitLoading } = useAppSelector((state) => state.crmRemark);
+
+    const handleDeviceTypeChange = async (value: CrmDeviceType) => {
+      setDeviceType(value);
+    };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -186,7 +194,7 @@ const CRMUpload = () => {
     const serialNumbers = pairs.map((p) => p.serial);
     const remark = pairs.map((p) => p.remark);
 
-    const action = await dispatch(submitCrmSerials({ serialNumbers, remark }));
+    const action = await dispatch(submitCrmSerials({ serialNumbers, remark, deviceType }));
 
     if (submitCrmSerials.fulfilled.match(action)) {
       const payload = action.payload;
@@ -230,6 +238,29 @@ const CRMUpload = () => {
         <CardContent
           sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}
         >
+   <Box sx={{display:"grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr"}, gap:2, maxWidth:"60%", }}>
+
+
+          <Box>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+              Select Type
+            </Typography>
+              <FormControl size="small" sx={{ minWidth: 300 }}>
+                  
+                    <Select
+                      labelId="crm-remark-device-type-label"
+                      id="crm-remark-device-type"
+                      value={deviceType}
+                    
+                      onChange={(e) =>
+                        handleDeviceTypeChange(e.target.value as CrmDeviceType)
+                      }
+                    >
+                      <MenuItem value="SOUND">Sound box</MenuItem>
+                      <MenuItem value="SWIPE">Swipe</MenuItem>
+                    </Select>
+                  </FormControl>
+          </Box>
           <Box>
             <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
               Select Excel file
@@ -239,7 +270,7 @@ const CRMUpload = () => {
               spacing={2}
               alignItems={{ xs: "flex-start", sm: "center" }}
             >
-              <Button component="label" variant="outlined" color="primary">
+              <Button component="label" variant="outlined" color="primary" sx={{minWidth:140}}>
                 Choose file
                 <input
                   ref={fileInputRef}
@@ -281,6 +312,7 @@ const CRMUpload = () => {
             </Typography>
           </Box>
 
+    </Box>
 
           {isParsing && (
             <Typography variant="body2" color="text.secondary">

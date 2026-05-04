@@ -51,13 +51,14 @@ export type SubmitCrmSerialsResponse = {
 export const submitCrmSerials = createAsyncThunk(
   "crmRemark/submitCrmSerials",
   async (
-    { serialNumbers, remark }: { serialNumbers: string[]; remark: string[] },
+    { serialNumbers, remark , deviceType }: { serialNumbers: string[]; remark: string[]; deviceType: CrmDeviceType },
     { rejectWithValue },
   ) => {
     try {
       const res = await axiosInstance.post<SubmitCrmSerialsResponse>(
-        "/deviceMinV2/changeRemarkStatus",
+        `/deviceMinV2/changeRemarkStatus?type=${deviceType}`,
         { serial: serialNumbers,status: remark },
+       
       );
 
       const data = res.data;
