@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { approveDeviceRequest, clearItemdetail, getItemDetailsAsync, getPendingMaterialListsync, getProcessMrReqeustAsync, materialRequestReject, validateScan } from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
+import {
+  approveDeviceRequest,
+  clearItemdetail,
+  getItemDetailsAsync,
+  getPendingMaterialListsync,
+  getProcessMrReqeustAsync,
+  isExistItemOnLocation,
+  materialRequestReject,
+  validateScan,
+} from "@/features/wearhouse/MaterialApproval/MrApprovalSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -22,10 +31,31 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
 import AppsIcon from "@mui/icons-material/Apps";
 import Dialog from "@mui/material/Dialog";
-import { Avatar, Button, Chip, CircularProgress, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItem, ListItemAvatar, OutlinedInput, Radio, RadioGroup, TextField } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Chip,
+  CircularProgress,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  FormControlLabel,
+  InputAdornment,
+  InputLabel,
+  ListItem,
+  ListItemAvatar,
+  OutlinedInput,
+  Radio,
+  RadioGroup,
+  TextField,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import SelectLocation, { LocationType } from "@/components/reusable/SelectLocation";
+import SelectLocation, {
+  LocationType,
+} from "@/components/reusable/SelectLocation";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import { showToast } from "@/utils/toasterContext";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -43,7 +73,7 @@ const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<unknown>;
   },
-  ref: React.Ref<unknown>
+  ref: React.Ref<unknown>,
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -53,9 +83,23 @@ type Forstate = {
   issueQty: string;
   remarks: string;
 };
-const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, approved, setApproved }) => {
+const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
+  open,
+  setOpen,
+  approved,
+  setApproved,
+}) => {
   const [itemkey, setItemKey] = useState<string>("");
-  const { processMrRequestLoading, processRequestData, requestDetail, itemDetail, itemDetailLoading, approveItemLoading, rejectItemLoading, deviceLoading } = useAppSelector((state) => state.pendingMr);
+  const {
+    processMrRequestLoading,
+    processRequestData,
+    requestDetail,
+    itemDetail,
+    itemDetailLoading,
+    approveItemLoading,
+    rejectItemLoading,
+    deviceLoading,
+  } = useAppSelector((state) => state.pendingMr);
   const [scanned, setScanned] = useState<string[] | null>(null);
   const [input, setInput] = useState<string>("");
   const [isueeQty, setIsueeQty] = useState<string>("");
@@ -86,6 +130,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
     control,
     reset,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<Forstate>({
     defaultValues: {
@@ -102,7 +147,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
         issueQty: data.issueQty,
         txnID: requestDetail?.id || "",
         srlNumber: scanned || [],
-      })
+      }),
     ).then((response: any) => {
       if (response.payload.data?.success) {
         dispatch(clearItemdetail());
@@ -135,18 +180,44 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
   useEffect(() => {
     if (processRequestData) {
       setData(processRequestData.body);
-    }else{
-      setData(null)
+    } else {
+      setData(null);
     }
   }, [processRequestData]);
+
+  const getItemExists = async () => {
+    const payload: any = {
+      type: "SOUNDBOX",
+      id: input,
+      location: getValues("picLocation")?.id,
+    };
+
+    try {
+      const response: any = await dispatch(isExistItemOnLocation(payload));
+
+      if (response.payload.data?.success) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
+  };
   return (
     <>
       {/*confirm isuee change =======================================================  */}
 
-      <Dialog open={confirmIssueChange} onClose={() => setConfirmIssueChange(false)}>
+      <Dialog
+        open={confirmIssueChange}
+        onClose={() => setConfirmIssueChange(false)}
+      >
         <DialogTitle>Are you absolutely sure?</DialogTitle>
         <DialogContent>
-          <DialogContentText>If you change the issue quantity, Then your all scanned data will be cleared.</DialogContentText>
+          <DialogContentText>
+            If you change the issue quantity, Then your all scanned data will be
+            cleared.
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmIssueChange(false)}>No</Button>
@@ -165,7 +236,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
           </LoadingButton>
         </DialogActions>
       </Dialog>
-   
+
       <Dialog
         fullScreen
         open={open}
@@ -176,7 +247,12 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
         TransitionComponent={Transition}
       >
         <div className="h-[50px] flex items-center  px-[20px] bg-neutral-200  shadow border-b border-neutral-300">
-          <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={handleClose}
+            aria-label="close"
+          >
             <CloseIcon />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
@@ -184,22 +260,43 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
           </Typography>
         </div>
 
-        <Grid container sx={{ height: "calc(100vh-50px)", flexDirection: "row", flex: 1, overflowY: "auto", width: "100%" }}>
-          <Grid size={3} sx={{ borderRight: "1px solid #d4d4d4",position:"relative" }} >
+        <Grid
+          container
+          sx={{
+            height: "calc(100vh-50px)",
+            flexDirection: "row",
+            flex: 1,
+            overflowY: "auto",
+            width: "100%",
+          }}
+        >
+          <Grid
+            size={3}
+            sx={{ borderRight: "1px solid #d4d4d4", position: "relative" }}
+          >
             <div className="h-[50px] flex items-center px-[10px] bg-cyan-50 border-b">
-            <Chip label="1" sx={{mr:2}} />
+              <Chip label="1" sx={{ mr: 2 }} />
               <Typography variant="h5" fontSize={18} fontWeight={500}>
                 Requested Details
               </Typography>
             </div>
-           <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+            <List sx={{ width: "100%", bgcolor: "background.paper" }}>
               <ListItem>
                 <ListItemAvatar>
                   <Avatar>
                     <AccountTreeIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="BOM" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.bomName ??""} />
+                <ListItemText
+                  primary="BOM"
+                  secondary={
+                    processMrRequestLoading ? (
+                      <Skeleton className="w-full h-[20px]" />
+                    ) : (
+                      (processRequestData?.head?.bomName ?? "")
+                    )
+                  }
+                />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -207,7 +304,16 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                     <PlaceIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Req. Location:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.locationName??""} />
+                <ListItemText
+                  primary="Req. Location:"
+                  secondary={
+                    processMrRequestLoading ? (
+                      <Skeleton className="w-full h-[20px]" />
+                    ) : (
+                      (processRequestData?.head?.locationName ?? "")
+                    )
+                  }
+                />
               </ListItem>
               <ListItem>
                 <ListItemAvatar>
@@ -215,44 +321,68 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                     <AppsIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="MFG Qty:" secondary={processMrRequestLoading ? <Skeleton className="w-full h-[20px]" /> : processRequestData?.head?.mfgQty ??""} />
+                <ListItemText
+                  primary="MFG Qty:"
+                  secondary={
+                    processMrRequestLoading ? (
+                      <Skeleton className="w-full h-[20px]" />
+                    ) : (
+                      (processRequestData?.head?.mfgQty ?? "")
+                    )
+                  }
+                />
               </ListItem>
             </List>
-         
-           <div className="absolute bottom-0 left-0 right-0 ">
-           <Divider />
-           <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }} >
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <ContactEmergencyIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="Request ID" secondary={requestDetail?.id} />
-              </ListItem>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <AccountCircleIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="Requested By" secondary={requestDetail?.name} />
-              </ListItem>
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <InsertInvitationIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="Request Date" secondary={requestDetail?.requestDate} />
-              </ListItem>
-            </List>
-           </div>
+
+            <div className="absolute bottom-0 left-0 right-0 ">
+              <Divider />
+              <List
+                sx={{
+                  width: "100%",
+                  maxWidth: 360,
+                  bgcolor: "background.paper",
+                }}
+              >
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <ContactEmergencyIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Request ID"
+                    secondary={requestDetail?.id}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <AccountCircleIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Requested By"
+                    secondary={requestDetail?.name}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <InsertInvitationIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Request Date"
+                    secondary={requestDetail?.requestDate}
+                  />
+                </ListItem>
+              </List>
+            </div>
           </Grid>
 
           <Grid size={4} sx={{ borderRight: "1px solid #d4d4d4" }}>
             <div className="h-[50px] flex items-center px-[10px] bg-cyan-50 border-b">
-            <Chip label="2" sx={{mr:2}} />
+              <Chip label="2" sx={{ mr: 2 }} />
               <Typography variant="h5" fontSize={18} fontWeight={500}>
                 Requested Items
               </Typography>
@@ -261,7 +391,17 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
               <OutlinedInput
                 onChange={(e) => {
                   if (processRequestData) {
-                    setData(processRequestData.body.filter((item) => item.partName.toLowerCase().includes(e.target.value.toLowerCase()) || item.partCode.toLowerCase().includes(e.target.value.toLowerCase())));
+                    setData(
+                      processRequestData.body.filter(
+                        (item) =>
+                          item.partName
+                            .toLowerCase()
+                            .includes(e.target.value.toLowerCase()) ||
+                          item.partCode
+                            .toLowerCase()
+                            .includes(e.target.value.toLowerCase()),
+                      ),
+                    );
                   }
                 }}
                 placeholder="Search..."
@@ -296,16 +436,40 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                         onClick={() => handleChange(item.partKey)}
                         selected={selectedValue === item.partKey}
                         sx={{
-                          backgroundColor: selectedValue === item.partKey ? "lightblue" : "inherit",
+                          backgroundColor:
+                            selectedValue === item.partKey
+                              ? "lightblue"
+                              : "inherit",
                           display: "flex",
                           justifyContent: "space-between",
                         }}
                       >
-                        <FormControlLabel value={item?.partKey} control={<Radio />} label={<ListItemText primary={item?.partCode} secondary={item?.partName} />} sx={{ width: "100%", margin: 0 }} />
+                        <FormControlLabel
+                          value={item?.partKey}
+                          control={<Radio />}
+                          label={
+                            <ListItemText
+                              primary={item?.partCode}
+                              secondary={item?.partName}
+                            />
+                          }
+                          sx={{ width: "100%", margin: 0 }}
+                        />
                         {approved?.includes(item?.partKey) ? (
-                          <Chip size="small" label="Approved" color="success" icon={<CheckCircleOutlineIcon fontSize="small" />} />
+                          <Chip
+                            size="small"
+                            label="Approved"
+                            color="success"
+                            icon={<CheckCircleOutlineIcon fontSize="small" />}
+                          />
                         ) : (
-                          <Chip size="small" sx={{ background: "#d97706" }} label="Pending" color="info" icon={<AccessTimeIcon fontSize="small" />} />
+                          <Chip
+                            size="small"
+                            sx={{ background: "#d97706" }}
+                            label="Pending"
+                            color="info"
+                            icon={<AccessTimeIcon fontSize="small" />}
+                          />
                         )}
                       </ListItemButton>
                     ))}
@@ -317,26 +481,59 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
           <Grid size={5}>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="h-[50px] flex items-center px-[10px] bg-cyan-50 border-b">
-              <Chip label="3" sx={{mr:2}} />
+                <Chip label="3" sx={{ mr: 2 }} />
                 <Typography variant="h5" fontSize={18} fontWeight={500}>
-                   Transferring Details
+                  Transferring Details
                 </Typography>
               </div>
               <div className="h-[calc(100vh-100px)]  ">
                 {!selectedValue && (
                   <div className="flex items-center justify-center w-full h-[calc(100vh-100px)] ">
-                    <img src="/select.svg" alt="" className="opacity-30 w-[150px]" />
+                    <img
+                      src="/select.svg"
+                      alt=""
+                      className="opacity-30 w-[150px]"
+                    />
                   </div>
                 )}
 
                 {selectedValue && (
                   <>
-                    <List sx={{ width: "100%", bgcolor: "background.paper", display: "flex", height: "85px" }}>
+                    <List
+                      sx={{
+                        width: "100%",
+                        bgcolor: "background.paper",
+                        display: "flex",
+                        height: "85px",
+                      }}
+                    >
                       <ListItem>
-                        <ListItemText primary="Available Qty" secondary={itemDetailLoading ? <Skeleton className="w-full h-[20px]" /> : itemDetail ? itemDetail[0]?.stock : "--"} />
+                        <ListItemText
+                          primary="Available Qty"
+                          secondary={
+                            itemDetailLoading ? (
+                              <Skeleton className="w-full h-[20px]" />
+                            ) : itemDetail ? (
+                              itemDetail[0]?.stock
+                            ) : (
+                              "--"
+                            )
+                          }
+                        />
                       </ListItem>
                       <ListItem>
-                        <ListItemText primary="Requested Qty" secondary={itemDetailLoading ? <Skeleton className="w-full h-[20px]" /> : itemDetail ? itemDetail[0]?.reqQty : "--"} />
+                        <ListItemText
+                          primary="Requested Qty"
+                          secondary={
+                            itemDetailLoading ? (
+                              <Skeleton className="w-full h-[20px]" />
+                            ) : itemDetail ? (
+                              itemDetail[0]?.reqQty
+                            ) : (
+                              "--"
+                            )
+                          }
+                        />
                       </ListItem>
                     </List>
                     <Grid container spacing={2} sx={{ p: 2 }}>
@@ -350,8 +547,14 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                               value={field.value}
                               onChange={(e) => {
                                 field.onChange(e);
-                              
-                                dispatch(getItemDetailsAsync({ txnid: requestDetail?.id || "", itemKey: itemkey, picLocation: e?.id || "" }));
+
+                                dispatch(
+                                  getItemDetailsAsync({
+                                    txnid: requestDetail?.id || "",
+                                    itemKey: itemkey,
+                                    picLocation: e?.id || "",
+                                  }),
+                                );
                               }}
                               error={!!errors.picLocation}
                               label="Pick Location"
@@ -365,10 +568,21 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                           control={control}
                           rules={{ required: "Issue Qty is required" }}
                           render={({ field }) => (
-                            <FormControl disabled={!itemDetail || itemDetail[0]?.stock < 1 || itemDetail[0]?.reqQty < 1} fullWidth>
+                            <FormControl
+                              disabled={
+                                !itemDetail ||
+                                itemDetail[0]?.stock < 1 ||
+                                itemDetail[0]?.reqQty < 1
+                              }
+                              fullWidth
+                            >
                               <InputLabel>Issue Qty</InputLabel>
                               <OutlinedInput
-                                disabled={!itemDetail || itemDetail[0]?.stock < 1 || itemDetail[0]?.reqQty < 1}
+                                disabled={
+                                  !itemDetail ||
+                                  itemDetail[0]?.stock < 1 ||
+                                  itemDetail[0]?.reqQty < 1
+                                }
                                 fullWidth
                                 error={!!errors.issueQty}
                                 {...field}
@@ -378,8 +592,16 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 onChange={(e) => {
                                   if (!/^[0-9]*$/.test(e.target.value)) return;
                                   if (itemDetail) {
-                                    if (parseInt(e.target.value) > itemDetail[0]?.stock || parseInt(e.target.value) > itemDetail[0]?.reqQty) {
-                                      showToast("Issue Qty can't be greater than Available Qty or Requested Qty", "error");
+                                    if (
+                                      parseInt(e.target.value) >
+                                        itemDetail[0]?.stock ||
+                                      parseInt(e.target.value) >
+                                        itemDetail[0]?.reqQty
+                                    ) {
+                                      showToast(
+                                        "Issue Qty can't be greater than Available Qty or Requested Qty",
+                                        "error",
+                                      );
                                     } else {
                                       if (scanned && scanned?.length > 0) {
                                         setConfirmIssueChange(true);
@@ -421,12 +643,18 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                       <FormControl fullWidth>
                         <OutlinedInput
                           value={input}
-                          disabled={!isueeQty || Number(isueeQty) === scanned?.length}
+                          disabled={
+                            !isueeQty || Number(isueeQty) === scanned?.length
+                          }
                           endAdornment={
-                                                     <InputAdornment position="end">
-                                                      {deviceLoading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}
-                                                     </InputAdornment>
-                                                   }
+                            <InputAdornment position="end">
+                              {deviceLoading ? (
+                                <CircularProgress size={20} />
+                              ) : (
+                                <QrCodeScannerIcon />
+                              )}
+                            </InputAdornment>
+                          }
                           placeholder="Scan items"
                           fullWidth
                           onChange={(e) => setInput(e.target.value)}
@@ -438,16 +666,29 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 if (scanned && scanned.includes(input)) {
                                   showToast("Product already scanned", "error");
                                 } else {
-                                  if (scanned && scanned.length + 1 > parseInt(isueeQty)) {
-                                    showToast("Scanned Items can't be greater than Issue Qty", "error");
-                                  } else  {
+                                  if (
+                                    scanned &&
+                                    scanned.length + 1 > parseInt(isueeQty)
+                                  ) {
+                                    showToast(
+                                      "Scanned Items can't be greater than Issue Qty",
+                                      "error",
+                                    );
+                                  } else {
                                     dispatch(
                                       validateScan({
                                         id: input,
                                         type: "soundBox",
-                                      })
-                                    ).then((response: any) => {
-                                      if (response.payload.data.success) {
+                                      }),
+                                    ).then(async (response: any) => {
+                                      if (response?.payload?.data.success) {
+                                        const isExistingItem =
+                                          await getItemExists();
+                                        if (!isExistingItem) {
+                                       
+                                          return;
+                                        }
+
                                         scanned
                                           ? setScanned([input, ...scanned])
                                           : setScanned([input]);
@@ -458,9 +699,11 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                         ) {
                                           e.currentTarget.blur();
                                         }
-                                      }
-                                      else {
-                                        showToast(response.payload.data.message, "error");
+                                      } else {
+                                        showToast(
+                                          response.payload.data.message,
+                                          "error",
+                                        );
                                       }
                                     });
                                   }
@@ -491,7 +734,9 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                       size="small"
                                       color="error"
                                       onClick={() => {
-                                        setScanned(scanned.filter((sc) => sc !== item));
+                                        setScanned(
+                                          scanned.filter((sc) => sc !== item),
+                                        );
                                       }}
                                     >
                                       <DeleteIcon fontSize="small" />
@@ -522,13 +767,16 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                                 itemCode: itemkey,
                                 txnId: requestDetail?.id || "",
                                 remarks: remarks,
-                              })
+                              }),
                             ).then((response: any) => {
                               if (response.payload.data?.success) {
-                                dispatch(getProcessMrReqeustAsync(requestDetail?.id || "")).then((res: any) => {
+                                dispatch(
+                                  getProcessMrReqeustAsync(
+                                    requestDetail?.id || "",
+                                  ),
+                                ).then((res: any) => {
                                   if (!res.payload.data?.success) {
                                     setOpen(false);
-                                   
                                   }
                                 });
                                 setItemKey("");
@@ -542,7 +790,20 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({ open, setOpen, a
                       >
                         Reject
                       </LoadingButton>
-                      <LoadingButton loadingPosition="start" type="submit" startIcon={<DoneIcon fontSize="small" />} variant="contained" disabled={!(scanned ? parseInt(isueeQty) === scanned.length : true) || approveItemLoading || !scanned} loading={approveItemLoading}>
+                      <LoadingButton
+                        loadingPosition="start"
+                        type="submit"
+                        startIcon={<DoneIcon fontSize="small" />}
+                        variant="contained"
+                        disabled={
+                          !(scanned
+                            ? parseInt(isueeQty) === scanned.length
+                            : true) ||
+                          approveItemLoading ||
+                          !scanned
+                        }
+                        loading={approveItemLoading}
+                      >
                         Approve
                       </LoadingButton>
                     </div>
