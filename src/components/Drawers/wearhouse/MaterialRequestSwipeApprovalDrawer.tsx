@@ -161,7 +161,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
       approveSwipeDeviceRequest({
         productKey: itemkey,
         pickLocation: data.picLocation!.id,
-        qty: data.issueQty,
+        qty: String(productDetail.length),
         transactionId: requestDetail?.id ?? "",
         productDetail,
       }),
