@@ -161,7 +161,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
       approveSwipeDeviceRequest({
         productKey: itemkey,
         pickLocation: data.picLocation!.id,
-        qty: String(productDetail.length),
+        qty: data.issueQty,  
         transactionId: requestDetail?.id ?? "",
         productDetail,
       }),
@@ -713,11 +713,11 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                       color="error"
                                       onClick={() => {
                                         const currentCode = item.trim();
-                                        updateScanned(
-                                          (scanned ?? []).filter(
-                                            (sc) => sc.trim() !== currentCode,
-                                          ),
+                                        const currentScanned = scanned ?? [];
+                                        const nextScanned = currentScanned.filter(
+                                          (sc) => sc.trim() !== currentCode,
                                         );
+                                        updateScanned(nextScanned);
                                         const filtered =
                                           deviceDataRef.current.filter(
                                             (sc: any) =>
@@ -725,6 +725,18 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                               currentCode,
                                           );
                                         updateDeviceData(filtered);
+                                        const removedCount =
+                                          currentScanned.length -
+                                          nextScanned.length;
+                                        if (removedCount > 0) {
+                                          const currentQty =
+                                            Number(getValues("issueQty")) || 0;
+                                          const nextQty = String(
+                                            Math.max(0, currentQty - removedCount),
+                                          );
+                                          setValue("issueQty", nextQty);
+                                          setIsueeQty(nextQty);
+                                        }
                                       }}
                                     >
                                       <DeleteIcon fontSize="small" />
