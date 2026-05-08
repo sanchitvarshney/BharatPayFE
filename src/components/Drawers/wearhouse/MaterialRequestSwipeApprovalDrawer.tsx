@@ -725,18 +725,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                               currentCode,
                                           );
                                         updateDeviceData(filtered);
-                                        const removedCount =
-                                          currentScanned.length -
-                                          nextScanned.length;
-                                        if (removedCount > 0) {
-                                          const currentQty =
-                                            Number(getValues("issueQty")) || 0;
-                                          const nextQty = String(
-                                            Math.max(0, currentQty - removedCount),
-                                          );
-                                          setValue("issueQty", nextQty);
-                                          setIsueeQty(nextQty);
-                                        }
+                                      
                                       }}
                                     >
                                       <DeleteIcon fontSize="small" />
