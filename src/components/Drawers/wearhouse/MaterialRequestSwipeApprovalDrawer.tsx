@@ -115,6 +115,8 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
     setScanned(next);
     scannedRef.current = next ?? [];
   };
+  const normalizeCode = (value: string | null | undefined) =>
+    (value ?? "").trim();
 
   const handleChange = (value: string) => {
     setSelectedValue(value);
@@ -146,11 +148,19 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
     },
   });
   const onSubmit: SubmitHandler<Forstate> = (data) => {
-    const scannedSet = new Set(
-      (scannedRef.current ?? []).map((code) => code.trim()),
-    );
-    const productDetail = (deviceDataRef.current ?? [])
-      .filter((row: any) => scannedSet.has((row?.serial_no ?? "").trim()))
+    const scannedCodes = (scannedRef.current ?? [])
+      .map((code) => normalizeCode(code))
+      .filter(Boolean);
+
+    const latestDeviceByCode = new Map<string, any>();
+    (deviceDataRef.current ?? []).forEach((row: any) => {
+      const code = normalizeCode(row?.scannedCode ?? row?.serial_no);
+      if (code) latestDeviceByCode.set(code, row);
+    });
+
+    const productDetail = scannedCodes
+      .map((code) => latestDeviceByCode.get(code))
+      .filter(Boolean)
       .map((row: any) => ({
         serialNo: row.serial_no,
         imei_no1: row.imei_no1,
@@ -634,7 +644,13 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                             if (e.key === "Enter") {
                               e.preventDefault();
                               if (input) {
-                                if (scanned && scanned.includes(input)) {
+                                const inputCode = normalizeCode(input);
+                                const scannedCodes = new Set(
+                                  (scannedRef.current ?? []).map((code) =>
+                                    normalizeCode(code),
+                                  ),
+                                );
+                                if (scannedCodes.has(inputCode)) {
                                   showToast("Product already scanned", "error");
                                 } else {
                                   if (
@@ -659,16 +675,26 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                           return;
                                         }
 
+                                        const nextCode = normalizeCode(input);
                                         const nextDeviceList = [
-                                          ...deviceDataRef.current,
-                                          response.payload.data.data,
+                                          ...(deviceDataRef.current ?? []).filter(
+                                            (row: any) =>
+                                              normalizeCode(
+                                                row?.scannedCode ??
+                                                  row?.serial_no,
+                                              ) !== nextCode,
+                                          ),
+                                          {
+                                            ...response.payload.data.data,
+                                            scannedCode: nextCode,
+                                          },
                                         ];
                                         updateDeviceData(nextDeviceList);
 
                                         // scanned ? setScanned([input, ...scanned]) : setScanned([input]);
                                         const nextList = scanned
-                                          ? [input, ...scanned]
-                                          : [input];
+                                          ? [inputCode, ...scanned]
+                                          : [inputCode];
                                         updateScanned(nextList);
                                         setInput("");
                                         if (
@@ -712,17 +738,21 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                       size="small"
                                       color="error"
                                       onClick={() => {
-                                        const currentCode = item.trim();
+                                        const currentCode =
+                                          normalizeCode(item);
                                         const currentScanned = scanned ?? [];
                                         const nextScanned = currentScanned.filter(
-                                          (sc) => sc.trim() !== currentCode,
+                                          (sc) =>
+                                            normalizeCode(sc) !== currentCode,
                                         );
                                         updateScanned(nextScanned);
                                         const filtered =
                                           deviceDataRef.current.filter(
                                             (sc: any) =>
-                                              (sc?.serial_no ?? "").trim() !==
-                                              currentCode,
+                                              normalizeCode(
+                                                sc?.scannedCode ??
+                                                  sc?.serial_no,
+                                              ) !== currentCode,
                                           );
                                         updateDeviceData(filtered);
                                       
