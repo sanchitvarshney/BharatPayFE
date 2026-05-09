@@ -35,6 +35,7 @@ import SelectClient, {
 import { DeviceType } from "@/components/reusable/SelectSku";
 import {
   CreateChallan,
+  CreatePartCodeChallan,
   getClientBranch,
   getChallanById,
 } from "@/features/Dispatch/DispatchSlice";
@@ -45,6 +46,9 @@ import {
 import { Dayjs } from "dayjs";
 import { showToast } from "@/utils/toasterContext";
 import { useParams } from "react-router-dom";
+import DispatchComponentTable, {
+  DispatchComponentRow,
+} from "./DispatchComponentTable";
 
 type FormDataType = {
   clientDetail: clientDetailType | null;
@@ -103,6 +107,7 @@ const CreateChallanPage: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
+  const [componentRows, setComponentRows] = useState<DispatchComponentRow[]>([]);
 
   const { createChallanLoading, clientBranchList } = useAppSelector(
     (state) => state.dispatch
@@ -141,6 +146,8 @@ const CreateChallanPage: React.FC = () => {
     },
   });
   const formValues = watch();
+  const isComponentDevice = formValues.deviceType === "component";
+ 
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Form Details", "Submit"];
   const formdata = new FormData();
@@ -149,6 +156,7 @@ const CreateChallanPage: React.FC = () => {
   };
 
   const resetall = () => {
+    setComponentRows([]);
     reset();
     dispatch(resetDocumentFile());
     formdata.delete("document");
@@ -156,6 +164,46 @@ const CreateChallanPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<FormDataType> = (data) => {
     dispatch(storeFormdata(data));
+  };
+
+  const hasComponentRowErrors = (rows: DispatchComponentRow[]) => {
+    if (rows.length === 0) {
+      showToast("Please add component details", "error");
+      return true;
+    }
+
+    const requiredFields: Array<keyof DispatchComponentRow> = [
+      "partComponent",
+      "qty",
+      "rate",
+      "hsnCode",
+      "gstType",
+      "gstRate",
+      "fromLocation",
+      "toLocation",
+    ];
+    const missingDetails: string[] = [];
+
+    rows.forEach((row, index) => {
+      const missingFields = requiredFields.filter((field) => {
+        const value = row[field];
+        return value === "" || value === 0 || value === undefined || value === null;
+      });
+
+      if (missingFields.length > 0) {
+        missingDetails.push(`Row ${index + 1}: ${missingFields.join(", ")}`);
+      }
+    });
+
+    if (missingDetails.length > 0) {
+      showToast(
+        `Some required fields are missing:\n${missingDetails.join("\n")}`,
+        "error"
+      );
+      return true;
+    }
+
+    return false;
   };
 
   const finalSubmit = () => {
@@ -244,30 +292,123 @@ const CreateChallanPage: React.FC = () => {
     }
 
     // Other validations
-    if (!data.qty || Number(data.qty) <= 0) {
-      showToast("Please enter a valid quantity", "error");
-      return;
-    }
-    if (!data.gstRate) {
-      showToast("Please enter GST rate", "error");
-      return;
-    }
-    if (!data.gstState) {
-      showToast("Please select GST state", "error");
-      return;
-    }
-    if (!data.itemPrice) {
-      showToast("Please Enter Item Price", "error");
-      return;
-    }
     if (!data.deviceType) {
       showToast("Please select Device Type", "error");
       return;
     }
+    if (data.deviceType === "component") {
+      if (hasComponentRowErrors(componentRows)) {
+        return;
+      }
+      const component = componentRows.map(
+        (row) => row.partComponent?.value || ""
+      );
+      const qty = componentRows.map((row) => Number(row.qty));
+      const rate = componentRows.map((row) => Number(row.rate));
+      const remark = componentRows.map((row) => row.remarks || "");
+      const materialName = componentRows.map(
+        (row) =>
+          row.partComponent?.label || row.partComponent?.lable || ""
+      );
+      const hsn = componentRows.map((row) => row.hsnCode || "");
+      const fromLocation = componentRows.map(
+        (row) => row.fromLocation?.value || ""
+      );
+      const toLocation = componentRows.map(
+        (row) => row.toLocation?.value || ""
+      );
+      const partCodePayload = {
+        qty,
+        component,
+        rate,
+        remark,
+        remarks: data.remark || "",
+        components: component,
+        quantity: qty,
+        fromLocation,
+        toLocation,
+        toCostCenter:
+          data.clientDetail?.branchId ||
+          (data.clientDetail?.client as any)?.code ||
+          "",
+        materialName,
+        hsn,
+        otherReferences: data.otherRef || "",
+        shippingDetails: {
+          id: data.shipToDetails?.shipTo || "",
+          pin: data.shipToDetails?.pincode || "",
+          addressLine1: data.shipToDetails?.address1 || "",
+          addressLine2: data.shipToDetails?.address2 || "",
+          city: data.shipToDetails?.city || "",
+        },
+        dispatchFromDetails: {
+          id: data.dispatchFromDetails?.dispatchFrom || "",
+          pin: data.dispatchFromDetails?.pin || "",
+          mobileNo: data.dispatchFromDetails?.mobileNo || "",
+          gst: data.dispatchFromDetails?.gst || "",
+          pan: data.dispatchFromDetails?.pan || "",
+          city: data.dispatchFromDetails?.city || "",
+          addressLine1: data.dispatchFromDetails?.address1 || "",
+          addressLine2: data.dispatchFromDetails?.address2 || "",
+        },
+      };
+
+      dispatch(CreatePartCodeChallan(partCodePayload)).then((res: any) => {
+        const responseData = res?.payload?.data;
+        if (responseData?.success) {
+          setDispatchNo(
+            responseData?.data?.challanId ||
+              responseData?.data?.id ||
+              responseData?.data ||
+              ""
+          );
+          showToast(responseData?.message, "success");
+          reset();
+          handleNext();
+          resetall();
+        }
+      });
+      return;
+    } else {
+      if (!data.qty || Number(data.qty) <= 0) {
+        showToast("Please enter a valid quantity", "error");
+        return;
+      }
+      if (!data.gstRate) {
+        showToast("Please enter GST rate", "error");
+        return;
+      }
+      if (!data.gstState) {
+        showToast("Please select GST state", "error");
+        return;
+      }
+      if (!data.itemPrice) {
+        showToast("Please Enter Item Price", "error");
+        return;
+      }
+    }
     // if (formdata) {
+    const componentPayload = componentRows.map((row) => ({
+      component: row.partComponent?.value || "",
+      qty: Number(row.qty),
+      rate: Number(row.rate),
+      taxableValue: Number(row.taxableValue),
+      foreignValue: Number(row.foreignValue),
+      hsnCode: row.hsnCode,
+      gstType: row.gstType,
+      gstRate: Number(row.gstRate),
+      cgst: Number(row.cgst),
+      sgst: Number(row.sgst),
+      igst: Number(row.igst),
+      remark: row.remarks,
+      uom: row.uom,
+    }));
     const payload: any = {
       otherRef: data.otherRef,
-      dispatchQty: Number(data.qty),
+      dispatchQty:
+        data.deviceType === "component"
+          ? componentRows.reduce((acc, row) => acc + Number(row.qty || 0), 0)
+          : Number(data.qty),
       remark: data.remark,
       clientDetail: data.clientDetail
         ? {
@@ -277,12 +418,28 @@ const CreateChallanPage: React.FC = () => {
         : null,
       shipToDetails: data.shipToDetails || null,
       dispatchFromDetails: data.dispatchFromDetails || null,
-      gstRate: data.gstRate,
-      gstState: data.gstState === "Inter State" ? "inter" : "local",
-      itemPrice: data.itemPrice,
-      hsnCode: data.hsnCode,
+      gstRate:
+        data.deviceType === "component"
+          ? componentRows.map((row) => Number(row.gstRate))
+          : data.gstRate,
+      gstState:
+        data.deviceType === "component"
+          ? componentRows.map((row) => row.gstType)
+          : data.gstState === "Inter State"
+            ? "inter"
+            : "local",
+      itemPrice:
+        data.deviceType === "component"
+          ? componentRows.map((row) => Number(row.rate))
+          : data.itemPrice,
+      hsnCode:
+        data.deviceType === "component"
+          ? componentRows.map((row) => row.hsnCode)
+          : data.hsnCode,
       materialName: data.materialName,
       deviceType: data.deviceType,
+      componentDetails:
+        data.deviceType === "component" ? componentPayload : undefined,
     };
     dispatch(CreateChallan(payload)).then((res: any) => {
       console.log(res);
@@ -844,6 +1001,11 @@ const CreateChallanPage: React.FC = () => {
                           control={<Radio />}
                           label="Scrap Device"
                         />
+                        <FormControlLabel
+                          value="component"
+                          control={<Radio />}
+                          label="Component"
+                        />
                       </RadioGroup>
                       {errors.deviceType && (
                         <FormHelperText>
@@ -858,7 +1020,7 @@ const CreateChallanPage: React.FC = () => {
                 <div className="flex items-center gap-[5px]">
                   <Icons.files />
                   <h2 className="text-lg font-semibold">
-                    Dispatch Details and Attachments
+                   {isComponentDevice ? "Component Details" : "Dispatch Details and Attachments"}
                   </h2>
                 </div>
                 <Divider
@@ -870,218 +1032,239 @@ const CreateChallanPage: React.FC = () => {
                 />
               </div>
 
-              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                <Controller
-                  name="qty"
-                  control={control}
-                  rules={{
-                    required: { value: true, message: "Quantity is required" },
-                    min: {
-                      value: 1,
-                      message: "Quantity must be greater than 0",
-                    },
-                    pattern: {
-                      value: /^[0-9]+$/,
-                      message: "Quantity must be a number",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.qty}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="qty">Dispatch Quantity</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.qty}
-                        id="qty"
-                        type="number"
-                        endAdornment={
-                          <InputAdornment position="end">NOS</InputAdornment>
-                        }
-                      />
-                      {errors.qty && (
-                        <FormHelperText>{errors.qty.message}</FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
+              {isComponentDevice ? (
+                <DispatchComponentTable
+                  rowData={componentRows}
+                  setRowData={setComponentRows}
                 />
-                <Controller
-                  name="itemPrice"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Item Price is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.itemPrice}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="itemPrice">Rate</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.itemPrice}
-                        id="itemPrice"
-                        type="text"
-                      />
-                      {errors.itemPrice && (
-                        <FormHelperText>
-                          {errors.itemPrice.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
-
-                <Controller
-                  name="gstState"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "GST Type is required",
-                    },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      value={field.value}
-                      onChange={(_, newValue) => field.onChange(newValue)}
-                      disablePortal
-                      id="combo-box-demo"
-                      options={["Inter State", "Intra State"]}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="GST Type"
-                          error={!!errors.gstState}
-                          helperText={errors.gstState?.message}
+         
+              ) : (
+                <>
+                  <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                    <Controller
+                      name="qty"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "Quantity is required",
+                        },
+                        min: {
+                          value: 1,
+                          message: "Quantity must be greater than 0",
+                        },
+                        pattern: {
+                          value: /^[0-9]+$/,
+                          message: "Quantity must be a number",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          error={!!errors.qty}
+                          fullWidth
                           variant="filled"
+                        >
+                          <InputLabel htmlFor="qty">
+                            Dispatch Quantity
+                          </InputLabel>
+                          <FilledInput
+                            {...field}
+                            error={!!errors.qty}
+                            id="qty"
+                            type="number"
+                            endAdornment={
+                              <InputAdornment position="end">
+                                NOS
+                              </InputAdornment>
+                            }
+                          />
+                          {errors.qty && (
+                            <FormHelperText>
+                              {errors.qty.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
+                    />
+                    <Controller
+                      name="itemPrice"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "Item Price is required",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          error={!!errors.itemPrice}
+                          fullWidth
+                          variant="filled"
+                        >
+                          <InputLabel htmlFor="itemPrice">Rate</InputLabel>
+                          <FilledInput
+                            {...field}
+                            error={!!errors.itemPrice}
+                            id="itemPrice"
+                            type="text"
+                          />
+                          {errors.itemPrice && (
+                            <FormHelperText>
+                              {errors.itemPrice.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
+                    />
+
+                    <Controller
+                      name="gstState"
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "GST Type is required",
+                        },
+                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <Autocomplete
+                          value={field.value}
+                          onChange={(_, newValue) => field.onChange(newValue)}
+                          disablePortal
+                          id="combo-box-demo"
+                          options={["Inter State", "Intra State"]}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="GST Type"
+                              error={!!errors.gstState}
+                              helperText={errors.gstState?.message}
+                              variant="filled"
+                            />
+                          )}
                         />
                       )}
                     />
-                  )}
-                />
 
-                <Controller
-                  name="gstRate"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "GST Rate is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.otherRef}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.gstRate}
-                        id="gstRate"
-                        type="text"
-                      />
-                      {errors.gstRate && (
-                        <FormHelperText>
-                          {errors.gstRate.message}
-                        </FormHelperText>
+                    <Controller
+                      name="gstRate"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "GST Rate is required",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          error={!!errors.otherRef}
+                          fullWidth
+                          variant="filled"
+                        >
+                          <InputLabel htmlFor="gstRate">GST Rate</InputLabel>
+                          <FilledInput
+                            {...field}
+                            error={!!errors.gstRate}
+                            id="gstRate"
+                            type="text"
+                          />
+                          {errors.gstRate && (
+                            <FormHelperText>
+                              {errors.gstRate.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
-                    </FormControl>
-                  )}
-                />
+                    />
 
-                <Controller
-                  name="hsnCode"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "HSN Code is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.hsnCode}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.hsnCode}
-                        id="hsnCode"
-                        type="text"
-                      />
-                      {errors.hsnCode && (
-                        <FormHelperText>
-                          {errors.hsnCode.message}
-                        </FormHelperText>
+                    <Controller
+                      name="hsnCode"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "HSN Code is required",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          error={!!errors.hsnCode}
+                          fullWidth
+                          variant="filled"
+                        >
+                          <InputLabel htmlFor="hsnCode">HSN Code</InputLabel>
+                          <FilledInput
+                            {...field}
+                            error={!!errors.hsnCode}
+                            id="hsnCode"
+                            type="text"
+                          />
+                          {errors.hsnCode && (
+                            <FormHelperText>
+                              {errors.hsnCode.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       )}
-                    </FormControl>
-                  )}
-                />
+                    />
 
-                <Controller
-                  name="otherRef"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Other Reference is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.otherRef}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="otherRef">
-                        Other Reference
+                    <Controller
+                      name="otherRef"
+                      control={control}
+                      rules={{
+                        required: {
+                          value: true,
+                          message: "Other Reference is required",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          error={!!errors.otherRef}
+                          fullWidth
+                          variant="filled"
+                        >
+                          <InputLabel htmlFor="otherRef">
+                            Other Reference
+                          </InputLabel>
+                          <FilledInput
+                            {...field}
+                            error={!!errors.otherRef}
+                            id="otherRef"
+                            type="text"
+                          />
+                          {errors.otherRef && (
+                            <FormHelperText>
+                              {errors.otherRef.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
+                    <FormControl fullWidth variant="filled">
+                      <InputLabel htmlFor="materialName">
+                        Material Name
                       </InputLabel>
                       <FilledInput
-                        {...field}
-                        error={!!errors.otherRef}
-                        id="otherRef"
-                        type="text"
+                        {...register("materialName")}
+                        id="materialName"
+                        multiline
+                        rows={2}
                       />
-                      {errors.otherRef && (
-                        <FormHelperText>
-                          {errors.otherRef.message}
-                        </FormHelperText>
-                      )}
                     </FormControl>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
-                <FormControl fullWidth variant="filled">
-                  <InputLabel htmlFor="materialName">Material Name</InputLabel>
-                  <FilledInput
-                    {...register("materialName")}
-                    id="materialName"
-                    multiline
-                    rows={2}
-                  />
-                </FormControl>
-                <FormControl fullWidth variant="filled">
-                  <InputLabel htmlFor="remark">Remarks</InputLabel>
-                  <FilledInput
-                    {...register("remark")}
-                    id="remark"
-                    multiline
-                    rows={2}
-                  />
-                </FormControl>
-              </div>
+                    <FormControl fullWidth variant="filled">
+                      <InputLabel htmlFor="remark">Remarks</InputLabel>
+                      <FilledInput
+                        {...register("remark")}
+                        id="remark"
+                        multiline
+                        rows={2}
+                      />
+                    </FormControl>
+                  </div>
+                </>
+              )}
               {/* </div> */}
             </div>
           )}
