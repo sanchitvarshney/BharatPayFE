@@ -38,7 +38,6 @@ import { useNavigate } from "react-router-dom";
 import { consumeReturnTo } from "@/utils/returnTo";
 import ReCAPTCHA from "react-google-recaptcha";
 import { GoogleLogin } from "@react-oauth/google";
-import SelectEndPoint from "@/components/shared/SelectEndPoint";
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(
@@ -222,7 +221,7 @@ const LogningV2: React.FC = () => {
         </Swiper>
       </div>
       <div className="relative flex items-center justify-center w-full h-full">
-        <SelectEndPoint/>
+    
         <Card elevation={4} sx={{ width: "500px", padding: "20px" }}>
           <Typography
             color="primary"
