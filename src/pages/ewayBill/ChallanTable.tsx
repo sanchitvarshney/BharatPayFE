@@ -32,9 +32,10 @@ interface RowData {
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
+  challanType?: string;
 };
 
-const ChallanTable: React.FC<Props> = ({ gridRef }) => {
+const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -78,10 +79,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef }) => {
     if (selectedRow) {
       const txnId = selectedRow.challanId;
       const shipmentId = txnId.replace(/\//g, "/");
-      const isPartChallan =
-        selectedRow.type === "PART" 
-      const printAction = isPartChallan ? printPartChallan : printChallan;
-
+      const printAction = challanType === "PART" ? printPartChallan : printChallan;
       dispatch(printAction({ challanId: shipmentId })).then((res) => {
         const payload = res.payload as
           | { data?: { success?: boolean; data?: string } }

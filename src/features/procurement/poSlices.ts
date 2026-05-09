@@ -72,7 +72,7 @@ export const getPODetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPODe
 });
 
 export const createPartCodeChallan = createAsyncThunk<AxiosResponse<any>, any>("po/createPartCodeChallan", async (payload) => {
-  const response = await axiosInstance.post("/partcodeChallan/create", payload);
+  const response = await axiosInstance.post("/challan/partcodeChallan", payload);
   return response;
 });
 

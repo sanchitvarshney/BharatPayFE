@@ -21,7 +21,11 @@ const { RangePicker } = DatePicker;
 import { getChallan } from "@/features/Dispatch/DispatchSlice";
 import ChallanTable from "@/pages/ewayBill/ChallanTable";
 
-const ManageChallan: React.FC = () => {
+type ManageChallanProps = {
+  challanType?: string;
+};
+
+const ManageChallan: React.FC<ManageChallanProps> = ({ challanType }) => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { getChallanLoading, challanList } = useAppSelector((state) => state.dispatch);
@@ -106,7 +110,14 @@ const ManageChallan: React.FC = () => {
                     if (!date.from || !date.to) {
                       showToast("Please select a date", "error");
                     } else {
-                      dispatch(getChallan({ type: "DATE", from: dayjs(date.from).format("DD-MM-YYYY"), to: dayjs(date.to).format("DD-MM-YYYY") }));
+                      dispatch(
+                        getChallan({
+                          type: "DATE",
+                          from: dayjs(date.from).format("DD-MM-YYYY"),
+                          to: dayjs(date.to).format("DD-MM-YYYY"),
+                          challanType,
+                        })
+                      );
                     }
                   }
                 }}
@@ -137,7 +148,7 @@ const ManageChallan: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <ChallanTable gridRef={gridRef}/>
+          <ChallanTable gridRef={gridRef} challanType={challanType} />
         </div>
       </div>
     </>

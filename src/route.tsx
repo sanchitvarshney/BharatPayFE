@@ -929,6 +929,16 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <CreatePartCodeChallanLayout>
+              <ManageChallan challanType="PART" />
+            </CreatePartCodeChallanLayout>
+          </MainLayout>
+        ),
+        path: "/manage-part-code-challan",
+      },
+      {
+        element: (
+          <MainLayout>
             <DispatchLayout>
               <CreateDispatchPage />
             </DispatchLayout>
