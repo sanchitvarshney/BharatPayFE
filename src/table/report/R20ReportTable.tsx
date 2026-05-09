@@ -190,18 +190,14 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
     },
-    {
-      headerName: "Mail cc",
-      field: "mail_cc",
-      minWidth: 150,
+
+       {
+      headerName: "Pending QTY",
+      field: "penQty",
+      minWidth: 100,
       headerClass: "font-semibold",
     },
-    {
-      headerName: "Mail To",
-      field: "mail_cc",
-      minWidth: 150,
-      headerClass: "font-semibold",
-    },
+ 
     {
       headerName: "MIN",
       field: "min",

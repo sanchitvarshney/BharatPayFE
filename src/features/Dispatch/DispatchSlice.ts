@@ -40,6 +40,11 @@ export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; 
   return response;
 });
 
+export const CreatePartCodeChallan = createAsyncThunk<AxiosResponse<any>, any>("dispatch/CreatePartCodeChallan", async (payload) => {
+  const response = await axiosInstance.post(`challan/partcodeChallan`, payload);
+  return response;
+});
+
 export const UpdateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/UpdateChallan", async (payload) => {
   const response = await axiosInstance.post(`challan/editPerforma`, payload);
   return response;
@@ -57,6 +62,11 @@ export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean;
 
 export const printChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printChallan", async (data) => {
   const response = await axiosInstance.post(`challan/generatePerforma`, data);
+  return response;
+});
+
+export const printPartChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printPartChallan", async (data) => {
+  const response = await axiosInstance.post(`challan/generateChallanPdf`, data);
   return response;
 });
 
@@ -212,6 +222,15 @@ const dispatchSlice = createSlice({
       .addCase(CreateChallan.rejected, (state) => {
         state.createChallanLoading = false;
       })
+      .addCase(CreatePartCodeChallan.pending, (state) => {
+        state.createChallanLoading = true;
+      })
+      .addCase(CreatePartCodeChallan.fulfilled, (state) => {
+        state.createChallanLoading = false;
+      })
+      .addCase(CreatePartCodeChallan.rejected, (state) => {
+        state.createChallanLoading = false;
+      })
       .addCase(getChallan.pending, (state) => {
         state.getChallanLoading = true;
       })
@@ -231,6 +250,15 @@ const dispatchSlice = createSlice({
         state.getChallanLoading = false;
       })
       .addCase(printChallan.rejected, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(printPartChallan.pending, (state) => {
+        state.getChallanLoading = true;
+      })
+      .addCase(printPartChallan.fulfilled, (state) => {
+        state.getChallanLoading = false;
+      })
+      .addCase(printPartChallan.rejected, (state) => {
         state.getChallanLoading = false;
       })
       .addCase(getChallanById.pending, (state) => {

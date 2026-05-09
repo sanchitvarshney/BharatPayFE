@@ -1,262 +1,407 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import { useTawkTo } from "../hooks/useTawkTo";
+import { useEffect, useMemo } from "react";
+import { useState } from "react";
 import { useUser } from "../hooks/useUser";
-//@ts-ignore
-import styles from "../theme/TawkToChat.module.css";
 
-// ─── CONFIG — Replace these with your actual IDs ───────────────────────────
+// ─── CONFIG ────────────────────────────────────────────────────────────────
 const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79";
 const TAWK_WIDGET_ID = "1jjlctou9";
 
-/** Paths where Tawk chat must be hidden (login, forgot password, two-factor). */
-const HIDE_TAWK_PATHS = ["/login", "/forgot-password", "/verify-otp", "/password-recovery"];
+// This must match EXACTLY the department name in tawk.to dashboard
+const TAWK_DEPARTMENT = "Bharatpe";
 
-const BUBBLE_SIZE = 62;
-const DEFAULT_OFFSET = 28;
-/** Default distance from right edge so bubble is visible on laptop/smaller screens */
-const DEFAULT_RIGHT_MARGIN = 300;
-
-const DEPARTMENTS = [
-  {
-    id: "BharatPe",
-    label: "BharatPe",
-    description: "Queries related to BharatPe",
-    tawkName: "BharatPe",
-    color: "#6366f1",
-    icon: "A",
-  },
+/** Paths where Tawk chat must be hidden */
+const HIDE_TAWK_PATHS = [
+  "/login",
+  "/forgot-password",
+  "/verify-otp",
+  "/password-recovery",
 ];
 
-// ───────────────────────────────────────────────────────────────────────────
+const LOGGED_IN_USER_KEY = "loggedinUser";
 
-function getDefaultPosition(): { left: number; bottom: number } {
-  if (typeof window === "undefined") return { left: 0, bottom: DEFAULT_OFFSET };
-  const maxLeft = Math.max(0, window.innerWidth - BUBBLE_SIZE);
-  const maxBottom = Math.max(0, window.innerHeight - BUBBLE_SIZE);
-  const left = Math.min(window.innerWidth - DEFAULT_RIGHT_MARGIN - BUBBLE_SIZE, maxLeft);
-  const bottom = Math.min(DEFAULT_OFFSET, maxBottom);
-  return { left: Math.max(0, left), bottom: Math.max(0, bottom) };
+type TawkVisitor = {
+  name?: string;
+  email?: string;
+  id?: string | number;
+  mobile?: string;
+};
+
+function getVisitorFromLocalStorage(): TawkVisitor | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LOGGED_IN_USER_KEY);
+    if (!raw) return null;
+
+    const decoded = atob(raw);
+    const data = JSON.parse(decoded) as {
+      username?: string;
+      crn_email?: string;
+      crn_id?: string;
+      crn_mobile?: string;
+    };
+
+    if (!data) return null;
+
+    const name = data.username ?? "";
+    const email = data.crn_email ?? "";
+    const id = data.crn_id ?? "";
+    const mobile = data.crn_mobile ?? "";
+
+    if (!name && !email && !id && !mobile) return null;
+
+    return {
+      name: name || undefined,
+      email: email || undefined,
+      id: id || undefined,
+      mobile: mobile || undefined,
+    };
+  } catch {
+    return null;
+  }
 }
 
-export default function TawkToChat() {
-  const { user } = useUser();
-  const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState<string | null>(null);
-  const [position, setPosition] = useState<{ left: number; bottom: number }>(getDefaultPosition);
-  const menuRef = useRef(null);
-  const buttonRef = useRef(null);
-  const dragStartRef = useRef<{ x: number; y: number; left: number; bottom: number } | null>(null);
-  const hasDraggedRef = useRef(false);
+function setTawkVisitorAttributes(visitor: TawkVisitor | null | undefined) {
+  if (!visitor) return;
+  const attrs: Record<string, string> = {};
+  const MAX_INT = 2147483647;
 
-  const shouldHideTawk =
-    !user ||
-    HIDE_TAWK_PATHS.includes(location.pathname) ||
-    localStorage.getItem("showOtpPage") === "Y";
+  if (visitor.name != null && visitor.name !== "") attrs.name = visitor.name;
+  if (visitor.email != null && visitor.email !== "")
+    attrs.email = visitor.email;
+  if (visitor.id != null && visitor.id !== "") attrs.id = String(visitor.id);
 
-  const { openChat } = useTawkTo({
-    propertyId: TAWK_PROPERTY_ID,
-    widgetId: TAWK_WIDGET_ID,
-  });
-
-  const clampPosition = useCallback((left: number, bottom: number) => {
-    if (typeof window === "undefined") return { left: 0, bottom: DEFAULT_OFFSET };
-    const maxLeft = Math.max(0, window.innerWidth - BUBBLE_SIZE);
-    const maxBottom = Math.max(0, window.innerHeight - BUBBLE_SIZE);
-    return {
-      left: Math.max(0, Math.min(left, maxLeft)),
-      bottom: Math.max(0, Math.min(bottom, maxBottom)),
-    };
-  }, []);
-
-  // Client-only: set initial position to bottom-right so bubble is visible from first render
-  useEffect(() => {
-    setPosition(clampPosition(
-      window.innerWidth - DEFAULT_RIGHT_MARGIN - BUBBLE_SIZE,
-      DEFAULT_OFFSET
-    ));
-  }, [clampPosition]);
-
-  const handlePointerDown = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      const clientX = "touches" in e ? e.touches[0]?.clientX : e.clientX;
-      const clientY = "touches" in e ? e.touches[0]?.clientY : e.clientY;
-      if (typeof clientX !== "number" || typeof clientY !== "number") return;
-      dragStartRef.current = {
-        x: clientX,
-        y: clientY,
-        left: position.left,
-        bottom: position.bottom,
-      };
-      hasDraggedRef.current = false;
-    },
-    [position]
-  );
-
-  useEffect(() => {
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      if (!dragStartRef.current) return;
-      let clientX: number;
-      let clientY: number;
-      if ("touches" in e && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else if ("clientX" in e) {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      } else return;
-      const dx = clientX - dragStartRef.current.x;
-      const dy = clientY - dragStartRef.current.y;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasDraggedRef.current = true;
-      const left = dragStartRef.current.left + dx;
-      const bottom = dragStartRef.current.bottom - dy;
-      const next = clampPosition(left, bottom);
-      if (Number.isFinite(next.left) && Number.isFinite(next.bottom)) {
-        setPosition(next);
-      }
-    };
-
-    const handleUp = () => {
-      dragStartRef.current = null;
-    };
-
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseup", handleUp);
-    document.addEventListener("touchmove", handleMove, { passive: true });
-    document.addEventListener("touchend", handleUp);
-    return () => {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleUp);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleUp);
-    };
-  }, [clampPosition]);
-
-  // Close menu on outside click
-  useEffect(() => {
-    function handleOutside(e: any) {
-      if (
-        menuRef.current &&
-        //@ts-ignore
-        !menuRef.current.contains(e.target) &&
-        buttonRef.current &&
-        //@ts-ignore
-        !buttonRef.current.contains(e.target)
-      ) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, []);
-
-  const handleBubbleClick = useCallback(() => {
-    if (hasDraggedRef.current) return;
-    setIsOpen((prev) => !prev);
-  }, []);
-
-  async function handleSelectDepartment(dept: any) {
-    setLoading(dept.id);
-    setIsOpen(false);
-    await openChat(dept.tawkName);
-    // Loading clears when chat opens (onChatMaximized); fallback in case it never fires
-    setTimeout(() => setLoading(null), 5000);
+  if (
+    visitor.mobile != null &&
+    visitor.mobile !== "" &&
+    String(visitor.mobile) !== String(MAX_INT)
+  ) {
+    attrs.mobile = visitor.mobile;
   }
 
-  const wrapperStyle: React.CSSProperties = {
-    left: position.left,
-    bottom: position.bottom,
-    right: "auto",
-  };
+  if (Object.keys(attrs).length === 0) return;
 
-  if (shouldHideTawk) return null;
+  // @ts-ignore
+  if (typeof window.Tawk_API?.setAttributes === "function") {
+    // @ts-ignore
+    window.Tawk_API.setAttributes(attrs, (error: unknown) => {
+      if (error) console.warn("Tawk setAttributes error:", error);
+    });
+  }
+}
 
-  return (
-    <div className={styles.wrapper} style={wrapperStyle}>
-      {/* Department selector menu */}
-      <div
-        ref={menuRef}
-        className={`${styles.menu} ${isOpen ? styles.menuVisible : ""}`}
-        role="menu"
-        aria-label="Select department"
-      >
-        <p className={styles.menuHeading}>How can we help?</p>
-        <p className={styles.menuSub}>Choose the right team</p>
+function usePathnameForTawk() {
+  const [pathname, setPathname] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.location.pathname;
+  });
 
-        <div className={styles.deptList}>
-          {DEPARTMENTS.map((dept) => (
-            <button
-              key={dept.id}
-              className={styles.deptButton}
-              onClick={() => handleSelectDepartment(dept)}
-              disabled={loading === dept.id}
-              role="menuitem"
-              //@ts-ignore
-              style={{ "--dept-color": dept.color }}
-            >
-              <span className={styles.deptIcon}>{dept.icon}</span>
-              <span className={styles.deptInfo}>
-                <span className={styles.deptLabel}>{dept.label}</span>
-                <span className={styles.deptDesc}>{dept.description}</span>
-              </span>
-              {loading === dept.id ? (
-                <span className={styles.spinner} aria-hidden="true" />
-              ) : (
-                <span className={styles.arrow}>→</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-      {/* Floating bubble button — show loading overlay when opening chat */}
-      <button
-        ref={buttonRef}
-        className={`${styles.bubble} ${isOpen ? styles.bubbleActive : ""} ${loading ? styles.bubbleLoading : ""}`}
-        onMouseDown={handlePointerDown}
-        onTouchStart={handlePointerDown}
-        onClick={handleBubbleClick}
-        aria-label="Open chat"
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-        disabled={!!loading}
-      >
-        {loading && (
-          <span className={styles.bubbleLoadingSpinner} aria-hidden="true" />
-        )}
-        <span className={`${styles.bubbleIcon} ${styles.chatIcon}`}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
-              fill="currentColor"
-            />
-          </svg>
-        </span>
-        <span className={`${styles.bubbleIcon} ${styles.closeIcon}`}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M18 6L6 18M6 6L18 18"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </span>
+    const w = window as any;
+    const eventName = "tawk-location-change";
 
-        {/* Pulse ring */}
-        <span className={styles.pulse} aria-hidden="true" />
-      </button>
-    </div>
-  );
+    if (!w.__tawkHistoryPatched) {
+      w.__tawkHistoryPatched = true;
+
+      const notify = () => window.dispatchEvent(new Event(eventName));
+
+      const pushState = history.pushState;
+      history.pushState = function (...args: any[]) {
+        const ret = pushState.apply(this, args as any);
+        notify();
+        return ret;
+      };
+
+      const replaceState = history.replaceState;
+      history.replaceState = function (...args: any[]) {
+        const ret = replaceState.apply(this, args as any);
+        notify();
+        return ret;
+      };
+    }
+
+    const onChange = () => setPathname(window.location.pathname);
+
+    window.addEventListener("popstate", onChange);
+    window.addEventListener(eventName, onChange as any);
+
+    return () => {
+      window.removeEventListener("popstate", onChange);
+      window.removeEventListener(eventName, onChange as any);
+    };
+  }, []);
+
+  return pathname;
+}
+
+export default function TawkToChatOakter() {
+  const { user } = useUser();
+  const pathname = usePathnameForTawk();
+
+  const shouldHideTawk = useMemo(() => {
+    const showOtpPage =
+      typeof window !== "undefined" &&
+      localStorage.getItem("showOtpPage") === "Y";
+    return !user || HIDE_TAWK_PATHS.includes(pathname) || showOtpPage;
+  }, [pathname, user]);
+
+// Remove Tawk.to branding (2026): hides footer branding, "Add Chat to your website",
+  // popout icon/button, and common tawk branding containers inside the widget iframe.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Guard: don't re-init if this component remounts.
+    const w = window as any;
+    if (w.__tawkOakterBrandingRemovalInit) return;
+    w.__tawkOakterBrandingRemovalInit = true;
+
+    var STYLE_ID = "hide-tawk-branding";
+
+    // NOTE: Avoid `:has()`/`:contains()` because older browser support is inconsistent.
+    var BRANDING_CSS = [
+      "a[href*='tawk.to'] { display: none !important; }",
+      "a[href*='utm_source=tawk-messenger'] { display: none !important; }",
+      "a[title*='Add Chat to your website'] { display: none !important; }",
+      ".tawk-branding { display: none !important; }",
+      "[class*='tawk-branding'] { display: none !important; }",
+        "[class*='tawk-bottom-navbar'] {  bottom: 0px !important; }",
+         "[class*='tawk-toolbar-menu'] { display: none !important; }",
+    ].join("\n");
+
+    var RETRY_DELAY_MS = 1500;
+
+    var processedIframes = new WeakSet();
+    var pendingRetries = new Map();
+    var debounceTimer:any = null;
+
+    function injectStyle(doc:any) {
+      try {
+        if (!doc || !doc.createElement) return false;
+        if (doc.getElementById && doc.getElementById(STYLE_ID)) return true;
+
+        var style = doc.createElement("style");
+        style.id = STYLE_ID;
+        style.textContent = BRANDING_CSS;
+
+        var target = doc.head || doc.documentElement;
+        if (target) {
+          target.appendChild(style);
+          return true;
+        }
+      } catch (_) {
+        // Cross-origin — expected.
+      }
+      return false;
+    }
+
+    function hidePopoutButtons(doc:any) {
+      try {
+        if (!doc || !doc.querySelectorAll) return;
+        // Primary strategy: hide by class. This also acts as a fallback
+        // for any cases where CSS selectors inside BRANDING_CSS miss.
+        var icons = doc.querySelectorAll(".tawk-icon-popout");
+        for (var i = 0; i < icons.length; i++) {
+          var btn = icons[i].closest && icons[i].closest("button");
+          if (btn && btn.style) {
+            btn.style.setProperty("display", "none", "important");
+          }
+        }
+      } catch (_) {}
+    }
+
+    function injectIntoIframe(iframe:any) {
+      try {
+        var doc = iframe.contentDocument;
+        if (!doc) {
+          // Schedule a single retry if iframe not ready yet
+          if (!pendingRetries.has(iframe)) {
+            var timeout = setTimeout(function () {
+              pendingRetries.delete(iframe);
+              injectIntoIframe(iframe);
+            }, RETRY_DELAY_MS);
+            pendingRetries.set(iframe, timeout);
+          }
+          return;
+        }
+
+        injectStyle(doc);
+        hidePopoutButtons(doc);
+      } catch (_) {
+        // Cross-origin — expected.
+      }
+    }
+
+    function handleIframe(iframe:any) {
+      if (processedIframes.has(iframe)) return;
+
+      var title = ((iframe.title || "") + "").toLowerCase();
+      if (title.indexOf("chat") === -1) return;
+
+      processedIframes.add(iframe);
+
+      // Inject immediately (may already be loaded)
+      injectIntoIframe(iframe);
+
+      // Re-inject on subsequent loads (SPA navigation, widget rebuild).
+      iframe.addEventListener("load", function () {
+        injectIntoIframe(iframe);
+      });
+    }
+
+    function scanIframes() {
+      try {
+        var iframes = document.querySelectorAll
+          ? document.querySelectorAll("iframe")
+          : [];
+        for (var i = 0; i < iframes.length; i++) {
+          handleIframe(iframes[i]);
+        }
+      } catch (_) {}
+    }
+
+    function onMutations(mutations:any) {
+      var foundNewIframe = false;
+
+      for (var i = 0; i < mutations.length; i++) {
+        var added = mutations[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var node = added[j];
+          if (node && node.nodeName === "IFRAME") {
+            handleIframe(node);
+            foundNewIframe = true;
+          } else if (node && node.nodeType === 1 && node.querySelectorAll) {
+            var nested = node.querySelectorAll("iframe");
+            if (nested.length) {
+              for (var k = 0; k < nested.length; k++) {
+                handleIframe(nested[k]);
+              }
+              foundNewIframe = true;
+            }
+          }
+        }
+      }
+
+      // Debounced re-scan: Tawk sometimes rebuilds widget DOM entirely.
+      if (foundNewIframe && !debounceTimer) {
+        debounceTimer = setTimeout(function () {
+          debounceTimer = null;
+          scanIframes();
+          hidePopoutButtons(document);
+        }, 500);
+      }
+    }
+
+    // Bootstrap: main document branding (outside iframes)
+    injectStyle(document);
+    hidePopoutButtons(document);
+
+    // Initial iframe scan
+    scanIframes();
+
+    // Watch for dynamically added iframes
+    var observer:any = null;
+    if (typeof MutationObserver !== "undefined" && document.body) {
+      observer = new MutationObserver(onMutations);
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    return () => {
+      try {
+        if (observer) observer.disconnect();
+      } catch (_) {}
+
+      pendingRetries.forEach(function (t) {
+        clearTimeout(t);
+      });
+      pendingRetries.clear();
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
+      }
+    };
+  }, []);
+
+
+
+
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const w = window as any;
+    const scriptId = `tawk-embed-${TAWK_PROPERTY_ID}-${TAWK_WIDGET_ID}`;
+    const scriptSrc = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
+
+    // Keep the latest hide/show intent accessible to the one-time onLoad handler.
+    w.__tawkOakterShouldHide = shouldHideTawk;
+
+    // Setup the onLoad callback once
+    if (!w.__tawkOakterOnLoadSet) {
+      w.__tawkOakterOnLoadSet = true;
+
+      // @ts-ignore
+      window.Tawk_API = window.Tawk_API || {};
+      // @ts-ignore
+      window.Tawk_API.onLoad = function () {
+        // Set visitor attributes
+        setTawkVisitorAttributes(getVisitorFromLocalStorage());
+
+        // ── Auto-route to Oakter department ──────────────────────
+        // @ts-ignore
+        if (typeof window.Tawk_API?.setDepartment === "function") {
+          // @ts-ignore
+          window.Tawk_API.setDepartment(TAWK_DEPARTMENT);
+        }
+
+        // Hide or show based on auth state
+        // @ts-ignore
+        if (w.__tawkOakterShouldHide) {
+          // @ts-ignore
+          window.Tawk_API.hideWidget?.();
+        } else {
+          // @ts-ignore
+          window.Tawk_API.showWidget?.();
+        }
+      };
+    }
+
+    // If the widget API is already ready, update hide/show immediately on route change
+    if (w.Tawk_API) {
+      // @ts-ignore
+      if (shouldHideTawk) {
+        // @ts-ignore
+        w.Tawk_API.hideWidget?.();
+      } else {
+        // @ts-ignore
+        w.Tawk_API.showWidget?.();
+        // Re-apply department on route change in case it was reset
+        // @ts-ignore
+        if (typeof w.Tawk_API?.setDepartment === "function") {
+          // @ts-ignore
+          w.Tawk_API.setDepartment(TAWK_DEPARTMENT);
+        }
+      }
+    }
+
+    // Load the widget script only when we should show it
+    if (!shouldHideTawk) {
+      const existing = document.getElementById(scriptId);
+      if (!existing && !w.__tawkOakterScriptRequested) {
+        w.__tawkOakterScriptRequested = true;
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.async = true;
+        script.src = scriptSrc;
+        script.charset = "UTF-8";
+        script.setAttribute("crossorigin", "*");
+        document.head.appendChild(script);
+      }
+    }
+  }, [shouldHideTawk]);
+
+  return null;
 }
