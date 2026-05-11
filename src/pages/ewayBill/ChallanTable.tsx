@@ -8,7 +8,7 @@ import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
-import { printChallan } from "@/features/Dispatch/DispatchSlice";
+import { printChallan, printPartChallan } from "@/features/Dispatch/DispatchSlice";
 
 interface RowData {
   orderQty: number;
@@ -26,6 +26,8 @@ interface RowData {
   isdispatch: string;
   isewaybill: string;
   deviceType: string;
+  type?: string;
+  itemType?: string;
 }
 
 type Props = {
@@ -77,8 +79,8 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
     if (selectedRow) {
       const txnId = selectedRow.challanId;
       const shipmentId = txnId.replace(/\//g, "/");
-      const printAction = challanType === "PART" ? printChallan : printChallan;
-      dispatch(printAction({ challanId: shipmentId })).then((res:any) => {
+      const printAction = challanType === "PART" ? printPartChallan : printChallan;
+      dispatch(printAction({ challanId: shipmentId })).then((res) => {
         const payload = res.payload as
           | { data?: { success?: boolean; data?: string } }
           | undefined;
