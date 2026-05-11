@@ -1,4 +1,5 @@
 import axiosInstance from "@/api/axiosInstance";
+import { augmentComponentMenu } from "@/utils/augmentComponentMenu";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { MenuResponse, MenuState, TabApiResponse } from "./menuType";
@@ -30,7 +31,7 @@ const menuSlice = createSlice({
       .addCase(getMenuData.fulfilled, (state, action) => {
         state.menuLoading = false;
         if (action.payload.data.success) {
-          state.menu = action.payload?.data?.menu;
+          state.menu = augmentComponentMenu(action.payload.data.menu);
         }
       })
       .addCase(getMenuData.rejected, (state) => {
