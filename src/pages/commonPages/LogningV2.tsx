@@ -36,15 +36,15 @@ import { checkPermissions } from "@/helper/checkPermissions";
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
 import { consumeReturnTo } from "@/utils/returnTo";
-import ReCAPTCHA from "react-google-recaptcha";
+// import ReCAPTCHA from "react-google-recaptcha";
 import { GoogleLogin } from "@react-oauth/google";
 import SelectEndPoint from "@/components/shared/SelectEndPoint";
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
-  const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(
-    null
-  ); // Add state to track the reCAPTCHA value
-  const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
+  // const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(
+  //   null
+  // ); // Add state to track the reCAPTCHA value
+  // const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
   const recaptchaRef = useRef<any>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -63,10 +63,10 @@ const LogningV2: React.FC = () => {
   const { loading } = useAppSelector((state) => state.auth);
 
   const onSubmit: SubmitHandler<LoginCredentials> = (data: any) => {
-    if (!recaptchaValue) {
-      showToast("Please verify the reCAPTCHA", "error");
-      return;
-    }
+    // if (!recaptchaValue) {
+    //   showToast("Please verify the reCAPTCHA", "error");
+    //   return;
+    // }
 
     dispatch(loginUserAsync(data)).then((response: any) => {
       if (response.payload?.data?.success) {
@@ -82,15 +82,15 @@ const LogningV2: React.FC = () => {
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
-        setRecaptchaValue(null);
-        setRecaptchaKey(Math.random());
+        // setRecaptchaValue(null);
+        // setRecaptchaKey(Math.random());
       }
     });
   };
 
-  const handleRecaptchaChange = (value: string | null) => {
-    setRecaptchaValue(value);
-  };
+  // const handleRecaptchaChange = (value: string | null) => {
+  //   setRecaptchaValue(value);
+  // };
 
   const handleLoginWithGoogle = (googleResponse: any) => {
     const data: any = {
@@ -110,8 +110,8 @@ const LogningV2: React.FC = () => {
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
-        setRecaptchaValue(null);
-        setRecaptchaKey(Math.random());
+        // setRecaptchaValue(null);
+        // setRecaptchaKey(Math.random());
       }
     });
   };
@@ -318,14 +318,14 @@ const LogningV2: React.FC = () => {
                   </Link>
                 </div>
               </div>
-              <div className=" flex justify-center">
+              {/* <div className=" flex justify-center">
                 <ReCAPTCHA
                   sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
                   onChange={handleRecaptchaChange}
                   key={recaptchaKey}
                   ref={recaptchaRef}
                 />
-              </div>
+              </div> */}
               <LoadingButton
                 loading={loading}
                 size="large"
