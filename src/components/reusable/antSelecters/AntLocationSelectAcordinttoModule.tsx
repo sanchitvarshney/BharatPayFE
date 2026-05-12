@@ -14,9 +14,17 @@ type Props = {
   label?: string;
   width?: string;
   endpoint: string;
+  loading?: boolean;
 };
 
-const AntLocationSelectAcordinttoModule: React.FC<Props> = ({ value, onChange, label = "Search Item", width = "100%", endpoint }) => {
+const AntLocationSelectAcordinttoModule: React.FC<Props> = ({
+  value,
+  onChange,
+  label = "Search Item",
+  width = "100%",
+  endpoint,
+  loading: externalLoading = false,
+}) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -48,7 +56,7 @@ const AntLocationSelectAcordinttoModule: React.FC<Props> = ({ value, onChange, l
       onFocus={() => fetchItems(null)}
       filterOption={false}
       showSearch
-      loading={loading}
+      loading={loading || externalLoading}
       className={`w-[${width}] custom-select`}
       value={value?.value}
       onSearch={(input) => {

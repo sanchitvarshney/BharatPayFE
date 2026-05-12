@@ -96,6 +96,20 @@ interface FormData {
   termsOfDelivery: string;
   remarks: string;
 }
+
+const getChallanIdFromResponse = (response: any): string => {
+  const responseData = response?.payload?.data;
+  if (!responseData) return "";
+
+  const nestedData = responseData.data;
+  if (typeof nestedData === "string") return nestedData;
+  if (nestedData && typeof nestedData === "object") {
+    return nestedData.challanId || nestedData.id || "";
+  }
+
+  return responseData.challanId || responseData.id || "";
+};
+
 const CreatePartCodeChallan: React.FC = () => {
   const navigate = useNavigate();
   const { id: routeId } = useParams<{ id?: string }>();
@@ -302,11 +316,12 @@ const CreatePartCodeChallan: React.FC = () => {
           } else {
             dispatch(createPartCodeChallan(payload)).then((response: any) => {
               if (response.payload?.data?.success) {
+                const challanNo = getChallanIdFromResponse(response);
                 showToast(response.payload?.data?.message, "success");
+                setMinno(challanNo);
                 resetall();
                 handleNext();
                 dispatch(resetFormData());
-                setMinno(response.payload?.data?.data?.challanId || response.payload?.data?.data?.id || "");
               }
             });
           }
@@ -850,7 +865,10 @@ const CreatePartCodeChallan: React.FC = () => {
                   Challan No. : {minNo}
                 </Typography>
                 <LoadingButton
-                  onClick={() => setActiveStep(0)}
+                  onClick={() => {
+                    setMinno("");
+                    setActiveStep(0);
+                  }}
                   variant="contained"
                 >
                   Create New Challan
