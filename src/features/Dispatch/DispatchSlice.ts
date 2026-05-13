@@ -70,11 +70,6 @@ export const printPartChallan = createAsyncThunk<AxiosResponse<{ success: boolea
   return response;
 });
 
-export const printPartChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printPartChallan", async (data) => {
-  const response = await axiosInstance.post(`challan/generateChallanPdf`, data);
-  return response;
-});
-
 export const CreateSwipeDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateSwipeDispatch", async (payload) => {
   const response = await axiosInstance.post(`dispatchDivice/createDispatchSwipe`, payload);
   return response;
