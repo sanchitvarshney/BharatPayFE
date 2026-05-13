@@ -131,8 +131,13 @@ export const getClientBranch = createAsyncThunk<AxiosResponse<any>, string>("mas
   return response;
 });
 
-export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dispatch/getDispatchData", async (id) => {
-  const response = await axiosInstance.get(`/ewayBill/detail?dispatch_id=${id}`);
+export const getDispatchData = createAsyncThunk<
+  AxiosResponse<any>,
+  { id: string; type: string }
+>("dispatch/getDispatchData", async ({ id, type }) => {
+  const response = await axiosInstance.get(
+    `/ewayBill/detail?dispatch_id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`,
+  );
   return response;
 });
 

@@ -27,6 +27,7 @@ import type { EwayBillFormData } from "@/constants/EwayBillConstants";
 import { AgGridReact } from "ag-grid-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   createEwayBill,
   getDispatchData,
@@ -47,6 +48,10 @@ type ewayBillData = {
 
 export default function CreateEwayBill() {
   const dispatch = useAppDispatch();
+  const { id: idParam } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const dispatchId = (idParam ?? "").replace(/_/g, "/");
+  const deviceType = searchParams.get("type") ?? "";
   const [isEwayBillCreated, setIsEwayBillCreated] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
   const [ewayBillNo, setEwayBillNo] = useState<ewayBillData>({
@@ -112,17 +117,19 @@ export default function CreateEwayBill() {
       }
     });
   };
-  const dispId = window.location.pathname.split("/").pop()!;
-
   useEffect(() => {
-    dispatch(getDispatchData(dispId?.replace(/_/g, "/")));
+    if (!dispatchId) {
+      showToast("Missing dispatch id in URL", "error");
+      return;
+    }
+    dispatch(getDispatchData({ id: dispatchId, type: deviceType }));
     dispatch(getStateCode());
-  }, []);
+  }, [dispatch, dispatchId, deviceType]);
 
   useEffect(() => {
     if (dispatchData) {
       const data = dispatchData?.header;
-      setValue("header.documentNo", dispId.replace(/_/g, "/"));
+      setValue("header.documentNo", dispatchId);
       setValue("billFrom.gstin", data.billFrom.gstin);
       setValue("billFrom.legalName", data.billFrom.legalName);
       setValue("billFrom.tradeName", data.billFrom.tradeName);
@@ -170,7 +177,7 @@ export default function CreateEwayBill() {
       setValue("shipTo.pincode", data.shipTo.pincode);
       setTotalAmount(Number(dispatchData?.data?.[0]?.item_value) + Number(dispatchData?.data?.[0]?.item_cgst) + Number(dispatchData?.data?.[0]?.item_sgst) + Number(dispatchData?.data?.[0]?.item_igst));
     }
-  }, [dispatchData]);
+  }, [dispatchData, dispatchId, setValue]);
   const formValues = control._formValues;
 
   return (

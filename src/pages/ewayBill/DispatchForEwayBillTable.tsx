@@ -30,6 +30,8 @@ interface RowData {
   ewaybill_no: string;
   ewayBill_status: string;
   challanId: string;
+  /** Used for e-way bill detail API query param */
+  deviceType?: string;
 }
 
 type Props = {
@@ -75,7 +77,9 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
       console.log("Create eway bill for:", selectedRow);
       const txnId = selectedRow.txnId;
       const shipmentId = txnId.replace(/\//g, "_");
-      fnOpenNewWindow(`/create/e-waybill/${shipmentId}`);
+      fnOpenNewWindow(
+        `/create/e-waybill/${shipmentId}?type=${encodeURIComponent(selectedRow.deviceType ?? "")}`,
+      );
       handleMenuClose();
     }
   };
