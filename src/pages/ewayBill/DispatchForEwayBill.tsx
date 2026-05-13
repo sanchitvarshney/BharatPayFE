@@ -143,6 +143,7 @@ const DispatchForEwayBill: React.FC = () => {
                 <MenuItem value={"soundBox"}>Sound Box</MenuItem>
                 <MenuItem value={"swipeMachine"}>Swipe Machine</MenuItem>
                 <MenuItem value={"wrongDevices"}>Wrong Device</MenuItem>
+                 <MenuItem value={"PART"}>Part Code</MenuItem>
               </Select>
             </FormControl>
           <FormControl fullWidth>

@@ -33,7 +33,7 @@ export type SwipeTableRow = {
 };
 
 const BOX_CODE_INDEX = 0;
-const EXPECTED_IDS_PER_SCAN = 63;
+const DEFAULT_IDS_PER_SCAN = 63;
 const MAX_DEVICES = 1575;
 
 const SwipeTransfer = () => {
@@ -51,17 +51,24 @@ const SwipeTransfer = () => {
     handleSubmit,
     reset,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
       locationfromId: "",
       locationtoId: "",
+      deviceCount: DEFAULT_IDS_PER_SCAN,
       scannerInput: "",
       sku: null,
     },
   });
 
-  const parseScannerInput = (input: string): { boxNo: string; serialIds: string[] } => {
+  const watchedDeviceCount = watch("deviceCount");
+
+  const parseScannerInput = (
+    input: string,
+    expectedIds: number,
+  ): { boxNo: string; serialIds: string[] } => {
     const tokens = input
       .trim()
       .split(/\s+/)
@@ -69,7 +76,7 @@ const SwipeTransfer = () => {
       .filter(Boolean);
     if (tokens.length === 0) return { boxNo: "", serialIds: [] };
     const boxNo = tokens[BOX_CODE_INDEX] ?? "";
-    const serialIds = tokens.slice(1, 1 + EXPECTED_IDS_PER_SCAN);
+    const serialIds = tokens.slice(1, 1 + expectedIds);
     return { boxNo, serialIds };
   };
 
@@ -83,10 +90,16 @@ const SwipeTransfer = () => {
     const trimmed = inputValue?.trim();
     if (!trimmed) return;
 
-    const { boxNo, serialIds } = parseScannerInput(trimmed);
-    if (!boxNo || serialIds.length !== EXPECTED_IDS_PER_SCAN) {
+    const deviceCount = Number(getValues("deviceCount"));
+    if (!Number.isInteger(deviceCount) || deviceCount < 1 || deviceCount > MAX_DEVICES) {
+      showToast(`Enter a valid device count between 1 and ${MAX_DEVICES}`, "error");
+      return;
+    }
+
+    const { boxNo, serialIds } = parseScannerInput(trimmed, deviceCount); //
+    if (!boxNo || serialIds.length !== deviceCount) {
       showToast(
-        `Enter box code followed by exactly ${EXPECTED_IDS_PER_SCAN} device IDs (space or newline separated)`,
+        `Enter box code followed by exactly ${deviceCount} device IDs (space or newline separated)`,
         "error",
       );
       return;
@@ -382,17 +395,65 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
+              <div className="min-w-[120px] w-[130px] flex-shrink-0">
+                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
+                  Device count
+                </Typography>
+                <Controller
+                  name="deviceCount"
+                  control={control}
+                  rules={{
+                    required: "Required",
+                    min: { value: 1, message: "Min 1" },
+                    max: { value: MAX_DEVICES, message: `Max ${MAX_DEVICES}` },
+                    validate: (v) =>
+                      Number.isInteger(Number(v)) || "Whole number only",
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      type="number"
+                      placeholder={String(DEFAULT_IDS_PER_SCAN)}
+                      value={field.value ?? ""}
+                      fullWidth
+                      size="small"
+                      disabled={fieldsLocked}
+                      error={!!errors.deviceCount}
+                      helperText={errors.deviceCount?.message as string}
+                      inputProps={{ min: 1, max: MAX_DEVICES, step: 1 }}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === "") {
+                          field.onChange("");
+                          return;
+                        }
+                        const n = Number(raw);
+                        field.onChange(Number.isNaN(n) ? "" : Math.trunc(n));
+                      }}
+                    />
+                  )}
+                />
+              </div>
               <div className="min-w-[300px] flex-[2] max-w-[400px]">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                  Scanner (1 box code + 63 device IDs)
+                  Scanner (1 box code +{" "}
+                  {Number.isFinite(Number(watchedDeviceCount)) && Number(watchedDeviceCount) > 0
+                    ? Math.trunc(Number(watchedDeviceCount))
+                    : DEFAULT_IDS_PER_SCAN}{" "}
+                  device IDs)
                 </Typography>
                 <Controller
                   name="scannerInput"
                   control={control}
-                  render={({ field }) => (
+                  render={({ field }) => {
+                    const expectedIds =
+                      Number.isFinite(Number(watchedDeviceCount)) && Number(watchedDeviceCount) > 0
+                        ? Math.trunc(Number(watchedDeviceCount))
+                        : DEFAULT_IDS_PER_SCAN;
+                    const minTokens = 1 + expectedIds;
+                    return (
                     <TextField
                       inputRef={scannerInputRef}
-                      placeholder="Box code then 63 device IDs (paste or type, Enter to submit when 64 items)"
+                      placeholder={`Box code then ${expectedIds} device IDs (paste or type, Enter when ${minTokens} items)`}
                       value={field.value || ""}
                       fullWidth
                       multiline
@@ -403,7 +464,7 @@ const SwipeTransfer = () => {
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           const tokenCount = getTokenCount(field.value);
-                          if (tokenCount >= 1 + EXPECTED_IDS_PER_SCAN) {
+                          if (tokenCount >= minTokens) {
                             e.preventDefault();
                             processScan(
                               field.value,
@@ -415,7 +476,7 @@ const SwipeTransfer = () => {
                       onPaste={(e) => {
                         const pasted = e.clipboardData?.getData("text") ?? "";
                         const tokenCount = getTokenCount(pasted);
-                        if (tokenCount >= 1 + EXPECTED_IDS_PER_SCAN) {
+                        if (tokenCount >= minTokens) {
                           e.preventDefault();
                           processScan(pasted, () => field.onChange(""));
                         }
@@ -436,7 +497,8 @@ const SwipeTransfer = () => {
                         },
                       }}
                     />
-                  )}
+                    );
+                  }}
                 />
               </div>
             </div>

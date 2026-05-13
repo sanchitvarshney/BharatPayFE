@@ -89,7 +89,13 @@ export const materialmenu = [
 
     subMenu: [
       { name: "UOM", path: "/master-uom" },
-      { name: "Component", path: "/master-components" },
+      {
+        name: "Component",
+        subMenu: [
+          { name: "Material", path: "/master-components" },
+          { name: "Percentage Component", path: "/master-components/percentage" },
+        ],
+      },
       { name: "Products", path: "/master-product-fg" },
       { name: "HSN", path: "/not-permission" },
       { name: "Bill of Material", path: "/master-bom-create" },
@@ -174,6 +180,7 @@ export const navLinks = [
   { href: "/", label: "Home", value: "home" },
   { href: "/master-uom", label: "UOM", value: "uom" },
   { href: "/master-components", label: "Components", value: "components" },
+  { href: "/master-components/percentage", label: "Percentage Component", value: "component-percentage" },
   { href: "/master-product-fg", label: "Products", value: "products" },
   { href: "/master-bom-create", label: "Bom", value: "bom" },
   { href: "/master-location", label: "Location", value: "location" },

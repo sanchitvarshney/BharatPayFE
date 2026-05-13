@@ -55,7 +55,7 @@ const LogningV2: React.FC = () => {
     dispatch(loginUserAsync(data)).then((response: any) => {
       if (response.payload?.data?.success) {
         showToast(response.payload?.data?.message, "success");
-        navigate("/");
+        navigate(consumeReturnTo() || "/", { replace: true });
       } else {
         // Check for message in different possible locations
         const errorMessage =

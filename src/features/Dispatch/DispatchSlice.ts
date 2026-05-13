@@ -45,8 +45,9 @@ export const UpdateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; 
   return response;
 });
 
-export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, { from?: string; to?: string; type: string; device?: string }>("dispatch/getChallan", async (query) => {
-  const response = await axiosInstance.post(`challan/fetchPerforma?fromDate=${query.from}&toDate=${query.to}`);
+export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, { from?: string; to?: string; type: string; device?: string; challanType?: string }>("dispatch/getChallan", async (query) => {
+  const typeQuery = query.challanType ? `&type=${query.challanType}` : "";
+  const response = await axiosInstance.post(`challan/fetchPerforma?fromDate=${query.from}&toDate=${query.to}${typeQuery}`);
   return response;
 });
 
@@ -57,6 +58,10 @@ export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean;
 
 export const printChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printChallan", async (data) => {
   const response = await axiosInstance.post(`challan/generatePerforma`, data);
+  return response;
+});
+export const printPartChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printPartChallan", async (data) => {
+  const response = await axiosInstance.post(`challan/generateChallanPdf`, data);
   return response;
 });
 
@@ -131,8 +136,13 @@ export const getClientBranch = createAsyncThunk<AxiosResponse<any>, string>("mas
   return response;
 });
 
-export const getDispatchData = createAsyncThunk<AxiosResponse<any>, string>("dispatch/getDispatchData", async (id) => {
-  const response = await axiosInstance.get(`/ewayBill/detail?dispatch_id=${id}`);
+export const getDispatchData = createAsyncThunk<
+  AxiosResponse<any>,
+  { id: string; type: string }
+>("dispatch/getDispatchData", async ({ id, type }) => {
+  const response = await axiosInstance.get(
+    `/ewayBill/detail?dispatch_id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`,
+  );
   return response;
 });
 

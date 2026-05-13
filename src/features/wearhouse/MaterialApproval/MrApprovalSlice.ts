@@ -44,71 +44,151 @@ const initialState: PendingMrRequestState = {
   deviceLoading: false,
 };
 
-export const getPendingMaterialListsync = createAsyncThunk<AxiosResponse<PendingMrRequestResponse>>("master/getPendingMrrequst", async () => {
+export const getPendingMaterialListsync = createAsyncThunk<
+  AxiosResponse<PendingMrRequestResponse>
+>("master/getPendingMrrequst", async () => {
   const response = await axiosInstance.get("/req/data/list ");
   return response;
 });
 
-export const getPendingSwipeDeviceListsync = createAsyncThunk<AxiosResponse<PendingMrRequestResponse>>("master/getPendingSwipeDeviceListsync", async () => {
+export const getPendingSwipeDeviceListsync = createAsyncThunk<
+  AxiosResponse<PendingMrRequestResponse>
+>("master/getPendingSwipeDeviceListsync", async () => {
   const response = await axiosInstance.get("/reqv2/getMaterialReqV2List ");
   return response;
 });
 
-export const serailList = createAsyncThunk<AxiosResponse<SerialResponseData>, string>("master/serailList", async (id) => {
-  const response = await axiosInstance.get(`/req/data/approvalSerial?txnID=${id}`);
+export const serailList = createAsyncThunk<
+  AxiosResponse<SerialResponseData>,
+  string
+>("master/serailList", async (id) => {
+  const response = await axiosInstance.get(
+    `/req/data/approvalSerial?txnID=${id}`,
+  );
   return response;
 });
-export const getProcessMrReqeustAsync = createAsyncThunk<AxiosResponse<ProcessApiResponse>, string>("master/getProcessMrrequst", async (id) => {
+export const getProcessMrReqeustAsync = createAsyncThunk<
+  AxiosResponse<ProcessApiResponse>,
+  string
+>("master/getProcessMrrequst", async (id) => {
   const response = await axiosInstance.get(`/req/data/detail/${id}`);
   return response;
 });
 
-export const getProcessSwipeReqeustAsync = createAsyncThunk<AxiosResponse<ProcessApiResponse>, string>("master/getProcessMrrequst", async (id) => {
+export const getProcessSwipeReqeustAsync = createAsyncThunk<
+  AxiosResponse<ProcessApiResponse>,
+  string
+>("master/getProcessMrrequst", async (id) => {
   const response = await axiosInstance.get(`/reqv2/detail/${id}`);
   return response;
 });
 
-export const getItemDetailsAsync = createAsyncThunk<AxiosResponse<ItemDetailApiResponse>, { txnid: string; itemKey: string; picLocation: string }>("master/getItemDetails", async (params) => {
-  const response = await axiosInstance.get(`/req/data/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`);
+export const getItemDetailsAsync = createAsyncThunk<
+  AxiosResponse<ItemDetailApiResponse>,
+  { txnid: string; itemKey: string; picLocation: string }
+>("master/getItemDetails", async (params) => {
+  const response = await axiosInstance.get(
+    `/req/data/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`,
+  );
   return response;
 });
 
-export const getItemSwipeDetailsAsync = createAsyncThunk<AxiosResponse<ItemDetailApiResponse>, { txnid: string; itemKey: string; picLocation: string }>("master/getItemSwipeDetailsAsync", async (params) => {
-  const response = await axiosInstance.get(`/reqv2/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`);
+export const getItemSwipeDetailsAsync = createAsyncThunk<
+  AxiosResponse<ItemDetailApiResponse>,
+  { txnid: string; itemKey: string; picLocation: string }
+>("master/getItemSwipeDetailsAsync", async (params) => {
+  const response = await axiosInstance.get(
+    `/reqv2/stock/${params.txnid}/${params.itemKey}/${params.picLocation}`,
+  );
   return response;
 });
 
-export const approveSelectedItemAsync = createAsyncThunk<AxiosResponse<ApproveItemsResponse>, ApprovePayload>("master/approveSelectedItem", async (params) => {
-  const response = await axiosInstance.post(`/req/data/approve/${params.itemsCode}/${params.transactionId}`, params);
+export const approveSelectedItemAsync = createAsyncThunk<
+  AxiosResponse<ApproveItemsResponse>,
+  ApprovePayload
+>("master/approveSelectedItem", async (params) => {
+  const response = await axiosInstance.post(
+    `/req/data/approve/${params.itemsCode}/${params.transactionId}`,
+    params,
+  );
   return response;
 });
-export const approveDeviceRequest = createAsyncThunk<AxiosResponse<ApproveDeviceRequestResponse>, ApproveDeviceRequestType>("master/approveDeviceType", async (params) => {
-  const response = await axiosInstance.post(`/req/data/approve/${params.itemCode}/${params.txnID}`, params);
+export const approveDeviceRequest = createAsyncThunk<
+  AxiosResponse<ApproveDeviceRequestResponse>,
+  ApproveDeviceRequestType
+>("master/approveDeviceType", async (params) => {
+  const response = await axiosInstance.post(
+    `/req/data/approve/${params.itemCode}/${params.txnID}`,
+    params,
+  );
   return response;
 });
-export const approveSwipeDeviceRequest = createAsyncThunk<AxiosResponse<ApproveDeviceRequestResponse>, ApproveSwipeRequestType>("master/approveDeviceType", async (params) => {
-  const response = await axiosInstance.put(`/reqv2/approveMaterialReqV2`, params);
+export const approveSwipeDeviceRequest = createAsyncThunk<
+  AxiosResponse<ApproveDeviceRequestResponse>,
+  ApproveSwipeRequestType
+>("master/approveDeviceType", async (params) => {
+  const response = await axiosInstance.put(
+    `/reqv2/approveMaterialReqV2`,
+    params,
+  );
   return response;
 });
 
-export const validateScan = createAsyncThunk<AxiosResponse<any>, any>("master/validateScan", async ({ id, type }) => {
-  const response = await axiosInstance.get(`/backend/device?device=${id}&type=${type}`);
-  return response;
-});
+export const validateScan = createAsyncThunk<AxiosResponse<any>, any>(
+  "master/validateScan",
+  async ({ id, type }) => {
+    const response = await axiosInstance.get(
+      `/backend/device?device=${id}&type=${type}`,
+    );
+    return response;
+  },
+);
 
-export const materialRequestReject = createAsyncThunk<AxiosResponse<MaterialRejectResponse>, MaterialRejectPayload>("master/materialRequestReject", async (params) => {
-  const response = await axiosInstance.put(`/req/data/reject/${params.itemCode}/${params.txnId}`, { remarks: params.remarks });
+export const isExistItemOnLocation = createAsyncThunk<AxiosResponse<any>, any>(
+  "master/existItem",
+  async ({ id, type, location }) => {
+    const query =
+      `/deviceMinV2/checkLocation?pickLocation=${location}&type=${type}` +
+      (type === "SOUNDBOX" ? `&imei=${id}` : `&serial=${id}`);
+
+    const response = await axiosInstance.get(query);
+    return response;
+  },
+);
+
+export const materialRequestReject = createAsyncThunk<
+  AxiosResponse<MaterialRejectResponse>,
+  MaterialRejectPayload
+>("master/materialRequestReject", async (params) => {
+  const response = await axiosInstance.put(
+    `/req/data/reject/${params.itemCode}/${params.txnId}`,
+    { remarks: params.remarks },
+  );
   return response;
 });
-export const materialRequestCancel = createAsyncThunk<AxiosResponse<MaterialRejectResponse>, { txnID: string; remarks: string, type: string }>("master/materialRequestCancel", async (params) => {
-  const response = await axiosInstance.put(`/req/data/cancel/${params.txnID}?type=${params.type}`, { remark: params.remarks });
+export const materialRequestCancel = createAsyncThunk<
+  AxiosResponse<MaterialRejectResponse>,
+  { txnID: string; remarks: string; type: string }
+>("master/materialRequestCancel", async (params) => {
+  const response = await axiosInstance.put(
+    `/req/data/cancel/${params.txnID}?type=${params.type}`,
+    { remark: params.remarks },
+  );
   return response;
 });
-export const getApprovedMaterialList = createAsyncThunk<AxiosResponse<AprovedMaterialListResponse>, AprovedMaterialListPayload>("master/getApprovedMaterialList", async (params) => {
-  const response = await axiosInstance.get(`/req/data/approvalStatus/${params.user}?date=${params.date}`);
+export const getApprovedMaterialList = createAsyncThunk<
+  AxiosResponse<AprovedMaterialListResponse>,
+  AprovedMaterialListPayload
+>("master/getApprovedMaterialList", async (params) => {
+  const response = await axiosInstance.get(
+    `/req/data/approvalStatus/${params.user}?date=${params.date}`,
+  );
   return response;
 });
-export const getApproveItemDetail = createAsyncThunk<AxiosResponse<ApproveItemDetailApiResponse>, string>("master/getApproveItemDetail", async (params) => {
+export const getApproveItemDetail = createAsyncThunk<
+  AxiosResponse<ApproveItemDetailApiResponse>,
+  string
+>("master/getApproveItemDetail", async (params) => {
   const response = await axiosInstance.get(`/req/data/approvalItem/${params}`);
   return response;
 });
@@ -303,5 +383,6 @@ const MrApprovalSlice = createSlice({
   },
 });
 
-export const { setRequestDetail, clearRequestDetail, clearItemdetail } = MrApprovalSlice.actions;
+export const { setRequestDetail, clearRequestDetail, clearItemdetail } =
+  MrApprovalSlice.actions;
 export default MrApprovalSlice.reducer;

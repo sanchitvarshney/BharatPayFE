@@ -1,7 +1,8 @@
 import useAuth from "@/hooks/useAuth";
 import { LinearProgress } from "@mui/material";
 import React, { useEffect, useState, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { setReturnTo } from "@/utils/returnTo";
 
 interface ProtectedProps {
   children: ReactNode;
@@ -11,31 +12,31 @@ interface ProtectedProps {
 const Protected: React.FC<ProtectedProps> = ({ children, authentication = true }) => {
 
   const [isLoading, setIsLoading] = useState(true);
-  const authStatus: boolean = useAuth(); // Replace with actual auth hook/state
+  const authStatus: boolean = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // Simulating an async check for authentication and email verification
     const checkAuth = async () => {
-      // Simulate an async operation (e.g., API call)
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
-      // Check for authentication
+
       if (authentication && authStatus !== authentication) {
+        setReturnTo(`${location.pathname}${location.search}`);
         navigate("/login");
-        setIsLoading(false)
-        return;
-      } else if (!authentication && authStatus !== authentication) {
-        navigate("/");
-        setIsLoading(false)
+        setIsLoading(false);
         return;
       }
-     
-      setIsLoading(false); // All checks passed, allow access
+      if (!authentication && authStatus !== authentication) {
+        navigate("/");
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(false);
     };
 
     checkAuth();
-  }, [authStatus, authentication, navigate]);
+  }, [authStatus, authentication, navigate, location.pathname, location.search]);
 
   // Render a loader or fallback while waiting for the auth logic to complete
   if (isLoading) {

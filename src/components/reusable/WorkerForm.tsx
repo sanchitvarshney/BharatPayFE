@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { PlaceType } from "@/features/areaSlice/areaType";
 import { LoadingButton } from "@mui/lab";
 import WorkerFormPreviewModal, { PreviewData } from "./WorkerFormPreviewModal";
+import { showToast } from "@/utils/toasterContext";
 
 const WorkerForm: React.FC<Props> = ({
   onFormChange,
@@ -59,6 +60,7 @@ const WorkerForm: React.FC<Props> = ({
   const [deptList, setDeptList] = useState<DepartmentType[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
+  const [getItemBySearch, setGetItemBySearch] = useState<any | null>(null);
   const [pendingDepartment, setPendingDepartment] =
     useState<DepartmentType | null>(null);
   const prevSubmitLoadingRef = useRef<boolean>(false);
@@ -151,7 +153,15 @@ const WorkerForm: React.FC<Props> = ({
         endTime,
       });
     }
-  }, [area, department, selectedEmployees, date, startTime, endTime,onFormChange]);
+  }, [
+    area,
+    department,
+    selectedEmployees,
+    date,
+    startTime,
+    endTime,
+    onFormChange,
+  ]);
 
   const handleAreaChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
@@ -295,6 +305,46 @@ const WorkerForm: React.FC<Props> = ({
     },
   ];
 
+  const selectItemByEnter = (model: any) => {
+   
+    if (model?.quickFilterValues?.length > 0) {
+      const firstId = model?.quickFilterValues[0].toUpperCase();
+      
+      if (empList?.length > 0) {
+        const firstItem = empList?.find((emp: any) => emp.id === firstId);
+        if (firstItem) {
+       
+          setGetItemBySearch(firstItem);
+        } else {
+          setGetItemBySearch(null);
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+     
+        if (getItemBySearch?.id) {
+          setSelectedEmployeeIds((prev) => {
+            if (!prev.includes(getItemBySearch.id)) {
+              return [...prev, getItemBySearch.id];
+            } else {
+              showToast("Employee already selected", "error");
+            }
+            return prev;
+          });
+        } else {
+          showToast("No employee found with this code", "error");
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [getItemBySearch]);
+
   return (
     <div>
       <div className="grid grid-cols-3 gap-[20px]">
@@ -360,28 +410,31 @@ const WorkerForm: React.FC<Props> = ({
             format="DD/MM/YYYY"
           />
         </FormControl>
-    
+
         {crnID === "CRN7218718" && (
-            <>  <FormControl fullWidth>
-          <TimePicker
-            className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
-            value={startTime}
-            onChange={(newTime) => setStartTime(newTime)}
-            format="hh:mm"
-            placeholder="Select Start Time"
-            inputReadOnly
-          />
-        </FormControl>
-          <FormControl fullWidth>
-            <TimePicker
-              className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
-              value={endTime}
-              onChange={(newTime) => setEndTime(newTime)}
-              format="hh:mm"
-              placeholder="Select End Time"
-              inputReadOnly
-            />
-          </FormControl></>
+          <>
+            {" "}
+            <FormControl fullWidth>
+              <TimePicker
+                className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
+                value={startTime}
+                onChange={(newTime) => setStartTime(newTime)}
+                format="hh:mm"
+                placeholder="Select Start Time"
+                inputReadOnly
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <TimePicker
+                className="w-full h-[50px] border-[2px] rounded-sm border-neutral-400/70 hover:border-neutral-400"
+                value={endTime}
+                onChange={(newTime) => setEndTime(newTime)}
+                format="hh:mm"
+                placeholder="Select End Time"
+                inputReadOnly
+              />
+            </FormControl>
+          </>
         )}
       </div>
 
@@ -402,6 +455,12 @@ const WorkerForm: React.FC<Props> = ({
             getRowId={(row) => row.id}
             rows={empList || []}
             columns={columns}
+            onFilterModelChange={selectItemByEnter}
+            slotProps={{
+              toolbar: {
+                showQuickFilter: true,
+              },
+            }}
             initialState={{
               pagination: {
                 paginationModel: {

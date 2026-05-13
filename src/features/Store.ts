@@ -4,6 +4,7 @@ import uomReducer from "@/features/master/UOM/UOMSlice";
 import commonReducer from "@/features/common/commonSlice";
 import BOMReducer from "@/features/master/BOM/BOMSlice";
 import componentReducer from "@/features/master/component/componentSlice";
+import componentPercentageReducer from "@/features/master/componentPercentage/componentPercentageSlice";
 import productReducer from "@/features/master/products/productSlice";
 import diviceminReducer from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import rawminReducer from "@/features/wearhouse/Rawmin/RawMinSlice";
@@ -32,6 +33,7 @@ import partCodeConversionReducer from "@/features/partCodeConversion/partCodeCon
 import gpdcChallanReducer from "@/features/GPDCChallan/GPDCChallanSlice";
 import placeSlice from "@/features/areaSlice/areaSlice";
 import transferSlice from "@/features/transfer/deviceTransferSlice";
+import crmRemarkReducer from "@/features/crmRemark/crmRemarkSlice";
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +41,7 @@ export const store = configureStore({
     uom: uomReducer,
     bom: BOMReducer,
     component: componentReducer,
+    componentPercentage: componentPercentageReducer,
     product: productReducer,
     divicemin: diviceminReducer,
     rawmin: rawminReducer,
@@ -67,7 +70,8 @@ export const store = configureStore({
     partCodeConversion: partCodeConversionReducer,
     gpdcChallan: gpdcChallanReducer,
     placeMaster: placeSlice,
-    deviceTransfer: transferSlice
+    deviceTransfer: transferSlice,
+    crmRemark: crmRemarkReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
