@@ -7,6 +7,8 @@ import Custom404Page from "./pages/commonPages/Custom404Page";
 import NotPermissionPage from "./pages/commonPages/NotPermissionPage";
 import MasterUOM from "./pages/master/MasterUOM";
 import MasterComponent from "./pages/master/MasterComponent";
+import MasterComponentPercentage from "./pages/master/MasterComponentPercentage";
+import MasterComponentPercentageReport from "./pages/master/MasterComponentPercentageReport";
 import MasterComponentsLayout from "./layouts/MasterComponentsLayout";
 import MasterComponentProductLayout from "./layouts/MasterComponentProductLayout";
 import MasterProductFg from "./pages/master/MasterProductFg";
@@ -134,6 +136,7 @@ import SwipeTransfer from "./pages/transferDevice/SwipeTransfer";
 import CRMRemarkLayout from "./layouts/CRMRemarkLayout";
 import CRMRemarkReport from "./pages/crm-remark/CRMRemarkReport";
 import CRMUpload from "./pages/crm-remark/CRMUpload";
+import PercentageComponentLayout from "./layouts/PercentageComponentLayout";
 
 export const router = createBrowserRouter([
   {
@@ -312,6 +315,26 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-components",
+      },
+      {
+        element: (
+          <MainLayout>
+            <PercentageComponentLayout>
+              <MasterComponentPercentage />
+            </PercentageComponentLayout>
+          </MainLayout>
+        ),
+        path: "/master-components/percentage",
+      },
+      {
+        element: (
+          <MainLayout>
+            <PercentageComponentLayout>
+              <MasterComponentPercentageReport />
+            </PercentageComponentLayout>
+          </MainLayout>
+        ),
+        path: "/master-components/report",
       },
       {
         element: (
@@ -924,6 +947,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/manage-challan",
+      },
+      {
+        element: (
+          <MainLayout>
+            <CreatePartCodeChallanLayout>
+              <ManageChallan challanType="PART" />
+            </CreatePartCodeChallanLayout>
+          </MainLayout>
+        ),
+        path: "/manage-part-code-challan",
       },
       {
         element: (

@@ -45,8 +45,9 @@ export const UpdateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; 
   return response;
 });
 
-export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, { from?: string; to?: string; type: string; device?: string }>("dispatch/getChallan", async (query) => {
-  const response = await axiosInstance.post(`challan/fetchPerforma?fromDate=${query.from}&toDate=${query.to}`);
+export const getChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, { from?: string; to?: string; type: string; device?: string; challanType?: string }>("dispatch/getChallan", async (query) => {
+  const typeQuery = query.challanType ? `&type=${query.challanType}` : "";
+  const response = await axiosInstance.post(`challan/fetchPerforma?fromDate=${query.from}&toDate=${query.to}${typeQuery}`);
   return response;
 });
 
@@ -57,6 +58,10 @@ export const getChallanById = createAsyncThunk<AxiosResponse<{ success: boolean;
 
 export const printChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printChallan", async (data) => {
   const response = await axiosInstance.post(`challan/generatePerforma`, data);
+  return response;
+});
+export const printPartChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string,data: any }>, {challanId: string}>("dispatch/printPartChallan", async (data) => {
+  const response = await axiosInstance.post(`challan/generateChallanPdf`, data);
   return response;
 });
 

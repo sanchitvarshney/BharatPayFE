@@ -4,6 +4,7 @@ import uomReducer from "@/features/master/UOM/UOMSlice";
 import commonReducer from "@/features/common/commonSlice";
 import BOMReducer from "@/features/master/BOM/BOMSlice";
 import componentReducer from "@/features/master/component/componentSlice";
+import componentPercentageReducer from "@/features/master/componentPercentage/componentPercentageSlice";
 import productReducer from "@/features/master/products/productSlice";
 import diviceminReducer from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import rawminReducer from "@/features/wearhouse/Rawmin/RawMinSlice";
@@ -40,6 +41,7 @@ export const store = configureStore({
     uom: uomReducer,
     bom: BOMReducer,
     component: componentReducer,
+    componentPercentage: componentPercentageReducer,
     product: productReducer,
     divicemin: diviceminReducer,
     rawmin: rawminReducer,
