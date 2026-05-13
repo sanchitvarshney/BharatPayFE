@@ -11,9 +11,12 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
+//@ts-ignore
 import "swiper/css";
+//@ts-ignore
 import "swiper/css/pagination";
 import { Pagination, EffectFade, Autoplay } from "swiper/modules";
+//@ts-ignore
 import "swiper/css/effect-fade";
 import LoadingButton from "@mui/lab/LoadingButton";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -26,14 +29,22 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import {
   LoginCredentials,
   loginUserAsync,
+  loginUserGoogle,
 } from "@/features/authentication/authSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { checkPermissions } from "@/helper/checkPermissions";
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate } from "react-router-dom";
+import { consumeReturnTo } from "@/utils/returnTo";
+// import ReCAPTCHA from "react-google-recaptcha";
+import { GoogleLogin } from "@react-oauth/google";
 import SelectEndPoint from "@/components/shared/SelectEndPoint";
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  // const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(
+  //   null
+  // ); // Add state to track the reCAPTCHA value
+  // const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
   const recaptchaRef = useRef<any>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -51,7 +62,12 @@ const LogningV2: React.FC = () => {
   } = useForm<LoginCredentials>();
   const { loading } = useAppSelector((state) => state.auth);
 
-  const onSubmit: SubmitHandler<LoginCredentials> = (data) => {
+  const onSubmit: SubmitHandler<LoginCredentials> = (data: any) => {
+    // if (!recaptchaValue) {
+    //   showToast("Please verify the reCAPTCHA", "error");
+    //   return;
+    // }
+
     dispatch(loginUserAsync(data)).then((response: any) => {
       if (response.payload?.data?.success) {
         showToast(response.payload?.data?.message, "success");
@@ -66,6 +82,36 @@ const LogningV2: React.FC = () => {
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
+        // setRecaptchaValue(null);
+        // setRecaptchaKey(Math.random());
+      }
+    });
+  };
+
+  // const handleRecaptchaChange = (value: string | null) => {
+  //   setRecaptchaValue(value);
+  // };
+
+  const handleLoginWithGoogle = (googleResponse: any) => {
+    const data: any = {
+      credential: googleResponse.credential,
+    };
+    dispatch(loginUserGoogle(data)).then((response: any) => {
+      if (response.payload?.data?.success) {
+        showToast(response.payload?.data?.message, "success");
+        navigate(consumeReturnTo() || "/", { replace: true });
+      } else {
+        // Check for message in different possible locations
+        const errorMessage =
+          response.payload?.data?.message || response.payload?.message;
+        if (errorMessage) {
+          showToast(errorMessage, "error");
+        }
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
+        }
+        // setRecaptchaValue(null);
+        // setRecaptchaKey(Math.random());
       }
     });
   };
@@ -175,8 +221,8 @@ const LogningV2: React.FC = () => {
           </SwiperSlide>
         </Swiper>
       </div>
-      <div className="relative flex flex-col items-center gap-[20px] justify-center w-full h-full">
-        <SelectEndPoint />
+      <div className="relative flex items-center justify-center w-full h-full flex-col">
+        <SelectEndPoint/>
         <Card elevation={4} sx={{ width: "500px", padding: "20px" }}>
           <Typography
             color="primary"
@@ -272,8 +318,22 @@ const LogningV2: React.FC = () => {
                   </Link>
                 </div>
               </div>
-          
-              <LoadingButton loading={loading} size="large" variant="contained" fullWidth type="submit">
+              {/* <div className=" flex justify-center">
+                <ReCAPTCHA
+                  sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                  onChange={handleRecaptchaChange}
+                  key={recaptchaKey}
+                  ref={recaptchaRef}
+                />
+              </div> */}
+              <LoadingButton
+                loading={loading}
+                size="large"
+                variant="contained"
+                fullWidth
+                type="submit"
+                sx={{ m: "0px !impotent" }}
+              >
                 Login
               </LoadingButton>
               {!loading && (
@@ -281,6 +341,21 @@ const LogningV2: React.FC = () => {
                   OR
                 </Typography>
               )}
+              <div className="flex justify-center w-full items-center ">
+                {!loading && (
+                  <>
+                    <GoogleLogin
+                      onSuccess={(credentialResponse) => {
+                        handleLoginWithGoogle(credentialResponse);
+                      }}
+                      onError={() => {
+                        showToast("Login failed", "error");
+                      }}
+                      shape="circle"
+                    />
+                  </>
+                )}
+              </div>
             </div>
             <div className="mt-[30px]">
               <Typography fontSize={12} className="text-center">
