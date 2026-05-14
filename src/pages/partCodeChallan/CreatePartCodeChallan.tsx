@@ -12,6 +12,10 @@ import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom
 import {
   Autocomplete,
   Divider,
+  FilledInput,
+  FormControl,
+  FormHelperText,
+  InputLabel,
   Step,
   StepLabel,
   Stepper,
@@ -45,8 +49,6 @@ interface RowData {
   qty: number;
   rate: string;
   remarks: string;
-  gstRate: string;
-  gstState: { label: string; value: string } | null;
   isNew?: boolean;
   excRate: number;
   uom: string;
@@ -97,6 +99,8 @@ interface FormData {
   destination: string;
   termsOfDelivery: string;
   remarks: string;
+  gstRate: string;
+  gstState: string;
 }
 
 const getChallanIdFromResponse = (response: any): string => {
@@ -149,6 +153,8 @@ const CreatePartCodeChallan: React.FC = () => {
       destination: "",
       termsOfDelivery: "",
       remarks: "",
+      gstRate: "",
+      gstState: "",
     },
   });
 
@@ -175,8 +181,6 @@ const CreatePartCodeChallan: React.FC = () => {
       "partComponent",
       "qty",
       "rate",
-      "gstRate",
-      "gstState",
     ];
 
     const missingDetails: string[] = [];
@@ -185,12 +189,6 @@ const CreatePartCodeChallan: React.FC = () => {
       const missingFields: string[] = [];
 
       requiredFields.forEach((field) => {
-        if (field === "gstState") {
-          if (!item.gstState?.value) {
-            missingFields.push(field);
-          }
-          return;
-        }
         if (
           item[field] === "" ||
           item[field] === 0 ||
@@ -238,6 +236,14 @@ const CreatePartCodeChallan: React.FC = () => {
       showToast("Please select a Drop Location", "error");
       return;
     }
+    if (!data.gstRate) {
+      showToast("Please enter GST rate", "error");
+      return;
+    }
+    if (!data.gstState) {
+      showToast("Please select GST type", "error");
+      return;
+    }
     try {
       dispatch(setFormData(data as any));
       setActiveStep(1);
@@ -263,10 +269,6 @@ const CreatePartCodeChallan: React.FC = () => {
           const remark = rowData.map((item) => item.remarks ?? "");
           const hsn = rowData.map((item) => item.hsn ?? "");
           const pickLocation = rowData.map((item) => item.pickLocation?.value ?? "");
-          const gstRate = rowData.map((item) => String(item.gstRate ?? ""));
-          const gstState = rowData.map((item) =>
-            item.gstState?.value === "inter" ? "inter" : "local"
-          );
           const dispatchFromDetails = formData.dispatchFromaddress
             ? {
                 id: formData.dispatchFromaddressid || formData.dispatchFromaddress?.id,
@@ -316,8 +318,11 @@ const CreatePartCodeChallan: React.FC = () => {
             updaterow: rowData.map((item) => item.updaterow),
             challanId: id,
             remarks: watch("remarks") || formData.remarks || "",
-            gstRate,
-            gstState,
+            gstRate: formData.gstRate || watch("gstRate") || "",
+            gstState:
+              (formData.gstState || watch("gstState")) === "Inter State"
+                ? "inter"
+                : "local",
           };
           if (isEdit) {
             dispatch(updatePartCodeChallan(payload)).then((response: any) => {
@@ -409,6 +414,18 @@ const CreatePartCodeChallan: React.FC = () => {
           setValue("destination", header?.destination || "");
           setValue("termsOfDelivery", header?.termsOfDelivery || header?.termsofcondition || "");
           setValue("remarks", header?.remarks || header?.poRemarks || "");
+          const headerGstType = header?.gsttype ?? header?.gstType;
+          const headerGstRate = header?.gstrate ?? header?.gstRate;
+          if (headerGstRate != null && headerGstRate !== "") {
+            setValue("gstRate", String(headerGstRate));
+          }
+          if (headerGstType === "inter") {
+            setValue("gstState", "Inter State");
+          } else if (headerGstType) {
+            setValue("gstState", "Intra State");
+          } else {
+            setValue("gstState", "");
+          }
           if (header?.pickLocation) setValue("pickLocation", header.pickLocation);
           if (header?.dropLocation) setValue("dropLocation", header.dropLocation);
 
@@ -421,33 +438,21 @@ const CreatePartCodeChallan: React.FC = () => {
 
           if (!materials?.length) return;
           setRowData(
-            materials.map((item: any, index: number) => {
-              const lineGstType = item.gsttype ?? item.gstType ?? header?.gsttype ?? header?.gstType;
-              const lineGstRate = item.gstrate ?? item.gstRate ?? header?.gstrate ?? header?.gstRate;
-              let gstState: { label: string; value: string } | null = null;
-              if (lineGstType === "inter") {
-                gstState = { label: "Inter State", value: "inter" };
-              } else if (lineGstType) {
-                gstState = { label: "Intra State", value: "local" };
-              }
-              return {
-                id: item.id || item.updateid || `edit-row-${index}`,
-                partComponent: {
-                  label: item.component_short,
-                  value: item.componentKey,
-                },
-                hsn: item.hsn ?? "",
-                qty: Number(item.orderqty) || 0,
-                updaterow: item.updateid,
-                rate: Number(item.rate) || 0,
-                remarks: item.remark ?? "",
-                gstRate: lineGstRate != null && lineGstRate !== "" ? String(lineGstRate) : "",
-                gstState,
-                isNew: true,
-                excRate: 1,
-                uom: item.uom ?? "",
-              };
-            })
+            materials.map((item: any, index: number) => ({
+              id: item.id || item.updateid || `edit-row-${index}`,
+              partComponent: {
+                label: item.component_short,
+                value: item.componentKey,
+              },
+              hsn: item.hsn ?? "",
+              qty: Number(item.orderqty) || 0,
+              updaterow: item.updateid,
+              rate: Number(item.rate) || 0,
+              remarks: item.remark ?? "",
+              isNew: true,
+              excRate: 1,
+              uom: item.uom ?? "",
+            }))
           );
           const totalAmount = materials.reduce(
             (acc: number, item: any) =>
@@ -856,6 +861,66 @@ const CreatePartCodeChallan: React.FC = () => {
                   fullWidth
                   label="Terms of Delivery"
                   {...register("termsOfDelivery")}
+                />
+                <Controller
+                  name="gstState"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "GST Type is required",
+                    },
+                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={field.value || null}
+                      onChange={(_, newValue) => field.onChange(newValue ?? "")}
+                      disablePortal
+                      id="part-code-challan-gst-type"
+                      options={["Inter State", "Intra State"]}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="GST Type"
+                          error={!!errors.gstState}
+                          helperText={errors.gstState?.message}
+                          variant="filled"
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <Controller
+                  name="gstRate"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "GST Rate is required",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.gstRate}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="part-code-challan-gst-rate">
+                        GST Rate
+                      </InputLabel>
+                      <FilledInput
+                        {...field}
+                        error={!!errors.gstRate}
+                        id="part-code-challan-gst-rate"
+                        type="text"
+                      />
+                      {errors.gstRate && (
+                        <FormHelperText>
+                          {errors.gstRate.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
                 />
               </div>
               <TextField
