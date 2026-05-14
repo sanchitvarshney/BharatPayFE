@@ -18,6 +18,7 @@ export const columnDefs: ColDef[] = [
   { headerName: "SGST", field: "item_sgst" },
   { headerName: "IGST", field: "item_igst" },
   { headerName: "Taxable Amount", field: "item_value" },
+  { headerName: "Total Amount", field: "total_amount" },
 ];
 
 // Dropdown Options
