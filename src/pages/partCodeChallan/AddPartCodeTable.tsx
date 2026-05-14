@@ -16,8 +16,6 @@ interface RowData {
   qty: number;
   rate: string;
   remarks: string;
-  gstRate: string;
-  gstState: { label: string; value: string } | null;
   isNew?: boolean;
   excRate: number;
   uom: string;
@@ -66,8 +64,6 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       qty: 0,
       rate: "",
       remarks: "",
-      gstRate: "",
-      gstState: null,
       isNew: true,
       excRate: Number(exchange) || 0,
       uom: "",
@@ -180,18 +176,6 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       field: "rate",
       cellRenderer: "challanCellRenderer",
       width: 200,
-    },
-    {
-      headerName: "GST Type",
-      field: "gstState",
-      cellRenderer: "challanCellRenderer",
-      minWidth: 170,
-    },
-    {
-      headerName: "GST Rate",
-      field: "gstRate",
-      cellRenderer: "challanCellRenderer",
-      width: 130,
     },
     {
       headerName: "Remarks",
