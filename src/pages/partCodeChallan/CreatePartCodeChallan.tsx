@@ -45,6 +45,8 @@ interface RowData {
   qty: number;
   rate: string;
   remarks: string;
+  gstRate: string;
+  gstState: { label: string; value: string } | null;
   isNew?: boolean;
   excRate: number;
   uom: string;
@@ -173,6 +175,8 @@ const CreatePartCodeChallan: React.FC = () => {
       "partComponent",
       "qty",
       "rate",
+      "gstRate",
+      "gstState",
     ];
 
     const missingDetails: string[] = [];
@@ -181,6 +185,12 @@ const CreatePartCodeChallan: React.FC = () => {
       const missingFields: string[] = [];
 
       requiredFields.forEach((field) => {
+        if (field === "gstState") {
+          if (!item.gstState?.value) {
+            missingFields.push(field);
+          }
+          return;
+        }
         if (
           item[field] === "" ||
           item[field] === 0 ||
@@ -253,6 +263,10 @@ const CreatePartCodeChallan: React.FC = () => {
           const remark = rowData.map((item) => item.remarks ?? "");
           const hsn = rowData.map((item) => item.hsn ?? "");
           const pickLocation = rowData.map((item) => item.pickLocation?.value ?? "");
+          const gstRate = rowData.map((item) => String(item.gstRate ?? ""));
+          const gstState = rowData.map((item) =>
+            item.gstState?.value === "inter" ? "inter" : "local"
+          );
           const dispatchFromDetails = formData.dispatchFromaddress
             ? {
                 id: formData.dispatchFromaddressid || formData.dispatchFromaddress?.id,
@@ -302,6 +316,8 @@ const CreatePartCodeChallan: React.FC = () => {
             updaterow: rowData.map((item) => item.updaterow),
             challanId: id,
             remarks: watch("remarks") || formData.remarks || "",
+            gstRate,
+            gstState,
           };
           if (isEdit) {
             dispatch(updatePartCodeChallan(payload)).then((response: any) => {
@@ -405,21 +421,33 @@ const CreatePartCodeChallan: React.FC = () => {
 
           if (!materials?.length) return;
           setRowData(
-            materials.map((item: any, index: number) => ({
-              id: item.id || item.updateid || `edit-row-${index}`,
-              partComponent: {
-                label: item.component_short,
-                value: item.componentKey,
-              },
-              hsn: item.hsn ?? "",
-              qty: Number(item.orderqty) || 0,
-              updaterow: item.updateid,
-              rate: Number(item.rate) || 0,
-              remarks: item.remark ?? "",
-              isNew: true,
-              excRate: 1,
-              uom: item.uom ?? "",
-            }))
+            materials.map((item: any, index: number) => {
+              const lineGstType = item.gsttype ?? item.gstType ?? header?.gsttype ?? header?.gstType;
+              const lineGstRate = item.gstrate ?? item.gstRate ?? header?.gstrate ?? header?.gstRate;
+              let gstState: { label: string; value: string } | null = null;
+              if (lineGstType === "inter") {
+                gstState = { label: "Inter State", value: "inter" };
+              } else if (lineGstType) {
+                gstState = { label: "Intra State", value: "local" };
+              }
+              return {
+                id: item.id || item.updateid || `edit-row-${index}`,
+                partComponent: {
+                  label: item.component_short,
+                  value: item.componentKey,
+                },
+                hsn: item.hsn ?? "",
+                qty: Number(item.orderqty) || 0,
+                updaterow: item.updateid,
+                rate: Number(item.rate) || 0,
+                remarks: item.remark ?? "",
+                gstRate: lineGstRate != null && lineGstRate !== "" ? String(lineGstRate) : "",
+                gstState,
+                isNew: true,
+                excRate: 1,
+                uom: item.uom ?? "",
+              };
+            })
           );
           const totalAmount = materials.reduce(
             (acc: number, item: any) =>
