@@ -87,7 +87,6 @@ const buildReportColumnDefs = (headers: ComponentPercentageReportHeader[]): ColD
 
     return column;
   });
-
 const MasterComponentPercentageReport: React.FC = () => {
   const dispatch = useAppDispatch();
   const { reportData, reportHeaders, reportLoading } = useAppSelector((state) => state.componentPercentage);
