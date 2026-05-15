@@ -1,5 +1,7 @@
+import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import { fetchComponentPercentageReportAsync } from "@/features/master/componentPercentage/componentPercentageSlice";
 import {
+  ComponentPercentageDeviceType,
   ComponentPercentageReportHeader,
   ComponentPercentageReportHeaderType,
   ComponentPercentageReportItem,
@@ -11,8 +13,13 @@ import { showToast } from "@/utils/toasterContext";
 import { ColDef, ICellRendererParams } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { LoadingButton } from "@mui/lab";
-import { TextField } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import React, { useMemo, useState } from "react";
+
+const deviceTypeOptions: { label: string; value: ComponentPercentageDeviceType }[] = [
+  { label: "Swipe Machine", value: "swipeMachine" },
+  { label: "Soundbox", value: "soundbox" },
+];
 
 const formatReportValue = (value: unknown, type: ComponentPercentageReportHeaderType) => {
   if (value === null || value === undefined || value === "") {
@@ -85,6 +92,8 @@ const MasterComponentPercentageReport: React.FC = () => {
   const dispatch = useAppDispatch();
   const { reportData, reportHeaders, reportLoading } = useAppSelector((state) => state.componentPercentage);
   const [totalDevice, setTotalDevice] = useState<string>("");
+  const [deviceType, setDeviceType] = useState<ComponentPercentageDeviceType>("soundbox");
+  const [sku, setSku] = useState<DeviceType | null>(null);
 
   const columnDefs = useMemo(
     () => buildReportColumnDefs(reportHeaders ?? []),
@@ -106,7 +115,18 @@ const MasterComponentPercentageReport: React.FC = () => {
       return;
     }
 
-    dispatch(fetchComponentPercentageReportAsync({ totalDevice: totalDeviceValue })).then((res: any) => {
+    if (!sku?.id) {
+      showToast("Please select a SKU", "error");
+      return;
+    }
+
+    dispatch(
+      fetchComponentPercentageReportAsync({
+        totalDevice: totalDeviceValue,
+        deviceType,
+        sku: sku.id,
+      }),
+    ).then((res: any) => {
       const response = res.payload?.data;
 
       if (response?.success && response.message) {
@@ -117,7 +137,31 @@ const MasterComponentPercentageReport: React.FC = () => {
 
   return (
     <div className="h-full bg-white flex flex-col">
-      <div className="p-[20px] border-b border-neutral-300 flex items-end gap-[16px]">
+      <div className="p-[20px] border-b border-neutral-300 flex items-end gap-[16px] flex-wrap">
+        <FormControl size="small" sx={{ width: 220 }}>
+          <InputLabel id="component-percentage-report-device-type-label">Device Type</InputLabel>
+          <Select
+            labelId="component-percentage-report-device-type-label"
+            id="component-percentage-report-device-type"
+            value={deviceType}
+            label="Device Type"
+            onChange={(event) => setDeviceType(event.target.value as ComponentPercentageDeviceType)}
+          >
+            {deviceTypeOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <SelectSku
+          varient="outlined"
+          size="small"
+          label="SKU"
+          width="280px"
+          value={sku}
+          onChange={setSku}
+        />
         <TextField
           type="number"
           size="small"
