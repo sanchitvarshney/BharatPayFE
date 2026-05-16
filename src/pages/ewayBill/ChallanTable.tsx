@@ -267,12 +267,16 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
           >
             Edit
           </MenuItem>
+       {
+        challanType !== "PART" && (
           <MenuItem
             onClick={handleCreateDispatch}
             disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
           >
             Create Dispatch
           </MenuItem>
+        )
+       }
           <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
         </Menu>
       </div>
