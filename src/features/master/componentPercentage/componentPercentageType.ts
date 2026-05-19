@@ -21,6 +21,7 @@ export type FetchMasterComponentPercentageResponse = {
 export type InsertComponentPercentagePayload = {
   component: string[];
   percentage: number[];
+  deviceType: string;
 };
 
 export type InsertComponentPercentageResponse = {
