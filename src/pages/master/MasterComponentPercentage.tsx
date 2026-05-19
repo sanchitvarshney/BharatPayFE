@@ -134,6 +134,7 @@ const MasterComponentPercentage: React.FC = () => {
       insertComponentPercentageAsync({
         component: componentCodes,
         percentage: percentages,
+        deviceType,
       }),
     ).then((res: any) => {
       if (res.payload?.data?.success) {
