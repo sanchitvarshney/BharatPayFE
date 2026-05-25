@@ -137,7 +137,7 @@ import SwipeTransfer from "./pages/transferDevice/SwipeTransfer";
 import CRMRemarkLayout from "./layouts/CRMRemarkLayout";
 import CRMRemarkReport from "./pages/crm-remark/CRMRemarkReport";
 import CRMUpload from "./pages/crm-remark/CRMUpload";
-import PercentageComponentLayout from "@/layouts/PercentageComponentLayout";
+import PercentageComponentLayout from "./layouts/PercentageComponentLayout";
 
 export const router = createBrowserRouter([
   {

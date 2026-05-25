@@ -29,10 +29,11 @@ import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
 import { getShippingAddress } from "@/features/master/client/clientSlice";
-import AddPOTable from "./AddPartCodeTable";
+import AddPOTable, { RowData } from "./AddPartCodeTable";
 import {
   createPartCodeChallan,
   getPartCodeChallanDetail,
+  getPartCodeChallanNo,
   setFormData,
   updatePartCodeChallan,
 } from "@/features/procurement/poSlices";
@@ -42,23 +43,12 @@ import SelectLocationAcordingModule, {
   LocationType,
 } from "@/components/reusable/SelectLocationAcordingModule";
 
-interface RowData {
-  id: string;
-  partComponent: { label: string; value: string } | null;
-  hsn?: string;
-  qty: number;
-  rate: string;
-  remarks: string;
-  isNew?: boolean;
-  excRate: number;
-  uom: string;
-  currency?: string;
-  updaterow?: string;
-  pickLocation?: { label?: string; value?: string } | null;
-}
-
 interface Totals {
   totalAmount?: number;
+  taxableAmount?: number;
+  cgst?: number;
+  sgst?: number;
+  igst?: number;
 }
 
 interface dispatchFromaddress {
@@ -82,6 +72,7 @@ interface ShippingAddress {
   addressLine2: string;
   label: string;
 }
+
 interface FormData {
   location: string;
   pickLocation: LocationType | null;
@@ -103,16 +94,25 @@ interface FormData {
   gstState: string;
 }
 
+// ────────────────────────────────────────────────────────────────
+// Derive GST type by comparing the first 2 digits of both GST nos.
+// Same state code → Intra State, different → Inter State.
+// ────────────────────────────────────────────────────────────────
+const computeGstType = (dispatchGst: string, shipGst: string): string => {
+  const dispatchPrefix = (dispatchGst || "").substring(0, 2).toUpperCase();
+  const shipPrefix = (shipGst || "").substring(0, 2).toUpperCase();
+  if (!dispatchPrefix || !shipPrefix) return "";
+  return dispatchPrefix === shipPrefix ? "Intra State" : "Inter State";
+};
+
 const getChallanIdFromResponse = (response: any): string => {
   const responseData = response?.payload?.data;
   if (!responseData) return "";
-
   const nestedData = responseData.data;
   if (typeof nestedData === "string") return nestedData;
   if (nestedData && typeof nestedData === "object") {
     return nestedData.challanId || nestedData.id || "";
   }
-
   return responseData.challanId || responseData.id || "";
 };
 
@@ -121,12 +121,16 @@ const CreatePartCodeChallan: React.FC = () => {
   const { id: routeId } = useParams<{ id?: string }>();
   const isEdit = Boolean(routeId);
   const id = routeId || "";
+
   const [alert, setAlert] = useState<boolean>(false);
   const [minNo, setMinno] = useState<string>("");
+  const [challanNo, setChallanNo] = useState<string>(""); // auto-generated challan no
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [total, setTotal] = useState<Totals>({ totalAmount: 0 });
+  const [gstType, setGstType] = useState<string>(""); // derived from address comparison
+
   const dispatch = useAppDispatch();
   const { loading } = useAppSelector((state) => state.po);
   const { formData } = useAppSelector((state) => state.po);
@@ -161,33 +165,52 @@ const CreatePartCodeChallan: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Form Details", "Add Component Details", "Review & Submit"];
 
-  const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
-  };
+  const handleNext = () => setActiveStep((prev) => prev + 1);
 
   const handleBack = () => {
-    // Set form values from Redux state before going back
     if (formData) {
       Object.entries(formData).forEach(([key, value]) => {
         setValue(key as any, value);
       });
     }
-    setActiveStep((prevStep) => prevStep - 1);
+    setActiveStep((prev) => prev - 1);
   };
+
+  // ── Fetch auto-generated challan number on mount (create mode only) ──
+  useEffect(() => {
+    dispatch(getLocationAsync(null));
+    dispatch(getPertCodesync(null));
+    dispatch(getShippingAddress());
+
+    if (!isEdit) {
+      dispatch(getPartCodeChallanNo()).then((res: any) => {
+        const no =
+          res?.payload?.data?.data ||
+          res?.payload?.data?.challanNo ||
+          res?.payload?.data?.no ||
+          res?.payload?.data ||
+          "";
+        if (no) setChallanNo(String(no));
+      });
+    }
+  }, []);
+
+  // ── Watch addresses to keep gstType in sync while user is on step 0 ──
+  const watchDispatchGst = watch("dispatchFromaddress.gst");
+  const watchShipGst = watch("shipaddress.gst");
+
+  useEffect(() => {
+    const computed = computeGstType(watchDispatchGst || "", watchShipGst || "");
+    setGstType(computed);
+  }, [watchDispatchGst, watchShipGst]);
 
   const checkRequiredFields = (data: RowData[]) => {
     let hasErrors = false;
-    const requiredFields: Array<keyof RowData> = [
-      "partComponent",
-      "qty",
-      "rate",
-    ];
-
+    const requiredFields: Array<keyof RowData> = ["partComponent", "qty", "rate"];
     const missingDetails: string[] = [];
 
     data.forEach((item, index) => {
       const missingFields: string[] = [];
-
       requiredFields.forEach((field) => {
         if (
           item[field] === "" ||
@@ -198,7 +221,6 @@ const CreatePartCodeChallan: React.FC = () => {
           missingFields.push(field);
         }
       });
-
       if (missingFields.length > 0) {
         missingDetails.push(`Row ${index + 1}: ${missingFields.join(", ")}`);
         hasErrors = true;
@@ -206,24 +228,22 @@ const CreatePartCodeChallan: React.FC = () => {
     });
 
     if (missingDetails.length > 0) {
-      showToast(
-        `Some required fields are missing:\n${missingDetails.join("\n")}`,
-        "error"
-      );
+      showToast(`Some required fields are missing:\n${missingDetails.join("\n")}`, "error");
     }
-
     return hasErrors;
   };
 
   const resetall = () => {
     setRowData([]);
     setTotal({ totalAmount: 0 });
+    setGstType("");
     reset();
     dispatch(resetDocumentFile());
     dispatch(clearaddressdetail());
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
+    // Required field guards
     if (!data.dispatchFromaddressid) {
       showToast("Please select a Dispatch From address", "error");
       return;
@@ -236,14 +256,14 @@ const CreatePartCodeChallan: React.FC = () => {
       showToast("Please select a Drop Location", "error");
       return;
     }
-    if (!data.gstRate) {
-      showToast("Please enter GST rate", "error");
-      return;
-    }
-    if (!data.gstState) {
-      showToast("Please select GST type", "error");
-      return;
-    }
+
+    // Compute & store the GST type based on addresses
+    const derivedGstType = computeGstType(
+      data.dispatchFromaddress?.gst || "",
+      data.shipaddress?.gst || ""
+    );
+    setGstType(derivedGstType);
+
     try {
       dispatch(setFormData(data as any));
       setActiveStep(1);
@@ -252,110 +272,113 @@ const CreatePartCodeChallan: React.FC = () => {
       showToast("Error submitting form", "error");
     }
   };
+
   const finalSubmit = () => {
-    if (formData) {
-      if (rowData.length === 0) {
-        showToast("Please Add Material Details", "error");
-      } else {
-        if (!checkRequiredFields(rowData)) {
-          const component = rowData.map(
-            (item) => item.partComponent?.value || ""
-          );
-          const materialName = rowData.map(
-            (item) => item.partComponent?.label ?? ""
-          );
-          const qty = rowData.map((item) => Number(item.qty));
-          const rate = rowData.map((item) => Number(item.rate));
-          const remark = rowData.map((item) => item.remarks ?? "");
-          const hsn = rowData.map((item) => item.hsn ?? "");
-          const pickLocation = rowData.map((item) => item.pickLocation?.value ?? "");
-          const dispatchFromDetails = formData.dispatchFromaddress
-            ? {
-                id: formData.dispatchFromaddressid || formData.dispatchFromaddress?.id,
-                label: formData.dispatchFromaddress?.label ?? "",
-                city: formData.dispatchFromaddress?.city ?? "",
-                gst: formData.dispatchFromaddress?.gst ?? "",
-                pin: formData.dispatchFromaddress?.pin ?? "",
-                pan: formData.dispatchFromaddress?.pan ?? "",
-                addressLine1: formData.dispatchFromaddress?.addressLine1 ?? "",
-                addressLine2: formData.dispatchFromaddress?.addressLine2 ?? "",
-              }
-            : {};
+    if (!formData) return;
 
-          const shippingDetails = formData.shipaddress
-            ? {
-                id: formData.shipaddressid || formData.shipaddress?.id,
-                label: formData.shipaddress?.label ?? "",
-                pin: formData.shipaddress?.pin ?? "",
-                gst: formData.shipaddress?.gst ?? "",
-                pan: formData.shipaddress?.pan ?? "",
-                city: formData.shipaddress?.city ?? "",
-                addressLine1: formData.shipaddress?.addressLine1 ?? "",
-                addressLine2: formData.shipaddress?.addressLine2 ?? "",
-              }
-            : {};
+    if (rowData.length === 0) {
+      showToast("Please Add Material Details", "error");
+      return;
+    }
+    if (checkRequiredFields(rowData)) return;
 
-          const payload: any = {
-            component,
-            materialName,
-            qty,
-            rate,
-            remark,
-            hsn,
-            pickLocation,
-            dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
-            dispatchFromDetails,
-            shippingDetails,
-            deliveryNoteNo: formData.deliveryNoteNo || watch("deliveryNoteNo") || "",
-            referenceNoAndDate: formData.referenceNoAndDate || watch("referenceNoAndDate") || "",
-            otherReferences: formData.otherReferences || watch("otherReferences") || "",
-            buyerOrderNo: formData.buyerOrderNo || watch("buyerOrderNo") || "",
-            dispatchDocNo: formData.dispatchDocNo || watch("dispatchDocNo") || "",
-            dispatchedThrough: formData.dispatchedThrough || watch("dispatchedThrough") || "",
-            destination: formData.destination || watch("destination") || "",
-            termsOfDelivery:
-              watch("termsOfDelivery") || formData.termsOfDelivery || "",
-            updaterow: rowData.map((item) => item.updaterow),
-            challanId: id,
-            remarks: watch("remarks") || formData.remarks || "",
-            gstRate: formData.gstRate || watch("gstRate") || "",
-            gstState:
-              (formData.gstState || watch("gstState")) === "Inter State"
-                ? "inter"
-                : "local",
-          };
-          if (isEdit) {
-            dispatch(updatePartCodeChallan(payload)).then((response: any) => {
-              if (response.payload?.data?.success) {
-                showToast(response.payload?.data?.message, "success");
-                resetall();
-                handleNext();
-                dispatch(resetFormData());
-                navigate("/manage-challan");
-              }
-            });
-          } else {
-            dispatch(createPartCodeChallan(payload)).then((response: any) => {
-              if (response.payload?.data?.success) {
-                const challanNo = getChallanIdFromResponse(response);
-                showToast(response.payload?.data?.message, "success");
-                setMinno(challanNo);
-                resetall();
-                handleNext();
-                dispatch(resetFormData());
-              }
-            });
-          }
+    const component = rowData.map((item) => item.partComponent?.value || "");
+    const materialName = rowData.map((item) => item.partComponent?.label ?? "");
+    const qty = rowData.map((item) => Number(item.qty));
+    const rate = rowData.map((item) => Number(item.rate));
+    const remark = rowData.map((item) => item.remarks ?? "");
+    const hsn = rowData.map((item) => item.hsn ?? "");
+    const pickLocation = rowData.map((item) => item.pickLocation?.value ?? "");
+    const gstRatePerItem = rowData.map((item) => item.gstRate ?? "");
+    const taxableAmount = rowData.map((item) => item.taxableAmount ?? 0);
+    const cgst = rowData.map((item) => item.cgst ?? 0);
+    const sgst = rowData.map((item) => item.sgst ?? 0);
+    const igst = rowData.map((item) => item.igst ?? 0);
+    const totalAmountPerItem = rowData.map((item) => item.totalAmount ?? 0);
+
+    const dispatchFromDetails = formData.dispatchFromaddress
+      ? {
+          id: formData.dispatchFromaddressid || formData.dispatchFromaddress?.id,
+          label: formData.dispatchFromaddress?.label ?? "",
+          city: formData.dispatchFromaddress?.city ?? "",
+          gst: formData.dispatchFromaddress?.gst ?? "",
+          pin: formData.dispatchFromaddress?.pin ?? "",
+          pan: formData.dispatchFromaddress?.pan ?? "",
+          addressLine1: formData.dispatchFromaddress?.addressLine1 ?? "",
+          addressLine2: formData.dispatchFromaddress?.addressLine2 ?? "",
         }
-      }
+      : {};
+
+    const shippingDetails = formData.shipaddress
+      ? {
+          id: formData.shipaddressid || formData.shipaddress?.id,
+          label: formData.shipaddress?.label ?? "",
+          pin: formData.shipaddress?.pin ?? "",
+          gst: formData.shipaddress?.gst ?? "",
+          pan: formData.shipaddress?.pan ?? "",
+          city: formData.shipaddress?.city ?? "",
+          addressLine1: formData.shipaddress?.addressLine1 ?? "",
+          addressLine2: formData.shipaddress?.addressLine2 ?? "",
+        }
+      : {};
+
+    const payload: any = {
+      component,
+      materialName,
+      qty,
+      rate,
+      remark,
+      hsn,
+      pickLocation,
+      dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
+      dispatchFromDetails,
+      shippingDetails,
+      deliveryNoteNo: formData.deliveryNoteNo || watch("deliveryNoteNo") || "",
+      referenceNoAndDate: formData.referenceNoAndDate || watch("referenceNoAndDate") || "",
+      otherReferences: formData.otherReferences || watch("otherReferences") || "",
+      buyerOrderNo: formData.buyerOrderNo || watch("buyerOrderNo") || "",
+      dispatchDocNo: formData.dispatchDocNo || watch("dispatchDocNo") || "",
+      dispatchedThrough: formData.dispatchedThrough || watch("dispatchedThrough") || "",
+      destination: formData.destination || watch("destination") || "",
+      termsOfDelivery: watch("termsOfDelivery") || formData.termsOfDelivery || "",
+      remarks: watch("remarks") || formData.remarks || "",
+      updaterow: rowData.map((item) => item.updaterow),
+      challanId: id,
+      // ── Per-item GST ──
+      gstRate: gstRatePerItem,
+      gstState: gstType === "Inter State" ? "inter" : "local",
+      taxableAmount,
+      cgst,
+      sgst,
+      igst,
+      totalAmount: totalAmountPerItem,
+    };
+
+    if (isEdit) {
+      dispatch(updatePartCodeChallan(payload)).then((response: any) => {
+        if (response.payload?.data?.success) {
+          showToast(response.payload?.data?.message, "success");
+          resetall();
+          handleNext();
+          dispatch(resetFormData());
+          navigate("/manage-challan");
+        }
+      });
+    } else {
+      dispatch(createPartCodeChallan(payload)).then((response: any) => {
+        if (response.payload?.data?.success) {
+          const generatedNo = getChallanIdFromResponse(response);
+          showToast(response.payload?.data?.message, "success");
+          setMinno(generatedNo);
+          resetall();
+          handleNext();
+          dispatch(resetFormData());
+        }
+      });
     }
   };
-  useEffect(() => {
-    dispatch(getLocationAsync(null));
-    dispatch(getPertCodesync(null));
-    dispatch(getShippingAddress());
-  }, []);
 
+  // ── Address helpers ──────────────────────────────────────────
   const handledispatchFromaddressChange = (value: any) => {
     if (value) {
       setValue("dispatchFromaddressid", value.code);
@@ -368,6 +391,7 @@ const CreatePartCodeChallan: React.FC = () => {
       setValue("dispatchFromaddress.pin", value.pin);
     }
   };
+
   const handleShipAddressChange = (value: any) => {
     if (value) {
       setValue("shipaddressid", value.code);
@@ -380,9 +404,12 @@ const CreatePartCodeChallan: React.FC = () => {
       setValue("shipaddress.pin", value.pin);
     }
   };
+
   const billLabel = watch("dispatchFromaddress.label");
   const shipLabel = watch("shipaddress.label");
-  const shippingList = Array.isArray(shippingAddress) ? shippingAddress : (shippingAddress?.data ?? []);
+  const shippingList = Array.isArray(shippingAddress)
+    ? shippingAddress
+    : (shippingAddress?.data ?? []);
   const isKortek = (addr: any) => addr?.label?.toLowerCase().includes("kortek");
   const billSelected = shippingList.find((a: any) => a.code === watch("dispatchFromaddressid"));
   const shipSelected = shippingList.find((a: any) => a.code === watch("shipaddressid"));
@@ -394,12 +421,19 @@ const CreatePartCodeChallan: React.FC = () => {
     if (billSelected && isKortek(billSelected) && isKortek(addr)) return false;
     return true;
   });
+
+  // ── Edit mode: load existing data ───────────────────────────
   useEffect(() => {
     if (isEdit && id) {
       dispatch(getPartCodeChallanDetail({ id })).then((response: any) => {
         const res = response.payload?.data;
         if (res?.success && res?.data) {
           const { bill, ship, materials, header } = res.data;
+
+          // Show the existing challan number (non-editable)
+          const existingNo =
+            header?.challanNo || header?.challanId || header?.no || id;
+          if (existingNo) setChallanNo(String(existingNo));
 
           setValue("dispatchFromaddressid", bill?.code || "");
           handledispatchFromaddressChange(bill || "");
@@ -414,20 +448,12 @@ const CreatePartCodeChallan: React.FC = () => {
           setValue("destination", header?.destination || "");
           setValue("termsOfDelivery", header?.termsOfDelivery || header?.termsofcondition || "");
           setValue("remarks", header?.remarks || header?.poRemarks || "");
-          const headerGstType = header?.gsttype ?? header?.gstType;
-          const headerGstRate = header?.gstrate ?? header?.gstRate;
-          if (headerGstRate != null && headerGstRate !== "") {
-            setValue("gstRate", String(headerGstRate));
-          }
-          if (headerGstType === "inter") {
-            setValue("gstState", "Inter State");
-          } else if (headerGstType) {
-            setValue("gstState", "Intra State");
-          } else {
-            setValue("gstState", "");
-          }
           if (header?.pickLocation) setValue("pickLocation", header.pickLocation);
           if (header?.dropLocation) setValue("dropLocation", header.dropLocation);
+
+          // Derive GST type from saved GST nos (bill.gst vs ship.gst)
+          const editGstType = computeGstType(bill?.gst || "", ship?.gst || "");
+          setGstType(editGstType);
 
           dispatch(
             setFormData({
@@ -437,23 +463,51 @@ const CreatePartCodeChallan: React.FC = () => {
           );
 
           if (!materials?.length) return;
+
+          const headerGstRate = header?.gstrate ?? header?.gstRate;
+          const headerGstType =
+            header?.gsttype === "inter" ? "Inter State" : "Intra State";
+
           setRowData(
-            materials.map((item: any, index: number) => ({
-              id: item.id || item.updateid || `edit-row-${index}`,
-              partComponent: {
-                label: item.component_short,
-                value: item.componentKey,
-              },
-              hsn: item.hsn ?? "",
-              qty: Number(item.orderqty) || 0,
-              updaterow: item.updateid,
-              rate: Number(item.rate) || 0,
-              remarks: item.remark ?? "",
-              isNew: true,
-              excRate: 1,
-              uom: item.uom ?? "",
-            }))
+            materials.map((item: any, index: number) => {
+              const qty = Number(item.orderqty) || 0;
+              const rate = Number(item.rate) || 0;
+              const itemGstRate = item.gstRate ?? item.gst_rate ?? headerGstRate ?? "";
+              const taxableAmount = qty * rate;
+              const gstRateNum = Number(itemGstRate) || 0;
+              let cgst = 0, sgst = 0, igst = 0;
+              if (headerGstType === "Intra State") {
+                cgst = (taxableAmount * (gstRateNum / 2)) / 100;
+                sgst = (taxableAmount * (gstRateNum / 2)) / 100;
+              } else {
+                igst = (taxableAmount * gstRateNum) / 100;
+              }
+              const totalAmount = taxableAmount + cgst + sgst + igst;
+
+              return {
+                id: item.id || item.updateid || `edit-row-${index}`,
+                partComponent: {
+                  label: item.component_short,
+                  value: item.componentKey,
+                },
+                hsn: item.hsn ?? "",
+                qty,
+                updaterow: item.updateid,
+                rate: Number(item.rate) || 0,
+                remarks: item.remark ?? "",
+                isNew: true,
+                excRate: 1,
+                uom: item.uom ?? "",
+                gstRate: String(itemGstRate),
+                taxableAmount,
+                cgst,
+                sgst,
+                igst,
+                totalAmount,
+              };
+            })
           );
+
           const totalAmount = materials.reduce(
             (acc: number, item: any) =>
               acc + (Number(item.orderqty) || 0) * (Number(item.rate) || 0),
@@ -482,10 +536,13 @@ const CreatePartCodeChallan: React.FC = () => {
           setAlert(false);
         }}
       />
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
+
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
         {loading && <FullPageLoading />}
-        <div className="h-[calc(100vh-100px)]   ">
+
+        <div className="h-[calc(100vh-100px)]">
+          {/* Stepper header */}
           <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
             <Stepper activeStep={activeStep} className="w-full">
               {steps.map((label, index) => (
@@ -496,41 +553,59 @@ const CreatePartCodeChallan: React.FC = () => {
             </Stepper>
           </div>
 
+          {/* ─────────── STEP 0 : Form Details ─────────── */}
           {activeStep === 0 && (
             <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
+
+              {/* Auto-generated Challan No */}
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.documentDetail />
+                  <h2 className="text-lg font-semibold">Challan Details</h2>
+                </div>
+                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Challan No."
+                  value={challanNo || (isEdit ? id : "Generating…")}
+                  InputProps={{ readOnly: true }}
+                  focused={!!challanNo}
+                  helperText="Auto-generated — not editable"
+                  inputProps={{ style: { cursor: "not-allowed", color: "#374151", fontWeight: 600 } }}
+                />
+                {/* Live GST Type indicator */}
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="GST Type (auto-detected)"
+                  value={gstType || "Select both addresses to compute"}
+                  InputProps={{ readOnly: true }}
+                  focused={!!gstType}
+                  inputProps={{ style: { cursor: "not-allowed", color: gstType ? "#15803d" : "#9ca3af", fontWeight: 600 } }}
+                  helperText="Intra State if same state code, else Inter State"
+                />
+              </div>
+
+              {/* Dispatch From */}
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.shipping />
                   <h2 className="text-lg font-semibold">Dispatch From</h2>
                 </div>
-                <Divider
-                  sx={{
-                    borderBottomWidth: 2,
-                    borderColor: "#f59e0b",
-                    flexGrow: 1,
-                  }}
-                />
+                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
                   name="dispatchFromaddressid"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Dispatch From address is required",
-                    },
-                  }}
+                  rules={{ required: { value: true, message: "Dispatch From address is required" } }}
                   control={control}
                   render={({ field }) => (
                     <Autocomplete
-                      value={
-                        shippingList.find(
-                          (address: any) => address.code === field.value
-                        ) || null
-                      }
-                      onChange={(_, newValue) =>
-                        handledispatchFromaddressChange(newValue)
-                      }
+                      value={shippingList.find((address: any) => address.code === field.value) || null}
+                      onChange={(_, newValue) => handledispatchFromaddressChange(newValue)}
                       disablePortal
                       id="combo-box-billto"
                       options={billToOptions}
@@ -547,52 +622,32 @@ const CreatePartCodeChallan: React.FC = () => {
                     />
                   )}
                 />
-
                 <TextField
                   variant="filled"
-                  // sx={{ mb: 1 }}
                   error={!!errors.dispatchFromaddress?.pin}
                   helperText={errors?.dispatchFromaddress?.pin?.message}
                   focused={!!watch("dispatchFromaddress.pin")}
-                  // multiline
-                  rows={3}
                   fullWidth
                   label="PinCode"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromaddress.pin", {
-                    required: "PinCode is required",
-                  })}
+                  {...register("dispatchFromaddress.pin", { required: "PinCode is required" })}
                 />
-
                 <TextField
                   variant="filled"
-                  // sx={{ mb: 1 }}
                   error={!!errors.dispatchFromaddress?.city}
                   helperText={errors?.dispatchFromaddress?.city?.message}
                   focused={!!watch("dispatchFromaddress.city")}
-                  // multiline
-                  rows={3}
                   fullWidth
                   label="City"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromaddress.city", {
-                    required: "City is required",
-                  })}
+                  {...register("dispatchFromaddress.city", { required: "City is required" })}
                 />
                 <TextField
                   variant="filled"
-                  // sx={{ mb: 1 }}
                   error={!!errors.dispatchFromaddress?.gst}
                   helperText={errors?.dispatchFromaddress?.gst?.message}
                   focused={!!watch("dispatchFromaddress.gst")}
-                  // multiline
-                  rows={3}
                   fullWidth
                   label="GST"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromaddress.gst", {
-                    required: "GST is required",
-                  })}
+                  {...register("dispatchFromaddress.gst", { required: "GST is required" })}
                 />
                 <TextField
                   variant="filled"
@@ -600,17 +655,11 @@ const CreatePartCodeChallan: React.FC = () => {
                   error={!!errors.dispatchFromaddress?.pan}
                   helperText={errors?.dispatchFromaddress?.pan?.message}
                   focused={!!watch("dispatchFromaddress.pan")}
-                  // multiline
-                  rows={3}
                   fullWidth
                   label="PAN"
-                  className="h-[10px] resize-none"
-                  {...register("dispatchFromaddress.pan", {
-                    required: "PAN is required",
-                  })}
+                  {...register("dispatchFromaddress.pan", { required: "PAN is required" })}
                 />
-                <div></div>
-
+                <div />
                 <TextField
                   variant="filled"
                   sx={{ mb: 1 }}
@@ -621,10 +670,7 @@ const CreatePartCodeChallan: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="Dispatch From Address 1"
-                  className="h-[100px] resize-none"
-                  {...register("dispatchFromaddress.addressLine1", {
-                    required: "Address 1 is required",
-                  })}
+                  {...register("dispatchFromaddress.addressLine1", { required: "Address 1 is required" })}
                 />
                 <TextField
                   variant="filled"
@@ -636,45 +682,27 @@ const CreatePartCodeChallan: React.FC = () => {
                   rows={3}
                   fullWidth
                   label="Dispatch From Address 2"
-                  className="h-[100px] resize-none"
-                  {...register("dispatchFromaddress.addressLine2", {
-                    required: "Address 2 is required",
-                  })}
+                  {...register("dispatchFromaddress.addressLine2", { required: "Address 2 is required" })}
                 />
               </div>
+
+              {/* Ship To */}
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.building />
                   <h2 className="text-lg font-semibold">Ship To</h2>
                 </div>
-                <Divider
-                  sx={{
-                    borderBottomWidth: 2,
-                    borderColor: "#f59e0b",
-                    flexGrow: 1,
-                  }}
-                />
+                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
               </div>
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
                 <Controller
                   name="shipaddressid"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Ship To address is required",
-                    },
-                  }}
+                  rules={{ required: { value: true, message: "Ship To address is required" } }}
                   control={control}
                   render={({ field }) => (
                     <Autocomplete
-                      value={
-                        shippingList.find(
-                          (address: any) => address.code === field.value
-                        ) || null
-                      }
-                      onChange={(_, newValue) =>
-                        handleShipAddressChange(newValue)
-                      }
+                      value={shippingList.find((address: any) => address.code === field.value) || null}
+                      onChange={(_, newValue) => handleShipAddressChange(newValue)}
                       disablePortal
                       id="combo-box-shipto"
                       options={shipToOptions}
@@ -691,52 +719,32 @@ const CreatePartCodeChallan: React.FC = () => {
                     />
                   )}
                 />
-
                 <TextField
                   variant="filled"
-                  // sx={{ mb: 1 }}
                   error={!!errors.shipaddress?.pin}
                   helperText={errors?.shipaddress?.pin?.message}
                   focused={!!watch("shipaddress.pin")}
-                  // multiline
-                  rows={3}
                   fullWidth
                   label="PinCode"
-                  className="h-[10px] resize-none"
-                  {...register("shipaddress.pin", {
-                    required: "PinCode is required",
-                  })}
+                  {...register("shipaddress.pin", { required: "PinCode is required" })}
                 />
-
                 <TextField
                   variant="filled"
-                  // sx={{ mb: 1 }}
                   error={!!errors.shipaddress?.gst}
                   helperText={errors?.shipaddress?.gst?.message}
                   focused={!!watch("shipaddress.gst")}
-                  // multiline
-                  rows={3}
                   fullWidth
                   label="GST"
-                  className="h-[10px] resize-none"
-                  {...register("shipaddress.gst", {
-                    required: "GST is required",
-                  })}
+                  {...register("shipaddress.gst", { required: "GST is required" })}
                 />
                 <TextField
                   variant="filled"
-                  // sx={{ mb: 1 }}
                   error={!!errors.shipaddress?.pan}
                   helperText={errors?.shipaddress?.pan?.message}
                   focused={!!watch("shipaddress.pan")}
-                  // multiline
-                  rows={3}
                   fullWidth
                   label="PAN"
-                  className="h-[10px] resize-none"
-                  {...register("shipaddress.pan", {
-                    required: "PAN is required",
-                  })}
+                  {...register("shipaddress.pan", { required: "PAN is required" })}
                 />
                 <TextField
                   variant="filled"
@@ -744,14 +752,11 @@ const CreatePartCodeChallan: React.FC = () => {
                   error={!!errors.shipaddress?.city}
                   helperText={errors?.shipaddress?.city?.message}
                   focused={!!watch("shipaddress.city")}
-                  rows={3}
                   fullWidth
                   label="City"
-                  className="h-[10px] resize-none"
                   {...register("shipaddress.city")}
                 />
-                <div></div>
-
+                <div />
                 <TextField
                   variant="filled"
                   sx={{ mb: 1 }}
@@ -761,11 +766,8 @@ const CreatePartCodeChallan: React.FC = () => {
                   multiline
                   rows={3}
                   fullWidth
-                  label="Dispatch From Address 1"
-                  className="h-[100px] resize-none"
-                  {...register("shipaddress.addressLine1", {
-                    required: "Address 1 is required",
-                  })}
+                  label="Ship To Address 1"
+                  {...register("shipaddress.addressLine1", { required: "Address 1 is required" })}
                 />
                 <TextField
                   variant="filled"
@@ -776,27 +778,97 @@ const CreatePartCodeChallan: React.FC = () => {
                   multiline
                   rows={3}
                   fullWidth
-                  label="Dispatch From Address 2"
-                  className="h-[100px] resize-none"
-                  {...register("shipaddress.addressLine2", {
-                    required: "Address 2 is required",
-                  })}
+                  label="Ship To Address 2"
+                  {...register("shipaddress.addressLine2", { required: "Address 2 is required" })}
                 />
               </div>
+
+              {/* Document Details */}
               <div className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.documentDetail />
                   <h2 className="text-lg font-semibold">Document Details</h2>
                 </div>
-                <Divider
-                  sx={{
-                    borderBottomWidth: 2,
-                    borderColor: "#f59e0b",
-                    flexGrow: 1,
-                  }}
-                />
+                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] py-[20px]">
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Dispatch Doc No."
+                  {...register("dispatchDocNo", { required: "Dispatch Doc No. is required" })}
+                  error={!!errors.dispatchDocNo}
+                  helperText={errors.dispatchDocNo?.message}
+                />
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Dispatched Through"
+                  {...register("dispatchedThrough")}
+                />
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Destination"
+                  {...register("destination")}
+                />
+                {/* Optional fields */}
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Delivery Note No. (optional)"
+                  {...register("deliveryNoteNo")}
+                />
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Reference No. & Date (optional)"
+                  {...register("referenceNoAndDate")}
+                />
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Other References (optional)"
+                  {...register("otherReferences")}
+                />
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Buyer's Order No. (optional)"
+                  {...register("buyerOrderNo")}
+                />
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Terms of Delivery (optional)"
+                  {...register("termsOfDelivery")}
+                />
+                {/* Remarks — spans full row */}
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+                  <TextField
+                    variant="filled"
+                    sx={{ mb: 1 }}
+                    error={!!errors.remarks}
+                    helperText={errors?.remarks?.message}
+                    focused={!!watch("remarks")}
+                    multiline
+                    rows={3}
+                    fullWidth
+                    label="Remarks"
+                    {...register("remarks")}
+                  />
+                </div>
+              </div>
+
+              {/* ── Drop Location (new section) ── */}
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.warehouse />
+                  <h2 className="text-lg font-semibold">Drop Location</h2>
+                </div>
+                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] py-[10px]">
                 <Controller
                   name="dropLocation"
                   control={control}
@@ -804,7 +876,7 @@ const CreatePartCodeChallan: React.FC = () => {
                   render={({ field }) => (
                     <SelectLocationAcordingModule
                       endPoint="/req/without-bom/req-location"
-                      label="Drop Location"
+                      label="Drop Location *"
                       value={field.value}
                       onChange={field.onChange}
                       error={!!errors.dropLocation}
@@ -814,132 +886,13 @@ const CreatePartCodeChallan: React.FC = () => {
                     />
                   )}
                 />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Delivery Note No."
-                  {...register("deliveryNoteNo")}
-                />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Reference No. & Date."
-                  {...register("referenceNoAndDate")}
-                />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Other References"
-                  {...register("otherReferences")}
-                />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Buyer's Order No."
-                  {...register("buyerOrderNo")}
-                />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Dispatch Doc No."
-                  {...register("dispatchDocNo")}
-                />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Dispatched through"
-                  {...register("dispatchedThrough")}
-                />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Destination"
-                  {...register("destination")}
-                />
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label="Terms of Delivery"
-                  {...register("termsOfDelivery")}
-                />
-                <Controller
-                  name="gstState"
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "GST Type is required",
-                    },
-                  }}
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      value={field.value || null}
-                      onChange={(_, newValue) => field.onChange(newValue ?? "")}
-                      disablePortal
-                      id="part-code-challan-gst-type"
-                      options={["Inter State", "Intra State"]}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="GST Type"
-                          error={!!errors.gstState}
-                          helperText={errors.gstState?.message}
-                          variant="filled"
-                        />
-                      )}
-                    />
-                  )}
-                />
-                <Controller
-                  name="gstRate"
-                  control={control}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "GST Rate is required",
-                    },
-                  }}
-                  render={({ field }) => (
-                    <FormControl
-                      error={!!errors.gstRate}
-                      fullWidth
-                      variant="filled"
-                    >
-                      <InputLabel htmlFor="part-code-challan-gst-rate">
-                        GST Rate
-                      </InputLabel>
-                      <FilledInput
-                        {...field}
-                        error={!!errors.gstRate}
-                        id="part-code-challan-gst-rate"
-                        type="text"
-                      />
-                      {errors.gstRate && (
-                        <FormHelperText>
-                          {errors.gstRate.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                />
               </div>
-              <TextField
-                variant="filled"
-                sx={{ mb: 1 }}
-                error={!!errors.remarks}
-                helperText={errors?.remarks?.message}
-                focused={!!watch("remarks")}
-                multiline
-                rows={3}
-                fullWidth
-                label="Remarks"
-                className="h-[100px] resize-none"
-                {...register("remarks")}
-              />
             </div>
           )}
+
+          {/* ─────────── STEP 1 : Add Component Details ─────────── */}
           {activeStep === 1 && (
-            <div className="h-[calc(100vh-200px)]   ">
+            <div className="h-[calc(100vh-200px)]">
               <AddPOTable
                 rowData={rowData}
                 setRowData={setRowData}
@@ -947,9 +900,12 @@ const CreatePartCodeChallan: React.FC = () => {
                 exchange={0}
                 currency=""
                 pickLocation={formData?.pickLocation ?? null}
+                gstType={gstType}
               />
             </div>
           )}
+
+          {/* ─────────── STEP 2 : Success ─────────── */}
           {activeStep === 2 && (
             <div className="h-[calc(100vh-200px)] flex items-center justify-center">
               <div className="flex flex-col justify-center gap-[10px]">
@@ -960,7 +916,18 @@ const CreatePartCodeChallan: React.FC = () => {
                 <LoadingButton
                   onClick={() => {
                     setMinno("");
+                    setChallanNo("");
                     setActiveStep(0);
+                    // Fetch a fresh challan no for the new challan
+                    dispatch(getPartCodeChallanNo()).then((res: any) => {
+                      const no =
+                        res?.payload?.data?.data ||
+                        res?.payload?.data?.challanNo ||
+                        res?.payload?.data?.no ||
+                        res?.payload?.data ||
+                        "";
+                      if (no) setChallanNo(String(no));
+                    });
                   }}
                   variant="contained"
                 >
@@ -969,18 +936,21 @@ const CreatePartCodeChallan: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* ─────────── Footer Buttons ─────────── */}
           <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
+            {/* Totals panel on step 1 */}
             {activeStep === 1 && (
               <div
-                className={`absolute bottom-0 left-0 w-[500px] z-[10]  transition-all bg-white ${
-                  open ? "h-[290px]" : "h-[50px]"
+                className={`absolute bottom-0 left-0 w-[500px] z-[10] transition-all bg-white ${
+                  open ? "h-[330px]" : "h-[50px]"
                 } border-r overflow-hidden`}
               >
                 <div className="h-[50px] bg-cyan-900 flex items-center pe-[20px] gap-[10px]">
                   <Button
                     type="button"
                     onClick={() => setOpen(!open)}
-                    className="bg-amber-500 hover:bg-amber-600 p-0  rounded-none h-full w-[50px]"
+                    className="bg-amber-500 hover:bg-amber-600 p-0 rounded-none h-full w-[50px]"
                   >
                     <Icons.up
                       className={`h-[20px] w-[20px] transition-transform duration-200 ${
@@ -999,10 +969,40 @@ const CreatePartCodeChallan: React.FC = () => {
                   </Typography>
                 </div>
                 <Card className="border-0 rounded-none shadow-none">
-                  <CardContent className="flex flex-col gap-[20px] pt-[20px]">
-                    <div className="flex justify-between">
-                      <p className="text-slate-600 font-[500]">Total</p>
-                      <p className="text-[14px] text-muted-foreground">
+                  <CardContent className="flex flex-col gap-[10px] pt-[15px] px-[20px]">
+                    {/* Taxable Amount */}
+                    <div className="flex justify-between items-center">
+                      <p className="text-slate-500 text-[13px]">Taxable Amount</p>
+                      <p className="text-[13px] text-muted-foreground">
+                        {(total.taxableAmount ?? 0).toFixed(2)}
+                      </p>
+                    </div>
+                    {/* CGST */}
+                    <div className="flex justify-between items-center">
+                      <p className="text-slate-500 text-[13px]">CGST</p>
+                      <p className="text-[13px] text-muted-foreground">
+                        {(total.cgst ?? 0).toFixed(2)}
+                      </p>
+                    </div>
+                    {/* SGST */}
+                    <div className="flex justify-between items-center">
+                      <p className="text-slate-500 text-[13px]">SGST</p>
+                      <p className="text-[13px] text-muted-foreground">
+                        {(total.sgst ?? 0).toFixed(2)}
+                      </p>
+                    </div>
+                    {/* IGST */}
+                    <div className="flex justify-between items-center">
+                      <p className="text-slate-500 text-[13px]">IGST</p>
+                      <p className="text-[13px] text-muted-foreground">
+                        {(total.igst ?? 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <Divider />
+                    {/* Total incl. GST */}
+                    <div className="flex justify-between items-center">
+                      <p className="text-slate-700 font-[600] text-[14px]">Total (incl. GST)</p>
+                      <p className="text-[14px] font-[600] text-slate-700">
                         {(total.totalAmount ?? 0).toFixed(2)}
                       </p>
                     </div>
@@ -1010,31 +1010,28 @@ const CreatePartCodeChallan: React.FC = () => {
                 </Card>
               </div>
             )}
+
             {activeStep === 0 && (
               <>
                 <LoadingButton
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
                   startIcon={<Icons.refreshv2 />}
-                  onClick={() => {
-                    setAlert(true);
-                  }}
+                  onClick={() => setAlert(true)}
                 >
                   Reset
                 </LoadingButton>
-
                 <LoadingButton
                   type="submit"
                   variant="contained"
                   endIcon={<Icons.next />}
-                  onClick={() => {
-                    onSubmit(watch());
-                  }}
+                  onClick={() => onSubmit(watch())}
                 >
                   Next
                 </LoadingButton>
               </>
             )}
+
             {activeStep === 1 && (
               <>
                 <LoadingButton
@@ -1042,9 +1039,7 @@ const CreatePartCodeChallan: React.FC = () => {
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
                   startIcon={<Icons.previous />}
-                  onClick={() => {
-                    handleBack();
-                  }}
+                  onClick={handleBack}
                 >
                   Back
                 </LoadingButton>
@@ -1053,9 +1048,7 @@ const CreatePartCodeChallan: React.FC = () => {
                   sx={{ background: "white", color: "red" }}
                   variant="contained"
                   startIcon={<Icons.refreshv2 />}
-                  onClick={() => {
-                    setAlert(true);
-                  }}
+                  onClick={() => setAlert(true)}
                 >
                   Reset
                 </LoadingButton>
@@ -1064,9 +1057,7 @@ const CreatePartCodeChallan: React.FC = () => {
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}
-                  onClick={() => {
-                    finalSubmit();
-                  }}
+                  onClick={finalSubmit}
                 >
                   Submit
                 </LoadingButton>

@@ -21,6 +21,7 @@ export type FetchMasterComponentPercentageResponse = {
 export type InsertComponentPercentagePayload = {
   component: string[];
   percentage: number[];
+  deviceType: string;
 };
 
 export type InsertComponentPercentageResponse = {
@@ -30,6 +31,8 @@ export type InsertComponentPercentageResponse = {
 
 export type ComponentPercentageReportPayload = {
   totalDevice: number;
+  deviceType: ComponentPercentageDeviceType;
+  sku: string;
 };
 
 export type ComponentPercentageReportHeaderType = "number" | "string" | "percent" | "badge" | "datetime";

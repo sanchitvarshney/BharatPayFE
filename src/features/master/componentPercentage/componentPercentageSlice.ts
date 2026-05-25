@@ -42,9 +42,12 @@ export const fetchComponentPercentageReportAsync = createAsyncThunk<
   AxiosResponse<ComponentPercentageReportResponse>,
   ComponentPercentageReportPayload
 >("componentPercentage/report", async (payload) => {
-  const response = await axiosInstance.get(
-    `componentPercentage/report?totalDevice=${encodeURIComponent(payload.totalDevice)}`,
-  );
+  const params = new URLSearchParams({
+    totalDevice: String(payload.totalDevice),
+    deviceType: payload.deviceType,
+    sku: payload.sku,
+  });
+  const response = await axiosInstance.get(`componentPercentage/report?${params.toString()}`);
   return response;
 });
 

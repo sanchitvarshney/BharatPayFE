@@ -4,11 +4,24 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector, useAppDispatch } from "@/hooks/useReduxHook";
-import { IconButton, Menu, MenuItem } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Menu,
+  MenuItem,
+  TextField,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
 import { printChallan, printPartChallan } from "@/features/Dispatch/DispatchSlice";
+import { cancelPartCodeChallan } from "@/features/procurement/poSlices";
+import { showToast } from "@/utils/toasterContext";
 
 interface RowData {
   orderQty: number;
@@ -39,6 +52,9 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelLoading, setCancelLoading] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -75,6 +91,28 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       handleMenuClose();
     }
   };
+  const handleCancelChallan = () => {
+    handleMenuClose();
+    setCancelReason("");
+    setCancelDialogOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (!cancelReason.trim() || !selectedRow) return;
+    setCancelLoading(true);
+    dispatch(
+      cancelPartCodeChallan({ challanId: selectedRow.challanId, reason: cancelReason.trim() })
+    ).then((res: any) => {
+      setCancelLoading(false);
+      setCancelDialogOpen(false);
+      if (res?.payload?.data?.success) {
+        showToast("Challan cancelled successfully", "success");
+      } else {
+        showToast(res?.payload?.data?.message || "Failed to cancel challan", "error");
+      }
+    });
+  };
+
   const handlePrintChallan = () => {
     if (selectedRow) {
       const txnId = selectedRow.challanId;
@@ -261,18 +299,27 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
             horizontal: "right",
           }}
         >
-          <MenuItem
-            onClick={handleEditChallan}
-            disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
-          >
-            Edit
-          </MenuItem>
-          <MenuItem
-            onClick={handleCreateDispatch}
-            disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
-          >
-            Create Dispatch
-          </MenuItem>
+          {challanType !== "PART" && (
+            <MenuItem
+              onClick={handleEditChallan}
+              disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+            >
+              Edit
+            </MenuItem>
+          )}
+          {challanType !== "PART" && (
+            <MenuItem
+              onClick={handleCreateDispatch}
+              disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+            >
+              Create Dispatch
+            </MenuItem>
+          )}
+          {challanType === "PART" && (
+            <MenuItem onClick={handleCancelChallan} sx={{ color: "error.main" }}>
+              Cancel
+            </MenuItem>
+          )}
           <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
         </Menu>
       </div>
@@ -282,6 +329,53 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
         onOpenChange={setSheetOpen}
         selectedRow={selectedRow}
       />
+
+      {/* ── Cancel Challan Dialog ── */}
+      <Dialog
+        open={cancelDialogOpen}
+        onClose={() => { if (!cancelLoading) setCancelDialogOpen(false); }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 600 }}>Cancel Challan</DialogTitle>
+        <DialogContent>
+          <p className="text-slate-500 text-[13px] mb-4">
+            Challan ID: <strong className="text-slate-700">{selectedRow?.challanId}</strong>
+          </p>
+          <TextField
+            label="Reason for Cancellation"
+            required
+            multiline
+            rows={3}
+            fullWidth
+            autoFocus
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            error={cancelReason.trim() === ""}
+            helperText={cancelReason.trim() === "" ? "Reason is mandatory" : ""}
+            placeholder="Enter reason for cancellation..."
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <Button
+            variant="outlined"
+            color="inherit"
+            disabled={cancelLoading}
+            onClick={() => setCancelDialogOpen(false)}
+          >
+            Close
+          </Button>
+          <LoadingButton
+            loading={cancelLoading}
+            variant="contained"
+            color="error"
+            disabled={!cancelReason.trim()}
+            onClick={handleConfirmCancel}
+          >
+            Confirm Cancel
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

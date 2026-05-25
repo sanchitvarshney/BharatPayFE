@@ -96,7 +96,7 @@ const SwipeTransfer = () => {
       return;
     }
 
-    const { boxNo, serialIds } = parseScannerInput(trimmed, deviceCount);
+    const { boxNo, serialIds } = parseScannerInput(trimmed, deviceCount); //
     if (!boxNo || serialIds.length !== deviceCount) {
       showToast(
         `Enter box code followed by exactly ${deviceCount} device IDs (space or newline separated)`,

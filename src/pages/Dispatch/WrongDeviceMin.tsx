@@ -61,7 +61,7 @@ const getAWBLengthRange = (
     case "eKart":
       return { min: 10, max: 16 };
     case "dVery":
-      return { min: 13, max: 14 };
+      return { min: 12, max: 14 };
     case "DTDC":
       return { min: 8, max: 14 };
     case "F1":
