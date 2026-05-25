@@ -91,11 +91,6 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       handleMenuClose();
     }
   };
-  const handleCancelChallan = () => {
-    handleMenuClose();
-    setCancelReason("");
-    setCancelDialogOpen(true);
-  };
 
   const handleConfirmCancel = () => {
     if (!cancelReason.trim() || !selectedRow) return;

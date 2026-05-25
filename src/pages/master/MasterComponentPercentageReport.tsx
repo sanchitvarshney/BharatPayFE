@@ -15,12 +15,6 @@ import { AgGridReact } from "@ag-grid-community/react";
 import { LoadingButton } from "@mui/lab";
 import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import React, { useMemo, useState } from "react";
-import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
-
-const deviceTypeOptions: { label: string; value: any }[] = [
-  { label: "Swipe Machine", value: "swipeMachine" },
-  { label: "Soundbox", value: "soundbox" },
-];
 
 const deviceTypeOptions: { label: string; value: ComponentPercentageDeviceType }[] = [
   { label: "Swipe Machine", value: "swipeMachine" },
