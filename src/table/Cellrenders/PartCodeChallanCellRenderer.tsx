@@ -1,4 +1,4 @@
-import { Input, Select, Spin } from "antd";
+import { Input, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
@@ -15,13 +15,6 @@ interface PartCodeChallanCellRendererProps {
   gstType?: string; // "Inter State" | "Intra State"
 }
 
-const GST_RATE_OPTIONS = [
-  { label: "0%", value: 0 },
-  { label: "5%", value: 5 },
-  { label: "12%", value: 12 },
-  { label: "18%", value: 18 },
-  { label: "28%", value: 28 },
-];
 
 const COLUMNS_TO_REFRESH = [
   "partComponent",
@@ -187,12 +180,12 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
                     data.hsn = itemData.hsn;
                   }
                   // Auto-fill Item Rate
-                  if (itemData?.rate != null && itemData?.rate !== "") {
-                    data.rate = String(itemData.rate);
+                  if (itemData?.itemRate != null && itemData?.itemRate !== "") {
+                    data.rate = String(itemData.itemRate);
                   }
                   // Auto-fill GST Rate
-                  if (itemData?.gstRate != null && itemData?.gstRate !== "") {
-                    data.gstRate = String(itemData.gstRate);
+                  if (itemData?.gst_rate != null && itemData?.gst_rate !== "") {
+                    data.gstRate = String(itemData.gst_rate);
                   } else if (itemData?.gst_rate != null && itemData?.gst_rate !== "") {
                     data.gstRate = String(itemData.gst_rate);
                   }
@@ -330,13 +323,17 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
 
       case "gstRate":
         return (
-          <Select
-            className="w-[100%] custom-select"
+          <Input
+            min={0}
+            onChange={(e) => {
+              if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                updateAndRefresh("gstRate", e.target.value);
+              }
+            }}
+            value={value ?? ""}
             placeholder="GST %"
-            value={value !== "" && value != null ? Number(value) : undefined}
-            onChange={(val: number) => updateAndRefresh("gstRate", String(val))}
-            options={GST_RATE_OPTIONS}
-            popupMatchSelectWidth={false}
+            className="w-[100%] custom-input"
+            suffix="%"
           />
         );
 
@@ -412,13 +409,17 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
   }
   if (colDef.field === "gstRate") {
     return (
-      <Select
-        className="w-[100%] custom-select"
+      <Input
+        min={0}
+        onChange={(e) => {
+          if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+            updateAndRefresh("gstRate", e.target.value);
+          }
+        }}
+        value={value ?? ""}
         placeholder="GST %"
-        value={value !== "" && value != null ? Number(value) : undefined}
-        onChange={(val: number) => updateAndRefresh("gstRate", String(val))}
-        options={GST_RATE_OPTIONS}
-        popupMatchSelectWidth={false}
+        className="w-[100%] custom-input"
+        suffix="%"
       />
     );
   }

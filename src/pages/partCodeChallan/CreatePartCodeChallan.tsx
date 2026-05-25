@@ -788,7 +788,7 @@ const CreatePartCodeChallan: React.FC = () => {
                 <TextField
                   variant="filled"
                   fullWidth
-                  label="Dispatch Doc No. *"
+                  label="Dispatch Doc No."
                   {...register("dispatchDocNo", { required: "Dispatch Doc No. is required" })}
                   error={!!errors.dispatchDocNo}
                   helperText={errors.dispatchDocNo?.message}
