@@ -299,27 +299,22 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
             horizontal: "right",
           }}
         >
-          {challanType !== "PART" && (
-            <MenuItem
-              onClick={handleEditChallan}
-              disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
-            >
-              Edit
-            </MenuItem>
-          )}
-          {challanType !== "PART" && (
-            <MenuItem
-              onClick={handleCreateDispatch}
-              disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
-            >
-              Create Dispatch
-            </MenuItem>
-          )}
-          {challanType === "PART" && (
-            <MenuItem onClick={handleCancelChallan} sx={{ color: "error.main" }}>
-              Cancel
-            </MenuItem>
-          )}
+          <MenuItem
+            onClick={handleEditChallan}
+            disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+          >
+            Edit
+          </MenuItem>
+       {
+        challanType !== "PART" && (
+          <MenuItem
+            onClick={handleCreateDispatch}
+            disabled={selectedRow ? isDispatchCreated(selectedRow) : false}
+          >
+            Create Dispatch
+          </MenuItem>
+        )
+       }
           <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
         </Menu>
       </div>

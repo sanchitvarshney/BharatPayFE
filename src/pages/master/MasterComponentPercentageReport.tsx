@@ -1,3 +1,4 @@
+import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 import { fetchComponentPercentageReportAsync } from "@/features/master/componentPercentage/componentPercentageSlice";
 import {
   ComponentPercentageDeviceType,
@@ -17,6 +18,11 @@ import React, { useMemo, useState } from "react";
 import SelectSku, { DeviceType } from "@/components/reusable/SelectSku";
 
 const deviceTypeOptions: { label: string; value: any }[] = [
+  { label: "Swipe Machine", value: "swipeMachine" },
+  { label: "Soundbox", value: "soundbox" },
+];
+
+const deviceTypeOptions: { label: string; value: ComponentPercentageDeviceType }[] = [
   { label: "Swipe Machine", value: "swipeMachine" },
   { label: "Soundbox", value: "soundbox" },
 ];
