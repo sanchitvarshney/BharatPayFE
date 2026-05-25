@@ -90,6 +90,16 @@ export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>
   return response;
 });
 
+export const getPartCodeChallanNo = createAsyncThunk<AxiosResponse<any>, void>("po/getPartCodeChallanNo", async () => {
+  const response = await axiosInstance.get("/challan/nextChallan");
+  return response;
+});
+
+export const cancelPartCodeChallan = createAsyncThunk<AxiosResponse<any>, { challanId: string; reason: string }>("po/cancelPartCodeChallan", async (payload) => {
+  const response = await axiosInstance.post("/challan/cancelPerforma", payload);
+  return response;
+});
+
 export const fetchDataForMIN   = createAsyncThunk<AxiosResponse<any>, string>("po/fetchDataForMIN", async (id) => {
   const response = await axiosInstance.get(`/po/fetchData4MIN?pono=${id}`);
   return response;
@@ -315,6 +325,26 @@ const procurementPoSlice = createSlice({
         state.loading = false;
       })
       .addCase(getPartCodeChallanDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getPartCodeChallanNo.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPartCodeChallanNo.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(getPartCodeChallanNo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(cancelPartCodeChallan.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(cancelPartCodeChallan.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(cancelPartCodeChallan.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

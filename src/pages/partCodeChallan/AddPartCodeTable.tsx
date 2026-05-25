@@ -9,7 +9,7 @@ import { generateUniqueId } from "@/utils/uniqueid";
 import PartCodeChallanCellRenderer from "@/table/Cellrenders/PartCodeChallanCellRenderer";
 import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 
-interface RowData {
+export interface RowData {
   id: string;
   partComponent: { label: string; value: string } | null;
   hsn?: string;
@@ -20,11 +20,23 @@ interface RowData {
   excRate: number;
   uom: string;
   currency?: string;
+  updaterow?: string;
   pickLocation?: { label?: string; value?: string } | null;
+  // GST columns
+  gstRate?: string;
+  cgst?: number;
+  sgst?: number;
+  igst?: number;
+  taxableAmount?: number;
+  totalAmount?: number;
 }
 
 interface Totals {
   totalAmount?: number;
+  taxableAmount?: number;
+  cgst?: number;
+  sgst?: number;
+  igst?: number;
 }
 
 type Props = {
@@ -34,9 +46,18 @@ type Props = {
   exchange: number | string;
   currency: string;
   pickLocation?: LocationType | null;
+  gstType?: string; // "Inter State" | "Intra State" – passed from parent
 };
 
-const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency, pickLocation = null }) => {
+const AddPartCodeTable: React.FC<Props> = ({
+  rowData,
+  setRowData,
+  setTotal,
+  exchange,
+  currency,
+  pickLocation = null,
+  gstType = "",
+}) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
 
   const getAllTableData = () => {
@@ -48,11 +69,15 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
         allData.push(rowNode.data);
       }
     }
-    const totalAmount = allData.reduce(
-      (sum, row) => sum + (Number(row.qty) || 0) * (Number(row.rate) || 0),
+    const taxableAmount = allData.reduce(
+      (sum, row) => sum + (Number(row.taxableAmount) || (Number(row.qty) || 0) * (Number(row.rate) || 0)),
       0
     );
-    setTotal({ totalAmount });
+    const cgst = allData.reduce((sum, row) => sum + (Number(row.cgst) || 0), 0);
+    const sgst = allData.reduce((sum, row) => sum + (Number(row.sgst) || 0), 0);
+    const igst = allData.reduce((sum, row) => sum + (Number(row.igst) || 0), 0);
+    const totalAmount = taxableAmount + cgst + sgst + igst;
+    setTotal({ taxableAmount, cgst, sgst, igst, totalAmount });
   };
 
   const handleAddRow = () => {
@@ -69,15 +94,21 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       uom: "",
       currency,
       pickLocation: null,
+      gstRate: "",
+      cgst: 0,
+      sgst: 0,
+      igst: 0,
+      taxableAmount: 0,
+      totalAmount: 0,
     };
     setRowData([newRow, ...rowData]);
   };
+
   const handleDeleteRow = (id: string) => {
     setRowData(rowData.filter((row) => row.id !== id));
   };
-  const statusBar = useMemo<{
-    statusPanels: StatusPanelDef[];
-  }>(() => {
+
+  const statusBar = useMemo<{ statusPanels: StatusPanelDef[] }>(() => {
     return {
       statusPanels: [
         { statusPanel: "agFilteredRowCountComponent", align: "right" },
@@ -90,23 +121,28 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
   const components = useMemo(
     () => ({
       challanCellRenderer: (params: any) => (
-        <PartCodeChallanCellRenderer props={params} customFunction={getAllTableData} pickLocation={pickLocation} />
+        <PartCodeChallanCellRenderer
+          props={params}
+          customFunction={getAllTableData}
+          pickLocation={pickLocation}
+          gstType={gstType}
+        />
       ),
     }),
-    [pickLocation]
+    [pickLocation, gstType]
   );
 
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
       valueGetter: "node.rowIndex + 1",
-      width: 50,
+      width: 55,
       pinned: "left",
     },
     {
       headerName: "Action",
       field: "action",
-      width: 100,
+      width: 80,
       cellRenderer: (params: any) => (
         <div className="flex items-center justify-center w-full h-full">
           <IconButton color="error" onClick={() => handleDeleteRow(params.data.id)}>
@@ -152,13 +188,13 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       headerName: "Pick Location",
       field: "pickLocation",
       cellRenderer: "challanCellRenderer",
-      minWidth: 300,
+      minWidth: 200,
     },
     {
       headerName: "Stock",
       field: "stock",
       cellRenderer: "challanCellRenderer",
-      width: 120,
+      width: 100,
     },
     {
       headerName: "HSN",
@@ -170,17 +206,63 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
       headerName: "Qty",
       field: "qty",
       cellRenderer: "challanCellRenderer",
+      width: 130,
     },
     {
       headerName: "Rate",
       field: "rate",
       cellRenderer: "challanCellRenderer",
-      width: 200,
+      width: 130,
+    },
+    // ── New GST columns ──────────────────────────────────
+    {
+      headerName: "GST Type",
+      field: "gstType",
+      cellRenderer: "challanCellRenderer",
+      width: 130,
+    },
+    {
+      headerName: "GST Rate (%)",
+      field: "gstRate",
+      cellRenderer: "challanCellRenderer",
+      width: 130,
+    },
+    {
+      headerName: "CGST",
+      field: "cgst",
+      cellRenderer: "challanCellRenderer",
+      width: 110,
+    },
+    {
+      headerName: "SGST",
+      field: "sgst",
+      cellRenderer: "challanCellRenderer",
+      width: 110,
+    },
+    {
+      headerName: "IGST",
+      field: "igst",
+      cellRenderer: "challanCellRenderer",
+      width: 110,
+    },
+    // ── End columns ──────────────────────────────────────
+    {
+      headerName: "Taxable Amount",
+      field: "taxableAmount",
+      cellRenderer: "challanCellRenderer",
+      width: 140,
+    },
+    {
+      headerName: "Total Amount",
+      field: "totalAmount",
+      cellRenderer: "challanCellRenderer",
+      width: 140,
     },
     {
       headerName: "Remarks",
       field: "remarks",
       cellRenderer: "challanCellRenderer",
+      minWidth: 180,
     },
     {
       headerName: "uom",
@@ -190,25 +272,22 @@ const AddPartCodeTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exch
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-200px)]">
+    <div className="ag-theme-quartz h-[calc(100vh-200px)]">
       <AgGridReact
         suppressCellFocus={false}
         ref={gridRef}
         onCellFocused={(event: any) => {
           const { rowIndex, column } = event;
-          const focusedCell = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `) as HTMLInputElement;
-          const focusButton = document.querySelector(`.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `) as HTMLButtonElement;
-
-          if (focusedCell) {
-            focusedCell.focus();
-          }
-          if (focusButton) {
-            focusButton.focus();
-          }
+          const focusedCell = document.querySelector(
+            `.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] input `
+          ) as HTMLInputElement;
+          const focusButton = document.querySelector(
+            `.ag-row[row-index="${rowIndex}"] .ag-cell[col-id="${column.colId}"] button `
+          ) as HTMLButtonElement;
+          if (focusedCell) focusedCell.focus();
+          if (focusButton) focusButton.focus();
         }}
-        navigateToNextCell={() => {
-          return null; // Returning null prevents default focus movement
-        }}
+        navigateToNextCell={() => null}
         columnDefs={columnDefs}
         rowData={rowData}
         animateRows
