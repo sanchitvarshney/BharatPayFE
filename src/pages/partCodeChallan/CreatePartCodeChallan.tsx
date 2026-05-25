@@ -785,24 +785,6 @@ const CreatePartCodeChallan: React.FC = () => {
                 <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] py-[20px]">
-                {/* Required */}
-                <Controller
-                  name="dropLocation"
-                  control={control}
-                  rules={{ required: "Drop Location is required" }}
-                  render={({ field }) => (
-                    <SelectLocationAcordingModule
-                      endPoint="/req/without-bom/req-location"
-                      label="Drop Location *"
-                      value={field.value}
-                      onChange={field.onChange}
-                      error={!!errors.dropLocation}
-                      helperText={errors.dropLocation?.message}
-                      varient="filled"
-                      required
-                    />
-                  )}
-                />
                 <TextField
                   variant="filled"
                   fullWidth
@@ -854,19 +836,50 @@ const CreatePartCodeChallan: React.FC = () => {
                   label="Terms of Delivery (optional)"
                   {...register("termsOfDelivery")}
                 />
+                {/* Remarks — spans full row */}
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+                  <TextField
+                    variant="filled"
+                    sx={{ mb: 1 }}
+                    error={!!errors.remarks}
+                    helperText={errors?.remarks?.message}
+                    focused={!!watch("remarks")}
+                    multiline
+                    rows={3}
+                    fullWidth
+                    label="Remarks"
+                    {...register("remarks")}
+                  />
+                </div>
               </div>
-              <TextField
-                variant="filled"
-                sx={{ mb: 1 }}
-                error={!!errors.remarks}
-                helperText={errors?.remarks?.message}
-                focused={!!watch("remarks")}
-                multiline
-                rows={3}
-                fullWidth
-                label="Remarks"
-                {...register("remarks")}
-              />
+
+              {/* ── Drop Location (new section) ── */}
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.warehouse />
+                  <h2 className="text-lg font-semibold">Drop Location</h2>
+                </div>
+                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] py-[10px]">
+                <Controller
+                  name="dropLocation"
+                  control={control}
+                  rules={{ required: "Drop Location is required" }}
+                  render={({ field }) => (
+                    <SelectLocationAcordingModule
+                      endPoint="/req/without-bom/req-location"
+                      label="Drop Location *"
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.dropLocation}
+                      helperText={errors.dropLocation?.message}
+                      varient="filled"
+                      required
+                    />
+                  )}
+                />
+              </div>
             </div>
           )}
 
