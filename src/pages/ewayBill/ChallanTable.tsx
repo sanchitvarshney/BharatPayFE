@@ -41,6 +41,7 @@ interface RowData {
   deviceType: string;
   type?: string;
   itemType?: string;
+  status?: string;
 }
 
 type Props = {
@@ -91,7 +92,18 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       handleMenuClose();
     }
   };
+
+  const isPartChallanCancelled = (row: RowData | null) => {
+    if (!row || challanType !== "PART") return false;
+    const status = (row.status ?? "").trim().toLowerCase();
+    return status === "cancel" || status === "cancelled" || status === "c";
+  };
+
   const handleCancelChallan = () => {
+    if (isPartChallanCancelled(selectedRow)) {
+      handleMenuClose();
+      return;
+    }
     handleMenuClose();
     setCancelReason("");
     setCancelDialogOpen(true);
@@ -102,18 +114,25 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
     setCancelLoading(true);
     dispatch(
       cancelPartCodeChallan({ challanId: selectedRow.challanId, reason: cancelReason.trim() })
-    ).then((res: any) => {
+    ).then((res) => {
       setCancelLoading(false);
       setCancelDialogOpen(false);
-      if (res?.payload?.data?.success) {
+      const payload = res.payload as
+        | { data?: { success?: boolean; message?: string } }
+        | undefined;
+      if (payload?.data?.success) {
         showToast("Challan cancelled successfully", "success");
       } else {
-        showToast(res?.payload?.data?.message || "Failed to cancel challan", "error");
+        showToast(payload?.data?.message || "Failed to cancel challan", "error");
       }
     });
   };
 
   const handlePrintChallan = () => {
+    if (isPartChallanCancelled(selectedRow)) {
+      handleMenuClose();
+      return;
+    }
     if (selectedRow) {
       const txnId = selectedRow.challanId;
       const shipmentId = txnId.replace(/\//g, "/");
@@ -182,8 +201,8 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
           : "Sound Box",
     },
     {
-      headerName: "Client",
-      field: "clientDetail.name",
+      headerName: challanType === "PART" ? "Status" : "Client",
+      field: challanType === "PART" ? "status" : "clientDetail.name",
       sortable: true,
       filter: true,
       flex: 1,
@@ -316,11 +335,20 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
             </MenuItem>
           )}
           {challanType === "PART" && (
-            <MenuItem onClick={handleCancelChallan} sx={{ color: "error.main" }}>
+            <MenuItem
+              onClick={handleCancelChallan}
+              disabled={isPartChallanCancelled(selectedRow)}
+              sx={{ color: "error.main" }}
+            >
               Cancel
             </MenuItem>
           )}
-          <MenuItem onClick={handlePrintChallan}>Print</MenuItem>
+          <MenuItem
+            onClick={handlePrintChallan}
+            disabled={isPartChallanCancelled(selectedRow)}
+          >
+            Print
+          </MenuItem>
         </Menu>
       </div>
 

@@ -99,6 +99,11 @@ const computeGstType = (dispatchGst: string, shipGst: string): string => {
   return dispatchPrefix === shipPrefix ? "Intra State" : "Inter State";
 };
 
+const isSameAddressCode = (
+  first: string | number | null | undefined,
+  second: string | number | null | undefined
+) => first != null && second != null && String(first) === String(second);
+
 const getChallanIdFromResponse = (response: any): string => {
   const responseData = response?.payload?.data;
   if (!responseData) return "";
@@ -225,6 +230,32 @@ const CreatePartCodeChallan: React.FC = () => {
     return hasErrors;
   };
 
+  const hasDuplicatePartCodes = (data: RowData[]) => {
+    const seen = new Map<string, string>();
+    const duplicates = new Set<string>();
+
+    data.forEach((item) => {
+      const partCode = item.partComponent?.value;
+      const partLabel = item.partComponent?.label ?? partCode;
+      if (!partCode) return;
+      if (seen.has(partCode)) {
+        duplicates.add(partLabel ?? partCode);
+        return;
+      }
+      seen.set(partCode, partLabel ?? partCode);
+    });
+
+    if (duplicates.size > 0) {
+      showToast(
+        `Duplicate part code not allowed: ${Array.from(duplicates).join(", ")}`,
+        "error"
+      );
+      return true;
+    }
+
+    return false;
+  };
+
   const resetall = () => {
     setRowData([]);
     setTotal({ totalAmount: 0 });
@@ -273,6 +304,7 @@ const CreatePartCodeChallan: React.FC = () => {
       return;
     }
     if (checkRequiredFields(rowData)) return;
+    if (hasDuplicatePartCodes(rowData)) return;
 
     const component = rowData.map((item) => item.partComponent?.value || "");
     const materialName = rowData.map((item) => item.partComponent?.label ?? "");
@@ -372,44 +404,82 @@ const CreatePartCodeChallan: React.FC = () => {
 
   // ── Address helpers ──────────────────────────────────────────
   const handledispatchFromaddressChange = (value: any) => {
-    if (value) {
-      setValue("dispatchFromaddressid", value.code);
-      setValue("dispatchFromaddress.label", value.label);
-      setValue("dispatchFromaddress.addressLine1", value.addressLine1);
-      setValue("dispatchFromaddress.addressLine2", value.addressLine2);
-      setValue("dispatchFromaddress.city", value.city);
-      setValue("dispatchFromaddress.gst", value.gst);
-      setValue("dispatchFromaddress.pan", value.pan);
-      setValue("dispatchFromaddress.pin", value.pin);
+    if (!value) {
+      setValue("dispatchFromaddressid", 0);
+      setValue("dispatchFromaddress.label", "");
+      setValue("dispatchFromaddress.addressLine1", "");
+      setValue("dispatchFromaddress.addressLine2", "");
+      setValue("dispatchFromaddress.city", "");
+      setValue("dispatchFromaddress.gst", "");
+      setValue("dispatchFromaddress.pan", "");
+      setValue("dispatchFromaddress.pin", "");
+      return;
     }
+
+    if (isSameAddressCode(value.code, watch("shipaddressid"))) {
+      showToast("Dispatch From and Ship To cannot be the same address", "error");
+      return;
+    }
+
+    setValue("dispatchFromaddressid", value.code);
+    setValue("dispatchFromaddress.label", value.label);
+    setValue("dispatchFromaddress.addressLine1", value.addressLine1);
+    setValue("dispatchFromaddress.addressLine2", value.addressLine2);
+    setValue("dispatchFromaddress.city", value.city);
+    setValue("dispatchFromaddress.gst", value.gst);
+    setValue("dispatchFromaddress.pan", value.pan);
+    setValue("dispatchFromaddress.pin", value.pin);
   };
 
   const handleShipAddressChange = (value: any) => {
-    if (value) {
-      setValue("shipaddressid", value.code);
-      setValue("shipaddress.label", value.label);
-      setValue("shipaddress.addressLine1", value.addressLine1);
-      setValue("shipaddress.addressLine2", value.addressLine2);
-      setValue("shipaddress.city", value.city);
-      setValue("shipaddress.gst", value.gst);
-      setValue("shipaddress.pan", value.pan);
-      setValue("shipaddress.pin", value.pin);
+    if (!value) {
+      setValue("shipaddressid", 0);
+      setValue("shipaddress.label", "");
+      setValue("shipaddress.addressLine1", "");
+      setValue("shipaddress.addressLine2", "");
+      setValue("shipaddress.city", "");
+      setValue("shipaddress.gst", "");
+      setValue("shipaddress.pan", "");
+      setValue("shipaddress.pin", "");
+      return;
     }
+
+    if (isSameAddressCode(value.code, watch("dispatchFromaddressid"))) {
+      showToast("Dispatch From and Ship To cannot be the same address", "error");
+      return;
+    }
+
+    setValue("shipaddressid", value.code);
+    setValue("shipaddress.label", value.label);
+    setValue("shipaddress.addressLine1", value.addressLine1);
+    setValue("shipaddress.addressLine2", value.addressLine2);
+    setValue("shipaddress.city", value.city);
+    setValue("shipaddress.gst", value.gst);
+    setValue("shipaddress.pan", value.pan);
+    setValue("shipaddress.pin", value.pin);
   };
 
   const billLabel = watch("dispatchFromaddress.label");
   const shipLabel = watch("shipaddress.label");
+  const dispatchFromAddressId = watch("dispatchFromaddressid");
+  const shipAddressId = watch("shipaddressid");
   const shippingList = Array.isArray(shippingAddress)
     ? shippingAddress
     : (shippingAddress?.data ?? []);
   const isKortek = (addr: any) => addr?.label?.toLowerCase().includes("kortek");
-  const billSelected = shippingList.find((a: any) => a.code === watch("dispatchFromaddressid"));
-  const shipSelected = shippingList.find((a: any) => a.code === watch("shipaddressid"));
+  const billSelected = shippingList.find((a: any) =>
+    isSameAddressCode(a.code, dispatchFromAddressId)
+  );
+  const shipSelected = shippingList.find((a: any) =>
+    isSameAddressCode(a.code, shipAddressId)
+  );
   const billToOptions = shippingList.filter((addr: any) => {
+    if (isSameAddressCode(addr.code, shipAddressId)) return false;
     if (shipSelected && isKortek(shipSelected) && isKortek(addr)) return false;
     return true;
   });
   const shipToOptions = shippingList.filter((addr: any) => {
+    if (isSameAddressCode(addr.code, dispatchFromAddressId)) return false;
     if (billSelected && isKortek(billSelected) && isKortek(addr)) return false;
     return true;
   });

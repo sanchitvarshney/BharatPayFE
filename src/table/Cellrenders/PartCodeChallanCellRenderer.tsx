@@ -156,6 +156,17 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     return Number.isFinite(stock) ? stock : null;
   };
 
+  const isDuplicatePartComponent = (partCode: string) => {
+    let isDuplicate = false;
+    api.forEachNode((node: { data?: { partComponent?: { value?: string } } }) => {
+      if (node === props.node) return;
+      if (node.data?.partComponent?.value === partCode) {
+        isDuplicate = true;
+      }
+    });
+    return isDuplicate;
+  };
+
   const renderContent = () => {
     switch (colDef.field) {
       case "partComponent":
@@ -170,6 +181,18 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
               customFunction();
             }}
             onChange={(selectedValue: { label?: string; value?: string } | null) => {
+              if (selectedValue?.value && isDuplicatePartComponent(selectedValue.value)) {
+                showToast("This part code is already added", "error");
+                data[colDef.field] = value || null;
+                api.refreshCells({
+                  rowNodes: [props.node],
+                  columns: [column, ...COLUMNS_TO_REFRESH],
+                  force: true,
+                });
+                api.redrawRows({ rowNodes: [props.node] });
+                customFunction();
+                return;
+              }
               if (selectedValue?.value) {
                 dispatch(getPOComponentDetail(selectedValue.value)).then((response: any) => {
                   const res = response?.payload?.data;
