@@ -47,6 +47,7 @@ type Props = {
   currency: string;
   pickLocation?: LocationType | null;
   gstType?: string; // "Inter State" | "Intra State" – passed from parent
+  forceZeroGst?: boolean;
 };
 
 const AddPartCodeTable: React.FC<Props> = ({
@@ -57,6 +58,7 @@ const AddPartCodeTable: React.FC<Props> = ({
   currency,
   pickLocation = null,
   gstType = "",
+  forceZeroGst = false,
 }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
 
@@ -94,7 +96,7 @@ const AddPartCodeTable: React.FC<Props> = ({
       uom: "",
       currency,
       pickLocation: null,
-      gstRate: "",
+      gstRate: forceZeroGst ? "0" : "",
       cgst: 0,
       sgst: 0,
       igst: 0,
@@ -126,10 +128,11 @@ const AddPartCodeTable: React.FC<Props> = ({
           customFunction={getAllTableData}
           pickLocation={pickLocation}
           gstType={gstType}
+          forceZeroGst={forceZeroGst}
         />
       ),
     }),
-    [pickLocation, gstType]
+    [pickLocation, gstType, forceZeroGst]
   );
 
   const columnDefs: ColDef[] = [

@@ -13,6 +13,7 @@ interface PartCodeChallanCellRendererProps {
   customFunction: () => void;
   pickLocation?: LocationType | null;
   gstType?: string; // "Inter State" | "Intra State"
+  forceZeroGst?: boolean;
 }
 
 
@@ -57,10 +58,13 @@ const findMatchingStockItem = (
  * Recomputes CGST, SGST, IGST, Taxable Amount and Total Amount
  * directly on the data object and returns void.
  */
-const recomputeGstValues = (data: any, gstType: string) => {
+const recomputeGstValues = (data: any, gstType: string, forceZeroGst = false) => {
   const qty = Number(data.qty) || 0;
   const rate = Number(data.rate) || 0;
-  const gstRate = Number(data.gstRate) || 0;
+  if (forceZeroGst) {
+    data.gstRate = "0";
+  }
+  const gstRate = forceZeroGst ? 0 : Number(data.gstRate) || 0;
   const taxableAmount = qty * rate;
 
   let cgst = 0;
@@ -86,6 +90,7 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
   customFunction,
   pickLocation = null,
   gstType = "",
+  forceZeroGst = false,
 }) => {
   const { value, colDef, data, api, column } = props;
   const dispatch = useAppDispatch();
@@ -112,7 +117,7 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     data[field] = newValue;
     // Recompute GST after any relevant field changes
     if (["qty", "rate", "gstRate"].includes(field)) {
-      recomputeGstValues(data, gstType);
+      recomputeGstValues(data, gstType, forceZeroGst);
     }
     api.refreshCells({
       rowNodes: [props.node],
@@ -156,6 +161,17 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     return Number.isFinite(stock) ? stock : null;
   };
 
+  const isDuplicatePartComponent = (partCode: string) => {
+    let isDuplicate = false;
+    api.forEachNode((node: { data?: { partComponent?: { value?: string } } }) => {
+      if (node === props.node) return;
+      if (node.data?.partComponent?.value === partCode) {
+        isDuplicate = true;
+      }
+    });
+    return isDuplicate;
+  };
+
   const renderContent = () => {
     switch (colDef.field) {
       case "partComponent":
@@ -170,6 +186,18 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
               customFunction();
             }}
             onChange={(selectedValue: { label?: string; value?: string } | null) => {
+              if (selectedValue?.value && isDuplicatePartComponent(selectedValue.value)) {
+                showToast("This part code is already added", "error");
+                data[colDef.field] = value || null;
+                api.refreshCells({
+                  rowNodes: [props.node],
+                  columns: [column, ...COLUMNS_TO_REFRESH],
+                  force: true,
+                });
+                api.redrawRows({ rowNodes: [props.node] });
+                customFunction();
+                return;
+              }
               if (selectedValue?.value) {
                 dispatch(getPOComponentDetail(selectedValue.value)).then((response: any) => {
                   const res = response?.payload?.data;
@@ -183,14 +211,13 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
                   if (itemData?.itemRate != null && itemData?.itemRate !== "") {
                     data.rate = String(itemData.itemRate);
                   }
-                  // Auto-fill GST Rate
-                  if (itemData?.gst_rate != null && itemData?.gst_rate !== "") {
-                    data.gstRate = String(itemData.gst_rate);
+                  // Auto-fill GST Rate (0% when Bill To GST matches company GST)
+                  if (forceZeroGst) {
+                    data.gstRate = "0";
                   } else if (itemData?.gst_rate != null && itemData?.gst_rate !== "") {
                     data.gstRate = String(itemData.gst_rate);
                   }
-                  // Recompute GST values with the newly set rate + gstRate
-                  recomputeGstValues(data, gstType);
+                  recomputeGstValues(data, gstType, forceZeroGst);
 
                   api.refreshCells({
                     rowNodes: [props.node],
@@ -323,12 +350,14 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
         return (
           <Input
             min={0}
+            readOnly={forceZeroGst}
             onChange={(e) => {
+              if (forceZeroGst) return;
               if (/^-?\d*\.?\d*$/.test(e.target.value)) {
                 updateAndRefresh("gstRate", e.target.value);
               }
             }}
-            value={value ?? ""}
+            value={forceZeroGst ? "0" : (value ?? "")}
             placeholder="GST %"
             className="w-[100%] custom-input"
             suffix="%"
@@ -409,12 +438,14 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
     return (
       <Input
         min={0}
+        readOnly={forceZeroGst}
         onChange={(e) => {
+          if (forceZeroGst) return;
           if (/^-?\d*\.?\d*$/.test(e.target.value)) {
             updateAndRefresh("gstRate", e.target.value);
           }
         }}
-        value={value ?? ""}
+        value={forceZeroGst ? "0" : (value ?? "")}
         placeholder="GST %"
         className="w-[100%] custom-input"
         suffix="%"
