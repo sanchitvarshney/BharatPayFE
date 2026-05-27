@@ -24,8 +24,14 @@ import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { Button } from "@/components/ui/button";
 import Success from "@/components/reusable/Success";
-import { getShippingAddress } from "@/features/master/client/clientSlice";
+import { getClient, getShippingAddress } from "@/features/master/client/clientSlice";
+import { getClientBranch } from "@/features/Dispatch/DispatchSlice";
 import AddPOTable, { RowData } from "./AddPartCodeTable";
+import {
+  isBillToZeroGst,
+  recomputePartCodeRowGst,
+  ZERO_GST_BILL_TO_MATCH,
+} from "./partCodeChallanGst";
 import {
   createPartCodeChallan,
   getPartCodeChallanDetail,
@@ -69,12 +75,17 @@ interface ShippingAddress {
   label: string;
 }
 
+type BillToAddress = dispatchFromaddress;
+
 interface FormData {
   location: string;
   pickLocation: LocationType | null;
   dropLocation: LocationType | null;
   dispatchFromaddressid: 0;
   dispatchFromaddress: dispatchFromaddress;
+  billToClientid: string;
+  billToBranchid: string;
+  billToaddress: BillToAddress;
   shipaddressid: 0;
   shipaddress: ShippingAddress;
   deliveryNoteNo: string;
@@ -133,7 +144,12 @@ const CreatePartCodeChallan: React.FC = () => {
   const dispatch = useAppDispatch();
   const { loading } = useAppSelector((state) => state.po);
   const { formData } = useAppSelector((state) => state.po);
-  const { shippingAddress } = useAppSelector((state) => state.client) as any;
+  const { shippingAddress, clientdata, getClientLoading } = useAppSelector(
+    (state) => state.client
+  ) as any;
+  const { clientBranchList, clientBranchLoading } = useAppSelector(
+    (state) => state.dispatch
+  );
 
   const {
     register,
@@ -178,6 +194,7 @@ const CreatePartCodeChallan: React.FC = () => {
     dispatch(getLocationAsync(null));
     dispatch(getPertCodesync(null));
     dispatch(getShippingAddress());
+    dispatch(getClient());
 
     if (!isEdit) {
       dispatch(getPartCodeChallanNo()).then((res: any) => {
@@ -195,11 +212,29 @@ const CreatePartCodeChallan: React.FC = () => {
   // ── Watch addresses to keep gstType in sync while user is on step 0 ──
   const watchDispatchGst = watch("dispatchFromaddress.gst");
   const watchShipGst = watch("shipaddress.gst");
+  const watchBillToGst = watch("billToaddress.gst");
+  const forceZeroGst = isBillToZeroGst(watchBillToGst);
 
   useEffect(() => {
     const computed = computeGstType(watchDispatchGst || "", watchShipGst || "");
     setGstType(computed);
   }, [watchDispatchGst, watchShipGst]);
+
+  // Bill To GST matches company GST → force 0% on all line items
+  useEffect(() => {
+    if (!forceZeroGst || rowData.length === 0) return;
+    setRowData((prev) => {
+      const next = prev.map((row) => recomputePartCodeRowGst(row, gstType, "0"));
+      const changed = next.some(
+        (row, index) =>
+          row.gstRate !== prev[index].gstRate ||
+          row.cgst !== prev[index].cgst ||
+          row.sgst !== prev[index].sgst ||
+          row.igst !== prev[index].igst
+      );
+      return changed ? next : prev;
+    });
+  }, [forceZeroGst, gstType, rowData.length]);
 
   const checkRequiredFields = (data: RowData[]) => {
     let hasErrors = false;
@@ -269,6 +304,14 @@ const CreatePartCodeChallan: React.FC = () => {
     // Required field guards
     if (!data.dispatchFromaddressid) {
       showToast("Please select a Dispatch From address", "error");
+      return;
+    }
+    if (!data.billToClientid) {
+      showToast("Please select a Bill To client", "error");
+      return;
+    }
+    if (!data.billToBranchid) {
+      showToast("Please select a Bill To branch", "error");
       return;
     }
     if (!data.shipaddressid) {
@@ -346,6 +389,20 @@ const CreatePartCodeChallan: React.FC = () => {
         }
       : {};
 
+    const billToDetails = formData.billToaddress
+      ? {
+          id: formData.billToBranchid || formData.billToaddress?.id,
+          clientId: formData.billToClientid,
+          label: formData.billToaddress?.label ?? "",
+          city: formData.billToaddress?.city ?? "",
+          gst: formData.billToaddress?.gst ?? "",
+          pin: formData.billToaddress?.pin ?? "",
+          pan: formData.billToaddress?.pan ?? "",
+          addressLine1: formData.billToaddress?.addressLine1 ?? "",
+          addressLine2: formData.billToaddress?.addressLine2 ?? "",
+        }
+      : {};
+
     const payload: any = {
       component,
       materialName,
@@ -356,6 +413,7 @@ const CreatePartCodeChallan: React.FC = () => {
       pickLocation,
       dropLocation: formData.dropLocation?.code ?? formData.dropLocation?.sku ?? "",
       dispatchFromDetails,
+      billToDetails,
       shippingDetails,
       deliveryNoteNo: formData.deliveryNoteNo || watch("deliveryNoteNo") || "",
       referenceNoAndDate: formData.referenceNoAndDate || watch("referenceNoAndDate") || "",
@@ -431,6 +489,54 @@ const CreatePartCodeChallan: React.FC = () => {
     setValue("dispatchFromaddress.pin", value.pin);
   };
 
+  const handleBillToClientChange = (client: any) => {
+    if (!client) {
+      setValue("billToClientid", "");
+      setValue("billToBranchid", "");
+      setValue("billToaddress.label", "");
+      setValue("billToaddress.addressLine1", "");
+      setValue("billToaddress.addressLine2", "");
+      setValue("billToaddress.city", "");
+      setValue("billToaddress.gst", "");
+      setValue("billToaddress.pan", "");
+      setValue("billToaddress.pin", "");
+      return;
+    }
+
+    setValue("billToClientid", client.code);
+    setValue("billToaddress.label", client.name ?? client.label ?? "");
+    setValue("billToBranchid", "");
+    setValue("billToaddress.addressLine1", "");
+    setValue("billToaddress.addressLine2", "");
+    setValue("billToaddress.pin", "");
+    setValue("billToaddress.pan", "");
+
+    dispatch(getClientBranch(client.code));
+  };
+
+  const handleBillToBranchChange = (branch: any) => {
+    if (!branch) {
+      setValue("billToBranchid", "");
+      setValue("billToaddress.addressLine1", "");
+      setValue("billToaddress.addressLine2", "");
+      setValue("billToaddress.pin", "");
+      setValue("billToaddress.pan", "");
+      return;
+    }
+
+    setValue("billToBranchid", branch.addressID ?? branch.id ?? "");
+    setValue("billToaddress.label", branch.name ?? branch.label ?? watch("billToaddress.label"));
+    setValue("billToaddress.addressLine1", branch.addressLine1 ?? branch.address1 ?? "");
+    setValue("billToaddress.addressLine2", branch.addressLine2 ?? branch.address2 ?? "");
+    setValue("billToaddress.pin", branch.pinCode ?? branch.pin ?? "");
+    setValue("billToaddress.gst", branch.gst ?? watch("billToaddress.gst"));
+    setValue("billToaddress.pan", branch.panno ?? branch.pan ?? "");
+    setValue(
+      "billToaddress.city",
+      branch.city ?? branch.state?.stateName ?? watch("billToaddress.city")
+    );
+  };
+
   const handleShipAddressChange = (value: any) => {
     if (!value) {
       setValue("shipaddressid", 0);
@@ -460,27 +566,30 @@ const CreatePartCodeChallan: React.FC = () => {
   };
 
   const billLabel = watch("dispatchFromaddress.label");
+  const billToClientLabel = watch("billToaddress.label");
   const shipLabel = watch("shipaddress.label");
   const dispatchFromAddressId = watch("dispatchFromaddressid");
+  const billToClientId = watch("billToClientid");
   const shipAddressId = watch("shipaddressid");
   const shippingList = Array.isArray(shippingAddress)
     ? shippingAddress
     : (shippingAddress?.data ?? []);
+  const clientList = Array.isArray(clientdata) ? clientdata : [];
   const isKortek = (addr: any) => addr?.label?.toLowerCase().includes("kortek");
-  const billSelected = shippingList.find((a: any) =>
+  const dispatchFromSelected = shippingList.find((a: any) =>
     isSameAddressCode(a.code, dispatchFromAddressId)
   );
   const shipSelected = shippingList.find((a: any) =>
     isSameAddressCode(a.code, shipAddressId)
   );
-  const billToOptions = shippingList.filter((addr: any) => {
+  const dispatchFromOptions = shippingList.filter((addr: any) => {
     if (isSameAddressCode(addr.code, shipAddressId)) return false;
     if (shipSelected && isKortek(shipSelected) && isKortek(addr)) return false;
     return true;
   });
   const shipToOptions = shippingList.filter((addr: any) => {
     if (isSameAddressCode(addr.code, dispatchFromAddressId)) return false;
-    if (billSelected && isKortek(billSelected) && isKortek(addr)) return false;
+    if (dispatchFromSelected && isKortek(dispatchFromSelected) && isKortek(addr)) return false;
     return true;
   });
 
@@ -490,15 +599,35 @@ const CreatePartCodeChallan: React.FC = () => {
       dispatch(getPartCodeChallanDetail({ id })).then((response: any) => {
         const res = response.payload?.data;
         if (res?.success && res?.data) {
-          const { bill, ship, materials, header } = res.data;
+          const { bill, ship, materials, header, billTo, dispatchFrom } = res.data;
 
           // Show the existing challan number (non-editable)
           const existingNo =
             header?.challanNo || header?.challanId || header?.no || id;
           if (existingNo) setChallanNo(String(existingNo));
 
-          setValue("dispatchFromaddressid", bill?.code || "");
-          handledispatchFromaddressChange(bill || "");
+          const dispatchFromData = dispatchFrom ?? bill;
+          setValue("dispatchFromaddressid", dispatchFromData?.code || "");
+          handledispatchFromaddressChange(dispatchFromData || "");
+
+          const billToData = billTo ?? header?.billTo;
+          const billToGstForEdit = billToData?.gst ?? header?.billToGst ?? "";
+          if (billToData) {
+            setValue("billToClientid", billToData.clientId ?? billToData.clientCode ?? billToData.code ?? "");
+            setValue("billToBranchid", billToData.branchId ?? billToData.id ?? billToData.addressID ?? "");
+            setValue("billToaddress.label", billToData.label ?? billToData.name ?? "");
+            setValue("billToaddress.addressLine1", billToData.addressLine1 ?? billToData.address1 ?? "");
+            setValue("billToaddress.addressLine2", billToData.addressLine2 ?? billToData.address2 ?? "");
+            setValue("billToaddress.city", billToData.city ?? "");
+            setValue("billToaddress.gst", billToData.gst ?? "");
+            setValue("billToaddress.pan", billToData.pan ?? billToData.panno ?? "");
+            setValue("billToaddress.pin", billToData.pin ?? billToData.pinCode ?? "");
+            const clientCode = billToData.clientId ?? billToData.clientCode ?? billToData.code;
+            if (clientCode) {
+              dispatch(getClientBranch(clientCode));
+            }
+          }
+
           setValue("shipaddressid", ship?.code || "");
           handleShipAddressChange(ship || "");
           setValue("deliveryNoteNo", header?.deliveryNoteNo || "");
@@ -535,7 +664,10 @@ const CreatePartCodeChallan: React.FC = () => {
             materials.map((item: any, index: number) => {
               const qty = Number(item.orderqty) || 0;
               const rate = Number(item.rate) || 0;
-              const itemGstRate = item.gstRate ?? item.gst_rate ?? headerGstRate ?? "";
+              const zeroGstOnEdit = isBillToZeroGst(billToGstForEdit);
+              const itemGstRate = zeroGstOnEdit
+                ? "0"
+                : item.gstRate ?? item.gst_rate ?? headerGstRate ?? "";
               const taxableAmount = qty * rate;
               const gstRateNum = Number(itemGstRate) || 0;
               let cgst = 0, sgst = 0, igst = 0;
@@ -650,6 +782,18 @@ const CreatePartCodeChallan: React.FC = () => {
                   inputProps={{ style: { cursor: "not-allowed", color: gstType ? "#15803d" : "#9ca3af", fontWeight: 600 } }}
                   helperText="Intra State if same state code, else Inter State"
                 />
+                {forceZeroGst && (
+                  <TextField
+                    variant="filled"
+                    fullWidth
+                    label="GST on items"
+                    value="0% (Bill To GST matches company GST)"
+                    InputProps={{ readOnly: true }}
+                    focused
+                    inputProps={{ style: { color: "#15803d", fontWeight: 600 } }}
+                    helperText={`Bill To GST matches ${ZERO_GST_BILL_TO_MATCH}`}
+                  />
+                )}
               </div>
 
               {/* Dispatch From */}
@@ -671,7 +815,7 @@ const CreatePartCodeChallan: React.FC = () => {
                       onChange={(_, newValue) => handledispatchFromaddressChange(newValue)}
                       disablePortal
                       id="combo-box-billto"
-                      options={billToOptions}
+                      options={dispatchFromOptions}
                       getOptionLabel={(option: any) => option?.label ?? ""}
                       renderInput={(params) => (
                         <TextField
@@ -746,6 +890,138 @@ const CreatePartCodeChallan: React.FC = () => {
                   fullWidth
                   label="Dispatch From Address 2"
                   {...register("dispatchFromaddress.addressLine2", { required: "Address 2 is required" })}
+                />
+              </div>
+
+              {/* Bill To */}
+              <div className="flex items-center w-full gap-3">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.user />
+                  <h2 className="text-lg font-semibold">Bill To</h2>
+                </div>
+                <Divider sx={{ borderBottomWidth: 2, borderColor: "#f59e0b", flexGrow: 1 }} />
+              </div>
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
+                <Controller
+                  name="billToClientid"
+                  rules={{ required: { value: true, message: "Bill To client is required" } }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      loading={getClientLoading}
+                      value={
+                        clientList.find((client: any) => client.code === field.value) || null
+                      }
+                      onChange={(_, newValue) => handleBillToClientChange(newValue)}
+                      disablePortal
+                      id="combo-box-bill-to-client"
+                      options={clientList}
+                      getOptionLabel={(option: any) => option?.name ?? option?.label ?? ""}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={(billToClientLabel || "Bill To Client") as string}
+                          error={!!errors.billToClientid}
+                          helperText={errors.billToClientid?.message}
+                          variant="filled"
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <Controller
+                  name="billToBranchid"
+                  rules={{ required: { value: true, message: "Bill To branch is required" } }}
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      loading={clientBranchLoading}
+                      disabled={!billToClientId}
+                      value={
+                        clientBranchList?.find(
+                          (branch: any) =>
+                            String(branch.addressID ?? branch.id) === String(field.value)
+                        ) || null
+                      }
+                      onChange={(_, newValue) => handleBillToBranchChange(newValue)}
+                      disablePortal
+                      id="combo-box-bill-to-branch"
+                      options={clientBranchList || []}
+                      getOptionLabel={(option: any) => option?.name ?? option?.label ?? ""}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Bill To Branch"
+                          error={!!errors.billToBranchid}
+                          helperText={errors.billToBranchid?.message}
+                          variant="filled"
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <TextField
+                  variant="filled"
+                  error={!!errors.billToaddress?.pin}
+                  helperText={errors?.billToaddress?.pin?.message}
+                  focused={!!watch("billToaddress.pin")}
+                  fullWidth
+                  label="PinCode"
+                  {...register("billToaddress.pin", { required: "PinCode is required" })}
+                />
+                <TextField
+                  variant="filled"
+                  error={!!errors.billToaddress?.city}
+                  helperText={errors?.billToaddress?.city?.message}
+                  focused={!!watch("billToaddress.city")}
+                  fullWidth
+                  label="City"
+                  {...register("billToaddress.city", { required: "City is required" })}
+                />
+                <TextField
+                  variant="filled"
+                  error={!!errors.billToaddress?.gst}
+                  helperText={errors?.billToaddress?.gst?.message}
+                  focused={!!watch("billToaddress.gst")}
+                  fullWidth
+                  label="GST"
+                  {...register("billToaddress.gst", { required: "GST is required" })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 5 }}
+                  error={!!errors.billToaddress?.pan}
+                  helperText={errors?.billToaddress?.pan?.message}
+                  focused={!!watch("billToaddress.pan")}
+                  fullWidth
+                  label="PAN"
+                  {...register("billToaddress.pan", { required: "PAN is required" })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.billToaddress?.addressLine1}
+                  helperText={errors?.billToaddress?.addressLine1?.message}
+                  focused={!!watch("billToaddress.addressLine1")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Bill To Address 1"
+                  
+                  {...register("billToaddress.addressLine1", { required: "Address 1 is required" })}
+                />
+                <TextField
+                  variant="filled"
+                  sx={{ mb: 1 }}
+                  error={!!errors.billToaddress?.addressLine2}
+                  helperText={errors?.billToaddress?.addressLine2?.message}
+                  focused={!!watch("billToaddress.addressLine2")}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label="Bill To Address 2"
+                  className="md:col-span-1 lg:col-span-1"
+                  {...register("billToaddress.addressLine2", { required: "Address 2 is required" })}
                 />
               </div>
 
@@ -964,6 +1240,7 @@ const CreatePartCodeChallan: React.FC = () => {
                 currency=""
                 pickLocation={formData?.pickLocation ?? null}
                 gstType={gstType}
+                forceZeroGst={forceZeroGst}
               />
             </div>
           )}
