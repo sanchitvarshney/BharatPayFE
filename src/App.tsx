@@ -10,13 +10,23 @@ import { useUser } from "./hooks/useUser";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
 import OtpPage from "@/pages/commonPages/otpPage";
+import useVersionCheck from "./hooks/useVersionCheck";
+import UpdateVersionPopup from "./components/UpdateVersionPopup";
 
 dayjs.extend(customParseFormat);
 function App() {
   const { user } = useUser();
- 
+
   const [isOffline, setIsOffline] = useState<boolean>(false);
-  const showDispatchPage= localStorage.getItem("showOtpPage");
+  const showDispatchPage = localStorage.getItem("showOtpPage");
+  const { updateAvailable } = useVersionCheck();
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+
+  useEffect(() => {
+    if (updateAvailable) {
+      setShowUpdatePopup(true);
+    }
+  }, [updateAvailable]);
   useEffect(() => {
     const handleOffline = () => {
       setIsOffline(true); // User is offline, apply blur effect
@@ -44,25 +54,33 @@ function App() {
   if (user && user?.other) {
     if (!user?.other.e_v) {
       return <MailVerifyPage />;
-    } else if(!user.other.c_p){
-      return <ChangePassword />
+    } else if (!user.other.c_p) {
+      return <ChangePassword />;
     } else {
       return (
         <>
           {/* <FestivalEffct /> */}
           <InternetStatusBar />
-          <div className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}>
+          <div
+            className={` ${isOffline ? "fixed top-0 left-0 right-0 botom filter blur-sm grayscale pointer-events-none cursor-not-allowed" : ""}`}
+          >
             <Outlet />
-            {(import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" || import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME") && <BugAndChat />}
+            {(import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ||
+              import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEVME") && (
+              <BugAndChat />
+            )}
             <TawkToChat />
           </div>
+              <UpdateVersionPopup
+        open={showUpdatePopup}
+        onRefresh={() => window.location.reload()}
+      />
         </>
       );
     }
-  }
-  else{
-    if(showDispatchPage==="Y"){
-      return <OtpPage />
+  } else {
+    if (showDispatchPage === "Y") {
+      return <OtpPage />;
     }
   }
 }

@@ -77,7 +77,7 @@ export default function CreateEwayBill() {
   });
 
   const onSubmit = (data: EwayBillFormData) => {
-    console.log(data);
+  
     const updatedData = {
       ...data,
       billFrom: {
@@ -109,7 +109,7 @@ export default function CreateEwayBill() {
         },
       },
     };
-    dispatch(createEwayBill(updatedData)).then((res: any) => {
+    dispatch(createEwayBill({ updatedData, type: deviceType })).then((res: any) => {
       if (res.payload.data.status) {
         setIsEwayBillCreated(true);
         setEwayBillNo(res?.payload?.data?.data);
@@ -341,6 +341,7 @@ export default function CreateEwayBill() {
                         InputLabelProps={{
                           shrink: true,
                         }}
+                        disabled={true}
                       />
                     )}
                   />
