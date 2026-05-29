@@ -26,6 +26,8 @@ import {
   submitSwipeTransferData,
 } from "@/features/transfer/deviceTransferSlice";
 import SelectSku from "@/components/reusable/SelectSku";
+import Success from "@/components/reusable/Success";
+import { Dialog, DialogContent } from "@mui/material";
 
 export type SwipeTableRow = {
   id: string;
@@ -42,7 +44,7 @@ export type SwipeTableRow = {
 };
 
 const BOX_CODE_INDEX = 0;
-const DEFAULT_IDS_PER_SCAN = 63;
+const DEFAULT_IDS_PER_SCAN = 30;
 const MAX_DEVICES_SWIPE = 1575;
 const MAX_DEVICES_SOUNDBOX = 1560;
 
@@ -84,6 +86,12 @@ const SwipeTransfer = () => {
   const dispatch = useDispatch<any>();
   const [tableRows, setTableRows] = useState<SwipeTableRow[]>([]);
   const [fieldsLocked, setFieldsLocked] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [successInfo, setSuccessInfo] = useState({
+    message: "",
+    deviceCount: 0,
+    deviceTypeLabel: "",
+  });
   const scannerInputRef = useRef<HTMLInputElement>(null);
 
   const { isSubmitSwipeLoading, isCheckBoxLocationLoading } = useAppSelector(
@@ -100,7 +108,7 @@ const SwipeTransfer = () => {
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
-      deviceType: "SWIPE" as DeviceMovementType,
+      deviceType: "SOUNDBOX" as DeviceMovementType,
       locationfromId: "",
       locationtoId: "",
       deviceCount: DEFAULT_IDS_PER_SCAN,
@@ -371,10 +379,14 @@ const SwipeTransfer = () => {
 
       const result: any = await dispatch(submitSwipeTransferData(payload)).unwrap();
       if (result?.success) {
-        showToast(
-          result?.message ?? "Transfer submitted successfully",
-          "success",
-        );
+        const typeLabel =
+          DEVICE_TYPE_OPTIONS.find((o) => o.value === deviceType)?.label ?? deviceType;
+        setSuccessInfo({
+          message: result?.message ?? "Transfer submitted successfully",
+          deviceCount: tableRows.length,
+          deviceTypeLabel: typeLabel,
+        });
+        setSuccessOpen(true);
         reset();
         setTableRows([]);
         setFieldsLocked(false);
@@ -395,6 +407,11 @@ const SwipeTransfer = () => {
     setFieldsLocked(false);
   };
 
+  const handleSuccessClose = () => {
+    setSuccessOpen(false);
+    setSuccessInfo({ message: "", deviceCount: 0, deviceTypeLabel: "" });
+  };
+
   const handleDeviceTypeChange = (newType: DeviceMovementType) => {
     const currentType = getValues("deviceType") as DeviceMovementType;
     if (newType === currentType) return;
@@ -410,6 +427,68 @@ const SwipeTransfer = () => {
 
   return (
     <div className="h-[calc(100vh-100px)] bg-white flex flex-col">
+      <Dialog
+        open={successOpen}
+        onClose={handleSuccessClose}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 2, overflow: "hidden" } }}
+      >
+        <DialogContent sx={{ p: 0 }}>
+          <div className="flex flex-col items-center justify-center gap-[24px] text-center bg-[#f8f9fa] p-8">
+            <div className="text-green-500 animate-bounce">
+              <Success />
+            </div>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="primary"
+              className="border-b-2 border-blue-200 pb-2"
+            >
+              Transfer Submitted Successfully!
+            </Typography>
+            <div className="space-y-4 bg-white p-6 rounded-md shadow-sm w-full">
+              <Typography
+                variant="body1"
+                fontWeight={500}
+                className="flex justify-between gap-4"
+              >
+                <span className="text-gray-600">Type:</span>
+                <span className="text-blue-600 font-semibold">
+                  {successInfo.deviceTypeLabel || "-"}
+                </span>
+              </Typography>
+              <Typography
+                variant="body1"
+                fontWeight={500}
+                className="flex justify-between gap-4"
+              >
+                <span className="text-gray-600">Devices transferred:</span>
+                <span className="text-blue-600 font-semibold">
+                  {successInfo.deviceCount}
+                </span>
+              </Typography>
+              <Typography
+                variant="body1"
+                fontWeight={500}
+                className="flex justify-between gap-4"
+              >
+                <span className="text-gray-600 shrink-0">Message:</span>
+                <span className="text-green-600 text-right">
+                  {successInfo.message || "-"}
+                </span>
+              </Typography>
+            </div>
+            <LoadingButton
+              onClick={handleSuccessClose}
+              variant="contained"
+              className="w-full max-w-[280px]"
+            >
+              Create New Transfer
+            </LoadingButton>
+          </div>
+        </DialogContent>
+      </Dialog>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 p-0">
         <div className="flex-1 flex flex-col lg:flex-row min-h-0 w-full overflow-hidden gap-4 px-4 py-2">
           <div className="w-full lg:w-[380px] xl:w-[400px] flex-shrink-0 flex flex-col gap-3 overflow-y-auto lg:overflow-y-auto lg:max-h-full">
@@ -450,8 +529,8 @@ const SwipeTransfer = () => {
                   rules={{ required: "Location from is required" }}
                   render={({ field }) => (
                     <SelectLocationAcordingModule
-                      key={`pick-${watchedDeviceType || "SWIPE"}`}
-                      endPoint={`/swipeMovement/pickLocation?type=${watchedDeviceType || "SWIPE"}`}
+                      key={`pick-${watchedDeviceType || "SOUNDBOX"}`}
+                      endPoint={`/swipeMovement/pickLocation?type=${watchedDeviceType || "SOUNDBOX"}`}
                       value={field.value || null}
                       onChange={field.onChange}
                       error={!!errors.locationfromId}
@@ -473,8 +552,8 @@ const SwipeTransfer = () => {
                   rules={{ required: "Location to is required" }}
                   render={({ field }) => (
                     <SelectLocationAcordingModule
-                      key={`drop-${watchedDeviceType || "SWIPE"}`}
-                      endPoint={`/swipeMovement/dropLocation?type=${watchedDeviceType || "SWIPE"}`}
+                      key={`drop-${watchedDeviceType || "SOUNDBOX"}`}
+                      endPoint={`/swipeMovement/dropLocation?type=${watchedDeviceType || "SOUNDBOX"}`}
                       value={field.value || null}
                       onChange={field.onChange}
                       error={!!errors.locationtoId}
