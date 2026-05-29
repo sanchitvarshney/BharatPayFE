@@ -163,6 +163,7 @@ function MainLayout(props: { children: React.ReactNode }) {
               </FormControl>
             </div>
           </div>
+          
           <div className="flex items-center gap-[20px]">
             <div className="toggle"></div>
             <div className="download">
