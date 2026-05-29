@@ -163,7 +163,6 @@ function MainLayout(props: { children: React.ReactNode }) {
               </FormControl>
             </div>
           </div>
-          <span className="font-[600] text-[18px]">BharatPay</span>
           <div className="flex items-center gap-[20px]">
             <div className="toggle"></div>
             <div className="download">
