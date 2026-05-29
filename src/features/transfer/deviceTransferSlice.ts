@@ -67,11 +67,14 @@ export const submitTransferData = createAsyncThunk<AxiosResponse<any>>(
   },
 );
 
+export type DeviceMovementType = "SWIPE" | "SOUNDBOX";
+
 export type CheckBoxLocationPayload = {
   boxNo: string;
   serial: string[];
   fromLocation: string;
   sku: string;
+  type: DeviceMovementType;
 };
 
 export type CheckBoxLocationResponse = {
@@ -86,20 +89,33 @@ export const checkBoxLocation = createAsyncThunk<
 >(
   "device/transfer/checkBoxLocation",
   async (payload) => {
+    const { type, ...body } = payload;
     const response = await axiosInstance.post<CheckBoxLocationResponse>(
-      "/swipeMovement/checkBoxLocation",
-      payload,
+      `/swipeMovement/checkBoxLocation?type=${type}`,
+      body,
     );
     return response?.data ?? response;
   },
 );
 
-export const submitSwipeTransferData = createAsyncThunk<AxiosResponse<any>>(
+export type SubmitSwipeTransferPayload = {
+  fromLocation: string;
+  toLocation: string;
+  data: { boxNo: string; serial: string[] }[];
+  sku: string;
+  type: DeviceMovementType;
+};
+
+export const submitSwipeTransferData = createAsyncThunk<
+  AxiosResponse<any>,
+  SubmitSwipeTransferPayload
+>(
   "master/swipe-transfer/submit",
-  async (payload: any) => {
+  async (payload) => {
+    const { type, ...body } = payload;
     const response = await axiosInstance.post(
-      `/swipeMovement/deviceMovement`,
-      payload,
+      `/swipeMovement/deviceMovement?type=${type}`,
+      body,
     );
     return response?.data;
   },
