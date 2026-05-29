@@ -5,7 +5,6 @@ import {
   Button,
   FormControl,
   InputAdornment,
-  InputLabel,
   MenuItem,
   Select,
   TextField,
@@ -27,7 +26,6 @@ import {
   submitSwipeTransferData,
 } from "@/features/transfer/deviceTransferSlice";
 import SelectSku from "@/components/reusable/SelectSku";
-import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 
 export type SwipeTableRow = {
   id: string;
@@ -45,7 +43,8 @@ export type SwipeTableRow = {
 
 const BOX_CODE_INDEX = 0;
 const DEFAULT_IDS_PER_SCAN = 63;
-const MAX_DEVICES = 1575;
+const MAX_DEVICES_SWIPE = 1575;
+const MAX_DEVICES_SOUNDBOX = 1560;
 
 const DEVICE_TYPE_OPTIONS: { label: string; value: DeviceMovementType }[] = [
   { label: "Swipe", value: "SWIPE" },
@@ -53,6 +52,9 @@ const DEVICE_TYPE_OPTIONS: { label: string; value: DeviceMovementType }[] = [
 ];
 
 const isSoundboxType = (type?: DeviceMovementType) => type === "SOUNDBOX";
+
+const getMaxDevices = (type?: DeviceMovementType) =>
+  isSoundboxType(type) ? MAX_DEVICES_SOUNDBOX : MAX_DEVICES_SWIPE;
 
 const parseScannerInput = (
   input: string,
@@ -82,11 +84,6 @@ const SwipeTransfer = () => {
   const dispatch = useDispatch<any>();
   const [tableRows, setTableRows] = useState<SwipeTableRow[]>([]);
   const [fieldsLocked, setFieldsLocked] = useState(false);
-  const [typeLocked, setTypeLocked] = useState(false);
-  const [typeChangeDialogOpen, setTypeChangeDialogOpen] = useState(false);
-  const [pendingDeviceType, setPendingDeviceType] = useState<DeviceMovementType | null>(
-    null,
-  );
   const scannerInputRef = useRef<HTMLInputElement>(null);
 
   const { isSubmitSwipeLoading, isCheckBoxLocationLoading } = useAppSelector(
@@ -115,6 +112,7 @@ const SwipeTransfer = () => {
   const watchedDeviceCount = watch("deviceCount");
   const watchedDeviceType = watch("deviceType") as DeviceMovementType;
   const isSoundbox = isSoundboxType(watchedDeviceType);
+  const maxDevices = getMaxDevices(watchedDeviceType);
 
   const getTokenCount = (input: string) =>
     input
@@ -133,8 +131,9 @@ const SwipeTransfer = () => {
     }
 
     const deviceCount = Number(getValues("deviceCount"));
-    if (!Number.isInteger(deviceCount) || deviceCount < 1 || deviceCount > MAX_DEVICES) {
-      showToast(`Enter a valid device count between 1 and ${MAX_DEVICES}`, "error");
+    const scanMax = getMaxDevices(deviceType);
+    if (!Number.isInteger(deviceCount) || deviceCount < 1 || deviceCount > scanMax) {
+      showToast(`Enter a valid device count between 1 and ${scanMax}`, "error");
       return;
     }
 
@@ -227,10 +226,10 @@ const SwipeTransfer = () => {
       if (newRows.length > 0) {
         const currentTotal = tableRows.length;
         const afterAdd = currentTotal + newRows.length;
-        if (afterAdd > MAX_DEVICES) {
-          const canAdd = MAX_DEVICES - currentTotal;
+        if (afterAdd > scanMax) {
+          const canAdd = scanMax - currentTotal;
           if (canAdd <= 0) {
-            showToast(`Maximum ${MAX_DEVICES} devices allowed. Cannot add more.`, "error");
+            showToast(`Maximum ${scanMax} devices allowed. Cannot add more.`, "error");
             clearInput();
             scannerInputRef.current?.focus();
             return;
@@ -240,8 +239,8 @@ const SwipeTransfer = () => {
           setFieldsLocked(true);
           showToast(
             isSoundboxType(deviceType)
-              ? `Added ${toAddCapped.length} device(s). Maximum ${MAX_DEVICES} devices reached.`
-              : `Added ${toAddCapped.length} device(s) for box ${boxNo}. Maximum ${MAX_DEVICES} devices reached.`,
+              ? `Added ${toAddCapped.length} device(s). Maximum ${scanMax} devices reached.`
+              : `Added ${toAddCapped.length} device(s) for box ${boxNo}. Maximum ${scanMax} devices reached.`,
             "success",
           );
         } else {
@@ -379,7 +378,6 @@ const SwipeTransfer = () => {
         reset();
         setTableRows([]);
         setFieldsLocked(false);
-        setTypeLocked(false);
       } else {
         showToast(result?.message ?? "Submit failed", "error");
       }
@@ -395,67 +393,27 @@ const SwipeTransfer = () => {
     reset();
     setTableRows([]);
     setFieldsLocked(false);
-    setTypeLocked(false);
-    setTypeChangeDialogOpen(false);
-    setPendingDeviceType(null);
   };
 
   const handleDeviceTypeChange = (newType: DeviceMovementType) => {
     const currentType = getValues("deviceType") as DeviceMovementType;
     if (newType === currentType) return;
 
-    if (typeLocked) {
-      setPendingDeviceType(newType);
-      setTypeChangeDialogOpen(true);
-      return;
-    }
-
     setValue("deviceType", newType);
     setValue("locationfromId", "");
     setValue("locationtoId", "");
     setValue("sku", null);
+    setValue("scannerInput", "");
     setTableRows([]);
     setFieldsLocked(false);
-    setTypeLocked(true);
-  };
-
-  const confirmDeviceTypeChange = () => {
-    const newType = pendingDeviceType ?? watchedDeviceType;
-    reset({
-      deviceType: newType,
-      locationfromId: "",
-      locationtoId: "",
-      deviceCount: DEFAULT_IDS_PER_SCAN,
-      scannerInput: "",
-      sku: null,
-    });
-    setTableRows([]);
-    setFieldsLocked(false);
-    setTypeLocked(true);
-    setTypeChangeDialogOpen(false);
-    setPendingDeviceType(null);
   };
 
   return (
     <div className="h-[calc(100vh-100px)] bg-white flex flex-col">
-      <ConfirmationModel
-        open={typeChangeDialogOpen}
-        onClose={() => {
-          setTypeChangeDialogOpen(false);
-          setPendingDeviceType(null);
-        }}
-        title="Change device type?"
-        content="Changing type will reset all locations, SKU, scanned devices, and scanner input. Do you want to continue?"
-        cancelText="Cancel"
-        confirmText="Reset & change"
-        color="warning"
-        onConfirm={confirmDeviceTypeChange}
-      />
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 p-0">
-        <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden">
-          <div className="w-full flex-shrink-0 p-4 pb-2">
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="min-w-[140px] w-[160px] flex-shrink-0">
+        <div className="flex-1 flex flex-col lg:flex-row min-h-0 w-full overflow-hidden gap-4 px-4 py-2">
+          <div className="w-full lg:w-[380px] xl:w-[400px] flex-shrink-0 flex flex-col gap-3 overflow-y-auto lg:overflow-y-auto lg:max-h-full">
+              <div className="w-full">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
                   Type
                 </Typography>
@@ -465,11 +423,9 @@ const SwipeTransfer = () => {
                   rules={{ required: "Type is required" }}
                   render={({ field }) => (
                     <FormControl fullWidth size="small" error={!!errors.deviceType}>
-                      <InputLabel id="swipe-transfer-device-type-label">Type</InputLabel>
                       <Select
                         value={field.value}
-                        labelId="swipe-transfer-device-type-label"
-                        label="Type"
+                        displayEmpty
                         onChange={(e) => {
                           handleDeviceTypeChange(e.target.value as DeviceMovementType);
                         }}
@@ -484,7 +440,7 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
-              <div className="min-w-[200px] flex-1 max-w-[280px]">
+              <div className="w-full">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
                   Location From
                 </Typography>
@@ -507,7 +463,7 @@ const SwipeTransfer = () => {
                 />
               </div>
 
-              <div className="min-w-[200px] flex-1 max-w-[280px]">
+              <div className="w-full">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
                   Location To
                 </Typography>
@@ -529,7 +485,7 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
-              <div className="min-w-[200px] flex-1 max-w-[280px]">
+              <div className="w-full">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
                   SKU
                 </Typography>
@@ -547,7 +503,7 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
-              <div className="min-w-[120px] w-[130px] flex-shrink-0">
+              <div className="w-full">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
                   Device count
                 </Typography>
@@ -557,7 +513,7 @@ const SwipeTransfer = () => {
                   rules={{
                     required: "Required",
                     min: { value: 1, message: "Min 1" },
-                    max: { value: MAX_DEVICES, message: `Max ${MAX_DEVICES}` },
+                    max: { value: maxDevices, message: `Max ${maxDevices}` },
                     validate: (v) =>
                       Number.isInteger(Number(v)) || "Whole number only",
                   }}
@@ -571,7 +527,7 @@ const SwipeTransfer = () => {
                       disabled={fieldsLocked}
                       error={!!errors.deviceCount}
                       helperText={errors.deviceCount?.message as string}
-                      inputProps={{ min: 1, max: MAX_DEVICES, step: 1 }}
+                      inputProps={{ min: 1, max: maxDevices, step: 1 }}
                       onChange={(e) => {
                         const raw = e.target.value;
                         if (raw === "") {
@@ -585,7 +541,7 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
-              <div className="min-w-[300px] flex-[2] max-w-[400px]">
+              <div className="w-full">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
                   {isSoundbox
                     ? `Scanner (${Number.isFinite(Number(watchedDeviceCount)) && Number(watchedDeviceCount) > 0 ? Math.trunc(Number(watchedDeviceCount)) : DEFAULT_IDS_PER_SCAN} device IDs — no box code)`
@@ -612,7 +568,7 @@ const SwipeTransfer = () => {
                       multiline
                       minRows={2}
                       maxRows={4}
-                      disabled={isCheckBoxLocationLoading || tableRows.length >= MAX_DEVICES}
+                      disabled={isCheckBoxLocationLoading || tableRows.length >= maxDevices}
                       onChange={(e) => field.onChange(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
@@ -654,15 +610,13 @@ const SwipeTransfer = () => {
                   }}
                 />
               </div>
-            </div>
           </div>
 
-          {/* Table - fills remaining space */}
-          <div className="flex-1 flex flex-col min-h-0 w-full px-4 pb-4">
+          <div className="flex-1 flex flex-col min-h-0 min-w-0 lg:border-l lg:border-neutral-200 lg:pl-4 pb-2">
             <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }} className="flex-shrink-0">
-              Added devices ({tableRows.length} / {MAX_DEVICES})
+              Added devices ({tableRows.length} / {maxDevices})
             </Typography>
-            <div className="ag-theme-quartz flex-1 min-h-0">
+            <div className="ag-theme-quartz flex-1 min-h-[280px] lg:min-h-0">
               <AgGridReact<SwipeTableRow>
                 rowData={tableRows}
                 columnDefs={columnDefs}
