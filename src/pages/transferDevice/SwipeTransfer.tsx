@@ -145,16 +145,22 @@ const SwipeTransfer = () => {
     const trimmed = inputValue?.trim();
     if (!trimmed) return;
 
+    const failScan = (message: string) => {
+      showToast(message, "error");
+      clearInput();
+      scannerInputRef.current?.focus();
+    };
+
     const deviceType = getValues("deviceType") as DeviceMovementType;
     if (!deviceType) {
-      showToast("Please select device type", "error");
+      failScan("Please select device type");
       return;
     }
 
     const deviceCount = Number(getValues("deviceCount"));
     const scanMax = getMaxDevices(deviceType);
     if (!Number.isInteger(deviceCount) || deviceCount < 1 || deviceCount > scanMax) {
-      showToast(`Enter a valid device count between 1 and ${scanMax}`, "error");
+      failScan(`Enter a valid device count between 1 and ${scanMax}`);
       return;
     }
 
@@ -162,47 +168,53 @@ const SwipeTransfer = () => {
 
     if (isSoundboxType(deviceType)) {
       if (serialIds.length !== deviceCount) {
-        showToast(
+        failScan(
           `Enter exactly ${deviceCount} device ID(s) (space or newline separated)`,
-          "error",
         );
         return;
       }
     } else if (!boxNo || serialIds.length !== deviceCount) {
-      showToast(
+      failScan(
         `Enter box code followed by exactly ${deviceCount} device IDs (space or newline separated)`,
-        "error",
       );
       return;
     }
 
-    const existingSerials = new Set(
-      tableRows.map((r) => r.serialNo ?? r.sl_no).filter(Boolean),
-    );
-    const toAdd = serialIds.filter((id) => {
-      const s = id.trim();
-      return s && !existingSerials.has(s);
+    const serialsTrimmed = serialIds.map((id) => id.trim()).filter(Boolean);
+    const seenInBatch = new Set<string>();
+    const hasBatchDuplicate = serialsTrimmed.some((serial) => {
+      if (seenInBatch.has(serial)) return true;
+      seenInBatch.add(serial);
+      return false;
     });
-    const duplicates = serialIds.length - toAdd.length;
-    if (duplicates > 0) {
-      showToast(`${duplicates} duplicate ID(s) skipped`, "info");
+
+    const existingSerials = new Set(
+      tableRows.map((r) => (r.serialNo ?? r.sl_no)?.trim()).filter(Boolean) as string[],
+    );
+    const hasTableDuplicate = serialsTrimmed.some((serial) => existingSerials.has(serial));
+
+    if (hasBatchDuplicate || hasTableDuplicate) {
+      failScan("Duplicate device ID(s) are not allowed");
+      return;
     }
+
+    const toAdd = serialsTrimmed;
 
     const locationFrom = getValues("locationfromId");
     if (!locationFrom?.code) {
-      showToast("Please select location from", "error");
+      failScan("Please select location from");
       return;
     }
 
     const locationTo = getValues("locationtoId");
     if (!locationTo?.code) {
-      showToast("Please select location to", "error");
+      failScan("Please select location to");
       return;
     }
 
     const sku = getValues("sku");
     if (!isSoundboxType(deviceType) && !sku?.sku) {
-      showToast("Please select SKU", "error");
+      failScan("Please select SKU");
       return;
     }
 
@@ -217,7 +229,7 @@ const SwipeTransfer = () => {
         }),
       ).unwrap();
       if (!data?.success) {
-        showToast(data?.message ?? "Check box location failed", "error");
+        failScan(data?.message ?? "Check box location failed");
         return;
       }
       const rowsFromApi = Array.isArray(data?.data) ? data.data : null;
@@ -250,9 +262,7 @@ const SwipeTransfer = () => {
         if (afterAdd > scanMax) {
           const canAdd = scanMax - currentTotal;
           if (canAdd <= 0) {
-            showToast(`Maximum ${scanMax} devices allowed. Cannot add more.`, "error");
-            clearInput();
-            scannerInputRef.current?.focus();
+            failScan(`Maximum ${scanMax} devices allowed. Cannot add more.`);
             return;
           }
           const toAddCapped = newRows.slice(0, canAdd);
@@ -285,7 +295,7 @@ const SwipeTransfer = () => {
           : err instanceof Error
             ? err.message
             : "Check box location failed";
-      showToast(message ?? "Check box location failed", "error");
+      failScan(message ?? "Check box location failed");
     }
   };
 
