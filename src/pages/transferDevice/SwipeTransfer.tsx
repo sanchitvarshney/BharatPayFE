@@ -26,6 +26,7 @@ import {
   submitSwipeTransferData,
 } from "@/features/transfer/deviceTransferSlice";
 import SelectSku from "@/components/reusable/SelectSku";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import Success from "@/components/reusable/Success";
 import { Dialog, DialogContent } from "@mui/material";
 
@@ -90,6 +91,7 @@ const SwipeTransfer = () => {
   const dispatch = useDispatch<any>();
   const [tableRows, setTableRows] = useState<SwipeTableRow[]>([]);
   const [fieldsLocked, setFieldsLocked] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [successInfo, setSuccessInfo] = useState({
     message: "",
@@ -429,10 +431,14 @@ const SwipeTransfer = () => {
     }
   };
 
-  const onReset = () => {
+  const confirmReset = () => {
     reset();
     setTableRows([]);
     setFieldsLocked(false);
+    setResetDialogOpen(false);
+    if (isSoundboxType(getValues("deviceType"))) {
+      unregister("sku");
+    }
   };
 
   const handleSuccessClose = () => {
@@ -459,6 +465,16 @@ const SwipeTransfer = () => {
 
   return (
     <div className="h-[calc(100vh-100px)] bg-white flex flex-col">
+      <ConfirmationModel
+        open={resetDialogOpen}
+        onClose={() => setResetDialogOpen(false)}
+        title="Reset form?"
+        content="This will clear all fields, scanned devices, and scanner input. Do you want to continue?"
+        cancelText="Cancel"
+        confirmText="Reset"
+        color="warning"
+        onConfirm={confirmReset}
+      />
       <Dialog
         open={successOpen}
         onClose={handleSuccessClose}
@@ -747,7 +763,7 @@ const SwipeTransfer = () => {
         {/* Action Buttons */}
         <div className="border-t border-neutral-300 py-3 flex-shrink-0 bg-white">
           <div className="h-[50px] px-5 flex items-center gap-3 justify-end">
-            <Button onClick={onReset} variant="outlined">
+            <Button onClick={() => setResetDialogOpen(true)} variant="outlined">
               Reset
             </Button>
             <LoadingButton
