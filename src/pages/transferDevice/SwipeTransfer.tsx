@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { QrCodeScanner } from "@mui/icons-material";
@@ -53,7 +53,11 @@ const DEVICE_TYPE_OPTIONS: { label: string; value: DeviceMovementType }[] = [
   { label: "Soundbox", value: "SOUNDBOX" },
 ];
 
-const isSoundboxType = (type?: DeviceMovementType) => type === "SOUNDBOX";
+const isSoundboxType = (type?: DeviceMovementType | string) =>
+  String(type ?? "").toUpperCase() === "SOUNDBOX";
+
+const isSwipeType = (type?: DeviceMovementType | string) =>
+  String(type ?? "").toUpperCase() === "SWIPE";
 
 const getMaxDevices = (type?: DeviceMovementType) =>
   isSoundboxType(type) ? MAX_DEVICES_SOUNDBOX : MAX_DEVICES_SWIPE;
@@ -105,6 +109,7 @@ const SwipeTransfer = () => {
     setValue,
     getValues,
     watch,
+    unregister,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
@@ -120,7 +125,15 @@ const SwipeTransfer = () => {
   const watchedDeviceCount = watch("deviceCount");
   const watchedDeviceType = watch("deviceType") as DeviceMovementType;
   const isSoundbox = isSoundboxType(watchedDeviceType);
+  const showSkuField = isSwipeType(watchedDeviceType);
   const maxDevices = getMaxDevices(watchedDeviceType);
+
+  useEffect(() => {
+    if (isSoundbox) {
+      setValue("sku", null);
+      unregister("sku");
+    }
+  }, [isSoundbox, setValue, unregister]);
 
   const getTokenCount = (input: string) =>
     input
@@ -188,7 +201,7 @@ const SwipeTransfer = () => {
     }
 
     const sku = getValues("sku");
-    if (!sku?.sku) {
+    if (!isSoundboxType(deviceType) && !sku?.sku) {
       showToast("Please select SKU", "error");
       return;
     }
@@ -199,8 +212,8 @@ const SwipeTransfer = () => {
           boxNo,
           serial: toAdd,
           fromLocation: locationFrom.code,
-          sku: sku.sku,
           type: deviceType,
+          ...(!isSoundboxType(deviceType) && sku?.sku ? { sku: sku.sku } : {}),
         }),
       ).unwrap();
       if (!data?.success) {
@@ -369,12 +382,17 @@ const SwipeTransfer = () => {
         return;
       }
 
+      if (!soundboxSubmit && !data.sku?.sku) {
+        showToast("Please select SKU", "error");
+        return;
+      }
+
       const payload = {
         fromLocation: data.locationfromId.code,
         toLocation: data.locationtoId.code,
         data: dataPayload,
-        sku: data.sku?.sku,
         type: deviceType,
+        ...(!soundboxSubmit && data.sku?.sku ? { sku: data.sku.sku } : {}),
       };
 
       const result: any = await dispatch(submitSwipeTransferData(payload)).unwrap();
@@ -412,17 +430,21 @@ const SwipeTransfer = () => {
     setSuccessInfo({ message: "", deviceCount: 0, deviceTypeLabel: "" });
   };
 
-  const handleDeviceTypeChange = (newType: DeviceMovementType) => {
-    const currentType = getValues("deviceType") as DeviceMovementType;
-    if (newType === currentType) return;
+  const applyDeviceTypeSideEffects = (
+    newType: DeviceMovementType,
+    previousType?: DeviceMovementType,
+  ) => {
+    if (previousType !== undefined && newType === previousType) return;
 
-    setValue("deviceType", newType);
     setValue("locationfromId", "");
     setValue("locationtoId", "");
     setValue("sku", null);
     setValue("scannerInput", "");
     setTableRows([]);
     setFieldsLocked(false);
+    if (isSoundboxType(newType)) {
+      unregister("sku");
+    }
   };
 
   return (
@@ -503,10 +525,12 @@ const SwipeTransfer = () => {
                   render={({ field }) => (
                     <FormControl fullWidth size="small" error={!!errors.deviceType}>
                       <Select
-                        value={field.value}
-                        displayEmpty
+                        value={field.value ?? "SOUNDBOX"}
                         onChange={(e) => {
-                          handleDeviceTypeChange(e.target.value as DeviceMovementType);
+                          const nextType = e.target.value as DeviceMovementType;
+                          const previousType = field.value as DeviceMovementType;
+                          field.onChange(nextType);
+                          applyDeviceTypeSideEffects(nextType, previousType);
                         }}
                       >
                         {DEVICE_TYPE_OPTIONS.map((opt) => (
@@ -564,24 +588,26 @@ const SwipeTransfer = () => {
                   )}
                 />
               </div>
-              <div className="w-full">
-                <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
-                  SKU
-                </Typography>
-                <Controller
-                  name="sku"
-                  control={control}
-                  rules={{ required: "SKU is required" }}
-                  render={({ field }) => (
-                    <SelectSku
-                      varient="outlined"
-                      onChange={(e) => field.onChange(e)}
-                      value={field.value}
-                      disabled={fieldsLocked}
-                    />
-                  )}
-                />
-              </div>
+              {showSkuField ? (
+                <div className="w-full" key="sku-field">
+                  <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
+                    SKU
+                  </Typography>
+                  <Controller
+                    name="sku"
+                    control={control}
+                    rules={{ required: "SKU is required" }}
+                    render={({ field }) => (
+                      <SelectSku
+                        varient="outlined"
+                        onChange={(e) => field.onChange(e)}
+                        value={field.value}
+                        disabled={fieldsLocked}
+                      />
+                    )}
+                  />
+                </div>
+              ) : null}
               <div className="w-full">
                 <Typography variant="subtitle2" sx={{ mb: 0.4 }}>
                   Device count

@@ -73,7 +73,7 @@ export type CheckBoxLocationPayload = {
   boxNo: string;
   serial: string[];
   fromLocation: string;
-  sku: string;
+  sku?: string;
   type: DeviceMovementType;
 };
 
@@ -102,7 +102,7 @@ export type SubmitSwipeTransferPayload = {
   fromLocation: string;
   toLocation: string;
   data: { boxNo: string; serial: string[] }[];
-  sku: string;
+  sku?: string;
   type: DeviceMovementType;
 };
 
