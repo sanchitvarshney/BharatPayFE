@@ -18,6 +18,7 @@ export type DispatchItemPayload = {
 export type DispatchWrongItemPayload = {
   awb: string[];
   challanId:string;
+  uniqueIds: string[];
 };
 
 export type DispatchState = {

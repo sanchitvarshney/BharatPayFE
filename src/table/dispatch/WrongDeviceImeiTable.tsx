@@ -11,8 +11,28 @@ type Props = {
 };
 const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   const columnDefs: ColDef[] = [
-    { headerName: "#", field: "serialNo", sortable: true, filter: true, valueGetter: "node.rowIndex+1", width: 100 },
-    { headerName: "AWB No.", field: "awbNo", sortable: true, filter: true, flex: 1 },
+    {
+      headerName: "#",
+      field: "serialNo",
+      sortable: true,
+      filter: true,
+      valueGetter: "node.rowIndex+1",
+      width: 100,
+    },
+    {
+      headerName: "AWB No.",
+      field: "awbNo",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "Unique ID",
+      field: "uniqueId",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
     {
       headerName: "",
       field: "",
@@ -21,7 +41,9 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
       cellRenderer: (params: any) => (
         <IconButton
           onClick={() => {
-            setRowdata(rowData.filter((row:any) => row.awbNo !== params.data.awbNo));
+            setRowdata((prev: any[]) =>
+              prev.filter((_, index) => index !== params.node.rowIndex),
+            );
           }}
         >
           <DeleteIcon fontSize="small" color="error" />
@@ -33,7 +55,12 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
 
   return (
     <div className=" ag-theme-quartz h-[calc(100vh-250px)] ">
-      <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
+      <AgGridReact
+        overlayNoRowsTemplate={OverlayNoRowsTemplate}
+        suppressCellFocus={true}
+        rowData={rowData}
+        columnDefs={columnDefs}
+      />
     </div>
   );
 };
