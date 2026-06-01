@@ -87,6 +87,8 @@ const getAWBLengthRange = (
       return { min: 9, max: 10 };
     case "BLUEDART":
       return { min: 11, max: 13 };
+    case "Trackon":
+      return { min: 12, max: 14 };
     default:
       return null;
   }

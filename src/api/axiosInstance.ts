@@ -88,7 +88,7 @@ axiosInstance.interceptors.response.use(
       globalThis.window.location.href = "/login";
     }
   
-    showToast((error.response?.data?.message?.msg ? error.response?.data?.message?.msg : error.response?.data?.message) || "An unexpected error occurred", "error");
+    showToast(error.response?.data?.message ?? error.message ?? error.response?.data ?? error?.response?.data?.message?.msg ?? "An unexpected error occurred");
 
     return Promise.reject(error);
   }
