@@ -125,31 +125,24 @@ const FillEwayBillSheet: React.FC<EwayBillSheetProps> = ({
     });
   };
 
-  console.log(rowData);
+  
   useEffect(() => {
     const interval = setInterval(() => {
       const taxableValue = Number(
-        rowData
-          .reduce((acc, curr) => acc + (Number(curr.localValue) || 0), 0)
-          .toFixed(2)
+        rowData?.reduce((acc, curr) => acc + (Number(curr.localValue) || 0), 0)?.toFixed(2)
       );
       setTaxableValue(taxableValue);
       const totalCgst = Number(
-        rowData
-          .reduce((acc, curr) => acc + (Number(curr.cgst) || 0), 0)
-          .toFixed(2)
+        rowData?.reduce((acc, curr) => acc + (Number(curr.cgst) || 0), 0)?.toFixed(2)
       );
       setTotalCgst(totalCgst);
       const totalSgst = Number(
-        rowData
-          .reduce((acc, curr) => acc + (Number(curr.sgst) || 0), 0)
-          .toFixed(2)
+        rowData?.reduce((acc, curr) => acc + (Number(curr.sgst) || 0), 0)?.toFixed(2)
+       
       );
       setTotalSgst(totalSgst);
       const totalIgst = Number(
-        rowData
-          .reduce((acc, curr) => acc + (Number(curr.igst) || 0), 0)
-          .toFixed(2)
+        rowData?.reduce((acc, curr) => acc + (Number(curr.igst) || 0), 0)?.toFixed(2)
       );
       setTotalIgst(totalIgst);
       const totalTax = Number(

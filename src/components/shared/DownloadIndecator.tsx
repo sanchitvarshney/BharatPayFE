@@ -61,7 +61,6 @@ const DownloadIndecator = () => {
           : [];
         setNotification(downloadNotifications);
       }
-      console.log(data);
     };
 
     onnotification(handlenotification);
