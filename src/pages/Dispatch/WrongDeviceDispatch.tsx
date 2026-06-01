@@ -532,12 +532,12 @@ const WrongDeviceDispatch: React.FC = () => {
                         "aria-label": "weight",
                       }}
                       onChange={(e) => {
-                        const regex = /^[0-9\b]+$/; // Regular expression to allow only numbers
+                        const regex = /^[0-9_]*$/; // Regular expression to allow only numbers
                         if (regex.test(e.target.value)) {
                           setUniqueIds(e.target.value);
                         }
                       }}
-                      type="number"
+                      type="text"
                       onKeyDown={(e) => {
                         if (["e", "E", "+", "-", "."].includes(e.key)) {
                           e.preventDefault();
