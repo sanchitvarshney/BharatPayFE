@@ -38,6 +38,7 @@ import { useParams } from "react-router-dom";
 type RowData = {
   awbNo: string;
   uniqueId: string;
+  serialNo: string;
 };
 
 type FormDataType = {
@@ -76,6 +77,7 @@ const WrongDeviceDispatch: React.FC = () => {
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [imei, setImei] = React.useState<string>("");
   const [uniqueIds, setUniqueIds] = React.useState<string>("");
+  const [serialNo, setSerialNo] = React.useState<string>("");
   const [dispatchNo, setDispatchNo] = useState<string>("");
   const [data, setData] = useState<any>(null);
   const dispatch = useAppDispatch();
@@ -154,6 +156,7 @@ const WrongDeviceDispatch: React.FC = () => {
       awb: rowData.map((item) => item.awbNo),
       challanId: id?.replace(/_/g, "/") || "",
       uniqueIds: rowData.map((item) => item.uniqueId),
+      serialNo: rowData.map((item) => item.serialNo),
     };
     dispatch(wrongDeviceDispatch(payload)).then((res: any) => {
       if (res.payload.data.success) {
@@ -495,7 +498,9 @@ const WrongDeviceDispatch: React.FC = () => {
                               "error",
                             ); // You can use a toast or other way to notify the user
                           } else {
-                            const awbNo = [{ awbNo: imei, uniqueId: "--" }];
+                            const awbNo = [
+                              { awbNo: imei, uniqueId: "--", serialNo: "--" },
+                            ];
                             setRowData((prevRowData: any) => [
                               ...awbNo,
                               ...prevRowData,
@@ -559,7 +564,11 @@ const WrongDeviceDispatch: React.FC = () => {
                           }
                           if (!isDuplicate && imei) {
                             const uniqueId: any = [
-                              { uniqueId: uniqueIds, awbNo: imei },
+                              {
+                                uniqueId: uniqueIds,
+                                awbNo: imei,
+                                serialNo: serialNo || "--",
+                              },
                             ];
 
                             setRowData((prevRowData: any) => [
@@ -569,6 +578,66 @@ const WrongDeviceDispatch: React.FC = () => {
                             ]);
                           }
 
+                          setUniqueIds("");
+                          setSerialNo("");
+                          setImei("");
+                          e.preventDefault();
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormControl sx={{ width: "400px" }} variant="outlined">
+                    <TextField
+                      rows={1}
+                      value={serialNo}
+                      label="Serial No"
+                      id="standard-adornment-serial"
+                      aria-describedby="standard-serial-helper-text"
+                      inputProps={{
+                        "aria-label": "serial",
+                      }}
+                      onChange={(e) => {
+                        const regex = /^[0-9_]*$/;
+                        if (regex.test(e.target.value)) {
+                          setSerialNo(e.target.value);
+                        }
+                      }}
+                      type="text"
+                      onKeyDown={(e) => {
+                        if (["e", "E", "+", "-", "."].includes(e.key)) {
+                          e.preventDefault();
+                        }
+                        if (e.key === "Enter") {
+                          const isDuplicate = rowData.some(
+                            (item: any) => item.serialNo === serialNo,
+                          );
+
+                          if (isDuplicate) {
+                            showToast("This Serial No already exists", "error");
+                          }
+                          if (!imei) {
+                            showToast(
+                              "Please enter AWB Device before adding Serial No",
+                              "error",
+                            );
+                            return;
+                          }
+                          if (!isDuplicate && imei) {
+                            const serialRow: any = [
+                              {
+                                serialNo,
+                                awbNo: imei,
+                                uniqueId: uniqueIds || "--",
+                              },
+                            ];
+
+                            setRowData((prevRowData: any) => [
+                              ...serialRow,
+                              ...prevRowData,
+                            ]);
+                          }
+
+                          setSerialNo("");
                           setUniqueIds("");
                           setImei("");
                           e.preventDefault();
