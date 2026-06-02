@@ -668,7 +668,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                         type: "swipeMachine",
                                       }),
                                     ).then(async (response: any) => {
-                                      if (response.payload.data.success) {
+                                      if (response?.payload?.data?.success) {
                                         const isExistingItem =
                                           await getItemExists();
                                         if (!isExistingItem) {
@@ -677,7 +677,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
 
                                         const nextCode = normalizeCode(input);
                                         const nextDeviceList = [
-                                          ...(deviceDataRef.current ?? []).filter(
+                                          ...(deviceDataRef?.current ?? []).filter(
                                             (row: any) =>
                                               normalizeCode(
                                                 row?.scannedCode ??
@@ -685,7 +685,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                               ) !== nextCode,
                                           ),
                                           {
-                                            ...response.payload.data.data,
+                                            ...response?.payload?.data?.data,
                                             scannedCode: nextCode,
                                           },
                                         ];
@@ -705,7 +705,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                         }
                                       } else {
                                         showToast(
-                                          response.payload.data.message,
+                                          response?.payload?.data?.message,
                                           "error",
                                         );
                                       }

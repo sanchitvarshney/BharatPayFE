@@ -681,7 +681,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
                                         type: "soundBox",
                                       }),
                                     ).then(async (response: any) => {
-                                      if (response?.payload?.data.success) {
+                                      if (response?.payload?.data?.success) {
                                         const isExistingItem =
                                           await getItemExists();
                                         if (!isExistingItem) {
@@ -701,7 +701,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
                                         }
                                       } else {
                                         showToast(
-                                          response.payload.data.message,
+                                          response?.payload?.data?.message,
                                           "error",
                                         );
                                       }
