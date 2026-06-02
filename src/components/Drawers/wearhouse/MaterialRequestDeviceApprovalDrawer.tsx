@@ -195,7 +195,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
     try {
       const response: any = await dispatch(isExistItemOnLocation(payload));
 
-      if (response.payload.data?.success) {
+      if (response?.payload?.data?.success) {
         return true;
       } else {
         return false;
