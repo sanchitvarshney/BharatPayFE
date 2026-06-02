@@ -170,13 +170,13 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
     dispatch(
       approveSwipeDeviceRequest({
         productKey: itemkey,
-        pickLocation: data.picLocation!.id,
-        qty: data.issueQty,  
+        pickLocation: data?.picLocation!.id,
+        qty: data?.issueQty,  
         transactionId: requestDetail?.id ?? "",
         productDetail,
       }),
     ).then((response: any) => {
-      if (response.payload.data?.success) {
+      if (response?.payload?.data?.success) {
         dispatch(clearItemdetail());
         setItemKey("");
         reset();
