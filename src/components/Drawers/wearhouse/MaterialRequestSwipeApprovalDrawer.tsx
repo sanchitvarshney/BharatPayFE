@@ -701,7 +701,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                           Number(isueeQty) ===
                                           scanned?.length! + 1
                                         ) {
-                                          e.currentTarget.blur();
+                                          e?.currentTarget?.blur();
                                         }
                                       } else {
                                         showToast(
