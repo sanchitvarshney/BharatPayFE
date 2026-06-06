@@ -1,15 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FaStar } from "react-icons/fa6";
 import { FaCircleUser } from "react-icons/fa6";
-import { FavoriteMenuLinkListType, MainUIStateType } from "@/types/MainLayout";
-import FavoriteSidebar from "@/components/shared/FavoriteSidebar";
-import ProfileSidebar from "@/components/shared/ProfileSidebar";
+import { MainUIStateType } from "@/types/MainLayout";
 import MainLayoutPopovers from "../components/shared/MainLayoutPopovers";
 import DownloadIndecator from "@/components/shared/DownloadIndecator";
 import { SiSocketdotio } from "react-icons/si";
-import { FormControl, IconButton, MenuItem, Select, Tooltip } from "@mui/material";
+import {
+  FormControl,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Select,
+  Tooltip,
+} from "@mui/material";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import PersonIcon from "@mui/icons-material/Person";
+import LogoutIcon from "@mui/icons-material/Logout";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
@@ -22,6 +29,7 @@ import { convertMenuToSidebarItems } from "@/components/Sidebar/menuAdapter";
 import { SidebarMenuItem } from "@/components/Sidebar/types";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getMenuData } from "@/features/menu/menuSlice";
+import ModuleSearch from "@/components/ModuleSearch/ModuleSearch";
 
 /** Indian FY dropdown: current year + this many prior years (5 rows total). */
 const SESSION_YEARS_BACK = 4;
@@ -42,30 +50,19 @@ function MainLayout(props: { children: React.ReactNode }) {
     [],
   );
   const [selectedCompanyBranch, setSelectedCompanyBranch] = useState('BRMSC031');
-  const [sheet2Open, setSheet2Open] = useState<boolean>(false);
-  const [favoriteSheet, setFavoriteSheet] = useState<boolean>(false);
   const [logotAlert, setLogotAlert] = useState<boolean>(false);
   const [notificationSheet, setNotificationSheet] = useState<boolean>(false);
-  const [favoriteLinkList, setFavoriteLinkList] = useState<FavoriteMenuLinkListType[]>([]);
+  const [accountMenuAnchor, setAccountMenuAnchor] = useState<null | HTMLElement>(null);
+  const accountMenuOpen = Boolean(accountMenuAnchor);
   const modalRef = useRef<HTMLDivElement>(null);
-  const sidebaref = useRef<HTMLDivElement>(null);
-  const favoriteref = useRef<HTMLDivElement>(null);
   const uiState: MainUIStateType = {
     sheetOpen: false,
     setSheetOpen: () => {},
-    sheet2Open,
-    setSheet2Open,
-    favoriteSheet,
-    setFavoriteSheet,
     logotAlert,
     setLogotAlert,
     modalRef,
-    sidebaref,
-    favoriteref,
     notificationSheet,
     setNotificationSheet,
-    favoriteLinkList,
-    setFavoriteLinkList,
     sidebarWidth,
   };
 
@@ -74,24 +71,12 @@ function MainLayout(props: { children: React.ReactNode }) {
   const sidebarBottomItems = useMemo<SidebarMenuItem[]>(
     () => [
       {
-        key: "favorites",
-        label: "Favorites",
-        icon: <FaStar />,
-        isShown: true,
-        onClick: () => {
-          setFavoriteSheet(true);
-          setSheet2Open(false);
-        },
-      },
-      {
         key: "sop",
         label: "SOP",
         icon: <CreateNewFolderIcon fontSize="small" />,
         isShown: true,
         onClick: () => {
           navigate("/sop");
-          setSheet2Open(false);
-          setFavoriteSheet(false);
         },
       },
     ],
@@ -126,15 +111,6 @@ function MainLayout(props: { children: React.ReactNode }) {
       <MainLayoutPopovers uiState={uiState} />
       {/* alert disalogs start=============== */}
       {/* sidebars=========================== */}
-      <div
-        className={`sheetone absolute z-[50] w-full transition-all ${sheet2Open || favoriteSheet ? "bg-[#00000081]" : "left-[-100%]"}`}
-        style={{ top: HEADER_HEIGHT, height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
-        onClick={() => {
-          setFavoriteSheet(false);
-          setSheet2Open(false);
-        }}
-      />
-      <FavoriteSidebar uiState={uiState} headerHeight={HEADER_HEIGHT} />
       <Sidebar
         showSideBar={showSideBar}
         setShowSideBar={setShowSideBar}
@@ -145,16 +121,15 @@ function MainLayout(props: { children: React.ReactNode }) {
         onRefreshMenu={() => dispatch(getMenuData())}
         onWidthChange={setSidebarWidth}
       />
-      <ProfileSidebar uiState={uiState} headerHeight={HEADER_HEIGHT} />
       {/* sidebars=========================== */}
       <div>
         <nav
-          className={`fixed top-0 left-0 z-[80] flex w-full items-center justify-between h-[50px] px-[20px] transition-all duration-300 ${import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ? "bg-amber-300" : "bg-neutral-300"}`}
+          className={`fixed top-0 left-0 z-[80] grid w-full grid-cols-[1fr_auto_1fr] items-center h-[50px] px-[20px] transition-all duration-300 ${import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" ? "bg-amber-300" : "bg-neutral-300"}`}
           style={{
             boxShadow: "rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px",
           }}
         >
-          <div className="flex gap-[20px] items-center">
+          <div className="flex gap-[20px] items-center justify-self-start">
             <div className="date flex gap-[20px] items-center">
               <FormControl sx={{ width: "200px" }}>
                 <Tooltip title="Session">
@@ -213,8 +188,12 @@ function MainLayout(props: { children: React.ReactNode }) {
               </FormControl>
             </div>
           </div>
+
+          <div className="flex justify-center justify-self-center px-[12px]">
+            <ModuleSearch menu={menu} />
+          </div>
           
-          <div className="flex items-center gap-[16px]">
+          <div className="flex items-center gap-[16px] justify-self-end">
             <div className="download">
               <DownloadIndecator />
             </div>
@@ -232,33 +211,65 @@ function MainLayout(props: { children: React.ReactNode }) {
                 sx={{ p: 0.5 }}
               >
                 <SiSocketdotio
-                  className={`h-[22px] w-[22px] ${isConnected ? "text-green-500" : "text-red-500"} ${isLoading ? "animate-spin" : ""}`}
+                  className={`h-[22px] w-[22px] ${isConnected ? "text-green-600" : "text-red-500"} ${isLoading ? "animate-spin" : ""}`}
                 />
               </IconButton>
             </MuiTooltip>
 
-            <span
-              className={`text-[11px] font-semibold px-[8px] py-[3px] rounded-full ${
-                isConnected
-                  ? "bg-teal-100 text-teal-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {isConnected ? "Online" : "Offline"}
-            </span>
 
             <MuiTooltip title="Account" placement="bottom">
               <IconButton
-                onClick={() => {
-                  setSheet2Open((open) => !open);
-                  setFavoriteSheet(false);
-                }}
+                onClick={(e) => setAccountMenuAnchor(e.currentTarget)}
                 size="small"
                 sx={{ p: 0.5 }}
+                aria-controls={accountMenuOpen ? "account-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={accountMenuOpen ? "true" : undefined}
               >
                 <FaCircleUser className="h-[24px] w-[24px] text-gray-700" />
               </IconButton>
             </MuiTooltip>
+            <Menu
+              id="account-menu"
+              anchorEl={accountMenuAnchor}
+              open={accountMenuOpen}
+              onClose={() => setAccountMenuAnchor(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              slotProps={{
+                paper: {
+                  elevation: 2,
+                  sx: {
+                    mt: 1,
+                    minWidth: 160,
+                    border: "1px solid #e5e7eb",
+                  },
+                },
+              }}
+            >
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  navigate("/profile");
+                }}
+              >
+                <ListItemIcon>
+                  <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                Profile
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  setLogotAlert(true);
+                }}
+              >
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" />
+                </ListItemIcon>
+                Logout
+              </MenuItem>
+            </Menu>
           </div>
         </nav>
       </div>

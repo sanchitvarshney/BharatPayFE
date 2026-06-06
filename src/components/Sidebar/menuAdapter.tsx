@@ -1,6 +1,14 @@
 import DynamicIcon from "@/components/reusable/DynamicIcon";
 import { Menu } from "@/features/menu/menuType";
 import { SidebarMenuItem } from "./types";
+import { MdChecklistRtl } from "react-icons/md";
+
+function renderMenuIcon(iconName: string) {
+  if (iconName === "-") {
+    return <MdChecklistRtl />;
+  }
+  return <DynamicIcon name={iconName} size="small" />;
+}
 
 function convertMenuItem(menu: Menu, depth: number): SidebarMenuItem {
   const children = menu.children?.length
@@ -15,7 +23,7 @@ function convertMenuItem(menu: Menu, depth: number): SidebarMenuItem {
   return {
     key: menu.menu_key,
     label: menu.name,
-    icon: <DynamicIcon name={menu.icon} size="small" />,
+    icon: renderMenuIcon(menu.icon),
     path: menu.url || undefined,
     isHeading: depth > 0 && hasChildren,
     isShown: menu.is_active !== 0,

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import { PushPin } from "@mui/icons-material";
+import { PushPin, Refresh } from "@mui/icons-material";
 import { Box, CircularProgress, circularProgressClasses, CircularProgressProps,  } from "@mui/material";
 import { MdHome } from "react-icons/md";
 import { SidebarMenuItem, SidebarProps } from "./types";
@@ -167,9 +167,8 @@ const SidebarInner = ({
     [sidebar1Items],
   );
 
-  const filteredApiItems = useMemo(() => filterItemsByIsShown(items), [items]);
+  const filteredApiItems = useMemo(() => filterItemsByIsShown([...items,...items1]), [items,items1]);
 
-  const filteredItems1 = useMemo(() => filterItemsByIsShown(items1), [items1]);
 
   useEffect(() => {
     const activeMenuItem = findActiveMenuItem(filteredSidebar1Items, location.pathname);
@@ -379,7 +378,7 @@ const SidebarInner = ({
                               flexShrink: 0,
                             }}
                           >
-                            {c.icon !== "-"  ? <MdHome />: c.icon }
+                            {c.icon}
                           </span>
                         ) : (
                           subMenuChevronImg(
@@ -580,7 +579,7 @@ const SidebarInner = ({
               }}
             />
             {showSideBar && (
-              <span style={{ fontWeight: 700, fontSize: 16, color: "#0d9489" }}>BharatPay</span>
+              <span style={{ fontWeight: 700, fontSize: 16, color: "#0891b2" }}>BharatPay</span>
             )}
           </div>
 
@@ -603,20 +602,7 @@ const SidebarInner = ({
             </>
           )}
 
-          {filteredItems1.length > 0 && (
-            <div
-              style={{
-                flexShrink: 0,
-                borderTop: "1px solid #e0e0e0",
-                paddingBottom: 56,
-              }}
-            >
-              {renderList(filteredItems1)}
-            </div>
-          )}
-
-          {!filteredItems1.length && <div style={{ flexShrink: 0, height: 56 }} />}
-
+<div style={{ flexShrink: 0, height: 56 }} />
           {showSideBar && (
             <button
               type="button"
@@ -683,8 +669,14 @@ const SidebarInner = ({
                 opacity: menuLoading ? 0.5 : 1,
               }}
               title="Refresh menu"
+                   onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#e0e0e0";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor =  "transparent";
+                  }}
             >
-              ↻
+              <Refresh fontSize="small" />
             </button>
           )}
 
@@ -697,7 +689,7 @@ const SidebarInner = ({
               right: "12px",
               width: "32px",
               height: "32px",
-              backgroundColor: "#0d9488",
+              backgroundColor: "#0891b2",
               border: "none",
               borderRadius: "6px",
               cursor: "pointer",
@@ -711,11 +703,11 @@ const SidebarInner = ({
               zIndex: 101,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#0f766e";
+              e.currentTarget.style.backgroundColor = "#0891b2";
               e.currentTarget.style.transform = "scale(1.05)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#0d766e";
+              e.currentTarget.style.backgroundColor = "#0891b2";
               e.currentTarget.style.transform = "scale(1)";
             }}
             title={showSideBar ? "Collapse sidebar" : "Expand sidebar"}
@@ -853,7 +845,7 @@ const SidebarInner = ({
                 right: "16px",
                 width: "32px",
                 height: "32px",
-                backgroundColor: "#0d9488",
+                backgroundColor: "#0891b2",
                 border: "none",
                 borderRadius: "6px",
                 cursor: "pointer",
@@ -867,11 +859,11 @@ const SidebarInner = ({
                 zIndex: 101,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#0f766e";
+                e.currentTarget.style.backgroundColor = "#0891b2";
                 e.currentTarget.style.transform = "scale(1.05)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#0d766e";
+                e.currentTarget.style.backgroundColor = "#0891b2";
                 e.currentTarget.style.transform = "scale(1)";
               }}
               title={isSecondSidebarCollapsed ? "Expand submenu" : "Collapse submenu"}
