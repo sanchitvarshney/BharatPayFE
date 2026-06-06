@@ -16,11 +16,13 @@ export interface MainUIStateType {
   modalRef: RefObject<HTMLDivElement>;
   sidebaref: RefObject<HTMLDivElement>;
   favoriteref: RefObject<HTMLDivElement>;
+  sidebarWidth: number;
 }
 
 export interface Props {
   uiState: MainUIStateType;
-  menu?:SidebarMenuLinkType
+  menu?:SidebarMenuLinkType;
+  headerHeight?: number;
 }
 
 export interface  FavoriteMenuLinkListType {

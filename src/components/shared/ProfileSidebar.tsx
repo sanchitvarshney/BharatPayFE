@@ -9,17 +9,26 @@ import { Link } from "react-router-dom";
 
 import { Icons } from "../icons";
 
-const ProfileSidebar: React.FC<Props> = ({ uiState }) => {
-  const { sidebaref, setSheet2Open, sheet2Open, setLogotAlert } = uiState;
+const ProfileSidebar: React.FC<Props> = ({ uiState, headerHeight = 50 }) => {
+  const { sidebaref, setSheet2Open, sheet2Open, setLogotAlert, sidebarWidth } = uiState;
   const { user } = useUser();
 
   return (
-    <div ref={sidebaref} className={`absolute  min-h-[100vh] w-[300px] z-[60] top-0 bg-cyan-950 transition-all duration-500 ${sheet2Open ? "left-[60px]" : "left-[-300px]"}`}>
+    <div
+      ref={sidebaref}
+      className="absolute z-[75] w-[300px] bg-cyan-950 transition-all duration-500"
+      style={{
+        top: headerHeight,
+        left: sheet2Open ? sidebarWidth : -300,
+        height: `calc(100vh - ${headerHeight}px)`,
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
       <Button variant={"outline"} onClick={() => setSheet2Open(false)} className="cursor-pointer absolute top-[10px] right-[10px] bg-transparent text-white hover:bg-white/20 border-none hover:text-white">
         <FaArrowLeftLong className="text-[20px] " />
       </Button>{" "}
       <div>
-        <div className="user mt-[60px] flex flex-col items-center text-slate-200">
+        <div className="user mt-[20px] flex flex-col items-center text-slate-200">
           <Avatar className="w-[100px] h-[100px]">
             <AvatarImage src="https://github.com/shadcn.png" />
             <AvatarFallback>CN</AvatarFallback>
