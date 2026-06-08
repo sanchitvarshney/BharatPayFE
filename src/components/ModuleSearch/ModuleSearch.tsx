@@ -323,7 +323,7 @@ export default function ModuleSearch({ menu }: ModuleSearchProps) {
                               </div>
                             </div>
                                {(() => {
-                                const matched = item.aliases?.find((a: any, i: any) =>
+                                const matched = item.aliases?.find((_: any, i: any) =>
                                   queryWords.some((w) =>
                                     item.searchAliases?.[i]?.includes(w),
                                   ),

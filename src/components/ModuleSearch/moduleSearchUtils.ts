@@ -9,6 +9,8 @@ export type ModuleSearchOption = {
   searchLabel: string;
   searchBreadcrumb: string;
   searchAliases?: string[];
+  aliases?: string[]
+  
 };
 export const extractQueryWords = (queryRaw:any) =>
   normalizeSearchToken(queryRaw).split(/\s+/).filter(Boolean);
