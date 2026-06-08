@@ -159,7 +159,8 @@ const WrongDeviceDispatch: React.FC = () => {
       serialNo: rowData.map((item) => item.serialNo),
     };
     dispatch(wrongDeviceDispatch(payload)).then((res: any) => {
-      if (res.payload.data.success) {
+
+      if (res?.payload?.data.success) {
         setDispatchNo(res?.payload?.data?.data?.refID);
         reset();
         setRowData([]);
