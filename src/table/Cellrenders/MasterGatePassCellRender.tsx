@@ -55,8 +55,8 @@ const MasterGatePassCellRender: React.FC<MasterGatePassCellRenderProps> = ({ pro
                   showToast("Please select location first", "error");
                 }
                 dispatch(getPOComponentDetail(selectedValue.value || "")).then((res: any) => {
-                  const detail = res?.payload?.data?.data?.[0];
-                  const rate = detail?.rate ?? detail?.itemRate ?? detail?.mrp;
+                  const detail = res?.payload?.data?.data;
+                  const rate = detail?.itemRate ?? detail?.rate;
                   data.rate = rate != null && rate !== "" ? rate : null;
                   api.refreshCells({
                     rowNodes: [props.node],
@@ -99,7 +99,18 @@ const MasterGatePassCellRender: React.FC<MasterGatePassCellRenderProps> = ({ pro
       }
 
       case "rate":
-        return <span>{value != null && value !== "" ? value : "--"}</span>;
+        return (
+          <Input
+            value={value}
+            placeholder={colDef.headerName}
+            className="custom-input"
+            onChange={(e) => {
+              if (/^\d*\.?\d*$/.test(e.target.value)) {
+                handleInputChange(e);
+              }
+            }}
+          />
+        );
 
       case "qty":
         return (
