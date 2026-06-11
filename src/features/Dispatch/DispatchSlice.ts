@@ -28,6 +28,8 @@ const initialState: DispatchState = {
   printLoading:false,
   submitCustomFormLoading:false,
   checkBoxValidLoading: false,
+  wrongDeviceLoading: false,
+  wrongDeviceList: null
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -67,6 +69,10 @@ export const printPartChallan = createAsyncThunk<AxiosResponse<{ success: boolea
 
 export const CreateSwipeDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateSwipeDispatch", async (payload) => {
   const response = await axiosInstance.post(`dispatchDivice/createDispatchSwipe`, payload);
+  return response;
+});
+export const getWrongDeviceReport = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, any>("dispatch/getWrongDeviceReport", async (payload) => {
+  const response = await axiosInstance.get(`wrongDevice/video/list?startDate=${payload.fromDate}&endDate=${payload.toDate}`);
   return response;
 });
 
@@ -436,6 +442,20 @@ const dispatchSlice = createSlice({
       })
       .addCase(checkBoxValid.rejected, (state) => {
         state.checkBoxValidLoading = false;
+      })
+          .addCase(getWrongDeviceReport.pending, (state) => {
+        state.wrongDeviceLoading = true;
+      })
+      .addCase(getWrongDeviceReport.fulfilled, (state, action:any) => {
+        state.wrongDeviceLoading = false;
+         if (!action.payload.data.success) {
+          showToast(action.payload.data.message, "error");
+        }
+        state.wrongDeviceList = action.payload.data?.data;
+      })
+      .addCase(getWrongDeviceReport.rejected, (state) => {
+        state.wrongDeviceLoading = false;
+
       });
   },
 });

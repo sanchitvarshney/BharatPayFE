@@ -137,6 +137,7 @@ import CRMRemarkLayout from "./layouts/CRMRemarkLayout";
 import CRMRemarkReport from "./pages/crm-remark/CRMRemarkReport";
 import CRMUpload from "./pages/crm-remark/CRMUpload";
 import PercentageComponentLayout from "./layouts/PercentageComponentLayout";
+import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
 
 export const router = createBrowserRouter([
   {
@@ -231,6 +232,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/wrong-device-min",
+      },
+         {
+        element: (
+          <MainLayout>
+            <FormLayout>
+              <WrongDeviceReport />
+            </FormLayout>
+          </MainLayout>
+        ),
+        path: "/wrong-device/reports",
       },
       {
         element: (
