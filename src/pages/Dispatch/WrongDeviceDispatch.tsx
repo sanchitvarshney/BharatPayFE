@@ -3,12 +3,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
+import * as XLSX from "xlsx";
 import {
   resetDocumentFile,
   storeFormdata,
 } from "@/features/wearhouse/Rawmin/RawMinSlice";
 import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import {
+  Button,
   CircularProgress,
   Divider,
   FormControl,
@@ -23,6 +25,7 @@ import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
 import Success from "@/components/reusable/Success";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 import { LocationType } from "@/components/reusable/editor/SelectClient";
 import { DeviceType } from "@/components/reusable/SelectSku";
@@ -35,10 +38,38 @@ import { DispatchWrongItemPayload } from "@/features/Dispatch/DispatchType";
 import { Dayjs } from "dayjs";
 import WrongDeviceImeiTable from "@/table/dispatch/WrongDeviceImeiTable";
 import { useParams } from "react-router-dom";
+import { CloudUpload } from "@mui/icons-material";
+import { VisuallyHiddenInput } from "@/theme";
 type RowData = {
   awbNo: string;
   uniqueId: string;
   serialNo: string;
+};
+
+const EXCEL_HEADERS = {
+  awbNo: "AWB No.",
+  uniqueId: "Unique ID",
+  serialNo: "Serial No",
+} as const;
+
+const getExcelColumnValue = (
+  row: Record<string, unknown>,
+  aliases: string[],
+) => {
+  const aliasSet = new Set(aliases.map((alias) => alias.trim().toLowerCase()));
+
+  for (const [key, value] of Object.entries(row)) {
+    if (aliasSet.has(key.trim().toLowerCase())) {
+      return value;
+    }
+  }
+
+  return undefined;
+};
+
+const normalizeExcelCell = (value: unknown) => {
+  const str = String(value ?? "").trim();
+  return str || "--";
 };
 
 type FormDataType = {
@@ -74,6 +105,8 @@ type shipToDetailsType = {
 
 const WrongDeviceDispatch: React.FC = () => {
   const [upload, setUpload] = useState<boolean>(false);
+  const [uploadConfirmOpen, setUploadConfirmOpen] = useState<boolean>(false);
+  const [pendingUploadRows, setPendingUploadRows] = useState<RowData[]>([]);
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [imei, setImei] = React.useState<string>("");
   const [uniqueIds, setUniqueIds] = React.useState<string>("");
@@ -151,7 +184,11 @@ const WrongDeviceDispatch: React.FC = () => {
 
   const finalSubmit = () => {
     const data = formValues;
-    if (rowData.length !== Number(data.qty)) return showToast("Total Devices should be equal to Quantity you have entered", "error");
+    if (rowData.length !== Number(data.qty))
+      return showToast(
+        "Total Devices should be equal to Quantity you have entered",
+        "error",
+      );
     const payload: DispatchWrongItemPayload = {
       awb: rowData.map((item) => item.awbNo),
       challanId: id?.replace(/_/g, "/") || "",
@@ -159,14 +196,14 @@ const WrongDeviceDispatch: React.FC = () => {
       serialNo: rowData.map((item) => item.serialNo),
     };
     dispatch(wrongDeviceDispatch(payload)).then((res: any) => {
-
-      if (res?.payload?.data.success) {
+      if (res?.payload?.data?.success) {
         setDispatchNo(res?.payload?.data?.data?.refID);
         reset();
         setRowData([]);
         handleNext();
         resetall();
-        //  dispatch(clearFile());
+      } else if (res?.payload?.data?.message) {
+        showToast(res.payload.data.message, "error");
       }
     });
     //  };
@@ -178,8 +215,147 @@ const WrongDeviceDispatch: React.FC = () => {
     }
   }, [formValues.clientDetail?.client]);
 
+  const handleDownloadSample = () => {
+    const sampleData = [
+      {
+        [EXCEL_HEADERS.awbNo]: "AWB123456",
+        [EXCEL_HEADERS.uniqueId]: "12345",
+        [EXCEL_HEADERS.serialNo]: "67890",
+      },
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(sampleData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Wrong Device");
+    XLSX.writeFile(workbook, "wrong_device_dispatch_sample.xlsx");
+  };
+
+  const handleFileChange = (files: FileList | null) => {
+    const file = files?.[0];
+
+    if (!file) return;
+
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!ext || !["xls", "xlsx"].includes(ext)) {
+      showToast("Please upload an Excel file (.xlsx or .xls)", "error");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      try {
+        const data = event.target?.result;
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+          worksheet,
+          { defval: "" },
+        );
+
+        if (!jsonData.length) {
+          showToast("Excel file is empty", "error");
+          return;
+        }
+
+        const parsedRows: RowData[] = [];
+        const seenUniqueIds = new Set<string>();
+        const seenSerialNos = new Set<string>();
+
+        for (let i = 0; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          const awbNo = String(
+            getExcelColumnValue(row, [
+              EXCEL_HEADERS.awbNo,
+              "AWB No",
+              "AWB Device",
+            ]) ?? "",
+          ).trim();
+          const uniqueId = normalizeExcelCell(
+            getExcelColumnValue(row, [EXCEL_HEADERS.uniqueId, "Unique Id"]),
+          );
+          const serialNo = normalizeExcelCell(
+            getExcelColumnValue(row, [EXCEL_HEADERS.serialNo, "Serial No."]),
+          );
+
+          if (!awbNo) {
+            showToast(`Row ${i + 2}: AWB No. is required`, "error");
+            return;
+          }
+
+          if (uniqueId !== "--") {
+            if (seenUniqueIds.has(uniqueId)) {
+              showToast(
+                `Row ${i + 2}: Duplicate Unique ID "${uniqueId}"`,
+                "error",
+              );
+              return;
+            }
+            seenUniqueIds.add(uniqueId);
+          }
+
+          if (serialNo !== "--") {
+            if (seenSerialNos.has(serialNo)) {
+              showToast(
+                `Row ${i + 2}: Duplicate Serial No "${serialNo}"`,
+                "error",
+              );
+              return;
+            }
+            seenSerialNos.add(serialNo);
+          }
+
+          parsedRows.push({ awbNo, uniqueId, serialNo });
+        }
+
+        const qty = Number(formValues.qty);
+        if (qty && parsedRows.length !== qty) {
+          showToast(
+            `Uploaded rows (${parsedRows.length}) must match dispatch quantity (${qty})`,
+            "error",
+          );
+          return;
+        }
+
+        setPendingUploadRows(parsedRows);
+        setUploadConfirmOpen(true);
+      } catch {
+        showToast(
+          "Unable to read the file. Please check the format and try again.",
+          "error",
+        );
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleUploadConfirm = () => {
+    const count = pendingUploadRows.length;
+    setRowData(pendingUploadRows);
+    setPendingUploadRows([]);
+    setUploadConfirmOpen(false);
+    showToast(`${count} device(s) loaded from Excel`, "success");
+  };
+
+  const handleUploadCancel = () => {
+    setPendingUploadRows([]);
+    setUploadConfirmOpen(false);
+  };
+
   return (
     <>
+      <ConfirmationModel
+        open={uploadConfirmOpen}
+        onClose={handleUploadCancel}
+        title="Please note:"
+        content="The AWB will not be verified when upload the file. Do you want to continue?"
+        cancelText="Cancel"
+        confirmText="Continue"
+        color="primary"
+        onConfirm={handleUploadConfirm}
+      />
       {getChallanLoading && <FullPageLoading />}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
@@ -490,7 +666,9 @@ const WrongDeviceDispatch: React.FC = () => {
                         if (e.key === "Enter") {
                           // Check if the imei already exists in the rowData
                           const isDuplicate = rowData.some(
-                            (item) => item.awbNo === imei &&  (item.uniqueId === "--" || !item.uniqueId) ,
+                            (item) =>
+                              item.awbNo === imei &&
+                              (item.uniqueId === "--" || !item.uniqueId),
                           );
 
                           if (isDuplicate) {
@@ -550,7 +728,7 @@ const WrongDeviceDispatch: React.FC = () => {
                         }
                         if (e.key === "Enter") {
                           const isDuplicate = rowData.some(
-                            (item: any) => item.uniqueId === uniqueIds ,
+                            (item: any) => item.uniqueId === uniqueIds,
                           );
 
                           if (isDuplicate) {
@@ -646,6 +824,24 @@ const WrongDeviceDispatch: React.FC = () => {
                       }}
                     />
                   </FormControl>
+                  <Button
+                  size="large"
+                    component="label"
+                    role={undefined}
+                    variant="contained"
+                    tabIndex={-1}
+                    startIcon={<CloudUpload />}
+                  >
+                    Bulk Upload
+                    <VisuallyHiddenInput
+                      type="file"
+                      accept=".xlsx,.xls"
+                      onChange={(event) => {
+                        handleFileChange(event.target.files);
+                        event.target.value = "";
+                      }}
+                    />
+                  </Button>
                 </div>
 
                 <div className="h-[calc(100vh-250px)]">
@@ -687,6 +883,13 @@ const WrongDeviceDispatch: React.FC = () => {
             )}
             {activeStep === 1 && (
               <>
+                <Button
+                  variant="text"
+                  startIcon={<Icons.download />}
+                  onClick={handleDownloadSample}
+                >
+                  Sample File
+                </Button>
                 <LoadingButton
                   disabled={wrongDispatchLoading}
                   sx={{ background: "white", color: "red" }}
