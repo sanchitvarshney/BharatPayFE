@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getPertCodesync } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
+import {
+  getPertCodesync,
+  clearAvaibleQtyData,
+} from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { getSkuAsync } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import { resetUploadFileData } from "@/features/master/BOM/BOMSlice";
@@ -54,6 +57,7 @@ const CreateGP: React.FC = () => {
     handleSubmit,
     control,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormState>({
     defaultValues: {
@@ -66,6 +70,7 @@ const CreateGP: React.FC = () => {
       location: null,
     },
   });
+  const selectedLocation = watch("location");
 
   const addRow = useCallback(() => {
     const newId = generateUniqueId();
@@ -148,10 +153,12 @@ const CreateGP: React.FC = () => {
         remark,
       })
     ).then((res: any) => {
+      console.log("resss", res);
       if (res.payload?.data?.success) {
         setRowData([]);
         reset();
         dispatch(clearGPDCData());
+        dispatch(clearAvaibleQtyData());
       }
     });
   };
@@ -159,7 +166,9 @@ const CreateGP: React.FC = () => {
   useEffect(() => {
     dispatch(getPertCodesync(null));
     dispatch(getSkuAsync(null));
+    dispatch(clearAvaibleQtyData());
   }, []);
+
   return (
     <>
       <ConfirmationModel
@@ -172,6 +181,7 @@ const CreateGP: React.FC = () => {
           setRowData([]);
           setAlert(false);
           dispatch(resetUploadFileData());
+          dispatch(clearAvaibleQtyData());
         }}
         confirmText="Continue"
         cancelText="Cancel"
@@ -348,6 +358,7 @@ const CreateGP: React.FC = () => {
             addRow={addRow}
             rowData={rowData}
             setRowdata={setRowData}
+            location={selectedLocation}
           />
         </div>
       </div>
