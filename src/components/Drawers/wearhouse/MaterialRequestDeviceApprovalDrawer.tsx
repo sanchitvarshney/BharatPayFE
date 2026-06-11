@@ -195,7 +195,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
     try {
       const response: any = await dispatch(isExistItemOnLocation(payload));
 
-      if (response.payload.data?.success) {
+      if (response?.payload?.data?.success) {
         return true;
       } else {
         return false;
@@ -681,7 +681,7 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
                                         type: "soundBox",
                                       }),
                                     ).then(async (response: any) => {
-                                      if (response?.payload?.data.success) {
+                                      if (response?.payload?.data?.success) {
                                         const isExistingItem =
                                           await getItemExists();
                                         if (!isExistingItem) {
@@ -697,11 +697,11 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
                                           Number(isueeQty) ===
                                           scanned?.length! + 1
                                         ) {
-                                          e.currentTarget.blur();
+                                          e?.currentTarget?.blur();
                                         }
                                       } else {
                                         showToast(
-                                          response.payload.data.message,
+                                          response?.payload?.data?.message,
                                           "error",
                                         );
                                       }

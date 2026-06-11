@@ -477,8 +477,6 @@ const CreateDispatchPage: React.FC = () => {
       return { success: false, message: "Check box validation failed" };
     }
   };
-
-  console.log(formValues);
   return (
     <>
       <Dialog

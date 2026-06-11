@@ -180,5 +180,5 @@ const materialRequestSlice = createSlice({
   },
 });
 
-export const { setType } = materialRequestSlice.actions;
+export const { setType, clearAvaibleQtyData } = materialRequestSlice.actions;
 export default materialRequestSlice.reducer;

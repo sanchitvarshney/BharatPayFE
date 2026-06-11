@@ -30,6 +30,7 @@ import { QrCodeScanner } from "@mui/icons-material";
 const CategoryData = [
   { value: "abb8d54f-6862-4978-ab41-a69fdaaab6ec", text: "BPe Swipe Machine" },
   { value: "bdc8d26f-47c3-4bm7-a8c6-753bc77547ld", text: "Walnut" },
+   { value: "d7aa41c2-655a-11f1-9493-04421aa8167c", text: "Bluetooth Device" },
   { value: "051aec9b-fdd6-4d34-848a-25b9f1b6252a", text: "Other" },
 ];
 const PartnerData = [

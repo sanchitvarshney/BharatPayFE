@@ -170,13 +170,13 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
     dispatch(
       approveSwipeDeviceRequest({
         productKey: itemkey,
-        pickLocation: data.picLocation!.id,
-        qty: data.issueQty,  
+        pickLocation: data?.picLocation!.id,
+        qty: data?.issueQty,  
         transactionId: requestDetail?.id ?? "",
         productDetail,
       }),
     ).then((response: any) => {
-      if (response.payload.data?.success) {
+      if (response?.payload?.data?.success) {
         dispatch(clearItemdetail());
         setItemKey("");
         reset();
@@ -228,7 +228,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
     try {
       const response: any = await dispatch(isExistItemOnLocation(payload));
 
-      if (response.payload.data?.success) {
+      if (response?.payload?.data?.success) {
         return true;
       } else {
         return false;
@@ -668,7 +668,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                         type: "swipeMachine",
                                       }),
                                     ).then(async (response: any) => {
-                                      if (response.payload.data.success) {
+                                      if (response?.payload?.data?.success) {
                                         const isExistingItem =
                                           await getItemExists();
                                         if (!isExistingItem) {
@@ -677,7 +677,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
 
                                         const nextCode = normalizeCode(input);
                                         const nextDeviceList = [
-                                          ...(deviceDataRef.current ?? []).filter(
+                                          ...(deviceDataRef?.current ?? []).filter(
                                             (row: any) =>
                                               normalizeCode(
                                                 row?.scannedCode ??
@@ -685,7 +685,7 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                               ) !== nextCode,
                                           ),
                                           {
-                                            ...response.payload.data.data,
+                                            ...response?.payload?.data?.data,
                                             scannedCode: nextCode,
                                           },
                                         ];
@@ -701,11 +701,11 @@ const MaterialRequestSwipeApprovalDrawer: React.FC<Props> = ({
                                           Number(isueeQty) ===
                                           scanned?.length! + 1
                                         ) {
-                                          e.currentTarget.blur();
+                                          e?.currentTarget?.blur();
                                         }
                                       } else {
                                         showToast(
-                                          response.payload.data.message,
+                                          response?.payload?.data?.message,
                                           "error",
                                         );
                                       }

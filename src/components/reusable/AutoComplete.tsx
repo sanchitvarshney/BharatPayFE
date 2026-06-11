@@ -64,7 +64,7 @@ export const AutoComplete = ({
           }
 
           if (event.key === "Escape") {
-              input.blur();
+              input?.blur();
           }
       },
       [isOpen, options, onValueChange]

@@ -133,14 +133,15 @@ const ManageGP: React.FC = () => {
       dispatch(
         getListofGPDC({
           wise: type,
-          data: dateRange || "",
-
+          ...(type === "gpdcwise"
+            ? { txn: gpdcNo }
+            : { from: dateRange?.from || "", to: dateRange?.to || "" }),
           page: page,
           limit: pageSize,
         })
       );
     },
-    [dispatch, pageSize, type, dateRange]
+    [dispatch, pageSize, type, dateRange, gpdcNo]
   );
 
   const handlePageSizeChange = useCallback(
@@ -151,7 +152,9 @@ const ManageGP: React.FC = () => {
         dispatch(
           getListofGPDC({
             wise: type,
-            data: dateRange || gpdcNo || "",
+            ...(type === "gpdcwise"
+              ? { txn: gpdcNo }
+              : { from: dateRange?.from || "", to: dateRange?.to || "" }),
             page: 1,
             limit: size,
           })
@@ -257,7 +260,7 @@ const ManageGP: React.FC = () => {
                         dispatch(
                           getListofGPDC({
                             wise: "gpdcwise",
-                            data: gpdcNo,
+                            txn: gpdcNo,
                             limit: pageSize,
                             page: 1,
                           })
@@ -292,17 +295,17 @@ const ManageGP: React.FC = () => {
                       if (!date.from || !date.to) {
                         showToast("Please select date range", "error");
                       } else {
-                        let dataString = "";
-
                         const startDate = dayjs(date.from).format("DD-MM-YYYY");
                         const endDate = dayjs(date.to).format("DD-MM-YYYY");
-                        dataString = `${startDate}-${endDate}`;
-                        dispatch(setDateRange(dataString as any));
+                        dispatch(
+                          setDateRange({ from: startDate, to: endDate } as any)
+                        );
 
                         dispatch(
                           getListofGPDC({
                             wise: "datewise",
-                            data: dataString,
+                            from: startDate,
+                            to: endDate,
                             limit: pageSize,
                             page: 1,
                           })

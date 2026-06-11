@@ -341,7 +341,7 @@ const Deviceinreport: React.FC = () => {
                     </LoadingButton>
                     <MuiTooltip title="Download" placement="right">
                       <LoadingButton
-                        disabled={!isConnected}
+                        disabled={!isConnected || !mainR1Report}
                         variant="contained"
                         color="primary"
                         style={{

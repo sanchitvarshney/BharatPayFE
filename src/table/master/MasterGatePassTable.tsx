@@ -2,10 +2,11 @@ import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import CraeteBomCellRender from "../Cellrenders/CraeteBomCellRender";
+import MasterGatePassCellRender from "../Cellrenders/MasterGatePassCellRender";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button, IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
+import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 interface RowData {
   id: string;
   component: { lable: string; value: string } | null;
@@ -17,10 +18,13 @@ type Props = {
   rowData: RowData[];
   setRowdata: React.Dispatch<React.SetStateAction<RowData[]>>;
   addRow: () => void;
+  location?: LocationType | null;
 };
 
-const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) => {
+const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow, location }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
+  const locationRef = useRef<LocationType | null>(location ?? null);
+  locationRef.current = location ?? null;
 
   const handleDeleteRow = (id: string) => {
     setRowdata(rowData.filter((row) => row.id !== id));
@@ -41,7 +45,7 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
 
   const components = useMemo(
     () => ({
-      textInputCellRenderer: (params: any) => <CraeteBomCellRender props={params} customFunction={getAllTableData} />,
+      textInputCellRenderer: (params: any) => <MasterGatePassCellRender props={params} customFunction={getAllTableData} locationRef={locationRef} />,
     }),
     []
   );
@@ -92,7 +96,6 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       field: "availableqty",
       cellRenderer: "textInputCellRenderer",
     },
-   
     {
       headerName: "Quantity",
       field: "qty",
@@ -101,6 +104,13 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow }) 
       minWidth: 200,
       maxWidth: 200,
     },
+     {
+      headerName: "Rate",
+      field: "rate",
+      cellRenderer: "textInputCellRenderer",
+      minWidth: 120,
+    },
+
     {
       headerName: "Remark",
       field: "remark",
