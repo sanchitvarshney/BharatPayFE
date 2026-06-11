@@ -145,7 +145,7 @@ const gpdcChallanSlice = createSlice({
       .addCase(getListofGPDC.fulfilled, (state, action) => {
         state.getGPDCLoading = false;
         if (action.payload.data.success) {
-          state.manageGPDCData = action.payload.data.data;
+          state.manageGPDCData = action.payload.data;
         }
       })
       .addCase(getListofGPDC.rejected, (state) => {

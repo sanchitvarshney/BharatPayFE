@@ -80,13 +80,13 @@ const ManageGP: React.FC = () => {
     },
     {
       headerName: "GP DC No.",
-      field: "gpdc_no",
+      field: "txnNo",
       sortable: true,
       filter: true,
     },
     {
       headerName: "Type",
-      field: "type",
+      field: "moduleType",
       sortable: true,
       filter: true,
     },
@@ -110,13 +110,13 @@ const ManageGP: React.FC = () => {
     },
     {
       headerName: "Created Date",
-      field: "created_date",
+      field: "insertDt",
       sortable: true,
       filter: true,
     },
     {
       headerName: "Created By",
-      field: "created_by",
+      field: "user_name",
       sortable: true,
       filter: true,
     },
@@ -171,8 +171,8 @@ const ManageGP: React.FC = () => {
   };
 
   const handlePrintChallan = () => {
-    if (selectedRow?.gpdc_no) {
-      dispatch(printGPDC({ id: selectedRow.gpdc_no })).then((res: any) => {
+    if (selectedRow?.txnNo) {
+      dispatch(printGPDC({ id: selectedRow.txnNo })).then((res: any) => {
         if (res.payload?.success) {
           showToast("GP DC downloaded successfully", "success");
         }
@@ -182,8 +182,8 @@ const ManageGP: React.FC = () => {
   };
 
   const handleViewGPDC = () => {
-    if (selectedRow?.gpdc_no) {
-      dispatch(getGPDCById({ gpdcId: selectedRow.gpdc_no })).then(
+    if (selectedRow?.txnNo) {
+      dispatch(getGPDCById({ gpdcId: selectedRow.txnNo })).then(
         (res: any) => {
           if (res.payload?.data?.success) {
             // You can open a modal or navigate to view page here
