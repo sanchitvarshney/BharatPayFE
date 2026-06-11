@@ -7,7 +7,6 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   getListofGPDC,
   printGPDC,
-  getGPDCById,
   setDateRange,
 } from "@/features/GPDCChallan/GPDCChallanSlice";
 import CustomPagination from "@/components/reusable/CustomPagination";
@@ -177,20 +176,6 @@ const ManageGP: React.FC = () => {
           showToast("GP DC downloaded successfully", "success");
         }
       });
-    }
-    setAnchorEl(null);
-  };
-
-  const handleViewGPDC = () => {
-    if (selectedRow?.txnNo) {
-      dispatch(getGPDCById({ gpdcId: selectedRow.txnNo })).then(
-        (res: any) => {
-          if (res.payload?.data?.success) {
-            // You can open a modal or navigate to view page here
-            showToast("GP DC details loaded", "success");
-          }
-        }
-      );
     }
     setAnchorEl(null);
   };
@@ -366,7 +351,6 @@ const ManageGP: React.FC = () => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleViewGPDC}>View</MenuItem>
           <MenuItem onClick={handlePrintChallan}>Download</MenuItem>
         </Menu>
       </div>
