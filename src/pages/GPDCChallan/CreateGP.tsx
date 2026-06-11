@@ -35,6 +35,7 @@ interface RowData {
   qty: number;
   isNew: boolean;
   remark: string;
+  rate: any;
 }
 
 type FormState = {
@@ -80,6 +81,7 @@ const CreateGP: React.FC = () => {
       qty: 0,
       isNew: true,
       remark: "",
+      rate: "",
     };
     setRowData((prev) => [newRow, ...prev]);
   }, [rowData]);
@@ -136,7 +138,8 @@ const CreateGP: React.FC = () => {
     const components = rowData.map((row) => row.component?.value || "");
     const qty = rowData.map((row) => row.qty);
     const remark = rowData.map((row) => row.remark || "");
-   
+    const rate = rowData.map((row) => row.rate || 0);
+
     // Dispatch create GPDC action
     dispatch(
       createGPDC({
@@ -151,7 +154,8 @@ const CreateGP: React.FC = () => {
         components,
         quantity: qty,
         remark,
-      })
+        rate,
+      }),
     ).then((res: any) => {
       console.log("resss", res);
       if (res.payload?.data?.success) {

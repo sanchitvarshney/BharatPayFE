@@ -13,6 +13,7 @@ interface RowData {
   qty: number;
   isNew: boolean;
   remark: string;
+  rate: any;
 }
 type Props = {
   rowData: RowData[];
