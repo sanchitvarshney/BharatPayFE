@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { Input } from "antd";
 import React, { useEffect, useState } from "react";
+import { getPOComponentDetail } from "@/features/procurement/poSlices";
 
 interface MasterGatePassCellRenderProps {
   props: any;
@@ -22,7 +23,7 @@ const MasterGatePassCellRender: React.FC<MasterGatePassCellRenderProps> = ({ pro
     data[colDef.field] = newValue;
     api.refreshCells({
       rowNodes: [props.node],
-      columns: [column, "id", "component", "availableqty", "qty", "remark"],
+      columns: [column, "id", "component", "availableqty", "rate", "qty", "remark"],
     });
   };
 
@@ -35,7 +36,7 @@ const MasterGatePassCellRender: React.FC<MasterGatePassCellRenderProps> = ({ pro
               data.uom = value;
               api.refreshCells({
                 rowNodes: [props.node],
-                columns: [column, "component", "availableqty", "qty", "remark", "uom"],
+                columns: [column, "component", "availableqty", "rate", "qty", "remark", "uom"],
               });
               customFunction();
             }}
@@ -53,10 +54,19 @@ const MasterGatePassCellRender: React.FC<MasterGatePassCellRenderProps> = ({ pro
                 } else {
                   showToast("Please select location first", "error");
                 }
+                dispatch(getPOComponentDetail(selectedValue.value || "")).then((res: any) => {
+                  const detail = res?.payload?.data?.data?.[0];
+                  const rate = detail?.rate ?? detail?.itemRate ?? detail?.mrp;
+                  data.rate = rate != null && rate !== "" ? rate : null;
+                  api.refreshCells({
+                    rowNodes: [props.node],
+                    columns: [column, "component", "availableqty", "rate", "qty", "remark", "uom"],
+                  });
+                });
               }
               api.refreshCells({
                 rowNodes: [props.node],
-                columns: [column, "component", "availableqty", "qty", "remark", "uom"],
+                columns: [column, "component", "availableqty", "rate", "qty", "remark", "uom"],
               });
             }}
             value={value}
@@ -87,6 +97,9 @@ const MasterGatePassCellRender: React.FC<MasterGatePassCellRenderProps> = ({ pro
 
         return availbleQty;
       }
+
+      case "rate":
+        return <span>{value != null && value !== "" ? value : "--"}</span>;
 
       case "qty":
         return (

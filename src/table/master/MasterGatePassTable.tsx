@@ -96,7 +96,6 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow, lo
       field: "availableqty",
       cellRenderer: "textInputCellRenderer",
     },
-   
     {
       headerName: "Quantity",
       field: "qty",
@@ -105,6 +104,13 @@ const MasterBOMCraeteTable: React.FC<Props> = ({ rowData, setRowdata, addRow, lo
       minWidth: 200,
       maxWidth: 200,
     },
+     {
+      headerName: "Rate",
+      field: "rate",
+      cellRenderer: "textInputCellRenderer",
+      minWidth: 120,
+    },
+
     {
       headerName: "Remark",
       field: "remark",

@@ -35,12 +35,12 @@ export const getGPDCList = createAsyncThunk<
 
 export const getListofGPDC = createAsyncThunk<
   AxiosResponse<any>,
-  { wise: "gpdcwise" | "datewise" | string; data: string; limit: number; page: number }
+  { wise: "gpdcwise" | "datewise" | string; txn?: string; from?: string; to?: string; limit: number; page: number }
 >("gpdc/getListofGPDC", async (payload) => {
   const response = await axiosInstance.get(
     payload.wise === "gpdcwise"
-      ? `/gpdc/fetch?wise=gpdcwise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
-      : `/gpdc/fetch?wise=datewise&data=${payload.data}&limit=${payload.limit}&page=${payload.page}`
+      ? `/gpdc/fetch?wise=gpdcwise&txn=${payload.txn || ""}&limit=${payload.limit}&page=${payload.page}`
+      : `/gpdc/fetch?wise=datewise&from=${payload.from || ""}&to=${payload.to || ""}&limit=${payload.limit}&page=${payload.page}`
   );
   return response;
 });
