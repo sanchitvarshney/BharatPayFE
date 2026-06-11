@@ -59,8 +59,8 @@ const R5Report: React.FC = () => {
       }
         dispatch(
        getWrongDeviceReport({
-         fromDate: dayjs(date.from).format("YYYY-MM-DD"),
-         toDate: dayjs(date.to).format("YYYY-MM-DD"),
+         fromDate: dayjs(date.from).format("YYYY-MM-DD 00:00:00"),
+         toDate: dayjs(date.to).format("YYYY-MM-DD 23:59:59"),
        })
         )
 
