@@ -45,6 +45,8 @@ const R5Report: React.FC = () => {
   const onBtExport = useCallback(() => {
     gridRef.current!.api.exportDataAsExcel({
       sheetName: "R5 Report", // Set your desired sheet name here
+      allColumns: true,
+   
     });
   }, []);
 
@@ -101,6 +103,14 @@ const R5Report: React.FC = () => {
           return <div>{formattedDate}</div>;
         }
   },
+       {
+        headerName: "URL",
+        field: "devVedio",
+        sortable: true,
+        filter: true,
+        flex: 1,
+        hide: true
+      },
       {
         headerName: "Insert By",
         field: "user_name",
