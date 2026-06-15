@@ -65,17 +65,10 @@ const ViewImage: React.FC = () => {
       <div
         className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)] border-r border-neutral-300 min-w-[400px] max-w-[400px] items-center`}
       >
-        <Paper elevation={0} className="m-8 w-full">
+        <Paper elevation={0} className="m-2 w-full">
           <CardContent>
-            {/* Beautiful heading */}
-            <Typography
-              variant="h4"
-              className="text-slate-800 font-bold mb-3 mt-2 text-center tracking-tight"
-              style={{ letterSpacing: 1 }}
-            >
-              View Image
-            </Typography>
-            <div className="flex flex-col gap-[20px] px-[20px] py-[20px]">
+       
+            <div className="flex flex-col gap-[20px] px-[0px] py-[0px]">
               <div className="flex flex-col gap-[10px]">
                 <Typography
                   variant="subtitle1"

@@ -138,6 +138,8 @@ import CRMRemarkReport from "./pages/crm-remark/CRMRemarkReport";
 import CRMUpload from "./pages/crm-remark/CRMUpload";
 import PercentageComponentLayout from "./layouts/PercentageComponentLayout";
 import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
+import ViewImageLayout from "./layouts/ViewImageLayout";
+import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
 
 export const router = createBrowserRouter([
   {
@@ -233,7 +235,7 @@ export const router = createBrowserRouter([
         ),
         path: "/wrong-device-min",
       },
-         {
+      {
         element: (
           <MainLayout>
             <FormLayout>
@@ -273,7 +275,7 @@ export const router = createBrowserRouter([
         ),
         path: "/device/transfer",
       },
-       {
+      {
         element: (
           <MainLayout>
             <SwipeTransferLayout>
@@ -594,7 +596,7 @@ export const router = createBrowserRouter([
         ),
         path: "/warehouse/prod-return-MIN",
       },
-           {
+      {
         element: (
           <MainLayout>
             <CRMRemarkLayout>
@@ -604,7 +606,7 @@ export const router = createBrowserRouter([
         ),
         path: "/crm/report",
       },
-              {
+      {
         element: (
           <MainLayout>
             <CRMRemarkLayout>
@@ -1055,10 +1057,24 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ViewImage />
+            <ViewImageLayout>
+              {" "}
+              <ViewImage />
+            </ViewImageLayout>
           </MainLayout>
         ),
-        path: "/view-image",
+        path: "/inward-device/view-image",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ViewImageLayout>
+              {" "}
+              <FQCDeviceImage />
+            </ViewImageLayout>
+          </MainLayout>
+        ),
+        path: "/fqc-device/view-image",
       },
       {
         element: (
