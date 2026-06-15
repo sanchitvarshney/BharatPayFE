@@ -10,8 +10,6 @@ import { useUser } from "./hooks/useUser";
 import MailVerifyPage from "./pages/commonPages/MailVerifyPage";
 import ChangePassword from "@/pages/commonPages/ChangePassword";
 import OtpPage from "@/pages/commonPages/otpPage";
-import useVersionCheck from "./hooks/useVersionCheck";
-import UpdateVersionPopup from "./components/UpdateVersionPopup";
 
 dayjs.extend(customParseFormat);
 function App() {
@@ -19,14 +17,7 @@ function App() {
 
   const [isOffline, setIsOffline] = useState<boolean>(false);
   const showDispatchPage = localStorage.getItem("showOtpPage");
-  const { updateAvailable } = useVersionCheck();
-  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
-  useEffect(() => {
-    if (updateAvailable) {
-      setShowUpdatePopup(true);
-    }
-  }, [updateAvailable]);
   useEffect(() => {
     const handleOffline = () => {
       setIsOffline(true); // User is offline, apply blur effect
@@ -71,10 +62,6 @@ function App() {
             )}
             <TawkToChat />
           </div>
-              <UpdateVersionPopup
-        open={showUpdatePopup}
-        onRefresh={() => window.location.reload()}
-      />
         </>
       );
     }
