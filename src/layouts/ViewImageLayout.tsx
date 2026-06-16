@@ -16,7 +16,11 @@ const ViewImageLayout = (props:{children:React.ReactNode}) => {
              FQC Device
             </NavLink>
           </li>
-         
+          <li className="h-[50px]">
+            <NavLink to={"/wrong-device/reports"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
+             Wrong Device Video Report
+            </NavLink>
+          </li>
         
         </ul>
       </div>

@@ -238,9 +238,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <FormLayout>
+            <ViewImageLayout>
               <WrongDeviceReport />
-            </FormLayout>
+            </ViewImageLayout>
           </MainLayout>
         ),
         path: "/wrong-device/reports",
