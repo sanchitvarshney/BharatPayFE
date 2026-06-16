@@ -12,7 +12,6 @@ import { FqcTableRow, ImageViewKey } from "./fqcDeviceImage.types";
 
 export const useFqcDeviceImage = () => {
   const [deviceType, setDeviceType] = useState("");
-  const [modelNumber, setModelNumber] = useState("");
   const [serialNo, setSerialNo] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -79,26 +78,18 @@ export const useFqcDeviceImage = () => {
       showToast("Please enter Device Type and Serial Number", "error");
       return;
     }
-    if (deviceType === "swipe" && !modelNumber) {
-      showToast("Please enter Model for Swipe Machine", "error");
-      return;
-    }
-
     resetModals();
     dispatch(
       getFqcDeviceImages({
         module: deviceType === "swipe" ? "swipe" : "sound",
         dsn: serialNo,
-        model: deviceType === "swipe" ? modelNumber : undefined,
       })
     );
-  }, [deviceType, serialNo, modelNumber, dispatch, resetModals]);
+  }, [deviceType, serialNo, dispatch, resetModals]);
 
   return {
     deviceType,
     setDeviceType,
-    modelNumber,
-    setModelNumber,
     serialNo,
     setSerialNo,
     viewModalOpen,

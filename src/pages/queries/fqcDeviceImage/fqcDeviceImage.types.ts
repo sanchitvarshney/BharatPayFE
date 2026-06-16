@@ -7,6 +7,5 @@ export type FqcTableRow = FqcImageSet & { dsn: string; type: string };
 
 export type FqcSearchForm = {
   deviceType: string;
-  modelNumber: string;
   serialNo: string;
 };

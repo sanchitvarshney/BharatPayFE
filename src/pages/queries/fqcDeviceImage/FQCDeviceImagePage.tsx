@@ -9,8 +9,6 @@ const FQCDeviceImagePage: React.FC = () => {
   const {
     deviceType,
     setDeviceType,
-    modelNumber,
-    setModelNumber,
     serialNo,
     setSerialNo,
     viewModalOpen,
@@ -36,11 +34,9 @@ const FQCDeviceImagePage: React.FC = () => {
     <div className="relative flex bg-white">
       <FqcDeviceImageSearchForm
         deviceType={deviceType}
-        modelNumber={modelNumber}
         serialNo={serialNo}
         loading={fqcDeviceImagesLoading}
         onDeviceTypeChange={setDeviceType}
-        onModelNumberChange={setModelNumber}
         onSerialNoChange={setSerialNo}
         onSearch={handleSearch}
       />

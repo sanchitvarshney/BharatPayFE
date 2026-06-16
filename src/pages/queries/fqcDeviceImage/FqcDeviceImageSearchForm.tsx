@@ -14,22 +14,18 @@ import { fieldSx, selectSx } from "./fqcDeviceImage.constants";
 
 type Props = {
   deviceType: string;
-  modelNumber: string;
   serialNo: string;
   loading: boolean;
   onDeviceTypeChange: (value: string) => void;
-  onModelNumberChange: (value: string) => void;
   onSerialNoChange: (value: string) => void;
   onSearch: () => void;
 };
 
 const FqcDeviceImageSearchForm: React.FC<Props> = ({
   deviceType,
-  modelNumber,
   serialNo,
   loading,
   onDeviceTypeChange,
-  onModelNumberChange,
   onSerialNoChange,
   onSearch,
 }) => (
@@ -60,24 +56,6 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
               </Select>
             </FormControl>
           </div>
-
-          {deviceType === "swipe" && (
-            <div className="flex flex-col gap-[10px]">
-              <Typography
-                variant="subtitle1"
-                className="text-slate-600 font-medium"
-              >
-                Model
-              </Typography>
-              <TextField
-                fullWidth
-                variant="outlined"
-                value={modelNumber}
-                onChange={(e) => onModelNumberChange(e.target.value)}
-                sx={fieldSx}
-              />
-            </div>
-          )}
 
           <div className="flex flex-col gap-[10px]">
             <Typography
