@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography } from "@mui/material";
+import { Typography, CircularProgress } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { FqcTableRow } from "./fqcDeviceImage.types";
@@ -20,7 +20,7 @@ const FqcDeviceImageResults: React.FC<Props> = ({
   <div className="w-full flex flex-col h-[calc(100vh-100px)] overflow-y-auto">
     {loading ? (
       <div className="flex items-center justify-center h-full">
-        <Typography variant="body1">Loading...</Typography>
+        <CircularProgress  />
       </div>
     ) : error ? (
       <div className="flex items-center justify-center h-full">
