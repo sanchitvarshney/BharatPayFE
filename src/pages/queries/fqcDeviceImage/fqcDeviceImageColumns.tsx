@@ -7,7 +7,6 @@ export const createFqcColumnDefs = (
 ): ColDef<FqcTableRow>[] => [
   { headerName: "DSN", field: "dsn", flex: 1, minWidth: 130 },
   { headerName: "Type", field: "type", flex: 1, minWidth: 80 },
-  { headerName: "Ref ID", field: "refId", flex: 1, minWidth: 200 },
   { headerName: "Inserted By", field: "insertBy", flex: 1, minWidth: 120 },
   { headerName: "Insert Date", field: "insertDt", flex: 1, minWidth: 160 },
   {

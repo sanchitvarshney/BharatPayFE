@@ -43,7 +43,7 @@ const FqcDeviceImagesModal: React.FC<Props> = ({
               DSN: {row.dsn} • Type: {row.type}
             </Typography>
             <Typography variant="body2" className="text-slate-500">
-              Ref ID: {row.refId} • Inserted by {row.insertBy} • {row.insertDt}
+              Inserted by {row.insertBy} • {row.insertDt}
             </Typography>
           </div>
 
