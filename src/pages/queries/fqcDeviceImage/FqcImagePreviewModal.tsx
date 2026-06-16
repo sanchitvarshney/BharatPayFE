@@ -42,7 +42,7 @@ const FqcImagePreviewModal: React.FC<Props> = ({
           pr: 1,
         }}
       >
-        <span>{label}</span>
+        <span>Preview Image</span>
         <IconButton onClick={onClose} size="small" aria-label="Close preview">
           <Icons.close />
         </IconButton>

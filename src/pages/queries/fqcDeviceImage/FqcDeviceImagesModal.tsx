@@ -63,12 +63,12 @@ const FqcDeviceImagesModal: React.FC<Props> = ({
                       alt={view.label}
                       className="rounded object-contain max-h-[220px] w-full"
                     />
-                    <Typography
+                    {/* <Typography
                       variant="subtitle2"
                       className="mt-2 font-medium text-slate-700"
                     >
                       {view.label}
-                    </Typography>
+                    </Typography> */}
                   </button>
                 );
               })}
