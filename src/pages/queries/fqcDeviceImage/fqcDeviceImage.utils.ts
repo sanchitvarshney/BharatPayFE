@@ -14,9 +14,9 @@ export const flattenFqcTableRows = (
   ) ?? [];
 
 export const getAvailableViews = (imageSet?: FqcImageSet | null) =>
-  IMAGE_VIEWS.filter((view) => imageSet?.[view.key as ImageViewKey]?.location);
+  IMAGE_VIEWS.filter((view) => imageSet?.[view.key as ImageViewKey]?.url);
 
 export const getImageUrl = (
   imageSet: FqcImageSet | null | undefined,
   key: ImageViewKey
-) => imageSet?.[key]?.location;
+) => imageSet?.[key]?.url;

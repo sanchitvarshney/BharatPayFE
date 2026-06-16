@@ -23,7 +23,7 @@ export interface DeviceImageApiResponse {
 
 export interface FqcImageFile {
   key: string;
-  location: string;
+  url: string;
   originalName: string;
   size: number;
   mimetype: string;
