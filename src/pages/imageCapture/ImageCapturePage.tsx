@@ -63,6 +63,7 @@ const ImageCapturePage = () => {
       if (body?.success) {
         showToast(body.message ?? "Images uploaded successfully", "success");
         setCameraOpen(false);
+        setSerialNo("");
       } else {
         showToast(body?.message ?? "Failed to upload images", "error");
       }

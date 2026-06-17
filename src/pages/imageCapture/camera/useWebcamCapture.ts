@@ -44,27 +44,30 @@ export const useWebcamCapture = ({
 
     const loadDevices = async () => {
       try {
-        // Ask for camera permission first so enumerateDevices returns
-        // real deviceIds/labels (browsers hide them until permission is granted).
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         stream.getTracks().forEach((track) => track.stop());
       } catch {
-        // Permission denied or no camera; we still try to enumerate below.
+        // permission denied; still try to enumerate
       }
 
       const mediaDevices = await navigator.mediaDevices.enumerateDevices();
       if (cancelled) return;
       const cams = mediaDevices.filter((d) => d.kind === "videoinput");
       setDevices(cams);
-      setDeviceId(cams[1]?.deviceId || cams[0]?.deviceId || "");
+      setDeviceId((prev) => {
+        // keep existing selection if it's still available
+        if (prev && cams.some((c) => c.deviceId === prev)) return prev;
+        return cams[1]?.deviceId || cams[0]?.deviceId || "";
+      });
     };
 
     loadDevices();
 
+    navigator.mediaDevices.addEventListener("devicechange", loadDevices);
+
     return () => {
       cancelled = true;
+      navigator.mediaDevices.removeEventListener("devicechange", loadDevices);
     };
   }, [open]);
 
@@ -82,8 +85,10 @@ export const useWebcamCapture = ({
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      const isInteractive = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target as HTMLElement)?.isContentEditable;
       if (e.key === "Escape") onClose();
-      if (e.code === "Space") {
+      if (e.code === "Space" && !isInteractive) {
         e.preventDefault();
         handleCaptureRef.current();
       }

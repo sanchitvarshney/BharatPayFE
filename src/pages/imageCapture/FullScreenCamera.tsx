@@ -1,7 +1,6 @@
 import { Button, Chip, MenuItem, Select } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Webcam from "react-webcam";
-import { useEffect, useRef, useState } from "react";
 import { Icons } from "@/components/icons";
 import type { CaptureMap, CaptureView } from "./camera/camera.types";
 import { useWebcamCapture } from "./camera/useWebcamCapture";
@@ -9,29 +8,6 @@ import CameraThumbnail from "./camera/CameraThumbnail";
 import ImagePreviewDialog from "./camera/ImagePreviewDialog";
 import ConfirmDialog from "./camera/ConfirmDialog";
 
-const UPLOAD_WORDS = ["Capture", "Photo", "Save", "New"];
-
-function useUploadingLabel(uploading: boolean) {
-  const [idx, setIdx] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (uploading) {
-      setIdx(0);
-      timerRef.current = setInterval(() => {
-        setIdx((prev) => (prev + 1) % UPLOAD_WORDS.length);
-      }, 600);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIdx(0);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [uploading]);
-
-  return UPLOAD_WORDS[idx];
-}
 
 export type { CaptureView } from "./camera/camera.types";
 
@@ -83,8 +59,6 @@ const FullScreenCamera: React.FC<Props> = ({
     confirmRetakeAll,
     handleUpload,
   } = useWebcamCapture({ open, views, onClose, onUpload });
-
-  const uploadingLabel = useUploadingLabel(uploading);
 
   if (!open) return null;
 
@@ -205,14 +179,10 @@ const FullScreenCamera: React.FC<Props> = ({
                 color: uploading ? "white" : undefined,
                 opacity: uploading ? 1 : undefined,
               },
-              ".MuiLoadingButton-loadingIndicator": {
-                color: "white",
-              },
+              ".MuiLoadingButton-loadingIndicator": { color: "white" },
             }}
           >
-            {uploading
-              ? uploadingLabel
-              : `Upload (${capturedCount}/${views.length})`}
+            {uploading ? "Uploading..." : `Upload (${capturedCount}/${views.length})`}
           </LoadingButton>
           <Button
             variant="contained"
