@@ -66,7 +66,7 @@ const Q7Report: React.FC = () => {
   };
 
   const onBtExport = useCallback(() => {
-    gridRef.current!.api.exportDataAsExcel();
+    gridRef.current!.api.exportDataAsExcel({ allColumns: true });
   }, []);
 
   const handleSearch = () => {
@@ -77,21 +77,6 @@ const Q7Report: React.FC = () => {
       }
       dispatch(getPackagingFeedbackReport({ searchType: "SERIAL", serial: serial.trim() }));
     } else if (searchType === "TYPE") {
-      if (!type) {
-        showToast("Please select a type", "error");
-        return;
-      }
-      if (!date.from || !date.to) {
-        showToast("Please select a date range", "error");
-        return;
-      }
-      dispatch(getPackagingFeedbackReport({
-        searchType: "DATE",
-        from: dayjs(date.from).format("YYYY-MM-DD"),
-        to: dayjs(date.to).format("YYYY-MM-DD"),
-        type: type as "SWIPE" | "SOUND",
-      }));
-    } else {
       if (!date.from || !date.to) {
         showToast("Please select a date range", "error");
         return;
@@ -101,8 +86,23 @@ const Q7Report: React.FC = () => {
         from: dayjs(date.from).format("YYYY-MM-DD"),
         to: dayjs(date.to).format("YYYY-MM-DD"),
       };
-      if (status) params.status = status;
+      if (type) params.type = type as "SWIPE" | "SOUND";
       dispatch(getPackagingFeedbackReport(params));
+    } else {
+      if (!date.from || !date.to) {
+        showToast("Please select a date range", "error");
+        return;
+      }
+      if (!status) {
+        showToast("Please select a status", "error");
+        return;
+      }
+      dispatch(getPackagingFeedbackReport({
+        searchType: "DATE",
+        from: dayjs(date.from).format("YYYY-MM-DD"),
+        to: dayjs(date.to).format("YYYY-MM-DD"),
+        status: status as "PASS" | "FAIL",
+      }));
     }
   };
 
@@ -173,7 +173,7 @@ const Q7Report: React.FC = () => {
                       </div>
                       <div className="flex flex-col gap-[10px]">
                         <Typography variant="subtitle1" className="text-slate-600 font-medium">
-                          Status <span className="text-slate-400 text-xs font-normal">(optional)</span>
+                          Status
                         </Typography>
                         <FormControl fullWidth>
                           <Select
@@ -182,7 +182,7 @@ const Q7Report: React.FC = () => {
                             displayEmpty
                             sx={selectSx}
                           >
-                            <MenuItem value=""><em>All</em></MenuItem>
+                            <MenuItem value="" disabled><em>Select Status</em></MenuItem>
                             <MenuItem value="PASS">PASS</MenuItem>
                             <MenuItem value="FAIL">FAIL</MenuItem>
                           </Select>
@@ -195,7 +195,7 @@ const Q7Report: React.FC = () => {
                     <>
                       <div className="flex flex-col gap-[10px]">
                         <Typography variant="subtitle1" className="text-slate-600 font-medium">
-                          Type
+                          Type <span className="text-slate-400 text-xs font-normal">(optional)</span>
                         </Typography>
                         <FormControl fullWidth>
                           <Select
@@ -204,7 +204,7 @@ const Q7Report: React.FC = () => {
                             displayEmpty
                             sx={selectSx}
                           >
-                            <MenuItem value="" disabled><em>Select Type</em></MenuItem>
+                            <MenuItem value=""><em>All</em></MenuItem>
                             <MenuItem value="SWIPE">SWIPE</MenuItem>
                             <MenuItem value="SOUND">SOUND</MenuItem>
                           </Select>

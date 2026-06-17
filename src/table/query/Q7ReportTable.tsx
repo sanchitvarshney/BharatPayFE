@@ -4,9 +4,39 @@ import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { Tooltip } from "@mui/material";
+
+type Issue = { text: string; description: string };
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
+};
+
+const IssuesCellRenderer = (params: any) => {
+  const issues: Issue[] = params.value ?? [];
+  if (!issues.length) return <span className="text-slate-400">—</span>;
+
+  const headings = issues.map((i) => i.text).join(", ");
+
+  const tooltipContent = (
+    <div className="flex flex-col gap-[8px] p-[4px] max-w-[320px]">
+      {issues.map((issue, idx) => (
+        <div key={idx}>
+          <div className="text-xs font-semibold text-white">{issue.text}</div>
+          <div className="text-xs text-slate-300 mt-[2px]">{issue.description}</div>
+          {idx < issues.length - 1 && <div className="border-b border-white/20 mt-[6px]" />}
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <Tooltip title={tooltipContent} arrow placement="left" enterDelay={200}>
+      <span className="cursor-pointer text-slate-700 text-xs underline decoration-dotted underline-offset-2">
+        {headings}
+      </span>
+    </Tooltip>
+  );
 };
 
 const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
@@ -57,25 +87,25 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       headerName: "Issues",
       field: "issues",
       sortable: false,
-      filter: true,
-      flex: 3,
-      autoHeight: true,
-      cellRenderer: (params: any) => {
-        const issues: { text: string; description: string }[] = params.value ?? [];
-        if (!issues.length) return <span className="text-slate-400">—</span>;
-        return (
-          <div className="flex flex-col gap-[4px] py-[6px]">
-            {issues.map((issue, i) => (
-              <div key={i}>
-                <span className="font-semibold text-slate-700 text-xs">{issue.text}: </span>
-                <span className="text-slate-500 text-xs">{issue.description}</span>
-              </div>
-            ))}
-          </div>
-        );
-      },
+      filter: false,
+      flex: 2,
+      cellRenderer: IssuesCellRenderer,
+      // for excel export — show headings as comma list
       valueFormatter: (params: any) =>
-        (params.value ?? []).map((i: any) => i.text).join(", "),
+        (params.value ?? []).map((i: Issue) => i.text).join(", "),
+    },
+    {
+      // hidden in grid, visible in excel export only
+      headerName: "Issue Descriptions",
+      field: "issues",
+      sortable: false,
+      filter: false,
+      flex: 2,
+      hide: true,
+      valueFormatter: (params: any) =>
+        (params.value ?? [])
+          .map((i: Issue) => `${i.text}: ${i.description}`)
+          .join(" | "),
     },
     {
       headerName: "Inserted By",
