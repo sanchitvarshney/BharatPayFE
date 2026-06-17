@@ -118,6 +118,13 @@ const R5Report: React.FC = () => {
         filter: true,
         flex: 1,
       },
+       {
+        headerName: "Remark",
+        field: "any_remark",
+        sortable: true,
+        filter: true,
+        flex: 1,
+      },
    {
   headerName: "Action",
   field: "action",
