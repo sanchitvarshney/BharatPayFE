@@ -48,5 +48,6 @@ export type DispatchState = {
   checkBoxValidLoading: boolean;
   wrongDeviceLoading: boolean;
   wrongDeviceList: any | null;
-
+  packagingFeedbackLoading: boolean;
+  packagingFeedbackList: any[] | null;
 };

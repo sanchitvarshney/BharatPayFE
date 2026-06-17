@@ -55,6 +55,8 @@ export const getQ6Data = createAsyncThunk<AxiosResponse<R6ApiResponse>, { id: st
   const response = await axiosInstance.get(`/query/q6/${payload.type === "swipe" ? `swipeMachineDetail?srlOrImei=${payload.id}` : `devicetimeline?srlOrImei=${payload.id}`}`);
   return response;
 });
+
+
 const querySlice = createSlice({
   name: "query",
   initialState,
@@ -155,7 +157,8 @@ const querySlice = createSlice({
       .addCase(getQ6Data.rejected, (state) => {
         state.q6StatementLoading = false;
         state.q6Statement = null;
-      });
+      })
+;
   },
 });
 

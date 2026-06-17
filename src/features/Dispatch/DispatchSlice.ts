@@ -29,7 +29,9 @@ const initialState: DispatchState = {
   submitCustomFormLoading:false,
   checkBoxValidLoading: false,
   wrongDeviceLoading: false,
-  wrongDeviceList: null
+  wrongDeviceList: null,
+  packagingFeedbackLoading: false,
+  packagingFeedbackList: null,
 };
 
 export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateDispatch", async (payload) => {
@@ -71,6 +73,32 @@ export const CreateSwipeDispatch = createAsyncThunk<AxiosResponse<{ success: boo
   const response = await axiosInstance.post(`dispatchDivice/createDispatchSwipe`, payload);
   return response;
 });
+export type PackagingFeedbackParams = {
+  searchType: "DATE" | "SERIAL";
+  status?: "PASS" | "FAIL";
+  type?: "SWIPE" | "SOUND";
+  from?: string;
+  to?: string;
+  serial?: string;
+};
+
+export const getPackagingFeedbackReport = createAsyncThunk<AxiosResponse<{ success: boolean; data: any[] }>, PackagingFeedbackParams>(
+  "dispatch/getPackagingFeedbackReport",
+  async (params) => {
+    const p = new URLSearchParams();
+    if (params.searchType === "SERIAL" && params.serial) {
+      p.append("serial", params.serial);
+    } else {
+      if (params.from) p.append("from", params.from);
+      if (params.to) p.append("to", params.to);
+      if (params.status) p.append("status", params.status);
+      if (params.type) p.append("type", params.type);
+    }
+    const response = await axiosInstance.get(`/swipeMachine/packaging/feedback/report?${p.toString()}`);
+    return response;
+  }
+);
+
 export const getWrongDeviceReport = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, any>("dispatch/getWrongDeviceReport", async (payload) => {
   const response = await axiosInstance.get(`wrongDevice/video/list?startDate=${payload.fromDate}&endDate=${payload.toDate}`);
   return response;
@@ -455,7 +483,20 @@ const dispatchSlice = createSlice({
       })
       .addCase(getWrongDeviceReport.rejected, (state) => {
         state.wrongDeviceLoading = false;
-
+      })
+      .addCase(getPackagingFeedbackReport.pending, (state) => {
+        state.packagingFeedbackLoading = true;
+        state.packagingFeedbackList = null;
+      })
+      .addCase(getPackagingFeedbackReport.fulfilled, (state, action: any) => {
+        state.packagingFeedbackLoading = false;
+        if (!action.payload.data.success) {
+          showToast(action.payload.data.message, "error");
+        }
+        state.packagingFeedbackList = action.payload.data?.data ?? [];
+      })
+      .addCase(getPackagingFeedbackReport.rejected, (state) => {
+        state.packagingFeedbackLoading = false;
       });
   },
 });
