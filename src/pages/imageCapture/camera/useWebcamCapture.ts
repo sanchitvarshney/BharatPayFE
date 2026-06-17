@@ -76,10 +76,21 @@ export const useWebcamCapture = ({
     setRetakeAllOpen(false);
   }, [open]);
 
+  const handleCaptureRef = useRef<() => void>(() => {});
+  const handleUploadRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.code === "Space") {
+        e.preventDefault();
+        handleCaptureRef.current();
+      }
+      if (e.key === "Enter" && e.shiftKey) {
+        e.preventDefault();
+        handleUploadRef.current();
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
@@ -99,6 +110,8 @@ export const useWebcamCapture = ({
       return next;
     });
   }, [views, activeIndex]);
+
+  handleCaptureRef.current = handleCapture;
 
   const handleSelect = useCallback((index: number) => {
     setActiveIndex(index);
@@ -137,6 +150,8 @@ export const useWebcamCapture = ({
     if (!allCaptured) return;
     onUpload?.(captures);
   }, [allCaptured, captures, onUpload]);
+
+  handleUploadRef.current = handleUpload;
 
   return {
     webcamRef,
