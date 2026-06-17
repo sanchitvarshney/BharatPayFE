@@ -1,0 +1,163 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type Webcam from "react-webcam";
+import type { CaptureMap, CaptureView } from "./camera.types";
+
+type Params = {
+  open: boolean;
+  views: CaptureView[];
+  onClose: () => void;
+  onUpload?: (images: CaptureMap) => void;
+};
+
+export const useWebcamCapture = ({
+  open,
+  views,
+  onClose,
+  onUpload,
+}: Params) => {
+  const webcamRef = useRef<Webcam>(null);
+  const [deviceId, setDeviceId] = useState("");
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [captures, setCaptures] = useState<CaptureMap>({});
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const [retakeAllOpen, setRetakeAllOpen] = useState(false);
+
+  const videoConstraints = useMemo(
+    () => ({
+      deviceId: deviceId ? { exact: deviceId } : undefined,
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+    }),
+    [deviceId]
+  );
+
+  const capturedCount = useMemo(
+    () => views.reduce((count, v) => (captures[v.key] ? count + 1 : count), 0),
+    [views, captures]
+  );
+  const allCaptured = capturedCount === views.length;
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+
+    const loadDevices = async () => {
+      try {
+        // Ask for camera permission first so enumerateDevices returns
+        // real deviceIds/labels (browsers hide them until permission is granted).
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        stream.getTracks().forEach((track) => track.stop());
+      } catch {
+        // Permission denied or no camera; we still try to enumerate below.
+      }
+
+      const mediaDevices = await navigator.mediaDevices.enumerateDevices();
+      if (cancelled) return;
+      const cams = mediaDevices.filter((d) => d.kind === "videoinput");
+      setDevices(cams);
+      setDeviceId(cams[1]?.deviceId || cams[0]?.deviceId || "");
+    };
+
+    loadDevices();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    setActiveIndex(0);
+    setCaptures({});
+    setPreviewIndex(null);
+    setRetakeAllOpen(false);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
+  const handleCapture = useCallback(() => {
+    const screenshot = webcamRef.current?.getScreenshot();
+    if (!screenshot) return;
+    setCaptures((prev) => {
+      const view = views[activeIndex];
+      if (!view) return prev;
+      const next = { ...prev, [view.key]: screenshot };
+      const nextUncaptured = views.findIndex(
+        (v, i) => i !== activeIndex && !next[v.key]
+      );
+      if (nextUncaptured !== -1) setActiveIndex(nextUncaptured);
+      return next;
+    });
+  }, [views, activeIndex]);
+
+  const handleSelect = useCallback((index: number) => {
+    setActiveIndex(index);
+  }, []);
+
+  const handlePreview = useCallback((index: number) => {
+    setPreviewIndex(index);
+  }, []);
+
+  const closePreview = useCallback(() => setPreviewIndex(null), []);
+
+  const handleRetake = useCallback(
+    (index: number) => {
+      setActiveIndex(index);
+      setCaptures((prev) => {
+        const next = { ...prev };
+        delete next[views[index].key];
+        return next;
+      });
+      setPreviewIndex(null);
+    },
+    [views]
+  );
+
+  const requestRetakeAll = useCallback(() => setRetakeAllOpen(true), []);
+  const cancelRetakeAll = useCallback(() => setRetakeAllOpen(false), []);
+
+  const confirmRetakeAll = useCallback(() => {
+    setCaptures({});
+    setActiveIndex(0);
+    setPreviewIndex(null);
+    setRetakeAllOpen(false);
+  }, []);
+
+  const handleUpload = useCallback(() => {
+    if (!allCaptured) return;
+    onUpload?.(captures);
+  }, [allCaptured, captures, onUpload]);
+
+  return {
+    webcamRef,
+    videoConstraints,
+    deviceId,
+    setDeviceId,
+    devices,
+    activeIndex,
+    captures,
+    previewIndex,
+    retakeAllOpen,
+    capturedCount,
+    allCaptured,
+    handleCapture,
+    handleSelect,
+    handlePreview,
+    closePreview,
+    handleRetake,
+    requestRetakeAll,
+    cancelRetakeAll,
+    confirmRetakeAll,
+    handleUpload,
+  };
+};

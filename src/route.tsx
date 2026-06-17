@@ -140,6 +140,7 @@ import PercentageComponentLayout from "./layouts/PercentageComponentLayout";
 import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
 import ViewImageLayout from "./layouts/ViewImageLayout";
 import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
+import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
 
 export const router = createBrowserRouter([
   {
@@ -1064,6 +1065,17 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/inward-device/view-image",
+      },
+          {
+        element: (
+          <MainLayout>
+            <ViewImageLayout>
+              {" "}
+              <ImageCapturePage />
+            </ViewImageLayout>
+          </MainLayout>
+        ),
+        path: "/image-capture",
       },
       {
         element: (
