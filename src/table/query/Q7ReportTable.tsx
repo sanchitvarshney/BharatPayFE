@@ -88,20 +88,16 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "issues",
       sortable: false,
       filter: false,
-      flex: 2,
       suppressSizeToFit: true,
       cellRenderer: IssuesCellRenderer,
-      // for excel export — show headings as comma list
       valueFormatter: (params: any) =>
         (params.value ?? []).map((i: Issue) => i.text).join(", "),
     },
     {
-      // hidden in grid, visible in excel export only
       headerName: "Issue Descriptions",
       field: "issues",
       sortable: false,
       filter: false,
-      flex: 2,
       hide: true,
       suppressSizeToFit: true,
       valueFormatter: (params: any) =>
@@ -114,7 +110,6 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "inBy",
       sortable: true,
       filter: true,
-      flex: 1,
       suppressSizeToFit: true,
     },
     {
@@ -122,7 +117,6 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "inDt",
       sortable: true,
       filter: true,
-      flex: 1,
       suppressSizeToFit: true,
     },
     {
@@ -130,7 +124,6 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "lastUpdateBy",
       sortable: true,
       filter: true,
-      flex: 1,
       suppressSizeToFit: true,
     },
     {
@@ -138,7 +131,6 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "lastUpdateDt",
       sortable: true,
       filter: true,
-      flex: 1,
       suppressSizeToFit: true,
     },
     {
@@ -146,7 +138,6 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "txnID",
       sortable: true,
       filter: true,
-      flex: 1,
       hide: true,
       suppressSizeToFit: true,
     },
@@ -168,6 +159,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
         pagination={true}
         paginationPageSize={100}
         enableCellTextSelection
+        onFirstDataRendered={(params) => params.api.autoSizeAllColumns()}
       />
     </div>
   );
