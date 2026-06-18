@@ -55,21 +55,21 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "dsn",
       sortable: true,
       filter: true,
-      width: 120,
+      suppressSizeToFit: true,
     },
     {
       headerName: "Type",
       field: "type",
       sortable: true,
       filter: true,
-      width: 110,
+      suppressSizeToFit: true,
     },
     {
       headerName: "Status",
       field: "status",
       sortable: true,
       filter: true,
-      width: 110,
+      suppressSizeToFit: true,
       cellRenderer: (params: any) => {
         const val = params.value;
         const color =
@@ -89,6 +89,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: false,
       filter: false,
       flex: 2,
+      suppressSizeToFit: true,
       cellRenderer: IssuesCellRenderer,
       // for excel export — show headings as comma list
       valueFormatter: (params: any) =>
@@ -102,6 +103,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       filter: false,
       flex: 2,
       hide: true,
+      suppressSizeToFit: true,
       valueFormatter: (params: any) =>
         (params.value ?? [])
           .map((i: Issue) => `${i.text}: ${i.description}`)
@@ -113,6 +115,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      suppressSizeToFit: true,
     },
     {
       headerName: "Insert Date",
@@ -120,6 +123,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      suppressSizeToFit: true,
     },
     {
       headerName: "Last Update By",
@@ -127,6 +131,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      suppressSizeToFit: true,
     },
     {
       headerName: "Last Update Date",
@@ -134,6 +139,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      suppressSizeToFit: true,
     },
     {
       headerName: "Txn ID",
@@ -142,6 +148,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       flex: 1,
       hide: true,
+      suppressSizeToFit: true,
     },
   ];
 
