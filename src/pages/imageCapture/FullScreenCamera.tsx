@@ -1,4 +1,5 @@
-import { Button, Chip, MenuItem, Select } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Backdrop, Button, Chip, CircularProgress, MenuItem, Select } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Webcam from "react-webcam";
 import { Icons } from "@/components/icons";
@@ -59,6 +60,23 @@ const FullScreenCamera: React.FC<Props> = ({
     confirmRetakeAll,
     handleUpload,
   } = useWebcamCapture({ open, views, onClose, onUpload });
+
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!uploading) {
+      setElapsed(0);
+      return;
+    }
+    const id = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, [uploading]);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m > 0 ? `${m}m ${sec.toString().padStart(2, "0")}s` : `${sec}s`;
+  };
 
   if (!open) return null;
 
@@ -214,6 +232,13 @@ const FullScreenCamera: React.FC<Props> = ({
         onConfirm={confirmRetakeAll}
         onCancel={cancelRetakeAll}
       />
+
+      <Backdrop open={uploading} sx={{ zIndex: 1400, flexDirection: "column", gap: 2 }}>
+        <CircularProgress size={56} thickness={4} sx={{ color: "white" }} />
+        <span className="text-white text-lg font-semibold tracking-wide">Uploading images...</span>
+        <span className="text-cyan-300 text-2xl font-mono font-bold">{formatTime(elapsed)}</span>
+        <span className="text-slate-300 text-sm">Please wait, do not close this window</span>
+      </Backdrop>
     </div>
   );
 };
