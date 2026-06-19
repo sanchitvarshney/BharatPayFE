@@ -6,24 +6,46 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { Tooltip } from "@mui/material";
 
-type Issue = { text: string; description: string };
+type SubIssue = { text: string; description: string };
+type IssueCategory = { category: { text: string; description: string }; subIssues: SubIssue[] };
+
+type FlatRow = {
+  dsn: string;
+  type: string;
+  currentStatus: string;
+  totalAttempts: number;
+  attempt: number;
+  txnID: string;
+  status: string;
+  issues: IssueCategory[];
+  inBy: string;
+  inDt: string;
+  lastUpdateBy: string;
+  lastUpdateDt: string;
+};
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
 };
 
 const IssuesCellRenderer = (params: any) => {
-  const issues: Issue[] = params.value ?? [];
+  const issues: IssueCategory[] = params.value ?? [];
   if (!issues.length) return <span className="text-slate-400">—</span>;
 
-  const headings = issues.map((i) => i.text).join(", ");
+  const headings = issues.map((i) => i.category.text).join(", ");
 
   const tooltipContent = (
-    <div className="flex flex-col gap-[8px] p-[4px] max-w-[320px]">
+    <div className="flex flex-col gap-[8px] p-[4px] max-w-[360px]">
       {issues.map((issue, idx) => (
         <div key={idx}>
-          <div className="text-xs font-semibold text-white">{issue.text}</div>
-          <div className="text-xs text-slate-300 mt-[2px]">{issue.description}</div>
+          <div className="text-xs font-semibold text-white">{issue.category.text}</div>
+          {issue.subIssues.length > 0 && (
+            <ul className="mt-[2px] pl-[10px] list-disc">
+              {issue.subIssues.map((sub, si) => (
+                <li key={si} className="text-xs text-slate-300">{sub.text}</li>
+              ))}
+            </ul>
+          )}
           {idx < issues.length - 1 && <div className="border-b border-white/20 mt-[6px]" />}
         </div>
       ))}
@@ -39,15 +61,53 @@ const IssuesCellRenderer = (params: any) => {
   );
 };
 
+const statusColor = (val: string) => {
+  if (val === "APPROVED" || val === "PASS")
+    return "text-green-700 bg-green-50 border border-green-200";
+  if (val === "REJECTED" || val === "FAIL")
+    return "text-red-700 bg-red-50 border border-red-200";
+  return "text-yellow-700 bg-yellow-50 border border-yellow-200";
+};
+
+const StatusCell = (params: any) => (
+  <span className={`px-2 py-0.5 rounded text-xs font-semibold ${statusColor(params.value)}`}>
+    {params.value}
+  </span>
+);
+
 const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
   const { packagingFeedbackList, packagingFeedbackLoading } = useAppSelector(
     (state) => state.dispatch
   );
 
+  const rowData = useMemo<FlatRow[]>(() => {
+    if (!packagingFeedbackList) return [];
+    const flat: FlatRow[] = [];
+    for (const item of packagingFeedbackList) {
+      for (const t of item.timeline ?? []) {
+        flat.push({
+          dsn: item.dsn,
+          type: item.type,
+          currentStatus: item.currentStatus,
+          totalAttempts: item.totalAttempts,
+          attempt: t.attempt,
+          txnID: t.txnID,
+          status: t.status,
+          issues: t.issues ?? [],
+          inBy: t.inBy,
+          inDt: t.inDt,
+          lastUpdateBy: t.lastUpdateBy,
+          lastUpdateDt: t.lastUpdateDt,
+        });
+      }
+    }
+    return flat;
+  }, [packagingFeedbackList]);
+
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
-      width: 70,
+      width: 60,
       valueGetter: (p: any) => p.node.rowIndex + 1,
     },
     {
@@ -62,26 +122,42 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       field: "type",
       sortable: true,
       filter: true,
+      width: 110,
       suppressSizeToFit: true,
     },
     {
-      headerName: "Status",
+      headerName: "Attempt",
+      field: "attempt",
+      sortable: true,
+      filter: true,
+      width: 100,
+      suppressSizeToFit: true,
+    },
+    {
+      headerName: "Total Attempts",
+      field: "totalAttempts",
+      sortable: true,
+      filter: true,
+      width: 130,
+      suppressSizeToFit: true,
+    },
+    {
+      headerName: "Attempt Status",
       field: "status",
       sortable: true,
       filter: true,
+      width: 140,
       suppressSizeToFit: true,
-      cellRenderer: (params: any) => {
-        const val = params.value;
-        const color =
-          val === "PASS"
-            ? "text-green-700 bg-green-50 border border-green-200"
-            : "text-red-700 bg-red-50 border border-red-200";
-        return (
-          <span className={`px-2 py-0.5 rounded text-xs font-semibold ${color}`}>
-            {val}
-          </span>
-        );
-      },
+      cellRenderer: StatusCell,
+    },
+    {
+      headerName: "Current Status",
+      field: "currentStatus",
+      sortable: true,
+      filter: true,
+      width: 140,
+      suppressSizeToFit: true,
+      cellRenderer: StatusCell,
     },
     {
       headerName: "Issues",
@@ -91,10 +167,10 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       suppressSizeToFit: true,
       cellRenderer: IssuesCellRenderer,
       valueFormatter: (params: any) =>
-        (params.value ?? []).map((i: Issue) => i.text).join(", "),
+        (params.value ?? []).map((i: IssueCategory) => i.category.text).join(", "),
     },
     {
-      headerName: "Issue Descriptions",
+      headerName: "Issue Details",
       field: "issues",
       sortable: false,
       filter: false,
@@ -102,7 +178,9 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
       suppressSizeToFit: true,
       valueFormatter: (params: any) =>
         (params.value ?? [])
-          .map((i: Issue) => `${i.text}: ${i.description}`)
+          .map((i: IssueCategory) =>
+            `${i.category.text}: ${i.subIssues.map((s: SubIssue) => s.text).join(", ")}`
+          )
           .join(" | "),
     },
     {
@@ -153,7 +231,7 @@ const Q7ReportTable: React.FC<Props> = ({ gridRef }) => {
         loading={packagingFeedbackLoading}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         suppressCellFocus={true}
-        rowData={packagingFeedbackList ?? []}
+        rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
         pagination={true}
