@@ -8,7 +8,7 @@ import {
   getPackagingFeedbackReport,
   PackagingFeedbackParams,
 } from "@/features/Dispatch/DispatchSlice";
-import Q7ReportTable from "@/table/query/Q7ReportTable";
+import Q7ReportTable, { Q7TableHandle } from "@/table/query/Q7ReportTable";
 import { AgGridReact } from "@ag-grid-community/react";
 import {
   CardContent,
@@ -55,6 +55,7 @@ const Q7Report: React.FC = () => {
   const [type, setType] = useState<"" | "SWIPE" | "SOUND">("");
 
   const gridRef = useRef<AgGridReact<any>>(null);
+  const tableRef = useRef<Q7TableHandle>(null);
   const dispatch = useAppDispatch();
   const { packagingFeedbackLoading, packagingFeedbackList } = useAppSelector(
     (state) => state.dispatch
@@ -66,7 +67,7 @@ const Q7Report: React.FC = () => {
   };
 
   const onBtExport = useCallback(() => {
-    gridRef.current!.api.exportDataAsExcel({ allColumns: true });
+    tableRef.current?.exportExcel();
   }, []);
 
   const handleSearch = () => {
@@ -280,7 +281,7 @@ const Q7Report: React.FC = () => {
         </div>
 
         <div className="w-full">
-          <Q7ReportTable gridRef={gridRef} />
+          <Q7ReportTable ref={tableRef} gridRef={gridRef} />
         </div>
       </div>
     </div>
