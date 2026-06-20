@@ -33,7 +33,7 @@ const QrLayout: React.FC<Props> = ({ children }) => {
   };
 
   useEffect(() => {
-    if (menuKey && !menuTab) {
+    if (menuKey) {
       dispatch(getMenuTab(menuKey));
     }
   }, [menuKey]);

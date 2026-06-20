@@ -38,6 +38,7 @@ export type TabApiResponse = {
 export type MenuState = {
   menu: Menu[] | null;
   menuLoading: boolean;
+  menuKey: string | null;
   menuTab: Tab[] | null;
   menuTabLoading: boolean;
 };

@@ -7,6 +7,7 @@ import { MenuResponse, MenuState, TabApiResponse } from "./menuType";
 const initialState: MenuState = {
   menu: null,
   menuLoading: false,
+  menuKey: null,
   menuTab: null,
   menuTabLoading: false,
 };
@@ -22,7 +23,15 @@ export const getMenuTab = createAsyncThunk<AxiosResponse<TabApiResponse>,string>
 const menuSlice = createSlice({
   name: "menu",
   initialState,
-  reducers: {},
+  reducers: {
+    setMenuKey(state, action: { payload: string | null }) {
+      if (state.menuKey !== action.payload) {
+        // Clear stale tabs whenever the active menu changes
+        state.menuKey = action.payload;
+        state.menuTab = null;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getMenuData.pending, (state) => {
@@ -54,4 +63,5 @@ const menuSlice = createSlice({
   },
 });
 
+export const { setMenuKey } = menuSlice.actions;
 export default menuSlice.reducer;
