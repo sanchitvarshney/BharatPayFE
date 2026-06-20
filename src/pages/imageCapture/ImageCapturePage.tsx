@@ -11,6 +11,19 @@ import {
   saveCapturePhotos,
 } from "@/features/imageCapture/imageCaptureSlice";
 
+const compressImage = (dataUrl: string, quality = 0.92): Promise<string> =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext("2d")!.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.src = dataUrl;
+  });
+
 const ImageCapturePage = () => {
   const { deviceType, setDeviceType, serialNo, setSerialNo } =
     useFqcDeviceImage();
@@ -46,12 +59,16 @@ const ImageCapturePage = () => {
   };
 
   const handleUpload = async (images: Record<string, string>) => {
+    const entries = await Promise.all(
+      Object.entries(images).map(async ([key, dataUrl]) => [key, await compressImage(dataUrl)] as const)
+    );
+    const compressed = Object.fromEntries(entries);
     const module = deviceType === "swipe" ? "swipe" : "sound";
-    // Step 1 captures a brand-new set; Step 2 edits the existing record.
+    
     const action:any =
       selectedStep === 1
-        ? saveCapturePhotos({ type: deviceType, serialNo, images })
-        : editCapturePhotos({ module, dsn: serialNo, images });
+        ? saveCapturePhotos({ type: deviceType, serialNo, images: compressed })
+        : editCapturePhotos({ module, dsn: serialNo, images: compressed });
 
     const result = await dispatch(action);
     const isFulfilled =
