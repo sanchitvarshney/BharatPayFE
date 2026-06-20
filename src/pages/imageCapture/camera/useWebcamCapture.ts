@@ -9,6 +9,10 @@ type Params = {
   onUpload?: (images: CaptureMap) => void;
 };
 
+// Module-level cache: request camera permission only once per page load.
+// After the first grant, enumerateDevices returns labels without re-requesting.
+let cameraPermissionGranted = false;
+
 export const useWebcamCapture = ({
   open,
   views,
@@ -42,37 +46,44 @@ export const useWebcamCapture = ({
     if (!open) return;
     let cancelled = false;
 
-    const loadDevices = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        stream.getTracks().forEach((track) => track.stop());
-      } catch {
-        // permission denied; still try to enumerate
-      }
-
+    const enumerateCameras = async () => {
       const mediaDevices = await navigator.mediaDevices.enumerateDevices();
       if (cancelled) return;
       const cams = mediaDevices.filter((d) => d.kind === "videoinput");
       setDevices(cams);
       setDeviceId((prev) => {
-        // keep existing selection if it's still available
         if (prev && cams.some((c) => c.deviceId === prev)) return prev;
         return cams[1]?.deviceId || cams[0]?.deviceId || "";
       });
     };
 
+    const loadDevices = async () => {
+      // Only request getUserMedia once per page load to avoid accumulating
+      // media handles and browser throttling after many open/close cycles.
+      if (!cameraPermissionGranted) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          stream.getTracks().forEach((track) => track.stop());
+          cameraPermissionGranted = true;
+        } catch {
+          // permission denied; still try to enumerate
+        }
+      }
+      await enumerateCameras();
+    };
+
     loadDevices();
 
-    navigator.mediaDevices.addEventListener("devicechange", loadDevices);
+    navigator.mediaDevices.addEventListener("devicechange", enumerateCameras);
 
     return () => {
       cancelled = true;
-      navigator.mediaDevices.removeEventListener("devicechange", loadDevices);
+      navigator.mediaDevices.removeEventListener("devicechange", enumerateCameras);
     };
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
+    // Reset on open AND clear captures on close to free large base64 strings from memory.
     setActiveIndex(0);
     setCaptures({});
     setPreviewIndex(null);
