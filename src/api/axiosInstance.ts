@@ -69,7 +69,8 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers["x-click-token"] = uniqueid;
     config.headers["x-location"] = cachedLocation;
     config.headers["x-fingerprint"] = cachedFingerprint;
-    config.headers["menuKey"] = sessionStorage.getItem("menuKey") || "";
+    const menuKey = sessionStorage.getItem("menuKey");
+    if (menuKey) config.headers["menuKey"] = menuKey;
     config.headers["ngrok-skip-browser-warning"] = "69420";
   }
   return config;

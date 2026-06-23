@@ -21,10 +21,48 @@ export interface DeviceImageApiResponse {
   data: DeviceImage[];
 }
 
+export interface FqcImageFile {
+  key: string;
+  url: string;
+  originalName: string;
+  size: number;
+  mimetype: string;
+  uploadedAt: string;
+}
+
+export interface FqcImageSet {
+  refId: string;
+  insertBy: string;
+  insertDt: string;
+  frontImage?: FqcImageFile;
+  backImage?: FqcImageFile;
+  leftSide?: FqcImageFile;
+  rightSide?: FqcImageFile;
+  topView?: FqcImageFile;
+  bottomView?: FqcImageFile;
+  deviceView?: FqcImageFile;
+  boxView?: FqcImageFile;
+}
+
+export interface FqcDeviceRecord {
+  dsn: string;
+  type: string;
+  images: FqcImageSet[];
+}
+
+export interface FqcDeviceImageApiResponse {
+  success: boolean;
+  status: string;
+  data: FqcDeviceRecord[];
+}
+
 const initialState: Commonstate & {
   deviceImages: DeviceImage[] | null;
   deviceImagesLoading: boolean;
   deviceImagesError: string | null;
+  fqcDeviceData: FqcDeviceRecord[] | null;
+  fqcDeviceImagesLoading: boolean;
+  fqcDeviceImagesError: string | null;
 } = {
   getUserLoading: false,
   userData: null,
@@ -37,6 +75,9 @@ const initialState: Commonstate & {
   deviceImages: null,
   deviceImagesLoading: false,
   deviceImagesError: null,
+  fqcDeviceData: null,
+  fqcDeviceImagesLoading: false,
+  fqcDeviceImagesError: null,
 };
 
 export const getUserAsync = createAsyncThunk<
@@ -83,6 +124,17 @@ export const getDeviceImages = createAsyncThunk<
       : `awbNumber=${awbNumber}&serialNo=${serialNo}`;
   const response = await axiosInstance.get(
     `/swipeMachine/delivery/getImages/${deviceType}?${query}`
+  );
+  return response;
+});
+
+export const getFqcDeviceImages = createAsyncThunk<
+  AxiosResponse<FqcDeviceImageApiResponse>,
+  { module: string; dsn: string; model?: string }
+>("common/getFqcDeviceImages", async ({ module, dsn, model }) => {
+  const modelQuery = model ? `&model=${encodeURIComponent(model)}` : "";
+  const response = await axiosInstance.get(
+    `/capture/photo/report/${encodeURIComponent(module)}/${encodeURIComponent(dsn)}${modelQuery}`
   );
   return response;
 });
@@ -163,6 +215,27 @@ const commonSlice = createSlice({
         state.deviceImagesLoading = false;
         state.deviceImagesError = "Failed to fetch images. Please try again.";
         state.deviceImages = null;
+      })
+      .addCase(getFqcDeviceImages.pending, (state) => {
+        state.fqcDeviceImagesLoading = true;
+        state.fqcDeviceImagesError = null;
+        state.fqcDeviceData = null;
+      })
+      .addCase(getFqcDeviceImages.fulfilled, (state, action) => {
+        state.fqcDeviceImagesLoading = false;
+        const records = action.payload.data.data ?? [];
+        const hasImages = records.some((record) => record.images?.length > 0);
+        if (action.payload.data.success && hasImages) {
+          state.fqcDeviceData = records;
+        } else {
+          state.fqcDeviceData = [];
+          state.fqcDeviceImagesError = "No images found for this device.";
+        }
+      })
+      .addCase(getFqcDeviceImages.rejected, (state) => {
+        state.fqcDeviceImagesLoading = false;
+        state.fqcDeviceImagesError = "Failed to fetch images. Please try again.";
+        state.fqcDeviceData = null;
       });
   },
 });

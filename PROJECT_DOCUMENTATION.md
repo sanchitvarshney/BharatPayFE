@@ -302,7 +302,38 @@ Tailwind is configured in `tailwind.config.js` with:
 
 MUI theme setup is in `src/theme/index.ts`. Ant Design token overrides are applied directly in `src/main.tsx`.
 
-## 15. Business Module Map
+## 15. Recent Changes
+
+### 2026-06-17 — Add remark in Wrong Device Report
+
+- `src/pages/Dispatch/WrongDeviceReport.tsx`: Added **Remark** column (`any_remark` field) to the AG Grid column definitions.
+
+### 2026-06-16 — Modify WrongDeviceVideo in image section
+
+- `src/layouts/ViewImageLayout.tsx`: Added a third tab — **Wrong Device Video Report** — linking to `/wrong-device/reports`, so all device image/video views share one tabbed layout.
+- `src/layouts/WrongDeviceMINLayout.tsx`: Removed the wrong-device video tab from this layout (moved to `ViewImageLayout`).
+- `src/route.tsx`: Updated route nesting so `/wrong-device/reports` is served under `ViewImageLayout`.
+
+### 2026-06-16 — Modify FQC Device Image modals
+
+- `src/pages/queries/fqcDeviceImage/FqcDeviceImagesModal.tsx`: Modal sizing/layout adjustments.
+- `src/pages/queries/fqcDeviceImage/FqcImagePreviewModal.tsx`: Modal sizing/layout adjustments.
+
+### 2026-06-16 — Remove Model from FQC Device Image swipe/search
+
+- `src/pages/queries/fqcDeviceImage/FQCDeviceImagePage.tsx`: Removed `model` field from search form rendering.
+- `src/pages/queries/fqcDeviceImage/FqcDeviceImageSearchForm.tsx`: Removed `model` input and its props.
+- `src/pages/queries/fqcDeviceImage/fqcDeviceImage.types.ts`: Removed `model` from the type definition.
+- `src/pages/queries/fqcDeviceImage/useFqcDeviceImage.ts`: Removed `model` state and API param.
+
+### 2026-06-16 — Rename location → url in FQC device image utilities
+
+- `src/features/common/commonSlice.ts`: Field renamed from `location` to `url`.
+- `src/pages/queries/fqcDeviceImage/fqcDeviceImage.utils.ts`: Updated field references from `location` to `url`.
+
+---
+
+## 16. Business Module Map
 
 ### Authentication
 

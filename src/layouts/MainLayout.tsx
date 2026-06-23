@@ -31,6 +31,7 @@ import { SidebarMenuItem } from "@/components/Sidebar/types";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getMenuData } from "@/features/menu/menuSlice";
 import ModuleSearch from "@/components/ModuleSearch/ModuleSearch";
+import useMenuKey from "@/hooks/useMuneKey";
 
 /** Indian FY dropdown: current year + this many prior years (5 rows total). */
 const SESSION_YEARS_BACK = 4;
@@ -38,6 +39,7 @@ const HEADER_HEIGHT = 50;
 
 function MainLayout(props: { children: React.ReactNode }) {
   const { isConnected, refreshConnection, isLoading, emitGetNotification } = useSocketContext();
+  useMenuKey();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { menu, menuLoading } = useAppSelector((state) => state.menu);

@@ -96,6 +96,7 @@ import SwipeMaterialApprovalLayout from "@/layouts/SwipeMaterialApprovalLayout";
 import SwipeMaterialApproval from "@/pages/wearhouse/SwipeMaterialApproval";
 import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
 import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
+import MasterUpload from "./pages/upload/MasterUpload";
 import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
@@ -138,6 +139,10 @@ import CRMRemarkLayout from "./layouts/CRMRemarkLayout";
 import CRMRemarkReport from "./pages/crm-remark/CRMRemarkReport";
 import CRMUpload from "./pages/crm-remark/CRMUpload";
 import PercentageComponentLayout from "./layouts/PercentageComponentLayout";
+import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
+import ViewImageLayout from "./layouts/ViewImageLayout";
+import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
+import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
 
 export const router = createBrowserRouter([
   {
@@ -236,6 +241,16 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <ViewImageLayout>
+              <WrongDeviceReport />
+            </ViewImageLayout>
+          </MainLayout>
+        ),
+        path: "/wrong-device/reports",
+      },
+      {
+        element: (
+          <MainLayout>
             <AddAreaReportLayout>
               <ViewAreaReport />
             </AddAreaReportLayout>
@@ -263,7 +278,7 @@ export const router = createBrowserRouter([
         ),
         path: "/device/transfer",
       },
-       {
+      {
         element: (
           <MainLayout>
             <SwipeTransferLayout>
@@ -584,7 +599,7 @@ export const router = createBrowserRouter([
         ),
         path: "/warehouse/prod-return-MIN",
       },
-           {
+      {
         element: (
           <MainLayout>
             <CRMRemarkLayout>
@@ -594,7 +609,7 @@ export const router = createBrowserRouter([
         ),
         path: "/crm/report",
       },
-              {
+      {
         element: (
           <MainLayout>
             <CRMRemarkLayout>
@@ -1045,10 +1060,35 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
-            <ViewImage />
+            <ViewImageLayout>
+              {" "}
+              <ViewImage />
+            </ViewImageLayout>
           </MainLayout>
         ),
-        path: "/view-image",
+        path: "/inward-device/view-image",
+      },
+          {
+        element: (
+          <MainLayout>
+            <ViewImageLayout>
+              {" "}
+              <ImageCapturePage />
+            </ViewImageLayout>
+          </MainLayout>
+        ),
+        path: "/image-capture",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ViewImageLayout>
+              {" "}
+              <FQCDeviceImage />
+            </ViewImageLayout>
+          </MainLayout>
+        ),
+        path: "/fqc-device/view-image",
       },
       {
         element: (
@@ -1077,6 +1117,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/upload/migration-status",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MasterUpload />
+          </MainLayout>
+        ),
+        path: "/upload/master-upload",
       },
       // Material Management
       {

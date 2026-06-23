@@ -34,6 +34,7 @@ import gpdcChallanReducer from "@/features/GPDCChallan/GPDCChallanSlice";
 import placeSlice from "@/features/areaSlice/areaSlice";
 import transferSlice from "@/features/transfer/deviceTransferSlice";
 import crmRemarkReducer from "@/features/crmRemark/crmRemarkSlice";
+import imageCaptureReducer from "@/features/imageCapture/imageCaptureSlice";
 
 export const store = configureStore({
   reducer: {
@@ -72,6 +73,7 @@ export const store = configureStore({
     placeMaster: placeSlice,
     deviceTransfer: transferSlice,
     crmRemark: crmRemarkReducer,
+    imageCapture: imageCaptureReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

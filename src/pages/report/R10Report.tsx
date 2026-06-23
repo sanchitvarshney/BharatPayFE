@@ -16,7 +16,7 @@ import dayjs, { Dayjs } from "dayjs";
 import React, { useState } from "react";
 const { RangePicker } = DatePicker;
 
-type DeviceType = "MONO" | "SWIPE";
+type DeviceType = "SOUNDBOX" | "SWIPE";
 
 const R10Report: React.FC = () => {
   const { isConnected } = useSocketContext();
@@ -26,7 +26,7 @@ const R10Report: React.FC = () => {
     from: null,
     to: null,
   });
-  const [deviceType, setDeviceType] = useState<DeviceType>("MONO");
+  const [deviceType, setDeviceType] = useState<DeviceType>("SOUNDBOX");
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
@@ -45,12 +45,12 @@ const R10Report: React.FC = () => {
       return showToast("Please select date range", "error");
 
     const reportPayload = {
-      type: "DATE",
+      type: deviceType, 
       fromDate: date.from?.format("DD-MM-YYYY"),
       toDate: date.to?.format("DD-MM-YYYY"),
     };
 
-    if (deviceType === "MONO") {
+    if (deviceType === "SOUNDBOX") {
       emitDownloadR10Report(reportPayload);
     } else {
       emitDownloadSwipeR10Report(reportPayload);
@@ -90,7 +90,7 @@ const R10Report: React.FC = () => {
             onChange={handleDeviceTypeChange}
             className="h-[50px]"
           >
-            <MenuItem value="MONO">Soundbox</MenuItem>
+            <MenuItem value="SOUNDBOX">SoundBox</MenuItem>
             <MenuItem value="SWIPE">Swipe Device</MenuItem>
           </Select>
         </FormControl>

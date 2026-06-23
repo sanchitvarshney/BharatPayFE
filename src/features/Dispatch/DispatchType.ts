@@ -46,4 +46,8 @@ export type DispatchState = {
   printLoading:boolean;
   submitCustomFormLoading:boolean;
   checkBoxValidLoading: boolean;
+  wrongDeviceLoading: boolean;
+  wrongDeviceList: any | null;
+  packagingFeedbackLoading: boolean;
+  packagingFeedbackList: any[] | null;
 };

@@ -10,8 +10,7 @@ const WrongDeviceMINLayout = (props:{children:React.ReactNode}) => {
             <NavLink to={"/wrong-device-min"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
               Wrong Device MIN
             </NavLink>
-          </li>
-         
+          </li>   
         
         </ul>
       </div>
