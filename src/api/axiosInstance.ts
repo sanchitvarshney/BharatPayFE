@@ -9,7 +9,7 @@ import { setReturnTo } from "@/utils/returnTo";
 
 let cachedFingerprint = "unknown";
 let fingerprintLoading: Promise<void> | null = null;
-let cachedLocation = "";
+let cachedLocation = "--";
 let locationLastUpdatedAt = 0;
 const LOCATION_CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -68,7 +68,7 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers["session"] = savedSession;
     config.headers["companyBranch"] = savedCompanyBranch;
     config.headers["x-click-token"] = uniqueid;
-    config.headers["x-location"] = cachedLocation;
+    // config.headers["x-location"] = cachedLocation;
     config.headers["x-fingerprint"] = cachedFingerprint;
     const menuKey = sessionStorage.getItem("menuKey");
     if (menuKey) config.headers["menuKey"] = menuKey;
