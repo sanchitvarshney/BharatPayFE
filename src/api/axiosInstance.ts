@@ -2,16 +2,12 @@ import axios from "axios";
 import { getToken } from "@/utils/tokenUtills";
 import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
-import { getLocation } from "@/helper/getLocation";
 import { showToast } from "@/utils/toasterContext";
 import { getIndianFYSessionKeyForDate, isPlausibleFYSessionKey } from "@/utils/indianFinancialYear";
 import { setReturnTo } from "@/utils/returnTo";
 
 let cachedFingerprint = "unknown";
 let fingerprintLoading: Promise<void> | null = null;
-let cachedLocation = "--";
-let locationLastUpdatedAt = 0;
-const LOCATION_CACHE_TTL_MS = 5 * 60 * 1000;
 
 const warmFingerprint = () => {
   if (fingerprintLoading) return fingerprintLoading;
@@ -25,19 +21,6 @@ const warmFingerprint = () => {
     }
   })();
   return fingerprintLoading;
-};
-
-const warmLocation = () => {
-  const now = Date.now();
-  if (now - locationLastUpdatedAt < LOCATION_CACHE_TTL_MS) return;
-  locationLastUpdatedAt = now;
-  getLocation()
-    .then((location) => {
-      cachedLocation = location || "";
-    })
-    .catch(() => {
-      cachedLocation = "";
-    });
 };
 
 
@@ -62,13 +45,11 @@ axiosInstance.interceptors.request.use(async (config) => {
     const uniqueid = uuidv4();
     // Keep request path fast: use cached telemetry, refresh it in background.
     warmFingerprint();
-    warmLocation();
     config.headers.Authorization = `Bearer ${token}`;
     config.headers["authorization"] = token;
     config.headers["session"] = savedSession;
     config.headers["companyBranch"] = savedCompanyBranch;
     config.headers["x-click-token"] = uniqueid;
-    // config.headers["x-location"] = cachedLocation;
     config.headers["x-fingerprint"] = cachedFingerprint;
     const menuKey = sessionStorage.getItem("menuKey");
     if (menuKey) config.headers["menuKey"] = menuKey;
