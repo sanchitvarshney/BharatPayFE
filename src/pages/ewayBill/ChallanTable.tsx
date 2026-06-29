@@ -357,7 +357,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
             onClick={handlePrintChallan}
             disabled={
               isPartChallanCancelled(selectedRow) ||
-              selectedRow?.isdispatch !== "Y"
+              (selectedRow?.isdispatch !== "Y" && challanType !== "PART")
             }
           >
             Print
