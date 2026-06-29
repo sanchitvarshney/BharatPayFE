@@ -96,6 +96,7 @@ import SwipeMaterialApprovalLayout from "@/layouts/SwipeMaterialApprovalLayout";
 import SwipeMaterialApproval from "@/pages/wearhouse/SwipeMaterialApproval";
 import SwipeRequistionRequest from "@/pages/wearhouse/SwipeRequistionRequest";
 import SwipeDeviceUpload from "./pages/upload/SwipeDeviceUpload";
+import MasterUpload from "./pages/upload/MasterUpload";
 import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
@@ -1107,6 +1108,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/upload/migration-status",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MasterUpload />
+          </MainLayout>
+        ),
+        path: "/upload/master-upload",
       },
       // Material Management
       {
