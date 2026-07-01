@@ -1321,9 +1321,7 @@ export default function CreateEwayBill() {
                                 variant: "outlined",
                                 error:
                                   !!errors.ewaybillDetails?.transporterDate,
-                                helperText:
-                                  errors.ewaybillDetails?.transporterDate
-                                    ?.message,
+                        
                                 fullWidth: true,
                                 label: "Transporter Date",
                               },
