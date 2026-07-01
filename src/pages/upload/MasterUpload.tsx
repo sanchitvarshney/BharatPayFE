@@ -27,7 +27,12 @@ import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 
 type PreviewRow = Record<string, unknown>;
 
-const EXPECTED_COLUMNS = ["serial", "imei", "manufacturingMonth", "manufacturingYear"];
+const EXPECTED_COLUMNS = [
+  "serial",
+  "imei",
+  "manufacturingMonth",
+  "manufacturingYear",
+];
 
 const MasterUpload: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -59,7 +64,10 @@ const MasterUpload: React.FC = () => {
           setPreviewRows(rows);
         }
       } catch {
-        showToast("Failed to parse the file. Please check the format.", "error");
+        showToast(
+          "Failed to parse the file. Please check the format.",
+          "error",
+        );
         setPreviewRows([]);
         setColumns([]);
       } finally {
@@ -74,7 +82,10 @@ const MasterUpload: React.FC = () => {
     const selected = e.target.files?.[0];
     setPreviewRows([]);
     setColumns([]);
-    if (!selected) { setFile(null); return; }
+    if (!selected) {
+      setFile(null);
+      return;
+    }
 
     const ext = selected.name.split(".").pop()?.toLowerCase();
     if (!ext || !["xls", "xlsx", "csv"].includes(ext)) {
@@ -125,28 +136,61 @@ const MasterUpload: React.FC = () => {
 
   const missingCols = file
     ? EXPECTED_COLUMNS.filter(
-        (col) => !columns.map((c) => c.toLowerCase()).includes(col.toLowerCase())
+        (col) =>
+          !columns.map((c) => c.toLowerCase()).includes(col.toLowerCase()),
       )
     : [];
 
   const isSubmitDisabled =
-    !file || !previewRows.length || isParsing || masterUploadLoading || missingCols.length > 0;
+    !file ||
+    !previewRows.length ||
+    isParsing ||
+    masterUploadLoading ||
+    missingCols.length > 0;
 
   return (
     <Box sx={{ p: 0, height: "calc(100vh - 50px)" }}>
-      <Card sx={{ height: "100%", display: "flex", flexDirection: "column", borderRadius: 0 }}>
+      <Card
+        sx={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          borderRadius: 0,
+        }}
+      >
         {isParsing && <LinearProgress sx={{ height: 2 }} />}
 
-        <CardContent sx={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", gap: 2.5, p: 3 }}>
-
+        <CardContent
+          sx={{
+            flex: 1,
+            overflow: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2.5,
+            p: 3,
+          }}
+        >
           {/* Header */}
-          <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
             <Box>
               <Typography variant="h6" fontWeight={700} lineHeight={1.3}>
                 Master Upload
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Select a device model, then upload master data (serial, IMEI, manufacturing month &amp; year).
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 0.5 }}
+              >
+                Select a device model, then upload master data (serial, IMEI,
+                manufacturing month &amp; year).
               </Typography>
             </Box>
             <Button
@@ -171,6 +215,7 @@ const MasterUpload: React.FC = () => {
               onChange={handleDeviceChange}
               label="Search & select device"
               size="small"
+              quaryValue="soundBox"
             />
           </Box>
 
@@ -183,7 +228,14 @@ const MasterUpload: React.FC = () => {
                 <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
                   Upload File
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    flexWrap: "wrap",
+                  }}
+                >
                   <Button
                     component="label"
                     variant="outlined"
@@ -212,8 +264,13 @@ const MasterUpload: React.FC = () => {
                     </Typography>
                   )}
                 </Box>
-                <Typography variant="caption" color="text.disabled" sx={{ mt: 0.5, display: "block" }}>
-                  Accepted: .csv, .xlsx, .xls &nbsp;·&nbsp; Required columns: {EXPECTED_COLUMNS.join(", ")}
+                <Typography
+                  variant="caption"
+                  color="text.disabled"
+                  sx={{ mt: 0.5, display: "block" }}
+                >
+                  Accepted: .csv, .xlsx, .xls &nbsp;·&nbsp; Required columns:{" "}
+                  {EXPECTED_COLUMNS.join(", ")}
                 </Typography>
               </Box>
 
@@ -233,24 +290,50 @@ const MasterUpload: React.FC = () => {
                   }}
                 >
                   <ErrorOutline color="error" fontSize="small" />
-                  <Typography variant="caption" color="error.main" fontWeight={600}>
+                  <Typography
+                    variant="caption"
+                    color="error.main"
+                    fontWeight={600}
+                  >
                     Missing required columns:
                   </Typography>
                   {missingCols.map((col) => (
-                    <Chip key={col} label={col} color="error" size="small" variant="outlined" />
+                    <Chip
+                      key={col}
+                      label={col}
+                      color="error"
+                      size="small"
+                      variant="outlined"
+                    />
                   ))}
                 </Paper>
               )}
 
               {/* Preview table */}
               {previewRows.length > 0 && !isParsing && (
-                <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+                <Box
+                  sx={{
+                    flex: 1,
+                    minHeight: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      mb: 1,
+                    }}
+                  >
                     <Typography variant="subtitle2" fontWeight={600}>
                       Preview
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {previewRows.length} row{previewRows.length !== 1 ? "s" : ""} · {columns.length} columns
+                      {previewRows.length} row
+                      {previewRows.length !== 1 ? "s" : ""} · {columns.length}{" "}
+                      columns
                     </Typography>
                   </Box>
                   <TableContainer
@@ -261,12 +344,19 @@ const MasterUpload: React.FC = () => {
                     <Table size="small" stickyHeader>
                       <TableHead>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 700, bgcolor: "#f9fafb", color: "text.secondary", width: 48 }}>
+                          <TableCell
+                            sx={{
+                              fontWeight: 700,
+                              bgcolor: "#f9fafb",
+                              color: "text.secondary",
+                              width: 48,
+                            }}
+                          >
                             #
                           </TableCell>
                           {columns.map((col) => {
                             const isExpected = EXPECTED_COLUMNS.some(
-                              (c) => c.toLowerCase() === col.toLowerCase()
+                              (c) => c.toLowerCase() === col.toLowerCase(),
                             );
                             return (
                               <TableCell
@@ -274,7 +364,9 @@ const MasterUpload: React.FC = () => {
                                 sx={{
                                   fontWeight: 700,
                                   bgcolor: "#f9fafb",
-                                  color: isExpected ? "primary.main" : "text.primary",
+                                  color: isExpected
+                                    ? "primary.main"
+                                    : "text.primary",
                                   whiteSpace: "nowrap",
                                 }}
                               >
@@ -287,9 +379,16 @@ const MasterUpload: React.FC = () => {
                       <TableBody>
                         {previewRows.map((row, idx) => (
                           <TableRow key={idx} hover>
-                            <TableCell sx={{ color: "text.disabled", fontSize: 11 }}>{idx + 1}</TableCell>
+                            <TableCell
+                              sx={{ color: "text.disabled", fontSize: 11 }}
+                            >
+                              {idx + 1}
+                            </TableCell>
                             {columns.map((col) => (
-                              <TableCell key={col} sx={{ whiteSpace: "nowrap" }}>
+                              <TableCell
+                                key={col}
+                                sx={{ whiteSpace: "nowrap" }}
+                              >
                                 {String(row[col] ?? "")}
                               </TableCell>
                             ))}
@@ -330,9 +429,21 @@ const MasterUpload: React.FC = () => {
 
         {/* Footer */}
         <CardActions
-          sx={{ borderTop: 1, borderColor: "divider", px: 2.5, py: 1.5, justifyContent: "flex-end", gap: 1 }}
+          sx={{
+            borderTop: 1,
+            borderColor: "divider",
+            px: 2.5,
+            py: 1.5,
+            justifyContent: "flex-end",
+            gap: 1,
+          }}
         >
-          <Button variant="outlined" color="inherit" onClick={handleClear} disabled={!file}>
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={handleClear}
+            disabled={!file}
+          >
             Clear
           </Button>
           <LoadingButton
