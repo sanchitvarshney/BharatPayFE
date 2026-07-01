@@ -40,6 +40,7 @@ const FullScreenCamera: React.FC<Props> = ({
 }) => {
   const {
     webcamRef,
+    containerRef,
     videoConstraints,
     deviceId,
     setDeviceId,
@@ -84,7 +85,11 @@ const FullScreenCamera: React.FC<Props> = ({
   const previewView = previewIndex !== null ? views[previewIndex] : null;
 
   return (
-    <div className="fixed inset-0 z-[1300] flex flex-col bg-black text-white">
+    <div
+      ref={containerRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[1300] flex flex-col bg-black text-white outline-none"
+    >
       <div className="flex items-start justify-between px-6 py-4">
         <div className="flex flex-col">
           <span className="flex items-center gap-1 text-xs text-slate-400">

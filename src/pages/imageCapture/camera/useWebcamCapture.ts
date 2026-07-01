@@ -20,6 +20,7 @@ export const useWebcamCapture = ({
   onUpload,
 }: Params) => {
   const webcamRef = useRef<Webcam>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [deviceId, setDeviceId] = useState("");
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -53,7 +54,7 @@ export const useWebcamCapture = ({
       setDevices(cams);
       setDeviceId((prev) => {
         if (prev && cams.some((c) => c.deviceId === prev)) return prev;
-        return cams[1]?.deviceId || cams[0]?.deviceId || "";
+        return cams[0]?.deviceId || "";
       });
     };
 
@@ -88,29 +89,38 @@ export const useWebcamCapture = ({
     setCaptures({});
     setPreviewIndex(null);
     setRetakeAllOpen(false);
+    if (open) containerRef.current?.focus();
   }, [open]);
 
   const handleCaptureRef = useRef<() => void>(() => {});
   const handleUploadRef = useRef<() => void>(() => {});
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       const isInteractive = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (e.target as HTMLElement)?.isContentEditable;
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
       if (e.code === "Space" && !isInteractive) {
         e.preventDefault();
+        // Stop it here so a focused control (e.g. the camera-select dropdown)
+        // never sees this Space and opens its own menu.
+        e.stopPropagation();
         handleCaptureRef.current();
       }
       if (e.key === "Enter" && e.shiftKey) {
         e.preventDefault();
+        e.stopPropagation();
         handleUploadRef.current();
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+    // Capture phase so this always sees Space/Enter before any focused
+    // child (e.g. the camera-select dropdown) can consume/redirect it.
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [open]);
 
   const handleCapture = useCallback(() => {
     const screenshot = webcamRef.current?.getScreenshot();
@@ -125,6 +135,9 @@ export const useWebcamCapture = ({
       if (nextUncaptured !== -1) setActiveIndex(nextUncaptured);
       return next;
     });
+    // Re-focus the container so Space keeps working without needing a click,
+    // even if focus had moved to the capture button or another control.
+    containerRef.current?.focus();
   }, [views, activeIndex]);
 
   handleCaptureRef.current = handleCapture;
@@ -171,6 +184,7 @@ export const useWebcamCapture = ({
 
   return {
     webcamRef,
+    containerRef,
     videoConstraints,
     deviceId,
     setDeviceId,
