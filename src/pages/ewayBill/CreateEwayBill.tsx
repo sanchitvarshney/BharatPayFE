@@ -1184,9 +1184,7 @@ export default function CreateEwayBill() {
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transporterId}
-                          helperText={
-                            errors.ewaybillDetails?.transporterId?.message
-                          }
+                        
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1205,9 +1203,7 @@ export default function CreateEwayBill() {
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transporterName}
-                          helperText={
-                            errors.ewaybillDetails?.transporterName?.message
-                          }
+                      
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1226,9 +1222,7 @@ export default function CreateEwayBill() {
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transDistance}
-                          helperText={
-                            errors.ewaybillDetails?.transDistance?.message
-                          }
+                      
                           InputLabelProps={{
                             shrink: true,
                           }}
