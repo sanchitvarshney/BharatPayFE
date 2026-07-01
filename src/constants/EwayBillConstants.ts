@@ -178,14 +178,14 @@ const shipTo = z.object({
 });
 
 const ewaybillDetails = z.object({
-  transporterId: z.string({ required_error: "Transporter ID is required" }),
-  transporterName: z.string({ required_error: "Transporter Name is required" }),
+  transporterId: z.string().optional(),
+  transporterName: z.string().optional(),
   transMode: z.string().optional(),
   transporterDocNo: z.string().optional(),
-  transporterDate: z.string({ required_error: "Transporter Date is required" }),
+  transporterDate: z.string({ required_error: "Transporter Date is required" }).optional(),
   vehicleNo: z.string().optional(),
   vehicleType: z.string().optional(),
-  transDistance: z.string({ required_error: "Trans Distance is required" }),
+  transDistance: z.string().optional(),
 });
 
 // Main schema for eway bill
