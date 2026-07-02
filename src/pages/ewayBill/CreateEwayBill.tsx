@@ -1305,7 +1305,7 @@ export default function CreateEwayBill() {
                       )}
                     />
 
-                    <Controller
+                    {/* <Controller
                       name="ewaybillDetails.transporterDate"
                       control={control}
                       render={({ field }) => (
@@ -1334,7 +1334,7 @@ export default function CreateEwayBill() {
                           />
                         </LocalizationProvider>
                       )}
-                    />
+                    /> */}
 
                     <Controller
                       name="ewaybillDetails.vehicleNo"
