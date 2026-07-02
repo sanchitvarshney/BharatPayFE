@@ -237,6 +237,9 @@ const dispatchSlice = createSlice({
     clearFile: (state) => {
       state.file = null;
     },
+    clearChallanList: (state) => {
+      state.challanList = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -524,5 +527,5 @@ const dispatchSlice = createSlice({
   },
 });
 
-export const { clearFile } = dispatchSlice.actions;
+export const { clearFile, clearChallanList } = dispatchSlice.actions;
 export default dispatchSlice.reducer;

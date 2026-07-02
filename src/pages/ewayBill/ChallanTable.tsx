@@ -19,7 +19,10 @@ import { LoadingButton } from "@mui/lab";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import FillEwayBillSheet from "@/components/ewayBill/FillEwayBillSheet";
-import { printChallan, printPartChallan } from "@/features/Dispatch/DispatchSlice";
+import {
+  printChallan,
+  printPartChallan,
+} from "@/features/Dispatch/DispatchSlice";
 import { cancelPartCodeChallan } from "@/features/procurement/poSlices";
 import { showToast } from "@/utils/toasterContext";
 
@@ -61,7 +64,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
-    rowData: RowData
+    rowData: RowData,
   ) => {
     setAnchorEl(event.currentTarget);
     setSelectedRow(rowData);
@@ -96,7 +99,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
   const isPartChallanCancelled = (row: RowData | null) => {
     if (!row || challanType !== "PART") return false;
     const status = (row.status ?? "").trim().toLowerCase();
-    return status === "cancel" || status === "cancelled" || status === "c";
+    return status === "cancel" || status === "cancelled" || status === "c" ;
   };
 
   const handleCancelChallan = () => {
@@ -113,7 +116,10 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
     if (!cancelReason.trim() || !selectedRow) return;
     setCancelLoading(true);
     dispatch(
-      cancelPartCodeChallan({ challanId: selectedRow.challanId, reason: cancelReason.trim() })
+      cancelPartCodeChallan({
+        challanId: selectedRow.challanId,
+        reason: cancelReason.trim(),
+      }),
     ).then((res) => {
       setCancelLoading(false);
       setCancelDialogOpen(false);
@@ -123,7 +129,10 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       if (payload?.data?.success) {
         showToast("Challan cancelled successfully", "success");
       } else {
-        showToast(payload?.data?.message || "Failed to cancel challan", "error");
+        showToast(
+          payload?.data?.message || "Failed to cancel challan",
+          "error",
+        );
       }
     });
   };
@@ -136,7 +145,8 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
     if (selectedRow) {
       const txnId = selectedRow.challanId;
       const shipmentId = txnId.replace(/\//g, "/");
-      const printAction = challanType === "PART" ? printPartChallan : printChallan;
+      const printAction =
+        challanType === "PART" ? printPartChallan : printChallan;
       dispatch(printAction({ challanId: shipmentId })).then((res) => {
         const payload = res.payload as
           | { data?: { success?: boolean; data?: string } }
@@ -195,10 +205,10 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
         params.data.deviceType == "wrongDevices"
           ? "Wrong Device"
           : params.data.deviceType == "swipedevice"
-          ? "Swipe Device"
-          : params.data.deviceType == "scrapDevice"
-          ? "Scrap Device"
-          : "Sound Box",
+            ? "Swipe Device"
+            : params.data.deviceType == "scrapDevice"
+              ? "Scrap Device"
+              : "Sound Box",
     },
     {
       headerName: challanType === "PART" ? "Status" : "Client",
@@ -260,8 +270,8 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
         params.data.isewaybill == "Y"
           ? "Yes"
           : params.data.isewaybill == "C"
-          ? "Cancelled"
-          : "No",
+            ? "Cancelled"
+            : "No",
       minWidth: 160,
     },
     {
@@ -275,7 +285,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
   ];
 
   const { challanList, getChallanLoading } = useAppSelector(
-    (state) => state.dispatch
+    (state) => state.dispatch,
   );
   const paginationPageSize = 20;
 
@@ -345,7 +355,10 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
           )}
           <MenuItem
             onClick={handlePrintChallan}
-            disabled={isPartChallanCancelled(selectedRow)}
+            disabled={
+              isPartChallanCancelled(selectedRow) ||
+              (selectedRow?.isdispatch !== "Y" && challanType !== "PART")
+            }
           >
             Print
           </MenuItem>
@@ -361,14 +374,17 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       {/* ── Cancel Challan Dialog ── */}
       <Dialog
         open={cancelDialogOpen}
-        onClose={() => { if (!cancelLoading) setCancelDialogOpen(false); }}
+        onClose={() => {
+          if (!cancelLoading) setCancelDialogOpen(false);
+        }}
         maxWidth="sm"
         fullWidth
       >
         <DialogTitle sx={{ fontWeight: 600 }}>Cancel Challan</DialogTitle>
         <DialogContent>
           <p className="text-slate-500 text-[13px] mb-4">
-            Challan ID: <strong className="text-slate-700">{selectedRow?.challanId}</strong>
+            Challan ID:{" "}
+            <strong className="text-slate-700">{selectedRow?.challanId}</strong>
           </p>
           <TextField
             label="Reason for Cancellation"

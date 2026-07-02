@@ -46,7 +46,7 @@ export const uploadMasterData = createAsyncThunk<
 >("upload/masterData", async (formData, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.post(
-      "/master/upload",
+      "/bulkDeviceUpload/upload",
       formData,
       {
         headers: {

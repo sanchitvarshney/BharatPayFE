@@ -98,6 +98,7 @@ const ImageCapturePage = () => {
         selectedStep={selectedStep}
         onSelectStep={setSelectedStep}
         onOpenWebCamera={handleOpenCamera}
+        stepDisabled
       />
       <FullScreenCamera
         open={cameraOpen}
