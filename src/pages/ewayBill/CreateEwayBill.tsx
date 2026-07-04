@@ -77,7 +77,6 @@ export default function CreateEwayBill() {
   });
 
   const onSubmit = (data: EwayBillFormData) => {
-  
     const updatedData = {
       ...data,
       billFrom: {
@@ -109,13 +108,15 @@ export default function CreateEwayBill() {
         },
       },
     };
-    dispatch(createEwayBill({ updatedData, type: deviceType })).then((res: any) => {
-      if (res.payload.data.status) {
-        setIsEwayBillCreated(true);
-        setEwayBillNo(res?.payload?.data?.data);
-        showToast(res?.payload?.data?.message, "success");
-      }
-    });
+    dispatch(createEwayBill({ updatedData, type: deviceType })).then(
+      (res: any) => {
+        if (res.payload.data.status) {
+          setIsEwayBillCreated(true);
+          setEwayBillNo(res?.payload?.data?.data);
+          showToast(res?.payload?.data?.message, "success");
+        }
+      },
+    );
   };
   useEffect(() => {
     if (!dispatchId) {
@@ -127,7 +128,6 @@ export default function CreateEwayBill() {
   }, [dispatch, dispatchId, deviceType]);
 
   useEffect(() => {
-    console.log(dispatchData, "data");
     if (dispatchData) {
       const data = dispatchData?.header;
       setValue("header.documentNo", dispatchId);
@@ -176,17 +176,20 @@ export default function CreateEwayBill() {
         Name: data.shipTo.state?.name,
       });
       setValue("shipTo.pincode", data.shipTo.pincode);
-    const totalAmount = (dispatchData?.data || []).reduce((sum:any, item:any) => {
-  return (
-    sum +
-    Number(item.item_value || 0) +
-    Number(item.item_cgst || 0) +
-    Number(item.item_sgst || 0) +
-    Number(item.item_igst || 0)
-  );
-}, 0);
+      const totalAmount = (dispatchData?.data || []).reduce(
+        (sum: any, item: any) => {
+          return (
+            sum +
+            Number(item.item_value || 0) +
+            Number(item.item_cgst || 0) +
+            Number(item.item_sgst || 0) +
+            Number(item.item_igst || 0)
+          );
+        },
+        0,
+      );
 
-setTotalAmount(totalAmount);
+      setTotalAmount(totalAmount);
     }
   }, [dispatchData, dispatchId, setValue]);
   const formValues = control._formValues;
@@ -762,7 +765,7 @@ setTotalAmount(totalAmount);
                           helperText={errors.billTo?.email?.message}
                           InputLabelProps={{
                             shrink: true,
-                            }}
+                          }}
                           disabled={true}
                         />
                       )}
@@ -1205,7 +1208,6 @@ setTotalAmount(totalAmount);
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transporterId}
-                        
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1224,7 +1226,6 @@ setTotalAmount(totalAmount);
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transporterName}
-                      
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1243,7 +1244,6 @@ setTotalAmount(totalAmount);
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transDistance}
-                      
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1332,7 +1332,7 @@ setTotalAmount(totalAmount);
                                 variant: "outlined",
                                 error:
                                   !!errors.ewaybillDetails?.transporterDate,
-                        
+
                                 fullWidth: true,
                                 label: "Transporter Date",
                               },
