@@ -127,6 +127,7 @@ export default function CreateEwayBill() {
   }, [dispatch, dispatchId, deviceType]);
 
   useEffect(() => {
+    console.log(dispatchData, "data");
     if (dispatchData) {
       const data = dispatchData?.header;
       setValue("header.documentNo", dispatchId);
@@ -175,7 +176,17 @@ export default function CreateEwayBill() {
         Name: data.shipTo.state?.name,
       });
       setValue("shipTo.pincode", data.shipTo.pincode);
-      setTotalAmount(Number(dispatchData?.data?.[0]?.item_value) + Number(dispatchData?.data?.[0]?.item_cgst) + Number(dispatchData?.data?.[0]?.item_sgst) + Number(dispatchData?.data?.[0]?.item_igst));
+    const totalAmount = (dispatchData?.data || []).reduce((sum:any, item:any) => {
+  return (
+    sum +
+    Number(item.item_value || 0) +
+    Number(item.item_cgst || 0) +
+    Number(item.item_sgst || 0) +
+    Number(item.item_igst || 0)
+  );
+}, 0);
+
+setTotalAmount(totalAmount);
     }
   }, [dispatchData, dispatchId, setValue]);
   const formValues = control._formValues;
