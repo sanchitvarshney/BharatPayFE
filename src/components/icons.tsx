@@ -64,6 +64,8 @@ import PersonPinCircleIcon from '@mui/icons-material/PersonPinCircle';
 import LabelIcon from '@mui/icons-material/Label';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import TabletAndroidOutlinedIcon from '@mui/icons-material/TabletAndroidOutlined';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 
 export const Icons = {
   save: SaveIcon,
@@ -133,4 +135,6 @@ export const Icons = {
   city2: LocationCityIcon,
   userAddress: PersonPinCircleIcon,
   label: LabelIcon,
+  zoomIn: ZoomInIcon,
+  zoomOut: ZoomOutIcon,
 };
