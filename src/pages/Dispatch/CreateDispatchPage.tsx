@@ -16,9 +16,12 @@ import {
   FormControl,
   FormControlLabel,
   InputAdornment,
+  InputLabel,
   LinearProgress,
   ListItemText,
+  MenuItem,
   Radio,
+  Select,
   Step,
   StepLabel,
   Stepper,
@@ -134,6 +137,7 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
+  const [deviceBatchSize, setDeviceBatchSize] = useState<number>(30); // Devices per batch: 20 or 30
   const { dispatchCreateLoading, checkBoxValidLoading } = useAppSelector(
     (state) => state.dispatch
   );
@@ -415,12 +419,7 @@ const CreateDispatchPage: React.FC = () => {
   const onImeiSubmit = (imei: string) => {
     const imeiArray = imei ? imei.split("\n") : []; // Handle empty string
     const count = imeiArray.filter((num) => num.trim() !== "").length;
-    // If deviceType is "device", length should be 30; if "swipe", length should be 20
-    if (
-      (data.deviceType === "device" && count === 30) ||
-      (data.deviceType !== "device" && count === 20)
-    ) {
-      console.log("open");
+    if (count === deviceBatchSize) {
       setOpen(true);
     }
   };
@@ -1156,6 +1155,25 @@ const CreateDispatchPage: React.FC = () => {
                         }
                         label="Single IMEI"
                       />
+
+                      {isMultiple && (
+                        <FormControl sx={{ width: "150px" }} size="small">
+                          <InputLabel id="device-batch-size-label">
+                            Devices per Batch
+                          </InputLabel>
+                          <Select
+                            labelId="device-batch-size-label"
+                            label="Devices per Batch"
+                            value={deviceBatchSize}
+                            onChange={(e) =>
+                              setDeviceBatchSize(Number(e.target.value))
+                            }
+                          >
+                            <MenuItem value={20}>20 Devices</MenuItem>
+                            <MenuItem value={30}>30 Devices</MenuItem>
+                          </Select>
+                        </FormControl>
+                      )}
 
                       <div className="h-[90px] flex items-center px-[20px] justify-between flex-wrap">
                         {isMultiple ? (
