@@ -25,7 +25,7 @@ const DownloadQrExcel: React.FC = () => {
       });
 
       // Check the response headers to ensure it's an Excel file
-      const contentType = response.headers["content-type"];
+      const contentType = String(response.headers["content-type"] ?? "");
       if (contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
         // Create a Blob URL for the Excel file
         const blob = new Blob([response.data], { type: contentType });
@@ -46,7 +46,7 @@ const DownloadQrExcel: React.FC = () => {
       console.error("Error downloading Excel file:", error);
 
       if (error.response) {
-        const contentType = error.response.headers["content-type"];
+        const contentType = String(error.response.headers["content-type"] ?? "");
 
         if (contentType.includes("application/json")) {
           // Parse JSON error response
