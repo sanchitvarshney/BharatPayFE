@@ -1,6 +1,6 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { buildCaptureFormData } from "./imageCapture.utils";
 import {
   CapturePhotoCheckResponse,
@@ -36,30 +36,50 @@ export const checkCapturePhoto = createAsyncThunk<
 export const saveCapturePhotos = createAsyncThunk<
   AxiosResponse<CapturePhotoResponse>,
   SaveCapturePhotosPayload
->("imageCapture/saveCapturePhotos", async ({ type, serialNo, images }) => {
-  const formData = buildCaptureFormData(images, { serialNo, type });
-  const response = await axiosInstance.post(
-    `/capture/photo/save/new`,
-    formData,
-    multipartConfig
-  );
-  return response;
-});
+>(
+  "imageCapture/saveCapturePhotos",
+  async ({ type, serialNo, images }, { rejectWithValue }) => {
+    const formData = buildCaptureFormData(images, { serialNo, type });
+    try {
+      const response = await axiosInstance.post(
+        `/capture/photo/save/new`,
+        formData,
+        multipartConfig
+      );
+      return response;
+    } catch (err) {
+      const axiosErr = err as AxiosError<CapturePhotoResponse>;
+      return rejectWithValue(
+        axiosErr.response?.data ?? { message: axiosErr.message }
+      );
+    }
+  }
+);
 
 export const editCapturePhotos = createAsyncThunk<
   AxiosResponse<CapturePhotoResponse>,
   EditCapturePhotosPayload
->("imageCapture/editCapturePhotos", async ({ module, dsn, images }) => {
-  const formData = buildCaptureFormData(images);
-  const response = await axiosInstance.put(
-    `/capture/photo/edit/new/${encodeURIComponent(dsn)}/${encodeURIComponent(
-      module
-    )}`,
-    formData,
-    multipartConfig
-  );
-  return response;
-});
+>(
+  "imageCapture/editCapturePhotos",
+  async ({ module, dsn, images }, { rejectWithValue }) => {
+    const formData = buildCaptureFormData(images);
+    try {
+      const response = await axiosInstance.put(
+        `/capture/photo/edit/new/${encodeURIComponent(
+          dsn
+        )}/${encodeURIComponent(module)}`,
+        formData,
+        multipartConfig
+      );
+      return response;
+    } catch (err) {
+      const axiosErr = err as AxiosError<CapturePhotoResponse>;
+      return rejectWithValue(
+        axiosErr.response?.data ?? { message: axiosErr.message }
+      );
+    }
+  }
+);
 
 const imageCaptureSlice = createSlice({
   name: "imageCapture",

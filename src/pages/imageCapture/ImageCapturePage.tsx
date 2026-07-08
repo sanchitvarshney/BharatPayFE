@@ -85,7 +85,9 @@ const ImageCapturePage = () => {
         showToast(body?.message ?? "Failed to upload images", "error");
       }
     } else {
-      showToast("Failed to upload images", "error");
+      const errorPayload = (result as { payload?: { message?: string } })
+        .payload;
+      showToast(errorPayload?.message ?? "Failed to upload images", "error");
     }
   };
 
