@@ -12,7 +12,6 @@ import { LoadingButton } from "@mui/lab";
 import { DatePicker } from "antd";
 import { Dayjs } from "dayjs";
 import { Icons } from "@/components/icons";
-import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { rangePresets } from "@/utils/rangePresets";
 import { fieldSx, selectSx } from "./fqcDeviceImage.constants";
 
@@ -20,6 +19,7 @@ const { RangePicker } = DatePicker;
 
 type Props = {
   deviceType: string;
+  deviceTypeReport: string;
   serialNo: string;
   loading: boolean;
   onDeviceTypeChange: (value: string) => void;
@@ -29,10 +29,12 @@ type Props = {
   onDateRangeChange: (range: { from: Dayjs | null; to: Dayjs | null }) => void;
   isConnected: boolean;
   onBulkDownload: () => void;
+  onChangeDeviceType: (value: string) => void;
 };
 
 const FqcDeviceImageSearchForm: React.FC<Props> = ({
   deviceType,
+  deviceTypeReport,
   serialNo,
   loading,
   onDeviceTypeChange,
@@ -42,6 +44,7 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
   onDateRangeChange,
   isConnected,
   onBulkDownload,
+  onChangeDeviceType,
 }) => (
   <div className="transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)] border-r border-neutral-300 min-w-[400px] max-w-[400px] items-center">
     <Paper elevation={0} className="m-2 w-full">
@@ -103,8 +106,31 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
               variant="subtitle1"
               className="text-slate-600 font-medium"
             >
-              Bulk Download (Date Range)
+              Bulk Download
             </Typography>
+            <div className="flex flex-col gap-[10px]">
+              <Typography
+                variant="subtitle1"
+                className="text-slate-600 font-medium"
+              >
+                Device Type
+              </Typography>
+              <FormControl fullWidth>
+                <Select
+                  value={deviceTypeReport}
+                  onChange={(e) => onChangeDeviceType(e.target.value)}
+                  displayEmpty
+                  inputProps={{ "aria-label": "Device Type" }}
+                  sx={selectSx}
+                >
+                  <MenuItem value="" disabled>
+                    <em>Select Device Type</em>
+                  </MenuItem>
+                  <MenuItem value="sound">Sound Box Image</MenuItem>
+                  <MenuItem value="swipe">Swipe Machine Image</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
             <div className="flex items-center gap-[10px]">
               <RangePicker
                 placement="bottomRight"
@@ -125,30 +151,20 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
                 }}
                 presets={rangePresets}
               />
-              <MuiTooltip title="Download" placement="top">
-                <span>
-                  <LoadingButton
-                    disabled={
-                      !isConnected || !dateRange.from || !dateRange.to
-                    }
-                    variant="contained"
-                    color="primary"
-                    style={{
-                      borderRadius: "50%",
-                      width: 40,
-                      height: 40,
-                      minWidth: 0,
-                      padding: 0,
-                      flexShrink: 0,
-                    }}
-                    onClick={onBulkDownload}
-                    size="small"
-                  >
-                    <Icons.download fontSize="small" />
-                  </LoadingButton>
-                </span>
-              </MuiTooltip>
             </div>
+
+            <LoadingButton
+              disabled={!isConnected || !dateRange.from || !dateRange.to}
+              variant="contained"
+              color="primary"
+              style={{
+                padding: "8px",
+              }}
+              onClick={onBulkDownload}
+              size="small"
+            >
+              <Icons.download fontSize="small" /> Download
+            </LoadingButton>
           </div>
         </div>
       </CardContent>

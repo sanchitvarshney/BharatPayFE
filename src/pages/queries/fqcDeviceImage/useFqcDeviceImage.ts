@@ -14,6 +14,7 @@ import { FqcTableRow, ImageViewKey } from "./fqcDeviceImage.types";
 
 export const useFqcDeviceImage = () => {
   const [deviceType, setDeviceType] = useState("sound");
+   const [deviceTypeReport, setDeviceTypeReport] = useState("sound");
   const [serialNo, setSerialNo] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -103,13 +104,15 @@ export const useFqcDeviceImage = () => {
       type: "DATE",
       fromDate: dayjs(dateRange.from).format("DD-MM-YYYY"),
       toDate: dayjs(dateRange.to).format("DD-MM-YYYY"),
-      module: deviceType === "swipe" ? "swipe" : "sound",
+      module: deviceTypeReport === "swipe" ? "swipe" : "sound",
     });
   }, [dateRange, deviceType, emitFqcDeviceImageDownload]);
 
   return {
     deviceType,
     setDeviceType,
+    deviceTypeReport,
+    setDeviceTypeReport,
     serialNo,
     setSerialNo,
     viewModalOpen,
