@@ -180,7 +180,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   };
   const emitFqcDeviceImageDownload = (payload: any) => {
     console.log(payload);
-    socketService.emit("fqcDeviceImageDownload", payload);
+    socketService.emit("imageCaptureReport", payload);
   };
 
   const onnotification = (callback: (data: NotificationData[]) => void) => {
