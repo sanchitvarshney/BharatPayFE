@@ -28,6 +28,10 @@ const FQCDeviceImagePage: React.FC = () => {
     handleImageClick,
     handlePrevPreview,
     handleNextPreview,
+    dateRange,
+    setDateRange,
+    isConnected,
+    handleBulkDownload,
   } = useFqcDeviceImage();
 
   return (
@@ -39,6 +43,10 @@ const FQCDeviceImagePage: React.FC = () => {
         onDeviceTypeChange={setDeviceType}
         onSerialNoChange={setSerialNo}
         onSearch={handleSearch}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        isConnected={isConnected}
+        onBulkDownload={handleBulkDownload}
       />
 
       <FqcDeviceImageResults
