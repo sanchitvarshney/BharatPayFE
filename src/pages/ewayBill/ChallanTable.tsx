@@ -211,6 +211,15 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
               : "Sound Box",
     },
     {
+      headerName: "Product Name",
+      field: "productName",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      minWidth: 200,
+      cellRenderer: (params: any) => params.data.productName === "" || params.data.productName === null ? params.data.materialName : params.data.productName,
+    },
+    {
       headerName: challanType === "PART" ? "Status" : "Client",
       field: challanType === "PART" ? "status" : "clientDetail.name",
       sortable: true,

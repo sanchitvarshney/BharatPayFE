@@ -89,7 +89,7 @@ const ManageChallan: React.FC<ManageChallanProps> = ({ challanType }) => {
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
-                <MenuItem value={"DEVICE"}>SKU</MenuItem>
+                {/* <MenuItem value={"DEVICE"}>SKU</MenuItem> */}
                 <MenuItem value={"DATE"}>Date</MenuItem>
               </Select>
             </FormControl>
