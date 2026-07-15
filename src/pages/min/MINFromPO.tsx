@@ -17,6 +17,12 @@ import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useState, useMemo, useRef, useCallback } from "react";
 import { showToast } from "@/utils/toasterContext";
+import { IconButton } from "@mui/material";
+import { Icons } from "@/components/icons";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 import {
   fetchDataForMIN,
   submitPOMIN,
@@ -207,13 +213,15 @@ const MINFromPO = () => {
     dispatch(fetchDataForMIN(poNumber.trim())).then((res: any) => {
       if (res.payload.data.success) {
         const materials = res.payload.data.data.materials;
-        const newRowData = materials.map((item: any) => ({
+        const newRowData = materials.map((item: any, index: number) => ({
+          rowId: `${item.access_code}-${index}`,
           partComponent: {
             lable: "( " + item.c_partno + " ) " + item.component_shortname,
             value: item.componentKey,
           },
-          qty: Number(item.orderqty) || 0,
+          qty: Number(item.pendingQty) || 0,
           pendingQty: Number(item.pendingQty) || 0,
+          orderQty: Number(item.orderqty) || 0,
           updaterow: item.access_code,
           rate: Number(item.orderrate) || 0,
           taxableValue: Number(item.totalValue) || 0,
@@ -242,6 +250,14 @@ const MINFromPO = () => {
       }
     });
   };
+
+  const handleDeleteRow = useCallback(
+    (rowId: string) => {
+      setRowData((prev: any[]) => prev.filter((row) => row.rowId !== rowId));
+      setTimeout(getAllTableData, 0);
+    },
+    [getAllTableData]
+  );
 
   const handleFileChange = async (files: File[] | null) => {
     setFiles(files);
@@ -286,18 +302,44 @@ const MINFromPO = () => {
       hide: true,
     },
     {
+      headerName: "Action",
+      field: "action",
+      width: 80,
+      sortable: false,
+      filter: false,
+      cellRenderer: (params: any) => (
+        <div className="flex items-center justify-center w-full h-full">
+          <IconButton
+            color="error"
+            size="small"
+            onClick={() => handleDeleteRow(params.data.rowId)}
+          >
+            <Icons.delete fontSize="small" />
+          </IconButton>
+        </div>
+      ),
+    },
+    {
       headerName: "Part Component",
       field: "partComponent.lable",
       minWidth: 300,
     },
     {
-      headerName: "Qty",
+      headerName: "Order Qty",
       field: "qty",
       cellRenderer: "textInputCellRenderer",
     },
     {
       headerName: "Pending Qty",
       field: "pendingQty",
+    },
+    {
+      headerName: "Total Qty",
+      field: "orderQty",
+    },
+    {
+      headerName: "Unit",
+      field: "uom",
     },
     {
       headerName: "Rate",
@@ -355,12 +397,6 @@ const MINFromPO = () => {
       headerName: "Remarks",
       field: "remarks",
       // cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "uom",
-      field: "uom",
-
-      hide: true,
     },
   ];
 
@@ -518,18 +554,29 @@ const MINFromPO = () => {
                               className="bg-white"
                               variant="standard"
                             />
-                            <TextField
-                              label="Invoice Date"
-                              type="date"
-                              value={invoiceDate}
-                              onChange={(e) => setInvoiceDate(e.target.value)}
-                              required
-                              size="small"
-                              fullWidth
-                              InputLabelProps={{ shrink: true }}
-                              className="bg-white"
-                              variant="standard"
-                            />
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DatePicker
+                                label="Invoice Date"
+                                format="DD-MM-YYYY"
+                                maxDate={dayjs()}
+                                slots={{ textField: TextField }}
+                                slotProps={{
+                                  textField: {
+                                    required: true,
+                                    size: "small",
+                                    fullWidth: true,
+                                    className: "bg-white",
+                                    variant: "standard",
+                                  },
+                                }}
+                                value={invoiceDate ? dayjs(invoiceDate) : null}
+                                onChange={(value) =>
+                                  setInvoiceDate(
+                                    value ? dayjs(value).format("YYYY-MM-DD") : ""
+                                  )
+                                }
+                              />
+                            </LocalizationProvider>
                             <AntLocationSelectAcordinttoModule
                               endpoint="/transaction/rm-inward-location"
                               onChange={setLocation}
@@ -635,7 +682,7 @@ const MINFromPO = () => {
                 suppressCellFocus={true}
                 rowData={rowData}
                 columnDefs={columnDefs}
-                pagination={true}
+                pagination={false}
                 components={components}
                 onCellValueChanged={onCellValueChanged}
               />
