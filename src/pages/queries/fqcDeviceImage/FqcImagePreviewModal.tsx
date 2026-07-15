@@ -20,8 +20,8 @@ type Props = {
   currentIndex: number;
   total: number;
   onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 };
 
 const FqcImagePreviewModal: React.FC<Props> = ({

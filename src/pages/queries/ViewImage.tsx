@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CardContent,
   FormControl,
@@ -11,31 +11,124 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { DatePicker } from "antd";
+import { AgGridReact } from "ag-grid-react";
+import { ColDef, ICellRendererParams } from "ag-grid-community";
+import * as XLSX from "xlsx";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { getDeviceImages } from "@/features/common/commonSlice";
+import {
+  getDeviceImages,
+  resetDeviceImages,
+  DeviceImage,
+} from "@/features/common/commonSlice";
 import { rangePresets } from "@/utils/rangePresets";
 import dayjs, { Dayjs } from "dayjs";
+import FqcImagePreviewModal from "@/pages/queries/fqcDeviceImage/FqcImagePreviewModal";
 const { RangePicker } = DatePicker;
 const ViewImage: React.FC = () => {
   const [deviceType, setDeviceType] = useState<string>("");
   const [awbNumber, setAwbNumber] = useState<string>("");
   const [serialNo, setSerialNo] = useState<string>("");
+  const [simFilterBy, setSimFilterBy] = useState<"serialNo" | "date">(
+    "serialNo",
+  );
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
   });
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const dispatch = useAppDispatch();
   const { deviceImages, deviceImagesLoading, deviceImagesError } =
     useAppSelector((state) => state.common);
 
+  const isSimDateFilter = deviceType === "sim" && simFilterBy === "date";
+
+  useEffect(() => {
+    dispatch(resetDeviceImages());
+    setCurrentImageIdx(0);
+    setPreviewIndex(null);
+  }, [deviceType, awbNumber, serialNo, simFilterBy, date.from, date.to, dispatch]);
+
+  const handleImagePreview = (row: DeviceImage) => {
+    const idx = deviceImages?.indexOf(row) ?? -1;
+    setPreviewIndex(idx >= 0 ? idx : 0);
+  };
+  const handlePreviewClose = () => setPreviewIndex(null);
+
+  const previewRow =
+    previewIndex !== null ? deviceImages?.[previewIndex] : undefined;
+
+  const onBtExport = useCallback(() => {
+    if (!deviceImages || deviceImages.length === 0) return;
+    const rows = deviceImages.map((item, idx) => ({
+      "#": idx + 1,
+      Serial: item.serial || "",
+      "SIM No": item.sim_no || "",
+      Operator: item.operator || "",
+      "Image URL": item.img_url?.[0] || "",
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    worksheet["!cols"] = [
+      { wch: 6 },
+      { wch: 20 },
+      { wch: 24 },
+      { wch: 16 },
+      { wch: 60 },
+    ];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "SIM Images");
+    XLSX.writeFile(workbook, "SIM-Images.xlsx");
+  }, [deviceImages]);
+
+  const simImageColumnDefs = useMemo<ColDef<DeviceImage>[]>(
+    () => [
+      { headerName: "#", valueGetter: "node.rowIndex + 1", width: 70 },
+      { headerName: "Serial", field: "serial", flex: 1, minWidth: 160 },
+      { headerName: "SIM No", field: "sim_no", flex: 1, minWidth: 180 },
+      { headerName: "Operator", field: "operator", flex: 1, minWidth: 120 },
+      {
+        headerName: "Image",
+        width: 100,
+        sortable: false,
+        filter: false,
+        valueGetter: (params) => params.data?.img_url?.[0] || "",
+        cellRenderer: (params: ICellRendererParams<DeviceImage>) => {
+          const url = params.data?.img_url?.[0];
+          if (!url || !params.data) return null;
+          return (
+            <button
+              type="button"
+              onClick={() => handleImagePreview(params.data as DeviceImage)}
+              className="flex items-center h-full"
+            >
+              <img
+                src={url}
+                alt={params.data?.serial || "image"}
+                className="h-[40px] w-[40px] object-cover rounded border cursor-pointer"
+              />
+            </button>
+          );
+        },
+      },
+    ],
+    [deviceImages],
+  );
+
   const handleSearch = async () => {
     const needsAwb = deviceType && deviceType !== "sim" && deviceType !== "ber";
-    if (!deviceType || !serialNo || (needsAwb && !awbNumber)) {
+    const needsSerialNo = !isSimDateFilter;
+    if (
+      !deviceType ||
+      (needsSerialNo && !serialNo) ||
+      (isSimDateFilter && (!date.from || !date.to)) ||
+      (needsAwb && !awbNumber)
+    ) {
       showToast(
-        "Please enter Device Type, Serial Number" +
+        "Please enter Device Type" +
+          (needsSerialNo ? ", Serial Number" : "") +
+          (isSimDateFilter ? ", and select Date Range" : "") +
           (needsAwb ? ", and AWB Number" : ""),
         "error",
       );
@@ -46,9 +139,15 @@ const ViewImage: React.FC = () => {
       getDeviceImages({
         deviceType,
         awbNumber: awbNumber || "",
-        serialNo,
-        from: date.from ? dayjs(date.from).format("YYYY-MM-DD 00:00:00") : "",
-        to: date.to ? dayjs(date.to).format("YYYY-MM-DD 23:59:59") : "",
+        serialNo: needsSerialNo ? serialNo : "",
+        from:
+          isSimDateFilter && date.from
+            ? dayjs(date.from).format("DD-MM-YYYY")
+            : "",
+        to:
+          isSimDateFilter && date.to
+            ? dayjs(date.to).format("DD-MM-YYYY")
+            : "",
       }),
     );
   };
@@ -154,6 +253,41 @@ const ViewImage: React.FC = () => {
                 </div>
               )}
               {deviceType === "sim" && (
+                <div className="flex flex-col gap-[10px]">
+                  <Typography
+                    variant="subtitle1"
+                    className="text-slate-600 font-medium"
+                  >
+                    Filter By
+                  </Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={simFilterBy}
+                      onChange={(e) =>
+                        setSimFilterBy(
+                          e.target.value as "serialNo" | "date",
+                        )
+                      }
+                      inputProps={{ "aria-label": "Filter By" }}
+                      sx={{
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "rgb(203 213 225)",
+                        },
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "rgb(148 163 184)",
+                        },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "rgb(14 116 144)",
+                        },
+                      }}
+                    >
+                      <MenuItem value="serialNo">Serial Number</MenuItem>
+                      <MenuItem value="date">Date</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+              )}
+              {isSimDateFilter && (
                 <RangePicker
                   className="w-full h-[55px] border-2 border-neutral-300 rounded-0 "
                   presets={rangePresets}
@@ -164,35 +298,37 @@ const ViewImage: React.FC = () => {
                   format="DD/MM/YYYY"
                 />
               )}
-              <div className="flex flex-col gap-[10px]">
-                <Typography
-                  variant="subtitle1"
-                  className="text-slate-600 font-medium"
-                >
-                  {deviceType === "sim"
-                    ? "Device Serial Number"
-                    : "Serial Number"}
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  value={serialNo}
-                  onChange={(e) => setSerialNo(e.target.value)}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        borderColor: "rgb(203 213 225)",
+              {!isSimDateFilter && (
+                <div className="flex flex-col gap-[10px]">
+                  <Typography
+                    variant="subtitle1"
+                    className="text-slate-600 font-medium"
+                  >
+                    {deviceType === "sim"
+                      ? "Device Serial Number"
+                      : "Serial Number"}
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    value={serialNo}
+                    onChange={(e) => setSerialNo(e.target.value)}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "rgb(203 213 225)",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "rgb(148 163 184)",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "rgb(14 116 144)",
+                        },
                       },
-                      "&:hover fieldset": {
-                        borderColor: "rgb(148 163 184)",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "rgb(14 116 144)",
-                      },
-                    },
-                  }}
-                />
-              </div>
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
           <div className="h-[50px] px-[20px] flex items-center justify-between gap-[10px] pb-4">
@@ -204,6 +340,24 @@ const ViewImage: React.FC = () => {
             >
               Search
             </LoadingButton>
+            {isSimDateFilter && (
+              <LoadingButton
+                onClick={onBtExport}
+                disabled={!deviceImages || deviceImages.length === 0}
+                variant="contained"
+                color="primary"
+                title="Download Excel"
+                sx={{
+                  borderRadius: "50%",
+                  width: 40,
+                  height: 40,
+                  minWidth: 0,
+                  padding: 0,
+                }}
+              >
+                <Icons.download fontSize="small" />
+              </LoadingButton>
+            )}
           </div>
           {deviceType === "ber" &&
             deviceImages &&
@@ -285,6 +439,17 @@ const ViewImage: React.FC = () => {
                 No images to display
               </Typography>
             </div>
+          ) : isSimDateFilter ? (
+            <div className="ag-theme-quartz w-full h-full">
+              <AgGridReact<DeviceImage>
+                rowData={deviceImages}
+                columnDefs={simImageColumnDefs}
+                animateRows
+                rowHeight={50}
+                headerHeight={50}
+                suppressContextMenu
+              />
+            </div>
           ) : (
             <div className="flex flex-col items-center w-full">
               <div className="relative w-full flex items-center justify-center">
@@ -300,7 +465,10 @@ const ViewImage: React.FC = () => {
                   <img
                     src={currentImgUrl}
                     alt={currentTitle}
-                    className="rounded-lg object-contain max-h-[400px] max-w-full border shadow"
+                    onClick={() =>
+                      currentImage && handleImagePreview(currentImage)
+                    }
+                    className="rounded-lg object-contain max-h-[400px] max-w-full border shadow cursor-pointer"
                   />
                   <Typography
                     variant="subtitle1"
@@ -340,6 +508,15 @@ const ViewImage: React.FC = () => {
           )}
         </div>
       </div>
+      <FqcImagePreviewModal
+        open={previewIndex !== null}
+        label={previewRow?.serial || previewRow?.sim_no || "Image"}
+        imageUrl={previewRow?.img_url?.[0]}
+        currentIndex={previewIndex ?? 0}
+        total={ 0}
+        onClose={handlePreviewClose}
+     
+      />
     </div>
   );
 };

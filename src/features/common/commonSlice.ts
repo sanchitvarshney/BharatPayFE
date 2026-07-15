@@ -120,12 +120,22 @@ export const getDeviceImages = createAsyncThunk<
   const isBerDevice = deviceType === "ber";
   const isSIM = deviceType === "sim";
   const isDate = from !== '' && to !== '';
-  const query =
-    isBerDevice
-      ? `serialNo=${serialNo}`
-      : isSIM ? `serialNo=${serialNo} ${isDate ? `&from=${from}&to=${to}` : ''}` :  `awbNumber=${awbNumber}&serialNo=${serialNo}`;
+  const params = new URLSearchParams();
+  if (isBerDevice) {
+    params.set("serialNo", serialNo);
+  } else if (isSIM) {
+    if (isDate) {
+      params.set("from", from);
+      params.set("to", to);
+    } else {
+      params.set("serialNo", serialNo);
+    }
+  } else {
+    params.set("awbNumber", awbNumber);
+    params.set("serialNo", serialNo);
+  }
   const response = await axiosInstance.get(
-    `/swipeMachine/delivery/getImages/${deviceType}?${query}`
+    `/swipeMachine/delivery/getImages/${deviceType}?${params.toString()}`
   );
   return response;
 });
@@ -144,7 +154,12 @@ export const getFqcDeviceImages = createAsyncThunk<
 const commonSlice = createSlice({
   name: "common",
   initialState,
-  reducers: {},
+  reducers: {
+    resetDeviceImages: (state) => {
+      state.deviceImages = null;
+      state.deviceImagesError = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getUserAsync.pending, (state) => {
@@ -242,4 +257,5 @@ const commonSlice = createSlice({
   },
 });
 
+export const { resetDeviceImages } = commonSlice.actions;
 export default commonSlice.reducer;
