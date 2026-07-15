@@ -10,17 +10,23 @@ import {
   IconButton,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { DatePicker } from "antd";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getDeviceImages } from "@/features/common/commonSlice";
-
+import { rangePresets } from "@/utils/rangePresets";
+import dayjs, { Dayjs } from "dayjs";
+const { RangePicker } = DatePicker;
 const ViewImage: React.FC = () => {
   const [deviceType, setDeviceType] = useState<string>("");
   const [awbNumber, setAwbNumber] = useState<string>("");
   const [serialNo, setSerialNo] = useState<string>("");
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-
+  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+    from: null,
+    to: null,
+  });
   const dispatch = useAppDispatch();
   const { deviceImages, deviceImagesLoading, deviceImagesError } =
     useAppSelector((state) => state.common);
@@ -31,24 +37,39 @@ const ViewImage: React.FC = () => {
       showToast(
         "Please enter Device Type, Serial Number" +
           (needsAwb ? ", and AWB Number" : ""),
-        "error"
+        "error",
       );
       return;
     }
     setCurrentImageIdx(0);
-    dispatch(getDeviceImages({ deviceType, awbNumber: awbNumber || "", serialNo }));
+    dispatch(
+      getDeviceImages({
+        deviceType,
+        awbNumber: awbNumber || "",
+        serialNo,
+        from: date.from ? dayjs(date.from).format("YYYY-MM-DD 00:00:00") : "",
+        to: date.to ? dayjs(date.to).format("YYYY-MM-DD 23:59:59") : "",
+      }),
+    );
   };
   const handlePrev = () => {
     if (!deviceImages) return;
     setCurrentImageIdx((idx) =>
-      idx === 0 ? deviceImages.length - 1 : idx - 1
+      idx === 0 ? deviceImages.length - 1 : idx - 1,
     );
   };
   const handleNext = () => {
     if (!deviceImages) return;
     setCurrentImageIdx((idx) =>
-      idx === deviceImages.length - 1 ? 0 : idx + 1
+      idx === deviceImages.length - 1 ? 0 : idx + 1,
     );
+  };
+  const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
+    if (range) {
+      setDate({ from: range[0], to: range[1] });
+    } else {
+      setDate({ from: null, to: null });
+    }
   };
 
   const currentImage = deviceImages?.[currentImageIdx];
@@ -67,7 +88,6 @@ const ViewImage: React.FC = () => {
       >
         <Paper elevation={0} className="m-2 w-full">
           <CardContent>
-       
             <div className="flex flex-col gap-[20px] px-[0px] py-[0px]">
               <div className="flex flex-col gap-[10px]">
                 <Typography
@@ -133,12 +153,25 @@ const ViewImage: React.FC = () => {
                   />
                 </div>
               )}
+              {deviceType === "sim" && (
+                <RangePicker
+                  className="w-full h-[55px] border-2 border-neutral-300 rounded-0 "
+                  presets={rangePresets}
+                  onChange={handleDateChange}
+                  disabledDate={(current) => current && current > dayjs()}
+                  placeholder={["Start date", "End Date"]}
+                  value={date.from && date.to ? [date.from, date.to] : null}
+                  format="DD/MM/YYYY"
+                />
+              )}
               <div className="flex flex-col gap-[10px]">
                 <Typography
                   variant="subtitle1"
                   className="text-slate-600 font-medium"
                 >
-                  Serial Number
+                  {deviceType === "sim"
+                    ? "Device Serial Number"
+                    : "Serial Number"}
                 </Typography>
                 <TextField
                   fullWidth
@@ -173,7 +206,8 @@ const ViewImage: React.FC = () => {
             </LoadingButton>
           </div>
           {deviceType === "ber" &&
-           deviceImages && deviceImages?.length > 0 &&
+            deviceImages &&
+            deviceImages?.length > 0 &&
             (() => {
               const berInfo = deviceImages[currentImageIdx] ?? deviceImages[0];
               const hasBerInfo =
@@ -190,7 +224,10 @@ const ViewImage: React.FC = () => {
                   <div className="flex flex-col gap-[12px] px-[20px] pb-4">
                     {berInfo.serial && (
                       <div>
-                        <Typography variant="caption" className="text-slate-500">
+                        <Typography
+                          variant="caption"
+                          className="text-slate-500"
+                        >
                           Serial
                         </Typography>
                         <Typography variant="body2" className="font-medium">
@@ -200,7 +237,10 @@ const ViewImage: React.FC = () => {
                     )}
                     {berInfo.imei && (
                       <div>
-                        <Typography variant="caption" className="text-slate-500">
+                        <Typography
+                          variant="caption"
+                          className="text-slate-500"
+                        >
                           IMEI
                         </Typography>
                         <Typography variant="body2" className="font-medium">
@@ -210,7 +250,10 @@ const ViewImage: React.FC = () => {
                     )}
                     {berInfo.insertDt && (
                       <div>
-                        <Typography variant="caption" className="text-slate-500">
+                        <Typography
+                          variant="caption"
+                          className="text-slate-500"
+                        >
                           Insert date
                         </Typography>
                         <Typography variant="body2" className="font-medium">
@@ -270,7 +313,6 @@ const ViewImage: React.FC = () => {
                       variant="caption"
                       className="text-slate-500 mt-1"
                     >
-                     
                       {currentImage?.operator && currentImage?.sim_no
                         ? " • "
                         : ""}

@@ -210,24 +210,26 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
               ? "Scrap Device"
               : "Sound Box",
     },
-    {
-      headerName: "Product Name",
-      field: "productName",
-      sortable: true,
-      filter: true,
-      flex: 1,
-      minWidth: 200,
-      
-    },
-     {
-      headerName: "Product Name",
-      field: "materialName",
-      sortable: true,
-      filter: true,
-      flex: 1,
-      minWidth: 200,
-      
-    },
+    ...(challanType !== "PART"
+      ? [
+          {
+            headerName: "Product Name",
+            field: "productName",
+            sortable: true,
+            filter: true,
+            flex: 1,
+            minWidth: 200,
+          },
+          {
+            headerName: "Material Name",
+            field: "materialName",
+            sortable: true,
+            filter: true,
+            flex: 1,
+            minWidth: 200,
+          },
+        ]
+      : []),
     {
       headerName: challanType === "PART" ? "Status" : "Client",
       field: challanType === "PART" ? "status" : "clientDetail.name",

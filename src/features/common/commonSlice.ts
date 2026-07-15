@@ -115,13 +115,15 @@ export const getCostCenter = createAsyncThunk<
 // Thunk for fetching device images
 export const getDeviceImages = createAsyncThunk<
   AxiosResponse<DeviceImageApiResponse>,
-  { deviceType: string; awbNumber: string; serialNo: string }
->("common/getDeviceImages", async ({ deviceType, awbNumber, serialNo }) => {
+  { deviceType: string; awbNumber: string; serialNo: string, from: string, to: string }
+>("common/getDeviceImages", async ({ deviceType, awbNumber, serialNo, from = '', to = '' }) => {
   const isBerDevice = deviceType === "ber";
+  const isSIM = deviceType === "sim";
+  const isDate = from !== '' && to !== '';
   const query =
     isBerDevice
       ? `serialNo=${serialNo}`
-      : `awbNumber=${awbNumber}&serialNo=${serialNo}`;
+      : isSIM ? `serialNo=${serialNo} ${isDate ? `&from=${from}&to=${to}` : ''}` :  `awbNumber=${awbNumber}&serialNo=${serialNo}`;
   const response = await axiosInstance.get(
     `/swipeMachine/delivery/getImages/${deviceType}?${query}`
   );
