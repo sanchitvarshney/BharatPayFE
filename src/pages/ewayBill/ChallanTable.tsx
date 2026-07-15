@@ -217,7 +217,16 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       filter: true,
       flex: 1,
       minWidth: 200,
-      cellRenderer: (params: any) => params.data.productName === "" || params.data.productName === null ? params.data.materialName : params.data.productName,
+      
+    },
+     {
+      headerName: "Product Name",
+      field: "materialName",
+      sortable: true,
+      filter: true,
+      flex: 1,
+      minWidth: 200,
+      
     },
     {
       headerName: challanType === "PART" ? "Status" : "Client",
