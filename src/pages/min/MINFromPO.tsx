@@ -231,7 +231,7 @@ const MINFromPO = () => {
           },
           isNew: true,
           excRate: item.header?.exchangerate || 1,
-          uom: item.uom,
+          uom: item.unitsname,
         }));
         setRowData(newRowData);
         setVendorData(res.payload.data.data.vendor_type);
