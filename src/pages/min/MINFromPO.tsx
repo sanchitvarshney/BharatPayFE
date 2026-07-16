@@ -635,7 +635,6 @@ const MINFromPO = () => {
                 suppressCellFocus={true}
                 rowData={rowData}
                 columnDefs={columnDefs}
-                pagination={true}
                 components={components}
                 onCellValueChanged={onCellValueChanged}
               />
