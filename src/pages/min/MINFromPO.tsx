@@ -216,7 +216,7 @@ const MINFromPO = () => {
             lable: "( " + item.c_partno + " ) " + item.component_shortname,
             value: item.componentKey,
           },
-          qty: Number(item.orderqty) || 0,
+          qty: "",
           pendingQty: Number(item.pendingQty) || 0,
           updaterow: item.access_code,
           rate: Number(item.orderrate) || 0,
