@@ -39,6 +39,10 @@ import { LoadingButton } from "@mui/lab";
 import { IoCloudUpload } from "react-icons/io5";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 import Success from "@/components/reusable/Success";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const VendorDetailSkeleton = () => (
   <div className="space-y-5 mb-8">
@@ -518,18 +522,29 @@ const MINFromPO = () => {
                               className="bg-white"
                               variant="standard"
                             />
-                            <TextField
-                              label="Invoice Date"
-                              type="date"
-                              value={invoiceDate}
-                              onChange={(e) => setInvoiceDate(e.target.value)}
-                              required
-                              size="small"
-                              fullWidth
-                              InputLabelProps={{ shrink: true }}
-                              className="bg-white"
-                              variant="standard"
-                            />
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DatePicker
+                                label="Invoice Date"
+                                format="DD-MM-YYYY"
+                                value={invoiceDate ? dayjs(invoiceDate) : null}
+                                onChange={(value) =>
+                                  setInvoiceDate(
+                                    value ? value.format("YYYY-MM-DD") : ""
+                                  )
+                                }
+                                maxDate={dayjs()}
+                                slots={{ textField: TextField }}
+                                slotProps={{
+                                  textField: {
+                                    required: true,
+                                    size: "small",
+                                    fullWidth: true,
+                                    className: "bg-white",
+                                    variant: "standard",
+                                  },
+                                }}
+                              />
+                            </LocalizationProvider>
                             <AntLocationSelectAcordinttoModule
                               endpoint="/transaction/rm-inward-location"
                               onChange={setLocation}
