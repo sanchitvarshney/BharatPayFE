@@ -66,7 +66,6 @@ const SelectEndPoint: React.FC = () => {
              
               width: "300px",
             }}
-          placeholder="Select Base URL"
             value={currentUrl}
             onChange={handleChange}
            
