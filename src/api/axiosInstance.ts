@@ -23,18 +23,6 @@ const warmFingerprint = () => {
   return fingerprintLoading;
 };
 
-const warmLocation = () => {
-  const now = Date.now();
-  if (now - locationLastUpdatedAt < LOCATION_CACHE_TTL_MS) return;
-  locationLastUpdatedAt = now;
-  getLocation()
-    .then((location) => {
-      cachedLocation = location || "";
-    })
-    .catch(() => {
-      cachedLocation = "";
-    });
-};
 
 // Create Axios instance
 const axiosInstance = axios.create({
