@@ -62,7 +62,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
             <Input
               min={0}
               onChange={(e) => {
-                if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                if (/^-?\d*\.?\d{0,2}$/.test(e.target.value)) {
                   const newValue = e.target.value;
                   updateCellAndRefresh(newValue, colDef.field);
 
