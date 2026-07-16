@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
@@ -18,7 +18,7 @@ import MuiTooltip from "@/components/reusable/MuiTooltip";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
-import { getChallan } from "@/features/Dispatch/DispatchSlice";
+import { clearChallanList, getChallan } from "@/features/Dispatch/DispatchSlice";
 import ChallanTable from "@/pages/ewayBill/ChallanTable";
 
 type ManageChallanProps = {
@@ -36,6 +36,12 @@ const ManageChallan: React.FC<ManageChallanProps> = ({ challanType }) => {
     to: null,
   });
   const [open, setOpen] = React.useState(false);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearChallanList());
+    };
+  }, [dispatch]);
 
   const handleClose = () => {
     setOpen(false);
@@ -83,7 +89,7 @@ const ManageChallan: React.FC<ManageChallanProps> = ({ challanType }) => {
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Filter By</InputLabel>
               <Select value={filter} onChange={(e) => setFilter(e.target.value)} labelId="demo-simple-select-label" id="demo-simple-select" label="Filter By">
-                <MenuItem value={"DEVICE"}>SKU</MenuItem>
+                {/* <MenuItem value={"DEVICE"}>SKU</MenuItem> */}
                 <MenuItem value={"DATE"}>Date</MenuItem>
               </Select>
             </FormControl>

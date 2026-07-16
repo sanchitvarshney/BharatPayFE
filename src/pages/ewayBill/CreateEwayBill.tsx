@@ -77,7 +77,6 @@ export default function CreateEwayBill() {
   });
 
   const onSubmit = (data: EwayBillFormData) => {
-  
     const updatedData = {
       ...data,
       billFrom: {
@@ -109,13 +108,15 @@ export default function CreateEwayBill() {
         },
       },
     };
-    dispatch(createEwayBill({ updatedData, type: deviceType })).then((res: any) => {
-      if (res.payload.data.status) {
-        setIsEwayBillCreated(true);
-        setEwayBillNo(res?.payload?.data?.data);
-        showToast(res?.payload?.data?.message, "success");
-      }
-    });
+    dispatch(createEwayBill({ updatedData, type: deviceType })).then(
+      (res: any) => {
+        if (res.payload.data.status) {
+          setIsEwayBillCreated(true);
+          setEwayBillNo(res?.payload?.data?.data);
+          showToast(res?.payload?.data?.message, "success");
+        }
+      },
+    );
   };
   useEffect(() => {
     if (!dispatchId) {
@@ -175,7 +176,20 @@ export default function CreateEwayBill() {
         Name: data.shipTo.state?.name,
       });
       setValue("shipTo.pincode", data.shipTo.pincode);
-      setTotalAmount(Number(dispatchData?.data?.[0]?.item_value) + Number(dispatchData?.data?.[0]?.item_cgst) + Number(dispatchData?.data?.[0]?.item_sgst) + Number(dispatchData?.data?.[0]?.item_igst));
+      const totalAmount = (dispatchData?.data || []).reduce(
+        (sum: any, item: any) => {
+          return (
+            sum +
+            Number(item.item_value || 0) +
+            Number(item.item_cgst || 0) +
+            Number(item.item_sgst || 0) +
+            Number(item.item_igst || 0)
+          );
+        },
+        0,
+      );
+
+      setTotalAmount(totalAmount);
     }
   }, [dispatchData, dispatchId, setValue]);
   const formValues = control._formValues;
@@ -751,7 +765,7 @@ export default function CreateEwayBill() {
                           helperText={errors.billTo?.email?.message}
                           InputLabelProps={{
                             shrink: true,
-                            }}
+                          }}
                           disabled={true}
                         />
                       )}
@@ -1194,9 +1208,6 @@ export default function CreateEwayBill() {
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transporterId}
-                          helperText={
-                            errors.ewaybillDetails?.transporterId?.message
-                          }
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1215,9 +1226,6 @@ export default function CreateEwayBill() {
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transporterName}
-                          helperText={
-                            errors.ewaybillDetails?.transporterName?.message
-                          }
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1236,9 +1244,6 @@ export default function CreateEwayBill() {
                           variant="outlined"
                           className="bg-white"
                           error={!!errors.ewaybillDetails?.transDistance}
-                          helperText={
-                            errors.ewaybillDetails?.transDistance?.message
-                          }
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -1327,9 +1332,7 @@ export default function CreateEwayBill() {
                                 variant: "outlined",
                                 error:
                                   !!errors.ewaybillDetails?.transporterDate,
-                                helperText:
-                                  errors.ewaybillDetails?.transporterDate
-                                    ?.message,
+
                                 fullWidth: true,
                                 label: "Transporter Date",
                               },

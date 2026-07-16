@@ -46,7 +46,7 @@ const BillingReport: React.FC = () => {
 
     const reportPayload = {
       startDate: date.from?.format("YYYY-MM-DD"),
-      endDate: date.to?.format("YYYY-MM-DD"),
+      endDate: date.to?.add(1,"day").format("YYYY-MM-DD"),
     };
 
     if (deviceType === "SWIPE") {

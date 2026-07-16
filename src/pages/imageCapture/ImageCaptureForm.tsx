@@ -14,6 +14,7 @@ type Props = {
   selectedStep: number;
   onSelectStep: (id: number) => void;
   onOpenWebCamera: () => void;
+  stepDisabled?: boolean;
 };
 
 
@@ -27,6 +28,7 @@ const ImageCaptureForm: React.FC<Props> = ({
   selectedStep,
   onSelectStep,
   onOpenWebCamera,
+  stepDisabled = false,
 }) => {
   return (
     <Card elevation={0}  className="m-2 w-full min-w-[400px] max-w-[500px]">
@@ -44,6 +46,9 @@ const ImageCaptureForm: React.FC<Props> = ({
               variant="outlined"
               value={serialNo}
               onChange={(e) => onSerialNoChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && serialNo) onOpenWebCamera();
+              }}
               sx={fieldSx}
             />
           </div>
@@ -54,7 +59,7 @@ const ImageCaptureForm: React.FC<Props> = ({
             >
               Select Step
             </Typography>
-            <div className="grid grid-cols-2 gap-3">
+            <div className={`grid grid-cols-2 gap-3 ${stepDisabled ? "pointer-events-none opacity-50" : ""}`}>
               {CAPTURE_STEPS.map((step) => {
                 const isActive = selectedStep === step.id;
                 return (

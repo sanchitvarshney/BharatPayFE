@@ -18,9 +18,22 @@ type Props = {
   required?: boolean;
   size?: "small" | "medium";
   disabled?: boolean;
+  quaryValue?: string;
 };
 
-const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device", width = "100%", error, helperText, varient = "outlined", required = false, size = "medium", disabled = false }) => {
+const SelectDevice: React.FC<Props> = ({
+  value,
+  onChange,
+  label = "Search Device",
+  width = "100%",
+  error,
+  helperText,
+  varient = "outlined",
+  required = false,
+  size = "medium",
+  disabled = false,
+  quaryValue = "",
+}) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -30,7 +43,9 @@ const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device
   const fetchDevices = async (query: string | null) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/product/bySku/${query}`);
+      const response = await axiosInstance.get(
+        `/product/bySku/${query}` + (quaryValue ? `?type=${quaryValue}` : ""),
+      );
       setDeviceList(response.data.data); // Response is based on the LocationApiresponse type
     } catch (error) {
       console.error("Error fetching devices:", error);
@@ -60,7 +75,8 @@ const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device
       loading={loading}
       isOptionEqualToValue={(option, value) => option.id === value?.id}
       onInputChange={(_, newInputValue, reason) => {
-        (reason === "input" || reason === "clear") && setInputValue(newInputValue);
+        (reason === "input" || reason === "clear") &&
+          setInputValue(newInputValue);
       }}
       renderInput={(params) => (
         <TextField
@@ -74,7 +90,9 @@ const SelectDevice: React.FC<Props> = ({ value, onChange, label = "Search Device
             ...params.InputProps,
             endAdornment: (
               <>
-                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
                 {params.InputProps.endAdornment}
               </>
             ),
