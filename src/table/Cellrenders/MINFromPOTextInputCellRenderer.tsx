@@ -122,7 +122,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
           <Input
             suffix={data.uom}
             onChange={(e) => {
-              if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+              if (/^-?\d*\.?\d{0,2}$/.test(e.target.value)) {
                 const newValue = e.target.value;
                 const pendingQty = Number(data.pendingQty) || 0;
                 const numQty = Number(newValue) || 0;
