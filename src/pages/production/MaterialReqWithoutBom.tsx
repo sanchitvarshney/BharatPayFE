@@ -107,7 +107,6 @@ const MaterialReqWithoutBom = () => {
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
-    console.log(data);
     if (rowData.length === 0) {
       showToast("Please Add Material Details", "error");
       return;
@@ -128,7 +127,7 @@ const MaterialReqWithoutBom = () => {
         if (missingFields.length > 0) {
           showToast(
             `Row ${row.id}: Empty fields: ${missingFields.join(", ")}`,
-            "error"
+            "error",
           );
           hasErrors = true;
         }
@@ -139,6 +138,11 @@ const MaterialReqWithoutBom = () => {
         const picLocation = rowData.map((row) => row.pickLocation?.value || "");
         const qty = rowData.map((row) => row.orderqty);
         const remark = rowData.map((row) => row.remarks);
+        if (picLocation.includes(data?.location!.code)) {
+          showToast("Pick Location should be different", "error");
+          return;
+        }
+
         dispatch(
           createProductRequest({
             itemKey,
@@ -150,7 +154,7 @@ const MaterialReqWithoutBom = () => {
             comment: data.remarks,
             cc: data.cc?.id || "",
             forTrc: type === "device" ? "1" : data.checkbox ? "1" : "0",
-          })
+          }),
         ).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
@@ -185,7 +189,7 @@ const MaterialReqWithoutBom = () => {
   useEffect(() => {
     if (location) {
       const locationDetail = locationData?.find(
-        (item) => item.id === location?.code
+        (item) => item.id === location?.code,
       )?.specification;
       setLocationdetail(locationDetail || "");
     }
@@ -469,7 +473,8 @@ const Success = styled.div`
     stroke: #4bb71b;
     stroke-miterlimit: 10;
     box-shadow: inset 0px 0px 0px #4bb71b;
-    animation: fill 0.4s ease-in-out 0.4s forwards,
+    animation:
+      fill 0.4s ease-in-out 0.4s forwards,
       scale 0.3s ease-in-out 0.9s both;
     position: relative;
     top: 5px;

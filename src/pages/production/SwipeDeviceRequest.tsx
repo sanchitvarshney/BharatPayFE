@@ -66,6 +66,7 @@ console.log(checked)
   }, [rowData]);
 
   const onSubmit: SubmitHandler<Formstate> = (data) => {
+
     if (rowData.length === 0) {
       showToast("Please Add Material Details", "error");
       return;
@@ -86,15 +87,22 @@ console.log(checked)
         if (missingFields.length > 0) {
           showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
           hasErrors = true;
+        } else if (row.pickLocation?.value !== data.location?.code) {
+          showToast(`Row ${row.id}: Pick Location must be the same as the Location selected in Header Details`, "error");
+          hasErrors = true;
         }
       });
 
       if (!hasErrors) {
+        //   if(rowData?. ){
+        //   return
+        // }
         const productDetail:any = rowData.map((row) => ({
           productKey: row.code?.value || "",
           qty: Number(row.orderqty) || 0,
           pickLocation: row.pickLocation?.value || ""
         }));
+      
         dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc :"1", productDetail })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
