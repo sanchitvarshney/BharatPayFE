@@ -128,6 +128,14 @@ const columnDefs: any[] = [
         maxWidth: 250,
       },
       {
+        headerName: "Quality",
+        field: "swipe_quality",
+        headerClass: WR_GROUP_1,
+        minWidth: 150,
+        width: 170,
+        maxWidth: 250,
+      },
+      {
         headerName: "Store + Admin",
         field: "swipe_storeAdmin",
         headerClass: WR_GROUP_1,
@@ -183,6 +191,14 @@ const columnDefs: any[] = [
         width: 170,
         maxWidth: 250,
       },
+         {
+        headerName: "Quality",
+        field: "soundbox_quality",
+        headerClass: WR_GROUP_2,
+        minWidth: 150,
+        width: 170,
+        maxWidth: 250,
+      },
       {
         headerName: "Store + Admin",
         field: "soundbox_storeAdmin",
@@ -191,7 +207,8 @@ const columnDefs: any[] = [
         width: 170,
         maxWidth: 250,
       },
-           {   headerName: "PreQC Cost",
+      {
+        headerName: "PreQC Cost",
         field: "preqc_cost",
         headerClass: WR_GROUP_2,
         minWidth: 150,
@@ -424,7 +441,7 @@ const WorkersReports = () => {
     },
   });
 
-  const handleSyncReport =async () => {
+  const handleSyncReport = async () => {
     try {
       const res = await dispatch(syncWorkerReport()).unwrap();
       if (res?.data?.success) {
@@ -434,7 +451,7 @@ const WorkersReports = () => {
           className: "font-[500]",
           duration: 1500,
         });
-      }  else {
+      } else {
         toast({
           description: res?.data?.message || "Something went wrong",
           variant: "destructive",
@@ -442,7 +459,7 @@ const WorkersReports = () => {
           duration: 1500,
         });
       }
-    } catch (error:any) {
+    } catch (error: any) {
       toast({
         description: error?.message,
         variant: "destructive",
@@ -513,8 +530,7 @@ const WorkersReports = () => {
     // G total % = (Sum of Production - (Sum of Cost + Sum of contribution)) / Sum of production * 100
     let gtotal: number | null = null;
     if (Number.isFinite(gtotalp) && gtotalp !== 0) {
-      const value =
-        ((gtotalp - (gtotalc1 + gtotalc2)) / gtotalp) * 100;
+      const value = ((gtotalp - (gtotalc1 + gtotalc2)) / gtotalp) * 100;
       if (Number.isFinite(value)) {
         gtotal = Math.min(100, Math.max(-100, value));
       }
@@ -534,7 +550,7 @@ const WorkersReports = () => {
       to: dayjs(data?.date[1]).format("DD-MM-YYYY"),
     };
 
-    //@ts-ignore
+  
     dispatch(getWorkerReport(payload)).then((res: any) => {
       if (res.payload?.data?.status) {
         toast({
@@ -584,7 +600,7 @@ const WorkersReports = () => {
               />
               {errors.date && (
                 <span className=" text-[12px] text-red-500">
-                  {/* @ts-ignore */}
+               {/* @ts-ignore */}
                   {errors.date.message}
                 </span>
               )}
