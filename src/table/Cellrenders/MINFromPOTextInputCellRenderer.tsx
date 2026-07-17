@@ -62,7 +62,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
             <Input
               min={0}
               onChange={(e) => {
-                if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+                if (/^-?\d*\.?\d{0,2}$/.test(e.target.value)) {
                   const newValue = e.target.value;
                   updateCellAndRefresh(newValue, colDef.field);
 
@@ -122,13 +122,13 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
           <Input
             suffix={data.uom}
             onChange={(e) => {
-              if (/^-?\d*\.?\d*$/.test(e.target.value)) {
+              if (/^-?\d*\.?\d{0,2}$/.test(e.target.value)) {
                 const newValue = e.target.value;
-                const pendingQty = Number(data.pendingQty) || 0;
+                const orderQty = Number(data.orderQty) || 0;
                 const numQty = Number(newValue) || 0;
-                // Block input: do not allow qty greater than pending qty
-                if (newValue !== "" && pendingQty > 0 && numQty > pendingQty) {
-                  showToast("Qty cannot exceed pending qty", "error");
+                // Block input: do not allow pending qty greater than order qty
+                if (newValue !== "" && orderQty > 0 && numQty > orderQty) {
+                  showToast("Qty cannot exceed order qty", "error");
                   return;
                 }
                 updateCellAndRefresh(newValue, colDef.field);
@@ -163,7 +163,7 @@ const MINFromPOTextInputCellRenderer: React.FC<POCellRendererProps> = ({
               }
             }}
             value={value}
-            placeholder={colDef.headerName}
+           placeholder={String(data.pendingQty ?? "")}
             className="w-[100%] custom-input"
           />
         );
