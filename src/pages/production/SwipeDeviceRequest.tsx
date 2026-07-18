@@ -87,7 +87,7 @@ console.log(checked)
         if (missingFields.length > 0) {
           showToast(`Row ${row.id}: Empty fields: ${missingFields.join(", ")}`, "error");
           hasErrors = true;
-        } else if (row.pickLocation?.value !== data.location?.code) {
+        } else if (row.pickLocation?.value === data.location?.code) {
           showToast(`Row ${row.id}: Pick Location must be the same as the Location selected in Header Details`, "error");
           hasErrors = true;
         }
