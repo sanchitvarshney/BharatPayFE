@@ -7,6 +7,7 @@ import { fetchBomProduct, resetBomDetail } from "@/features/master/BOM/BOMSlice"
 import { createProductRequest } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import MaterialRequestWithBomTable from "@/table/production/MaterialRequestWithBomTable";
+import { showToast } from "@/utils/toasterContext";
 import { LoadingButton } from "@mui/lab";
 import { TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -63,6 +64,13 @@ const MaterialRequestWithBom: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
+    const shiftLocation = data.siftLocation?.code;
+    const pickLocation = data.pickLocation?.code;
+    if(shiftLocation === pickLocation){
+       showToast("Shift Location and Pick Location should be different", "error");
+       return
+    }
+
     if (bomCompDetail) {
       const itemKey = rowData.map((row) => row.compKey);
       const picLocation = rowData.map(() => data.pickLocation?.code || "");
