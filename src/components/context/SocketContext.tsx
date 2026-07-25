@@ -54,6 +54,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log("clicked");
     socketService.emit("r7Download", payload);
   };
+  const emitR6XmlDownload = (payload: any) => {
+    console.log("clicked", payload);
+    socketService.emit("r6XmlDownload", payload);
+  };
   const emitDownloadR4Report = (payload: any) => {
     console.log("clicked");
     socketService.emit("r4Download", payload);
@@ -209,6 +213,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadSwipeReport,
         swipeMachineInward,
         emitDownloadReport,
+        emitR6XmlDownload,
         emitDownloadR14Report,
         emitDownloadWrongDeviceReport,
         onDownloadReport,
