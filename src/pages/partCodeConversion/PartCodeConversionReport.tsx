@@ -129,25 +129,9 @@ const PartCodeConversionReport: React.FC = () => {
               )}
 
               <div className="flex flex-col gap-[20px] ">
-                <div className="flex items-center justify-end gap-[10px]">
+                <div className="flex items-center justify-between">
              
-                  <LoadingButton
-                    disabled={!isConnected}
-                    variant="contained"
-                    color="primary"
-                    style={{
-                      borderRadius: "50%",
-                      width: 40,
-                      height: 40,
-                      minWidth: 0,
-                      padding: 0,
-                    }}
-                    onClick={handleDownloadDetails}
-                    size="small"
-                    sx={{ zIndex: 1 }}
-                  >
-                    <Icons.download fontSize="small" />
-                  </LoadingButton>
+                 
                        <LoadingButton
                     disabled={
                       filterType === "DATE"
@@ -180,6 +164,23 @@ const PartCodeConversionReport: React.FC = () => {
                     startIcon={<Icons.search fontSize="small" />}
                   >
                     Search
+                  </LoadingButton>
+                   <LoadingButton
+                    disabled={!isConnected}
+                    variant="contained"
+                    color="primary"
+                    style={{
+                      borderRadius: "50%",
+                      width: 40,
+                      height: 40,
+                      minWidth: 0,
+                      padding: 0,
+                    }}
+                    onClick={handleDownloadDetails}
+                    size="small"
+                    sx={{ zIndex: 1 }}
+                  >
+                    <Icons.download fontSize="small" />
                   </LoadingButton>
                 </div>
               </div>
