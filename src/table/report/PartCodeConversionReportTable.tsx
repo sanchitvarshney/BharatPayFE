@@ -74,7 +74,7 @@ const PartCodeConversionReportTable: React.FC<Props> = ({ setOpen }) => {
   ];
 
   return (
-    <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+    <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
       <AgGridReact
         loading={partConversionLoading}
         loadingOverlayComponent={CustomLoadingOverlay}
