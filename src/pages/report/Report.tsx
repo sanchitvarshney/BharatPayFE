@@ -25,6 +25,7 @@ import BillingReport from "./BillingReport";
 import { useUser } from "@/hooks/useUser";
 import { visibaleArr } from "@/components/shared/Navslider";
 import NotPermissionPage from "../commonPages/NotPermissionPage";
+import R24Report from "./R24Report";
 
 const Report: React.FC = () => {
   const { id } = useParams();
@@ -107,6 +108,9 @@ const Report: React.FC = () => {
       return <NotPermissionPage />;
     }
     return <BillingReport />;
+  }
+  if(id === "R24"){
+    return <R24Report />
   }
   return <div>this is {id} Report</div>;
 };
