@@ -1,8 +1,6 @@
 import { useSocketContext } from "@/components/context/SocketContext";
 import { Icons } from "@/components/icons";
-import SelectLocation, {
-  LocationType,
-} from "@/components/reusable/SelectLocation";
+
 import { rangePresets } from "@/utils/rangePresets";
 import { showToast } from "@/utils/toasterContext";
 import { Button, Card, Typography } from "@mui/material";
@@ -10,10 +8,8 @@ import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useState } from "react";
 const { RangePicker } = DatePicker;
-const R7Report: React.FC = () => {
-  const { isConnected } = useSocketContext();
-  const { emitDownloadReport } = useSocketContext();
-  const [location, setLocation] = useState<LocationType | null>(null);
+const R24Report: React.FC = () => {
+  const { emitDownloadTRCReport,isConnected } = useSocketContext();
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
     from: null,
     to: null,
@@ -29,24 +25,24 @@ const R7Report: React.FC = () => {
     if (!date.from || !date.to)
       return showToast("Please select location and date range", "error");
     const reportPayload = {
-      type: !location ? "allLocation" : "location",
+    
       fromDate: date.from?.format("DD-MM-YYYY"),
       toDate: date.to?.format("DD-MM-YYYY"),
-      location: location?.id,
+    
     };
-    emitDownloadReport(reportPayload);
+    emitDownloadTRCReport(reportPayload);
     showToast("Start downloading ", "success");
   };
 
   return (
     <div className="flex items-center justify-center h-full bg-white">
       <Card
-        elevation={1}
+        elevation={2}
         className="p-[20px] flex flex-col gap-[20px] w-[400px]"
       >
-        <div className="mb-[20px] text-center">
+        <div className="mb-[10px] text-center">
           <Typography variant="h1" fontSize={20} fontWeight={500}>
-            Download R7 Report
+            Download R23 Report
           </Typography>
         </div>
         <Typography
@@ -55,13 +51,13 @@ const R7Report: React.FC = () => {
           fontWeight={400}
           className="text-center"
         >
-         This report provides raw material stock data based on date and location. <br /> (If location is not selected, the stock data for all locations will be displayed.)
+         This report provides TRC data based on date.
         </Typography>
-        <SelectLocation
+        {/* <SelectLocation
           value={location}
           onChange={(e) => setLocation(e)}
           label="-- Location --"
-        />
+        /> */}
         <RangePicker
           className="w-full h-[50px] border-[2px] rounded-sm "
           presets={rangePresets}
@@ -84,4 +80,4 @@ const R7Report: React.FC = () => {
   );
 };
 
-export default R7Report;
+export default R24Report;
