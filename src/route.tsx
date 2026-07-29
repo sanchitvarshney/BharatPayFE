@@ -142,6 +142,10 @@ import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
 import ViewImageLayout from "./layouts/ViewImageLayout";
 import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
 import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
+import SummaryLayout from "./layouts/SummaryLayout";
+import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
+import Dispatched from "./pages/summary-pages/Dispatched";
+import MaterialPurchase from "./pages/summary-pages/MaterialPurchase";
 
 export const router = createBrowserRouter([
   {
@@ -705,6 +709,68 @@ export const router = createBrowserRouter([
         ),
         path: "/material-in-with-po",
       },
+        {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <Custom404Page />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/summary",
+      },
+       {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <Custom404Page />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/summary/trc",
+      },
+       {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <Custom404Page />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/summary/speaker-assembly",
+      },
+        
+           {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <AssemblyAndTRC />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/summary/assembly-and-trc",
+      },
+            {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <Dispatched />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/summary/dispatch",
+      },
+            {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <MaterialPurchase />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/summary/material-purchase",
+      },
+
       // {
       //   element: (
       //     <MainLayout>
