@@ -185,7 +185,7 @@ const R6reportTable: React.FC<Props> = ({
                           size="small"
                           onClick={() => {
                             window.open(
-                              params.data["Invoice File Date"],
+                              params.data["Invoice File"],
                               "_blank",
                               "noopener,noreferrer"
                             );
@@ -215,6 +215,8 @@ const R6reportTable: React.FC<Props> = ({
               (col === "Rate" && params.data.Rate)
             ) {
               return formatNumber(params.value);
+            } else if(col === "Invoice File" && params.data["Invoice File"]){
+              return <span className="underline cursor-pointer text-blue-600">{params.data["Invoice File"]}</span>;
             } else {
               return params.value; // Display value for other columns
             }
