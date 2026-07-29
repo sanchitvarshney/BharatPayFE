@@ -551,23 +551,7 @@ const WorkersReports = () => {
     };
 
   
-    dispatch(getWorkerReport(payload)).then((res: any) => {
-      if (res.payload?.data?.status) {
-        toast({
-          description: res.payload.data.message,
-          variant: "success",
-          className: "font-[500]",
-          duration: 1500,
-        });
-      } else {
-        toast({
-          description: res.payload?.data?.message || "Something went wrong",
-          variant: "destructive",
-          className: "font-[500]",
-          duration: 1500,
-        });
-      }
-    });
+    dispatch(getWorkerReport(payload))
   };
 
   return (
