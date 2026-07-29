@@ -109,7 +109,7 @@ const Report: React.FC = () => {
     }
     return <BillingReport />;
   }
-  if(id === "R24"){
+  if(id === "R23"){
     return <R24Report />
   }
   return <div>this is {id} Report</div>;

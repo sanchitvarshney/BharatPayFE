@@ -42,7 +42,7 @@ const R24Report: React.FC = () => {
       >
         <div className="mb-[10px] text-center">
           <Typography variant="h1" fontSize={20} fontWeight={500}>
-            Download R24 Report
+            Download R23 Report
           </Typography>
         </div>
         <Typography
