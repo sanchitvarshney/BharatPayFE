@@ -198,9 +198,11 @@ const MaterialRequestDeviceApprovalDrawer: React.FC<Props> = ({
       if (response?.payload?.data?.success) {
         return true;
       } else {
+        showToast(response?.payload?.data?.message, "error");
         return false;
       }
-    } catch (error) {
+    } catch (error:any) {
+      showToast(error?.message || "An error occurred while checking item existence.", "error");
       return false;
     }
   };
