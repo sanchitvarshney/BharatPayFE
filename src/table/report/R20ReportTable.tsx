@@ -179,7 +179,7 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       headerClass: "font-semibold",
     },
     {
-      headerName: "Qty",
+      headerName: "Lot QTY",
       field: "doc_qty",
       minWidth: 100,
       headerClass: "font-semibold",
