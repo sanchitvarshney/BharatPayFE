@@ -184,6 +184,12 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
     },
+        {
+      headerName: "Inward Quantity",
+      field: "total_inward",
+      minWidth: 100,
+      headerClass: "font-semibold",
+    },
     {
       headerName: "AWB Count",
       field: "awb_count",
