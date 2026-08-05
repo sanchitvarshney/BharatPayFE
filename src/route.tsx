@@ -146,6 +146,7 @@ import SummaryLayout from "./layouts/SummaryLayout";
 import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
 import Dispatched from "./pages/summary-pages/Dispatched";
 import MaterialPurchase from "./pages/summary-pages/MaterialPurchase";
+import BillingSummary from "./pages/summary-pages/BillingSummary";
 
 export const router = createBrowserRouter([
   {
@@ -713,7 +714,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <SummaryLayout>
-            <Custom404Page />
+            <BillingSummary />
             </SummaryLayout>
           </MainLayout>
         ),
