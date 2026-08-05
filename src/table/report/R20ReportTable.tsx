@@ -1,8 +1,4 @@
-import React, {
-  RefObject,
-  useMemo,
-  useState,
-} from "react";
+import React, { RefObject, useMemo, useState } from "react";
 import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { AgGridReact } from "@ag-grid-community/react";
@@ -184,7 +180,7 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
     },
-        {
+    {
       headerName: "Inward Quantity",
       field: "total_inward",
       minWidth: 100,
@@ -197,16 +193,22 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       headerClass: "font-semibold",
     },
 
-       {
+    {
       headerName: "Pending QTY",
       field: "penQty",
       minWidth: 100,
       headerClass: "font-semibold",
     },
- 
+
     {
       headerName: "MIN",
       field: "min",
+      minWidth: 100,
+      headerClass: "font-semibold",
+    },
+    {
+      headerName: "Device Type",
+      field: "deviceType",
       minWidth: 100,
       headerClass: "font-semibold",
     },
@@ -232,7 +234,6 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       cellClass: "text-sm py-2",
     };
   }, []);
-
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-sm">
