@@ -199,6 +199,12 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
     },
+       {
+      headerName: "Scanned QTY",
+      field: "total_scanned ",
+      minWidth: 100,
+      headerClass: "font-semibold",
+    },
 
     {
       headerName: "MIN",
@@ -209,6 +215,12 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
     {
       headerName: "Device Type",
       field: "deviceType",
+      minWidth: 100,
+      headerClass: "font-semibold",
+    },
+        {
+      headerName: "Document No.",
+      field: "doc_no",
       minWidth: 100,
       headerClass: "font-semibold",
     },
@@ -238,7 +250,7 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-sm">
       <div className="flex-1">
-        <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+        <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
           <AgGridReact
             ref={gridRef}
             loadingOverlayComponent={CustomLoadingOverlay}
