@@ -201,7 +201,7 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
     },
        {
       headerName: "Scanned QTY",
-      field: "total_scanned ",
+      field: "total_scanned",
       minWidth: 100,
       headerClass: "font-semibold",
     },
