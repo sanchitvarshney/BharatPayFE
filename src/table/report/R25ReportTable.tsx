@@ -43,14 +43,14 @@ const columnDefs: ColDef[] = [
   },
   {
     headerName: "Created By",
-    field: "insertBy",
+    field: "insert_by",
     sortable: true,
     filter: true,
     width: 200,
   },
   {
     headerName: "Created Date",
-    field: "insertDate",
+    field: "insert_dt",
     sortable: true,
     filter: true,
     width: 200,
