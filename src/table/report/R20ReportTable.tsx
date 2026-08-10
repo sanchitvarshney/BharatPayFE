@@ -309,12 +309,14 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
       cellRenderer: (params: any) => (
-        <span
+      params.data?.min === "Yes" && (
+         <span
           className="text-primary-600 font-semibold underline cursor-pointer"
           onClick={() => handleView(params?.data?.statusObj)}
         >
           View
-        </span>
+        </span> 
+      )
       ),
     },
     {
