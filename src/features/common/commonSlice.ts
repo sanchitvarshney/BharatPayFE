@@ -51,10 +51,18 @@ export interface FqcDeviceRecord {
   images: FqcImageSet[];
 }
 
+export interface FqcPagination {
+  page: number;
+  limit: number;
+  totalDsns: number;
+  totalPages: number;
+}
+
 export interface FqcDeviceImageApiResponse {
   success: boolean;
   status: string;
   data: FqcDeviceRecord[];
+  pagination?: FqcPagination;
 }
 
 const initialState: Commonstate & {
@@ -64,6 +72,7 @@ const initialState: Commonstate & {
   fqcDeviceData: FqcDeviceRecord[] | null;
   fqcDeviceImagesLoading: boolean;
   fqcDeviceImagesError: string | null;
+  fqcPagination: FqcPagination | null;
 } = {
   getUserLoading: false,
   userData: null,
@@ -79,6 +88,7 @@ const initialState: Commonstate & {
   fqcDeviceData: null,
   fqcDeviceImagesLoading: false,
   fqcDeviceImagesError: null,
+  fqcPagination: null,
 };
 
 export const getUserAsync = createAsyncThunk<
@@ -152,14 +162,18 @@ export const getFqcDeviceImages = createAsyncThunk<
       to: Dayjs | null;
     };
     type?: string;
+    page?: number;
+    limit?: number;
   }
 >(
   "common/getFqcDeviceImages",
-  async ({ module, dsn, model, dateRange, type }) => {
+  async ({ module, dsn, model, dateRange, type, page, limit }) => {
     if (type !== "DATE") {
       const params = new URLSearchParams();
       if (type) params.set("type", type);
       if (model) params.set("model", model);
+      if (page) params.set("page", String(page));
+      if (limit) params.set("limit", String(limit));
       const query = params.toString() ? `&${params.toString()}` : "";
 
       const response = await axiosInstance.get(
@@ -175,6 +189,8 @@ export const getFqcDeviceImages = createAsyncThunk<
     if (dateRange.from)
       params.set("from", dateRange.from.format("YYYY-MM-DD"));
     if (dateRange.to) params.set("to", dateRange.to.format("YYYY-MM-DD"));
+    if (page) params.set("page", String(page));
+    if (limit) params.set("limit", String(limit));
     const query = params.toString() ? `?${params.toString()}` : "";
 
     const response = await axiosInstance.get(
@@ -271,11 +287,13 @@ const commonSlice = createSlice({
         state.fqcDeviceImagesLoading = true;
         state.fqcDeviceImagesError = null;
         state.fqcDeviceData = null;
+        state.fqcPagination = null;
       })
       .addCase(getFqcDeviceImages.fulfilled, (state, action) => {
         state.fqcDeviceImagesLoading = false;
         const records = action.payload.data.data ?? [];
         const hasImages = records.some((record:any) => record.images?.length > 0);
+        state.fqcPagination = action.payload.data.pagination ?? null;
         if (action.payload.data.success && hasImages) {
           state.fqcDeviceData = records;
         } else {
@@ -287,6 +305,7 @@ const commonSlice = createSlice({
         state.fqcDeviceImagesLoading = false;
         state.fqcDeviceImagesError = "Failed to fetch images. Please try again.";
         state.fqcDeviceData = null;
+        state.fqcPagination = null;
       });
   },
 });

@@ -29,11 +29,17 @@ export const useFqcDeviceImage = () => {
     from: Dayjs | null;
     to: Dayjs | null;
   }>({ from: null, to: null });
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
   const dispatch = useAppDispatch();
   const { emitFqcDeviceImageDownload, isConnected } = useSocketContext();
-  const { fqcDeviceData, fqcDeviceImagesLoading, fqcDeviceImagesError } =
-    useAppSelector((state) => state.common);
+  const {
+    fqcDeviceData,
+    fqcDeviceImagesLoading,
+    fqcDeviceImagesError,
+    fqcPagination,
+  } = useAppSelector((state) => state.common);
 
   const tableRows = useMemo(
     () => flattenFqcTableRows(fqcDeviceData),
@@ -86,6 +92,22 @@ export const useFqcDeviceImage = () => {
     [handleView]
   );
 
+  const fetchImages = useCallback(
+    (pageToFetch: number, limitToFetch: number) => {
+      dispatch(
+        getFqcDeviceImages({
+          module: deviceType === "swipe" ? "swipe" : "sound",
+          dsn: serialNo,
+          dateRange: dateRangeFilter,
+          type: filterBy,
+          page: pageToFetch,
+          limit: limitToFetch,
+        })
+      );
+    },
+    [deviceType, serialNo, dateRangeFilter, filterBy, dispatch]
+  );
+
   const handleSearch = useCallback(() => {
     if(filterBy !== "DATE" && !serialNo){
       showToast("Please enter Serial Number", "error");
@@ -95,15 +117,26 @@ export const useFqcDeviceImage = () => {
       return
     }
     resetModals();
-    dispatch(
-      getFqcDeviceImages({
-        module: deviceType === "swipe" ? "swipe" : "sound",
-        dsn: serialNo,
-        dateRange: dateRangeFilter,
-        type: filterBy,
-      })
-    );
-  }, [deviceType, serialNo, dateRangeFilter, filterBy, dispatch, resetModals]);
+    setPage(1);
+    fetchImages(1, limit);
+  }, [filterBy, serialNo, dateRangeFilter, limit, resetModals, fetchImages]);
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      setPage(newPage);
+      fetchImages(newPage, limit);
+    },
+    [limit, fetchImages]
+  );
+
+  const handleLimitChange = useCallback(
+    (newLimit: number) => {
+      setLimit(newLimit);
+      setPage(1);
+      fetchImages(1, newLimit);
+    },
+    [fetchImages]
+  );
 
   const handleBulkDownload = useCallback(() => {
     if (!dateRange.from || !dateRange.to) {
@@ -150,5 +183,10 @@ export const useFqcDeviceImage = () => {
     setDateRangeFilter,
     isConnected,
     handleBulkDownload,
+    page,
+    limit,
+    fqcPagination,
+    handlePageChange,
+    handleLimitChange,
   };
 };

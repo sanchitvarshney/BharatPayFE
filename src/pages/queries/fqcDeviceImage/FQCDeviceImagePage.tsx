@@ -38,6 +38,11 @@ const FQCDeviceImagePage: React.FC = () => {
     setDateRange,
     isConnected,
     handleBulkDownload,
+    page,
+    limit,
+    fqcPagination,
+    handlePageChange,
+    handleLimitChange,
   } = useFqcDeviceImage();
 
   return (
@@ -66,6 +71,11 @@ const FQCDeviceImagePage: React.FC = () => {
         error={fqcDeviceImagesError}
         rows={tableRows}
         columnDefs={columnDefs}
+        page={page}
+        limit={limit}
+        pagination={fqcPagination}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
       />
 
       <FqcDeviceImagesModal
