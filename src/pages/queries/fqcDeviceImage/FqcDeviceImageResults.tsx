@@ -46,6 +46,7 @@ const FqcDeviceImageResults: React.FC<Props> = ({
           rowHeight={50}
           headerHeight={50}
           suppressContextMenu
+          pagination
         />
       </div>
     )}

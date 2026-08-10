@@ -14,6 +14,7 @@ import { FqcTableRow, ImageViewKey } from "./fqcDeviceImage.types";
 
 export const useFqcDeviceImage = () => {
   const [deviceType, setDeviceType] = useState("sound");
+    const [filterBy, setFilterBy] = useState("DATE");
    const [deviceTypeReport, setDeviceTypeReport] = useState("sound");
   const [serialNo, setSerialNo] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -21,6 +22,10 @@ export const useFqcDeviceImage = () => {
   const [selectedRow, setSelectedRow] = useState<FqcTableRow | null>(null);
   const [previewIdx, setPreviewIdx] = useState(0);
   const [dateRange, setDateRange] = useState<{
+    from: Dayjs | null;
+    to: Dayjs | null;
+  }>({ from: null, to: null });
+   const [dateRangeFilter, setDateRangeFilter] = useState<{
     from: Dayjs | null;
     to: Dayjs | null;
   }>({ from: null, to: null });
@@ -82,18 +87,23 @@ export const useFqcDeviceImage = () => {
   );
 
   const handleSearch = useCallback(() => {
-    if (!deviceType || !serialNo) {
-      showToast("Please enter Device Type and Serial Number", "error");
-      return;
+    if(filterBy !== "DATE" && !serialNo){
+      showToast("Please enter Serial Number", "error");
+      return
+    } if((!dateRangeFilter.from || !dateRangeFilter.to ) && filterBy === "DATE"){
+      showToast("Please select date range", "error");
+      return
     }
     resetModals();
     dispatch(
       getFqcDeviceImages({
         module: deviceType === "swipe" ? "swipe" : "sound",
         dsn: serialNo,
+        dateRange: dateRangeFilter,
+        type: filterBy,
       })
     );
-  }, [deviceType, serialNo, dispatch, resetModals]);
+  }, [deviceType, serialNo, dateRangeFilter, filterBy, dispatch, resetModals]);
 
   const handleBulkDownload = useCallback(() => {
     if (!dateRange.from || !dateRange.to) {
@@ -111,6 +121,8 @@ export const useFqcDeviceImage = () => {
   return {
     deviceType,
     setDeviceType,
+    filterBy,
+    setFilterBy,
     deviceTypeReport,
     setDeviceTypeReport,
     serialNo,
@@ -134,6 +146,8 @@ export const useFqcDeviceImage = () => {
     handleNextPreview,
     dateRange,
     setDateRange,
+    dateRangeFilter,
+    setDateRangeFilter,
     isConnected,
     handleBulkDownload,
   };

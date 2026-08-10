@@ -2,6 +2,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { Commonstate, CostCenterApiResponse, CurrencListResponse, UserApiResponse } from "./commonType";
+import { Dayjs } from "dayjs";
 
 // Add types for device images
 export interface DeviceImage {
@@ -141,15 +142,48 @@ export const getDeviceImages = createAsyncThunk<
 });
 
 export const getFqcDeviceImages = createAsyncThunk<
-  AxiosResponse<FqcDeviceImageApiResponse>,
-  { module: string; dsn: string; model?: string }
->("common/getFqcDeviceImages", async ({ module, dsn, model }) => {
-  const modelQuery = model ? `&model=${encodeURIComponent(model)}` : "";
-  const response = await axiosInstance.get(
-    `/capture/photo/report/${encodeURIComponent(module)}/${encodeURIComponent(dsn)}${modelQuery}`
-  );
-  return response;
-});
+  AxiosResponse,
+  {
+    module: string;
+    dsn: string;
+    model?: string;
+    dateRange: {
+      from: Dayjs | null;
+      to: Dayjs | null;
+    };
+    type?: string;
+  }
+>(
+  "common/getFqcDeviceImages",
+  async ({ module, dsn, model, dateRange, type }) => {
+    if (type !== "DATE") {
+      const params = new URLSearchParams();
+      if (type) params.set("type", type);
+      if (model) params.set("model", model);
+      const query = params.toString() ? `&${params.toString()}` : "";
+
+      const response = await axiosInstance.get(
+        `/capture/photo/report/${encodeURIComponent(module)}?dsn=${encodeURIComponent(dsn)}${query}`
+      );
+
+      return response;
+    }
+
+    const params = new URLSearchParams();
+    if (type) params.set("type", type);
+    if (model) params.set("model", model);
+    if (dateRange.from)
+      params.set("from", dateRange.from.format("YYYY-MM-DD"));
+    if (dateRange.to) params.set("to", dateRange.to.format("YYYY-MM-DD"));
+    const query = params.toString() ? `?${params.toString()}` : "";
+
+    const response = await axiosInstance.get(
+      `/capture/photo/report/${encodeURIComponent(module)}${query}`
+    );
+
+    return response;
+  }
+);
 
 const commonSlice = createSlice({
   name: "common",
@@ -241,7 +275,7 @@ const commonSlice = createSlice({
       .addCase(getFqcDeviceImages.fulfilled, (state, action) => {
         state.fqcDeviceImagesLoading = false;
         const records = action.payload.data.data ?? [];
-        const hasImages = records.some((record) => record.images?.length > 0);
+        const hasImages = records.some((record:any) => record.images?.length > 0);
         if (action.payload.data.success && hasImages) {
           state.fqcDeviceData = records;
         } else {
