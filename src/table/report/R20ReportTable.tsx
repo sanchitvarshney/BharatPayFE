@@ -17,10 +17,18 @@ import {
   Typography,
   Box,
   Chip,
+  IconButton,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
 } from "@mui/material";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CloseIcon from "@mui/icons-material/Close";
 
 type Props = {
   gridRef: RefObject<AgGridReact>;
@@ -147,6 +155,58 @@ const SwipeItemDetailsModal: React.FC<{
   );
 };
 
+const StatusDetailsModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  data: Record<string, string> | null;
+}> = ({ open, onClose, data }) => {
+  const rows = data ? Object.entries(data) : [];
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle className="flex items-center justify-between bg-gray-50 border-b">
+        <Typography variant="h6" component="div" className="font-semibold text-gray-800">
+          Status Details
+        </Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className="p-0">
+        {rows.length > 0 ? (
+          <TableContainer component={Paper} elevation={0}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell className="font-semibold">#</TableCell>
+                  <TableCell className="font-semibold">Serial</TableCell>
+                  <TableCell className="font-semibold">Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map(([serial, status], index) => (
+                  <TableRow key={serial} hover>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{serial}</TableCell>
+                    <TableCell>{status}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Box className="flex flex-col items-center justify-center py-8 text-center">
+            <InventoryIcon className="text-gray-400 text-5xl mb-3" />
+            <Typography variant="h6" className="text-gray-600 font-medium">
+              No Status Found
+            </Typography>
+          </Box>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
   const {
     r20Report,
@@ -155,9 +215,22 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
     swipeItemDetailsLoading,
   } = useAppSelector((state) => state.report);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [statusData, setStatusData] = useState<Record<string, string> | null>(
+    null
+  );
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleView = (statusObj: Record<string, string>) => {
+    setStatusData(statusObj);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleCloseStatusModal = () => {
+    setIsStatusModalOpen(false);
   };
 
   const columnDefs: ColDef[] = [
@@ -230,6 +303,20 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
     },
+       {
+      headerName: "Status",
+      field: "statusObj",
+      minWidth: 100,
+      headerClass: "font-semibold",
+      cellRenderer: (params: any) => (
+        <span
+          className="text-primary-600 font-semibold underline cursor-pointer"
+          onClick={() => handleView(params?.data?.statusObj)}
+        >
+          View
+        </span>
+      ),
+    },
     {
       headerName: "Insert Date",
       field: "insert_dt",
@@ -272,6 +359,11 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
         onClose={handleCloseModal}
         details={swipeItemDetails}
         loading={swipeItemDetailsLoading}
+      />
+      <StatusDetailsModal
+        open={isStatusModalOpen}
+        onClose={handleCloseStatusModal}
+        data={statusData}
       />
     </div>
   );
