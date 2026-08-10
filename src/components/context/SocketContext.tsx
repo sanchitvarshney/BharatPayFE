@@ -190,6 +190,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log(payload);
     socketService.emit("imageCaptureReport", payload);
   };
+  const emitAwbReportDownload = (payload: any) => {
+    console.log(payload);
+    socketService.emit("awbReportDownload", payload);
+  };
 
   const onnotification = (callback: (data: NotificationData[]) => void) => {
     socketService.on("socket_receive_notification", callback);
@@ -238,7 +242,8 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadBillingReportSound,
         emitFqcDeviceImageDownload,
         emitDownloadPartCodeConversionReport,
-        emitDownloadTRCReport
+        emitDownloadTRCReport,
+        emitAwbReportDownload
       }}
     >
       {children}
