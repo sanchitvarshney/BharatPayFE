@@ -27,6 +27,7 @@ import { visibaleArr } from "@/components/shared/Navslider";
 import NotPermissionPage from "../commonPages/NotPermissionPage";
 import R22Report from "@/pages/report/R22Report";
 import R24Report from "./R24Report";
+import R25Report from "./R25Report";
 
 const Report: React.FC = () => {
   const { id } = useParams();
@@ -115,6 +116,9 @@ const Report: React.FC = () => {
   }
   if(id === "R23"){
     return <R24Report />
+  }
+    if(id === "R24"){
+    return <R25Report />
   }
   return <div>this is {id} Report</div>;
 };
