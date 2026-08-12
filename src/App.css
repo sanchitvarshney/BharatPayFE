@@ -177,6 +177,9 @@ input:-webkit-autofill {
   box-shadow: 0 0 0 1000px transparent inset;
   -webkit-text-fill-color: inherit; /* Maintain text color */
 }
+.center-header .ag-header-cell-label {
+  justify-content: center;
+}
 
 /* Ensure other styles remain consistent */
 input:-webkit-autofill {
