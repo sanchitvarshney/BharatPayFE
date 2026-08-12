@@ -81,7 +81,7 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
   return (
     <div>
       {loading && <FullPageLoading />}
-      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-200px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}

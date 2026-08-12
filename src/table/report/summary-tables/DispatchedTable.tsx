@@ -64,7 +64,7 @@ const DispatcedTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-200px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
