@@ -96,7 +96,7 @@ const MaterialPurchaseTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-142px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}

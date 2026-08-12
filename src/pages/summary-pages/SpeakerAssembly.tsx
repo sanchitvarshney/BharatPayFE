@@ -3,6 +3,8 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "@ag-grid-community/react";
+import { IconButton, Tooltip } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import SpeakerAssemblyTable from "@/table/report/summary-tables/SpeakerAssemblyTable";
 import { getSpeakerAssembly } from "@/features/summarySlice/billingSlices";
@@ -14,6 +16,9 @@ const SpeakerAssembly: React.FC = () => {
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const speakerAssemblyData = useAppSelector(
     (state) => state.summary?.speakerAssemblyData,
+  );
+  const speakerAssemblyLoading = useAppSelector(
+    (state) => state.summary?.speakerAssemblyLoading,
   );
   const gridRef = useRef<AgGridReact<any>>(null);
   const isFirstRender = useRef(true);
@@ -63,20 +68,40 @@ const SpeakerAssembly: React.FC = () => {
     );
   };
 
+  const handleRefresh = () => {
+    dispatch(
+      getSpeakerAssembly({
+        from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
+        to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
+        page: 1,
+        limit: pageSize,
+      }),
+    );
+  };
+
   return (
-    <>
-      <div className="h-[calc(100vh-100px)] flex bg-white relative">
-     
-        <div className="w-full">
-          <SpeakerAssemblyTable
-            gridRef={gridRef}
-            handlePageChange={handlePageChange}
-            handlePageSizeChange={handlePageSizeChange}
-            pageSize={pageSize}
+    <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
+      <Tooltip title="Refresh">
+        <IconButton
+          className="self-end"
+          disabled={speakerAssemblyLoading}
+          onClick={handleRefresh}
+          size="small"
+        >
+          <RefreshIcon
+            className={speakerAssemblyLoading ? "animate-spin" : ""}
           />
-        </div>
+        </IconButton>
+      </Tooltip>
+      <div className="w-full  mt-1">
+        <SpeakerAssemblyTable
+          gridRef={gridRef}
+          handlePageChange={handlePageChange}
+          handlePageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />
       </div>
-    </>
+    </div>
   );
 };
 
