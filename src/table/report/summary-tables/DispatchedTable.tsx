@@ -24,28 +24,23 @@ const columnDefs: ColDef[] = [
   },
   {
     headerName: "Serial No",
-    field: "serial_no",
+    field: "serial_number",
     sortable: true,
     width: 180,
   },
   {
     headerName: "IMEI No",
-    field: "imei_no",
+    field: "imei_number",
     sortable: true,
     width: 450,
   },
   {
     headerName: "Date",
-    field: "date",
+    field: "dispatch_date",
     sortable: true,
     width: 180,
   },
-  {
-    headerName: "Device Type",
-    field: "device_type",
-    sortable: true,
-    width: 250,
-  },
+
 ];
 
 const EMPTY_ROWS: unknown[] = [];
@@ -56,8 +51,8 @@ const DispatcedTable: React.FC<Props> = ({
   handlePageSizeChange,
   pageSize,
 }) => {
-  const r3reportLoading = useAppSelector((state) => state.report.r3reportLoading);
-  const r3report = useAppSelector((state) => state.report.r3report);
+  const { dispatchedData, dispatchedLoading} = useAppSelector((state) => state.summary);
+ 
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -65,7 +60,7 @@ const DispatcedTable: React.FC<Props> = ({
     };
   }, []);
 
-  const rowData = useMemo(() => r3report?.data ?? EMPTY_ROWS, [r3report?.data]);
+  const rowData = useMemo(() => dispatchedData?.data ?? EMPTY_ROWS, [dispatchedData?.data]);
 
   return (
     <div>
@@ -73,7 +68,7 @@ const DispatcedTable: React.FC<Props> = ({
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
-          loading={r3reportLoading}
+          loading={dispatchedLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           rowData={rowData}
@@ -84,16 +79,20 @@ const DispatcedTable: React.FC<Props> = ({
           enableCellTextSelection={true}
         />
       </div>
-      {r3report && (
-        <CustomPagination
-          currentPage={r3report?.pagination?.currentPage}
-          totalPages={r3report?.pagination?.totalPages}
-          totalRecords={r3report?.pagination?.totalRecords}
+  
+       {
+        dispatchedData?.pagination && (
+          <CustomPagination
+          currentPage={dispatchedData?.pagination?.page || 0}
+          totalPages={dispatchedData?.pagination?.total_pages || 0}
+          totalRecords={dispatchedData?.pagination?.total_records || 0}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
+          pageSize={pageSize || 0}
         />
-      )}
+        )
+       }
+     
     </div>
   );
 };

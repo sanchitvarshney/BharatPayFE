@@ -7,6 +7,7 @@ import SummarizeIcon from '@mui/icons-material/Summarize';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import { memo } from "react";
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { useAppSelector } from "@/hooks/useReduxHook";
 type Props = {
   children: React.ReactNode;
 };
@@ -14,6 +15,8 @@ type Props = {
 const SummaryLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isData = useAppSelector((state) => state.summary.isData);
+
 
   const tabRoutes = ["/summary", "/summary/assembly-and-trc", "/summary/speaker-assembly", "/summary/trc", "/summary/dispatch", "/summary/material-purchase"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
@@ -24,7 +27,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
 
   const tabData = [
         {   key: 0,
-            label: "Billing",
+            label: "Billing Summary",
             icon: <CreditScoreIcon />,
         },
         {
@@ -67,9 +70,10 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
           onChange={handleChange}
           centered
         >
-         {
+         {  
           tabData.map((tab) => (
             <Tab
+            disabled={ tab.key !== 0 && !isData}
               sx={{ fontWeight: "500" }}
               label={
                 <div className="flex items-center gap-[10px]">
