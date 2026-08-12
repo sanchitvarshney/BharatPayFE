@@ -1,14 +1,12 @@
-import { getWorkerReport } from "@/features/areaSlice/areaSlice";
+
 import { rangePresets } from "@/utils/rangePresets";
 import { LoadingButton } from "@mui/lab";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { DatePicker } from "antd";
-import dayjs from "dayjs";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { showToast } from "@/utils/toasterContext";
@@ -277,10 +275,10 @@ const billingSummaryCellStyle = (
 const BillingSummary = () => {
   const gridRef = useRef(null);
   const excelInputRef = useRef<HTMLInputElement>(null);
-  const dispatch: any = useDispatch();
+
   const [isWholeData, setIsWholeData] = useState<boolean>(false);
   const [isExcelUploading, setIsExcelUploading] = useState<boolean>(false);
-  const [excelFile, setExcelFile] = useState<File | null>(null);
+  // const [excelFile, setExcelFile] = useState<File | null>(null);
 
   const handleUploadExcelClick = () => {
     excelInputRef.current?.click();
@@ -296,7 +294,6 @@ const BillingSummary = () => {
       showToast("Please upload an Excel file (.xlsx or .xls)", "error");
       return;
     }
-    setExcelFile(file);
     showToast(`Selected file: ${file.name}`, "success");
   };
 
@@ -441,7 +438,7 @@ const BillingSummary = () => {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = () => {
     setIsWholeData(true);
     // const payload: any = {
     //   from: dayjs(data?.date[0]).format("DD-MM-YYYY"),
@@ -455,7 +452,6 @@ const BillingSummary = () => {
     reset({ date: null });
     setIsWholeData(false);
     setIsExcelUploading(false);
-    setExcelFile(null);
   };
 
   return (
