@@ -147,6 +147,9 @@ import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
 import Dispatched from "./pages/summary-pages/Dispatched";
 import MaterialPurchase from "./pages/summary-pages/MaterialPurchase";
 import BillingSummary from "./pages/summary-pages/BillingSummary";
+import SpeakerAssembly from "./pages/summary-pages/SpeakerAssembly";
+import Trc from "./pages/summary-pages/Trc";
+
 
 export const router = createBrowserRouter([
   {
@@ -724,7 +727,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <SummaryLayout>
-            <Custom404Page />
+            <Trc />
             </SummaryLayout>
           </MainLayout>
         ),
@@ -734,7 +737,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <SummaryLayout>
-            <Custom404Page />
+            <SpeakerAssembly />
             </SummaryLayout>
           </MainLayout>
         ),
