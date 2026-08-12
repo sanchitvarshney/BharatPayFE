@@ -48,10 +48,13 @@ const TrcTable: React.FC<Props> = ({
       issue_txn_id: "Issue Txn Id",
       mfg_txn_id: "Mfg Txn Id",
       issue_dt: "Issue Date",
+      inward_txn_id: "Inward Txn Id",
+      inward_dt: "Inward Date",
     };
 
     const dynamicColumnDefs: ColDef[] = header?.map((col: string) => ({
-      field: col,
+        colId: col,
+      valueGetter: (params:any) => params.data?.[col],
       headerName: columnNameMap[col] || col,
       sortable: true,
       filter: true,
@@ -62,9 +65,7 @@ const TrcTable: React.FC<Props> = ({
         textAlign: "center",
       },
       width: 250,
-      cellRenderer: (params: any) => (
-        <div style={{ textAlign: "center", width: "100%" }}>{params.value}</div>
-      ),
+    
     }));
 
     setColumnDefs(dynamicColumnDefs); // Set dynamic column definitions

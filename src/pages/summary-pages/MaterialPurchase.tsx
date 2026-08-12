@@ -11,9 +11,11 @@ dayjs.extend(customParseFormat);
 const MaterialPurchase: React.FC = () => {
   const dispatch = useAppDispatch();
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
+  const materialData = useAppSelector((state) => state.summary?.materialData);
   // const [pageSize, setPageSize] = useState<number>(20);
 
   const gridRef = useRef<AgGridReact<any>>(null);
+  const isFirstRender = useRef(true);
 
   // const handlePageChange = useCallback((page: number) => {
   //   dispatch(
@@ -41,6 +43,15 @@ const MaterialPurchase: React.FC = () => {
 
   
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (materialData?.data?.length) {
+        return;
+      }
+    }
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      return;
+    }
     dispatch(
       getMaterialPurchased({
         from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
@@ -49,6 +60,7 @@ const MaterialPurchase: React.FC = () => {
         // limit: pageSize,
       }),
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, dateRange]);
 
  

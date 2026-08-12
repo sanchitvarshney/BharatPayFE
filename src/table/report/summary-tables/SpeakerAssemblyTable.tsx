@@ -24,6 +24,7 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
   const dispatch = useAppDispatch();
   const [loading, setLoading] = React.useState(false);
   const [rowData, setRowData] = useState<any>([]); // Holds the row data
+
   const [columnDefs, setColumnDefs] = useState<ColDef[]>([]); // Holds the column definitions
   const { speakerAssemblyData, speakerAssemblyLoading } = useAppSelector(
     (state) => state.summary,
@@ -84,7 +85,7 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
-          loading={speakerAssemblyLoading}
+          loading={speakerAssemblyLoading || loading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           rowData={rowData}

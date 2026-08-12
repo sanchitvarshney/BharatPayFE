@@ -56,6 +56,9 @@ const Trc: React.FC = () => {
   };
 
     useEffect(() => {
+      if (!dateRange || !dateRange[0] || !dateRange[1]) {
+        return;
+      }
       dispatch(
         getTRC({
           from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
