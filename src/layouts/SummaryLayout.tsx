@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -20,6 +21,12 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
 
   const tabRoutes = ["/summary", "/summary/assembly-and-trc", "/summary/speaker-assembly", "/summary/trc", "/summary/dispatch", "/summary/material-purchase"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
+
+  useEffect(() => {
+    if (!isData && currentTabIndex > 0) {
+      navigate(tabRoutes[0]);
+    }
+  }, [isData, currentTabIndex]);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     navigate(tabRoutes[newValue]);

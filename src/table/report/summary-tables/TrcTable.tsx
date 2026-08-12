@@ -98,7 +98,7 @@ const TrcTable: React.FC<Props> = ({
           enableCellTextSelection
         />
       </div>
-      {rowData && (
+      {trcData?.pagination && (
         <CustomPagination
           currentPage={trcData?.pagination?.currentPage as any}
           totalPages={trcData?.pagination?.totalPages as any}

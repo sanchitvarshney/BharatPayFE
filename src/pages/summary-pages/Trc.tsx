@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -54,6 +54,17 @@ const Trc: React.FC = () => {
       }),
     );
   };
+
+    useEffect(() => {
+      dispatch(
+        getTRC({
+          from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
+          to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
+          page: 1,
+          limit: pageSize,
+        }),
+      );
+    }, [dispatch, dateRange, pageSize]);
 
   return (
     <>
