@@ -5,7 +5,7 @@ import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { DatePicker } from "antd";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 
@@ -283,6 +283,14 @@ const BillingSummary = () => {
   const [isExcelUploading, setIsExcelUploading] = useState<boolean>(false);
   const [dateError, setDateError] = useState<string>("");
 const dateRange = useAppSelector((state) => state.summary?.dateRange);
+
+  useEffect(() => {
+    dispatch(setDateRange(null)
+  );
+     dispatch(setIsData(false)
+  );
+    
+  }, []);
 
   const handleUploadExcelClick = () => {
     excelInputRef.current?.click();
