@@ -4,13 +4,13 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import CustomPagination from "@/components/reusable/CustomPagination";
+// import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
-  handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
+  // handlePageChange: (page: number) => void;
+  // handlePageSizeChange: (pageSize: number) => void;
+  // pageSize: number;
 };
 
 const columnDefs: ColDef[] = [
@@ -34,7 +34,7 @@ const columnDefs: ColDef[] = [
     width: 450,
   },
   {
-    headerName: "Quntity",
+    headerName: "Quantity",
     field: "qty",
     sortable: true,
     width: 180,
@@ -69,19 +69,19 @@ const columnDefs: ColDef[] = [
     sortable: true,
     width: 200,
   },
-
 ];
 
 const EMPTY_ROWS: unknown[] = [];
 
 const MaterialPurchaseTable: React.FC<Props> = ({
   gridRef,
-  handlePageChange,
-  handlePageSizeChange,
-  pageSize,
+  // handlePageChange,
+  // handlePageSizeChange,
+  // pageSize,
 }) => {
-  const r3reportLoading = useAppSelector((state) => state.report.r3reportLoading);
-  const r3report = useAppSelector((state) => state.report.r3report);
+  const { materialData, materialLoading } = useAppSelector(
+    (state) => state.summary,
+  );
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -89,7 +89,10 @@ const MaterialPurchaseTable: React.FC<Props> = ({
     };
   }, []);
 
-  const rowData = useMemo(() => r3report?.data ?? EMPTY_ROWS, [r3report?.data]);
+  const rowData = useMemo(
+    () => materialData?.data ?? EMPTY_ROWS,
+    [materialData?.data],
+  );
 
   return (
     <div>
@@ -97,7 +100,7 @@ const MaterialPurchaseTable: React.FC<Props> = ({
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
-          loading={r3reportLoading}
+          loading={materialLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           rowData={rowData}
@@ -108,16 +111,16 @@ const MaterialPurchaseTable: React.FC<Props> = ({
           enableCellTextSelection={true}
         />
       </div>
-      {r3report && (
+      {/* {materialData?.pagination && (
         <CustomPagination
-          currentPage={r3report?.pagination?.currentPage}
-          totalPages={r3report?.pagination?.totalPages}
-          totalRecords={r3report?.pagination?.totalRecords}
+          currentPage={materialData?.pagination?.page || 0}
+          totalPages={materialData?.pagination?.total_pages || 0}
+          totalRecords={materialData?.pagination?.total_records || 0}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
+          pageSize={pageSize || 0}
         />
-      )}
+      )} */}
     </div>
   );
 };

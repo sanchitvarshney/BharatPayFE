@@ -1,11 +1,10 @@
-import { getWorkerReport } from "@/features/areaSlice/areaSlice";
 import { rangePresets } from "@/utils/rangePresets";
 import { LoadingButton } from "@mui/lab";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { DatePicker } from "antd";
-import dayjs from "dayjs";
+
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
@@ -13,6 +12,8 @@ import { useDispatch } from "react-redux";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { showToast } from "@/utils/toasterContext";
 import { MenuItem, Select } from "@mui/material";
+import { setDateRange, setIsData } from "@/features/summarySlice/billingSlices";
+import { useAppSelector } from "@/hooks/useReduxHook";
 
 const EXCEL_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -280,7 +281,8 @@ const BillingSummary = () => {
   const dispatch: any = useDispatch();
   const [isWholeData, setIsWholeData] = useState<boolean>(false);
   const [isExcelUploading, setIsExcelUploading] = useState<boolean>(false);
-  const [excelFile, setExcelFile] = useState<File | null>(null);
+  const [dateError, setDateError] = useState<string>("");
+const dateRange = useAppSelector((state) => state.summary?.dateRange);
 
   const handleUploadExcelClick = () => {
     excelInputRef.current?.click();
@@ -296,7 +298,6 @@ const BillingSummary = () => {
       showToast("Please upload an Excel file (.xlsx or .xls)", "error");
       return;
     }
-    setExcelFile(file);
     showToast(`Selected file: ${file.name}`, "success");
   };
 
@@ -435,14 +436,18 @@ const BillingSummary = () => {
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
-      date: null,
-      type: null,
-      
+      type: "soundbox",
     },
   });
 
-  const onSubmit = (data: any) => {
-    setIsWholeData(true);
+  const onSubmit = () => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      setDateError("Date range is required");
+      return;
+    }
+    setDateError("");
+    //  (true);
+    dispatch(setIsData(true));
     // const payload: any = {
     //   from: dayjs(data?.date[0]).format("DD-MM-YYYY"),
     //   to: dayjs(data?.date[1]).format("DD-MM-YYYY"),
@@ -453,18 +458,18 @@ const BillingSummary = () => {
 
   const handleReset = () => {
     reset({ date: null });
+    dispatch(setDateRange(null));
+    setDateError("");
     setIsWholeData(false);
     setIsExcelUploading(false);
-    setExcelFile(null);
   };
 
   return (
     <div className="grid  w-full grid-cols-[1fr_3fr]  bg-white">
       <div className="w-full border-r border-neutral-300">
         <form onSubmit={handleSubmit(onSubmit)} className="p-[10px]">
-  
           <div className="py-[0px] flex flex-col gap-[0px]">
-               <div>
+            <div>
               <label className="text-[14px] font-[500] text-slate-600 ">
                 Device Type
               </label>
@@ -476,10 +481,9 @@ const BillingSummary = () => {
                 }}
                 render={({ field }) => (
                   <Select
-                  fullWidth
+                    fullWidth
                     value={field.value}
                     onChange={field.onChange}
-                
                     sx={{
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: "rgb(203 213 225)",
@@ -492,16 +496,15 @@ const BillingSummary = () => {
                       },
                     }}
                   >
-                
                     <MenuItem value="soundbox">Sound Box</MenuItem>
-                    <MenuItem value="swipemachine">Swipe Machine</MenuItem>
+                    {/* <MenuItem value="swipemachine">Swipe Machine</MenuItem> */}
                   </Select>
                 )}
               />
-              {errors.date && (
+              {errors.type && (
                 <span className=" text-[12px] text-red-500">
                   {/* @ts-ignore */}
-                  {errors.date.message}
+                  {errors.type.message}
                 </span>
               )}
             </div>
@@ -509,29 +512,23 @@ const BillingSummary = () => {
               <label className="text-[14px] font-[500] text-slate-600 ">
                 Date Range
               </label>
-              <Controller
-                name="date"
-                control={control}
-                rules={{
-                  required: "Date range is required",
+              <RangePicker
+                placement="bottomRight"
+                className="w-full h-[50px]"
+                format="DD-MM-YYYY"
+                placeholder={["Start date", "End date"]}
+                value={dateRange}
+                onChange={(dates) => {
+                  dispatch(setDateRange(dates));
+                  if (dates && dates[0] && dates[1]) {
+                    setDateError("");
+                  }
                 }}
-                render={({ field }) => (
-                  <RangePicker
-                    {...field}
-                    placement="bottomRight"
-                    className="w-full h-[50px]"
-                    format="DD-MM-YYYY"
-                    placeholder={["Start date", "End date"]}
-                    value={field.value}
-                    onChange={(dates) => field.onChange(dates)}
-                    presets={rangePresets}
-                  />
-                )}
+                presets={rangePresets}
               />
-              {errors.date && (
+              {dateError && (
                 <span className=" text-[12px] text-red-500">
-                  {/* @ts-ignore */}
-                  {errors.date.message}
+                  {dateError}
                 </span>
               )}
             </div>
