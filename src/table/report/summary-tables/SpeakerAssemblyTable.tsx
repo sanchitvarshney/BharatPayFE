@@ -39,9 +39,7 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
     setLoading(true);
     const header = speakerAssemblyData?.headers; // Headers from API response
     const data = speakerAssemblyData?.data; // Row data from API response
-    //   const filteredHeader = header?.filter(
-    //     (col: string) => col !== "Print" && col !== "Transaction ID" && col !== "Invoice File"
-    //   );
+ 
     const columnNameMap: Record<string, string> = {
       serial_no: "Serial No.",
       imei_no: "IMIE",
@@ -51,7 +49,8 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
     };
 
     const dynamicColumnDefs: ColDef[] = header?.map((col: string) => ({
-      field: col,
+      colId: col,
+      valueGetter: (params:any) => params.data?.[col],
       headerName: columnNameMap[col] || col,
       sortable: true,
       filter: true,
@@ -62,9 +61,7 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
         textAlign: "center",
       },
       width: 250,
-      cellRenderer: (params: any) => (
-        <div style={{ textAlign: "center", width: "100%" }}>{params.value}</div>
-      ),
+
     }));
 
     setColumnDefs(dynamicColumnDefs); // Set dynamic column definitions
@@ -98,7 +95,7 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
           enableCellTextSelection
         />
       </div>
-      {rowData && (
+      {speakerAssemblyData?.pagination && (
         <CustomPagination
           currentPage={speakerAssemblyData?.pagination?.currentPage as any}
           totalPages={speakerAssemblyData?.pagination?.totalPages as any}
