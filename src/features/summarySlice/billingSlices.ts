@@ -40,7 +40,7 @@ export const getTRC = createAsyncThunk<
   }
 >("report/billing-trc", async (payload) => {
   const response = await axiosInstance.get(
-    `/bill/part-consumption/assembly?fromDate=${payload.from}&toDate=${payload.to}&page=${payload.page}&limit=${payload.limit}`,
+    `/bill/part-consumption/trc?fromDate=${payload.from}&toDate=${payload.to}&page=${payload.page}&limit=${payload.limit}`,
   );
   return response;
 });
