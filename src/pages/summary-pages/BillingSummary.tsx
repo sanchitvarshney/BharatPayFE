@@ -12,8 +12,15 @@ import { useDispatch } from "react-redux";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { showToast } from "@/utils/toasterContext";
 import { MenuItem, Select } from "@mui/material";
-import { setDateRange, setIsData } from "@/features/summarySlice/billingSlices";
+import {
+  getBillingSummary,
+  setDateRange,
+  setIsData,
+} from "@/features/summarySlice/billingSlices";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import dayjs from "dayjs";
 
 const EXCEL_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -26,6 +33,7 @@ type BillingSummaryRowType = "header" | "data" | "total" | "grandTotal";
 
 interface BillingSummaryRow {
   category: string;
+  categoryIndex: number;
   isGroupMiddle: boolean;
   rowType: BillingSummaryRowType;
   particulars: string;
@@ -36,166 +44,63 @@ interface BillingSummaryRow {
   total?: number | string;
 }
 
-interface BillingSummaryLineItem {
+interface BillingSummaryApiItem {
   particulars: string;
-  qty?: number;
-  rate?: number;
+  department?: string;
+  qty: number;
+  rate: number;
   taxable: number;
-  gst: number;
-  total: number;
+  gst_amount: number;
+  total_invoice: number;
 }
 
-interface BillingSummaryGroup {
-  category: string;
-  rows: BillingSummaryLineItem[];
+interface BillingSummaryApiSection {
+  items: BillingSummaryApiItem[];
+  total: {
+    qty?: number;
+    taxable: number;
+    gst_amount: number;
+    total_invoice: number;
+  };
+}
+
+interface BillingSummaryApiResponse {
+  success: boolean;
+  sales_summary: BillingSummaryApiSection;
+  categories: (BillingSummaryApiSection & { category_name: string })[];
+  grand_total: {
+    taxable: number;
+    gst_amount: number;
+    total_invoice: number;
+  };
 }
 
 const CATEGORY_BG = "#F2F4F7";
 const HEADER_ROW_COLORS = ["#E2E8F0", "#E5E7EB", "#E5E7EB", "#F3F4F6"];
 
-const mockBillingSummaryGroups: BillingSummaryGroup[] = [
-  {
-    category: "Sales Summary",
-    rows: [
-      {
-        particulars: "Speaker",
-        qty: 23670,
-        rate: 90,
-        taxable: 2111950,
-        gst: 380151,
-        total: 2492101,
-      },
-      {
-        particulars: "Walnut",
-        qty: 18430,
-        rate: 24,
-        taxable: 442320,
-        gst: 79618,
-        total: 521938,
-      },
-    ],
-  },
-  {
-    category: "Logo Printing & Powder coating",
-    rows: [
-      {
-        particulars: "Upper Shell Housing (logo printed)",
-        qty: 19859,
-        rate: 5.5,
-        taxable: 109225,
-        gst: 19660,
-        total: 128885,
-      },
-      {
-        particulars: "Upper Shell Housing (logo printed)",
-        qty: 19859,
-        rate: -3,
-        taxable: -59577,
-        gst: -10724,
-        total: -70301,
-      },
-      {
-        particulars: "QR Holder With Powder Coating",
-        qty: 1249,
-        rate: 9.5,
-        taxable: 11866,
-        gst: 2136,
-        total: 14001,
-      },
-      {
-        particulars: "Upper Shell Housing Powder Coating With Logo Printing",
-        qty: 10608,
-        rate: 18.25,
-        taxable: 193596,
-        gst: 34847,
-        total: 228443,
-      },
-    ],
-  },
-  {
-    category: "Component Purchase",
-    rows: [
-      {
-        particulars: "Material Purchase in 1 to 20-Jul'26",
-        qty: 411546,
-        taxable: 1461483,
-        gst: 198502,
-        total: 1659985,
-      },
-      {
-        particulars: "NFC TAG Provided by NPCI",
-        qty: 23670,
-        rate: -7,
-        taxable: -165690,
-        gst: -29824,
-        total: -195514,
-      },
-    ],
-  },
-  {
-    category: "Re-Utilization Item",
-    rows: [
-      {
-        particulars: "QR Holder",
-        qty: 17362,
-        rate: 3.25,
-        taxable: 56427,
-        gst: 10157,
-        total: 66583,
-      },
-      {
-        particulars: "Adapter",
-        qty: 12276,
-        rate: 5.5,
-        taxable: 67518,
-        gst: 12153,
-        total: 79671,
-      },
-      {
-        particulars: "Adapter with cable",
-        qty: 3,
-        rate: 8.25,
-        taxable: 25,
-        gst: 4,
-        total: 29,
-      },
-      {
-        particulars: "PVC Plain Standee",
-        rate: 4.9,
-        taxable: 0,
-        gst: 0,
-        total: 0,
-      },
-      {
-        particulars: "Cable",
-        qty: 6,
-        rate: 4.5,
-        taxable: 27,
-        gst: 5,
-        total: 32,
-      },
-    ],
-  },
-];
-
-const CATEGORY_ORDER = mockBillingSummaryGroups.map((group) => group.category);
-
-const sumField = (
-  rows: BillingSummaryLineItem[],
-  key: "qty" | "taxable" | "gst" | "total",
-): number => rows.reduce((acc, row) => acc + (Number(row[key]) || 0), 0);
-
 const buildBillingSummaryRows = (
-  groups: BillingSummaryGroup[],
+  apiResponse: BillingSummaryApiResponse | null,
 ): BillingSummaryRow[] => {
+  if (!apiResponse) return [];
+
+  const sections: { name: string; section: BillingSummaryApiSection }[] = [
+    { name: "Sales Summary", section: apiResponse.sales_summary },
+    ...apiResponse.categories.map((category) => ({
+      name: category.category_name,
+      section: category,
+    })),
+  ];
+
   const rows: BillingSummaryRow[] = [];
-  groups.forEach((group) => {
-    const groupSize = group.rows.length + 2; // sub-header row + line items + total row
+
+  sections.forEach(({ name, section }, categoryIndex) => {
+    const groupSize = section.items.length + 2; // sub-header row + line items + total row
     const middleIndex = Math.floor((groupSize - 1) / 2);
     let rowIndex = 0;
 
     rows.push({
-      category: group.category,
+      category: name,
+      categoryIndex,
       isGroupMiddle: rowIndex++ === middleIndex,
       rowType: "header",
       particulars: "Particulars",
@@ -206,33 +111,49 @@ const buildBillingSummaryRows = (
       total: "TOTAL INVOICE",
     });
 
-    group.rows.forEach((row) => {
+    section.items.forEach((item) => {
       rows.push({
-        category: group.category,
+        category: name,
+        categoryIndex,
         isGroupMiddle: rowIndex++ === middleIndex,
         rowType: "data",
-        particulars: row.particulars,
-        qty: row.qty,
-        rate: row.rate,
-        taxable: row.taxable,
-        gst: row.gst,
-        total: row.total,
+        particulars: item.particulars,
+        qty: item.qty,
+        rate: item.rate,
+        taxable: item.taxable,
+        gst: item.gst_amount,
+        total: item.total_invoice,
       });
     });
 
     rows.push({
-      category: group.category,
+      category: name,
+      categoryIndex,
       isGroupMiddle: rowIndex++ === middleIndex,
       rowType: "total",
       particulars: "TOTAL",
-      qty: sumField(group.rows, "qty"),
-      taxable: sumField(group.rows, "taxable"),
-      gst: sumField(group.rows, "gst"),
-      total: sumField(group.rows, "total"),
+      qty: section.total.qty,
+      taxable: section.total.taxable,
+      gst: section.total.gst_amount,
+      total: section.total.total_invoice,
     });
   });
+
   return rows;
 };
+
+const buildGrandTotalRow = (
+  apiResponse: BillingSummaryApiResponse | null,
+): BillingSummaryRow => ({
+  category: "",
+  categoryIndex: -1,
+  isGroupMiddle: false,
+  rowType: "grandTotal",
+  particulars: "Grand Total",
+  taxable: apiResponse?.grand_total?.taxable ?? 0,
+  gst: apiResponse?.grand_total?.gst_amount ?? 0,
+  total: apiResponse?.grand_total?.total_invoice ?? 0,
+});
 
 const formatNumber = (value: unknown): string => {
   const n = Number(value);
@@ -259,10 +180,10 @@ const billingSummaryCellStyle = (
   };
   if (!data) return base;
   if (data.rowType === "header") {
-    const idx = CATEGORY_ORDER.indexOf(data.category);
     return {
       ...base,
-      backgroundColor: HEADER_ROW_COLORS[idx % HEADER_ROW_COLORS.length],
+      backgroundColor:
+        HEADER_ROW_COLORS[data.categoryIndex % HEADER_ROW_COLORS.length],
       fontWeight: 600,
     };
   }
@@ -283,6 +204,12 @@ const BillingSummary = () => {
   const [isExcelUploading, setIsExcelUploading] = useState<boolean>(false);
   const [dateError, setDateError] = useState<string>("");
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
+  const billingSummaryData = useAppSelector(
+    (state) => state.summary?.billingSummaryData,
+  );
+  const billingSummaryLoading = useAppSelector(
+    (state) => state.summary?.billingSummaryLoading,
+  );
 
 
 
@@ -304,26 +231,14 @@ const BillingSummary = () => {
   };
 
   const billingSummaryRows = useMemo(
-    () => buildBillingSummaryRows(mockBillingSummaryGroups),
-    [],
+    () => buildBillingSummaryRows(billingSummaryData),
+    [billingSummaryData],
   );
 
-  const grandTotalRow = useMemo<BillingSummaryRow>(() => {
-    const totals = mockBillingSummaryGroups.map((group) => ({
-      taxable: sumField(group.rows, "taxable"),
-      gst: sumField(group.rows, "gst"),
-      total: sumField(group.rows, "total"),
-    }));
-    return {
-      category: "",
-      isGroupMiddle: false,
-      rowType: "grandTotal",
-      particulars: "Grand Total",
-      taxable: totals.reduce((acc, t) => acc + t.taxable, 0),
-      gst: totals.reduce((acc, t) => acc + t.gst, 0),
-      total: totals.reduce((acc, t) => acc + t.total, 0),
-    };
-  }, []);
+  const grandTotalRow = useMemo<BillingSummaryRow>(
+    () => buildGrandTotalRow(billingSummaryData),
+    [billingSummaryData],
+  );
 
   const billingSummaryColumnDefs = useMemo<ColDef<BillingSummaryRow>[]>(
     () => [
@@ -442,20 +357,19 @@ const BillingSummary = () => {
     },
   });
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!dateRange || !dateRange[0] || !dateRange[1]) {
       setDateError("Date range is required");
       return;
     }
     setDateError("");
-    //  (true);
+    await dispatch(
+      getBillingSummary({
+        from: dayjs(dateRange[0]).format("DD-MM-YYYY"),
+        to: dayjs(dateRange[1]).format("DD-MM-YYYY"),
+      }),
+    );
     dispatch(setIsData(true));
-    // const payload: any = {
-    //   from: dayjs(data?.date[0]).format("DD-MM-YYYY"),
-    //   to: dayjs(data?.date[1]).format("DD-MM-YYYY"),
-    // };
-
-    // dispatch(getWorkerReport(payload));
   };
 
   const handleReset = () => {
@@ -549,6 +463,7 @@ const BillingSummary = () => {
               type="submit"
               variant="contained"
               disabled={isExcelUploading}
+              loading={billingSummaryLoading}
             >
               Search
             </LoadingButton>
@@ -582,8 +497,11 @@ const BillingSummary = () => {
             suppressMenuHide={true}
             headerHeight={0}
             rowHeight={34}
+            loading={billingSummaryLoading}
+            loadingOverlayComponent={CustomLoadingOverlay}
+            overlayNoRowsTemplate={OverlayNoRowsTemplate}
             rowData={billingSummaryRows}
-            pinnedBottomRowData={[grandTotalRow]}
+            pinnedBottomRowData={billingSummaryData ? [grandTotalRow] : []}
             columnDefs={billingSummaryColumnDefs}
             defaultColDef={{ resizable: true }}
           />

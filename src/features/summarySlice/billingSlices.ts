@@ -15,6 +15,8 @@ interface initialStateType {
   isData: boolean;
   trcAssemblyData: any
   trcAssemblyLoading: boolean
+  billingSummaryData: any;
+  billingSummaryLoading: boolean;
 }
 
 const initialState: initialStateType = {
@@ -29,7 +31,9 @@ const initialState: initialStateType = {
   materialLoading: false,
   isData: false,
   trcAssemblyData: null,
-  trcAssemblyLoading: false
+  trcAssemblyLoading: false,
+  billingSummaryData: null,
+  billingSummaryLoading: false,
 };
 
 export const getSpeakerAssembly = createAsyncThunk<
@@ -117,6 +121,19 @@ export const getAssableAndTRC = createAsyncThunk<
   return response;
 });
 
+export const getBillingSummary = createAsyncThunk<
+  AxiosResponse<any>,
+  {
+    from: string;
+    to: string;
+  }
+>("report/billing-full-summary", async (payload) => {
+  const response = await axiosInstance.get(
+    `/bill/billing/summary?fromDate=${payload.from}&toDate=${payload.to}`,
+  );
+  return response;
+});
+
 const billingSlices = createSlice({
   name: "billing",
   initialState,
@@ -194,6 +211,19 @@ const billingSlices = createSlice({
       })
       .addCase(getAssableAndTRC.rejected, (state) => {
         state.trcAssemblyLoading = false;
+      })
+      .addCase(getBillingSummary.pending, (state) => {
+        state.billingSummaryLoading = true;
+      })
+      .addCase(getBillingSummary.fulfilled, (state, action) => {
+        state.billingSummaryLoading = false;
+
+        if (action.payload.data.success) {
+          state.billingSummaryData = action.payload.data;
+        }
+      })
+      .addCase(getBillingSummary.rejected, (state) => {
+        state.billingSummaryLoading = false;
       });
   },
 });
