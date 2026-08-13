@@ -30,67 +30,67 @@ const columnDefs: ColDef[] = [
   },
   {
     headerName: "Part Name",
-    field: "part_name",
+    field: "component_name",
     sortable: true,
     width: 450,
   },
   {
     headerName: "Category",
-    field: "category",
+    field: "department",
     sortable: true,
     width: 180,
   },
   {
-    headerName: "openning Ballance",
-    field: "openning_ballance",
+    headerName: "Opening Ballance",
+    field: "opening_balance",
     sortable: true,
     width: 250,
   },
   {
     headerName: "Purchase By MSC",
-    field: "by_msc",
+    field: "purchase_by_msc",
     sortable: true,
     width: 250,
   },
   {
     headerName: "Purchase By BPE",
-    field: "by_bpe",
+    field: "purchase_by_bpe",
     sortable: true,
     width: 250,
   },
   {
     headerName: "Sent To BPE",
-    field: "sent_to_bpe",
+    field: "sent_to_bharatpe",
     sortable: true,
     width: 200,
   },
   {
     headerName: "Wastages",
-    field: "wastages",
+    field: "wastage",
     sortable: true,
     width: 200,
   },
   {
     headerName: "Speaker",
-    field: "speaker",
+    field: "total_consumption",
     sortable: true,
     width: 250,
   },
   {
     headerName: "Speaker %",
-    field: "speaker_percent",
+    field: "component_percentage",
     sortable: true,
     width: 150,
   },
   {
     headerName: "Total Consume",
-    field: "total_consume",
+    field: "total_consumption",
     sortable: true,
     width: 250,
   },
   {
     headerName: "Closing Ballance",
-    field: "closing_ballance",
+    field: "closing_balance",
     sortable: true,
     width: 250,
   },
@@ -104,8 +104,8 @@ const AssemblyAndTRCTable: React.FC<Props> = ({
   handlePageSizeChange,
   pageSize,
 }) => {
-  const r3reportLoading = useAppSelector((state) => state.report.r3reportLoading);
-  const r3report = useAppSelector((state) => state.report.r3report);
+  const trcAssemblyLoading = useAppSelector((state) => state.summary?.trcAssemblyLoading);
+  const trcAssemblyData = useAppSelector((state) => state.summary?.trcAssemblyData);
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -113,7 +113,7 @@ const AssemblyAndTRCTable: React.FC<Props> = ({
     };
   }, []);
 
-  const rowData = useMemo(() => r3report?.data ?? EMPTY_ROWS, [r3report?.data]);
+  const rowData = useMemo(() => trcAssemblyData?.data ?? EMPTY_ROWS, [trcAssemblyData?.data]);
 
   return (
     <div>
@@ -121,7 +121,7 @@ const AssemblyAndTRCTable: React.FC<Props> = ({
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
-          loading={r3reportLoading}
+          loading={trcAssemblyLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           rowData={rowData}
@@ -132,11 +132,11 @@ const AssemblyAndTRCTable: React.FC<Props> = ({
           enableCellTextSelection={true}
         />
       </div>
-      {r3report && (
+      {trcAssemblyData && (
         <CustomPagination
-          currentPage={r3report?.pagination?.currentPage}
-          totalPages={r3report?.pagination?.totalPages}
-          totalRecords={r3report?.pagination?.totalRecords}
+          currentPage={trcAssemblyData?.pagination?.currentPage}
+          totalPages={trcAssemblyData?.pagination?.totalPages}
+          totalRecords={trcAssemblyData?.pagination?.totalRecords}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           pageSize={pageSize}

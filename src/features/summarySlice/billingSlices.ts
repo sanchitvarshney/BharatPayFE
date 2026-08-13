@@ -12,7 +12,9 @@ interface initialStateType {
     materialData: any;
   materialLoading: boolean;
   dateRange: any;
-  isData: boolean
+  isData: boolean;
+  trcAssemblyData: any
+  trcAssemblyLoading: boolean
 }
 
 const initialState: initialStateType = {
@@ -25,7 +27,9 @@ const initialState: initialStateType = {
   dispatchedLoading: false,
   materialData: null,
   materialLoading: false,
-  isData: false
+  isData: false,
+  trcAssemblyData: null,
+  trcAssemblyLoading: false
 };
 
 export const getSpeakerAssembly = createAsyncThunk<
@@ -98,6 +102,20 @@ export const getMaterialPurchased = createAsyncThunk<
   );
   return response;
 });
+export const getAssableAndTRC = createAsyncThunk<
+  AxiosResponse<any>,
+  {
+      from: string;
+    to: string;
+    page: number;
+    limit: number;
+  }
+>("report/billing-assable-trc", async (payload) => {
+  const response = await axiosInstance.get(
+    `/bill/trc&assembly/summary?fromDate=${payload.from}&toDate=${payload.to}&page=${payload.page}&limit=${payload.limit}`,
+  );
+  return response;
+});
 
 const billingSlices = createSlice({
   name: "billing",
@@ -164,6 +182,18 @@ const billingSlices = createSlice({
       })
       .addCase(getMaterialPurchased.rejected, (state) => {
         state.materialLoading = false;
+      }) .addCase(getAssableAndTRC.pending, (state) => {
+        state.trcAssemblyLoading = true;
+      })
+      .addCase(getAssableAndTRC.fulfilled, (state, action) => {
+        state.trcAssemblyLoading = false;
+
+        if (action.payload.data.success) {
+          state.trcAssemblyData = action.payload.data;
+        }
+      })
+      .addCase(getAssableAndTRC.rejected, (state) => {
+        state.trcAssemblyLoading = false;
       });
   },
 });
