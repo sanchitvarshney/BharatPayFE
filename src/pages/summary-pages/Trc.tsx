@@ -7,6 +7,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { getTRC } from "@/features/summarySlice/billingSlices";
 import TrcTable from "@/table/report/summary-tables/TrcTable";
+import DateRangeBadge from "@/components/reusable/DateRangeBadge";
 
 const Trc: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(20);
@@ -14,6 +15,9 @@ const Trc: React.FC = () => {
   dayjs.extend(customParseFormat);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const trcLoading = useAppSelector((state) => state.summary?.trcLoading);
+    const isFirstRender = useRef(true);
+    const trcData = useAppSelector((state) => state.summary?.trcData);
+
   const gridRef = useRef<AgGridReact<any>>(null);
   //   const { emitR6DispatchReport, isConnected } = useSocketContext();
 
@@ -59,9 +63,15 @@ const Trc: React.FC = () => {
   };
 
     useEffect(() => {
-      if (!dateRange || !dateRange[0] || !dateRange[1]) {
+     if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (trcData?.data?.length) {
         return;
       }
+    }
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      return;
+    }
       dispatch(
         getTRC({
           from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
@@ -85,16 +95,18 @@ const Trc: React.FC = () => {
 
   return (
     <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
-      <Tooltip title="Refresh">
-        <IconButton
-          className="self-end"
-          disabled={trcLoading}
-          onClick={handleRefresh}
-          size="small"
-        >
-          <RefreshIcon className={trcLoading ? "animate-spin" : ""} />
-        </IconButton>
-      </Tooltip>
+      <div className="flex items-center justify-between">
+        <DateRangeBadge dateRange={dateRange} />
+        <Tooltip title="Refresh">
+          <IconButton
+            disabled={trcLoading}
+            onClick={handleRefresh}
+            size="small"
+          >
+            <RefreshIcon className={trcLoading ? "animate-spin" : ""} />
+          </IconButton>
+        </Tooltip>
+      </div>
       <div className="w-full  mt-1">
         <TrcTable
           gridRef={gridRef}

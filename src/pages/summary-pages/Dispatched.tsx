@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DispatchedTable from "@/table/report/summary-tables/DispatchedTable";
+import DateRangeBadge from "@/components/reusable/DateRangeBadge";
 import { getDispatchedSummary } from "@/features/summarySlice/billingSlices";
 
 dayjs.extend(customParseFormat);
@@ -87,16 +88,18 @@ const Dispatched: React.FC = () => {
 
   return (
     <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
-      <Tooltip title="Refresh">
-        <IconButton
-          className="self-end"
-          disabled={dispatchedLoading}
-          onClick={handleRefresh}
-          size="small"
-        >
-          <RefreshIcon className={dispatchedLoading ? "animate-spin" : ""} />
-        </IconButton>
-      </Tooltip>
+      <div className="flex items-center justify-between">
+        <DateRangeBadge dateRange={dateRange} />
+        <Tooltip title="Refresh">
+          <IconButton
+            disabled={dispatchedLoading}
+            onClick={handleRefresh}
+            size="small"
+          >
+            <RefreshIcon className={dispatchedLoading ? "animate-spin" : ""} />
+          </IconButton>
+        </Tooltip>
+      </div>
       <div className="w-full  mt-1">
         <DispatchedTable
           gridRef={gridRef}
