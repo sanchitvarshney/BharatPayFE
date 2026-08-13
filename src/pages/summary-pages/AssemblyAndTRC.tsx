@@ -17,9 +17,13 @@ const AssemblyAndTRC: React.FC = () => {
   const dispatch = useAppDispatch();
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const [pageSize, setPageSize] = useState<number>(20);
+    const isFirstRender = useRef(true);
  const trcAssemblyLoading = useAppSelector(
     (state) => state.summary?.trcAssemblyLoading,
  )
+   const trcAssemblyData = useAppSelector(
+     (state) => state.summary?.trcAssemblyData,
+   );
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
@@ -53,6 +57,12 @@ const AssemblyAndTRC: React.FC = () => {
   );
 
   useEffect(() => {
+   if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (trcAssemblyData?.data?.length) {
+        return;
+      }
+    }
     if (!dateRange || !dateRange[0] || !dateRange[1]) {
       return;
     }
