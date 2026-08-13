@@ -7,6 +7,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 import SpeakerAssemblyTable from "@/table/report/summary-tables/SpeakerAssemblyTable";
+import DateRangeBadge from "@/components/reusable/DateRangeBadge";
 import { getSpeakerAssembly } from "@/features/summarySlice/billingSlices";
 
 const SpeakerAssembly: React.FC = () => {
@@ -81,18 +82,20 @@ const SpeakerAssembly: React.FC = () => {
 
   return (
     <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
-      <Tooltip title="Refresh">
-        <IconButton
-          className="self-end"
-          disabled={speakerAssemblyLoading}
-          onClick={handleRefresh}
-          size="small"
-        >
-          <RefreshIcon
-            className={speakerAssemblyLoading ? "animate-spin" : ""}
-          />
-        </IconButton>
-      </Tooltip>
+      <div className="flex items-center justify-between">
+        <DateRangeBadge dateRange={dateRange} />
+        <Tooltip title="Refresh">
+          <IconButton
+            disabled={speakerAssemblyLoading}
+            onClick={handleRefresh}
+            size="small"
+          >
+            <RefreshIcon
+              className={speakerAssemblyLoading ? "animate-spin" : ""}
+            />
+          </IconButton>
+        </Tooltip>
+      </div>
       <div className="w-full  mt-1">
         <SpeakerAssemblyTable
           gridRef={gridRef}

@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import MaterialPurchaseTable from "@/table/report/summary-tables/MaterialPurchaseTable";
+import DateRangeBadge from "@/components/reusable/DateRangeBadge";
 import { getMaterialPurchased } from "@/features/summarySlice/billingSlices";
 
 dayjs.extend(customParseFormat);
@@ -79,16 +80,18 @@ const MaterialPurchase: React.FC = () => {
 
   return (
     <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
-    <Tooltip title="Refresh">
-        <IconButton
-        className="self-end"
-        disabled={materialLoading}
-        onClick={handleRefresh}
-        size="small"
-      >
-        <RefreshIcon className={materialLoading ? "animate-spin" : ""} />
-      </IconButton>
-      </Tooltip>
+    <div className="flex items-center justify-between">
+        <DateRangeBadge dateRange={dateRange} />
+        <Tooltip title="Refresh">
+          <IconButton
+            disabled={materialLoading}
+            onClick={handleRefresh}
+            size="small"
+          >
+            <RefreshIcon className={materialLoading ? "animate-spin" : ""} />
+          </IconButton>
+        </Tooltip>
+      </div>
       <div className="w-full  mt-1">
         <MaterialPurchaseTable
           gridRef={gridRef}
