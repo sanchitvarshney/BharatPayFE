@@ -1,5 +1,5 @@
 import { LoadingButton } from "@mui/lab";
-import { FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Autocomplete, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -12,6 +12,13 @@ import SelectCategory, { CategoryType } from "@/components/reusable/SelectCatego
 import SelectSubCategory, { SubCategoryType } from "@/components/reusable/SelectSubCategory";
 import { UpdateComponentBasicDetailPayload } from "@/features/master/component/componentType";
 
+type DepartmentOption = { id: string; text: string };
+
+const departmentOptions: DepartmentOption[] = [
+  { id: "ASSEMBLY", text: "Assembly" },
+  { id: "TRC", text: "TRC" },
+];
+
 type FormDataType = {
   name: string;
   uom: GroupdataType | null; // Unit of Measure
@@ -20,6 +27,8 @@ type FormDataType = {
   mrp: string; // Maximum Retail Price
   status: string; // Assuming status is a binary "Yes" or "No"
   description: string;
+  department: DepartmentOption | null;
+  rate: string;
 };
 type Props = {
   detail: {
@@ -37,6 +46,8 @@ type Props = {
     status: string; // Assuming status is a binary "Yes" or "No"
     description: string;
     uomId: string;
+    department: string;
+    rate: string;
   } | null;
   setUpdateBasicDetail: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -52,6 +63,8 @@ const UpdateComponentBasicDetail: React.FC<Props> = ({ detail, setUpdateBasicDet
     mrp: detail?.mrp || "",
     status: detail?.status || "",
     description: detail?.description || "",
+    department: departmentOptions.find((opt) => opt.id === detail?.department || opt.text === detail?.department) || null,
+    rate: detail?.rate || "",
   };
   const {
     handleSubmit,
@@ -73,6 +86,8 @@ const UpdateComponentBasicDetail: React.FC<Props> = ({ detail, setUpdateBasicDet
       mrp: data.mrp,
       status: data.status,
       description: data.description,
+      department: data.department?.id || "",
+      rate: data.rate,
     };
     dispatch(updateCompoenntBasicDetailAsync(payload)).then((res: any) => {
       if (res.payload?.data?.success) {
@@ -132,7 +147,47 @@ const UpdateComponentBasicDetail: React.FC<Props> = ({ detail, setUpdateBasicDet
               <SelectSubCategory disabled={!watch("category")} categoryId={watch("category")?.catId || ""} value={field.value} onChange={field.onChange} error={!!errors.subcategory} helperText={errors?.subcategory?.message} label="Sub Category" variant="filled" />
             )}
           />
-          <div className="col-span-3"></div>
+          <Controller
+            name="department"
+            control={control}
+            rules={{
+              required: "You must select Department",
+            }}
+            render={({ field }) => (
+              <Autocomplete
+                value={field.value}
+                options={departmentOptions}
+                getOptionLabel={(option) => option.text}
+                renderInput={(params) => <TextField {...params} label={"Department"} variant="filled" error={!!errors.department} helperText={errors?.department?.message} />}
+                onChange={(_, value) => field.onChange(value)}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+              />
+            )}
+          />
+          <Controller
+            name="rate"
+            control={control}
+            rules={{
+              required: "Rate is required",
+              min: { value: 0, message: "Rate cannot be negative" },
+            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                type="number"
+                label="Rate"
+                variant="filled"
+                error={!!errors.rate}
+                helperText={errors?.rate?.message}
+                inputProps={{ min: 0, step: "any" }}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "+" || e.key === "e" || e.key === "E") {
+                    e.preventDefault();
+                  }
+                }}
+              />
+            )}
+          />
           <div className="col-span-2">
             <Controller name="description" control={control} render={({ field }) => <TextField fullWidth error={!!errors.name} multiline rows={3} {...field} label="Description" variant="filled" />} />
           </div>
