@@ -1,6 +1,5 @@
 import { rangePresets } from "@/utils/rangePresets";
 import { LoadingButton } from "@mui/lab";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { DatePicker } from "antd";
@@ -8,9 +7,6 @@ import { DatePicker } from "antd";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-
-import ConfirmationModel from "@/components/reusable/ConfirmationModel";
-import { showToast } from "@/utils/toasterContext";
 import { MenuItem, Select } from "@mui/material";
 import {
   getBillingSummary,
@@ -22,12 +18,10 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import dayjs from "dayjs";
 
-const EXCEL_FILE_TYPES = [
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-excel",
-];
 
 const { RangePicker } = DatePicker;
+
+const BlankHeader = () => null;
 
 type BillingSummaryRowType = "header" | "data" | "total" | "grandTotal";
 
@@ -198,10 +192,7 @@ const billingSummaryCellStyle = (
 
 const BillingSummary = () => {
   const gridRef = useRef(null);
-  const excelInputRef = useRef<HTMLInputElement>(null);
   const dispatch: any = useDispatch();
-  const [isWholeData, setIsWholeData] = useState<boolean>(false);
-  const [isExcelUploading, setIsExcelUploading] = useState<boolean>(false);
   const [dateError, setDateError] = useState<string>("");
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const billingSummaryData = useAppSelector(
@@ -211,22 +202,6 @@ const BillingSummary = () => {
     (state) => state.summary?.billingSummaryLoading,
   );
 
-  const handleUploadExcelClick = () => {
-    excelInputRef.current?.click();
-  };
-
-  const handleExcelFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    if (!EXCEL_FILE_TYPES.includes(file.type)) {
-      showToast("Please upload an Excel file (.xlsx or .xls)", "error");
-      return;
-    }
-    showToast(`Selected file: ${file.name}`, "success");
-  };
 
   const billingSummaryRows = useMemo(
     () => buildBillingSummaryRows(billingSummaryData),
@@ -243,7 +218,7 @@ const BillingSummary = () => {
       {
         field: "category",
         headerName: "Category",
-        width: 200,
+        width: 180,
         pinned: "left",
         suppressMovable: true,
         sortable: false,
@@ -270,8 +245,7 @@ const BillingSummary = () => {
         field: "particulars",
         headerName: "Particulars",
         flex: 1,
-        minWidth: 260,
-        sortable: false,
+               sortable: false,
         filter: false,
         cellStyle: (params) => billingSummaryCellStyle(params.data, "left"),
       },
@@ -333,6 +307,7 @@ const BillingSummary = () => {
         headerName: "Total Invoice",
         width: 160,
         sortable: false,
+        pinned: "right",
         filter: false,
         valueFormatter: (params) =>
           typeof params.value === "string"
@@ -374,12 +349,12 @@ const BillingSummary = () => {
     reset({ date: null });
     dispatch(setDateRange(null));
     setDateError("");
-    setIsWholeData(false);
-    setIsExcelUploading(false);
+    dispatch(setIsData(false));
+   
   };
 
   return (
-    <div className="grid  w-full grid-cols-[1fr_3fr]  bg-white">
+    <div className="grid  w-full grid-cols-[320px_3fr]  bg-white">
       <div className="w-full border-r border-neutral-300">
         <form onSubmit={handleSubmit(onSubmit)} className="p-[10px]">
           <div className="py-[0px] flex flex-col gap-[10px]">
@@ -390,6 +365,7 @@ const BillingSummary = () => {
               <Controller
                 name="type"
                 control={control}
+                disabled
                 rules={{
                   required: "Device type is required",
                 }}
@@ -398,6 +374,7 @@ const BillingSummary = () => {
                     fullWidth
                     value={field.value}
                     onChange={field.onChange}
+                    disabled
                     sx={{
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: "rgb(203 213 225)",
@@ -462,7 +439,6 @@ const BillingSummary = () => {
             <LoadingButton
               type="submit"
               variant="contained"
-              disabled={isExcelUploading}
               loading={billingSummaryLoading}
               loadingPosition="center"
               sx={{
@@ -471,25 +447,7 @@ const BillingSummary = () => {
             >
               Search
             </LoadingButton>
-            {isExcelUploading && (
-              <LoadingButton
-                loadingPosition="start"
-                type="button"
-                variant="outlined"
-                startIcon={<UploadFileIcon />}
-                onClick={handleUploadExcelClick}
-              >
-                Upload Excel
-              </LoadingButton>
-            )}
-
-            <input
-              ref={excelInputRef}
-              type="file"
-              accept=".xlsx,.xls"
-              className="hidden"
-              onChange={handleExcelFileChange}
-            />
+       
           </div>
         </form>
       </div>
@@ -499,7 +457,7 @@ const BillingSummary = () => {
             ref={gridRef}
             suppressCellFocus={true}
             suppressMenuHide={true}
-            headerHeight={0}
+            headerHeight={10}
             rowHeight={34}
             loading={billingSummaryLoading}
             loadingOverlayComponent={CustomLoadingOverlay}
@@ -507,24 +465,11 @@ const BillingSummary = () => {
             rowData={billingSummaryRows}
             pinnedBottomRowData={billingSummaryData ? [grandTotalRow] : []}
             columnDefs={billingSummaryColumnDefs}
-            defaultColDef={{ resizable: true }}
+            defaultColDef={{ resizable: true, headerComponent: BlankHeader }}
           />
         </div>
       </div>
-      <ConfirmationModel
-        open={isWholeData}
-        title={"Confirmation"}
-        content={"If you proceed, the whole data will be generated ?"}
-        onClose={() => {
-          setIsWholeData(false);
-        }}
-        onConfirm={() => {
-          setIsWholeData(false);
-          setIsExcelUploading(true);
-        }}
-        confirmText="Yes"
-        cancelText="No"
-      />
+ 
     </div>
   );
 };

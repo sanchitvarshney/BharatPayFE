@@ -78,6 +78,7 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
           loading={speakerAssemblyLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
+          suppressFieldDotNotation
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}

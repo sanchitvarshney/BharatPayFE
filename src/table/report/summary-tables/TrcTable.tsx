@@ -77,6 +77,7 @@ const TrcTable: React.FC<Props> = ({
           loading={trcLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
+          suppressFieldDotNotation
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
