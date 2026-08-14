@@ -16,7 +16,7 @@ type Props = {
 
 const COLUMN_NAME_MAP: Record<string, string> = {
   serial_no: "Serial No.",
-  imei_no: "IMIE",
+  imei_no: "IMEI",
   issue_txn_id: "Issue Txn Id",
   mfg_txn_id: "Mfg Txn Id",
   issue_dt: "Issue Date",
@@ -70,7 +70,7 @@ const TrcTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-200px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-210px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}

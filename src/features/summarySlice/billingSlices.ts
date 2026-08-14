@@ -22,6 +22,9 @@ interface initialStateType {
   trcAssemblyRangeKey: string | null;
   billingSummaryData: any;
   billingSummaryLoading: boolean;
+  holdData: any;
+  holdLoading: boolean;
+  trcMode: "trc" | "hold";
 }
 
 export const rangeKey = (from: string, to: string): string => `${from}_${to}`;
@@ -46,6 +49,9 @@ const initialState: initialStateType = {
   trcAssemblyRangeKey: null,
   billingSummaryData: null,
   billingSummaryLoading: false,
+  holdData: null,
+  holdLoading: false,
+  trcMode: "trc",
 };
 
 export const getSpeakerAssembly = createAsyncThunk<
@@ -146,6 +152,29 @@ export const getBillingSummary = createAsyncThunk<
   return response;
 });
 
+export const uploadHoldPartConsumptionTRC = createAsyncThunk<
+  AxiosResponse<any>,
+  FormData
+>("report/billing-hold-part-consumption-trc", async (formData, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(
+      "/bill/hold-part-consumption/trc",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      return rejectWithValue(error.response.data.message);
+    }
+    return rejectWithValue(error.message || "Upload failed");
+  }
+});
+
 const billingSlices = createSlice({
   name: "billing",
   initialState,
@@ -155,6 +184,9 @@ const billingSlices = createSlice({
     },
     setIsData: (state, action) => {
       state.isData = action.payload;
+    },
+    setTrcMode: (state, action) => {
+      state.trcMode = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -253,10 +285,23 @@ const billingSlices = createSlice({
       })
       .addCase(getBillingSummary.rejected, (state) => {
         state.billingSummaryLoading = false;
+      })
+      .addCase(uploadHoldPartConsumptionTRC.pending, (state) => {
+        state.holdLoading = true;
+      })
+      .addCase(uploadHoldPartConsumptionTRC.fulfilled, (state, action) => {
+        state.holdLoading = false;
+
+        if (action.payload.data.success) {
+          state.holdData = action.payload.data;
+        }
+      })
+      .addCase(uploadHoldPartConsumptionTRC.rejected, (state) => {
+        state.holdLoading = false;
       });
   },
 });
 
-export const { setDateRange , setIsData} = billingSlices.actions;
+export const { setDateRange, setIsData, setTrcMode } = billingSlices.actions;
 
 export default billingSlices.reducer;

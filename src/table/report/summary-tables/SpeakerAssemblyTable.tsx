@@ -16,7 +16,7 @@ type Props = {
 
 const COLUMN_NAME_MAP: Record<string, string> = {
   serial_no: "Serial No.",
-  imei_no: "IMIE",
+  imei_no: "IMEI",
   issue_txn_id: "Issue Txn Id",
   mfg_txn_id: "Mfg Txn Id",
   issue_dt: "Issue Date",

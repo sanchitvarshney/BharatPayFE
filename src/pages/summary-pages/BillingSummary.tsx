@@ -12,6 +12,7 @@ import {
   getBillingSummary,
   setDateRange,
   setIsData,
+  setTrcMode,
 } from "@/features/summarySlice/billingSlices";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -406,6 +407,7 @@ const BillingSummary = () => {
                 value={dateRange}
                 onChange={(dates) => {
                   dispatch(setDateRange(dates));
+                   dispatch(setTrcMode("trc"))
                   dispatch(setIsData(false));
                   if (dates && dates[0] && dates[1]) {
                     setDateError("");
