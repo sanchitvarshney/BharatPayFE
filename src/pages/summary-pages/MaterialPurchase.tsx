@@ -7,7 +7,10 @@ import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import MaterialPurchaseTable from "@/table/report/summary-tables/MaterialPurchaseTable";
 import DateRangeBadge from "@/components/reusable/DateRangeBadge";
-import { getMaterialPurchased } from "@/features/summarySlice/billingSlices";
+import {
+  getMaterialPurchased,
+  rangeKey,
+} from "@/features/summarySlice/billingSlices";
 
 dayjs.extend(customParseFormat);
 
@@ -17,6 +20,9 @@ const MaterialPurchase: React.FC = () => {
   const materialData = useAppSelector((state) => state.summary?.materialData);
   const materialLoading = useAppSelector(
     (state) => state.summary?.materialLoading,
+  );
+  const materialRangeKey = useAppSelector(
+    (state) => state.summary?.materialRangeKey,
   );
   // const [pageSize, setPageSize] = useState<number>(20);
 
@@ -49,14 +55,19 @@ const MaterialPurchase: React.FC = () => {
 
   
   useEffect(() => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      isFirstRender.current = false;
+      return;
+    }
+    const currentRangeKey = rangeKey(
+      dayjs(dateRange[0]).format("DD-MM-YYYY"),
+      dayjs(dateRange[1]).format("DD-MM-YYYY"),
+    );
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      if (materialData?.data?.length) {
+      if (materialData?.data?.length && materialRangeKey === currentRangeKey) {
         return;
       }
-    }
-    if (!dateRange || !dateRange[0] || !dateRange[1]) {
-      return;
     }
     dispatch(
       getMaterialPurchased({

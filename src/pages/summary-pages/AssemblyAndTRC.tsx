@@ -10,6 +10,7 @@ import AssemblyAndTRCTable from "@/table/report/summary-tables/AssemblyAndTRCTab
 import DateRangeBadge from "@/components/reusable/DateRangeBadge";
 import {
   getAssableAndTRC,
+  rangeKey,
 } from "@/features/summarySlice/billingSlices";
 
 dayjs.extend(customParseFormat);
@@ -24,6 +25,9 @@ const AssemblyAndTRC: React.FC = () => {
  )
    const trcAssemblyData = useAppSelector(
      (state) => state.summary?.trcAssemblyData,
+   );
+   const trcAssemblyRangeKey = useAppSelector(
+     (state) => state.summary?.trcAssemblyRangeKey,
    );
 
   const gridRef = useRef<AgGridReact<any>>(null);
@@ -58,14 +62,22 @@ const AssemblyAndTRC: React.FC = () => {
   );
 
   useEffect(() => {
-   if (isFirstRender.current) {
+   if (!dateRange || !dateRange[0] || !dateRange[1]) {
       isFirstRender.current = false;
-      if (trcAssemblyData?.data?.length) {
+      return;
+    }
+    const currentRangeKey = rangeKey(
+      dayjs(dateRange[0]).format("DD-MM-YYYY"),
+      dayjs(dateRange[1]).format("DD-MM-YYYY"),
+    );
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (
+        trcAssemblyData?.data?.length &&
+        trcAssemblyRangeKey === currentRangeKey
+      ) {
         return;
       }
-    }
-    if (!dateRange || !dateRange[0] || !dateRange[1]) {
-      return;
     }
     dispatch(
       getAssableAndTRC({

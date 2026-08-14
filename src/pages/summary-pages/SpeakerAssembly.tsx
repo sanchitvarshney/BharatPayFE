@@ -8,7 +8,10 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 
 import SpeakerAssemblyTable from "@/table/report/summary-tables/SpeakerAssemblyTable";
 import DateRangeBadge from "@/components/reusable/DateRangeBadge";
-import { getSpeakerAssembly } from "@/features/summarySlice/billingSlices";
+import {
+  getSpeakerAssembly,
+  rangeKey,
+} from "@/features/summarySlice/billingSlices";
 
 const SpeakerAssembly: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(20);
@@ -21,18 +24,29 @@ const SpeakerAssembly: React.FC = () => {
   const speakerAssemblyLoading = useAppSelector(
     (state) => state.summary?.speakerAssemblyLoading,
   );
+  const speakerAssemblyRangeKey = useAppSelector(
+    (state) => state.summary?.speakerAssemblyRangeKey,
+  );
   const gridRef = useRef<AgGridReact<any>>(null);
   const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      isFirstRender.current = false;
+      return;
+    }
+    const currentRangeKey = rangeKey(
+      dayjs(dateRange[0]).format("DD-MM-YYYY"),
+      dayjs(dateRange[1]).format("DD-MM-YYYY"),
+    );
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      if (speakerAssemblyData?.data?.length) {
+      if (
+        speakerAssemblyData?.data?.length &&
+        speakerAssemblyRangeKey === currentRangeKey
+      ) {
         return;
       }
-    }
-    if (!dateRange || !dateRange[0] || !dateRange[1]) {
-      return;
     }
     dispatch(
       getSpeakerAssembly({
