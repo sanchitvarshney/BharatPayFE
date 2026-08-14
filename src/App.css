@@ -266,6 +266,32 @@ input:-webkit-autofill {
   box-shadow: none !important; /* Remove any shadow effects */
   background-color: transparent !important;
 }
+/* Header */
+.header-bg .ag-header-cell {
+  background-color: #0e7490 !important;
+  color: #fff !important;
+  font-weight: 600;
+  border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.header-bg .ag-header-cell-resize::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  right: 0;
+  width: 2px;
+  height: 60%;
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.header-bg .ag-header-cell-resize:hover::after {
+  width: 3px;
+  height: 80%;
+  top: 10%;
+  background-color: #fff !important;
+}
 
 .custom-select .ant-select-selector:focus,
 .custom-select .ant-select-selector:hover {

@@ -451,7 +451,8 @@ const BillingSummary = () => {
             ref={gridRef}
             suppressCellFocus={true}
             suppressMenuHide={true}
-            headerHeight={10}
+            headerHeight={12}
+            className="header-bg"
             rowHeight={34}
             loading={billingSummaryLoading}
             loadingOverlayComponent={CustomLoadingOverlay}
