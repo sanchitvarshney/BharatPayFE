@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "@ag-grid-community/react";
 import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { getTRC } from "@/features/summarySlice/billingSlices";
+import { getTRC, rangeKey } from "@/features/summarySlice/billingSlices";
 import TrcTable from "@/table/report/summary-tables/TrcTable";
 import DateRangeBadge from "@/components/reusable/DateRangeBadge";
 
@@ -17,6 +17,7 @@ const Trc: React.FC = () => {
   const trcLoading = useAppSelector((state) => state.summary?.trcLoading);
     const isFirstRender = useRef(true);
     const trcData = useAppSelector((state) => state.summary?.trcData);
+    const trcRangeKey = useAppSelector((state) => state.summary?.trcRangeKey);
 
   const gridRef = useRef<AgGridReact<any>>(null);
   //   const { emitR6DispatchReport, isConnected } = useSocketContext();
@@ -63,14 +64,19 @@ const Trc: React.FC = () => {
   };
 
     useEffect(() => {
-     if (isFirstRender.current) {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
       isFirstRender.current = false;
-      if (trcData?.data?.length) {
+      return;
+    }
+    const currentRangeKey = rangeKey(
+      dayjs(dateRange[0]).format("DD-MM-YYYY"),
+      dayjs(dateRange[1]).format("DD-MM-YYYY"),
+    );
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (trcData?.data?.length && trcRangeKey === currentRangeKey) {
         return;
       }
-    }
-    if (!dateRange || !dateRange[0] || !dateRange[1]) {
-      return;
     }
       dispatch(
         getTRC({

@@ -18,7 +18,6 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import dayjs from "dayjs";
 
-
 const { RangePicker } = DatePicker;
 
 const BlankHeader = () => null;
@@ -202,7 +201,6 @@ const BillingSummary = () => {
     (state) => state.summary?.billingSummaryLoading,
   );
 
-
   const billingSummaryRows = useMemo(
     () => buildBillingSummaryRows(billingSummaryData),
     [billingSummaryData],
@@ -245,7 +243,7 @@ const BillingSummary = () => {
         field: "particulars",
         headerName: "Particulars",
         flex: 1,
-               sortable: false,
+        sortable: false,
         filter: false,
         cellStyle: (params) => billingSummaryCellStyle(params.data, "left"),
       },
@@ -350,7 +348,6 @@ const BillingSummary = () => {
     dispatch(setDateRange(null));
     setDateError("");
     dispatch(setIsData(false));
-   
   };
 
   return (
@@ -365,7 +362,6 @@ const BillingSummary = () => {
               <Controller
                 name="type"
                 control={control}
-                disabled
                 rules={{
                   required: "Device type is required",
                 }}
@@ -374,7 +370,6 @@ const BillingSummary = () => {
                     fullWidth
                     value={field.value}
                     onChange={field.onChange}
-                    disabled
                     sx={{
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: "rgb(203 213 225)",
@@ -430,7 +425,7 @@ const BillingSummary = () => {
               variant="outlined"
               color="error"
               onClick={handleReset}
-                  sx={{
+              sx={{
                 minWidth: "100px",
               }}
             >
@@ -447,7 +442,6 @@ const BillingSummary = () => {
             >
               Search
             </LoadingButton>
-       
           </div>
         </form>
       </div>
@@ -469,7 +463,6 @@ const BillingSummary = () => {
           />
         </div>
       </div>
- 
     </div>
   );
 };

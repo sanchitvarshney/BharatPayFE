@@ -5,33 +5,45 @@ import { AxiosResponse } from "axios";
 interface initialStateType {
   speakerAssemblyData: any;
   speakerAssemblyLoading: boolean;
+  speakerAssemblyRangeKey: string | null;
   trcData: any;
   trcLoading: boolean;
+  trcRangeKey: string | null;
   dispatchedData: any;
   dispatchedLoading: boolean;
+  dispatchedRangeKey: string | null;
     materialData: any;
   materialLoading: boolean;
+  materialRangeKey: string | null;
   dateRange: any;
   isData: boolean;
   trcAssemblyData: any
   trcAssemblyLoading: boolean
+  trcAssemblyRangeKey: string | null;
   billingSummaryData: any;
   billingSummaryLoading: boolean;
 }
 
+export const rangeKey = (from: string, to: string): string => `${from}_${to}`;
+
 const initialState: initialStateType = {
   speakerAssemblyData: null,
   speakerAssemblyLoading: false,
+  speakerAssemblyRangeKey: null,
   trcData: null,
   trcLoading: false,
+  trcRangeKey: null,
   dateRange: null,
   dispatchedData: null,
   dispatchedLoading: false,
+  dispatchedRangeKey: null,
   materialData: null,
   materialLoading: false,
+  materialRangeKey: null,
   isData: false,
   trcAssemblyData: null,
   trcAssemblyLoading: false,
+  trcAssemblyRangeKey: null,
   billingSummaryData: null,
   billingSummaryLoading: false,
 };
@@ -156,6 +168,10 @@ const billingSlices = createSlice({
 
         if (action.payload.data.success) {
           state.speakerAssemblyData = action.payload.data;
+          state.speakerAssemblyRangeKey = rangeKey(
+            action.meta.arg.from,
+            action.meta.arg.to,
+          );
         }
       })
       .addCase(getSpeakerAssembly.rejected, (state) => {
@@ -169,6 +185,7 @@ const billingSlices = createSlice({
 
         if (action.payload.data.success) {
           state.trcData = action.payload.data;
+          state.trcRangeKey = rangeKey(action.meta.arg.from, action.meta.arg.to);
         }
       })
       .addCase(getTRC.rejected, (state) => {
@@ -182,6 +199,10 @@ const billingSlices = createSlice({
 
         if (action.payload.data.success) {
           state.dispatchedData = action.payload.data;
+          state.dispatchedRangeKey = rangeKey(
+            action.meta.arg.from,
+            action.meta.arg.to,
+          );
         }
       })
       .addCase(getDispatchedSummary.rejected, (state) => {
@@ -195,6 +216,10 @@ const billingSlices = createSlice({
 
         if (action.payload.data.success) {
           state.materialData = action.payload.data;
+          state.materialRangeKey = rangeKey(
+            action.meta.arg.from,
+            action.meta.arg.to,
+          );
         }
       })
       .addCase(getMaterialPurchased.rejected, (state) => {
@@ -207,6 +232,10 @@ const billingSlices = createSlice({
 
         if (action.payload.data.success) {
           state.trcAssemblyData = action.payload.data;
+          state.trcAssemblyRangeKey = rangeKey(
+            action.meta.arg.from,
+            action.meta.arg.to,
+          );
         }
       })
       .addCase(getAssableAndTRC.rejected, (state) => {

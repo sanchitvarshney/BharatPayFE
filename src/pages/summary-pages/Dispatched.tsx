@@ -7,7 +7,10 @@ import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DispatchedTable from "@/table/report/summary-tables/DispatchedTable";
 import DateRangeBadge from "@/components/reusable/DateRangeBadge";
-import { getDispatchedSummary } from "@/features/summarySlice/billingSlices";
+import {
+  getDispatchedSummary,
+  rangeKey,
+} from "@/features/summarySlice/billingSlices";
 
 dayjs.extend(customParseFormat);
 
@@ -19,6 +22,9 @@ const Dispatched: React.FC = () => {
   );
   const dispatchedLoading = useAppSelector(
     (state) => state.summary?.dispatchedLoading,
+  );
+  const dispatchedRangeKey = useAppSelector(
+    (state) => state.summary?.dispatchedRangeKey,
   );
   const [pageSize, setPageSize] = useState<number>(20);
 
@@ -55,14 +61,22 @@ const Dispatched: React.FC = () => {
   );
 
   useEffect(() => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      isFirstRender.current = false;
+      return;
+    }
+    const currentRangeKey = rangeKey(
+      dayjs(dateRange[0]).format("DD-MM-YYYY"),
+      dayjs(dateRange[1]).format("DD-MM-YYYY"),
+    );
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      if (dispatchedData?.data?.length) {
+      if (
+        dispatchedData?.data?.length &&
+        dispatchedRangeKey === currentRangeKey
+      ) {
         return;
       }
-    }
-    if (!dateRange || !dateRange[0] || !dateRange[1]) {
-      return;
     }
     dispatch(
       getDispatchedSummary({
