@@ -5,7 +5,7 @@ import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { DatePicker } from "antd";
 
-import {  useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 
@@ -211,8 +211,6 @@ const BillingSummary = () => {
     (state) => state.summary?.billingSummaryLoading,
   );
 
-
-
   const handleUploadExcelClick = () => {
     excelInputRef.current?.click();
   };
@@ -384,7 +382,7 @@ const BillingSummary = () => {
     <div className="grid  w-full grid-cols-[1fr_3fr]  bg-white">
       <div className="w-full border-r border-neutral-300">
         <form onSubmit={handleSubmit(onSubmit)} className="p-[10px]">
-          <div className="py-[0px] flex flex-col gap-[0px]">
+          <div className="py-[0px] flex flex-col gap-[10px]">
             <div>
               <label className="text-[14px] font-[500] text-slate-600 ">
                 Device Type
@@ -436,7 +434,7 @@ const BillingSummary = () => {
                 value={dateRange}
                 onChange={(dates) => {
                   dispatch(setDateRange(dates));
-                    dispatch(setIsData(false));
+                  dispatch(setIsData(false));
                   if (dates && dates[0] && dates[1]) {
                     setDateError("");
                   }
@@ -448,22 +446,28 @@ const BillingSummary = () => {
               )}
             </div>
           </div>
-          <div className="h-[50px] p-0 flex items-center px-[10px] gap-[10px] justify-end">
+          <div className="h-[50px] p-0 flex items-center px-[0px] gap-[10px] justify-end">
             <LoadingButton
               loadingPosition="start"
               type="button"
               variant="outlined"
               color="error"
               onClick={handleReset}
+                  sx={{
+                minWidth: "100px",
+              }}
             >
               Reset
             </LoadingButton>
             <LoadingButton
-              loadingPosition="start"
               type="submit"
               variant="contained"
               disabled={isExcelUploading}
               loading={billingSummaryLoading}
+              loadingPosition="center"
+              sx={{
+                minWidth: "100px",
+              }}
             >
               Search
             </LoadingButton>
