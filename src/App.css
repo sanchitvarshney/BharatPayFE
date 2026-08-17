@@ -116,6 +116,79 @@
   border-top: 2px solid #0e7490;
 }
 
+/* Raw material report: different color per location group, same color for children of that group */
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-0,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-0 {
+  background-color: #0e7490 !important;
+  color: #fff;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-1,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-1 {
+  background-color: #155e75 !important;
+  color: #fff;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-2,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-2 {
+  background-color: #0f766e !important;
+  color: #fff;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-3,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-3 {
+  background-color: #0d9488 !important;
+  color: #fff;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-4,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-4 {
+  background-color: #14b8a6 !important;
+  color: #fff;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-5,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-5 {
+  background-color: #2dd4bf !important;
+  color: #0f172a;
+}
+
+/* Vertical borders: header + data (column separators through full grid) */
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell {
+  border-right: 1px solid rgba(15, 23, 42, 0.28);
+}
+.ag-theme-quartz.raw-material-report-grid .ag-cell {
+  border-right: 1px solid rgba(15, 23, 42, 0.28);
+}
+
+/* Last column of each location group: right border = same color as parent header (header + body) */
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-last-0,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-last-0,
+.ag-theme-quartz.raw-material-report-grid .ag-cell.rm-last-0 {
+  border-right: 4px solid #0e7490 !important;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-last-1,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-last-1,
+.ag-theme-quartz.raw-material-report-grid .ag-cell.rm-last-1 {
+  border-right: 4px solid #155e75 !important;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-last-2,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-last-2,
+.ag-theme-quartz.raw-material-report-grid .ag-cell.rm-last-2 {
+  border-right: 4px solid #0f766e !important;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-last-3,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-last-3,
+.ag-theme-quartz.raw-material-report-grid .ag-cell.rm-last-3 {
+  border-right: 4px solid #0d9488 !important;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-last-4,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-last-4,
+.ag-theme-quartz.raw-material-report-grid .ag-cell.rm-last-4 {
+  border-right: 4px solid #14b8a6 !important;
+}
+.ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-last-5,
+.ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-last-5,
+.ag-theme-quartz.raw-material-report-grid .ag-cell.rm-last-5 {
+  border-right: 4px solid #2dd4bf !important;
+}
+
 /* Bottom border under child header row when fixed */
 
 .ag-theme-quartz .ag-root-wrapper {
