@@ -24,6 +24,8 @@ interface initialStateType {
   billingSummaryLoading: boolean;
   holdData: any;
   holdLoading: boolean;
+  holdAssemblyData: any;
+  holdAssemblyLoading: boolean;
   trcMode: "trc" | "hold";
 }
 
@@ -51,6 +53,8 @@ const initialState: initialStateType = {
   billingSummaryLoading: false,
   holdData: null,
   holdLoading: false,
+  holdAssemblyData: null,
+  holdAssemblyLoading: false,
   trcMode: "trc",
 };
 
@@ -146,7 +150,7 @@ export const getBillingSummary = createAsyncThunk<
     to: string;
   }
 >("report/billing-full-summary", async (payload) => {
-  const response = await axiosInstance.get(
+  const response = await axiosInstance.post(
     `/bill/billing/summary?fromDate=${payload.from}&toDate=${payload.to}`,
   );
   return response;
@@ -159,6 +163,29 @@ export const uploadHoldPartConsumptionTRC = createAsyncThunk<
   try {
     const response = await axiosInstance.post(
       "/bill/hold-part-consumption/trc",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      return rejectWithValue(error.response.data.message);
+    }
+    return rejectWithValue(error.message || "Upload failed");
+  }
+});
+
+export const uploadHoldPartConsumptionAssembly = createAsyncThunk<
+  AxiosResponse<any>,
+  FormData
+>("report/billing-hold-part-consumption-assembly", async (formData, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(
+      "/bill/hold-part-consumption/assembly",
       formData,
       {
         headers: {
@@ -298,6 +325,19 @@ const billingSlices = createSlice({
       })
       .addCase(uploadHoldPartConsumptionTRC.rejected, (state) => {
         state.holdLoading = false;
+      })
+      .addCase(uploadHoldPartConsumptionAssembly.pending, (state) => {
+        state.holdAssemblyLoading = true;
+      })
+      .addCase(uploadHoldPartConsumptionAssembly.fulfilled, (state, action) => {
+        state.holdAssemblyLoading = false;
+
+        if (action.payload.data.success) {
+          state.holdAssemblyData = action.payload.data;
+        }
+      })
+      .addCase(uploadHoldPartConsumptionAssembly.rejected, (state) => {
+        state.holdAssemblyLoading = false;
       });
   },
 });
