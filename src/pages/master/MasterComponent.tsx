@@ -27,6 +27,8 @@ export type createComponentdata = {
   notes: string;
   module:{id:string,text:string}|null;
   hsn:string;
+  department: OptionType | null;
+  rate: string;
 };
 const MasterComponent: React.FC = () => {
   const [update, setUpadte] = useState<boolean>(false);
@@ -50,6 +52,8 @@ const MasterComponent: React.FC = () => {
       notes: "",
       module:null,
       hsn:"",
+      department: null,
+      rate: "",
     },
   });
 
@@ -57,13 +61,18 @@ const MasterComponent: React.FC = () => {
     { id: "BPE", text: "BPe" },
     { id: "MSC", text: "MSc" },
   ]
-  
+
+  const assemblyTrcOptions: OptionType[] = [
+    { id: "ASSEMBLY", text: "Assembly" },
+    { id: "TRC", text: "TRC" },
+  ]
+
   const { UOM, getUOMloading } = useAppSelector((state) => state.uom);
   const { createComponentLoading, component } = useAppSelector((state) => state.component);
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.uom !== null) {
-      let newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id,part:data.part,hsn:data.hsn };
+      const newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id,part:data.part,hsn:data.hsn,department:data.department?.id,rate:data.rate };
       dispatch(createComponentAsync(newdata)).then((res: any) => {
         if (res.payload?.data?.success) {
           reset();
@@ -126,7 +135,49 @@ const MasterComponent: React.FC = () => {
                 <TextField disabled={watch("module")?.id !== "BPE"} placeholder="Part Code" fullWidth label="Part Code"{...register("part")} />
                 {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
               </div>
-              
+              <div>
+                <Controller
+                  name="department"
+                  control={control}
+                  rules={{ required: "You must select Assembly/TRC" }}
+                  render={({ field }) => (
+                    <Autocomplete
+                      value={field.value}
+                      options={assemblyTrcOptions}
+                      getOptionLabel={(option) => option.text}
+                      renderInput={(params) => <TextField {...params} label={"Department"} variant="outlined" />}
+                      onChange={(_, value) => field.onChange(value)}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                    />
+                  )}
+                />
+                {errors.department && <span className=" text-[12px] text-red-500">{errors.department.message}</span>}
+              </div>
+              <div>
+                <TextField
+                  placeholder="Rate"
+                  fullWidth
+                  label="Rate"
+                  type="number"
+                  inputProps={{ min: 0, step: "any" }}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "+" || e.key === "e" || e.key === "E") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onPaste={(e) => {
+                    const pasted = e.clipboardData.getData("text");
+                    if (!/^\d*\.?\d*$/.test(pasted)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  {...register("rate", {
+                    required: "Rate is required",
+                    min: { value: 0, message: "Rate cannot be negative" },
+                  })}
+                />
+                {errors.rate && <span className=" text-[12px] text-red-500">{errors.rate.message}</span>}
+              </div>
               </div>
               <div >
               <div className="mt-[20px]">

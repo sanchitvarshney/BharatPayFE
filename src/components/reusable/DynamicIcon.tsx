@@ -23,6 +23,7 @@ import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl';
 import ImageIcon from '@mui/icons-material/Image';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 
 export const Icons = {
   save: SaveIcon,
@@ -49,6 +50,7 @@ export const Icons = {
   transfer:SwapHorizontalCircleIcon,
   procurement: FormatListNumberedRtlIcon,
   image:ImageIcon,
+  summary:SummarizeIcon
 };
 
 type IconName = keyof typeof Icons | string;

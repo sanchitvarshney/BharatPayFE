@@ -71,6 +71,8 @@ export type ComponentDetail = {
   mfgCode: string;
   c_hsn: string;
   gst_rate: string;
+  department: string;
+  rate: number;
 };
 
 export type ComponentDetailApiResponse = {
@@ -88,6 +90,8 @@ export type UpdateComponentBasicDetailPayload = {
   mrp: string; // Maximum Retail Price
   status: string; // Assuming status is a binary "Yes" or "No"
   description: string;
+  department: string;
+  rate: string;
 };
 
 export type UpdateComponentAdvanceDetail = {
