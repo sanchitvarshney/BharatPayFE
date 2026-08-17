@@ -4,18 +4,26 @@ import { ColDef } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { DatePicker } from "antd";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useDropzone } from "react-dropzone";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { MenuItem, Select } from "@mui/material";
+import { Alert, IconButton, MenuItem, Select } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   getBillingSummary,
   setDateRange,
   setIsData,
+  setTrcMode,
+  uploadHoldPartConsumptionTRC,
+  uploadHoldPartConsumptionAssembly,
 } from "@/features/summarySlice/billingSlices";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import { showToast } from "@/utils/toasterContext";
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
@@ -193,6 +201,7 @@ const BillingSummary = () => {
   const gridRef = useRef(null);
   const dispatch: any = useDispatch();
   const [dateError, setDateError] = useState<string>("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const billingSummaryData = useAppSelector(
     (state) => state.summary?.billingSummaryData,
@@ -200,6 +209,11 @@ const BillingSummary = () => {
   const billingSummaryLoading = useAppSelector(
     (state) => state.summary?.billingSummaryLoading,
   );
+  const holdLoading = useAppSelector((state) => state.summary?.holdLoading);
+  const holdAssemblyLoading = useAppSelector(
+    (state) => state.summary?.holdAssemblyLoading,
+  );
+  const uploadLoading = holdLoading || holdAssemblyLoading;
 
   const billingSummaryRows = useMemo(
     () => buildBillingSummaryRows(billingSummaryData),
@@ -350,6 +364,61 @@ const BillingSummary = () => {
     dispatch(setIsData(false));
   };
 
+  const onExcelDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      setUploadFile(file);
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: onExcelDrop,
+    multiple: false,
+    disabled: uploadLoading,
+    accept: {
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+        ".xlsx",
+      ],
+      "application/vnd.ms-excel": [".xls"],
+    },
+  });
+
+  const handleRemoveUploadFile = () => {
+    setUploadFile(null);
+  };
+
+  const handleUpload = async () => {
+    if (!uploadFile) return;
+
+    const trcFormData = new FormData();
+    trcFormData.append("file", uploadFile);
+    const assemblyFormData = new FormData();
+    assemblyFormData.append("file", uploadFile);
+
+    const [trcRes, assemblyRes] = await Promise.all([
+      dispatch(uploadHoldPartConsumptionTRC(trcFormData)),
+      dispatch(uploadHoldPartConsumptionAssembly(assemblyFormData)),
+    ]);
+
+    const trcSuccess = trcRes?.payload?.data?.success;
+    const assemblySuccess = assemblyRes?.payload?.data?.success;
+
+    if (trcSuccess && assemblySuccess) {
+      showToast("Data generated successfully", "success");
+      setUploadFile(null);
+    } else if (trcSuccess || assemblySuccess) {
+      showToast(
+        "Some data could not be generated. Please check and try again.",
+        "warning",
+      );
+    } else {
+      showToast(
+        trcRes?.payload || assemblyRes?.payload || "Upload failed",
+        "error",
+      );
+    }
+  };
+
   return (
     <div className="grid  w-full grid-cols-[320px_3fr]  bg-white">
       <div className="w-full border-r border-neutral-300">
@@ -406,6 +475,7 @@ const BillingSummary = () => {
                 value={dateRange}
                 onChange={(dates) => {
                   dispatch(setDateRange(dates));
+                   dispatch(setTrcMode("trc"))
                   dispatch(setIsData(false));
                   if (dates && dates[0] && dates[1]) {
                     setDateError("");
@@ -443,7 +513,71 @@ const BillingSummary = () => {
               Search
             </LoadingButton>
           </div>
+
         </form>
+
+        {/* Upload excel */}
+        <div className="border-t border-neutral-200 p-[10px] flex flex-col gap-[10px]">
+          <label className="text-[14px] font-[500] text-slate-600">
+            Upload Excel
+          </label>
+
+          <Alert severity="warning" sx={{ fontSize: "12px", py: 0.5 }}>
+            If you want whole device data then upload excel file
+          </Alert>
+
+          <div
+            {...getRootProps()}
+            className={`flex flex-col items-center justify-center gap-1 border-2 border-dashed rounded-md px-3 py-6 text-center transition-colors ${
+              uploadLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+            } ${
+              isDragActive
+                ? "bg-blue-50 border-blue-400"
+                : "border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            <input {...getInputProps()} />
+            <CloudUploadIcon fontSize="medium" color="primary" />
+            <span className="text-[13px] text-gray-600">
+              {isDragActive
+                ? "Drop Excel file here"
+                : "Drag & drop or click to upload Excel"}
+            </span>
+            <span className="text-[11px] text-gray-400">
+              Supports .xls, .xlsx
+            </span>
+          </div>
+
+          {uploadFile && (
+            <div className="flex items-center justify-between gap-2 border border-gray-200 rounded-md px-3 py-2 bg-gray-50">
+              <div className="flex items-center gap-2 min-w-0">
+                <InsertDriveFileIcon fontSize="small" color="action" />
+                <span className="truncate text-[13px] text-gray-700">
+                  {uploadFile.name}
+                </span>
+              </div>
+              <IconButton
+                size="small"
+                disabled={uploadLoading}
+                onClick={handleRemoveUploadFile}
+              >
+                <DeleteIcon fontSize="small" color="error" />
+              </IconButton>
+            </div>
+          )}
+
+          <LoadingButton
+            type="button"
+            fullWidth
+            variant="contained"
+            disabled={!uploadFile}
+            loading={uploadLoading}
+            loadingPosition="center"
+            onClick={handleUpload}
+          >
+            Upload
+          </LoadingButton>
+        </div>
       </div>
       <div className="flex flex-col w-full min-h-0 h-[calc(100vh-100px)]">
         <div className="ag-theme-quartz billing-summary-grid flex-1 min-h-0">

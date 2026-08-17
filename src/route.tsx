@@ -150,6 +150,8 @@ import MaterialPurchase from "./pages/summary-pages/MaterialPurchase";
 import BillingSummary from "./pages/summary-pages/BillingSummary";
 import SpeakerAssembly from "./pages/summary-pages/SpeakerAssembly";
 import Trc from "./pages/summary-pages/Trc";
+import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
+import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
 
 
 export const router = createBrowserRouter([
@@ -774,6 +776,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/summary/material-purchase",
+      },
+      {
+        element: (
+          <MainLayout>
+          <RawMaterialReportLayout>
+              <RawMaterialReport />
+          </RawMaterialReportLayout>
+          </MainLayout>
+        ),
+        path: "/material-report/raw-material",
       },
 
       // {

@@ -7,14 +7,19 @@ import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 import SpeakerAssemblyTable from "@/table/report/summary-tables/SpeakerAssemblyTable";
+import HoldPartConsumptionAssemblyTable from "@/table/report/summary-tables/HoldPartConsumptionAssemblyTable";
 import DateRangeBadge from "@/components/reusable/DateRangeBadge";
+import SegmentedToggle from "@/components/reusable/SegmentedToggle";
 import {
   getSpeakerAssembly,
   rangeKey,
 } from "@/features/summarySlice/billingSlices";
 
+type ViewMode = "trc" | "hold";
+
 const SpeakerAssembly: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(20);
+  const [mode, setMode] = useState<ViewMode>("trc");
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
@@ -97,26 +102,44 @@ const SpeakerAssembly: React.FC = () => {
   return (
     <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
       <div className="flex items-center justify-between">
-        <DateRangeBadge dateRange={dateRange} />
-        <Tooltip title="Refresh">
-          <IconButton
-            disabled={speakerAssemblyLoading}
-            onClick={handleRefresh}
-            size="small"
-          >
-            <RefreshIcon
-              className={speakerAssemblyLoading ? "animate-spin" : ""}
-            />
-          </IconButton>
-        </Tooltip>
+        <div className="flex items-center gap-3">
+          <SegmentedToggle
+            value={mode}
+            onChange={(value) => setMode(value as ViewMode)}
+            options={[
+              { value: "trc", label: "Dispatch" },
+              { value: "hold", label: "Hold" },
+            ]}
+          />
+        </div>
+        {mode === "trc" && (
+          <div className="flex items-center gap-3">
+            <DateRangeBadge dateRange={dateRange} />
+            <Tooltip title="Refresh">
+              <IconButton
+                disabled={speakerAssemblyLoading}
+                onClick={handleRefresh}
+                size="small"
+              >
+                <RefreshIcon
+                  className={speakerAssemblyLoading ? "animate-spin" : ""}
+                />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
       </div>
       <div className="w-full  mt-1">
-        <SpeakerAssemblyTable
-          gridRef={gridRef}
-          handlePageChange={handlePageChange}
-          handlePageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
-        />
+        {mode === "trc" ? (
+          <SpeakerAssemblyTable
+            gridRef={gridRef}
+            handlePageChange={handlePageChange}
+            handlePageSizeChange={handlePageSizeChange}
+            pageSize={pageSize}
+          />
+        ) : (
+          <HoldPartConsumptionAssemblyTable />
+        )}
       </div>
     </div>
   );

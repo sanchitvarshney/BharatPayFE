@@ -67,6 +67,11 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("partConversionReportDownload", payload);
   };
 
+  const emitDownloadRawMaterialReport = (payload: any) => {
+    console.log("clicked");
+    socketService.emit("materialReportDownload", payload);
+  };
+
   const emitDownloadQ2Report = (payload: any) => {
     
     socketService.emit("q2ReportDownload", payload);
@@ -243,7 +248,8 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitFqcDeviceImageDownload,
         emitDownloadPartCodeConversionReport,
         emitDownloadTRCReport,
-        emitAwbReportDownload
+        emitAwbReportDownload,
+        emitDownloadRawMaterialReport
       }}
     >
       {children}

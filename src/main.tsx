@@ -18,7 +18,6 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import RootLayout from "./layouts/layout.tsx";
 
 
-
 const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
 
 moduleregistri();

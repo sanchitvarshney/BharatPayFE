@@ -22,6 +22,11 @@ interface initialStateType {
   trcAssemblyRangeKey: string | null;
   billingSummaryData: any;
   billingSummaryLoading: boolean;
+  holdData: any;
+  holdLoading: boolean;
+  holdAssemblyData: any;
+  holdAssemblyLoading: boolean;
+  trcMode: "trc" | "hold";
 }
 
 export const rangeKey = (from: string, to: string): string => `${from}_${to}`;
@@ -46,6 +51,11 @@ const initialState: initialStateType = {
   trcAssemblyRangeKey: null,
   billingSummaryData: null,
   billingSummaryLoading: false,
+  holdData: null,
+  holdLoading: false,
+  holdAssemblyData: null,
+  holdAssemblyLoading: false,
+  trcMode: "trc",
 };
 
 export const getSpeakerAssembly = createAsyncThunk<
@@ -140,10 +150,56 @@ export const getBillingSummary = createAsyncThunk<
     to: string;
   }
 >("report/billing-full-summary", async (payload) => {
-  const response = await axiosInstance.get(
+  const response = await axiosInstance.post(
     `/bill/billing/summary?fromDate=${payload.from}&toDate=${payload.to}`,
   );
   return response;
+});
+
+export const uploadHoldPartConsumptionTRC = createAsyncThunk<
+  AxiosResponse<any>,
+  FormData
+>("report/billing-hold-part-consumption-trc", async (formData, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(
+      "/bill/hold-part-consumption/trc",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      return rejectWithValue(error.response.data.message);
+    }
+    return rejectWithValue(error.message || "Upload failed");
+  }
+});
+
+export const uploadHoldPartConsumptionAssembly = createAsyncThunk<
+  AxiosResponse<any>,
+  FormData
+>("report/billing-hold-part-consumption-assembly", async (formData, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(
+      "/bill/hold-part-consumption/assembly",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      return rejectWithValue(error.response.data.message);
+    }
+    return rejectWithValue(error.message || "Upload failed");
+  }
 });
 
 const billingSlices = createSlice({
@@ -155,6 +211,9 @@ const billingSlices = createSlice({
     },
     setIsData: (state, action) => {
       state.isData = action.payload;
+    },
+    setTrcMode: (state, action) => {
+      state.trcMode = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -253,10 +312,36 @@ const billingSlices = createSlice({
       })
       .addCase(getBillingSummary.rejected, (state) => {
         state.billingSummaryLoading = false;
+      })
+      .addCase(uploadHoldPartConsumptionTRC.pending, (state) => {
+        state.holdLoading = true;
+      })
+      .addCase(uploadHoldPartConsumptionTRC.fulfilled, (state, action) => {
+        state.holdLoading = false;
+
+        if (action.payload.data.success) {
+          state.holdData = action.payload.data;
+        }
+      })
+      .addCase(uploadHoldPartConsumptionTRC.rejected, (state) => {
+        state.holdLoading = false;
+      })
+      .addCase(uploadHoldPartConsumptionAssembly.pending, (state) => {
+        state.holdAssemblyLoading = true;
+      })
+      .addCase(uploadHoldPartConsumptionAssembly.fulfilled, (state, action) => {
+        state.holdAssemblyLoading = false;
+
+        if (action.payload.data.success) {
+          state.holdAssemblyData = action.payload.data;
+        }
+      })
+      .addCase(uploadHoldPartConsumptionAssembly.rejected, (state) => {
+        state.holdAssemblyLoading = false;
       });
   },
 });
 
-export const { setDateRange , setIsData} = billingSlices.actions;
+export const { setDateRange, setIsData, setTrcMode } = billingSlices.actions;
 
 export default billingSlices.reducer;

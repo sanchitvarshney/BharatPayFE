@@ -36,6 +36,7 @@ import transferSlice from "@/features/transfer/deviceTransferSlice";
 import crmRemarkReducer from "@/features/crmRemark/crmRemarkSlice";
 import imageCaptureReducer from "@/features/imageCapture/imageCaptureSlice";
 import billingSlices from "@/features/summarySlice/billingSlices";
+import rawMaterialReportReducer from "@/features/rawMaterialReport/rawMaterialReportSlice";
 
 export const store = configureStore({
   reducer: {
@@ -76,6 +77,7 @@ export const store = configureStore({
     crmRemark: crmRemarkReducer,
     imageCapture: imageCaptureReducer,
     summary: billingSlices,
+    rawMaterialReport: rawMaterialReportReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
