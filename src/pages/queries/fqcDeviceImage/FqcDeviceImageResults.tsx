@@ -2,6 +2,8 @@ import React from "react";
 import { Typography, CircularProgress } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
+import CustomPagination from "@/components/reusable/CustomPagination";
+import { FqcPagination } from "@/features/common/commonSlice";
 import { FqcTableRow } from "./fqcDeviceImage.types";
 
 type Props = {
@@ -9,6 +11,11 @@ type Props = {
   error: string | null;
   rows: FqcTableRow[];
   columnDefs: ColDef<FqcTableRow>[];
+  page: number;
+  limit: number;
+  pagination: FqcPagination | null;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
 };
 
 const FqcDeviceImageResults: React.FC<Props> = ({
@@ -16,6 +23,11 @@ const FqcDeviceImageResults: React.FC<Props> = ({
   error,
   rows,
   columnDefs,
+  page,
+  limit,
+  pagination,
+  onPageChange,
+  onLimitChange,
 }) => (
   <div className="w-full flex flex-col h-[calc(100vh-100px)] overflow-y-auto">
     {loading ? (
@@ -38,16 +50,28 @@ const FqcDeviceImageResults: React.FC<Props> = ({
         </Typography>
       </div>
     ) : (
-      <div className="ag-theme-quartz w-full h-full">
-        <AgGridReact<FqcTableRow>
-          rowData={rows}
-          columnDefs={columnDefs}
-          animateRows
-          rowHeight={50}
-          headerHeight={50}
-          suppressContextMenu
-        />
-      </div>
+      <>
+        <div className="ag-theme-quartz w-full flex-1">
+          <AgGridReact<FqcTableRow>
+            rowData={rows}
+            columnDefs={columnDefs}
+            animateRows
+            rowHeight={50}
+            headerHeight={50}
+            suppressContextMenu
+          />
+        </div>
+        {pagination && (
+          <CustomPagination
+            currentPage={page}
+            totalPages={pagination.totalPages}
+            totalRecords={pagination.totalDsns}
+            onPageChange={onPageChange}
+            pageSize={limit}
+            onPageSizeChange={onLimitChange}
+          />
+        )}
+      </>
     )}
   </div>
 );

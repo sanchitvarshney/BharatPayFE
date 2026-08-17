@@ -156,7 +156,40 @@ const WrongDeviceMin: React.FC = () => {
       }
     }
 
-  
+    const lastRow = combinedRowData[0];
+    const canUpdateLastRowCheck = lastRow && !lastRow[field];
+
+    const resultAwbNo =
+      field === "awbNo"
+        ? trimmedValue
+        : canUpdateLastRowCheck
+          ? lastRow?.awbNo?.trim() || ""
+          : "";
+    const resultSerialNo =
+      field === "serialNo"
+        ? trimmedValue
+        : canUpdateLastRowCheck
+          ? lastRow?.serialNo?.trim() || ""
+          : "";
+
+    if (resultAwbNo && resultSerialNo) {
+      const isDuplicate = combinedRowData.some((row) => {
+        if (canUpdateLastRowCheck && row.id === lastRow.id) return false;
+        return (
+          row.awbNo?.trim() === resultAwbNo &&
+          row.serialNo?.trim() === resultSerialNo
+        );
+      });
+
+      if (isDuplicate) {
+        showToast(
+          "A row with the same AWB No. and Serial No. already exists",
+          "error",
+        );
+        return;
+      }
+    }
+
     setCombinedRowData((prevData) => {
       const lastRow = prevData[0];
       const canUpdateLastRow = lastRow && !lastRow[field];
