@@ -28,19 +28,19 @@ const Q3ReportTable: React.FC = () => {
       valueFormatter: (params) => formatNumber(params.value),
     },
     {
-      headerName: "Total In",
+      headerName: "Inward",
       field: "totalIn",
       flex: 1,
       valueFormatter: (params) => formatNumber(params.value),
     },
     {
-      headerName: "Total Out",
+      headerName: "Outward",
       field: "totalOut",
       flex: 1,
       valueFormatter: (params) => formatNumber(params.value),
     },
     {
-      headerName: "Close Qty",
+      headerName: "Closing Balance",
       field: "closeQty",
       flex: 1,
       valueFormatter: (params) => formatNumber(params.value),
@@ -57,8 +57,11 @@ const Q3ReportTable: React.FC = () => {
         rowData={q3data?.locationQty || []}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
-        pagination={false}
         enableCellTextSelection
+        paginationPageSize={20}
+        
+        pagination={true}
+
       />
     </div>
   );
