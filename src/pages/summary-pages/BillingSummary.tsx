@@ -17,6 +17,7 @@ import {
   setDateRange,
   setIsData,
   setTrcMode,
+  resetBillingSummary,
   uploadHoldPartConsumptionTRC,
   uploadHoldPartConsumptionAssembly,
 } from "@/features/summarySlice/billingSlices";
@@ -24,6 +25,7 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { showToast } from "@/utils/toasterContext";
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
@@ -209,6 +211,7 @@ const BillingSummary = () => {
   const billingSummaryLoading = useAppSelector(
     (state) => state.summary?.billingSummaryLoading,
   );
+  const isData = useAppSelector((state) => state.summary?.isData);
   const holdLoading = useAppSelector((state) => state.summary?.holdLoading);
   const holdAssemblyLoading = useAppSelector(
     (state) => state.summary?.holdAssemblyLoading,
@@ -348,20 +351,29 @@ const BillingSummary = () => {
       return;
     }
     setDateError("");
-    await dispatch(
-      getBillingSummary({
-        from: dayjs(dateRange[0]).format("DD-MM-YYYY"),
-        to: dayjs(dateRange[1]).format("DD-MM-YYYY"),
-      }),
-    );
+
+    const billSearch = new FormData();
+
+    billSearch.append("file", uploadFile ?? "");
+    billSearch.append("fromDate", dayjs(dateRange[0]).format("DD-MM-YYYY"));
+    billSearch.append("toDate", dayjs(dateRange[1]).format("DD-MM-YYYY"));
+    await dispatch(getBillingSummary(billSearch)).unwrap();
+
     dispatch(setIsData(true));
   };
 
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
   const handleReset = () => {
-    reset({ date: null });
-    dispatch(setDateRange(null));
+    setResetConfirmOpen(true);
+  };
+
+  const handleConfirmReset = () => {
+    reset({ type: "soundbox" });
+    setUploadFile(null);
     setDateError("");
-    dispatch(setIsData(false));
+    dispatch(resetBillingSummary());
+    setResetConfirmOpen(false);
   };
 
   const onExcelDrop = useCallback((acceptedFiles: File[]) => {
@@ -374,7 +386,7 @@ const BillingSummary = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onExcelDrop,
     multiple: false,
-    disabled: uploadLoading,
+    disabled: uploadLoading || isData,
     accept: {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
         ".xlsx",
@@ -389,6 +401,10 @@ const BillingSummary = () => {
 
   const handleUpload = async () => {
     if (!uploadFile) return;
+    if (dateRange?.length !== 2) {
+      showToast("Please select date range", "error");
+      return;
+    }
 
     const trcFormData = new FormData();
     trcFormData.append("file", uploadFile);
@@ -405,7 +421,6 @@ const BillingSummary = () => {
 
     if (trcSuccess && assemblySuccess) {
       showToast("Data generated successfully", "success");
-      setUploadFile(null);
     } else if (trcSuccess || assemblySuccess) {
       showToast(
         "Some data could not be generated. Please check and try again.",
@@ -439,6 +454,7 @@ const BillingSummary = () => {
                     fullWidth
                     value={field.value}
                     onChange={field.onChange}
+                    disabled={isData}
                     sx={{
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: "rgb(203 213 225)",
@@ -473,9 +489,10 @@ const BillingSummary = () => {
                 format="DD-MM-YYYY"
                 placeholder={["Start date", "End date"]}
                 value={dateRange}
+                disabled={isData}
                 onChange={(dates) => {
                   dispatch(setDateRange(dates));
-                   dispatch(setTrcMode("trc"))
+                  dispatch(setTrcMode("trc"));
                   dispatch(setIsData(false));
                   if (dates && dates[0] && dates[1]) {
                     setDateError("");
@@ -506,6 +523,7 @@ const BillingSummary = () => {
               variant="contained"
               loading={billingSummaryLoading}
               loadingPosition="center"
+              disabled={isData}
               sx={{
                 minWidth: "100px",
               }}
@@ -513,7 +531,6 @@ const BillingSummary = () => {
               Search
             </LoadingButton>
           </div>
-
         </form>
 
         {/* Upload excel */}
@@ -558,7 +575,7 @@ const BillingSummary = () => {
               </div>
               <IconButton
                 size="small"
-                disabled={uploadLoading}
+                disabled={uploadLoading || isData}
                 onClick={handleRemoveUploadFile}
               >
                 <DeleteIcon fontSize="small" color="error" />
@@ -570,7 +587,7 @@ const BillingSummary = () => {
             type="button"
             fullWidth
             variant="contained"
-            disabled={!uploadFile}
+            disabled={!uploadFile || isData}
             loading={uploadLoading}
             loadingPosition="center"
             onClick={handleUpload}
@@ -598,6 +615,15 @@ const BillingSummary = () => {
           />
         </div>
       </div>
+      <ConfirmationModel
+        open={resetConfirmOpen}
+        onClose={() => setResetConfirmOpen(false)}
+        onConfirm={handleConfirmReset}
+        title="Reset all data?"
+        content="This will clear the device type, date range and search results. Do you want to continue?"
+        cancelText="No"
+        confirmText="Yes"
+      />
     </div>
   );
 };
