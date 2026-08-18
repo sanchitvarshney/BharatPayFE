@@ -17,6 +17,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isData = useAppSelector((state) => state.summary.isData);
+  const [value, setValue] = React.useState("create");
 
   const tabRoutes = [
     "/summary",
@@ -79,25 +80,71 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
           }}
           variant="scrollable"
           scrollButtons="auto"
-          value={currentTabIndex === -1 ? 0 : currentTabIndex}
-          onChange={handleChange}
+          value={value === "create" ? 0 : 1}
+          onChange={(_, newValue) => {
+            if (newValue === 0) {
+              navigate("/summary");
+              setValue("create");
+            } else if (newValue === 1) {
+              navigate("/preview-billing");
+              setValue("preview");
+            }
+          }}
           centered
         >
-          {tabData.map((tab) => (
-            <Tab
-              disabled={tab.key !== 0 && !isData}
-              sx={{ fontWeight: "500" }}
-              label={
-                <div className="flex items-center gap-[10px]">
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                </div>
-              }
-              key={tab.key}
-            />
-          ))}
+          <Tab
+            disabled={value !== "preview"}
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <span>{"Billing Summary"}</span>
+              </div>
+            }
+            key={"create"}
+          />
+          <Tab
+            disabled={value !== "create"}
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <span>{"Preview Billing"}</span>
+              </div>
+            }
+            key={"preview"}
+          />
         </Tabs>
       </div>
+      {value !== "preview" && (
+        <div className=" w-full h-[50px] border-b border-neutral-300 bg-white">
+          <Tabs
+            sx={{ padding: 0, maxWidth: "100%" }}
+            TabIndicatorProps={{
+              style: {
+                height: "3px",
+              },
+            }}
+            variant="scrollable"
+            scrollButtons="auto"
+            value={currentTabIndex === -1 ? 0 : currentTabIndex}
+            onChange={handleChange}
+            centered
+          >
+            {tabData.map((tab) => (
+              <Tab
+                disabled={tab.key !== 0 && !isData}
+                sx={{ fontWeight: "500" }}
+                label={
+                  <div className="flex items-center gap-[10px]">
+                    {tab.icon}
+                    <span>{tab.label}</span>
+                  </div>
+                }
+                key={tab.key}
+              />
+            ))}
+          </Tabs>
+        </div>
+      )}
       <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
     </div>
   );

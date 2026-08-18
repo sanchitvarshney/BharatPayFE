@@ -725,6 +725,16 @@ export const router = createBrowserRouter([
         ),
         path: "/summary",
       },
+          {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <Custom404Page />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/preview-billing",
+      },
        {
         element: (
           <MainLayout>

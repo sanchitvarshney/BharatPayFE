@@ -20,6 +20,7 @@ import {
   resetBillingSummary,
   uploadHoldPartConsumptionTRC,
   uploadHoldPartConsumptionAssembly,
+  onFinalSubmit,
 } from "@/features/summarySlice/billingSlices";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -210,6 +211,8 @@ const BillingSummary = () => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [downloading, setDownloading] = useState(false);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [finalConfirmOpen, setFinalConfirmOpen] = useState(false);
   const billingSummaryData = useAppSelector(
     (state) => state.summary?.billingSummaryData,
   );
@@ -218,6 +221,7 @@ const BillingSummary = () => {
   );
   const isData = useAppSelector((state) => state.summary?.isData);
   const holdLoading = useAppSelector((state) => state.summary?.holdLoading);
+   const finalLoading = useAppSelector((state) => state.summary?.finalSubmitLoading);
   const holdAssemblyLoading = useAppSelector(
     (state) => state.summary?.holdAssemblyLoading,
   );
@@ -367,8 +371,6 @@ const BillingSummary = () => {
     dispatch(setIsData(true));
   };
 
-  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
-
   const handleReset = () => {
     setResetConfirmOpen(true);
   };
@@ -463,6 +465,37 @@ const BillingSummary = () => {
     };
     reader.readAsDataURL(uploadFile ?? new Blob());
   };
+
+  const handleFinalSubmit = () => {
+    try {
+      if (!dateRange || !dateRange[0] || !dateRange[1]) {
+        setDateError("Date range is required");
+        return;
+      }
+      setDateError("");
+
+      const finalBill = new FormData();
+
+      finalBill.append("fromDate", dayjs(dateRange[0]).format("DD-MM-YYYY"));
+      finalBill.append("toDate", dayjs(dateRange[1]).format("DD-MM-YYYY"));
+      finalBill.append("file", uploadFile ?? "");
+      const response = dispatch(onFinalSubmit(finalBill)).unwrap();
+      if (response?.data?.success) {
+        setFinalConfirmOpen(false);
+        dispatch(setIsData(false));
+        dispatch(resetBillingSummary());
+        setUploadFile(null);
+        showToast(
+          response?.data?.message || "Data Submitted successfully",
+          "success",
+        );
+      } else {
+        showToast(response?.data?.message || "Failed to submit data", "error");
+      }
+    } catch (error:any) {
+      showToast(error?.message || "Failed to submit data", "error");
+    }
+  }; // handleFinalSubmit
 
   return (
     <div className="grid  w-full grid-cols-[320px_3fr]  bg-white">
@@ -575,6 +608,19 @@ const BillingSummary = () => {
               Search
             </LoadingButton>
           </div>
+
+          <div className="mt-2">
+            <LoadingButton
+              type="button"
+              fullWidth
+              variant="contained"
+              disabled={!isData || finalLoading}
+              loadingPosition="center"
+              onClick={()=>setFinalConfirmOpen(true)}
+            >
+              Final Billing
+            </LoadingButton>
+          </div>
         </form>
 
         {/* Upload excel */}
@@ -671,6 +717,16 @@ const BillingSummary = () => {
         content="This will clear the device type, date range and search results. Do you want to continue?"
         cancelText="No"
         confirmText="Yes"
+      />
+      <ConfirmationModel
+        open={finalConfirmOpen}
+        onClose={() => setFinalConfirmOpen(false)}
+        onConfirm={handleFinalSubmit}
+        title=" Confirm billing submission"
+        content="Are you sure you want to submit this billing data? Please review the details before continuing. Once submitted, you may not be able to make changes."
+        cancelText="Cancel"
+        confirmText="Continue"
+        loading={finalLoading}
       />
     </div>
   );
