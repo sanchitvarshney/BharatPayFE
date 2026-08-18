@@ -28,15 +28,6 @@ import {
 
 const { RangePicker } = DatePicker;
 
-<<<<<<< HEAD
-const RawMaterialReport: React.FC = () => {
-  const [colapse, setcolapse] = useState<boolean>(false);
-  const [locations, setLocations] = useState<RawMaterialLocationType[]>([]);
-  const [components, setComponents] = useState<ComponentType[]>([]);
-  const [dateRange, setDateRange] = useState<
-    [Dayjs | null, Dayjs | null] | null
-  >(null);
-=======
 const RAW_MATERIAL_REPORT_FILTERS_KEY = "rawMaterialReportFilters";
 
 type StoredRawMaterialReportFilters = {
@@ -71,7 +62,6 @@ const RawMaterialReport: React.FC = () => {
       ? [dayjs(storedFilters.dateRange[0]), dayjs(storedFilters.dateRange[1])]
       : null,
   );
->>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   const [progressOpen, setProgressOpen] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
 
@@ -99,8 +89,6 @@ const RawMaterialReport: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-<<<<<<< HEAD
-=======
     const filters: StoredRawMaterialReportFilters = {
       locations,
       components,
@@ -122,7 +110,6 @@ const RawMaterialReport: React.FC = () => {
   }, []);
 
   useEffect(() => {
->>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
     const handleProgress = (data: {
       notificationId: string;
       percent: string;
