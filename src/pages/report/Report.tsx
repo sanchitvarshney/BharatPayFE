@@ -112,13 +112,13 @@ const Report: React.FC = () => {
     return <BillingReport />;
   }
   if (id === "R25") {
-    return <R23Report />
+    return <R23Report /> //XML Report
   }
   if(id === "R23"){
-    return <R24Report />
+    return <R24Report /> //TRC Report
   }
     if(id === "R24"){
-    return <R25Report />
+    return <R25Report /> // Physical Inventory
   }
   return <div>this is {id} Report</div>;
 };
