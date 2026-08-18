@@ -18,7 +18,7 @@ dayjs.extend(customParseFormat);
 const AssemblyAndTRC: React.FC = () => {
   const dispatch = useAppDispatch();
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
-  const [pageSize, setPageSize] = useState<number>(20);
+  const [pageSize, setPageSize] = useState<number>(10);
     const isFirstRender = useRef(true);
  const trcAssemblyLoading = useAppSelector(
     (state) => state.summary?.trcAssemblyLoading,
