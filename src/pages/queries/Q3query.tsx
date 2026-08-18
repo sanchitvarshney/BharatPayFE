@@ -3,10 +3,10 @@ import SelectComponent, { ComponentType } from "@/components/reusable/SelectComp
 import { Button } from "@/components/ui/button";
 import { getQ3DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { formatNumber } from "@/utils/numberFormatUtils";
 import { showToast } from "@/utils/toasterContext";
+import Q3ReportTable from "@/table/query/Q3ReportTable";
 import { LoadingButton } from "@mui/lab";
-import { List, ListItem, ListItemText, Skeleton, TextField, Typography } from "@mui/material";
+import { List, ListItem, ListItemText, TextField } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -18,6 +18,7 @@ const Q3query: React.FC = () => {
   const [date, setDate] = React.useState<Dayjs | null>(dayjs());
   const dispatch = useAppDispatch();
   const { q3data, q3DataLoading } = useAppSelector((state) => state.query);
+
   return (
     <div className="  h-[calc(100vh-100px)] bg-white relative">
       <div className={` h-full flex   `}>
@@ -68,6 +69,9 @@ const Q3query: React.FC = () => {
           </div>
           {q3data && (
             <List>
+                  <ListItem>
+                <ListItemText primary={"Total"} secondary={q3data?.locationQty.reduce((sum, item) => sum + Number(item.closeQty), 0)} />
+              </ListItem>
               <ListItem>
                 <ListItemText primary={"Part Code"} secondary={q3data?.component?.partCode} />
               </ListItem>
@@ -82,27 +86,10 @@ const Q3query: React.FC = () => {
         </div>
         {q3data ? (
           <div className="w-full">
-            <div className="flex items-center px-[20px] h-[60px] justify-between">
-              <Typography variant="h1" fontWeight={500} fontSize={18} component={"div"} className="">
-                Component Stock at locations as on  {dayjs(date).format("DD-MM-YYYY")}
-              </Typography>
-              <div className="flex items-center gap-[10px]">
-                <Typography>Total : </Typography>
-                <Typography>{formatNumber(q3data?.locationQty.reduce((sum, item) => sum + Number(item.closeQty), 0))}</Typography>
-              </div>
-            </div>
-            <div className="p-[20px] flex flex-wrap gap-[10px]">
-              {q3DataLoading
-                ? Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="w-[150px] min-h-[150px] " />)
-                : q3data?.locationQty.map((item, index) => (
-                    <div key={index} className="  h-[100px] max-w-max px-[50px]  rounded border bg-slate-50 flex flex-col gap-[5px] justify-center items-center">
-                      <Typography fontWeight={500}>{item.locationName}</Typography>
-                      <Typography fontWeight={500} className="text-slate-500">
-                        {formatNumber(item.closeQty)}
-                      </Typography>
-                    </div>
-                  ))}
-            </div>
+         
+          
+              <Q3ReportTable />
+        
           </div>
         ) : (
           <div className="flex items-center justify-center w-full h-full">

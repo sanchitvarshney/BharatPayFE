@@ -143,6 +143,7 @@ export const getAssableAndTRC = createAsyncThunk<
   return response;
 });
 
+<<<<<<< HEAD
 export const getBillingSummary = createAsyncThunk<
   AxiosResponse<any>,
   {
@@ -155,6 +156,20 @@ export const getBillingSummary = createAsyncThunk<
   );
   return response;
 });
+=======
+// export const getBillingSummary = createAsyncThunk<
+//   AxiosResponse<any>,
+//   {
+//     from: string;
+//     to: string;
+//   }
+// >("report/billing-full-summary", async (payload) => {
+//   const response = await axiosInstance.post(
+//     `/bill/billing/summary?fromDate=${payload.from}&toDate=${payload.to}`,
+//   );
+//   return response;
+// });
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
 
 export const uploadHoldPartConsumptionTRC = createAsyncThunk<
   AxiosResponse<any>,
@@ -202,6 +217,38 @@ export const uploadHoldPartConsumptionAssembly = createAsyncThunk<
   }
 });
 
+<<<<<<< HEAD
+=======
+export const getBillingSummary = createAsyncThunk<
+  AxiosResponse<any>,
+  FormData
+>("report/billing-full-summary", async (formData, { rejectWithValue }) => {
+  try {
+    const fromDate = formData.get("fromDate");
+    const toDate = formData.get("toDate");
+
+    const response = await axiosInstance.post(
+      `/bill/billing/summary?fromDate=${fromDate}&toDate=${toDate}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    return response;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      return rejectWithValue(error.response.data.message);
+    }
+    return rejectWithValue(error.message || "Upload failed");
+  }
+});
+
+
+
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
 const billingSlices = createSlice({
   name: "billing",
   initialState,
@@ -215,6 +262,20 @@ const billingSlices = createSlice({
     setTrcMode: (state, action) => {
       state.trcMode = action.payload;
     },
+<<<<<<< HEAD
+=======
+    resetBillingSummary: (state) => {
+      state.dateRange = null;
+      state.isData = false;
+      state.trcMode = "trc";
+      state.billingSummaryData = null;
+      state.billingSummaryLoading = false;
+      state.holdData = null;
+      state.holdLoading = false;
+      state.holdAssemblyData = null;
+      state.holdAssemblyLoading = false;
+    },
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   },
   extraReducers: (builder) => {
     builder
@@ -342,6 +403,11 @@ const billingSlices = createSlice({
   },
 });
 
+<<<<<<< HEAD
 export const { setDateRange, setIsData, setTrcMode } = billingSlices.actions;
+=======
+export const { setDateRange, setIsData, setTrcMode, resetBillingSummary } =
+  billingSlices.actions;
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
 
 export default billingSlices.reducer;

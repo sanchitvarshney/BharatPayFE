@@ -25,7 +25,11 @@ import BillingReport from "./BillingReport";
 import { useUser } from "@/hooks/useUser";
 import { visibaleArr } from "@/components/shared/Navslider";
 import NotPermissionPage from "../commonPages/NotPermissionPage";
+<<<<<<< HEAD
 import R22Report from "@/pages/report/R22Report";
+=======
+import R23Report from "./R23Report";
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
 import R24Report from "./R24Report";
 import R25Report from "./R25Report";
 
@@ -111,14 +115,19 @@ const Report: React.FC = () => {
     }
     return <BillingReport />;
   }
+<<<<<<< HEAD
   if (id === "R22") {
     return <R22Report  />
+=======
+  if (id === "R25") {
+    return <R23Report /> //XML Report
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   }
   if(id === "R23"){
-    return <R24Report />
+    return <R24Report /> //TRC Report
   }
     if(id === "R24"){
-    return <R25Report />
+    return <R25Report /> // Physical Inventory
   }
   return <div>this is {id} Report</div>;
 };

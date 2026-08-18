@@ -28,6 +28,7 @@ import {
 
 const { RangePicker } = DatePicker;
 
+<<<<<<< HEAD
 const RawMaterialReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [locations, setLocations] = useState<RawMaterialLocationType[]>([]);
@@ -35,6 +36,42 @@ const RawMaterialReport: React.FC = () => {
   const [dateRange, setDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >(null);
+=======
+const RAW_MATERIAL_REPORT_FILTERS_KEY = "rawMaterialReportFilters";
+
+type StoredRawMaterialReportFilters = {
+  locations: RawMaterialLocationType[];
+  components: ComponentType[];
+  dateRange: [string, string] | null;
+};
+
+const loadStoredFilters = (): StoredRawMaterialReportFilters | null => {
+  try {
+    const raw = localStorage.getItem(RAW_MATERIAL_REPORT_FILTERS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+const RawMaterialReport: React.FC = () => {
+  const storedFilters = loadStoredFilters();
+
+  const [colapse, setcolapse] = useState<boolean>(false);
+  const [locations, setLocations] = useState<RawMaterialLocationType[]>(
+    storedFilters?.locations ?? [],
+  );
+  const [components, setComponents] = useState<ComponentType[]>(
+    storedFilters?.components ?? [],
+  );
+  const [dateRange, setDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(
+    storedFilters?.dateRange
+      ? [dayjs(storedFilters.dateRange[0]), dayjs(storedFilters.dateRange[1])]
+      : null,
+  );
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   const [progressOpen, setProgressOpen] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
 
@@ -62,6 +99,30 @@ const RawMaterialReport: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    const filters: StoredRawMaterialReportFilters = {
+      locations,
+      components,
+      dateRange:
+        dateRange && dateRange[0] && dateRange[1]
+          ? [dateRange[0].toISOString(), dateRange[1].toISOString()]
+          : null,
+    };
+    localStorage.setItem(
+      RAW_MATERIAL_REPORT_FILTERS_KEY,
+      JSON.stringify(filters),
+    );
+  }, [locations, components, dateRange]);
+
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem(RAW_MATERIAL_REPORT_FILTERS_KEY);
+    };
+  }, []);
+
+  useEffect(() => {
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
     const handleProgress = (data: {
       notificationId: string;
       percent: string;

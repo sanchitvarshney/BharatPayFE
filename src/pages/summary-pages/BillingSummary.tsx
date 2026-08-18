@@ -17,6 +17,10 @@ import {
   setDateRange,
   setIsData,
   setTrcMode,
+<<<<<<< HEAD
+=======
+  resetBillingSummary,
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   uploadHoldPartConsumptionTRC,
   uploadHoldPartConsumptionAssembly,
 } from "@/features/summarySlice/billingSlices";
@@ -24,6 +28,13 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { showToast } from "@/utils/toasterContext";
+<<<<<<< HEAD
+=======
+import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+import { useSocketContext } from "@/components/context/SocketContext";
+import { Icons } from "@/components/icons";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
@@ -200,8 +211,15 @@ const billingSummaryCellStyle = (
 const BillingSummary = () => {
   const gridRef = useRef(null);
   const dispatch: any = useDispatch();
+<<<<<<< HEAD
   const [dateError, setDateError] = useState<string>("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+=======
+  const { isConnected, emitDownloadBillingSummaryReport } = useSocketContext();
+  const [dateError, setDateError] = useState<string>("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [downloading, setDownloading] = useState(false);
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const billingSummaryData = useAppSelector(
     (state) => state.summary?.billingSummaryData,
@@ -209,6 +227,10 @@ const BillingSummary = () => {
   const billingSummaryLoading = useAppSelector(
     (state) => state.summary?.billingSummaryLoading,
   );
+<<<<<<< HEAD
+=======
+  const isData = useAppSelector((state) => state.summary?.isData);
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   const holdLoading = useAppSelector((state) => state.summary?.holdLoading);
   const holdAssemblyLoading = useAppSelector(
     (state) => state.summary?.holdAssemblyLoading,
@@ -348,6 +370,7 @@ const BillingSummary = () => {
       return;
     }
     setDateError("");
+<<<<<<< HEAD
     await dispatch(
       getBillingSummary({
         from: dayjs(dateRange[0]).format("DD-MM-YYYY"),
@@ -362,6 +385,31 @@ const BillingSummary = () => {
     dispatch(setDateRange(null));
     setDateError("");
     dispatch(setIsData(false));
+=======
+
+    const billSearch = new FormData();
+
+    billSearch.append("file", uploadFile ?? "");
+    billSearch.append("fromDate", dayjs(dateRange[0]).format("DD-MM-YYYY"));
+    billSearch.append("toDate", dayjs(dateRange[1]).format("DD-MM-YYYY"));
+    await dispatch(getBillingSummary(billSearch)).unwrap();
+
+    dispatch(setIsData(true));
+  };
+
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
+  const handleReset = () => {
+    setResetConfirmOpen(true);
+  };
+
+  const handleConfirmReset = () => {
+    reset({ type: "soundbox" });
+    setUploadFile(null);
+    setDateError("");
+    dispatch(resetBillingSummary());
+    setResetConfirmOpen(false);
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   };
 
   const onExcelDrop = useCallback((acceptedFiles: File[]) => {
@@ -374,7 +422,11 @@ const BillingSummary = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onExcelDrop,
     multiple: false,
+<<<<<<< HEAD
     disabled: uploadLoading,
+=======
+    disabled: uploadLoading || isData,
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
     accept: {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
         ".xlsx",
@@ -389,6 +441,13 @@ const BillingSummary = () => {
 
   const handleUpload = async () => {
     if (!uploadFile) return;
+<<<<<<< HEAD
+=======
+    if (dateRange?.length !== 2) {
+      showToast("Please select date range", "error");
+      return;
+    }
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
 
     const trcFormData = new FormData();
     trcFormData.append("file", uploadFile);
@@ -405,7 +464,10 @@ const BillingSummary = () => {
 
     if (trcSuccess && assemblySuccess) {
       showToast("Data generated successfully", "success");
+<<<<<<< HEAD
       setUploadFile(null);
+=======
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
     } else if (trcSuccess || assemblySuccess) {
       showToast(
         "Some data could not be generated. Please check and try again.",
@@ -419,6 +481,34 @@ const BillingSummary = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleDownloadReport = () => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      showToast("Please select date range", "error");
+      return;
+    }
+
+    setDownloading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileBase64 = (reader.result as string)?.split(",")[1] ?? "";
+      emitDownloadBillingSummaryReport({
+        fromDate: dayjs(dateRange[0]).format("DD-MM-YYYY"),
+        toDate: dayjs(dateRange[1]).format("DD-MM-YYYY"),
+        fileBase64,
+      });
+      showToast("Download started", "success");
+      setDownloading(false);
+    };
+    reader.onerror = () => {
+      showToast("Failed to read the uploaded file", "error");
+      setDownloading(false);
+    };
+    reader.readAsDataURL(uploadFile ?? new Blob());
+  };
+
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
   return (
     <div className="grid  w-full grid-cols-[320px_3fr]  bg-white">
       <div className="w-full border-r border-neutral-300">
@@ -439,6 +529,10 @@ const BillingSummary = () => {
                     fullWidth
                     value={field.value}
                     onChange={field.onChange}
+<<<<<<< HEAD
+=======
+                    disabled={isData}
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
                     sx={{
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: "rgb(203 213 225)",
@@ -473,9 +567,16 @@ const BillingSummary = () => {
                 format="DD-MM-YYYY"
                 placeholder={["Start date", "End date"]}
                 value={dateRange}
+<<<<<<< HEAD
                 onChange={(dates) => {
                   dispatch(setDateRange(dates));
                    dispatch(setTrcMode("trc"))
+=======
+                disabled={isData}
+                onChange={(dates) => {
+                  dispatch(setDateRange(dates));
+                  dispatch(setTrcMode("trc"));
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
                   dispatch(setIsData(false));
                   if (dates && dates[0] && dates[1]) {
                     setDateError("");
@@ -489,6 +590,23 @@ const BillingSummary = () => {
             </div>
           </div>
           <div className="h-[50px] p-0 flex items-center px-[0px] gap-[10px] justify-end">
+<<<<<<< HEAD
+=======
+            <MuiTooltip title="Download Report" placement="top">
+              <span className="mr-auto">
+                <IconButton
+                  onClick={handleDownloadReport}
+                  disabled={!isConnected || downloading}
+                  sx={{
+                    border: "1px solid rgb(203 213 225)",
+                    borderRadius: "4px",
+                  }}
+                >
+                  <Icons.download fontSize="small" />
+                </IconButton>
+              </span>
+            </MuiTooltip>
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
             <LoadingButton
               loadingPosition="start"
               type="button"
@@ -506,6 +624,10 @@ const BillingSummary = () => {
               variant="contained"
               loading={billingSummaryLoading}
               loadingPosition="center"
+<<<<<<< HEAD
+=======
+              disabled={isData}
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
               sx={{
                 minWidth: "100px",
               }}
@@ -513,7 +635,10 @@ const BillingSummary = () => {
               Search
             </LoadingButton>
           </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
         </form>
 
         {/* Upload excel */}
@@ -522,8 +647,17 @@ const BillingSummary = () => {
             Upload Excel
           </label>
 
+<<<<<<< HEAD
           <Alert severity="warning" sx={{ fontSize: "12px", py: 0.5 }}>
             If you want whole device data then upload excel file
+=======
+          <Alert
+            severity="warning"
+            sx={{ fontSize: "12px", py: 0.5, fontWeight: 600 }}
+          >
+            If you want to get hold device bill you have to upload excel file
+            before billing.
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
           </Alert>
 
           <div
@@ -558,7 +692,11 @@ const BillingSummary = () => {
               </div>
               <IconButton
                 size="small"
+<<<<<<< HEAD
                 disabled={uploadLoading}
+=======
+                disabled={uploadLoading || isData}
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
                 onClick={handleRemoveUploadFile}
               >
                 <DeleteIcon fontSize="small" color="error" />
@@ -570,7 +708,11 @@ const BillingSummary = () => {
             type="button"
             fullWidth
             variant="contained"
+<<<<<<< HEAD
             disabled={!uploadFile}
+=======
+            disabled={!uploadFile || isData}
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
             loading={uploadLoading}
             loadingPosition="center"
             onClick={handleUpload}
@@ -598,6 +740,18 @@ const BillingSummary = () => {
           />
         </div>
       </div>
+<<<<<<< HEAD
+=======
+      <ConfirmationModel
+        open={resetConfirmOpen}
+        onClose={() => setResetConfirmOpen(false)}
+        onConfirm={handleConfirmReset}
+        title="Reset all data?"
+        content="This will clear the device type, date range and search results. Do you want to continue?"
+        cancelText="No"
+        confirmText="Yes"
+      />
+>>>>>>> 1a2f8ba250753aedbe8988243d040eb864f1b428
     </div>
   );
 };
