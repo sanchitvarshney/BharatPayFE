@@ -28,13 +28,40 @@ import {
 
 const { RangePicker } = DatePicker;
 
+const RAW_MATERIAL_REPORT_FILTERS_KEY = "rawMaterialReportFilters";
+
+type StoredRawMaterialReportFilters = {
+  locations: RawMaterialLocationType[];
+  components: ComponentType[];
+  dateRange: [string, string] | null;
+};
+
+const loadStoredFilters = (): StoredRawMaterialReportFilters | null => {
+  try {
+    const raw = localStorage.getItem(RAW_MATERIAL_REPORT_FILTERS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
 const RawMaterialReport: React.FC = () => {
+  const storedFilters = loadStoredFilters();
+
   const [colapse, setcolapse] = useState<boolean>(false);
-  const [locations, setLocations] = useState<RawMaterialLocationType[]>([]);
-  const [components, setComponents] = useState<ComponentType[]>([]);
+  const [locations, setLocations] = useState<RawMaterialLocationType[]>(
+    storedFilters?.locations ?? [],
+  );
+  const [components, setComponents] = useState<ComponentType[]>(
+    storedFilters?.components ?? [],
+  );
   const [dateRange, setDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
-  >(null);
+  >(
+    storedFilters?.dateRange
+      ? [dayjs(storedFilters.dateRange[0]), dayjs(storedFilters.dateRange[1])]
+      : null,
+  );
   const [progressOpen, setProgressOpen] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
 
@@ -60,6 +87,27 @@ const RawMaterialReport: React.FC = () => {
   useEffect(() => {
     dispatch(fetchRawMaterialLocations());
   }, [dispatch]);
+
+  useEffect(() => {
+    const filters: StoredRawMaterialReportFilters = {
+      locations,
+      components,
+      dateRange:
+        dateRange && dateRange[0] && dateRange[1]
+          ? [dateRange[0].toISOString(), dateRange[1].toISOString()]
+          : null,
+    };
+    localStorage.setItem(
+      RAW_MATERIAL_REPORT_FILTERS_KEY,
+      JSON.stringify(filters),
+    );
+  }, [locations, components, dateRange]);
+
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem(RAW_MATERIAL_REPORT_FILTERS_KEY);
+    };
+  }, []);
 
   useEffect(() => {
     const handleProgress = (data: {
