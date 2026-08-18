@@ -26,6 +26,9 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { showToast } from "@/utils/toasterContext";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
+import { useSocketContext } from "@/components/context/SocketContext";
+import { Icons } from "@/components/icons";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
@@ -202,8 +205,10 @@ const billingSummaryCellStyle = (
 const BillingSummary = () => {
   const gridRef = useRef(null);
   const dispatch: any = useDispatch();
+  const { isConnected, emitDownloadBillingSummaryReport } = useSocketContext();
   const [dateError, setDateError] = useState<string>("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [downloading, setDownloading] = useState(false);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const billingSummaryData = useAppSelector(
     (state) => state.summary?.billingSummaryData,
@@ -434,6 +439,31 @@ const BillingSummary = () => {
     }
   };
 
+  const handleDownloadReport = () => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      showToast("Please select date range", "error");
+      return;
+    }
+
+    setDownloading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileBase64 = (reader.result as string)?.split(",")[1] ?? "";
+      emitDownloadBillingSummaryReport({
+        fromDate: dayjs(dateRange[0]).format("DD-MM-YYYY"),
+        toDate: dayjs(dateRange[1]).format("DD-MM-YYYY"),
+        fileBase64,
+      });
+      showToast("Download started", "success");
+      setDownloading(false);
+    };
+    reader.onerror = () => {
+      showToast("Failed to read the uploaded file", "error");
+      setDownloading(false);
+    };
+    reader.readAsDataURL(uploadFile ?? new Blob());
+  };
+
   return (
     <div className="grid  w-full grid-cols-[320px_3fr]  bg-white">
       <div className="w-full border-r border-neutral-300">
@@ -506,6 +536,20 @@ const BillingSummary = () => {
             </div>
           </div>
           <div className="h-[50px] p-0 flex items-center px-[0px] gap-[10px] justify-end">
+            <MuiTooltip title="Download Report" placement="top">
+              <span className="mr-auto">
+                <IconButton
+                  onClick={handleDownloadReport}
+                  disabled={!isConnected || downloading}
+                  sx={{
+                    border: "1px solid rgb(203 213 225)",
+                    borderRadius: "4px",
+                  }}
+                >
+                  <Icons.download fontSize="small" />
+                </IconButton>
+              </span>
+            </MuiTooltip>
             <LoadingButton
               loadingPosition="start"
               type="button"
@@ -539,8 +583,12 @@ const BillingSummary = () => {
             Upload Excel
           </label>
 
-          <Alert severity="warning" sx={{ fontSize: "12px", py: 0.5 }}>
-            If you want whole device data then upload excel file
+          <Alert
+            severity="warning"
+            sx={{ fontSize: "12px", py: 0.5, fontWeight: 600 }}
+          >
+            If you want to get hold device bill you have to upload excel file
+            before billing.
           </Alert>
 
           <div
