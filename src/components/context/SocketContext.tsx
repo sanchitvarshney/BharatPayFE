@@ -62,6 +62,19 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log("clicked");
     socketService.emit("r4Download", payload);
   };
+    const emitDownloadTRCReport = (payload: any) => {
+    console.log("clicked");
+    socketService.emit("trcPercentageDownload", payload);
+  };
+    const emitDownloadPartCodeConversionReport = (payload: any) => {
+    console.log("clicked");
+    socketService.emit("partConversionReportDownload", payload);
+  };
+
+  const emitDownloadRawMaterialReport = (payload: any) => {
+    console.log("clicked");
+    socketService.emit("materialReportDownload", payload);
+  };
 
   const emitDownloadQ2Report = (payload: any) => {
     
@@ -186,6 +199,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log(payload);
     socketService.emit("imageCaptureReport", payload);
   };
+  const emitAwbReportDownload = (payload: any) => {
+    console.log(payload);
+    socketService.emit("awbReportDownload", payload);
+  };
 
   const onnotification = (callback: (data: NotificationData[]) => void) => {
     socketService.on("socket_receive_notification", callback);
@@ -233,7 +250,11 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadQ2Report,
         emitDownloadBillingReport,
         emitDownloadBillingReportSound,
-        emitFqcDeviceImageDownload
+        emitFqcDeviceImageDownload,
+        emitDownloadPartCodeConversionReport,
+        emitDownloadRawMaterialReport,
+        emitDownloadTRCReport,
+        emitAwbReportDownload
       }}
     >
       {children}

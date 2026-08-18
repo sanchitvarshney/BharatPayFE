@@ -114,7 +114,7 @@ export const syncWorkerReport = createAsyncThunk<AxiosResponse<any>>(
     return response;
   },
 );
-export const getWorkerReport = createAsyncThunk<AxiosResponse<any>>(
+export const getWorkerReport = createAsyncThunk<AxiosResponse<any>, any>(
   "master/place/worker-data/report",
   async (payload: any) => {
     const response = await axiosInstance.get(
@@ -304,9 +304,7 @@ const placeSlice = createSlice({
       })
       .addCase(getWorkerReport.fulfilled, (state,action) => {
         state.isReportLoading = false;
-          if (action.payload.data.status) {
-          state.workerReports = action.payload.data.data;
-        }
+        state.workerReports = action.payload.data.data ?? [];
       })
       .addCase(getWorkerReport.rejected, (state) => {
         state.isReportLoading = false;

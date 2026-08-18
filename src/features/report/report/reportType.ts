@@ -118,6 +118,19 @@ export type r3reportResponse = {
     totalRecords: number;
   };
 };
+type r25report = {
+  IMEI: string;
+  SERIAL: string;
+  MODEL: string;
+  insert_dt: string;
+  insert_by: string;
+};
+
+export type r25reportResponse = {
+  success: boolean;
+  status: string;
+  data: r25report[];
+};
 
 export type R4ReportResponse = {
   success: boolean;
@@ -363,6 +376,8 @@ export type ReportStateType = {
   refId: string | null;
   r3report: r3reportResponse | null;
   r3reportLoading: boolean;
+  r25report: r3reportResponse | null;
+  r25reportLoading: boolean;
   r4report: R4ReportResponse | null;
   r4reportLoading: boolean;
   r4ReportDetail: r4reportDetailData | null;

@@ -85,6 +85,9 @@ type ComponentData = {
   locationQty: Array<{
     locationName: string;
     closeQty: number;
+    openingBalance: number;
+    totalIn: number;
+    totalOut: number;
   }>;
 };
 

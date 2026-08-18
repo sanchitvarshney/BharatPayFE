@@ -20,8 +20,12 @@ const { RangePicker } = DatePicker;
 type Props = {
   deviceType: string;
   deviceTypeReport: string;
+  filterBy: string;
+  onChangeFilterBy: (value: string) => void;
   serialNo: string;
   loading: boolean;
+  dateRangeFilter: { from: Dayjs | null; to: Dayjs | null };
+  onDateRangeFilterChange: (range: { from: Dayjs | null; to: Dayjs | null }) => void;
   onDeviceTypeChange: (value: string) => void;
   onSerialNoChange: (value: string) => void;
   onSearch: () => void;
@@ -35,6 +39,8 @@ type Props = {
 const FqcDeviceImageSearchForm: React.FC<Props> = ({
   deviceType,
   deviceTypeReport,
+  filterBy,
+  onChangeFilterBy,
   serialNo,
   loading,
   onDeviceTypeChange,
@@ -42,6 +48,8 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
   onSearch,
   dateRange,
   onDateRangeChange,
+    dateRangeFilter,
+  onDateRangeFilterChange,
   isConnected,
   onBulkDownload,
   onChangeDeviceType,
@@ -73,8 +81,29 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
               </Select>
             </FormControl>
           </div>
-
-          <div className="flex flex-col gap-[10px]">
+   <div className="flex flex-col gap-[10px]">
+            <Typography
+              variant="subtitle1"
+              className="text-slate-600 font-medium"
+            >
+              Filter By
+            </Typography>
+            <FormControl fullWidth>
+              <Select
+                value={filterBy}
+                onChange={(e) => onChangeFilterBy(e.target.value)}
+                displayEmpty
+                inputProps={{ "aria-label": "Filter By" }}
+                sx={selectSx}
+              >
+            
+                <MenuItem value="DATE">Date</MenuItem>
+                <MenuItem value="dsn">Serial Number</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+         {
+          filterBy !== "DATE" ? ( <div className="flex flex-col gap-[10px]">
             <Typography
               variant="subtitle1"
               className="text-slate-600 font-medium"
@@ -88,7 +117,29 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
               onChange={(e) => onSerialNoChange(e.target.value)}
               sx={fieldSx}
             />
-          </div>
+          </div >) : ( <div className="flex items-center gap-[10px]">
+              <RangePicker
+                placement="bottomRight"
+                className="w-full h-[50px] border-[2px] rounded-sm"
+                format="DD-MM-YYYY"
+                placeholder={["Start date", "End Date"]}
+                value={
+                  dateRangeFilter.from && dateRangeFilter.to
+                    ? [dateRangeFilter.from, dateRangeFilter.to]
+                    : null
+                }
+                onChange={(range: [Dayjs | null, Dayjs | null] | null) => {
+                  if (range) {
+                    onDateRangeFilterChange({ from: range[0], to: range[1] });
+                  } else {
+                    onDateRangeFilterChange({ from: null, to: null });
+                  }
+                }}
+                presets={rangePresets}
+              />
+            </div> ) 
+       
+         }
 
           <div className="flex justify-start">
             <LoadingButton

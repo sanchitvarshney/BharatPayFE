@@ -1,0 +1,23 @@
+// vite.config.ts
+import path from "path";
+import react from "file:///C:/Users/shivk/OneDrive/Desktop/Project/BharatPayFE/node_modules/@vitejs/plugin-react/dist/index.js";
+import { defineConfig } from "file:///C:/Users/shivk/OneDrive/Desktop/Project/BharatPayFE/node_modules/vite/dist/node/index.js";
+import { sentryVitePlugin } from "file:///C:/Users/shivk/OneDrive/Desktop/Project/BharatPayFE/node_modules/@sentry/vite-plugin/dist/esm/index.mjs";
+var __vite_injected_original_dirname = "C:\\Users\\shivk\\OneDrive\\Desktop\\Project\\BharatPayFE";
+var vite_config_default = defineConfig({
+  plugins: [react(), sentryVitePlugin({
+    org: "mscorpres-automation-pvt-ltd",
+    project: "bharatpay",
+    // Auth token from SENTRY_AUTH_TOKEN env var (set in CI/build environment)
+    authToken: process.env.VITE_SENTRY_AUTH_TOKEN
+  })],
+  resolve: {
+    alias: {
+      "@": path.resolve(__vite_injected_original_dirname, "./src")
+    }
+  }
+});
+export {
+  vite_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZS5jb25maWcudHMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImNvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9kaXJuYW1lID0gXCJDOlxcXFxVc2Vyc1xcXFxzaGl2a1xcXFxPbmVEcml2ZVxcXFxEZXNrdG9wXFxcXFByb2plY3RcXFxcQmhhcmF0UGF5RkVcIjtjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfZmlsZW5hbWUgPSBcIkM6XFxcXFVzZXJzXFxcXHNoaXZrXFxcXE9uZURyaXZlXFxcXERlc2t0b3BcXFxcUHJvamVjdFxcXFxCaGFyYXRQYXlGRVxcXFx2aXRlLmNvbmZpZy50c1wiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9pbXBvcnRfbWV0YV91cmwgPSBcImZpbGU6Ly8vQzovVXNlcnMvc2hpdmsvT25lRHJpdmUvRGVza3RvcC9Qcm9qZWN0L0JoYXJhdFBheUZFL3ZpdGUuY29uZmlnLnRzXCI7aW1wb3J0IHBhdGggZnJvbSBcInBhdGhcIlxyXG5pbXBvcnQgcmVhY3QgZnJvbSBcIkB2aXRlanMvcGx1Z2luLXJlYWN0XCJcclxuaW1wb3J0IHsgZGVmaW5lQ29uZmlnIH0gZnJvbSBcInZpdGVcIlxyXG5pbXBvcnQgeyBzZW50cnlWaXRlUGx1Z2luIH0gZnJvbSBcIkBzZW50cnkvdml0ZS1wbHVnaW5cIjtcclxuXHJcbmV4cG9ydCBkZWZhdWx0IGRlZmluZUNvbmZpZyh7XHJcbiAgcGx1Z2luczogW3JlYWN0KCksIHNlbnRyeVZpdGVQbHVnaW4oe1xyXG4gICAgICBvcmc6IFwibXNjb3JwcmVzLWF1dG9tYXRpb24tcHZ0LWx0ZFwiLFxyXG4gICAgICBwcm9qZWN0OiBcImJoYXJhdHBheVwiLFxyXG4gICAgICAvLyBBdXRoIHRva2VuIGZyb20gU0VOVFJZX0FVVEhfVE9LRU4gZW52IHZhciAoc2V0IGluIENJL2J1aWxkIGVudmlyb25tZW50KVxyXG4gICAgICBhdXRoVG9rZW46IHByb2Nlc3MuZW52LlZJVEVfU0VOVFJZX0FVVEhfVE9LRU4sXHJcbiAgICB9KSxdLFxyXG4gIHJlc29sdmU6IHtcclxuICAgIGFsaWFzOiB7XHJcbiAgICAgIFwiQFwiOiBwYXRoLnJlc29sdmUoX19kaXJuYW1lLCBcIi4vc3JjXCIpLFxyXG4gICAgfSxcclxuICB9LFxyXG59KVxyXG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQXlWLE9BQU8sVUFBVTtBQUMxVyxPQUFPLFdBQVc7QUFDbEIsU0FBUyxvQkFBb0I7QUFDN0IsU0FBUyx3QkFBd0I7QUFIakMsSUFBTSxtQ0FBbUM7QUFLekMsSUFBTyxzQkFBUSxhQUFhO0FBQUEsRUFDMUIsU0FBUyxDQUFDLE1BQU0sR0FBRyxpQkFBaUI7QUFBQSxJQUNoQyxLQUFLO0FBQUEsSUFDTCxTQUFTO0FBQUE7QUFBQSxJQUVULFdBQVcsUUFBUSxJQUFJO0FBQUEsRUFDekIsQ0FBQyxDQUFFO0FBQUEsRUFDTCxTQUFTO0FBQUEsSUFDUCxPQUFPO0FBQUEsTUFDTCxLQUFLLEtBQUssUUFBUSxrQ0FBVyxPQUFPO0FBQUEsSUFDdEM7QUFBQSxFQUNGO0FBQ0YsQ0FBQzsiLAogICJuYW1lcyI6IFtdCn0K

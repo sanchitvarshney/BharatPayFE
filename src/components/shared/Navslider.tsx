@@ -55,9 +55,15 @@ export const navSliderData: NavSliderData[] = [
   { path: "/report/R21", name: "R21", content: <p>AWB Scan SKU Report</p> },
   { path: "/report/R22", name: "R22", content: <p>Billing Report</p> },
   {
-    path: "/report/R23",
-    name: "R23",
+    path: "/report/R25",
+    name: "R25",
     content: <p>XML Report</p>,
+  },
+  { path: "/report/R23", name: "R23", content: <p>TRC Report</p> },
+  {
+    path: "/report/R24",
+    name: "R24",
+    content: <p>Physical Inventory Report</p>,
   },
 ];
 
@@ -72,7 +78,7 @@ const NavSlider: React.FC = () => {
 
   // Determine the current tab index based on the current route
   const currentTabIndex = navSliderData.findIndex(
-    (tab) => tab.path === location.pathname
+    (tab) => tab.path === location.pathname,
   );
 
   // Handle tab change

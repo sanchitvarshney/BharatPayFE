@@ -55,7 +55,7 @@ const R7Report: React.FC = () => {
           fontWeight={400}
           className="text-center"
         >
-         This report provides raw material stock data based on date and location. <br /> (If no location is selected, the stock data for all locations will be displayed.)
+         This report provides raw material stock data based on date and location. <br /> (If location is not selected, the stock data for all locations will be displayed.)
         </Typography>
         <SelectLocation
           value={location}

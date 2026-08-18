@@ -146,7 +146,7 @@ const R6reportTable: React.FC<Props> = ({
       const header = r6Data?.data?.header; // Headers from API response
       const data = r6Data?.data?.data; // Row data from API response
       const filteredHeader = header?.filter(
-        (col: string) => col !== "Print" && col !== "Transaction ID"
+        (col: string) => col !== "Print" && col !== "Transaction ID" && col !== "Invoice File"
       );
       // Dynamically create column definitions based on the header
       const dynamicColumnDefs: ColDef[] = filteredHeader?.map(
@@ -185,7 +185,7 @@ const R6reportTable: React.FC<Props> = ({
                           size="small"
                           onClick={() => {
                             window.open(
-                              params.data["Invoice File Date"],
+                              params.data["Invoice File"],
                               "_blank",
                               "noopener,noreferrer"
                             );
@@ -215,6 +215,8 @@ const R6reportTable: React.FC<Props> = ({
               (col === "Rate" && params.data.Rate)
             ) {
               return formatNumber(params.value);
+            } else if(col === "Invoice File" && params.data["Invoice File"]){
+              return;
             } else {
               return params.value; // Display value for other columns
             }
