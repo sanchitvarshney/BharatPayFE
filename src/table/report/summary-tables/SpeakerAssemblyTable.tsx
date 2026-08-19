@@ -88,9 +88,9 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
       </div>
       {speakerAssemblyData?.pagination && (
         <CustomPagination
-          currentPage={speakerAssemblyData?.pagination?.currentPage as any}
-          totalPages={speakerAssemblyData?.pagination?.totalPages as any}
-          totalRecords={speakerAssemblyData?.pagination?.totalRecords as any}
+          currentPage={speakerAssemblyData?.pagination?.currentPage as any || 0}
+          totalPages={speakerAssemblyData?.pagination?.totalPages as any || 0}
+          totalRecords={speakerAssemblyData?.pagination?.totalRecords as any || 0}
           onPageChange={handlePageChange}
           pageSize={10}
           isLimit={false}

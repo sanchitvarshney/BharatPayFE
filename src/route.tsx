@@ -151,6 +151,7 @@ import SpeakerAssembly from "./pages/summary-pages/SpeakerAssembly";
 import Trc from "./pages/summary-pages/Trc";
 import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
 import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
+import PreviousBilling from "./pages/summary-pages/PreviousBilling";
 
 
 export const router = createBrowserRouter([
@@ -729,7 +730,7 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <SummaryLayout>
-            <Custom404Page />
+            <PreviousBilling />
             </SummaryLayout>
           </MainLayout>
         ),

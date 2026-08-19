@@ -5,6 +5,8 @@ import { AxiosResponse } from "axios";
 interface initialStateType {
   speakerAssemblyData: any;
   speakerAssemblyLoading: boolean;
+    previousBillingData: any;
+  previousBillingLoading: boolean;
   speakerAssemblyRangeKey: string | null;
   trcData: any;
   trcLoading: boolean;
@@ -36,6 +38,8 @@ export const rangeKey = (from: string, to: string): string => `${from}_${to}`;
 const initialState: initialStateType = {
   speakerAssemblyData: null,
   speakerAssemblyLoading: false,
+  previousBillingData: null,
+  previousBillingLoading: false,
   speakerAssemblyRangeKey: null,
   trcData: null,
   trcLoading: false,
@@ -102,6 +106,18 @@ export const getAssembly = createAsyncThunk<
 >("report/billing-assembly", async (payload) => {
   const response = await axiosInstance.get(
     `/bill/part-consumption/trc?fromDate=${payload.from}&toDate=${payload.to}&page=${payload.page}&limit=${payload.limit}`,
+  );
+  return response;
+});
+export const getPreviousBilling = createAsyncThunk<
+  AxiosResponse<any>,
+  {
+    page: number;
+    limit: number;
+  }
+>("report/billing-previous", async (payload) => {
+  const response = await axiosInstance.get(
+    `/bill/previous-bills?page=${payload.page}&limit=${payload.limit}`,
   );
   return response;
 });
@@ -443,6 +459,18 @@ const billingSlices = createSlice({
       })
       .addCase(onFinalSubmit.rejected, (state) => {
         state.finalSubmitLoading = false;
+      })  .addCase(getPreviousBilling.pending, (state) => {
+        state.previousBillingLoading = true;
+      })
+      .addCase(getPreviousBilling.fulfilled, (state, action) => {
+        state.previousBillingLoading = false;
+
+        if (action.payload.data.success) {
+          state.previousBillingData = action.payload.data;
+        }
+      })
+      .addCase(getPreviousBilling.rejected, (state) => {
+        state.previousBillingLoading = false;
       });
   },
 });
