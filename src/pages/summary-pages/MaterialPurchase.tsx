@@ -24,6 +24,8 @@ const MaterialPurchase: React.FC = () => {
   const materialRangeKey = useAppSelector(
     (state) => state.summary?.materialRangeKey,
   );
+    const tabValue = useAppSelector((state) => state.summary?.tabValue);
+
   // const [pageSize, setPageSize] = useState<number>(20);
 
   const gridRef = useRef<AgGridReact<any>>(null);
@@ -90,7 +92,7 @@ const MaterialPurchase: React.FC = () => {
   };
 
   return (
-    <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
+    <div className={`bg-white ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-255px)]"}  p-1 flex flex-col`}>
     <div className="flex items-center justify-between">
         <DateRangeBadge dateRange={dateRange} />
         <Tooltip title="Refresh">

@@ -82,6 +82,7 @@ const MaterialPurchaseTable: React.FC<Props> = ({
   const { materialData, materialLoading } = useAppSelector(
     (state) => state.summary,
   );
+    const tabValue = useAppSelector((state) => state.summary?.tabValue);
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -96,7 +97,7 @@ const MaterialPurchaseTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-142px)]">
+      <div className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-195px)]"}`}>
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}

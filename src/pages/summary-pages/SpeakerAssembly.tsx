@@ -18,13 +18,15 @@ import {
 type ViewMode = "trc" | "hold";
 
 const SpeakerAssembly: React.FC = () => {
-  const [pageSize, setPageSize] = useState<number>(20);
   const [mode, setMode] = useState<ViewMode>("trc");
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const speakerAssemblyData = useAppSelector(
     (state) => state.summary?.speakerAssemblyData,
+  );
+    const tabValue = useAppSelector(
+    (state) => state.summary?.tabValue,
   );
   const speakerAssemblyLoading = useAppSelector(
     (state) => state.summary?.speakerAssemblyLoading,
@@ -58,11 +60,11 @@ const SpeakerAssembly: React.FC = () => {
         from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
         page: 1,
-        limit: pageSize,
+        limit: 10,
       }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, dateRange, pageSize]);
+  }, [dispatch, dateRange]);
 
   const handlePageChange = (page: number) => {
     dispatch(
@@ -71,22 +73,11 @@ const SpeakerAssembly: React.FC = () => {
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
 
         page: page,
-        limit: pageSize,
+        limit: 10,
       }),
     );
   };
 
-  const handlePageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize);
-    dispatch(
-      getSpeakerAssembly({
-        from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
-        to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
-        page: 1,
-        limit: pageSize,
-      }),
-    );
-  };
 
   const handleRefresh = () => {
     dispatch(
@@ -94,13 +85,13 @@ const SpeakerAssembly: React.FC = () => {
         from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
         page: 1,
-        limit: pageSize,
+        limit: 10,
       }),
     );
   };
 
   return (
-    <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
+    <div className={`bg-white ${tabValue === "preview" ? "h-[calc(100vh-100px)] " : "h-[calc(100vh-155px)]"} p-1 flex flex-col`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <SegmentedToggle
@@ -134,8 +125,7 @@ const SpeakerAssembly: React.FC = () => {
           <SpeakerAssemblyTable
             gridRef={gridRef}
             handlePageChange={handlePageChange}
-            handlePageSizeChange={handlePageSizeChange}
-            pageSize={pageSize}
+          
           />
         ) : (
           <HoldPartConsumptionAssemblyTable />
