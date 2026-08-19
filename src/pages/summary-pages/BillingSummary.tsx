@@ -617,7 +617,7 @@ const BillingSummary = () => {
               type="button"
               fullWidth
               variant="contained"
-              disabled={!isData || finalLoading}
+              disabled={ true ||!isData || finalLoading}
               loadingPosition="center"
               onClick={()=>setFinalConfirmOpen(true)}
             >
