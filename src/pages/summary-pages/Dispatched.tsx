@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs from "dayjs";
 import { AgGridReact } from "@ag-grid-community/react";
@@ -23,10 +23,12 @@ const Dispatched: React.FC = () => {
   const dispatchedLoading = useAppSelector(
     (state) => state.summary?.dispatchedLoading,
   );
+    const tabValue = useAppSelector(
+    (state) => state.summary?.tabValue,
+  );
   const dispatchedRangeKey = useAppSelector(
     (state) => state.summary?.dispatchedRangeKey,
   );
-  const [pageSize, setPageSize] = useState<number>(20);
 
   const gridRef = useRef<AgGridReact<any>>(null);
   const isFirstRender = useRef(true);
@@ -38,27 +40,14 @@ const Dispatched: React.FC = () => {
           from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
           to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
           page: page,
-          limit: pageSize,
-        }),
-      );
-    },
-    [dispatch, dateRange, pageSize],
-  );
-
-  const handlePageSizeChange = useCallback(
-    (newPageSize: number) => {
-      setPageSize(newPageSize);
-      dispatch(
-        getDispatchedSummary({
-          from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
-          to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
-          page: 1,
-          limit: newPageSize,
+          limit: 10,
         }),
       );
     },
     [dispatch, dateRange],
   );
+
+
 
   useEffect(() => {
     if (!dateRange || !dateRange[0] || !dateRange[1]) {
@@ -83,11 +72,11 @@ const Dispatched: React.FC = () => {
         from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
         page: 1,
-        limit: pageSize,
+        limit: 10,
       }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, dateRange, pageSize]);
+  }, [dispatch, dateRange]);
 
   const handleRefresh = () => {
     dispatch(
@@ -95,13 +84,13 @@ const Dispatched: React.FC = () => {
         from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
         page: 1,
-        limit: pageSize,
+        limit: 10,
       }),
     );
   };
 
   return (
-    <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
+    <div className={`bg-white ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-155px)]"}  p-1 flex flex-col`}>
       <div className="flex items-center justify-between">
         <DateRangeBadge dateRange={dateRange} />
         <Tooltip title="Refresh">
@@ -118,8 +107,7 @@ const Dispatched: React.FC = () => {
         <DispatchedTable
           gridRef={gridRef}
           handlePageChange={handlePageChange}
-          handlePageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
+     
         />
       </div>
     </div>

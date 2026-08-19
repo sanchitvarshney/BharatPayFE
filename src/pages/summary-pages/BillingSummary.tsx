@@ -216,6 +216,9 @@ const BillingSummary = () => {
   const billingSummaryData = useAppSelector(
     (state) => state.summary?.billingSummaryData,
   );
+   const tabValue = useAppSelector(
+    (state) => state.summary?.tabValue,
+  );
   const billingSummaryLoading = useAppSelector(
     (state) => state.summary?.billingSummaryLoading,
   );
@@ -690,7 +693,7 @@ const BillingSummary = () => {
           </LoadingButton>
         </div>
       </div>
-      <div className="flex flex-col w-full min-h-0 h-[calc(100vh-100px)]">
+      <div className={`flex flex-col w-full min-h-0  ${tabValue === "preview" ?  "h-[calc(100vh-100px)]" : "h-[calc(100vh-150px)]"}` }>
         <div className="ag-theme-quartz billing-summary-grid flex-1 min-h-0">
           <AgGridReact
             ref={gridRef}

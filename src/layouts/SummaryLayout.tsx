@@ -9,6 +9,8 @@ import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { memo } from "react";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { useDispatch } from "react-redux";
+import { setTabValue } from "@/features/summarySlice/billingSlices";
 type Props = {
   children: React.ReactNode;
 };
@@ -16,8 +18,9 @@ type Props = {
 const SummaryLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const tabValue = useAppSelector((state) => state.summary.tabValue);
   const isData = useAppSelector((state) => state.summary.isData);
-  const [value, setValue] = React.useState("create");
 
   const tabRoutes = [
     "/summary",
@@ -80,20 +83,21 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
           }}
           variant="scrollable"
           scrollButtons="auto"
-          value={value === "create" ? 0 : 1}
+          value={tabValue === "create" ? 0 : 1}
           onChange={(_, newValue) => {
             if (newValue === 0) {
               navigate("/summary");
-              setValue("create");
+              dispatch(setTabValue("create"));
             } else if (newValue === 1) {
-              navigate("/preview-billing");
-              setValue("preview");
+              navigate("/previous-billing");
+            
+              dispatch(setTabValue("preview"));
             }
           }}
           centered
         >
           <Tab
-            disabled={value !== "preview"}
+            disabled={tabValue !== "preview"}
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
@@ -103,18 +107,18 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
             key={"create"}
           />
           <Tab
-            disabled={value !== "create"}
+            disabled={tabValue !== "create"}
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <span>{"Preview Billing"}</span>
+                <span>{"Previous Billing"}</span>
               </div>
             }
             key={"preview"}
           />
         </Tabs>
       </div>
-      {value !== "preview" && (
+      {tabValue !== "preview" && (
         <div className=" w-full h-[50px] border-b border-neutral-300 bg-white">
           <Tabs
             sx={{ padding: 0, maxWidth: "100%" }}
@@ -145,7 +149,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
           </Tabs>
         </div>
       )}
-      <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
+      <Box sx={{ height: `${tabValue === "preview" ? "calc(100vh - 100px)" : "calc(100vh - 150px)"}` }}>{children}</Box>
     </div>
   );
 };

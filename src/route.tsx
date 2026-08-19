@@ -733,7 +733,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/preview-billing",
+        path: "/previous-billing",
       },
        {
         element: (

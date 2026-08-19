@@ -10,8 +10,7 @@ import CustomPagination from "@/components/reusable/CustomPagination";
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
   handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
+
 };
 
 const COLUMN_NAME_MAP: Record<string, string> = {
@@ -30,12 +29,14 @@ const EMPTY_COLS: ColDef[] = [];
 const TrcTable: React.FC<Props> = ({
   gridRef,
   handlePageChange,
-  handlePageSizeChange,
-  pageSize,
+
 }) => {
   const dispatch = useAppDispatch();
   const { trcData, trcLoading } = useAppSelector(
     (state) => state.summary,
+  );
+    const tabValue = useAppSelector(
+    (state) => state.summary?.tabValue,
   );
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -70,7 +71,7 @@ const TrcTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-210px)]">
+      <div className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-255px)]"}`}>
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
@@ -92,8 +93,8 @@ const TrcTable: React.FC<Props> = ({
           totalPages={trcData?.pagination?.totalPages as any}
           totalRecords={trcData?.pagination?.totalRecords as any}
           onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
+         isLimit={false}
+          pageSize={10}
         />
       )}
     </div>

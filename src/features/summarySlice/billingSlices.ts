@@ -28,6 +28,7 @@ interface initialStateType {
   holdAssemblyLoading: boolean;
   trcMode: "trc" | "hold";
   finalSubmitLoading: boolean;
+  tabValue: string;
 }
 
 export const rangeKey = (from: string, to: string): string => `${from}_${to}`;
@@ -58,6 +59,7 @@ const initialState: initialStateType = {
   holdAssemblyLoading: false,
   trcMode: "trc",
   finalSubmitLoading: false,
+  tabValue: "create",
 };
 
 export const getSpeakerAssembly = createAsyncThunk<
@@ -274,6 +276,9 @@ const billingSlices = createSlice({
     setTrcMode: (state, action) => {
       state.trcMode = action.payload;
     },
+        setTabValue: (state, action) => {
+      state.tabValue = action.payload;
+    },
     resetBillingSummary: (state) => {
       state.dateRange = null;
       state.isData = false;
@@ -284,6 +289,19 @@ const billingSlices = createSlice({
       state.holdLoading = false;
       state.holdAssemblyData = null;
       state.holdAssemblyLoading = false;
+      state.speakerAssemblyData = null;
+      state.speakerAssemblyLoading = false;
+      state.trcData = null;
+      state.trcLoading = false;
+      state.dispatchedData = null;
+      state.dispatchedLoading = false;
+      state.materialData = null;
+      state.materialLoading = false;
+      state.speakerAssemblyRangeKey = null;
+      state.trcRangeKey = null;
+      state.dispatchedRangeKey = null;
+      state.materialRangeKey = null;
+
     },
   },
   extraReducers: (builder) => {
@@ -429,7 +447,7 @@ const billingSlices = createSlice({
   },
 });
 
-export const { setDateRange, setIsData, setTrcMode, resetBillingSummary } =
+export const { setDateRange, setIsData, setTrcMode, resetBillingSummary, setTabValue } =
   billingSlices.actions;
 
 export default billingSlices.reducer;

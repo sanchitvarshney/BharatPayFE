@@ -9,8 +9,6 @@ import CustomPagination from "@/components/reusable/CustomPagination";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
 };
 // Dummy data
 
@@ -40,31 +38,32 @@ const columnDefs: ColDef[] = [
     sortable: true,
     width: 180,
   },
-
 ];
 
 const EMPTY_ROWS: unknown[] = [];
 
-const DispatcedTable: React.FC<Props> = ({
-  gridRef,
-  handlePageChange,
-  handlePageSizeChange,
-  pageSize,
-}) => {
-  const { dispatchedData, dispatchedLoading} = useAppSelector((state) => state.summary);
- 
+const DispatcedTable: React.FC<Props> = ({ gridRef, handlePageChange }) => {
+  const { dispatchedData, dispatchedLoading } = useAppSelector(
+    (state) => state.summary,
+  );
 
+  const tabValue = useAppSelector((state) => state.summary?.tabValue);
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
     };
   }, []);
 
-  const rowData = useMemo(() => dispatchedData?.data ?? EMPTY_ROWS, [dispatchedData?.data]);
+  const rowData = useMemo(
+    () => dispatchedData?.data ?? EMPTY_ROWS,
+    [dispatchedData?.data],
+  );
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-200px)]">
+      <div
+        className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-250px)]"}`}
+      >
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -79,20 +78,17 @@ const DispatcedTable: React.FC<Props> = ({
           enableCellTextSelection={true}
         />
       </div>
-  
-       {
-        dispatchedData?.pagination && (
-          <CustomPagination
+
+      {dispatchedData?.pagination && (
+        <CustomPagination
           currentPage={dispatchedData?.pagination?.page || 0}
           totalPages={dispatchedData?.pagination?.total_pages || 0}
           totalRecords={dispatchedData?.pagination?.total_records || 0}
           onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize || 0}
+          isLimit={false}
+          pageSize={10}
         />
-        )
-       }
-     
+      )}
     </div>
   );
 };

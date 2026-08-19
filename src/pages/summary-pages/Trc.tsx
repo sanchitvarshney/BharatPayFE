@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -18,13 +18,13 @@ import SegmentedToggle from "@/components/reusable/SegmentedToggle";
 type ViewMode = "trc" | "hold";
 
 const Trc: React.FC = () => {
-  const [pageSize, setPageSize] = useState<number>(20);
   const dispatch = useAppDispatch();
   dayjs.extend(customParseFormat);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const trcLoading = useAppSelector((state) => state.summary?.trcLoading);
   const isFirstRender = useRef(true);
   const trcData = useAppSelector((state) => state.summary?.trcData);
+    const tabValue = useAppSelector((state) => state.summary?.tabValue);
   const trcRangeKey = useAppSelector((state) => state.summary?.trcRangeKey);
   const mode = useAppSelector(
     (state) => state.summary?.trcMode,
@@ -57,22 +57,11 @@ const Trc: React.FC = () => {
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
 
         page: page,
-        limit: pageSize,
+        limit: 10,
       }),
     );
   };
 
-  const handlePageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize);
-    dispatch(
-      getTRC({
-        from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
-        to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
-        page: 1,
-        limit: pageSize,
-      }),
-    );
-  };
 
   useEffect(() => {
     if (!dateRange || !dateRange[0] || !dateRange[1]) {
@@ -94,10 +83,10 @@ const Trc: React.FC = () => {
         from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
         page: 1,
-        limit: pageSize,
+        limit: 10,
       }),
     );
-  }, [dispatch, dateRange, pageSize]);
+  }, [dispatch, dateRange]);
 
   const handleRefresh = () => {
     dispatch(
@@ -105,13 +94,13 @@ const Trc: React.FC = () => {
         from: dayjs(dateRange?.[0]).format("DD-MM-YYYY"),
         to: dayjs(dateRange?.[1]).format("DD-MM-YYYY"),
         page: 1,
-        limit: pageSize,
+        limit: 10,
       }),
     );
   };
 
   return (
-    <div className="bg-white h-[calc(100vh-100px)]  p-1 flex flex-col">
+    <div className={`bg-white ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-155px)]"} p-1 flex flex-col`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <SegmentedToggle
@@ -143,8 +132,7 @@ const Trc: React.FC = () => {
           <TrcTable
             gridRef={gridRef}
             handlePageChange={handlePageChange}
-            handlePageSizeChange={handlePageSizeChange}
-            pageSize={pageSize}
+      
           />
         ) : (
           <HoldPartConsumptionTable />

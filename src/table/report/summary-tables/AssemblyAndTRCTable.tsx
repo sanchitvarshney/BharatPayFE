@@ -9,8 +9,6 @@ import CustomPagination from "@/components/reusable/CustomPagination";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
 };
 // Dummy data
 
@@ -101,11 +99,10 @@ const EMPTY_ROWS: unknown[] = [];
 const AssemblyAndTRCTable: React.FC<Props> = ({
   gridRef,
   handlePageChange,
-  handlePageSizeChange,
-  pageSize,
 }) => {
   const trcAssemblyLoading = useAppSelector((state) => state.summary?.trcAssemblyLoading);
   const trcAssemblyData = useAppSelector((state) => state.summary?.trcAssemblyData);
+    const tabValue = useAppSelector((state) => state.summary?.tabValue);
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -117,7 +114,7 @@ const AssemblyAndTRCTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-200px)]">
+      <div className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-150px)]" : "h-[calc(100vh-250px)]"}`}>
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -138,8 +135,9 @@ const AssemblyAndTRCTable: React.FC<Props> = ({
           totalPages={trcAssemblyData?.pagination?.totalPages}
           totalRecords={trcAssemblyData?.pagination?.totalRecords}
           onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
+        
+          isLimit={false}
+          pageSize={10}
         />
       )}
     </div>
