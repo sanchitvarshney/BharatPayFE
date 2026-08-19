@@ -30,8 +30,12 @@ import { QrCodeScanner } from "@mui/icons-material";
 const CategoryData = [
   { value: "abb8d54f-6862-4978-ab41-a69fdaaab6ec", text: "BPe Swipe Machine" },
   { value: "bdc8d26f-47c3-4bm7-a8c6-753bc77547ld", text: "Walnut" },
-   { value: "d7aa41c2-655a-11f1-9493-04421aa8167c", text: "Bluetooth Device" },
+  { value: "d7aa41c2-655a-11f1-9493-04421aa8167c", text: "Bluetooth Device" },
   { value: "051aec9b-fdd6-4d34-848a-25b9f1b6252a", text: "Other" },
+];
+const typeData = [
+  { value: "challan", text: "Challan" },
+  { value: "awb", text: "AWB" },
 ];
 const PartnerData = [
   { value: "eCOM", text: "eCommerce" },
@@ -120,24 +124,26 @@ const WrongDeviceMin: React.FC = () => {
 
   // Helper function to validate AWB length based on partner
   const validateAWBLength = (awbValue: string, partnerId: string): boolean => {
-    if (!partnerId) {
+    if (formValues?.typeId === "awb" && !partnerId) {
       showToast("Please select a partner first", "error");
       return false;
     }
 
-    const lengthRange = getAWBLengthRange(partnerId);
-    if (!lengthRange) {
-      showToast("Invalid delivery partner selected.", "error");
-      return false;
-    }
+    if (partnerId) {
+      const lengthRange = getAWBLengthRange(partnerId);
+      if (!lengthRange) {
+        showToast("Invalid delivery partner selected.", "error");
+        return false;
+      }
 
-    const awbLength = awbValue.trim().length;
-    if (awbLength < lengthRange.min || awbLength > lengthRange.max) {
-      showToast(
-        `AWB length must be between ${lengthRange.min} and ${lengthRange.max} characters for the selected partner.`,
-        "error",
-      );
-      return false;
+      const awbLength = awbValue.trim().length;
+      if (awbLength < lengthRange.min || awbLength > lengthRange.max) {
+        showToast(
+          `AWB length must be between ${lengthRange.min} and ${lengthRange.max} characters for the selected partner.`,
+          "error",
+        );
+        return false;
+      }
     }
 
     return true;
@@ -219,6 +225,7 @@ const WrongDeviceMin: React.FC = () => {
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
+      typeId: "",
       categoryId: "",
       locationId: null,
       partnerId: "",
@@ -256,6 +263,11 @@ const WrongDeviceMin: React.FC = () => {
   };
 
   const handleSubmitForm = () => {
+    if (!formValues.typeId) {
+      showToast("Please select a type", "error");
+      return;
+    }
+
     if (!formValues.categoryId) {
       showToast("Please select a category", "error");
       return;
@@ -266,7 +278,7 @@ const WrongDeviceMin: React.FC = () => {
       return;
     }
 
-    if (!formValues.partnerId) {
+    if (formValues.typeId !== "challan" && !formValues.partnerId) {
       showToast("Please select a partner", "error");
       return;
     }
@@ -293,6 +305,7 @@ const WrongDeviceMin: React.FC = () => {
 
     // Prepare payload
     const payload = {
+      typeId: formValues.typeId,
       categoryId: formValues.categoryId,
       locationId: formValues.locationId?.code || formValues.locationId,
       partnerId: formValues.partnerId,
@@ -322,10 +335,13 @@ const WrongDeviceMin: React.FC = () => {
   const handleAwbNoKeyDown = async (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === "Enter" && awbNo && formValues.partnerId) {
+    const canProceed =
+      formValues.typeId === "challan" || !!formValues.partnerId;
+    if (event.key === "Enter" && awbNo && canProceed) {
       const payload: any = {
         awbNo: awbNo,
-        partner: formValues.partnerId,
+        partner:
+          formValues.typeId !== "challan" ? formValues.partnerId : "CHALLAN",
       };
       try {
         //@ts-ignore
@@ -344,43 +360,79 @@ const WrongDeviceMin: React.FC = () => {
   };
 
   return (
-    <div className=" w-full   bg-white">
-      <form onSubmit={handleSubmit(onSubmit)} className="p-[20px]">
-        <div className="w-full grid grid-cols-3 gap-[20px] border-r border-neutral-300">
-          <div>
-            <Controller
-              name="categoryId"
-              control={control}
-              rules={{
-                required: "Category  is required",
-              }}
-              render={({ field }) => (
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel id="area-select-label">
-                    Select Category
-                  </InputLabel>
-                  <Select
-                    {...field}
-                    labelId="area-select-label"
-                    label="Select Category"
+    <div className=" w-full  h-full bg-white">
+      <form onSubmit={handleSubmit(onSubmit)} className="p-[0px]">
+        <div className="w-full grid grid-cols-[280px,1fr] gap-[24px]">
+          {/* Left: Filters */}
+          <div className=" p-4  flex flex-col gap-[16px]  lg:border-r lg:border-neutral-300 lg:pr-[20px]">
+            <div>
+              <Controller
+                name="typeId"
+                control={control}
+                rules={{
+                  required: "Type is required",
+                }}
+                render={({ field }) => (
+                  <FormControl
+                    fullWidth
+                    variant="outlined"
+                    error={!!errors.typeId}
                   >
-                    {CategoryData?.map((item: any) => (
-                      <MenuItem key={item.value} value={item.value}>
-                        {item.text}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    <InputLabel id="area-select-label">Select Type</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="area-select-label"
+                      label="Select Type"
+                    >
+                      {typeData?.map((item: any) => (
+                        <MenuItem key={item.value} value={item.value}>
+                          {item.text}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+              {errors.typeId && (
+                <span className=" text-[12px] text-red-500">
+                  {/* @ts-ignore */}
+                  {errors.typeId.message}
+                </span>
               )}
-            />
-            {errors.date && (
-              <span className=" text-[12px] text-red-500">
-                {/* @ts-ignore */}
-                {errors.date.message}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-col gap-[10px]">
+            </div>
+            <div>
+              <Controller
+                name="categoryId"
+                control={control}
+                rules={{
+                  required: "Category  is required",
+                }}
+                render={({ field }) => (
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel id="area-select-label">
+                      Select Category
+                    </InputLabel>
+                    <Select
+                      {...field}
+                      labelId="area-select-label"
+                      label="Select Category"
+                    >
+                      {CategoryData?.map((item: any) => (
+                        <MenuItem key={item.value} value={item.value}>
+                          {item.text}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+              {errors.date && (
+                <span className=" text-[12px] text-red-500">
+                  {/* @ts-ignore */}
+                  {errors.date.message}
+                </span>
+              )}
+            </div>
             <div>
               <Controller
                 name="locationId"
@@ -399,8 +451,6 @@ const WrongDeviceMin: React.FC = () => {
                 )}
               />
             </div>
-          </div>
-          <div className="flex flex-col gap-[10px]">
             <div>
               <Controller
                 name="partnerId"
@@ -413,6 +463,7 @@ const WrongDeviceMin: React.FC = () => {
                     </InputLabel>
                     <Select
                       {...field}
+                      disabled={formValues.typeId === "challan"}
                       labelId="partner-select-label"
                       label="Select Partner"
                     >
@@ -426,169 +477,176 @@ const WrongDeviceMin: React.FC = () => {
                 )}
               />
             </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-[20px] my-[10px] ">
-          {/* Awb no */}
-          <div>
-            <FormControl sx={{ width: "400px", mb: "10px" }} variant="outlined">
-              <TextField
-                rows={2}
-                value={awbNo}
-                label="AWB Device"
-                id="standard-adornment-qty"
-                aria-describedby="standard-weight-helper-text"
-                inputProps={{
-                  "aria-label": "weight",
+            <div className="h-[50px] p-0 flex items-center  gap-[10px] justify-end">
+              <Button
+                onClick={() => {
+                  reset();
+                  setCombinedRowData([]);
+                  setAwbNo("");
+                  setSerialNo("");
+                  setImei("");
                 }}
-                onChange={(e) => {
-                  setAwbNo(e.target.value);
-                }}
-                onKeyDown={handleAwbNoKeyDown}
-                inputRef={awbNoInputRef}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {fieldLoading ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <QrCodeScanner />
-                        )}
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </FormControl>
+                variant="outlined"
+                disabled={submitCustomFormLoading || workingDataLoading}
+              >
+                Reset
+              </Button>
+              <LoadingButton
+                loadingPosition="start"
+                onClick={handleSubmitForm}
+                variant="contained"
+                loading={submitCustomFormLoading}
+                disabled={combinedRowData.length === 0 || workingDataLoading}
+              >
+                Submit
+              </LoadingButton>
+            </div>
           </div>
 
-          <div>
-            <FormControl
-              sx={{ width: "400px", mb: "10px" }}
-              variant="outlined"
-              disabled
-            >
-              <TextField
-                rows={2}
-                value={serialNo}
-                disabled={formValues.categoryId !== "bdc8d26f-47c3-4bm7-a8c6-753bc77547ld"}
-                label="Serial Device"
-                id="standard-adornment-qty"
-                aria-describedby="standard-weight-helper-text"
-                inputProps={{
-                  "aria-label": "weight",
-                }}
-                onChange={(e) => {
-                  setSerialNo(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    if (serialNo.trim()) {
-                      addOrUpdateRow("serialNo", serialNo);
-                      setSerialNo("");
-                      // Keep focus on Serial No field
-                      setTimeout(() => {
-                        serialNoInputRef.current?.focus();
-                      }, 0);
+          {/* Right: Scan / entry fields + table */}
+          <div className="flex flex-col  w-[calc(100%-24px)] gap-[20px] py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-[10px]">
+              {/* Awb no / Challan no */}
+              <div>
+                <FormControl fullWidth sx={{ mb: "10px" }} variant="outlined">
+                  <TextField
+                    rows={2}
+                    value={awbNo}
+                    label={
+                      formValues.typeId === "challan" ? "Challan No" : "Awb No"
                     }
-                    e.preventDefault();
-                  }
-                }}
-                inputRef={serialNoInputRef}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {<QrCodeScanner />}
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </FormControl>
-          </div>
-          {/* imie */}
-          <div>
-            <FormControl
-              sx={{ width: "400px", mb: "10px" }}
-              variant="outlined"
-              disabled
-            >
-              <TextField
-                rows={2}
-                value={imei}
-                disabled
-                label="IMEI Device"
-                id="standard-adornment-qty"
-                aria-describedby="standard-weight-helper-text"
-                inputProps={{
-                  "aria-label": "weight",
-                }}
-                onChange={(e) => {
-                  setImei(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    if (imei.trim()) {
-                      addOrUpdateRow("imeiNo", imei);
-                      setImei("");
+                    id="standard-adornment-qty"
+                    aria-describedby="standard-weight-helper-text"
+                    inputProps={{
+                      "aria-label": "weight",
+                    }}
+                    onChange={(e) => {
+                      setAwbNo(e.target.value);
+                    }}
+                    onKeyDown={handleAwbNoKeyDown}
+                    inputRef={awbNoInputRef}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {fieldLoading ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <QrCodeScanner />
+                            )}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                </FormControl>
+              </div>
 
-                      setTimeout(() => {
-                        awbNoInputRef.current?.focus();
-                      }, 0);
+              <div>
+                <FormControl
+                  fullWidth
+                  sx={{ mb: "10px" }}
+                  variant="outlined"
+                  disabled
+                >
+                  <TextField
+                    rows={2}
+                    value={serialNo}
+                    disabled={
+                      formValues.categoryId !==
+                      "bdc8d26f-47c3-4bm7-a8c6-753bc77547ld"
                     }
-                    e.preventDefault();
-                  }
-                }}
-                inputRef={imeiInputRef}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {<QrCodeScanner />}
-                      </InputAdornment>
-                    ),
-                  },
-                }}
+                    label="Serial Device"
+                    id="standard-adornment-qty"
+                    aria-describedby="standard-weight-helper-text"
+                    inputProps={{
+                      "aria-label": "weight",
+                    }}
+                    onChange={(e) => {
+                      setSerialNo(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (serialNo.trim()) {
+                          addOrUpdateRow("serialNo", serialNo);
+                          setSerialNo("");
+                          // Keep focus on Serial No field
+                          setTimeout(() => {
+                            serialNoInputRef.current?.focus();
+                          }, 0);
+                        }
+                        e.preventDefault();
+                      }
+                    }}
+                    inputRef={serialNoInputRef}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {<QrCodeScanner />}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                </FormControl>
+              </div>
+              {/* imie */}
+              <div>
+                <FormControl
+                  fullWidth
+                  sx={{ mb: "10px" }}
+                  variant="outlined"
+                  disabled
+                >
+                  <TextField
+                    rows={2}
+                    value={imei}
+                    disabled
+                    label="IMEI Device"
+                    id="standard-adornment-qty"
+                    aria-describedby="standard-weight-helper-text"
+                    inputProps={{
+                      "aria-label": "weight",
+                    }}
+                    onChange={(e) => {
+                      setImei(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (imei.trim()) {
+                          addOrUpdateRow("imeiNo", imei);
+                          setImei("");
+
+                          setTimeout(() => {
+                            awbNoInputRef.current?.focus();
+                          }, 0);
+                        }
+                        e.preventDefault();
+                      }
+                    }}
+                    inputRef={imeiInputRef}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {<QrCodeScanner />}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                </FormControl>
+              </div>
+            </div>
+
+            <div className="h-[calc(100vh-215px)] bg-red-100">
+              <FormTables
+                setRowdata={setCombinedRowData}
+                rowData={combinedRowData}
+                type={formValues.typeId}
               />
-            </FormControl>
-          </div>
-        </div>
-
-        <div className="h-[calc(100vh-350px)] my-[10px]">
-          <FormTables
-            setRowdata={setCombinedRowData}
-            rowData={combinedRowData}
-          />
-        </div>
-
-        {/* Action Buttons Section */}
-        <div className="border-t border-neutral-300 mt-[20px] pt-[20px]">
-          <div className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
-            <Button
-              onClick={() => {
-                reset();
-                setCombinedRowData([]);
-                setAwbNo("");
-                setSerialNo("");
-                setImei("");
-              }}
-              variant="outlined"
-              disabled={submitCustomFormLoading || workingDataLoading}
-            >
-              Reset
-            </Button>
-            <LoadingButton
-              loadingPosition="start"
-              onClick={handleSubmitForm}
-              variant="contained"
-              loading={submitCustomFormLoading}
-              disabled={combinedRowData.length === 0 || workingDataLoading}
-            >
-              Submit
-            </LoadingButton>
+            </div>
           </div>
         </div>
       </form>
