@@ -111,17 +111,17 @@ const PreviousBilling = () => {
     [dispatch],
   );
 
-  const handleFetchData = useCallback(() => {
-    const res: any = dispatch(
+  const handleFetchData = useCallback( async () => {
+    const res: any = await dispatch(
       getPreviousBilling({
         page: 1,
         limit: pageSize,
       }),
     ).unwrap();
     if (res?.data?.success) {
-      showToast(res?.data?.message, "success");
+      showToast(res?.data?.message || "Success", "success");
     } else {
-      showToast(res?.data?.message, "error");
+      showToast(res?.data?.message || "Error", "error");
     }
   }, [dispatch, pageSize]);
 
@@ -131,7 +131,7 @@ const PreviousBilling = () => {
 
   return (
     <div>
-      <div className={`relative ag-theme-quartz h-[calc(100vh-100px)]`}>
+      <div className={`relative ag-theme-quartz h-[calc(100vh-160px)]`}>
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
