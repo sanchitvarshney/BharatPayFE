@@ -125,12 +125,7 @@ const defaultColDef = useMemo<ColDef>(() => ({
     ) ?? 0).toFixed(3),
   ),
 
-  rate: Number(
-    (apiResponse?.reduce(
-      (sum, item) => sum + Number(item.rate || 0),
-      0,
-    ) ?? 0).toFixed(3),
-  ),
+  rate: "",
 
   taxable_amount: Number(
     (apiResponse?.reduce(
