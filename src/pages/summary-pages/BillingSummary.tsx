@@ -80,23 +80,54 @@ interface BillingSummaryApiResponse {
     gst_amount: number;
     total_invoice: number;
   };
+  [key: string]: unknown;
 }
 
 const CATEGORY_BG = "#F2F4F7";
 const HEADER_ROW_COLORS = ["#E2E8F0", "#E5E7EB", "#E5E7EB", "#F3F4F6"];
+
+
+const NON_SECTION_KEYS = new Set([
+  "success",
+  "status",
+  "message",
+  "excel_uploaded_devices_count",
+  "categories",
+  "grand_total",
+]);
+
+const humanizeSectionKey = (key: string): string =>
+  key
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+const isBillingSummarySection = (
+  value: unknown,
+): value is BillingSummaryApiSection =>
+  !!value &&
+  typeof value === "object" &&
+  Array.isArray((value as BillingSummaryApiSection).items) &&
+  typeof (value as BillingSummaryApiSection).total === "object";
 
 const buildBillingSummaryRows = (
   apiResponse: BillingSummaryApiResponse | null,
 ): BillingSummaryRow[] => {
   if (!apiResponse) return [];
 
-  const sections: { name: string; section: BillingSummaryApiSection }[] = [
-    { name: "Sales Summary", section: apiResponse.sales_summary },
-    ...apiResponse.categories.map((category) => ({
-      name: category.category_name,
-      section: category,
-    })),
-  ];
+  const sections: { name: string; section: BillingSummaryApiSection }[] = [];
+
+  Object.keys(apiResponse).forEach((key) => {
+    if (NON_SECTION_KEYS.has(key)) return;
+    const value = apiResponse[key];
+    if (isBillingSummarySection(value)) {
+      sections.push({ name: humanizeSectionKey(key), section: value });
+    }
+  });
+
+  apiResponse.categories?.forEach((category) => {
+    sections.push({ name: category.category_name, section: category });
+  });
 
   const rows: BillingSummaryRow[] = [];
 
