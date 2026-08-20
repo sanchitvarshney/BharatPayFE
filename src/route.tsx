@@ -724,7 +724,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary",
+        path: "/billing",
       },
           {
         element: (
@@ -744,7 +744,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/trc",
+        path: "/billing/trc",
       },
        {
         element: (
@@ -754,7 +754,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/speaker-assembly",
+        path: "/billing/speaker-assembly",
       },
         
            {
@@ -765,7 +765,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/assembly-and-trc",
+        path: "/billing/assembly-and-trc",
       },
             {
         element: (
@@ -775,7 +775,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/dispatch",
+        path: "/billing/dispatch",
       },
             {
         element: (
@@ -785,7 +785,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/material-purchase",
+        path: "/billing/material-purchase",
       },
       {
         element: (
