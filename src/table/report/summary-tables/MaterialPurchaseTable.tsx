@@ -97,7 +97,7 @@ const defaultColDef = useMemo<ColDef>(() => ({
     if (params.node.rowPinned === "bottom") {
       return {
         fontWeight: 700,
-        backgroundColor: "#ffff00",
+        backgroundColor: "#f2f4f7",
          display: "flex",
     alignItems: "center",
     justifyContent: "flex-start", 
@@ -113,29 +113,48 @@ const defaultColDef = useMemo<ColDef>(() => ({
     () => materialData?.data ?? EMPTY_ROWS,
     [materialData?.data],
   );
-  const buildGrandTotalRow = (apiResponse: any | null) => ({
-    id: "grand-total",
-    part_code: "",
-    
-    component_name: "Grand Total",
+ const buildGrandTotalRow = (apiResponse: any[] | null) => ({
+  id: "grand-total",
+  part_code: "",
+  component_name: "Grand Total",
 
-    qty: apiResponse?.reduce((sum: any, item: any) => sum + item.qty, 0) ?? 0,
-    rate: apiResponse?.reduce((sum: any, item: any) => sum + item.rate, 0) ?? 0,
-    taxable_amount:
-      apiResponse?.reduce(
-        (sum: any, item: any) => sum + item.taxable_amount,
-        0,
-      ) ?? 0,
-    gst_rate: "",
-    gst_amount:
-      apiResponse?.reduce((sum: any, item: any) => sum + item.gst_amount, 0) ??
+  qty: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.qty || 0),
       0,
-    total_invoice:
-      apiResponse?.reduce(
-        (sum: any, item: any) => sum + item.total_invoice,
-        0,
-      ) ?? 0,
-  });
+    ) ?? 0).toFixed(3),
+  ),
+
+  rate: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.rate || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+
+  taxable_amount: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.taxable_amount || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+
+  gst_rate: "",
+
+  gst_amount: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.gst_amount || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+
+  total_invoice: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.total_invoice || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+});
 
   const grandTotalRow = useMemo(() => buildGrandTotalRow(rowData), [rowData]);
   
@@ -157,6 +176,7 @@ const defaultColDef = useMemo<ColDef>(() => ({
           pagination={false}
           paginationPageSize={20}
           enableCellTextSelection={true}
+          
         />
       </div>
       {/* {materialData?.pagination && (
