@@ -4,8 +4,11 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { formatNumber, flexCellStyle } from "@/utils/agGridSummaryCellUtils";
 
 const EMPTY_ROWS: unknown[] = [];
+
+const numericCellStyle = flexCellStyle("right");
 
 const formatHeaderName = (field: string) =>
   field
@@ -21,14 +24,25 @@ const HoldPartConsumptionTable: React.FC = () => {
     const firstRow = rowData[0] as Record<string, unknown> | undefined;
     if (!firstRow) return [];
 
-    return Object.keys(firstRow).map((field) => ({
-      headerName: formatHeaderName(field),
-      field,
-      sortable: true,
-      filter: true,
-      flex: 1,
-      minWidth: 150,
-    }));
+    return Object.keys(firstRow).map((field) => {
+      const isNumeric = typeof firstRow[field] === "number";
+
+      return {
+        headerName: formatHeaderName(field),
+        field,
+        sortable: true,
+        filter: true,
+        flex: 1,
+        minWidth: 150,
+        ...(isNumeric
+          ? {
+              valueFormatter: (params: any) => formatNumber(params.value),
+              cellStyle: numericCellStyle,
+              headerClass: "ag-right-aligned-header",
+            }
+          : { cellStyle: flexCellStyle("left") }),
+      };
+    });
   }, [rowData]);
 
   const defaultColDef = useMemo<ColDef>(() => {

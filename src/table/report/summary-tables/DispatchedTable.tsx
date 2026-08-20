@@ -5,6 +5,7 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { flexCellStyle } from "@/utils/agGridSummaryCellUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -51,6 +52,7 @@ const DispatcedTable: React.FC<Props> = ({ gridRef, handlePageChange }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      cellStyle: flexCellStyle("left"),
     };
   }, []);
 

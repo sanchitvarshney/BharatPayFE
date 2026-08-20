@@ -6,6 +6,7 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { clearR6data } from "@/features/report/report/reportSlice";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { baseFlexCellStyle, flexCellStyle } from "@/utils/agGridSummaryCellUtils";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
@@ -42,6 +43,7 @@ const TrcTable: React.FC<Props> = ({
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      cellStyle: flexCellStyle("left"),
     };
   }, []);
 
@@ -56,9 +58,7 @@ const TrcTable: React.FC<Props> = ({
       filter: true,
       resizable: true,
       headerClass: "center-header",
-      cellStyle: {
-        textAlign: "center",
-      },
+      cellStyle: baseFlexCellStyle("center"),
       width: 250,
     }));
   }, [trcData?.headers]);

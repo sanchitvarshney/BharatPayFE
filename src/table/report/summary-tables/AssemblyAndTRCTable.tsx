@@ -5,12 +5,15 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { formatNumber, flexCellStyle } from "@/utils/agGridSummaryCellUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   handlePageChange: (page: number) => void;
 };
 // Dummy data
+
+const numericCellStyle = flexCellStyle("right");
 
 const columnDefs: ColDef[] = [
   {
@@ -43,54 +46,81 @@ const columnDefs: ColDef[] = [
     field: "opening_balance",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Purchase By MSC",
     field: "purchase_by_msc",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Purchase By BPE",
     field: "purchase_by_bpe",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Sent To BPE",
     field: "sent_to_bharatpe",
     sortable: true,
     width: 200,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Wastages",
     field: "wastage",
     sortable: true,
     width: 200,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Speaker",
     field: "total_consumption",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Speaker %",
     field: "component_percentage",
     sortable: true,
     width: 150,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Total Consume",
     field: "total_consumption",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Closing Ballance",
     field: "closing_balance",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatNumber(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
 ];
 
@@ -107,6 +137,7 @@ const AssemblyAndTRCTable: React.FC<Props> = ({
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      cellStyle: flexCellStyle("left"),
     };
   }, []);
 

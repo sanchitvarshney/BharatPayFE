@@ -31,6 +31,11 @@ import { useSocketContext } from "@/components/context/SocketContext";
 import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import dayjs from "dayjs";
+import {
+  formatCurrency,
+  formatNumber,
+  baseFlexCellStyle,
+} from "@/utils/agGridSummaryCellUtils";
 
 const { RangePicker } = DatePicker;
 
@@ -193,29 +198,11 @@ const buildGrandTotalRow = (
   total: apiResponse?.grand_total?.total_invoice ?? 0,
 });
 
-const formatNumber = (value: unknown): string => {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return typeof value === "string" ? value : "";
-  return n.toLocaleString("en-IN");
-};
-
-const formatCurrency = (value: unknown): string => {
-  if (value === undefined || value === null || value === "") return "";
-  const n = Number(value);
-  if (!Number.isFinite(n)) return typeof value === "string" ? value : "";
-  const sign = n < 0 ? "-" : "";
-  return `${sign}₹ ${Math.abs(n).toLocaleString("en-IN")}`;
-};
-
 const billingSummaryCellStyle = (
   data: BillingSummaryRow | undefined,
   align: "left" | "right",
 ): Record<string, string | number> => {
-  const base: Record<string, string | number> = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: align === "right" ? "flex-end" : "flex-start",
-  };
+  const base = baseFlexCellStyle(align);
   if (!data) return base;
   if (data.rowType === "header") {
     return {

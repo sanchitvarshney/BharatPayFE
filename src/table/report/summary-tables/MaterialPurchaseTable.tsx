@@ -4,6 +4,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { formatCurrency, flexCellStyle } from "@/utils/agGridSummaryCellUtils";
 // import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
@@ -12,6 +13,8 @@ type Props = {
   // handlePageSizeChange: (pageSize: number) => void;
   // pageSize: number;
 };
+
+const numericCellStyle = flexCellStyle("right");
 
 const columnDefs: ColDef[] = [
   {
@@ -44,36 +47,52 @@ const columnDefs: ColDef[] = [
     field: "qty",
     sortable: true,
     width: 180,
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Rate",
     field: "rate",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatCurrency(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Taxable Amount",
     field: "taxable_amount",
     sortable: true,
     width: 250,
+    valueFormatter: (params) => formatCurrency(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "GST Rate",
     field: "gst_rate",
     sortable: true,
     width: 250,
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "GST Amount",
     field: "gst_amount",
     sortable: true,
     width: 200,
+    valueFormatter: (params) => formatCurrency(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
   {
     headerName: "Total Invoice",
     field: "total_invoice",
     sortable: true,
     width: 200,
+    valueFormatter: (params) => formatCurrency(params.value),
+    cellStyle: numericCellStyle,
+    headerClass: "ag-right-aligned-header",
   },
 ];
 
@@ -92,21 +111,7 @@ const MaterialPurchaseTable: React.FC<Props> = ({
 
 const defaultColDef = useMemo<ColDef>(() => ({
   filter: true,
-
-  cellStyle: (params) => {
-    if (params.node.rowPinned === "bottom") {
-      return {
-        fontWeight: 700,
-        backgroundColor: "#f2f4f7",
-         display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start", 
-    
-      };
-    }
-
-    return undefined;
-  },
+  cellStyle: flexCellStyle("left"),
 }), []);
 
   const rowData = useMemo(
@@ -125,7 +130,6 @@ const defaultColDef = useMemo<ColDef>(() => ({
     ) ?? 0).toFixed(3),
   ),
 
-  rate: "",
 
   taxable_amount: Number(
     (apiResponse?.reduce(
