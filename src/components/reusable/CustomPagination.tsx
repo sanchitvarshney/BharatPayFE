@@ -21,7 +21,8 @@ interface CustomPaginationProps {
   totalRecords: number;
   onPageChange: (page: number) => void;
   pageSize: number;
-  onPageSizeChange: (size: number) => void;
+  onPageSizeChange?: (size: number) => void | undefined;
+  isLimit?: boolean;
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
@@ -31,6 +32,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   onPageChange,
   pageSize,
   onPageSizeChange,
+  isLimit=true,
 }) => {
   const [customPageSize, setCustomPageSize] = useState(pageSize.toString());
   const [isCustomInput, setIsCustomInput] = useState(false);
@@ -39,7 +41,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     const pages = [];
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -64,7 +66,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       return;
     }
     setIsCustomInput(false);
-    onPageSizeChange(Number(value));
+    onPageSizeChange?.(Number(value));
   };
 
   const handleCustomPageSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +77,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   const handleCustomPageSizeBlur = () => {
     const size = parseInt(customPageSize);
     if (!isNaN(size) && size > 0) {
-      onPageSizeChange(size);
+      onPageSizeChange?.(size);
     } else {
       setCustomPageSize(pageSize.toString());
     }
@@ -93,7 +95,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   return (
     <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200 bg-white">
-      <div className="flex items-center gap-4">
+  {
+    isLimit ? (
+         <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm text-neutral-600">Rows per page:</span>
           {isCustomInput ? (
@@ -130,6 +134,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           Showing {startRecord} to {endRecord} of {totalRecords} records
         </span>
       </div>
+    ) : (<div />)
+  }
       <div className="flex items-center gap-2">
         <Button
           variant="outline"

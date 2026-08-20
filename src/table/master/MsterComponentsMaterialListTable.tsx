@@ -18,7 +18,9 @@ type Props = {
 };
 
 const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
-  const { component, getComponentLoading } = useAppSelector((state) => state.component);
+  const { component, getComponentLoading } = useAppSelector(
+    (state) => state.component,
+  );
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
@@ -34,7 +36,10 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       minWidth: 300,
       cellRenderer: (params: any) => (
-        <Link className=" text-cyan-600" to={`/master-components/${params?.data?.component_key}`}>
+        <Link
+          className=" text-cyan-600"
+          to={`/master-components/${params?.data?.component_key}`}
+        >
           <span className="whitespace-normal">{params?.value}</span>
           <Icons.followLink sx={{ fontSize: "15px", mx: 1 }} />
         </Link>
@@ -47,13 +52,26 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
     },
+    {
+      headerName: "Department",
+      field: "department",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Rate",
+      field: "rate",
+      sortable: true,
+      filter: true,
+    },
 
     {
       headerName: "Is Enabled",
       field: "is_enabled",
       sortable: true,
       filter: true,
-      cellRenderer: (params: any) => (params?.value === "Y" ? "Enable" : "Disable"),
+      cellRenderer: (params: any) =>
+        params?.value === "Y" ? "Enable" : "Disable",
     },
     {
       headerName: "UOM",

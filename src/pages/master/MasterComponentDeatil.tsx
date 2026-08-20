@@ -175,6 +175,8 @@ const MasterComponentDeatil: React.FC = () => {
                         status: componentDetail?.[0]?.enable_status || "",
                         description: componentDetail?.[0]?.description || "",
                         uomId: componentDetail?.[0]?.uomid || "",
+                        department: componentDetail?.[0]?.department || "",
+                        rate: componentDetail?.[0]?.rate !== undefined && componentDetail?.[0]?.rate !== null ? String(componentDetail?.[0]?.rate) : "",
                       }}
                       setUpdateBasicDetail={setUpdateBasicDetail}
                     />
@@ -188,6 +190,8 @@ const MasterComponentDeatil: React.FC = () => {
                         { label: "Status", value: componentDetail?.[0]?.enable_status === "Y" ? "Active" : "Inactive" },
                         { label: "Category", value: componentDetail?.[0]?.category?.name },
                         { label: "Sub Category", value: componentDetail?.[0]?.subcategory?.name },
+                        { label: "Department", value: componentDetail?.[0]?.department },
+                        { label: "Rate", value: componentDetail?.[0]?.rate },
                         { label: "Description", value: componentDetail?.[0]?.description },
                       ].map(({ label, value }) => (
                         <div key={label} className="py-5">
