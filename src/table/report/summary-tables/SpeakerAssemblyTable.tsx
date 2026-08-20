@@ -10,8 +10,6 @@ import CustomPagination from "@/components/reusable/CustomPagination";
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
   handlePageChange: (page: number) => void;
-  handlePageSizeChange: (pageSize: number) => void;
-  pageSize: number;
 };
 
 const COLUMN_NAME_MAP: Record<string, string> = {
@@ -28,13 +26,12 @@ const EMPTY_COLS: ColDef[] = [];
 const SpeakerAssemblyTable: React.FC<Props> = ({
   gridRef,
   handlePageChange,
-  handlePageSizeChange,
-  pageSize,
 }) => {
   const dispatch = useAppDispatch();
   const { speakerAssemblyData, speakerAssemblyLoading } = useAppSelector(
     (state) => state.summary,
   );
+  const tabValue = useAppSelector((state) => state.summary.tabValue);
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -71,7 +68,9 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
 
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-210px)]">
+      <div
+        className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-255px)]"}`}
+      >
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}
@@ -89,12 +88,12 @@ const SpeakerAssemblyTable: React.FC<Props> = ({
       </div>
       {speakerAssemblyData?.pagination && (
         <CustomPagination
-          currentPage={speakerAssemblyData?.pagination?.currentPage as any}
-          totalPages={speakerAssemblyData?.pagination?.totalPages as any}
-          totalRecords={speakerAssemblyData?.pagination?.totalRecords as any}
+          currentPage={speakerAssemblyData?.pagination?.currentPage as any || 0}
+          totalPages={speakerAssemblyData?.pagination?.totalPages as any || 0}
+          totalRecords={speakerAssemblyData?.pagination?.totalRecords as any || 0}
           onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          pageSize={pageSize}
+          pageSize={10}
+          isLimit={false}
         />
       )}
     </div>

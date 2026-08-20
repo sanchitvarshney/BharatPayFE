@@ -152,6 +152,7 @@ import SpeakerAssembly from "./pages/summary-pages/SpeakerAssembly";
 import Trc from "./pages/summary-pages/Trc";
 import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
 import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
+import PreviousBilling from "./pages/summary-pages/PreviousBilling";
 
 
 export const router = createBrowserRouter([
@@ -724,7 +725,17 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary",
+        path: "/billing",
+      },
+          {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <PreviousBilling />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/previous-billing",
       },
        {
         element: (
@@ -734,7 +745,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/trc",
+        path: "/billing/trc",
       },
        {
         element: (
@@ -744,7 +755,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/speaker-assembly",
+        path: "/billing/speaker-assembly",
       },
         
            {
@@ -755,7 +766,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/assembly-and-trc",
+        path: "/billing/assembly-and-trc",
       },
             {
         element: (
@@ -765,7 +776,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/dispatch",
+        path: "/billing/dispatch",
       },
             {
         element: (
@@ -775,7 +786,7 @@ export const router = createBrowserRouter([
             </SummaryLayout>
           </MainLayout>
         ),
-        path: "/summary/material-purchase",
+        path: "/billing/material-purchase",
       },
       {
         element: (

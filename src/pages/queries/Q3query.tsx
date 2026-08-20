@@ -5,6 +5,7 @@ import { getQ3DatA } from "@/features/query/query/querySlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import Q3ReportTable from "@/table/query/Q3ReportTable";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { LoadingButton } from "@mui/lab";
 import { List, ListItem, ListItemText, TextField } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -12,12 +13,67 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
 import React, { useState } from "react";
+import * as XLSX from "xlsx";
+
 const Q3query: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const [component, setComponent] = React.useState<ComponentType | null>(null);
   const [date, setDate] = React.useState<Dayjs | null>(dayjs());
   const dispatch = useAppDispatch();
   const { q3data, q3DataLoading } = useAppSelector((state) => state.query);
+
+  const handleDownloadExcel = () => {
+    if (!q3data) return;
+
+    const total = q3data.locationQty.reduce(
+      (sum: number, item: any) => sum + Number(item.closeQty),
+      0,
+    );
+
+    const summaryRows = [
+      ["Date", date?.format("DD-MM-YYYY") || ""],
+      ["Total", total],
+      ["Part Code", q3data.component?.partCode || ""],
+      ["Name", q3data.component?.name || ""],
+      ["Unit", q3data.component?.uom || ""],
+    ];
+
+    const tableHeader = [
+      "Location",
+      "Opening Balance",
+      "Inward",
+      "Outward",
+      "Closing Balance",
+    ];
+    const tableRows = q3data.locationQty.map((item: any) => [
+      item.locationName,
+      item.openingBalance,
+      item.totalIn,
+      item.totalOut,
+      item.closeQty,
+    ]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet([
+      ...summaryRows,
+      [],
+      tableHeader,
+      ...tableRows,
+    ]);
+    worksheet["!cols"] = [
+      { wch: 30 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 18 },
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Q3 Report");
+    XLSX.writeFile(
+      workbook,
+      `Q3_Report_${dayjs(date).format("DD-MM-YYYY")}.xlsx`,
+    );
+  };
 
   return (
     <div className="  h-[calc(100vh-100px)] bg-white relative">
@@ -51,7 +107,20 @@ const Q3query: React.FC = () => {
                 />
               </LocalizationProvider>
             </div>
-            <div className="mt-[20px]">
+            <div className="mt-[20px] flex items-center  gap-[10px]">
+                <MuiTooltip title="Download Excel" placement="top">
+                <span>
+                  <LoadingButton
+                    loadingPosition="start"
+                    disabled={!q3data}
+                    onClick={handleDownloadExcel}
+                    startIcon={<Icons.download fontSize="small" />}
+                    variant="outlined"
+                  >
+                    Excel
+                  </LoadingButton>
+                </span>
+              </MuiTooltip>
               <LoadingButton
                 loadingPosition="start"
                 loading={q3DataLoading}
@@ -65,6 +134,7 @@ const Q3query: React.FC = () => {
               >
                 Search
               </LoadingButton>
+            
             </div>
           </div>
           {q3data && (

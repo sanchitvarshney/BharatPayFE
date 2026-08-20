@@ -19,7 +19,13 @@ const columnDefs: ColDef[] = [
     field: "id",
     sortable: true,
     width: 100,
-    valueGetter: "node.rowIndex+1",
+    valueGetter: (params) => {
+    if (params?.node?.rowPinned) {
+      return "";
+    }
+
+    return (params?.node?.rowIndex ?? 0) + 1;
+  },
   },
   {
     headerName: "Part Code",
@@ -82,21 +88,81 @@ const MaterialPurchaseTable: React.FC<Props> = ({
   const { materialData, materialLoading } = useAppSelector(
     (state) => state.summary,
   );
+  const tabValue = useAppSelector((state) => state.summary?.tabValue);
 
-  const defaultColDef = useMemo<ColDef>(() => {
-    return {
-      filter: true,
-    };
-  }, []);
+const defaultColDef = useMemo<ColDef>(() => ({
+  filter: true,
+
+  cellStyle: (params) => {
+    if (params.node.rowPinned === "bottom") {
+      return {
+        fontWeight: 700,
+        backgroundColor: "#f2f4f7",
+         display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start", 
+    
+      };
+    }
+
+    return undefined;
+  },
+}), []);
 
   const rowData = useMemo(
     () => materialData?.data ?? EMPTY_ROWS,
     [materialData?.data],
   );
+ const buildGrandTotalRow = (apiResponse: any[] | null) => ({
+  id: "grand-total",
+  part_code: "",
+  component_name: "Grand Total",
 
+  qty: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.qty || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+
+  rate: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.rate || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+
+  taxable_amount: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.taxable_amount || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+
+  gst_rate: "",
+
+  gst_amount: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.gst_amount || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+
+  total_invoice: Number(
+    (apiResponse?.reduce(
+      (sum, item) => sum + Number(item.total_invoice || 0),
+      0,
+    ) ?? 0).toFixed(3),
+  ),
+});
+
+  const grandTotalRow = useMemo(() => buildGrandTotalRow(rowData), [rowData]);
+  
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-142px)]">
+      <div
+        className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-195px)]"}`}
+      >
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
@@ -106,9 +172,11 @@ const MaterialPurchaseTable: React.FC<Props> = ({
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          pinnedBottomRowData={rowData ? [grandTotalRow] : []}
           pagination={false}
           paginationPageSize={20}
           enableCellTextSelection={true}
+          
         />
       </div>
       {/* {materialData?.pagination && (

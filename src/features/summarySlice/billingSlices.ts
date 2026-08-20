@@ -5,6 +5,8 @@ import { AxiosResponse } from "axios";
 interface initialStateType {
   speakerAssemblyData: any;
   speakerAssemblyLoading: boolean;
+    previousBillingData: any;
+  previousBillingLoading: boolean;
   speakerAssemblyRangeKey: string | null;
   trcData: any;
   trcLoading: boolean;
@@ -12,13 +14,13 @@ interface initialStateType {
   dispatchedData: any;
   dispatchedLoading: boolean;
   dispatchedRangeKey: string | null;
-    materialData: any;
+  materialData: any;
   materialLoading: boolean;
   materialRangeKey: string | null;
   dateRange: any;
   isData: boolean;
-  trcAssemblyData: any
-  trcAssemblyLoading: boolean
+  trcAssemblyData: any;
+  trcAssemblyLoading: boolean;
   trcAssemblyRangeKey: string | null;
   billingSummaryData: any;
   billingSummaryLoading: boolean;
@@ -27,6 +29,8 @@ interface initialStateType {
   holdAssemblyData: any;
   holdAssemblyLoading: boolean;
   trcMode: "trc" | "hold";
+  finalSubmitLoading: boolean;
+  tabValue: string;
 }
 
 export const rangeKey = (from: string, to: string): string => `${from}_${to}`;
@@ -34,6 +38,8 @@ export const rangeKey = (from: string, to: string): string => `${from}_${to}`;
 const initialState: initialStateType = {
   speakerAssemblyData: null,
   speakerAssemblyLoading: false,
+  previousBillingData: null,
+  previousBillingLoading: false,
   speakerAssemblyRangeKey: null,
   trcData: null,
   trcLoading: false,
@@ -56,6 +62,8 @@ const initialState: initialStateType = {
   holdAssemblyData: null,
   holdAssemblyLoading: false,
   trcMode: "trc",
+  finalSubmitLoading: false,
+  tabValue: "create",
 };
 
 export const getSpeakerAssembly = createAsyncThunk<
@@ -101,6 +109,18 @@ export const getAssembly = createAsyncThunk<
   );
   return response;
 });
+export const getPreviousBilling = createAsyncThunk<
+  AxiosResponse<any>,
+  {
+    page: number;
+    limit: number;
+  }
+>("report/billing-previous", async (payload) => {
+  const response = await axiosInstance.get(
+    `/bill/previous-bills?page=${payload.page}&limit=${payload.limit}`,
+  );
+  return response;
+});
 
 export const getDispatchedSummary = createAsyncThunk<
   AxiosResponse<any>,
@@ -131,7 +151,7 @@ export const getMaterialPurchased = createAsyncThunk<
 export const getAssableAndTRC = createAsyncThunk<
   AxiosResponse<any>,
   {
-      from: string;
+    from: string;
     to: string;
     page: number;
     limit: number;
@@ -159,77 +179,105 @@ export const getAssableAndTRC = createAsyncThunk<
 export const uploadHoldPartConsumptionTRC = createAsyncThunk<
   AxiosResponse<any>,
   FormData
->("report/billing-hold-part-consumption-trc", async (formData, { rejectWithValue }) => {
-  try {
-    const response = await axiosInstance.post(
-      "/bill/hold-part-consumption/trc",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+>(
+  "report/billing-hold-part-consumption-trc",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "/bill/hold-part-consumption/trc",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
-    return response;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
-      return rejectWithValue(error.response.data.message);
+      );
+      return response;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message || "Upload failed");
     }
-    return rejectWithValue(error.message || "Upload failed");
-  }
-});
+  },
+);
 
 export const uploadHoldPartConsumptionAssembly = createAsyncThunk<
   AxiosResponse<any>,
   FormData
->("report/billing-hold-part-consumption-assembly", async (formData, { rejectWithValue }) => {
-  try {
-    const response = await axiosInstance.post(
-      "/bill/hold-part-consumption/assembly",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+>(
+  "report/billing-hold-part-consumption-assembly",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "/bill/hold-part-consumption/assembly",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
-    return response;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
-      return rejectWithValue(error.response.data.message);
+      );
+      return response;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message || "Upload failed");
     }
-    return rejectWithValue(error.message || "Upload failed");
-  }
-});
+  },
+);
 
-export const getBillingSummary = createAsyncThunk<
-  AxiosResponse<any>,
-  FormData
->("report/billing-full-summary", async (formData, { rejectWithValue }) => {
-  try {
-    const fromDate = formData.get("fromDate");
-    const toDate = formData.get("toDate");
+export const getBillingSummary = createAsyncThunk<AxiosResponse<any>, FormData>(
+  "report/billing-full-summary",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const fromDate = formData.get("fromDate");
+      const toDate = formData.get("toDate");
 
-    const response = await axiosInstance.post(
-      `/bill/billing/summary?fromDate=${fromDate}&toDate=${toDate}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axiosInstance.post(
+        `/bill/billing/summary?fromDate=${fromDate}&toDate=${toDate}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
+      );
 
-    return response;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
-      return rejectWithValue(error.response.data.message);
+      return response;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message || "Upload failed");
     }
-    return rejectWithValue(error.message || "Upload failed");
-  }
-});
+  },
+);
 
+export const onFinalSubmit = createAsyncThunk<AxiosResponse<any>, FormData>(
+  "report/billing-submitting",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/bill/submit-bill`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
 
+      return response;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message || "Upload failed");
+    }
+  },
+);
 
 const billingSlices = createSlice({
   name: "billing",
@@ -244,6 +292,9 @@ const billingSlices = createSlice({
     setTrcMode: (state, action) => {
       state.trcMode = action.payload;
     },
+        setTabValue: (state, action) => {
+      state.tabValue = action.payload;
+    },
     resetBillingSummary: (state) => {
       state.dateRange = null;
       state.isData = false;
@@ -254,6 +305,19 @@ const billingSlices = createSlice({
       state.holdLoading = false;
       state.holdAssemblyData = null;
       state.holdAssemblyLoading = false;
+      state.speakerAssemblyData = null;
+      state.speakerAssemblyLoading = false;
+      state.trcData = null;
+      state.trcLoading = false;
+      state.dispatchedData = null;
+      state.dispatchedLoading = false;
+      state.materialData = null;
+      state.materialLoading = false;
+      state.speakerAssemblyRangeKey = null;
+      state.trcRangeKey = null;
+      state.dispatchedRangeKey = null;
+      state.materialRangeKey = null;
+
     },
   },
   extraReducers: (builder) => {
@@ -284,7 +348,10 @@ const billingSlices = createSlice({
 
         if (action.payload.data.success) {
           state.trcData = action.payload.data;
-          state.trcRangeKey = rangeKey(action.meta.arg.from, action.meta.arg.to);
+          state.trcRangeKey = rangeKey(
+            action.meta.arg.from,
+            action.meta.arg.to,
+          );
         }
       })
       .addCase(getTRC.rejected, (state) => {
@@ -323,7 +390,8 @@ const billingSlices = createSlice({
       })
       .addCase(getMaterialPurchased.rejected, (state) => {
         state.materialLoading = false;
-      }) .addCase(getAssableAndTRC.pending, (state) => {
+      })
+      .addCase(getAssableAndTRC.pending, (state) => {
         state.trcAssemblyLoading = true;
       })
       .addCase(getAssableAndTRC.fulfilled, (state, action) => {
@@ -378,11 +446,36 @@ const billingSlices = createSlice({
       })
       .addCase(uploadHoldPartConsumptionAssembly.rejected, (state) => {
         state.holdAssemblyLoading = false;
+      })
+      .addCase(onFinalSubmit.pending, (state) => {
+        state.finalSubmitLoading = true;
+      })
+      .addCase(onFinalSubmit.fulfilled, (state, action) => {
+        state.finalSubmitLoading = false;
+
+        if (action.payload.data.success) {
+          state.finalSubmitLoading =  false;
+        }
+      })
+      .addCase(onFinalSubmit.rejected, (state) => {
+        state.finalSubmitLoading = false;
+      })  .addCase(getPreviousBilling.pending, (state) => {
+        state.previousBillingLoading = true;
+      })
+      .addCase(getPreviousBilling.fulfilled, (state, action) => {
+        state.previousBillingLoading = false;
+
+        if (action.payload.data.success) {
+          state.previousBillingData = action.payload.data;
+        }
+      })
+      .addCase(getPreviousBilling.rejected, (state) => {
+        state.previousBillingLoading = false;
       });
   },
 });
 
-export const { setDateRange, setIsData, setTrcMode, resetBillingSummary } =
+export const { setDateRange, setIsData, setTrcMode, resetBillingSummary, setTabValue } =
   billingSlices.actions;
 
 export default billingSlices.reducer;

@@ -59,9 +59,9 @@ const Q3ReportTable: React.FC = () => {
         defaultColDef={defaultColDef}
         enableCellTextSelection
         paginationPageSize={20}
-        
         pagination={true}
-
+        suppressExcelExport={true}
+        suppressCsvExport={true}
       />
     </div>
   );

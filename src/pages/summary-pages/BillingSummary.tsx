@@ -20,6 +20,7 @@ import {
   resetBillingSummary,
   uploadHoldPartConsumptionTRC,
   uploadHoldPartConsumptionAssembly,
+  onFinalSubmit,
 } from "@/features/summarySlice/billingSlices";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -79,23 +80,54 @@ interface BillingSummaryApiResponse {
     gst_amount: number;
     total_invoice: number;
   };
+  [key: string]: unknown;
 }
 
 const CATEGORY_BG = "#F2F4F7";
 const HEADER_ROW_COLORS = ["#E2E8F0", "#E5E7EB", "#E5E7EB", "#F3F4F6"];
+
+
+const NON_SECTION_KEYS = new Set([
+  "success",
+  "status",
+  "message",
+  "excel_uploaded_devices_count",
+  "categories",
+  "grand_total",
+]);
+
+const humanizeSectionKey = (key: string): string =>
+  key
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+const isBillingSummarySection = (
+  value: unknown,
+): value is BillingSummaryApiSection =>
+  !!value &&
+  typeof value === "object" &&
+  Array.isArray((value as BillingSummaryApiSection).items) &&
+  typeof (value as BillingSummaryApiSection).total === "object";
 
 const buildBillingSummaryRows = (
   apiResponse: BillingSummaryApiResponse | null,
 ): BillingSummaryRow[] => {
   if (!apiResponse) return [];
 
-  const sections: { name: string; section: BillingSummaryApiSection }[] = [
-    { name: "Sales Summary", section: apiResponse.sales_summary },
-    ...apiResponse.categories.map((category) => ({
-      name: category.category_name,
-      section: category,
-    })),
-  ];
+  const sections: { name: string; section: BillingSummaryApiSection }[] = [];
+
+  Object.keys(apiResponse).forEach((key) => {
+    if (NON_SECTION_KEYS.has(key)) return;
+    const value = apiResponse[key];
+    if (isBillingSummarySection(value)) {
+      sections.push({ name: humanizeSectionKey(key), section: value });
+    }
+  });
+
+  apiResponse.categories?.forEach((category) => {
+    sections.push({ name: category.category_name, section: category });
+  });
 
   const rows: BillingSummaryRow[] = [];
 
@@ -210,14 +242,20 @@ const BillingSummary = () => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [downloading, setDownloading] = useState(false);
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [finalConfirmOpen, setFinalConfirmOpen] = useState(false);
   const billingSummaryData = useAppSelector(
     (state) => state.summary?.billingSummaryData,
+  );
+   const tabValue = useAppSelector(
+    (state) => state.summary?.tabValue,
   );
   const billingSummaryLoading = useAppSelector(
     (state) => state.summary?.billingSummaryLoading,
   );
   const isData = useAppSelector((state) => state.summary?.isData);
   const holdLoading = useAppSelector((state) => state.summary?.holdLoading);
+   const finalLoading = useAppSelector((state) => state.summary?.finalSubmitLoading);
   const holdAssemblyLoading = useAppSelector(
     (state) => state.summary?.holdAssemblyLoading,
   );
@@ -367,8 +405,6 @@ const BillingSummary = () => {
     dispatch(setIsData(true));
   };
 
-  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
-
   const handleReset = () => {
     setResetConfirmOpen(true);
   };
@@ -463,6 +499,37 @@ const BillingSummary = () => {
     };
     reader.readAsDataURL(uploadFile ?? new Blob());
   };
+
+  const handleFinalSubmit = () => {
+    try {
+      if (!dateRange || !dateRange[0] || !dateRange[1]) {
+        setDateError("Date range is required");
+        return;
+      }
+      setDateError("");
+
+      const finalBill = new FormData();
+
+      finalBill.append("fromDate", dayjs(dateRange[0]).format("DD-MM-YYYY"));
+      finalBill.append("toDate", dayjs(dateRange[1]).format("DD-MM-YYYY"));
+      finalBill.append("file", uploadFile ?? "");
+      const response = dispatch(onFinalSubmit(finalBill)).unwrap();
+      if (response?.data?.success) {
+        setFinalConfirmOpen(false);
+        dispatch(setIsData(false));
+        dispatch(resetBillingSummary());
+        setUploadFile(null);
+        showToast(
+          response?.data?.message || "Data Submitted successfully",
+          "success",
+        );
+      } else {
+        showToast(response?.data?.message || "Failed to submit data", "error");
+      }
+    } catch (error:any) {
+      showToast(error?.message || "Failed to submit data", "error");
+    }
+  }; // handleFinalSubmit
 
   return (
     <div className="grid  w-full grid-cols-[320px_3fr]  bg-white">
@@ -575,6 +642,19 @@ const BillingSummary = () => {
               Search
             </LoadingButton>
           </div>
+
+          <div className="mt-2">
+            <LoadingButton
+              type="button"
+              fullWidth
+              variant="contained"
+              disabled={ true ||!isData || finalLoading}
+              loadingPosition="center"
+              onClick={()=>setFinalConfirmOpen(true)}
+            >
+              Final Billing
+            </LoadingButton>
+          </div>
         </form>
 
         {/* Upload excel */}
@@ -644,7 +724,7 @@ const BillingSummary = () => {
           </LoadingButton>
         </div>
       </div>
-      <div className="flex flex-col w-full min-h-0 h-[calc(100vh-100px)]">
+      <div className={`flex flex-col w-full min-h-0  ${tabValue === "preview" ?  "h-[calc(100vh-100px)]" : "h-[calc(100vh-150px)]"}` }>
         <div className="ag-theme-quartz billing-summary-grid flex-1 min-h-0">
           <AgGridReact
             ref={gridRef}
@@ -671,6 +751,16 @@ const BillingSummary = () => {
         content="This will clear the device type, date range and search results. Do you want to continue?"
         cancelText="No"
         confirmText="Yes"
+      />
+      <ConfirmationModel
+        open={finalConfirmOpen}
+        onClose={() => setFinalConfirmOpen(false)}
+        onConfirm={handleFinalSubmit}
+        title=" Confirm billing submission"
+        content="Are you sure you want to submit this billing data? Please review the details before continuing. Once submitted, you may not be able to make changes."
+        cancelText="Cancel"
+        confirmText="Continue"
+        loading={finalLoading}
       />
     </div>
   );

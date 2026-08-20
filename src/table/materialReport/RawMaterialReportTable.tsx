@@ -33,8 +33,7 @@ const RawMaterialReportTable: React.FC = () => {
   const rowData = useMemo(() => reportData?.data ?? EMPTY_ROWS, [reportData]);
 
   const columnDefs = useMemo<(ColDef | ColGroupDef)[]>(() => {
-    const locations = reportData?.locations ?? [];
-
+const locations = [...(reportData?.locations ?? [])].reverse();
     const locationGroups: ColGroupDef[] = locations.map((location, index) => {
       const colorIndex = index % LOCATION_GROUP_COLORS;
       const groupClass = `rm-group-${colorIndex}`;
