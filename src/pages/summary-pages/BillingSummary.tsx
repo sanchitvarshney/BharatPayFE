@@ -520,7 +520,7 @@ const BillingSummary = () => {
 
   return (
     <div className="grid  w-full grid-cols-[320px_3fr]  bg-white">
-      <div className="w-full border-r border-neutral-300">
+      <div className="w-full border-r border-neutral-300 max-h-[calc(100vh-150px)] overflow-y-auto">
         <form onSubmit={handleSubmit(onSubmit)} className="p-[10px]">
           <div className="py-[0px] flex flex-col gap-[10px]">
             <div>
