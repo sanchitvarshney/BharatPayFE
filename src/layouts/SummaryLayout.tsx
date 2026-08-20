@@ -18,12 +18,12 @@ type Props = {
 };
 
 const tabRoutes = [
-  "/summary",
-  "/summary/assembly-and-trc",
-  "/summary/speaker-assembly",
-  "/summary/trc",
-  "/summary/dispatch",
-  "/summary/material-purchase",
+  "/billing",
+  "/billing/assembly-and-trc",
+  "/billing/speaker-assembly",
+  "/billing/trc",
+  "/billing/dispatch",
+  "/billing/material-purchase",
 ];
 
 const tabData = [
@@ -86,7 +86,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
    */
   useEffect(() => {
     if (!isData && currentTabIndex > 0) {
-      navigate("/summary", { replace: true });
+      navigate("/billing", { replace: true });
     }
   }, [isData, currentTabIndex, navigate]);
 
@@ -99,7 +99,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
   ) => {
     if (newValue === 0) {
       dispatch(setTabValue("create"));
-      navigate("/summary");
+      navigate("/billing");
       return;
     }
 
