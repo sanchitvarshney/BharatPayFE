@@ -150,7 +150,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
             label={
               <div className="flex items-center gap-[10px]">
                 <CreditScoreIcon />
-                <span>Billing Summary</span>
+                <span>Billing</span>
               </div>
             }
           />
