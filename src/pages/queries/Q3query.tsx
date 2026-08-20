@@ -31,6 +31,7 @@ const Q3query: React.FC = () => {
     );
 
     const summaryRows = [
+      ["Date", date?.format("DD-MM-YYYY") || ""],
       ["Total", total],
       ["Part Code", q3data.component?.partCode || ""],
       ["Name", q3data.component?.name || ""],
