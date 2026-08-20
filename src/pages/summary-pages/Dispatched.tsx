@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs from "dayjs";
 import { AgGridReact } from "@ag-grid-community/react";
@@ -6,7 +6,9 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DispatchedTable from "@/table/report/summary-tables/DispatchedTable";
+import HoldDispatchTable from "@/table/report/summary-tables/HoldDispatchTable";
 import DateRangeBadge from "@/components/reusable/DateRangeBadge";
+import SegmentedToggle from "@/components/reusable/SegmentedToggle";
 import {
   getDispatchedSummary,
   rangeKey,
@@ -14,7 +16,10 @@ import {
 
 dayjs.extend(customParseFormat);
 
+type ViewMode = "trc" | "hold";
+
 const Dispatched: React.FC = () => {
+  const [mode, setMode] = useState<ViewMode>("trc");
   const dispatch = useAppDispatch();
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const dispatchedData = useAppSelector(
@@ -92,23 +97,42 @@ const Dispatched: React.FC = () => {
   return (
     <div className={`bg-white ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-155px)]"}  p-1 flex flex-col`}>
       <div className="flex items-center justify-between">
-        <DateRangeBadge dateRange={dateRange} />
-        <Tooltip title="Refresh">
-          <IconButton
-            disabled={dispatchedLoading}
-            onClick={handleRefresh}
-            size="small"
-          >
-            <RefreshIcon className={dispatchedLoading ? "animate-spin" : ""} />
-          </IconButton>
-        </Tooltip>
+        <div className="flex items-center gap-3">
+          <SegmentedToggle
+            value={mode}
+            onChange={(value) => setMode(value as ViewMode)}
+            options={[
+              { value: "trc", label: "Dispatch" },
+              { value: "hold", label: "Hold" },
+            ]}
+          />
+        </div>
+        {mode === "trc" && (
+          <div className="flex items-center gap-3">
+            <DateRangeBadge dateRange={dateRange} />
+            <Tooltip title="Refresh">
+              <IconButton
+                disabled={dispatchedLoading}
+                onClick={handleRefresh}
+                size="small"
+              >
+                <RefreshIcon
+                  className={dispatchedLoading ? "animate-spin" : ""}
+                />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
       </div>
       <div className="w-full  mt-1">
-        <DispatchedTable
-          gridRef={gridRef}
-          handlePageChange={handlePageChange}
-     
-        />
+        {mode === "trc" ? (
+          <DispatchedTable
+            gridRef={gridRef}
+            handlePageChange={handlePageChange}
+          />
+        ) : (
+          <HoldDispatchTable />
+        )}
       </div>
     </div>
   );

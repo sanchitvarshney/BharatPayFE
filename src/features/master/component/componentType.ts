@@ -35,7 +35,6 @@ export type GroupApiResponse = {
   success: boolean;
   data: Groupdata[];
 };
-export type UpdateconpinentDetail = {};
 
 export type ComponentDetail = {
   partcode: string;
@@ -121,6 +120,11 @@ export type UpdateTaxDetailPayload = {
   hsn: string;
 };
 
+export type UpdateMaterialPurchasedPayload = {
+  comp: string;
+  is_row_material_purchased: string;
+};
+
 export interface ComponnetState {
   component: ComponentData | null;
   getComponentLoading: boolean;
@@ -133,4 +137,5 @@ export interface ComponnetState {
   updateCompoenntAdvanceDetailLoading: boolean;
   updateCompoenntProductionDetailLoading: boolean;
   updateCompoenntTaxDetailLoading: boolean;
+  updateMaterialPurchasedLoading: boolean;
 }
