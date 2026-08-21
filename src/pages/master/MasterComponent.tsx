@@ -5,7 +5,11 @@ import MasterComponentsUplaodImageDrawer from "@/components/Drawers/master/Maste
 import MasterComponnetsViewImageDrawer from "@/components/Drawers/master/MasterComponnetsViewImageDrawer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { createComponentAsync, getComponentsAsync, getGroupsAsync } from "@/features/master/component/componentSlice";
+import {
+  createComponentAsync,
+  getComponentsAsync,
+  getGroupsAsync,
+} from "@/features/master/component/componentSlice";
 import { getUOMAsync } from "@/features/master/UOM/UOMSlice";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { Autocomplete, Button, TextField, Typography } from "@mui/material";
@@ -25,10 +29,8 @@ export type createComponentdata = {
   uom: { units_id: string; units_name: string } | null;
   group: OptionType | null;
   notes: string;
-  module:{id:string,text:string}|null;
-  hsn:string;
-  department: OptionType | null;
-  rate: string;
+  module: { id: string; text: string } | null;
+  hsn: string;
 };
 const MasterComponent: React.FC = () => {
   const [update, setUpadte] = useState<boolean>(false);
@@ -50,29 +52,31 @@ const MasterComponent: React.FC = () => {
       uom: null,
       group: null,
       notes: "",
-      module:null,
-      hsn:"",
-      department: null,
-      rate: "",
+      module: null,
+      hsn: "",
     },
   });
 
   const moduleOptions = [
     { id: "BPE", text: "BPe" },
     { id: "MSC", text: "MSc" },
-  ]
-
-  const assemblyTrcOptions: OptionType[] = [
-    { id: "ASSEMBLY", text: "Assembly" },
-    { id: "TRC", text: "TRC" },
-  ]
+  ];
 
   const { UOM, getUOMloading } = useAppSelector((state) => state.uom);
-  const { createComponentLoading, component } = useAppSelector((state) => state.component);
+  const { createComponentLoading, component } = useAppSelector(
+    (state) => state.component,
+  );
 
   const onSubmit: SubmitHandler<createComponentdata> = (data) => {
     if (data.uom !== null) {
-      const newdata = { name: data.component, description: data.notes, uom: data.uom?.units_id,compFor:data?.module?.id,part:data.part,hsn:data.hsn,department:data.department?.id,rate:data.rate };
+      const newdata = {
+        name: data.component,
+        description: data.notes,
+        uom: data.uom?.units_id,
+        compFor: data?.module?.id,
+        part: data.part,
+        hsn: data.hsn,
+      };
       dispatch(createComponentAsync(newdata)).then((res: any) => {
         if (res.payload?.data?.success) {
           reset();
@@ -81,7 +85,9 @@ const MasterComponent: React.FC = () => {
         }
       });
     } else {
-      !data.group ? showToast("Please select a Group ", "error") : showToast("Please select a UOM", "error");
+      !data.group
+        ? showToast("Please select a Group ", "error")
+        : showToast("Please select a UOM", "error");
     }
   };
 
@@ -101,17 +107,29 @@ const MasterComponent: React.FC = () => {
     <>
       {/* drawers */}
       <MasterComponentsUpdateDrawer open={update} setOpen={setUpadte} />
-      <MasterComponentsUplaodImageDrawer open={uploadImage} setOpen={setUploadImage} />
-      <MasterComponnetsViewImageDrawer open={viewImage} setOpen={setViewImage} />
+      <MasterComponentsUplaodImageDrawer
+        open={uploadImage}
+        setOpen={setUploadImage}
+      />
+      <MasterComponnetsViewImageDrawer
+        open={viewImage}
+        setOpen={setViewImage}
+      />
       {/* drawers */}
       <div className="h-[calc(100vh-100px)] grid grid-cols-[550px_1fr] bg-white">
         <div className="h-full overflow-y-auto border-r border-neutral-300 ">
           <form onSubmit={handleSubmit(onSubmit)} className="p-[20px]">
-            <Typography className="text-slate-600" variant="h1" component={"div"} fontSize={20} fontWeight={500}>
+            <Typography
+              className="text-slate-600"
+              variant="h1"
+              component={"div"}
+              fontSize={20}
+              fontWeight={500}
+            >
               Add New Component
             </Typography>
             <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
-            <div>
+              <div>
                 <Controller
                   name="module"
                   control={control}
@@ -122,67 +140,56 @@ const MasterComponent: React.FC = () => {
                       value={field.value}
                       options={moduleOptions}
                       getOptionLabel={(option) => option.text}
-                      renderInput={(params) => <TextField {...params} label={"Select Module"} variant="outlined" />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={"Select Module"}
+                          variant="outlined"
+                        />
+                      )}
                       onChange={(_, value) => field.onChange(value)}
-                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                      isOptionEqualToValue={(option, value) =>
+                        option.id === value.id
+                      }
                     />
                   )}
                 />
 
-                {errors.module && <span className=" text-[12px] text-red-500">{errors.module.message}</span>}
-              </div>
-              <div>
-                <TextField disabled={watch("module")?.id !== "BPE"} placeholder="Part Code" fullWidth label="Part Code"{...register("part")} />
-                {errors.part && <span className=" text-[12px] text-red-500">{errors.part.message}</span>}
-              </div>
-              <div>
-                <Controller
-                  name="department"
-                  control={control}
-                  rules={{ required: "You must select Assembly/TRC" }}
-                  render={({ field }) => (
-                    <Autocomplete
-                      value={field.value}
-                      options={assemblyTrcOptions}
-                      getOptionLabel={(option) => option.text}
-                      renderInput={(params) => <TextField {...params} label={"Department"} variant="outlined" />}
-                      onChange={(_, value) => field.onChange(value)}
-                      isOptionEqualToValue={(option, value) => option.id === value.id}
-                    />
-                  )}
-                />
-                {errors.department && <span className=" text-[12px] text-red-500">{errors.department.message}</span>}
+                {errors.module && (
+                  <span className=" text-[12px] text-red-500">
+                    {errors.module.message}
+                  </span>
+                )}
               </div>
               <div>
                 <TextField
-                  placeholder="Rate"
+                  disabled={watch("module")?.id !== "BPE"}
+                  placeholder="Part Code"
                   fullWidth
-                  label="Rate"
-                  type="number"
-                  inputProps={{ min: 0, step: "any" }}
-                  onKeyDown={(e) => {
-                    if (e.key === "-" || e.key === "+" || e.key === "e" || e.key === "E") {
-                      e.preventDefault();
-                    }
-                  }}
-                  onPaste={(e) => {
-                    const pasted = e.clipboardData.getData("text");
-                    if (!/^\d*\.?\d*$/.test(pasted)) {
-                      e.preventDefault();
-                    }
-                  }}
-                  {...register("rate", {
-                    required: "Rate is required",
-                    min: { value: 0, message: "Rate cannot be negative" },
+                  label="Part Code"
+                  {...register("part")}
+                />
+                {errors.part && (
+                  <span className=" text-[12px] text-red-500">
+                    {errors.part.message}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div>
+              <div className="mt-[20px]">
+                <TextField
+                  fullWidth
+                  label="Component Name"
+                  {...register("component", {
+                    required: "Component Name is required",
                   })}
                 />
-                {errors.rate && <span className=" text-[12px] text-red-500">{errors.rate.message}</span>}
-              </div>
-              </div>
-              <div >
-              <div className="mt-[20px]">
-                <TextField fullWidth label="Component Name" {...register("component", { required: "Component Name is required" })} />
-                {errors.component && <span className=" text-[12px] text-red-500">{errors.component.message}</span>}
+                {errors.component && (
+                  <span className=" text-[12px] text-red-500">
+                    {errors.component.message}
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-[20px] mt-[20px]">
                 <Controller
@@ -195,16 +202,37 @@ const MasterComponent: React.FC = () => {
                       value={field.value}
                       options={UOM ? UOM : []}
                       getOptionLabel={(option) => option.units_name}
-                      renderInput={(params) => <TextField {...params} label={"Select UOM"} variant="outlined" />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={"Select UOM"}
+                          variant="outlined"
+                        />
+                      )}
                       onChange={(_, value) => field.onChange(value)}
-                      isOptionEqualToValue={(option, value) => option.units_id === value.units_id}
+                      isOptionEqualToValue={(option, value) =>
+                        option.units_id === value.units_id
+                      }
                     />
                   )}
                 />
 
-                {errors.uom && <span className=" text-[12px] text-red-500">{errors.uom.message}</span>}
-                <TextField placeholder=" HSN Code" fullWidth label="HSN Code"{...register("hsn")} />
-                {errors.hsn && <span className=" text-[12px] text-red-500">{errors.hsn.message}</span>}
+                {errors.uom && (
+                  <span className=" text-[12px] text-red-500">
+                    {errors.uom.message}
+                  </span>
+                )}
+                <TextField
+                  placeholder=" HSN Code"
+                  fullWidth
+                  label="HSN Code"
+                  {...register("hsn")}
+                />
+                {errors.hsn && (
+                  <span className=" text-[12px] text-red-500">
+                    {errors.hsn.message}
+                  </span>
+                )}
               </div>
               {/* <div>
                 <Controller
@@ -227,8 +255,21 @@ const MasterComponent: React.FC = () => {
               </div> */}
             </div>
             <div className="mt-[30px]">
-              <TextField label={"Description"} fullWidth multiline rows={3} className="h-[100px] resize-none" {...register("notes", { required: "Description Name is required" })} />
-              {errors.notes && <span className=" text-[12px] text-red-500">{errors.notes.message}</span>}
+              <TextField
+                label={"Description"}
+                fullWidth
+                multiline
+                rows={3}
+                className="h-[100px] resize-none"
+                {...register("notes", {
+                  required: "Description Name is required",
+                })}
+              />
+              {errors.notes && (
+                <span className=" text-[12px] text-red-500">
+                  {errors.notes.message}
+                </span>
+              )}
             </div>
             <div className="h-[50px] p-0 flex items-center px-[20px]  gap-[10px] justify-end mt-[20px]">
               <Button
@@ -242,7 +283,13 @@ const MasterComponent: React.FC = () => {
               >
                 Reset
               </Button>
-              <LoadingButton loadingPosition="start" loading={createComponentLoading} type="submit" startIcon={<SaveIcon fontSize="small" />} variant="contained">
+              <LoadingButton
+                loadingPosition="start"
+                loading={createComponentLoading}
+                type="submit"
+                startIcon={<SaveIcon fontSize="small" />}
+                variant="contained"
+              >
                 Submit
               </LoadingButton>
               <Button
@@ -270,19 +317,41 @@ const MasterComponent: React.FC = () => {
         <div>
           <div className="h-[40px] flex items-center gap-[20px] justify-end bg-white px-[20px]">
             <div className="flex items-center space-x-2">
-              <Checkbox id="terms" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" disabled />
-              <label htmlFor="terms" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
+              <Checkbox
+                id="terms"
+                className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400"
+                disabled
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500"
+              >
                 Show Rejected
               </label>
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox id="Disabled" className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400" disabled />
-              <label htmlFor="Disabled" className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500">
+              <Checkbox
+                id="Disabled"
+                className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400"
+                disabled
+              />
+              <label
+                htmlFor="Disabled"
+                className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500"
+              >
                 Show Disabled
               </label>
             </div>
           </div>
-          <MsterComponentsMaterialListTable gridRef={gridRef} setOpen={setUpadte} open={update} setViewImage={setViewImage} setUploadImage={setUploadImage} viewImage={viewImage} uploadImage={uploadImage} />
+          <MsterComponentsMaterialListTable
+            gridRef={gridRef}
+            setOpen={setUpadte}
+            open={update}
+            setViewImage={setViewImage}
+            setUploadImage={setUploadImage}
+            viewImage={viewImage}
+            uploadImage={uploadImage}
+          />
         </div>
       </div>
     </>
