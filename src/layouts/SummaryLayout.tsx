@@ -61,13 +61,9 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
   const isData = useAppSelector((state) => state.summary.isData);
   const tabValue = useAppSelector((state) => state.summary.tabValue);
 
-  const isPreviousBilling =
-    location.pathname === "/previous-billing";
+  const isPreviousBilling = location.pathname === "/previous-billing";
 
-  const currentTabIndex = Math.max(
-    tabRoutes.indexOf(location.pathname),
-    0
-  );
+  const currentTabIndex = Math.max(tabRoutes.indexOf(location.pathname), 0);
 
   /**
    * Keep Redux tab state in sync with the URL.
@@ -95,7 +91,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
    */
   const handleMainTabChange = (
     _event: React.SyntheticEvent,
-    newValue: number
+    newValue: number,
   ) => {
     if (newValue === 0) {
       dispatch(setTabValue("create"));
@@ -114,7 +110,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
    */
   const handleSummaryTabChange = (
     _event: React.SyntheticEvent,
-    newValue: number
+    newValue: number,
   ) => {
     const route = tabRoutes[newValue];
 
@@ -143,7 +139,6 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
           scrollButtons="auto"
           value={isPreviousBilling ? 1 : 0}
           onChange={handleMainTabChange}
-          centered
         >
           <Tab
             sx={{ fontWeight: 500 }}
@@ -183,7 +178,6 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
             scrollButtons="auto"
             value={currentTabIndex}
             onChange={handleSummaryTabChange}
-            centered
           >
             {tabData.map((tab, index) => (
               <Tab
