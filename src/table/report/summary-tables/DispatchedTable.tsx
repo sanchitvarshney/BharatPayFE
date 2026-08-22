@@ -64,7 +64,7 @@ const DispatcedTable: React.FC<Props> = ({ gridRef, handlePageChange }) => {
   return (
     <div>
       <div
-        className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-250px)]"}`}
+        className={`relative ag-theme-quartz ${tabValue === "preview" ? "h-[calc(100vh-210px)]" : "h-[calc(100vh-260px)]"}`}
       >
         <AgGridReact
           ref={gridRef}

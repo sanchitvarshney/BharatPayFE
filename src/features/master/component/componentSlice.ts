@@ -1,7 +1,18 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { ComponentDetailApiResponse, ComponentDetails, ComponentsApiResponse, ComponnetState, GroupApiResponse, UpdateCompoenntProductionDetailPayload, UpdateComponentAdvanceDetail, UpdateComponentBasicDetailPayload, UpdateTaxDetailPayload } from "./componentType";
+import {
+  ComponentDetailApiResponse,
+  ComponentDetails,
+  ComponentsApiResponse,
+  ComponnetState,
+  GroupApiResponse,
+  UpdateCompoenntProductionDetailPayload,
+  UpdateComponentAdvanceDetail,
+  UpdateComponentBasicDetailPayload,
+  UpdateMaterialPurchasedPayload,
+  UpdateTaxDetailPayload,
+} from "./componentType";
 import { UomCreateApiresponse } from "../UOM/UOMType";
 import { showToast } from "@/utils/toasterContext";
 
@@ -17,38 +28,88 @@ const initialState: ComponnetState = {
   updateCompoenntAdvanceDetailLoading: false,
   updateCompoenntProductionDetailLoading: false,
   updateCompoenntTaxDetailLoading: false,
+  updateMaterialPurchasedLoading: false,
 };
 
-export const getComponentsAsync = createAsyncThunk<AxiosResponse<ComponentsApiResponse>>("master/getcomponents", async () => {
+export const getComponentsAsync = createAsyncThunk<
+  AxiosResponse<ComponentsApiResponse>
+>("master/getcomponents", async () => {
   const response = await axiosInstance.get("/component");
   return response;
 });
-export const createComponentAsync = createAsyncThunk<AxiosResponse<UomCreateApiresponse>, ComponentDetails>("master/create_component", async (component) => {
-  const response = await axiosInstance.post("/component/create_component", component);
+export const createComponentAsync = createAsyncThunk<
+  AxiosResponse<UomCreateApiresponse>,
+  ComponentDetails
+>("master/create_component", async (component) => {
+  const response = await axiosInstance.post(
+    "/component/create_component",
+    component,
+  );
   return response;
 });
-export const getGroupsAsync = createAsyncThunk<AxiosResponse<GroupApiResponse>>("group/groupSelect2", async () => {
-  const response = await axiosInstance.get("/group/groupSelect2");
+export const getGroupsAsync = createAsyncThunk<AxiosResponse<GroupApiResponse>>(
+  "group/groupSelect2",
+  async () => {
+    const response = await axiosInstance.get("/group/groupSelect2");
+    return response;
+  },
+);
+export const getComponentDetailSlice = createAsyncThunk<
+  AxiosResponse<ComponentDetailApiResponse>,
+  string
+>("group/getComponentSlice", async (id) => {
+  const response = await axiosInstance.get(
+    `/component/getComponentDetailsByCode/${id}`,
+  );
   return response;
 });
-export const getComponentDetailSlice = createAsyncThunk<AxiosResponse<ComponentDetailApiResponse>, string>("group/getComponentSlice", async (id) => {
-  const response = await axiosInstance.get(`/component/getComponentDetailsByCode/${id}`);
+export const updateCompoenntBasicDetailAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  UpdateComponentBasicDetailPayload
+>("group/updateCompoenntBasicDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(
+    `/component/updateComponentBasicDetail`,
+    payload,
+  );
   return response;
 });
-export const updateCompoenntBasicDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateComponentBasicDetailPayload>("group/updateCompoenntBasicDetailAsync", async (payload) => {
-  const response = await axiosInstance.put(`/component/updateComponentBasicDetail`, payload);
+export const updateCompoenntAdvanceDetailAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  UpdateComponentAdvanceDetail
+>("group/updateCompoenntAdvanceDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(
+    `/component/updateComponentAdvanceDetail`,
+    payload,
+  );
   return response;
 });
-export const updateCompoenntAdvanceDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateComponentAdvanceDetail>("group/updateCompoenntAdvanceDetailAsync", async (payload) => {
-  const response = await axiosInstance.put(`/component/updateComponentAdvanceDetail`, payload);
+export const updateCompoenntProductionDetailAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  UpdateCompoenntProductionDetailPayload
+>("group/updateCompoenntProductionDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(
+    `/component/updateComponentProductionDetail`,
+    payload,
+  );
   return response;
 });
-export const updateCompoenntProductionDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateCompoenntProductionDetailPayload>("group/updateCompoenntProductionDetailAsync", async (payload) => {
-  const response = await axiosInstance.put(`/component/updateComponentProductionDetail`, payload);
+export const updateCompoenntTaxDetailAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  UpdateTaxDetailPayload
+>("group/updateCompoenntTaxDetailAsync", async (payload) => {
+  const response = await axiosInstance.put(
+    `/component/updateComponentTaxDetail`,
+    payload,
+  );
   return response;
 });
-export const updateCompoenntTaxDetailAsync = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, UpdateTaxDetailPayload>("group/updateCompoenntTaxDetailAsync", async (payload) => {
-  const response = await axiosInstance.put(`/component/updateComponentTaxDetail`, payload);
+export const updateMaterialPurchasedAsync = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string }>,
+  UpdateMaterialPurchasedPayload
+>("group/updateMaterialPurchasedAsync", async (payload) => {
+  const response = await axiosInstance.put(
+    `/component/material_purchased?comp=${payload?.comp}&is_row_material_purchased=${payload?.is_row_material_purchased}`,
+  );
   return response;
 });
 const componentSlice = createSlice({
@@ -136,12 +197,15 @@ const componentSlice = createSlice({
       .addCase(updateCompoenntProductionDetailAsync.pending, (state) => {
         state.updateCompoenntProductionDetailLoading = true;
       })
-      .addCase(updateCompoenntProductionDetailAsync.fulfilled, (state, action) => {
-        state.updateCompoenntProductionDetailLoading = false;
-        if (action.payload.data.success) {
-          showToast(action.payload.data.message, "success");
-        }
-      })
+      .addCase(
+        updateCompoenntProductionDetailAsync.fulfilled,
+        (state, action) => {
+          state.updateCompoenntProductionDetailLoading = false;
+          if (action.payload.data.success) {
+            showToast(action.payload.data.message, "success");
+          }
+        },
+      )
       .addCase(updateCompoenntProductionDetailAsync.rejected, (state) => {
         state.updateCompoenntProductionDetailLoading = false;
       })
@@ -156,6 +220,18 @@ const componentSlice = createSlice({
       })
       .addCase(updateCompoenntTaxDetailAsync.rejected, (state) => {
         state.updateCompoenntTaxDetailLoading = false;
+      })
+      .addCase(updateMaterialPurchasedAsync.pending, (state) => {
+        state.updateMaterialPurchasedLoading = true;
+      })
+      .addCase(updateMaterialPurchasedAsync.fulfilled, (state, action) => {
+        state.updateMaterialPurchasedLoading = false;
+        if (action.payload.data.success) {
+          showToast(action.payload.data.message, "success");
+        }
+      })
+      .addCase(updateMaterialPurchasedAsync.rejected, (state) => {
+        state.updateMaterialPurchasedLoading = false;
       });
   },
 });
