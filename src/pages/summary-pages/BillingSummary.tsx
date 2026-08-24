@@ -605,11 +605,11 @@ const BillingSummary = () => {
                   onClick={handleDownloadReport}
                   disabled={!isConnected || downloading || !isData}
                   sx={{
-                    border: "1px solid rgb(203 213 225)",
+                    border: "1px solid #0e7490",
                     borderRadius: "4px",
                   }}
                 >
-                  <Icons.download fontSize="small" />
+                  <Icons.download fontSize="small" sx={{ color: "#0e7490" }} />
                 </IconButton>
               </span>
             </MuiTooltip>
