@@ -91,7 +91,6 @@ interface BillingSummaryApiResponse {
 const CATEGORY_BG = "#F2F4F7";
 const HEADER_ROW_COLORS = ["#E2E8F0", "#E5E7EB", "#E5E7EB", "#F3F4F6"];
 
-
 const NON_SECTION_KEYS = new Set([
   "success",
   "status",
@@ -231,18 +230,19 @@ const BillingSummary = () => {
   const dateRange = useAppSelector((state) => state.summary?.dateRange);
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [finalConfirmOpen, setFinalConfirmOpen] = useState(false);
+
   const billingSummaryData = useAppSelector(
     (state) => state.summary?.billingSummaryData,
   );
-   const tabValue = useAppSelector(
-    (state) => state.summary?.tabValue,
-  );
+  const tabValue = useAppSelector((state) => state.summary?.tabValue);
   const billingSummaryLoading = useAppSelector(
     (state) => state.summary?.billingSummaryLoading,
   );
   const isData = useAppSelector((state) => state.summary?.isData);
   const holdLoading = useAppSelector((state) => state.summary?.holdLoading);
-   const finalLoading = useAppSelector((state) => state.summary?.finalSubmitLoading);
+  const finalLoading = useAppSelector(
+    (state) => state.summary?.finalSubmitLoading,
+  );
   const holdAssemblyLoading = useAppSelector(
     (state) => state.summary?.holdAssemblyLoading,
   );
@@ -387,9 +387,18 @@ const BillingSummary = () => {
     billSearch.append("file", uploadFile ?? "");
     billSearch.append("fromDate", dayjs(dateRange[0]).format("DD-MM-YYYY"));
     billSearch.append("toDate", dayjs(dateRange[1]).format("DD-MM-YYYY"));
-    await dispatch(getBillingSummary(billSearch)).unwrap();
+    const response = await dispatch(getBillingSummary(billSearch)).unwrap();
 
-    dispatch(setIsData(true));
+    if (response?.data?.success) {
+      showToast(
+        response?.data?.message || "Data Fetched successfully",
+        "success",
+      );
+      dispatch(setIsData(true));
+    } else {
+      showToast(response?.data?.message || "Failed to fetch data", "error");
+      dispatch(setIsData(false));
+    }
   };
 
   const handleReset = () => {
@@ -513,7 +522,7 @@ const BillingSummary = () => {
       } else {
         showToast(response?.data?.message || "Failed to submit data", "error");
       }
-    } catch (error:any) {
+    } catch (error: any) {
       showToast(error?.message || "Failed to submit data", "error");
     }
   }; // handleFinalSubmit
@@ -594,7 +603,7 @@ const BillingSummary = () => {
               <span className="mr-auto">
                 <IconButton
                   onClick={handleDownloadReport}
-                  disabled={!isConnected || downloading}
+                  disabled={!isConnected || downloading || !isData}
                   sx={{
                     border: "1px solid rgb(203 213 225)",
                     borderRadius: "4px",
@@ -635,9 +644,9 @@ const BillingSummary = () => {
               type="button"
               fullWidth
               variant="contained"
-              disabled={ true ||!isData || finalLoading}
+              disabled={true || !isData || finalLoading}
               loadingPosition="center"
-              onClick={()=>setFinalConfirmOpen(true)}
+              onClick={() => setFinalConfirmOpen(true)}
             >
               Final Billing
             </LoadingButton>
@@ -711,7 +720,9 @@ const BillingSummary = () => {
           </LoadingButton>
         </div>
       </div>
-      <div className={`flex flex-col w-full min-h-0  ${tabValue === "preview" ?  "h-[calc(100vh-100px)]" : "h-[calc(100vh-150px)]"}` }>
+      <div
+        className={`flex flex-col w-full min-h-0  ${tabValue === "preview" ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-150px)]"}`}
+      >
         <div className="ag-theme-quartz billing-summary-grid flex-1 min-h-0">
           <AgGridReact
             ref={gridRef}

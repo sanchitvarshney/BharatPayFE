@@ -25,6 +25,7 @@ import {
 } from "@/features/Dispatch/DispatchSlice";
 import { cancelPartCodeChallan } from "@/features/procurement/poSlices";
 import { showToast } from "@/utils/toasterContext";
+import FullPageLoading from "@/components/shared/FullPageLoading";
 
 interface RowData {
   orderQty: number;
@@ -59,6 +60,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -147,7 +149,9 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       const shipmentId = txnId.replace(/\//g, "/");
       const printAction =
         challanType === "PART" ? printPartChallan : printChallan;
+      setPrintLoading(true);
       dispatch(printAction({ challanId: shipmentId })).then((res) => {
+        setPrintLoading(false);
         const payload = res.payload as
           | { data?: { success?: boolean; data?: string } }
           | undefined;
@@ -333,6 +337,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
 
   return (
     <>
+      {printLoading && <FullPageLoading />}
       <div>
         <div className="relative ag-theme-quartz h-[calc(105vh-140px)]">
           <AgGridReact
