@@ -41,7 +41,7 @@ const R9ReportTable: React.FC<Props> = ({
     { headerName: "Vendor Name", field: "vendorName", minWidth: 300 },
     { headerName: "In Date", field: "inDate", minWidth: 200 },
     { headerName: "Vendor Address", field: "vendorAddress", minWidth: 400 },
-    { headerName: "AWB No", field: "awbNo" },
+    { headerName: "AWB / Challan", field: "awbNo" },
     { headerName: "Serial", field: "serial" },
     { headerName: "IMEI", field: "imei" },
     {
