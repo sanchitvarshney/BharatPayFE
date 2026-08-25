@@ -308,7 +308,7 @@ const WrongDeviceMin: React.FC = () => {
       typeId: formValues.typeId,
       categoryId: formValues.categoryId,
       locationId: formValues.locationId?.code || formValues.locationId,
-      partnerId: formValues.partnerId ?? "--",
+      partnerId: formValues.partnerId == "" ? "--" : formValues.partnerId,
       awbNo: combinedRowData.map((row) => row.awbNo || ""),
       serialNo: combinedRowData.map((row) => row.serialNo || ""),
       imeiNo: combinedRowData.map((row) => row.imeiNo || ""),
