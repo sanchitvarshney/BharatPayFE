@@ -19,11 +19,13 @@ type Props = {
 
 const tabRoutes = [
   "/billing",
+   "/billing/material-purchase",
+    "/billing/dispatch",
   "/billing/assembly-and-trc",
   "/billing/speaker-assembly",
   "/billing/trc",
-  "/billing/dispatch",
-  "/billing/material-purchase",
+ 
+ 
 ];
 
 const tabData = [
