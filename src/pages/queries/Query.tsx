@@ -7,6 +7,7 @@ import Q4query from "./Q4query";
 import Q5Report from "./Q5Report";
 import Q6Statement from "./Q6Statement";
 import Q7Report from "./Q7Report";
+import UnderConstructionPage from "../commonPages/UnderConstructionPage";
 
 const Query: React.FC = () => {
   const { id } = useParams();
@@ -31,6 +32,9 @@ const Query: React.FC = () => {
   }
   if (id === "Q7") {
     return <Q7Report />;
+  }
+  if (id === "Q1") {
+    return <UnderConstructionPage />;
   }
   return <div>this is {id} query</div>;
 };
