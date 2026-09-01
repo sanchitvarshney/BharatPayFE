@@ -154,6 +154,11 @@ export type R6ApiResponse = {
 export type QueryStateType = {
   q1Data: Response | null;
   getQ1DataLoading: boolean;
+  q1Pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  } | null;
   componentData: component[] | null;
   getComponentDataLoading: boolean;
   getQ2DataLading: boolean;

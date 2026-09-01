@@ -6,6 +6,7 @@ import { componentApiResponse, Q1ApiResponse, Q3ApiResponse, Q4Apiresponse, Q5Ap
 const initialState: QueryStateType = {
   getQ1DataLoading: false,
   q1Data: null,
+  q1Pagination: null,
   getComponentDataLoading: false,
   componentData: null,
   getQ2DataLading: false,
@@ -21,8 +22,10 @@ const initialState: QueryStateType = {
   q6Statement: null,
 };
 
-export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null }>("query/getQ1", async (params) => {
-  const response = await axiosInstance.get(params.location ? `/query/log/DV?data=${params.value}&location=${params.location}` : `/query/log/DV?date=${params.date}&data=${params.value}`);
+export const getQ1Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null; page?: number; limit?: number }>("query/getQ1", async (params) => {
+  const pageParam = params.page ? `&page=${params.page}` : '';
+  const limitParam = params.limit ? `&limit=${params.limit}` : '';
+  const response = await axiosInstance.get(params.location ? `/query/log/DV?data=${params.value}&location=${params.location}${pageParam}${limitParam}` : `/query/log/DV?date=${params.date}&data=${params.value}${pageParam}${limitParam}`);
   return response;
 });
 export const getQ2Data = createAsyncThunk<AxiosResponse<Q1ApiResponse>, { date: string | null; value: string; location: string | null; page?: number; limit?: number }>("query/getQ2", async (params) => {
@@ -70,11 +73,13 @@ const querySlice = createSlice({
         state.getQ1DataLoading = false;
         if (action.payload.data.success) {
           state.q1Data = action.payload.data.response;
+          state.q1Pagination = action.payload.data.response?.pagination || null;
         }
       })
       .addCase(getQ1Data.rejected, (state) => {
         state.getQ1DataLoading = false;
         state.q1Data = null;
+        state.q1Pagination = null;
       })
       .addCase(getBothComponentData.pending, (state) => {
         state.getComponentDataLoading = true;
