@@ -58,6 +58,7 @@ import SingleQrGenerator from "./pages/production/SingleQrGenerater";
 import LogningV2 from "./pages/commonPages/LogningV2";
 import DownloadQrExcel from "./pages/production/DownloadQrExcel";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/commonPages/SettingsPage";
 import MasterReport from "./pages/report/MasterReport";
 import MasterComponentDeatil from "./pages/master/MasterComponentDeatil";
 import MaterVendorDetail from "./pages/master/MaterVendorDetail";
@@ -306,6 +307,14 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/profile",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SettingsPage />
+          </MainLayout>
+        ),
+        path: "/settings",
       },
       //master modules
 

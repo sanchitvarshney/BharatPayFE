@@ -17,6 +17,7 @@ import {
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationPnnel from "./NotificationPnnel";
 import { useSocketContext } from "@/components/context/SocketContext";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
@@ -24,7 +25,6 @@ import {
   buildIndianFYSessionOptions,
   getInitialIndianFYSession,
 } from "@/utils/indianFinancialYear";
-import SelectEndPoint from "@/components/shared/SelectEndPoint";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import { convertMenuToSidebarItems } from "@/components/Sidebar/menuAdapter";
 import { SidebarMenuItem } from "@/components/Sidebar/types";
@@ -197,7 +197,6 @@ function MainLayout(props: { children: React.ReactNode }) {
           </div>
         
           <div className="flex items-center gap-[16px] justify-self-end">
-            <SelectEndPoint/>
             <div className="download">
               <DownloadIndecator />
             </div>
@@ -261,6 +260,17 @@ function MainLayout(props: { children: React.ReactNode }) {
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
                 Profile
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  navigate("/settings");
+                }}
+              >
+                <ListItemIcon>
+                  <SettingsIcon fontSize="small" />
+                </ListItemIcon>
+                Settings
               </MenuItem>
               <MenuItem
                 onClick={() => {

@@ -10,6 +10,7 @@ import ProgressWithParcentage from "../reusable/ProgressWithParcentage";
 import { Icons } from "../icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { showToast } from "@/utils/toasterContext";
+import { getSocketUrl } from "@/utils/endpointConfig";
 const DownloadIndecator = () => {
   const { onDownloadReport, off, onnotification } = useSocketContext();
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
@@ -165,8 +166,7 @@ const DownloadIndecator = () => {
                         size="small"
                         color="success"
                         onClick={() => {
-                          const baseUrl =
-                            import.meta.env.VITE_SOKET_URL.replace(/:\d+$/, "");
+                          const baseUrl = getSocketUrl().replace(/:\d+$/, "");
                           const fileUrl = JSON.parse(item.other_data)?.fileUrl;
 
                       

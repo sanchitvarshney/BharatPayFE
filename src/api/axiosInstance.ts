@@ -5,6 +5,7 @@ import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { showToast } from "@/utils/toasterContext";
 import { getIndianFYSessionKeyForDate, isPlausibleFYSessionKey } from "@/utils/indianFinancialYear";
 import { setReturnTo } from "@/utils/returnTo";
+import { getApiBaseUrl } from "@/utils/endpointConfig";
 
 let cachedFingerprint = "unknown";
 let fingerprintLoading: Promise<void> | null = null;
@@ -26,7 +27,7 @@ const warmFingerprint = () => {
 
 // Create Axios instance
 const axiosInstance = axios.create({
-  baseURL: localStorage.getItem("currentUrl") || import.meta.env.VITE_REACT_APP_API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },

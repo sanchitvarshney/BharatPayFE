@@ -1,6 +1,7 @@
 import { showToast } from "@/utils/toasterContext";
 import { getToken } from "@/utils/tokenUtills";
 import { io, Socket } from "socket.io-client";
+import { getSocketUrl } from "@/utils/endpointConfig";
 
 interface ISocketService {
   socket: Socket | null;
@@ -72,4 +73,4 @@ class SocketService implements ISocketService {
   }
 }
 
-export const socketService = new SocketService(import.meta.env.VITE_SOKET_URL);
+export const socketService = new SocketService(getSocketUrl());
