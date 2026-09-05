@@ -284,7 +284,7 @@ const Q6Statement: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <Q6ReportTable gridRef={gridRef} />
+          <Q6ReportTable gridRef={gridRef} deviceType={deviceType} />
         </div>
       </div>
     </div>
