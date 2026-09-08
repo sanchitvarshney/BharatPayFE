@@ -19,17 +19,27 @@ type Props = {
 
 const tabRoutes = [
   "/billing",
+   "/billing/material-purchase",
+    "/billing/dispatch",
   "/billing/assembly-and-trc",
   "/billing/speaker-assembly",
   "/billing/trc",
-  "/billing/dispatch",
-  "/billing/material-purchase",
+ 
+ 
 ];
 
 const tabData = [
   {
     label: "Billing Summary",
     icon: <CreditScoreIcon />,
+  },
+    {
+    label: "Material Purchase",
+    icon: <SummarizeIcon />,
+  },
+    {
+    label: "Dispatch",
+    icon: <SummarizeIcon />,
   },
   {
     label: "Assembly and TRC",
@@ -43,14 +53,8 @@ const tabData = [
     label: "TRC",
     icon: <SummarizeIcon />,
   },
-  {
-    label: "Dispatch",
-    icon: <SummarizeIcon />,
-  },
-  {
-    label: "Material Purchase",
-    icon: <SummarizeIcon />,
-  },
+
+
 ];
 
 const SummaryLayout: React.FC<Props> = ({ children }) => {

@@ -315,9 +315,7 @@ export default function ModuleSearch({ menu }: ModuleSearchProps) {
                               <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>
                                                {highlightWords(item.label, queryWords)}
                               </div>
-                              <div style={{ marginTop: 4, color: "#4b5563", fontSize: 12 }}>
-                                {item.breadcrumb}
-                              </div>
+                     
                               <div style={{ marginTop: 2, color: "#4b5563", fontSize: 12 }}>
                               {highlightWords(item.breadcrumb, queryWords)}
                               </div>

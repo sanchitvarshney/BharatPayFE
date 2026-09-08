@@ -5,13 +5,17 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { ColDef } from "@ag-grid-community/core";
 import { RowData } from "@/features/query/query/queryType";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
+  pageSize: number;
+  handlePageChange: (page: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
 };
-const DeviceQueryRepoTable: React.FC<Props> = ({ gridRef }) => {
+const DeviceQueryRepoTable: React.FC<Props> = ({ gridRef, pageSize, handlePageChange, handlePageSizeChange }) => {
   const [rowData, setRowData] = useState<RowData[]>([]);
-  const { q1Data, getQ1DataLoading } = useAppSelector((state) => state.query);
+  const { q1Data, getQ1DataLoading, q1Pagination } = useAppSelector((state) => state.query);
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
@@ -56,10 +60,22 @@ const DeviceQueryRepoTable: React.FC<Props> = ({ gridRef }) => {
   ];
 
   return (
-    <div>
-      <div className=" ag-theme-quartz h-[calc(100vh-100px)]">
-        <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} ref={gridRef} loading={getQ1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={true} paginationPageSize={20} enableCellTextSelection />
+    <div className="flex flex-col h-full bg-white rounded-lg shadow-sm">
+      <div className="flex-1">
+        <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
+          <AgGridReact loadingOverlayComponent={CustomLoadingOverlay} ref={gridRef} loading={getQ1DataLoading} overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} defaultColDef={defaultColDef} pagination={false} enableCellTextSelection />
+        </div>
       </div>
+      {q1Pagination && (
+        <CustomPagination
+          currentPage={q1Pagination.currentPage}
+          totalPages={q1Pagination.totalPages}
+          totalRecords={q1Pagination.totalRecords}
+          onPageChange={handlePageChange}
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
     </div>
   );
 };

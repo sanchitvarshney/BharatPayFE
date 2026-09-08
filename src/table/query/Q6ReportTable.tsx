@@ -3,13 +3,73 @@ import { AgGridReact } from "@ag-grid-community/react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { ColDef } from "@ag-grid-community/core";
-import { RowData } from "@/features/query/query/queryType";
+import { ConsumptionItem, RowData } from "@/features/query/query/queryType";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { IconButton } from "@mui/material";
+import { Icons } from "@/components/icons";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+} from "@/components/reusable/CustomModal";
 
 type Props = {
   gridRef: any;
+  deviceType?: string;
 };
-const Q6ReportTable: React.FC<Props> = ({ gridRef }) => {
+
+const ConsumptionModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  consumption: ConsumptionItem[] | null;
+}> = ({ open, onClose, consumption }) => {
+  const items = consumption ?? [];
+  return (
+    <Modal open={open} onOpenChange={(v) => !v && onClose()}>
+      <ModalContent className="max-w-lg w-full p-0 overflow-hidden">
+        <ModalHeader className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <ModalTitle className="text-base font-semibold text-slate-800">
+            Consumption Details
+          </ModalTitle>
+          <ModalDescription className="text-xs text-slate-500">
+            {items.length} component{items.length !== 1 ? "s" : ""} consumed
+          </ModalDescription>
+        </ModalHeader>
+        <div className="max-h-[60vh] overflow-y-auto px-6 py-4">
+          {items.length === 0 ? (
+            <div className="text-sm text-slate-400 text-center py-6">
+              No consumption data available
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                  <th className="py-2 pr-2 font-medium">Part Code</th>
+                  <th className="py-2 pr-2 font-medium">Component Name</th>
+                  <th className="py-2 pl-2 font-medium text-right">Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, idx) => (
+                  <tr key={idx} className="border-b border-slate-50 last:border-0">
+                    <td className="py-2 pr-2 text-slate-700">{item.partCode}</td>
+                    <td className="py-2 pr-2 text-slate-700">{item.componentName}</td>
+                    <td className="py-2 pl-2 text-slate-700 text-right">{item.qty}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const Q6ReportTable: React.FC<Props> = ({ gridRef, deviceType }) => {
   const [rowData, setRowData] = useState<RowData[]>([]);
   const { q6Statement, q6StatementLoading } = useAppSelector(
     (state) => state.query
@@ -67,7 +127,10 @@ useEffect(() => {
         locIn: item.location,
         locOut: item.locationOut,
         insertBy: item.user,
-        moveId: item.deviceMovId
+        moveId: item.deviceMovId,
+        manufacturingMonth: item.manufacturingMonth,
+        issue: item.issue,
+        consumption: item.consumption,
       }));
     setRowData(convertedData);
   } else {
@@ -75,6 +138,9 @@ useEffect(() => {
   }
 }, [q6Statement]);
 
+
+  const [consumptionRow, setConsumptionRow] = useState<ConsumptionItem[] | null>(null);
+  const isSoundbox = deviceType?.toLowerCase() === "soundbox";
 
   const columnDefs: ColDef[] = [
     {
@@ -139,6 +205,62 @@ useEffect(() => {
       sortable: true,
       filter: true,
     },
+    ...(isSoundbox
+      ?   [
+           {
+            headerName: "Issue",
+            field: "issue",
+            sortable: true,
+            filter: true,
+            valueFormatter: (params: any) => params.value || "--",
+          },
+          {
+            headerName: "Action",
+            field: "consumption",
+            sortable: false,
+            filter: false,
+            width: 110,
+            cellRenderer: (params: any) => {
+              const count = params.value?.length ?? 0;
+              return (
+                <div className="flex h-full items-center justify-center">
+                  <MuiTooltip
+                    title={
+                      count
+                        ? `View Consumption (${count} item${count > 1 ? "s" : ""})`
+                        : "No consumption data"
+                    }
+                    placement="top"
+                  >
+                    <span>
+                      <IconButton
+                        size="small"
+                        disabled={count === 0}
+                        onClick={() => setConsumptionRow(params.value ?? [])}
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          color: "#1d4ed8",
+                          backgroundColor: "#eff6ff",
+                          border: "1px solid #bfdbfe",
+                          "&:hover": { backgroundColor: "#dbeafe" },
+                          "&.Mui-disabled": {
+                            color: "#cbd5e1",
+                            backgroundColor: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                          },
+                        }}
+                      >
+                        <Icons.visible sx={{ fontSize: 16 }} />
+                      </IconButton>
+                    </span>
+                  </MuiTooltip>
+                </div>
+              );
+            },
+          },
+        ] : []
+     ),
   ];
 
   return (
@@ -158,6 +280,11 @@ useEffect(() => {
           enableCellTextSelection
         />
       </div>
+      <ConsumptionModal
+        open={consumptionRow !== null}
+        onClose={() => setConsumptionRow(null)}
+        consumption={consumptionRow}
+      />
     </div>
   );
 };

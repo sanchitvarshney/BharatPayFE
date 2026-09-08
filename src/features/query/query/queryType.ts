@@ -129,6 +129,12 @@ export type Q5Apiresponse = {
   status: string;
   success: boolean;
 };
+export type ConsumptionItem = {
+  partCode: string;
+  componentName: string;
+  qty: string | number;
+};
+
 type TransactionData = {
   transactionType: string;
   refId: string;
@@ -143,6 +149,8 @@ type TransactionData = {
   manufacturingMonth?:string
   deviceMovId?:string
   name?:string
+  issue?: string
+  consumption?: ConsumptionItem[]
 };
 
 export type R6ApiResponse = {
@@ -154,6 +162,11 @@ export type R6ApiResponse = {
 export type QueryStateType = {
   q1Data: Response | null;
   getQ1DataLoading: boolean;
+  q1Pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalRecords: number;
+  } | null;
   componentData: component[] | null;
   getComponentDataLoading: boolean;
   getQ2DataLading: boolean;
