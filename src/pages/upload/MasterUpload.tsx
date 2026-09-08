@@ -17,6 +17,8 @@ import {
   Chip,
   Divider,
   LinearProgress,
+  MenuItem,
+  TextField,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { CloudUpload, Download, ErrorOutline } from "@mui/icons-material";
@@ -26,6 +28,13 @@ import { showToast } from "@/utils/toasterContext";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 
 type PreviewRow = Record<string, unknown>;
+
+type DeviceTypeOption = "soundBox" | "swipeMachine";
+
+const DEVICE_TYPE_OPTIONS: { value: DeviceTypeOption; label: string }[] = [
+  { value: "soundBox", label: "Soundbox" },
+  { value: "swipeMachine", label: "Swipe Machine" },
+];
 
 const EXPECTED_COLUMNS = [
   "serial",
@@ -39,6 +48,7 @@ const MasterUpload: React.FC = () => {
   const dispatch = useAppDispatch();
   const { masterUploadLoading } = useAppSelector((state) => state.upload);
 
+  const [deviceType, setDeviceType] = useState<DeviceTypeOption | "">("");
   const [selectedDevice, setSelectedDevice] = useState<DeviceType | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewRows, setPreviewRows] = useState<PreviewRow[]>([]);
@@ -97,6 +107,12 @@ const MasterUpload: React.FC = () => {
     parseFile(selected);
   };
 
+  const handleDeviceTypeChange = (val: DeviceTypeOption | "") => {
+    setDeviceType(val);
+    setSelectedDevice(null);
+    handleClear();
+  };
+
   const handleDeviceChange = (val: DeviceType | null) => {
     setSelectedDevice(val);
     handleClear();
@@ -120,13 +136,22 @@ const MasterUpload: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!file || !selectedDevice) return;
+    if (!file || !deviceType) return;
+    if (deviceType === "soundBox" && !selectedDevice) return;
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("deviceId", selectedDevice.id);
-    formData.append("deviceName", selectedDevice.text);
+    formData.append("deviceType", deviceType);
+    if (selectedDevice) {
+      formData.append("deviceId", selectedDevice.id);
+      formData.append("deviceName", selectedDevice.text);
+    }
 
-    const res = await dispatch(uploadMasterData(formData));
+    const res = await dispatch(
+      uploadMasterData({
+        formData,
+        isSwipe: deviceType === "swipeMachine",
+      }),
+    );
     const payload: any = res?.payload;
     if (payload?.data?.success) {
       showToast(payload.data.message || "Uploaded successfully", "success");
@@ -141,12 +166,17 @@ const MasterUpload: React.FC = () => {
       )
     : [];
 
+  const showUpload =
+    (deviceType === "soundBox" && !!selectedDevice) ||
+    deviceType === "swipeMachine";
+
   const isSubmitDisabled =
     !file ||
     !previewRows.length ||
     isParsing ||
     masterUploadLoading ||
-    missingCols.length > 0;
+    missingCols.length > 0 ||
+    !showUpload;
 
   return (
     <Box sx={{ p: 0, height: "calc(100vh - 50px)" }}>
@@ -205,22 +235,57 @@ const MasterUpload: React.FC = () => {
 
           <Divider />
 
-          {/* Device type dropdown */}
-          <Box sx={{ maxWidth: 340 }}>
-            <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
-              Device Model <span style={{ color: "red" }}>*</span>
-            </Typography>
-            <SelectDevice
-              value={selectedDevice}
-              onChange={handleDeviceChange}
-              label="Search & select device"
-              size="small"
-              quaryValue="soundBox"
-            />
+          {/* Device type + model selection */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box sx={{ width: 260 }}>
+              <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
+                Device Type <span style={{ color: "red" }}>*</span>
+              </Typography>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                label="Select device type"
+                value={deviceType}
+                onChange={(e) =>
+                  handleDeviceTypeChange(
+                    e.target.value as DeviceTypeOption | "",
+                  )
+                }
+              >
+                {DEVICE_TYPE_OPTIONS.map((opt) => (
+                  <MenuItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+
+            {deviceType === "soundBox" && (
+              <Box sx={{ width: 340 }}>
+                <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
+                  Device Model <span style={{ color: "red" }}>*</span>
+                </Typography>
+                <SelectDevice
+                  value={selectedDevice}
+                  onChange={handleDeviceChange}
+                  label="Search & select device"
+                  size="small"
+                  quaryValue="soundBox"
+                />
+              </Box>
+            )}
           </Box>
 
-          {/* Upload section — shown only after device is selected */}
-          {selectedDevice && (
+          {/* Upload section — shown only after device selection is complete */}
+          {showUpload && (
             <>
               <Divider />
 
