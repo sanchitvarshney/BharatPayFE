@@ -6,9 +6,10 @@ export type ComponentOption = {
   name: string;
 };
 
+// Matches SelectVendor's VendorData / the `/vendor/vendorOptions` response.
 export type VendorOption = {
-  code: string;
-  name: string;
+  id: string;
+  text: string;
 };
 
 export const loadAllComponents = async (): Promise<ComponentOption[]> => {
@@ -21,11 +22,10 @@ export const loadAllComponents = async (): Promise<ComponentOption[]> => {
   }));
 };
 
-export const loadAllVendors = async (): Promise<VendorOption[]> => {
-  const response = await axiosInstance.get("/vendor/vendorList");
-  if (!response.data?.success) return [];
-  return (response.data.data ?? []).map((item: any) => ({
-    code: item.vendor_code,
-    name: item.vendor_name,
-  }));
+// Debounced server-side vendor search, same endpoint as SelectVendor.
+export const searchVendors = async (
+  query: string | null,
+): Promise<VendorOption[]> => {
+  const response = await axiosInstance.get(`/vendor/vendorOptions/${query ?? ""}`);
+  return response.data?.success ? response.data.data ?? [] : [];
 };

@@ -8,7 +8,7 @@ import {
   ComponentOption,
   VendorOption,
   loadAllComponents,
-  loadAllVendors,
+  searchVendors,
 } from "./poHistory.api";
 
 type Props = {
@@ -77,9 +77,9 @@ const PoHistoryFilters: React.FC<Props> = ({
           label="Vendors"
           value={selectedVendors}
           onChange={onVendorsChange}
-          loadAll={loadAllVendors}
-          getOptionLabel={(option) => option.name}
-          isOptionEqualToValue={(option, val) => option.code === val.code}
+          search={searchVendors}
+          getOptionLabel={(option) => option.text}
+          isOptionEqualToValue={(option, val) => option.id === val.id}
         />
       )}
       <Typography variant="body2" color="textSecondary">

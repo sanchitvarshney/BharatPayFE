@@ -41,7 +41,7 @@ const PurchasedHistory: React.FC = () => {
 
   const handleSearch = () => {
     const component = showComponentField ? selectedComponents.map((item) => item.partNo) : [];
-    const vendor = showVendorField ? selectedVendors.map((item) => item.code) : [];
+    const vendor = showVendorField ? selectedVendors.map((item) => item.id) : [];
 
     if (showComponentField && !component.length) {
       showToast("Please select at least one component", "error");
