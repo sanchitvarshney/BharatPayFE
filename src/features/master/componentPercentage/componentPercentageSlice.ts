@@ -9,12 +9,17 @@ import {
   FetchMasterComponentPercentageResponse,
   InsertComponentPercentagePayload,
   InsertComponentPercentageResponse,
+  PoHistoryPayload,
+  PoHistoryResponse,
 } from "./componentPercentageType";
 
 const initialState: ComponentPercentageState = {
   components: null,
   reportData: null,
   reportHeaders: null,
+  poHistoryData: null,
+  poHistoryType: null,
+  poHistoryLoading: false,
   fetchLoading: false,
   insertLoading: false,
   reportLoading: false,
@@ -48,6 +53,14 @@ export const fetchComponentPercentageReportAsync = createAsyncThunk<
     sku: payload.sku,
   });
   const response = await axiosInstance.get(`componentPercentage/report?${params.toString()}`);
+  return response;
+});
+
+export const fetchPoHistoryAsync = createAsyncThunk<
+  AxiosResponse<PoHistoryResponse>,
+  PoHistoryPayload
+>("componentPercentage/poHistory", async (payload) => {
+  const response = await axiosInstance.post("componentPercentage/poHistory", payload);
   return response;
 });
 
@@ -90,6 +103,19 @@ const componentPercentageSlice = createSlice({
       })
       .addCase(fetchComponentPercentageReportAsync.rejected, (state) => {
         state.reportLoading = false;
+      })
+      .addCase(fetchPoHistoryAsync.pending, (state) => {
+        state.poHistoryLoading = true;
+      })
+      .addCase(fetchPoHistoryAsync.fulfilled, (state, action) => {
+        state.poHistoryLoading = false;
+        if (action.payload.data.success) {
+          state.poHistoryData = action.payload.data.data ?? [];
+          state.poHistoryType = action.payload.data.type ?? null;
+        }
+      })
+      .addCase(fetchPoHistoryAsync.rejected, (state) => {
+        state.poHistoryLoading = false;
       });
   },
 });

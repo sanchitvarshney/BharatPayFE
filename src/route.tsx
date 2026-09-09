@@ -9,6 +9,7 @@ import MasterUOM from "./pages/master/MasterUOM";
 import MasterComponent from "./pages/master/MasterComponent";
 import MasterComponentPercentage from "./pages/master/MasterComponentPercentage";
 import MasterComponentPercentageReport from "./pages/master/MasterComponentPercentageReport";
+import PurchasedHistory from "./pages/master/PurchasedHistory";
 import MasterComponentsLayout from "./layouts/MasterComponentsLayout";
 import MasterComponentProductLayout from "./layouts/MasterComponentProductLayout";
 import MasterProductFg from "./pages/master/MasterProductFg";
@@ -361,6 +362,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-components/report",
+      },
+       {
+        element: (
+          <MainLayout>
+            <PercentageComponentLayout>
+              <PurchasedHistory />
+            </PercentageComponentLayout>
+          </MainLayout>
+        ),
+        path: "/master-components/purchase-history",
       },
       {
         element: (
