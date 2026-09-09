@@ -94,8 +94,12 @@ export const getPartCodeChallanDetail = createAsyncThunk<AxiosResponse<any>, { i
   const response = await axiosInstance.post("/challan/fetchPerforma", { challanId: payload.id });
   return response;
 });
-export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
-  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
+export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string | { id: string; venId?: string | null }>("po/getPOComponentDetail", async (arg) => {
+  const id = typeof arg === "string" ? arg : arg.id;
+  const venId = typeof arg === "string" ? undefined : arg.venId;
+  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`, {
+    params: venId ? { ven_id: venId } : undefined,
+  });
   return response;
 });
 

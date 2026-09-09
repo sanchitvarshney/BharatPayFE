@@ -42,8 +42,9 @@ type Props = {
   exchange:any
   currency:any
   gstTypeStatus:string
+  venId?: string | null
 };
-const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency,gstTypeStatus }) => {
+const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency,gstTypeStatus, venId }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -101,10 +102,10 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, 
 
   const components = useMemo(
     () => ({
-      textInputCellRenderer: (params: any) => <POCellRenderer props={params} customFunction={getAllTableData} />,
-      
+      textInputCellRenderer: (params: any) => <POCellRenderer props={params} customFunction={getAllTableData} venId={venId} />,
+
     }),
-    []
+    [venId]
   );
   const columnDefs: ColDef[] = [
     {

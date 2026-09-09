@@ -1160,6 +1160,7 @@ const CreatePO: React.FC = () => {
                 exchange={formData?.exchange}
                 currency={formData?.currency?.value}
                 gstTypeStatus={gstTypeStatus}
+                venId={formData?.vendorname?.id}
               />
             </div>
           )}

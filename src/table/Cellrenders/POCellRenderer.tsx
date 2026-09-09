@@ -12,8 +12,9 @@ import { getPOComponentDetail } from "@/features/procurement/poSlices";
 interface POCellRendererProps {
   props: any;
   customFunction: () => void;
+  venId?: string | null;
 }
-const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }) => {
+const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction, venId }) => {
   const { value, colDef, data, api, column } = props;
   const [currency, setCurrency] = useState<string>(data.excRate);
   const [open, setOpen] = useState<boolean>(false);
@@ -84,9 +85,22 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
             }}
             onChange={(selectedValue) => {
               const newValue = selectedValue;
-              dispatch(getPOComponentDetail(newValue?.value || "")).then((res:any) => {
+              dispatch(getPOComponentDetail({ id: newValue?.value || "", venId })).then((res:any) => {
                 if(res.payload.data.status==="success"){
                   data["hsnCode"]=res.payload.data.data.hsn;
+                  const apiRate = res.payload.data.data.rate;
+                  data["rate"] = apiRate != null && apiRate !== "" ? apiRate : 0;
+                  data["taxableValue"] = Number(data.qty) * Number(data.rate) * (Number(data.excRate) || 1);
+                  if (data.gstType === "L") {
+                    data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+                    data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+                    data["igst"] = 0;
+                  } else {
+                    data["sgst"] = 0;
+                    data["cgst"] = 0;
+                    data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
+                  }
+                  api.refreshCells({ rowNodes: [props.node], columns: [column, "hsnCode", "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
                 }
               });
               data[colDef.field] = newValue;
@@ -195,7 +209,7 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
                         api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
                       }
                       data["excRate"] = Number(e.target.value);
-                      api.refreshCells({ rowNodes: [props.node], columns: [, "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue", "excRate"] });
+                      api.refreshCells({ rowNodes: [props.node], columns: [ "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue", "excRate"] });
                     }}
                   />
                 </div>
