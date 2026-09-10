@@ -42,11 +42,13 @@ export const uploadSwipeDeviceStatus = createAsyncThunk<
 
 export const uploadMasterData = createAsyncThunk<
   AxiosResponse<{ success: boolean; message: string }>,
-  FormData
->("upload/masterData", async (formData, { rejectWithValue }) => {
+  { formData: FormData; isSwipe?: boolean }
+>("upload/masterData", async ({ formData, isSwipe }, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.post(
-      "/bulkDeviceUpload/upload",
+      isSwipe
+        ? "/bulkDeviceUpload/upload-swipe"
+        : "/bulkDeviceUpload/upload",
       formData,
       {
         headers: {
