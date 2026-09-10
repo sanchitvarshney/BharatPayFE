@@ -31,17 +31,42 @@ type PreviewRow = Record<string, unknown>;
 
 type DeviceTypeOption = "soundBox" | "swipeMachine";
 
-const DEVICE_TYPE_OPTIONS: { value: DeviceTypeOption; label: string }[] = [
-  { value: "soundBox", label: "Soundbox" },
-  { value: "swipeMachine", label: "Swipe Machine" },
-];
+interface DeviceTypeConfig {
+  label: string;
+  /** Columns the uploaded file must contain for this device type. */
+  columns: string[];
+  /** Example data row used in the downloadable template. */
+  sampleRow: string[];
+  /** File name for the downloaded template. */
+  templateFile: string;
+  /** Human-readable summary of the required columns. */
+  hint: string;
+  /** Whether a specific device model must also be selected. */
+  requiresModel: boolean;
+}
 
-const EXPECTED_COLUMNS = [
-  "serial",
-  "imei",
-  "manufacturingMonth",
-  "manufacturingYear",
-];
+const DEVICE_TYPE_CONFIG: Record<DeviceTypeOption, DeviceTypeConfig> = {
+  soundBox: {
+    label: "Soundbox",
+    columns: ["serial", "imei", "manufacturingMonth", "manufacturingYear"],
+    sampleRow: ["SN001", "352099001761481", "January", "2024"],
+    templateFile: "soundbox_master_upload_template.xlsx",
+    hint: "serial, IMEI, manufacturing month & year",
+    requiresModel: true,
+  },
+  swipeMachine: {
+    label: "Swipe Machine",
+    columns: ["serial", "date"],
+    sampleRow: ["SN001", "2024-01-15"],
+    templateFile: "swipe_master_upload_template.xlsx",
+    hint: "serial & date",
+    requiresModel: false,
+  },
+};
+
+const DEVICE_TYPE_OPTIONS = (
+  Object.keys(DEVICE_TYPE_CONFIG) as DeviceTypeOption[]
+).map((value) => ({ value, label: DEVICE_TYPE_CONFIG[value].label }));
 
 const MasterUpload: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -54,6 +79,9 @@ const MasterUpload: React.FC = () => {
   const [previewRows, setPreviewRows] = useState<PreviewRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [isParsing, setIsParsing] = useState(false);
+
+  const config = deviceType ? DEVICE_TYPE_CONFIG[deviceType] : null;
+  const expectedColumns = config?.columns ?? [];
 
   const parseFile = (f: File) => {
     setIsParsing(true);
@@ -126,18 +154,16 @@ const MasterUpload: React.FC = () => {
   };
 
   const handleDownloadTemplate = () => {
+    if (!config) return;
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([
-      EXPECTED_COLUMNS,
-      ["SN001", "352099001761481", "January", "2024"],
-    ]);
+    const ws = XLSX.utils.aoa_to_sheet([config.columns, config.sampleRow]);
     XLSX.utils.book_append_sheet(wb, ws, "Template");
-    XLSX.writeFile(wb, "master_upload_template.xlsx");
+    XLSX.writeFile(wb, config.templateFile);
   };
 
   const handleSubmit = async () => {
-    if (!file || !deviceType) return;
-    if (deviceType === "soundBox" && !selectedDevice) return;
+    if (!file || !deviceType || !config) return;
+    if (config.requiresModel && !selectedDevice) return;
     const formData = new FormData();
     formData.append("file", file);
     formData.append("deviceType", deviceType);
@@ -159,16 +185,22 @@ const MasterUpload: React.FC = () => {
     }
   };
 
-  const missingCols = file
-    ? EXPECTED_COLUMNS.filter(
-        (col) =>
-          !columns.map((c) => c.toLowerCase()).includes(col.toLowerCase()),
-      )
-    : [];
+  const normalizedColumns = columns.map((c) => c.toLowerCase());
+
+  const missingCols =
+    file && config
+      ? expectedColumns.filter(
+          (col) => !normalizedColumns.includes(col.toLowerCase()),
+        )
+      : [];
+
+  const isExpectedColumn = (col: string) =>
+    expectedColumns.some((c) => c.toLowerCase() === col.toLowerCase());
+
+  const extraCols = columns.filter((col) => !isExpectedColumn(col));
 
   const showUpload =
-    (deviceType === "soundBox" && !!selectedDevice) ||
-    deviceType === "swipeMachine";
+    !!config && (!config.requiresModel || !!selectedDevice);
 
   const isSubmitDisabled =
     !file ||
@@ -219,8 +251,9 @@ const MasterUpload: React.FC = () => {
                 color="text.secondary"
                 sx={{ mt: 0.5 }}
               >
-                Select a device model, then upload master data (serial, IMEI,
-                manufacturing month &amp; year).
+                {config
+                  ? `Upload ${config.label} master data (${config.hint}).`
+                  : "Select a device type, then upload its master data."}
               </Typography>
             </Box>
             <Button
@@ -228,6 +261,7 @@ const MasterUpload: React.FC = () => {
               size="small"
               startIcon={<Download fontSize="small" />}
               onClick={handleDownloadTemplate}
+              disabled={!config}
             >
               Download Template
             </Button>
@@ -268,7 +302,7 @@ const MasterUpload: React.FC = () => {
               </TextField>
             </Box>
 
-            {deviceType === "soundBox" && (
+            {config?.requiresModel && (
               <Box sx={{ width: 340 }}>
                 <Typography variant="subtitle2" sx={{ mb: 0.75 }}>
                   Device Model <span style={{ color: "red" }}>*</span>
@@ -335,7 +369,7 @@ const MasterUpload: React.FC = () => {
                   sx={{ mt: 0.5, display: "block" }}
                 >
                   Accepted: .csv, .xlsx, .xls &nbsp;·&nbsp; Required columns:{" "}
-                  {EXPECTED_COLUMNS.join(", ")}
+                  {expectedColumns.join(", ")}
                 </Typography>
               </Box>
 
@@ -398,7 +432,10 @@ const MasterUpload: React.FC = () => {
                     <Typography variant="caption" color="text.secondary">
                       {previewRows.length} row
                       {previewRows.length !== 1 ? "s" : ""} · {columns.length}{" "}
-                      columns
+                      column{columns.length !== 1 ? "s" : ""}
+                      {extraCols.length > 0
+                        ? ` · ${extraCols.length} ignored`
+                        : ""}
                     </Typography>
                   </Box>
                   <TableContainer
@@ -420,22 +457,25 @@ const MasterUpload: React.FC = () => {
                             #
                           </TableCell>
                           {columns.map((col) => {
-                            const isExpected = EXPECTED_COLUMNS.some(
-                              (c) => c.toLowerCase() === col.toLowerCase(),
-                            );
+                            const isExpected = isExpectedColumn(col);
                             return (
                               <TableCell
                                 key={col}
+                                title={
+                                  isExpected
+                                    ? undefined
+                                    : "Not a required column — ignored on upload"
+                                }
                                 sx={{
                                   fontWeight: 700,
                                   bgcolor: "#f9fafb",
                                   color: isExpected
                                     ? "primary.main"
-                                    : "text.primary",
+                                    : "text.disabled",
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {col}
+                                {col.toUpperCase()}
                               </TableCell>
                             );
                           })}
@@ -452,7 +492,12 @@ const MasterUpload: React.FC = () => {
                             {columns.map((col) => (
                               <TableCell
                                 key={col}
-                                sx={{ whiteSpace: "nowrap" }}
+                                sx={{
+                                  whiteSpace: "nowrap",
+                                  color: isExpectedColumn(col)
+                                    ? "text.primary"
+                                    : "text.disabled",
+                                }}
                               >
                                 {String(row[col] ?? "")}
                               </TableCell>
