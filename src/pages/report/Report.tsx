@@ -28,6 +28,7 @@ import NotPermissionPage from "../commonPages/NotPermissionPage";
 import R23Report from "./R23Report";
 import R24Report from "./R24Report";
 import R25Report from "./R25Report";
+import R26SummaryReportLayout from "@/layouts/R26SummaryReportLayout";
 
 const Report: React.FC = () => {
   const { id } = useParams();
@@ -119,6 +120,9 @@ const Report: React.FC = () => {
   }
     if(id === "R24"){
     return <R25Report /> // Physical Inventory
+  }
+      if(id === "R26"){
+    return <R26SummaryReportLayout /> // Physical Inventory
   }
   return <div>this is {id} Report</div>;
 };

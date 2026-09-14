@@ -37,6 +37,7 @@ import crmRemarkReducer from "@/features/crmRemark/crmRemarkSlice";
 import imageCaptureReducer from "@/features/imageCapture/imageCaptureSlice";
 import billingSlices from "@/features/summarySlice/billingSlices";
 import rawMaterialReportReducer from "@/features/rawMaterialReport/rawMaterialReportSlice";
+import reportSummarySlice from "@/features/report/report/reportSummarySlice";
 
 export const store = configureStore({
   reducer: {
@@ -78,6 +79,7 @@ export const store = configureStore({
     imageCapture: imageCaptureReducer,
     summary: billingSlices,
     rawMaterialReport: rawMaterialReportReducer,
+    reportSummary: reportSummarySlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
