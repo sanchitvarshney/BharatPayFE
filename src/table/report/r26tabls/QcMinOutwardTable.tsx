@@ -16,8 +16,8 @@ const columnDefs: ColDef[] = [
     field: "id",
     sortable: true,
     filter: true,
-    width: 80,
-    valueGetter: "node.rowIndex+1",
+    width: 120,
+    valueGetter: (params) => (params.node?.rowIndex ?? 0) + 1,
   },
   {
     headerName: "Model",

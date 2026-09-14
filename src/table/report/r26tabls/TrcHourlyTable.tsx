@@ -33,14 +33,13 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
         headerName: "#",
         sortable: false,
         filter: false,
-        width: 70,
-  
+        width: 100,
         valueGetter: (params) =>
           params.node?.rowPinned ? "" : (params.node?.rowIndex ?? 0) + 1,
       },
       {
         headerName: "Emp Code",
-        field: "empCode",
+        field: "empCode", 
         sortable: true,
         filter: true,
         width: 180,

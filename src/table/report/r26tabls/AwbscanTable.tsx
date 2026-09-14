@@ -24,7 +24,7 @@ const AwbscanTable: React.FC<Props> = ({ gridRef }) => {
         headerName: "#",
         sortable: false,
         filter: false,
-        width: 70,
+        width: 100,
         valueGetter: (params) =>
           params.node?.rowPinned ? "" : (params.node?.rowIndex ?? 0) + 1,
       },

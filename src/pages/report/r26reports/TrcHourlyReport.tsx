@@ -94,13 +94,15 @@ const TrcHourlyReport: React.FC = () => {
           </div>
         </div>
         <Divider />
-        <div className="flex flex-col gap-[6px] p-[10px]">
-          <Typography className="font-bold" variant="subtitle2" color="primary">
-            Worker Consumption : {trcHourlyReport?.total?.worker_consumption ?? "-"}
+        <div className="flex flex-col gap-[6px] p-[0px]">
+          <Typography fontWeight={600} fontSize={18} px={1} variant="subtitle1" color="primary">
+            Device Repair : {trcHourlyReport?.total?.worker_consumption ?? 0}
           </Typography>
-          <Typography className="font-bold" variant="subtitle2" color="error">
-            TRC Consumption : {trcHourlyReport?.total?.Trc_consumption ?? "-"}
+            <Divider />
+          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="error">
+            TRC Consumption : {trcHourlyReport?.total?.Trc_consumption ?? 0}
           </Typography>
+            <Divider />
         </div>
       </div>
 

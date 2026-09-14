@@ -9,7 +9,7 @@ import { showToast } from "@/utils/toasterContext";
 import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
-import { Typography } from "@mui/material";
+import { Divider, Typography } from "@mui/material";
 import QcMinOutwardTable from "@/table/report/r26tabls/QcMinOutwardTable";
 import { getQcMinReport } from "@/features/report/report/reportSummarySlice";
 
@@ -19,7 +19,7 @@ const { RangePicker } = DatePicker;
 const QCMINQutwardReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { qcminreportLoading } = useAppSelector(
+  const { qcminreportLoading, qcminreport } = useAppSelector(
     (state) => state.reportSummary,
   );
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
@@ -106,6 +106,14 @@ const QCMINQutwardReport: React.FC = () => {
               Search
             </LoadingButton>
           </div>
+        </div>
+           <div className="flex flex-col gap-[6px] p-[0px]">
+        
+            <Divider />
+          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="error">
+            Device Image Count : {qcminreport?.device_img_count ?? 0}
+          </Typography>
+            <Divider />
         </div>
       </div>
 
