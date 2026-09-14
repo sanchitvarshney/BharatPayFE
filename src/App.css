@@ -250,8 +250,10 @@ input:-webkit-autofill {
   box-shadow: 0 0 0 1000px transparent inset;
   -webkit-text-fill-color: inherit; /* Maintain text color */
 }
-.center-header .ag-header-cell-label {
+.center-header .ag-header-cell-label,
+.center-header .ag-header-group-cell-label {
   justify-content: center;
+  
 }
 
 /* Ensure other styles remain consistent */
@@ -280,6 +282,9 @@ input:-webkit-autofill {
 
 .ag-theme-quartz .ag-row-hover {
   background-color: transparent !important; /* Prevents default hover color */
+}
+.ag-theme-quartz .ag-row-pinned.ag-row-hover {
+  background-color: #ffff00 !important; /* Keep pinned (e.g. Grand Total) row highlighted on hover */
 }
 .ag-theme-quartz .ag-watermark {
   display: none !important;
