@@ -24,6 +24,17 @@ const TrcHourlyReport: React.FC = () => {
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
+  const handleExportExcel = () => {
+    if (!trcHourlyReport?.data?.length) {
+      showToast("No data to export", "error");
+      return;
+    }
+    gridRef.current?.api.exportDataAsExcel({
+      sheetName: "TRC Hourly Report",
+      fileName: `TRC_Hourly_Report_${date ? dayjs(date).format("DD-MM-YYYY") : dayjs().format("DD-MM-YYYY")}.xlsx`,
+    });
+  };
+
   const handleFetchTrcHourlyReport = async () => {
     if (!date) {
       showToast("Select a date", "error");
@@ -81,7 +92,7 @@ const TrcHourlyReport: React.FC = () => {
               format="DD/MM/YYYY"
             />
           </div>
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full gap-[10px]">
             <LoadingButton
               variant="contained"
               startIcon={<Icons.search fontSize="small" />}
@@ -90,6 +101,14 @@ const TrcHourlyReport: React.FC = () => {
               onClick={handleFetchTrcHourlyReport}
             >
               Search
+            </LoadingButton>
+            <LoadingButton
+              variant="outlined"
+              startIcon={<Icons.download fontSize="small" />}
+              onClick={handleExportExcel}
+              disabled={!trcHourlyReport?.data?.length}
+            >
+              Export
             </LoadingButton>
           </div>
         </div>

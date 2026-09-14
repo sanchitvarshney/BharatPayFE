@@ -1,5 +1,5 @@
 import React, { RefObject, useMemo } from "react";
-import { ColDef, ColGroupDef } from "@ag-grid-community/core";
+import { ColDef, ColGroupDef, ExcelStyle } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -80,8 +80,41 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      cellClassRules: {
+        "grand-total-cell": (params) => params.node.rowPinned === "bottom",
+      },
     };
   }, []);
+
+  const excelStyles = useMemo<ExcelStyle[]>(
+    () => [
+      {
+        id: "header",
+        interior: {
+          color: "#305496",
+          pattern: "Solid",
+        },
+        font: {
+          color: "#FFFFFF",
+          bold: true,
+        },
+        alignment: {
+          horizontal: "Center",
+        },
+      },
+      {
+        id: "grand-total-cell",
+        interior: {
+          color: "#FFFF00",
+          pattern: "Solid",
+        },
+        font: {
+          bold: true,
+        },
+      },
+    ],
+    [],
+  );
 
   const pinnedBottomRowData = useMemo(() => {
     const columns: string[] = trcHourlyReport?.columns || [];
@@ -119,6 +152,7 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
           rowData={trcHourlyReport?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          excelStyles={excelStyles}
           pinnedBottomRowData={pinnedBottomRowData}
           getRowStyle={getRowStyle}
           pagination={false}
