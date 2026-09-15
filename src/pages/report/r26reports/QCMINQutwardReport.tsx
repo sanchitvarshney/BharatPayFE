@@ -58,6 +58,7 @@ const QCMINQutwardReport: React.FC = () => {
           showToast(res?.data?.message || "Report fetched failed", "error");
         }
       } catch (error: any) {
+        console.log(error || "Something went wrong", "data");
         showToast(error?.message || "Something went wrong", "error");
       }
     }
