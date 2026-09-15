@@ -40,6 +40,15 @@ const columnDefs: ColDef[] = [
     filter: true,
     width: 260,
   },
+   {
+    headerName: "AWB Scan",
+    field: "awb_scan",
+    sortable: true,
+    filter: true,
+    width: 150,
+         headerClass: "ag-right-aligned-header",
+          cellStyle: { textAlign: "right" },
+  },
   {
     headerName: "Inward",
     field: "inward",

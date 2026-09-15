@@ -118,7 +118,7 @@ const TrcHourlyReport: React.FC = () => {
             Device Repair : {trcHourlyReport?.total?.worker_consumption ?? 0}
           </Typography>
             <Divider />
-          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="error">
+          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="primary">
             TRC Consumption : {trcHourlyReport?.total?.Trc_consumption ?? 0}
           </Typography>
             <Divider />

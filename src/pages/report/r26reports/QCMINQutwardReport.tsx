@@ -57,6 +57,7 @@ const QCMINQutwardReport: React.FC = () => {
           showToast(res?.data?.message || "Report fetched failed", "error");
         }
       } catch (error: any) {
+        console.log(error || "Something went wrong", "data");
         showToast(error?.message || "Something went wrong", "error");
       }
     }
@@ -110,8 +111,13 @@ const QCMINQutwardReport: React.FC = () => {
            <div className="flex flex-col gap-[6px] p-[0px]">
         
             <Divider />
-          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="error">
-            Device Image Count : {qcminreport?.device_img_count ?? 0}
+          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="primary">
+            Total Wrong Device : {qcminreport?.wrong_device?.total_scan ?? 0}
+          </Typography>
+            <Divider />
+                <Divider />
+          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="primary">
+            Total MIN : {qcminreport?.wrong_device?.total_min ?? 0}
           </Typography>
             <Divider />
         </div>
