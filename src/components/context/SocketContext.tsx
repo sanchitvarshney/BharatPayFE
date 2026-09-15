@@ -258,7 +258,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadPartCodeConversionReport,
         emitDownloadRawMaterialReport,
         emitDownloadTRCReport,
-        emitAwbReportDownload
+        emitAwbReportDownload,
       }}
     >
       {children}

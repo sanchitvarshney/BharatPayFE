@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { PoListResponse, PoStateType } from "./poTypes";
+import { ComponentPoDetailsResponse, PoListResponse, PoStateType } from "./poTypes";
 
 const initialState: PoStateType = {
   data: [],
@@ -17,7 +17,16 @@ const initialState: PoStateType = {
   completedPoData:[],
   submitPOMINLoading:false,
   uploadMinInvoiceLoading:false,
+  componentPoDetailsLoading:false,
 };
+
+export const getComponentPoDetails = createAsyncThunk<
+  AxiosResponse<ComponentPoDetailsResponse>,
+  { components: string[] }
+>("po/getComponentPoDetails", async (payload) => {
+  const response = await axiosInstance.post("/componentPercentage/getComponentPoDetails", payload);
+  return response;
+});
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
   { wise: "powise" | "datewise" | "vendorwise" | string ; data: string; limit: number; page: number }
@@ -85,8 +94,12 @@ export const getPartCodeChallanDetail = createAsyncThunk<AxiosResponse<any>, { i
   const response = await axiosInstance.post("/challan/fetchPerforma", { challanId: payload.id });
   return response;
 });
-export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
-  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
+export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string | { id: string; venId?: string | null }>("po/getPOComponentDetail", async (arg) => {
+  const id = typeof arg === "string" ? arg : arg.id;
+  const venId = typeof arg === "string" ? undefined : arg.venId;
+  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`, {
+    params: venId ? { ven_id: venId } : undefined,
+  });
   return response;
 });
 
@@ -296,6 +309,16 @@ const procurementPoSlice = createSlice({
       })
       .addCase(updatePO.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getComponentPoDetails.pending, (state) => {
+        state.componentPoDetailsLoading = true;
+      })
+      .addCase(getComponentPoDetails.fulfilled, (state) => {
+        state.componentPoDetailsLoading = false;
+      })
+      .addCase(getComponentPoDetails.rejected, (state, action) => {
+        state.componentPoDetailsLoading = false;
         state.error = action.error.message;
       })
       .addCase(createPartCodeChallan.pending, (state) => {
