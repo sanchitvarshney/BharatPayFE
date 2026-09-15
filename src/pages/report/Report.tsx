@@ -26,7 +26,10 @@ import { useUser } from "@/hooks/useUser";
 import { visibaleArr } from "@/components/shared/Navslider";
 import NotPermissionPage from "../commonPages/NotPermissionPage";
 import R22Report from "@/pages/report/R22Report";
+import R23Report from "./R23Report";
 import R24Report from "./R24Report";
+import R25Report from "./R25Report";
+import R26SummaryReportLayout from "@/layouts/R26SummaryReportLayout";
 
 const Report: React.FC = () => {
   const { id } = useParams();
@@ -112,9 +115,17 @@ const Report: React.FC = () => {
   }
   if (id === "R22") {
     return <R22Report  />
+  if (id === "R25") {
+    return <R23Report /> //XML Report
   }
   if(id === "R23"){
-    return <R24Report />
+    return <R24Report /> //TRC Report
+  }
+    if(id === "R24"){
+    return <R25Report /> // Physical Inventory
+  }
+      if(id === "R26"){
+    return <R26SummaryReportLayout /> // Physical Inventory
   }
   return <div>this is {id} Report</div>;
 };

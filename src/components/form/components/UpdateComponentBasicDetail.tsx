@@ -12,6 +12,9 @@ import SelectCategory, { CategoryType } from "@/components/reusable/SelectCatego
 import SelectSubCategory, { SubCategoryType } from "@/components/reusable/SelectSubCategory";
 import { UpdateComponentBasicDetailPayload } from "@/features/master/component/componentType";
 
+
+
+
 type FormDataType = {
   name: string;
   uom: GroupdataType | null; // Unit of Measure
@@ -20,6 +23,7 @@ type FormDataType = {
   mrp: string; // Maximum Retail Price
   status: string; // Assuming status is a binary "Yes" or "No"
   description: string;
+
 };
 type Props = {
   detail: {
@@ -52,6 +56,7 @@ const UpdateComponentBasicDetail: React.FC<Props> = ({ detail, setUpdateBasicDet
     mrp: detail?.mrp || "",
     status: detail?.status || "",
     description: detail?.description || "",
+
   };
   const {
     handleSubmit,
@@ -73,6 +78,7 @@ const UpdateComponentBasicDetail: React.FC<Props> = ({ detail, setUpdateBasicDet
       mrp: data.mrp,
       status: data.status,
       description: data.description,
+
     };
     dispatch(updateCompoenntBasicDetailAsync(payload)).then((res: any) => {
       if (res.payload?.data?.success) {
@@ -132,7 +138,7 @@ const UpdateComponentBasicDetail: React.FC<Props> = ({ detail, setUpdateBasicDet
               <SelectSubCategory disabled={!watch("category")} categoryId={watch("category")?.catId || ""} value={field.value} onChange={field.onChange} error={!!errors.subcategory} helperText={errors?.subcategory?.message} label="Sub Category" variant="filled" />
             )}
           />
-          <div className="col-span-3"></div>
+    
           <div className="col-span-2">
             <Controller name="description" control={control} render={({ field }) => <TextField fullWidth error={!!errors.name} multiline rows={3} {...field} label="Description" variant="filled" />} />
           </div>

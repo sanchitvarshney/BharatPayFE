@@ -175,6 +175,7 @@ const MasterComponentDeatil: React.FC = () => {
                         status: componentDetail?.[0]?.enable_status || "",
                         description: componentDetail?.[0]?.description || "",
                         uomId: componentDetail?.[0]?.uomid || "",
+                  
                       }}
                       setUpdateBasicDetail={setUpdateBasicDetail}
                     />

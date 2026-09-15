@@ -20,11 +20,13 @@ const NUMERIC_FIELDS = [
   "swipe_ingenico",
   "swipe_assembly",
   "swipe_storeAdmin",
+  "swipe_quality",
   "swipe_cost",
   "swipe_profitLoss",
   "soundbox_production",
   "soundbox_assemblycost",
   "soundbox_trc",
+  "soundbox_quality",
   "soundbox_storeAdmin",
   "soundbox_totalcost",
   "soundbox_profitLoss",
@@ -47,6 +49,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, CircularProgress } from "@mui/material";
 import { Sync } from "@mui/icons-material";
+import { showToast } from "@/utils/toasterContext";
 
 const { RangePicker } = DatePicker;
 
@@ -544,14 +547,20 @@ const WorkersReports = () => {
     };
   }, [workerReports]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     const payload: any = {
       from: dayjs(data?.date[0]).format("DD-MM-YYYY"),
       to: dayjs(data?.date[1]).format("DD-MM-YYYY"),
     };
 
-  
-    dispatch(getWorkerReport(payload))
+    try {
+      const res = await dispatch(getWorkerReport(payload)).unwrap();
+      if (res?.data?.success === false) {
+        showToast(res?.data?.message || "Something went wrong", "error");
+      }
+    } catch (error: any) {
+      showToast(error?.message || "Something went wrong", "error");
+    }
   };
 
   return (

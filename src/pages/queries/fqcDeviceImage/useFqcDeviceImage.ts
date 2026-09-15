@@ -14,6 +14,7 @@ import { FqcTableRow, ImageViewKey } from "./fqcDeviceImage.types";
 
 export const useFqcDeviceImage = () => {
   const [deviceType, setDeviceType] = useState("sound");
+    const [filterBy, setFilterBy] = useState("DATE");
    const [deviceTypeReport, setDeviceTypeReport] = useState("sound");
   const [serialNo, setSerialNo] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -24,11 +25,21 @@ export const useFqcDeviceImage = () => {
     from: Dayjs | null;
     to: Dayjs | null;
   }>({ from: null, to: null });
+   const [dateRangeFilter, setDateRangeFilter] = useState<{
+    from: Dayjs | null;
+    to: Dayjs | null;
+  }>({ from: null, to: null });
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
   const dispatch = useAppDispatch();
   const { emitFqcDeviceImageDownload, isConnected } = useSocketContext();
-  const { fqcDeviceData, fqcDeviceImagesLoading, fqcDeviceImagesError } =
-    useAppSelector((state) => state.common);
+  const {
+    fqcDeviceData,
+    fqcDeviceImagesLoading,
+    fqcDeviceImagesError,
+    fqcPagination,
+  } = useAppSelector((state) => state.common);
 
   const tableRows = useMemo(
     () => flattenFqcTableRows(fqcDeviceData),
@@ -81,19 +92,51 @@ export const useFqcDeviceImage = () => {
     [handleView]
   );
 
+  const fetchImages = useCallback(
+    (pageToFetch: number, limitToFetch: number) => {
+      dispatch(
+        getFqcDeviceImages({
+          module: deviceType === "swipe" ? "swipe" : "sound",
+          dsn: serialNo,
+          dateRange: dateRangeFilter,
+          type: filterBy,
+          page: pageToFetch,
+          limit: limitToFetch,
+        })
+      );
+    },
+    [deviceType, serialNo, dateRangeFilter, filterBy, dispatch]
+  );
+
   const handleSearch = useCallback(() => {
-    if (!deviceType || !serialNo) {
-      showToast("Please enter Device Type and Serial Number", "error");
-      return;
+    if(filterBy !== "DATE" && !serialNo){
+      showToast("Please enter Serial Number", "error");
+      return
+    } if((!dateRangeFilter.from || !dateRangeFilter.to ) && filterBy === "DATE"){
+      showToast("Please select date range", "error");
+      return
     }
     resetModals();
-    dispatch(
-      getFqcDeviceImages({
-        module: deviceType === "swipe" ? "swipe" : "sound",
-        dsn: serialNo,
-      })
-    );
-  }, [deviceType, serialNo, dispatch, resetModals]);
+    setPage(1);
+    fetchImages(1, limit);
+  }, [filterBy, serialNo, dateRangeFilter, limit, resetModals, fetchImages]);
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      setPage(newPage);
+      fetchImages(newPage, limit);
+    },
+    [limit, fetchImages]
+  );
+
+  const handleLimitChange = useCallback(
+    (newLimit: number) => {
+      setLimit(newLimit);
+      setPage(1);
+      fetchImages(1, newLimit);
+    },
+    [fetchImages]
+  );
 
   const handleBulkDownload = useCallback(() => {
     if (!dateRange.from || !dateRange.to) {
@@ -111,6 +154,8 @@ export const useFqcDeviceImage = () => {
   return {
     deviceType,
     setDeviceType,
+    filterBy,
+    setFilterBy,
     deviceTypeReport,
     setDeviceTypeReport,
     serialNo,
@@ -134,7 +179,14 @@ export const useFqcDeviceImage = () => {
     handleNextPreview,
     dateRange,
     setDateRange,
+    dateRangeFilter,
+    setDateRangeFilter,
     isConnected,
     handleBulkDownload,
+    page,
+    limit,
+    fqcPagination,
+    handlePageChange,
+    handleLimitChange,
   };
 };

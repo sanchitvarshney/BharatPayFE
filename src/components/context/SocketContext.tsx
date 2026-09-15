@@ -54,6 +54,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log("clicked");
     socketService.emit("r7Download", payload);
   };
+  const emitR6XmlDownload = (payload: any) => {
+    console.log("clicked", payload);
+    socketService.emit("r6XmlDownload", payload);
+  };
   const emitDownloadR4Report = (payload: any) => {
     console.log("clicked");
     socketService.emit("r4Download", payload);
@@ -65,6 +69,11 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     const emitDownloadPartCodeConversionReport = (payload: any) => {
     console.log("clicked");
     socketService.emit("partConversionReportDownload", payload);
+  };
+
+  const emitDownloadRawMaterialReport = (payload: any) => {
+    console.log("clicked");
+    socketService.emit("materialReportDownload", payload);
   };
 
   const emitDownloadQ2Report = (payload: any) => {
@@ -112,8 +121,11 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     socketService.emit("bpeBillingReport", payload);
   };
    const emitDownloadBillingReportSound = (payload: any) => {
-   
+
     socketService.emit("bpeBillingSoundBoxReport", payload);
+  };
+  const emitDownloadBillingSummaryReport = (payload: any) => {
+    socketService.emit("downloadBillingReport", payload);
   };
   const emitDownloadR14Report = (payload: any) => {
     console.log("clicked");
@@ -190,6 +202,10 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     console.log(payload);
     socketService.emit("imageCaptureReport", payload);
   };
+  const emitAwbReportDownload = (payload: any) => {
+    console.log(payload);
+    socketService.emit("awbReportDownload", payload);
+  };
 
   const onnotification = (callback: (data: NotificationData[]) => void) => {
     socketService.on("socket_receive_notification", callback);
@@ -217,6 +233,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadSwipeReport,
         swipeMachineInward,
         emitDownloadReport,
+        emitR6XmlDownload,
         emitDownloadR14Report,
         emitDownloadWrongDeviceReport,
         onDownloadReport,
@@ -236,9 +253,12 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         emitDownloadQ2Report,
         emitDownloadBillingReport,
         emitDownloadBillingReportSound,
+        emitDownloadBillingSummaryReport,
         emitFqcDeviceImageDownload,
         emitDownloadPartCodeConversionReport,
-        emitDownloadTRCReport
+        emitDownloadRawMaterialReport,
+        emitDownloadTRCReport,
+        emitAwbReportDownload
       }}
     >
       {children}

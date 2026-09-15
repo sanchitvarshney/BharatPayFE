@@ -143,6 +143,17 @@ import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
 import ViewImageLayout from "./layouts/ViewImageLayout";
 import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
 import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
+import SummaryLayout from "./layouts/SummaryLayout";
+import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
+import Dispatched from "./pages/summary-pages/Dispatched";
+import MaterialPurchase from "./pages/summary-pages/MaterialPurchase";
+import BillingSummary from "./pages/summary-pages/BillingSummary";
+import SpeakerAssembly from "./pages/summary-pages/SpeakerAssembly";
+import Trc from "./pages/summary-pages/Trc";
+import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
+import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
+import PreviousBilling from "./pages/summary-pages/PreviousBilling";
+
 
 export const router = createBrowserRouter([
   {
@@ -706,6 +717,88 @@ export const router = createBrowserRouter([
         ),
         path: "/material-in-with-po",
       },
+        {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <BillingSummary />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/billing",
+      },
+          {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <PreviousBilling />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/previous-billing",
+      },
+       {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <Trc />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/billing/trc",
+      },
+       {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <SpeakerAssembly />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/billing/speaker-assembly",
+      },
+        
+           {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <AssemblyAndTRC />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/billing/assembly-and-trc",
+      },
+            {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <Dispatched />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/billing/dispatch",
+      },
+            {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+            <MaterialPurchase />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/billing/material-purchase",
+      },
+      {
+        element: (
+          <MainLayout>
+          <RawMaterialReportLayout>
+              <RawMaterialReport />
+          </RawMaterialReportLayout>
+          </MainLayout>
+        ),
+        path: "/material-report/raw-material",
+      },
+
       // {
       //   element: (
       //     <MainLayout>

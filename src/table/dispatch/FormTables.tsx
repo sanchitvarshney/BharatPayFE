@@ -281,8 +281,9 @@ type Props = {
   rowData: any;
   setRowdata: any;
   headername?: string;
+  type?: string;
 };
-const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
+const FormTables: React.FC<Props> = ({ rowData, setRowdata, type }) => {
   const columnDefs: ColDef[] = [
     {
       headerName: "#",
@@ -293,11 +294,12 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
       width: 100,
     },
     {
-      headerName: "AWB No.",
+      headerName: type === "challan" ? "Challan No." : "AWB No.",
       field: "awbNo",
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 220,
     },
     {
       headerName: "Serial No.",
@@ -305,6 +307,7 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 220,
     },
     {
       headerName: "IMEI No.",
@@ -312,13 +315,14 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
       sortable: true,
       filter: true,
       flex: 1,
+      minWidth: 220,
     },
     {
       headerName: "Unique No.",
       field: "uniqueNo",
       sortable: true,
       filter: true,
-      minWidth: 350,
+      minWidth: 250,
       flex: 1,
       cellRenderer: (params: any) => (
         <UniqueCellRenderer {...params} setRowdata={setRowdata} />
@@ -339,6 +343,7 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
       ),
       flex: 1,
       editable: false,
+      minWidth: 220,
     },
     {
       headerName: "Action",
@@ -365,7 +370,7 @@ const FormTables: React.FC<Props> = ({ rowData, setRowdata, }) => {
   const gridRowData = Array.isArray(rowData) ? rowData : [];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-300px)] ">
+    <div className=" ag-theme-quartz h-[calc(100vh-210px)] ">
       <AgGridReact
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         suppressCellFocus={true}

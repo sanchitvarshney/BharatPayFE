@@ -11,7 +11,7 @@ import R20ReportTable from "@/table/report/R20ReportTable";
 import { showToast } from "@/utils/toasterContext";
 import { getR20Report } from "@/features/report/report/reportSlice";
 import { AgGridReact } from "@ag-grid-community/react";
-// import { useSocketContext } from "@/components/context/SocketContext";
+import { useSocketContext } from "@/components/context/SocketContext";
 
 const R20Report: React.FC = () => {
   const gridRef = useRef<AgGridReact>(null);
@@ -29,7 +29,7 @@ const R20Report: React.FC = () => {
   const { getR20DataLoading } = useAppSelector(
     (state) => state.report
   );
-  // const { swipeMachineInward,isConnected } = useSocketContext();
+  const { emitAwbReportDownload, isConnected } = useSocketContext();
 
   const handleDateChange = (dates: {
     from: Dayjs | null;
@@ -38,18 +38,19 @@ const R20Report: React.FC = () => {
     setDateRange(dates);
   };
 
-  // const handleExport = () => {
-  //     if (!dateRange.from || !dateRange.to || !partner)
-  //       return showToast("Please select location and date range", "error");
-  //     const reportPayload = {
-  //       partner: partner,
-  //       fromDate: dateRange.from?.format("DD-MM-YYYY"),
-  //       toDate: dateRange.to?.format("DD-MM-YYYY"),
-  //     };
-  //     swipeMachineInward(reportPayload);
-  //     showToast("Start downloading ", "success");
-  //   };
-  
+  const handleExport = () => {
+    if (!dateRange.from || !dateRange.to)
+      return showToast("Please select a date range", "error");
+    if (!partner) return showToast("Please select a partner", "error");
+    const reportPayload = {
+      start_date: dayjs(dateRange.from).format("DD-MM-YYYY"),
+      end_date: dayjs(dateRange.to).format("DD-MM-YYYY"),
+      partner: partner,
+    };
+    emitAwbReportDownload(reportPayload);
+    showToast("Start downloading ", "success");
+  };
+
 
   return (
     <div className="flex bg-white h-[calc(100vh-100px)] relative">
@@ -138,8 +139,8 @@ const R20Report: React.FC = () => {
             >
               Search
             </LoadingButton>
-            {/* <LoadingButton
-             disabled={!isConnected}
+            <LoadingButton
+              disabled={!isConnected}
               onClick={handleExport}
               variant="contained"
               color="primary"
@@ -154,7 +155,7 @@ const R20Report: React.FC = () => {
               sx={{ zIndex: 1 }}
             >
               <Icons.download />
-            </LoadingButton> */}
+            </LoadingButton>
           </div>
         </div>
       </div>

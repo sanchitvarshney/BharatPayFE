@@ -18,7 +18,7 @@ interface SharedDialogProps {
 
 const ConfirmationModel: React.FC<SharedDialogProps> = ({ open, title, content, onClose, onConfirm, confirmText = "Confirm", cancelText = "Cancel", startIcon, endIcon, loading = false, color = "error", showConfirm = false }) => {
   return (
-    <Dialog open={open} onClose={onClose} aria-labelledby="dialog-title">
+    <Dialog open={open} onClose={onClose} aria-labelledby="dialog-title" >
       <div className="absolute top-0 left-0 right-0">{loading && <LinearProgress />}</div>
       <DialogTitle id="dialog-title" fontWeight={600}>
         {title}

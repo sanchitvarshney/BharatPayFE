@@ -36,6 +36,23 @@ const DeviceQuery: React.FC = () => {
   });
   const [value, setValue] = useState<DeviceType | null>(null);
   const [location, setLocation] = useState<LocationType | null>(null);
+  const [pageSize, setPageSize] = useState(20);
+
+  const fetchQ1Data = (page: number, limit: number) => {
+    dispatch(
+      getQ1Data({
+        date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null,
+        value: value ? value.id : "",
+        location: location ? location.id : null,
+        page,
+        limit,
+      })
+    ).then((res: any) => {
+      if (!res.payload?.data?.success) {
+        showToast(res.payload?.data?.message, "error");
+      }
+    });
+  };
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
     if (range) {
@@ -107,21 +124,13 @@ const DeviceQuery: React.FC = () => {
                   onClick={() => {
                     if (filterType === "location") {
                       if (value && location) {
-                        dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
-                          if (!res.payload?.data?.success) {
-                            showToast(res.payload?.data?.message, "error");
-                          }
-                        });
+                        fetchQ1Data(1, pageSize);
                       } else {
                         showToast("Please select SKU and location", "error");
                       }
                     } else {
                       if (value && date) {
-                        dispatch(getQ1Data({ date: date ? `${dayjs(date.from).format("DD-MM-YYYY")}_to_${dayjs(date.to).format("DD-MM-YYYY")}` : null, value: value.id, location: location ? location.id : null })).then((res: any) => {
-                          if (!res.payload?.data?.success) {
-                            showToast(res.payload?.data?.message, "error");
-                          }
-                        });
+                        fetchQ1Data(1, pageSize);
                       } else {
                         showToast("Please select SKU and Date", "error");
                       }
@@ -195,7 +204,21 @@ const DeviceQuery: React.FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <DeviceQueryRepoTable gridRef={gridRef} />
+          <DeviceQueryRepoTable
+            gridRef={gridRef}
+            pageSize={pageSize}
+            handlePageChange={(page: number) => {
+              if (value && (date || location)) {
+                fetchQ1Data(page, pageSize);
+              }
+            }}
+            handlePageSizeChange={(newPageSize: number) => {
+              setPageSize(newPageSize);
+              if (value && (date || location)) {
+                fetchQ1Data(1, newPageSize);
+              }
+            }}
+          />
         </div>
       </div>
     </div>

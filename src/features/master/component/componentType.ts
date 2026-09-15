@@ -35,7 +35,6 @@ export type GroupApiResponse = {
   success: boolean;
   data: Groupdata[];
 };
-export type UpdateconpinentDetail = {};
 
 export type ComponentDetail = {
   partcode: string;
@@ -71,6 +70,8 @@ export type ComponentDetail = {
   mfgCode: string;
   c_hsn: string;
   gst_rate: string;
+  department: string;
+  rate: number;
 };
 
 export type ComponentDetailApiResponse = {
@@ -88,6 +89,7 @@ export type UpdateComponentBasicDetailPayload = {
   mrp: string; // Maximum Retail Price
   status: string; // Assuming status is a binary "Yes" or "No"
   description: string;
+
 };
 
 export type UpdateComponentAdvanceDetail = {
@@ -117,6 +119,11 @@ export type UpdateTaxDetailPayload = {
   hsn: string;
 };
 
+export type UpdateMaterialPurchasedPayload = {
+  comp: string;
+  is_row_material_purchased: string;
+};
+
 export interface ComponnetState {
   component: ComponentData | null;
   getComponentLoading: boolean;
@@ -129,4 +136,5 @@ export interface ComponnetState {
   updateCompoenntAdvanceDetailLoading: boolean;
   updateCompoenntProductionDetailLoading: boolean;
   updateCompoenntTaxDetailLoading: boolean;
+  updateMaterialPurchasedLoading: boolean;
 }

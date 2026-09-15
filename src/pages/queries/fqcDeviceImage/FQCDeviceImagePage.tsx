@@ -9,6 +9,10 @@ const FQCDeviceImagePage: React.FC = () => {
   const {
     deviceType,
     setDeviceType,
+    filterBy,
+    setFilterBy,
+    dateRangeFilter,
+    setDateRangeFilter,
     deviceTypeReport,
     setDeviceTypeReport,
     serialNo,
@@ -34,14 +38,20 @@ const FQCDeviceImagePage: React.FC = () => {
     setDateRange,
     isConnected,
     handleBulkDownload,
+    page,
+    limit,
+    fqcPagination,
+    handlePageChange,
+    handleLimitChange,
   } = useFqcDeviceImage();
 
   return (
     <div className="relative flex bg-white">
       <FqcDeviceImageSearchForm
         deviceType={deviceType}
-    deviceTypeReport={deviceTypeReport}
-
+        deviceTypeReport={deviceTypeReport}
+        filterBy={filterBy}
+        onChangeFilterBy={setFilterBy}
         onChangeDeviceType={setDeviceTypeReport}
         serialNo={serialNo}
         loading={fqcDeviceImagesLoading}
@@ -50,6 +60,8 @@ const FQCDeviceImagePage: React.FC = () => {
         onSearch={handleSearch}
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
+        dateRangeFilter={dateRangeFilter}
+        onDateRangeFilterChange={setDateRangeFilter}
         isConnected={isConnected}
         onBulkDownload={handleBulkDownload}
       />
@@ -59,6 +71,11 @@ const FQCDeviceImagePage: React.FC = () => {
         error={fqcDeviceImagesError}
         rows={tableRows}
         columnDefs={columnDefs}
+        page={page}
+        limit={limit}
+        pagination={fqcPagination}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
       />
 
       <FqcDeviceImagesModal
