@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -11,8 +11,11 @@ import { Icons } from "@/components/icons";
 import { Divider, Typography } from "@mui/material";
 import TrcHourlyTable from "@/table/report/r26tabls/TrcHourlyTable";
 import { getTrcHourlyReport } from "@/features/report/report/reportSummarySlice";
+import { rangePresets } from "@/utils/rangePresets";
+import ReportStatCard from "@/components/reusable/ReportStatCard";
 
 dayjs.extend(customParseFormat);
+const { RangePicker } = DatePicker;
 
 const TrcHourlyReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
@@ -20,7 +23,10 @@ const TrcHourlyReport: React.FC = () => {
   const { trcHourlyReportLoading, trcHourlyReport } = useAppSelector(
     (state) => state.reportSummary,
   );
-  const [date, setDate] = useState<Dayjs | null>(null);
+  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+    from: null,
+    to: null,
+  });
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
@@ -31,18 +37,26 @@ const TrcHourlyReport: React.FC = () => {
     }
     gridRef.current?.api.exportDataAsExcel({
       sheetName: "TRC Hourly Report",
-      fileName: `TRC_Hourly_Report_${date ? dayjs(date).format("DD-MM-YYYY") : dayjs().format("DD-MM-YYYY")}.xlsx`,
+      fileName: `TRC_Hourly_Report_${date.from && date.to ? `${date.from.format("DD-MM-YYYY")}_to_${date.to.format("DD-MM-YYYY")}` : dayjs().format("DD-MM-YYYY")}.xlsx`,
     });
+  };
+  const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
+    if (range) {
+      setDate({ from: range[0], to: range[1] });
+    } else {
+      setDate({ from: null, to: null });
+    }
   };
 
   const handleFetchTrcHourlyReport = async () => {
-    if (!date) {
-      showToast("Select a date", "error");
+    if (!date.from || !date.to) {
+      showToast("Select a date range", "error");
     } else {
       try {
         const res = await dispatch(
           getTrcHourlyReport({
-            date: dayjs(date).format("DD-MM-YYYY"),
+            from: date.from.format("DD-MM-YYYY"),
+            to: date.to.format("DD-MM-YYYY"),
           }),
         ).unwrap();
 
@@ -59,6 +73,22 @@ const TrcHourlyReport: React.FC = () => {
       }
     }
   };
+
+  const remainingTrc = useMemo(() => {
+    return (
+      Number(trcHourlyReport?.summary?.workRepair ?? 0) -
+      Number(trcHourlyReport?.summary?.totalout ?? 0)
+    );
+  }, [
+    trcHourlyReport?.summary?.workRepair,
+    trcHourlyReport?.summary?.totalout,
+  ]);
+  const remainingToRaipr = useMemo(() => {
+    return (
+      Number(trcHourlyReport?.summary?.trc_in ?? 0) -
+      Number(trcHourlyReport?.summary?.workRepair ?? 0)
+    );
+  }, [trcHourlyReport?.summary?.workRepair, trcHourlyReport?.summary?.trc_in]);
   return (
     <div className="bg-white h-[calc(100vh-150px)] flex relative">
       <div
@@ -83,12 +113,13 @@ const TrcHourlyReport: React.FC = () => {
             <Typography className="mb-[14px] font-semibold" variant="subtitle1">
               Select Date
             </Typography>
-            <DatePicker
+            <RangePicker
               className="h-[50px] w-full"
-              onChange={(value) => setDate(value)}
+              presets={rangePresets}
+              onChange={handleDateChange}
               disabledDate={(current) => current && current > dayjs()}
-              placeholder="Select date"
-              value={date}
+              placeholder={["Start date", "End Date"]}
+              value={date.from && date.to ? [date.from, date.to] : null}
               format="DD/MM/YYYY"
             />
           </div>
@@ -113,15 +144,38 @@ const TrcHourlyReport: React.FC = () => {
           </div>
         </div>
         <Divider />
-        <div className="flex flex-col gap-[6px] p-[0px]">
-          <Typography fontWeight={600} fontSize={18} px={1} variant="subtitle1" color="primary">
-            Device Repair : {trcHourlyReport?.total?.worker_consumption ?? 0}
-          </Typography>
-            <Divider />
-          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="error">
-            TRC Consumption : {trcHourlyReport?.total?.Trc_consumption ?? 0}
-          </Typography>
-            <Divider />
+        <div className="grid grid-cols-2 gap-[10px] p-[10px]">
+          <ReportStatCard
+            label="Device Repair"
+            value={trcHourlyReport?.summary?.workRepair ?? 0}
+            color="primary"
+          />
+          <ReportStatCard
+            label="Consumption"
+            value={trcHourlyReport?.total?.Trc_consumption ?? 0}
+            color="info"
+          />
+          <ReportStatCard
+            label="In Consumption"
+            value={trcHourlyReport?.summary?.trc_in ?? 0}
+            color="success"
+          />
+          <ReportStatCard
+            label="Out Consumption"
+            value={trcHourlyReport?.summary?.totalout ?? 0}
+            color="warning"
+          />
+
+          <ReportStatCard
+            label="Remaining Consumption"
+            value={remainingTrc ?? 0}
+            color="error"
+          />
+          <ReportStatCard
+            label="Remaining To Raipr"
+            value={remainingToRaipr ?? 0}
+            color="error"
+          />
         </div>
       </div>
 

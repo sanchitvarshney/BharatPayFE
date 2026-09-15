@@ -12,6 +12,7 @@ import { Icons } from "@/components/icons";
 import { Divider, Typography } from "@mui/material";
 import QcMinOutwardTable from "@/table/report/r26tabls/QcMinOutwardTable";
 import { getQcMinReport } from "@/features/report/report/reportSummarySlice";
+import ReportStatCard from "@/components/reusable/ReportStatCard";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
@@ -107,13 +108,18 @@ const QCMINQutwardReport: React.FC = () => {
             </LoadingButton>
           </div>
         </div>
-           <div className="flex flex-col gap-[6px] p-[0px]">
-        
-            <Divider />
-          <Typography  fontWeight={600} px={1} fontSize={18}  variant="subtitle1" color="error">
-            Device Image Count : {qcminreport?.device_img_count ?? 0}
-          </Typography>
-            <Divider />
+        <Divider />
+        <div className="grid grid-cols-2 gap-[10px] p-[10px]">
+          <ReportStatCard
+            label="Total Wrong Device"
+            value={qcminreport?.wrong_device?.total_scan ?? 0}
+            color="error"
+          />
+          <ReportStatCard
+            label="Total MIN"
+            value={qcminreport?.wrong_device?.total_min ?? 0}
+            color="primary"
+          />
         </div>
       </div>
 

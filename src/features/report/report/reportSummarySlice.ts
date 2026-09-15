@@ -34,10 +34,10 @@ export const getQcMinReport = createAsyncThunk<
 
 export const getTrcHourlyReport = createAsyncThunk<
   AxiosResponse<any>,
-  { date: string }
+  { from: string; to: string }
 >("report/getTrcHourlyReport", async (payload) => {
   const response = await axiosInstance.get(
-    `/report/workerHourlyPivotReport?date=${payload.date}`,
+    `/report/workerHourlyPivotReport?start_date=${payload.from}&end_date=${payload.to}`,
   );
   return response;
 });
