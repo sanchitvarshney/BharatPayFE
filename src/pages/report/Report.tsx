@@ -115,6 +115,7 @@ const Report: React.FC = () => {
   }
   if (id === "R22") {
     return <R22Report  />
+  }
   if (id === "R25") {
     return <R23Report /> //XML Report
   }
