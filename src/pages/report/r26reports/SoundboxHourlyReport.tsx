@@ -8,17 +8,15 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { showToast } from "@/utils/toasterContext";
 import { rangePresets } from "@/utils/rangePresets";
 import { Icons } from "@/components/icons";
-import { Typography } from "@mui/material";
-import QcMinOutwardTable from "@/table/report/r26tabls/QcMinOutwardTable";
-import { getQcMinReport } from "@/features/report/report/reportSummarySlice";
-import ReportStatCard from "@/components/reusable/ReportStatCard";
+import SoundboxHourlyTable from "@/table/report/r26tabls/SoundboxHourlyTable";
+import { getSoundboxHourlyReport } from "@/features/report/report/reportSummarySlice";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 
-const QCMINQutwardReport: React.FC = () => {
+const SoundboxHourlyReport: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { qcminreportLoading, qcminreport } = useAppSelector(
+  const { soundboxHourlyReportLoading, soundboxHourlyReport } = useAppSelector(
     (state) => state.reportSummary,
   );
   const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
@@ -35,15 +33,27 @@ const QCMINQutwardReport: React.FC = () => {
       setDate({ from: null, to: null });
     }
   };
-  const handleFetchQcMinReport = async () => {
+
+  const handleExportExcel = () => {
+    if (!soundboxHourlyReport?.data?.length) {
+      showToast("No data to export", "error");
+      return;
+    }
+    gridRef.current?.api.exportDataAsExcel({
+      sheetName: "Soundbox Hourly Report",
+      fileName: `Soundbox_Hourly_Report_${date.from && date.to ? `${date.from.format("DD-MM-YYYY")}_to_${date.to.format("DD-MM-YYYY")}` : dayjs().format("DD-MM-YYYY")}.xlsx`,
+    });
+  };
+
+  const handleFetchSoundboxHourlyReport = async () => {
     if (!date.from || !date.to) {
-      showToast("Select date range", "error");
+      showToast("Select a date range", "error");
     } else {
       try {
         const res = await dispatch(
-          getQcMinReport({
-            from: dayjs(date.from).format("DD-MM-YYYY"),
-            to: dayjs(date.to).format("DD-MM-YYYY"),
+          getSoundboxHourlyReport({
+            from: date.from.format("DD-MM-YYYY"),
+            to: date.to.format("DD-MM-YYYY"),
           }),
         ).unwrap();
 
@@ -60,6 +70,7 @@ const QCMINQutwardReport: React.FC = () => {
       }
     }
   };
+
   return (
     <div className="grid w-full grid-cols-[1fr_3fr] bg-white">
       <div className="w-full border-r border-neutral-300">
@@ -78,48 +89,33 @@ const QCMINQutwardReport: React.FC = () => {
               format="DD/MM/YYYY"
             />
           </div>
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-[10px]">
             <LoadingButton
               variant="contained"
               startIcon={<Icons.search fontSize="small" />}
               loadingPosition="start"
-              loading={qcminreportLoading}
-              onClick={handleFetchQcMinReport}
+              loading={soundboxHourlyReportLoading}
+              onClick={handleFetchSoundboxHourlyReport}
             >
               Search
             </LoadingButton>
-          </div>
-        </div>
-        <div className="border-t border-neutral-200 px-[10px] py-[12px]">
-          <Typography
-            className="mb-[10px] text-slate-500"
-            variant="caption"
-            fontWeight={600}
-            textTransform="uppercase"
-            letterSpacing={0.4}
-          >
-            Summary
-          </Typography>
-          <div className="grid grid-cols-2 gap-[10px]">
-            <ReportStatCard
-              label="Total Wrong Device"
-              value={qcminreport?.wrong_device?.total_scan ?? 0}
-              color="error"
-            />
-            <ReportStatCard
-              label="Total MIN"
-              value={qcminreport?.wrong_device?.total_min ?? 0}
-              color="primary"
-            />
+            <LoadingButton
+              variant="outlined"
+              startIcon={<Icons.download fontSize="small" />}
+              onClick={handleExportExcel}
+              disabled={!soundboxHourlyReport?.data?.length}
+            >
+              Export
+            </LoadingButton>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col w-full min-h-0 h-[calc(100vh-150px)]">
-        <QcMinOutwardTable gridRef={gridRef} />
+        <SoundboxHourlyTable gridRef={gridRef} />
       </div>
     </div>
   );
 };
 
-export default QCMINQutwardReport;
+export default SoundboxHourlyReport;
