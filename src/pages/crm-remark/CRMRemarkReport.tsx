@@ -75,7 +75,7 @@ const CRMRemarkReport: React.FC = () => {
     },
         {
       headerName: "AWB No.",
-      field: "awb_no",
+      field: "awb",
       minWidth: 200,
       headerClass: "font-semibold",
     },
