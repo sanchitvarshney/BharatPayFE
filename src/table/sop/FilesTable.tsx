@@ -41,12 +41,6 @@ const FilesTable: React.FC<Props> = ({ rowdata,refreshfile }) => {
       headerName: "Name",
       field: "name",
       flex: 1,
-      cellStyle: { cursor: "pointer", color: "#1976d2", textDecoration: "underline" },
-      onCellClicked: (params) => {
-        if (params.data?.url) {
-          window.open(`${import.meta.env.VITE_REACT_APP_API_BASE_URL}/${params.data.url}`, "_blank");
-        }
-      },
     },
     {
       headerName: "Type",
@@ -83,7 +77,7 @@ const FilesTable: React.FC<Props> = ({ rowdata,refreshfile }) => {
                 color="primary"
                 size="small"
                 onClick={() => {
-                  window.open(`${import.meta.env.VITE_REACT_APP_API_BASE_URL}/${params.data.url}`, "_blank");
+                  window.open(`${params.data.url}`, "_blank");
                 }}
               >
                 <FullscreenIcon fontSize="small" />
