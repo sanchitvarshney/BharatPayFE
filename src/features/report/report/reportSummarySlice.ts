@@ -12,6 +12,8 @@ const initialState: any = {
   trcHourlyReportLoading: false,
   soundboxHourlyReport: null,
   soundboxHourlyReportLoading: false,
+  swipeHourlyReport: null,
+  swipeHourlyReportLoading: false,
 };
 
 export const getawbscanReport = createAsyncThunk<
@@ -50,6 +52,16 @@ export const getSoundboxHourlyReport = createAsyncThunk<
 >("report/getSoundboxHourlyReport", async (payload) => {
   const response = await axiosInstance.get(
     `/report/soundboxHourlyReport?start_date=${payload.from}&end_date=${payload.to}`,
+  );
+  return response;
+});
+
+export const getSwipeHourlyReport = createAsyncThunk<
+  AxiosResponse<any>,
+  { from: string; to: string }
+>("report/getSwipeHourlyReport", async (payload) => {
+  const response = await axiosInstance.get(
+    `/report/swipeHourlyReport?start_date=${payload.from}&end_date=${payload.to}`,
   );
   return response;
 });
@@ -113,6 +125,18 @@ const reportSummarySlice = createSlice({
       })
       .addCase(getSoundboxHourlyReport.rejected, (state) => {
         state.soundboxHourlyReportLoading = false;
+      })
+      .addCase(getSwipeHourlyReport.pending, (state) => {
+        state.swipeHourlyReportLoading = true;
+      })
+      .addCase(getSwipeHourlyReport.fulfilled, (state: any, action) => {
+        state.swipeHourlyReportLoading = false;
+        if (action.payload.data.success) {
+          state.swipeHourlyReport = action.payload.data;
+        }
+      })
+      .addCase(getSwipeHourlyReport.rejected, (state) => {
+        state.swipeHourlyReportLoading = false;
       });
   },
 });

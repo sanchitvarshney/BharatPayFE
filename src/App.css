@@ -137,6 +137,11 @@
   background-color: #0e7490 !important;
   color: #fff;
 }
+.ag-theme-quartz.swipe-report-grid .ag-header-group-cell,
+.ag-theme-quartz.swipe-report-grid .ag-header-cell {
+  background-color: #0e7490 !important;
+  color: #fff;
+}
 
 /* Raw material report: different color per location group, same color for children of that group */
 .ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-0,
