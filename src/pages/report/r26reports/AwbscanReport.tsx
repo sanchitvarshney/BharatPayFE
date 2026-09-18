@@ -13,6 +13,7 @@ import { Divider, Typography } from "@mui/material";
 import AwbscanTable from "@/table/report/r26tabls/AwbscanTable";
 import { getawbscanReport } from "@/features/report/report/reportSummarySlice";
 import WrongAwbscanTable from "@/table/report/r26tabls/WrongAwbScanTable";
+import ReportStatCard from "@/components/reusable/ReportStatCard";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
@@ -109,9 +110,13 @@ const AwbscanReport: React.FC = () => {
           </div>
         </div>
         <Divider />
-        <Typography fontWeight={600} variant="subtitle1" color="error">
-          Total Wrong Scan : {awbscanreport?.WrongDevice?.totalWrongDevices ?? 0}
-        </Typography>
+        <div className="p-[10px]">
+          <ReportStatCard
+            label="Total Wrong Scan"
+            value={awbscanreport?.WrongDevice?.totalWrongDevices ?? 0}
+            color="error"
+          />
+        </div>
         <Divider />
         <WrongAwbscanTable gridRef={gridRef} />
       </div>

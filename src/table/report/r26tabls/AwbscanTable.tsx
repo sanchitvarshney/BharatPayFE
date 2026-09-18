@@ -4,7 +4,6 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
-// import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -67,9 +66,33 @@ const AwbscanTable: React.FC<Props> = ({ gridRef }) => {
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: true,
+      filter: "agTextColumnFilter",
+      floatingFilter: true,
+      sortable: true,
+      resizable: true,
     };
   }, []);
+
+  const sideBar = useMemo(
+    () => ({
+      toolPanels: [
+        {
+          id: "columns",
+          labelDefault: "Columns",
+          labelKey: "columns",
+          iconKey: "columns",
+          toolPanel: "agColumnsToolPanel",
+          toolPanelParams: {
+            suppressPivotMode: true,
+            suppressPivots: true,
+          },
+        },
+      ],
+      defaultToolPanel: "",
+    }),
+    [],
+  );
+
   const pinnedBottomRowData = useMemo(() => {
     const columns: string[] = awbscanreport?.columns || [];
     const data: any[] = awbscanreport?.data || [];
@@ -87,29 +110,26 @@ const AwbscanTable: React.FC<Props> = ({ gridRef }) => {
     return [totals];
   }, [awbscanreport]);
 
-  const getRowStyle = (params: any) => {
-    if (params.node.rowPinned) {
-      return { backgroundColor: "#ffff00", fontWeight: 600 };
-    }
-    return undefined;
-  };
-
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-150px)]">
+      <div className="relative ag-theme-quartz workers-report-grid awb-report-grid h-[calc(100vh-150px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           loading={awbscanreportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
+          suppressMenuHide={true}
           rowData={awbscanreport?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          sideBar={sideBar}
           pinnedBottomRowData={pinnedBottomRowData}
-          getRowStyle={getRowStyle}
-          pagination={false}
-          paginationPageSize={20}
+          getRowClass={(params) =>
+            params.node?.rowPinned === "bottom" ? "wr-total-row" : undefined
+          }
+          pagination={true}
+          paginationPageSize={50}
           enableCellTextSelection={true}
         />
       </div>

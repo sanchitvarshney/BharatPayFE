@@ -94,6 +94,8 @@ const columnDefs: ColDef[] = [
   },
 ];
 
+const NUMERIC_COLUMNS = ["awb_scan", "inward", "outward", "partial_min"];
+
 const QcMinOutwardTable: React.FC<Props> = ({ gridRef }) => {
   const { qcminreport, qcminreportLoading } = useAppSelector(
     (state) => state.reportSummary,
@@ -101,24 +103,65 @@ const QcMinOutwardTable: React.FC<Props> = ({ gridRef }) => {
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: true,
+      filter: "agTextColumnFilter",
+      floatingFilter: true,
+      sortable: true,
+      resizable: true,
     };
   }, []);
 
+  const sideBar = useMemo(
+    () => ({
+      toolPanels: [
+        {
+          id: "columns",
+          labelDefault: "Columns",
+          labelKey: "columns",
+          iconKey: "columns",
+          toolPanel: "agColumnsToolPanel",
+          toolPanelParams: {
+            suppressPivotMode: true,
+            suppressPivots: true,
+          },
+        },
+      ],
+      defaultToolPanel: "",
+    }),
+    [],
+  );
+
+  const pinnedBottomRowData = useMemo(() => {
+    const data: any[] = qcminreport?.data || [];
+    if (!data.length) return [];
+
+    const totals: Record<string, any> = { model: "Grand Total" };
+    NUMERIC_COLUMNS.forEach((col) => {
+      totals[col] = data.reduce((sum, row) => sum + (Number(row[col]) || 0), 0);
+    });
+
+    return [totals];
+  }, [qcminreport]);
+
   return (
     <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-150px)]">
+      <div className="relative ag-theme-quartz workers-report-grid qc-report-grid h-[calc(100vh-150px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
           loading={qcminreportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
+          suppressMenuHide={true}
           rowData={qcminreport?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          pagination={false}
-          paginationPageSize={20}
+          sideBar={sideBar}
+          pinnedBottomRowData={pinnedBottomRowData}
+          getRowClass={(params) =>
+            params.node?.rowPinned === "bottom" ? "wr-total-row" : undefined
+          }
+          pagination={true}
+          paginationPageSize={50}
           enableCellTextSelection={true}
         />
       </div>

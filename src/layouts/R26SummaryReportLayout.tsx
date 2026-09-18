@@ -4,8 +4,10 @@ import { setMode } from "@/features/report/report/reportSummarySlice";
 import AwbscanReport from "@/pages/report/r26reports/AwbscanReport";
 import QCMINQutwardReport from "@/pages/report/r26reports/QCMINQutwardReport";
 import TrcHourlyReport from "@/pages/report/r26reports/TrcHourlyReport";
+import SoundboxHourlyReport from "@/pages/report/r26reports/SoundboxHourlyReport";
+import SwipeHourlyReport from "@/pages/report/r26reports/SwipeHourlyReport";
 
-type ViewMode = "trc" | "awb" | "qc";
+type ViewMode = "trc" | "awb" | "qc" | "soundbox" | "swipe";
 
 const R26SummaryReportLayout = () => {
   const mode = useAppSelector((state) => state.reportSummary?.mode) as ViewMode;
@@ -19,6 +21,10 @@ const R26SummaryReportLayout = () => {
         return <QCMINQutwardReport />;
       case "trc":
         return <TrcHourlyReport />;
+      case "soundbox":
+        return <SoundboxHourlyReport />;
+      case "swipe":
+        return <SwipeHourlyReport />;
       default:
         return null;
     }
@@ -34,6 +40,8 @@ const R26SummaryReportLayout = () => {
               { value: "awb", label: "AWB Scan" },
               { value: "qc", label: "QC MIN Outward" },
               { value: "trc", label: "TRC" },
+              { value: "soundbox", label: "Soundbox Hourly" },
+              { value: "swipe", label: "Swipe Hourly" },
             ]}
           />
         </div>

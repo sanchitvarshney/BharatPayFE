@@ -9,15 +9,15 @@ type Props = {
   gridRef: RefObject<AgGridReact<any>>;
 };
 
-const FIXED_COLUMNS = ["empCode", "department", "total"];
+const FIXED_COLUMNS = ["department", "total"];
 
-const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
-  const { trcHourlyReport, trcHourlyReportLoading } = useAppSelector(
+const SoundboxHourlyTable: React.FC<Props> = ({ gridRef }) => {
+  const { soundboxHourlyReport, soundboxHourlyReportLoading } = useAppSelector(
     (state) => state.reportSummary,
   );
 
   const columnDefs = useMemo<(ColDef | ColGroupDef)[]>(() => {
-    const columns: string[] = trcHourlyReport?.columns || [];
+    const columns: string[] = soundboxHourlyReport?.columns || [];
     if (!columns.length) return [];
 
     const hourColumns = columns
@@ -38,17 +38,15 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
           params.node?.rowPinned ? "" : (params.node?.rowIndex ?? 0) + 1,
       },
       {
-        headerName: "Emp Code",
-        field: "empCode", 
+        headerName: "Department",
+        field: "department",
         sortable: true,
         filter: true,
         width: 180,
-   
       },
-   
       {
         headerName: "Worked (Hourly)",
-       width: 400,
+        width: 400,
         headerClass: `center-header `,
         suppressStickyLabel: true,
         children: hourColumns.map((col) => {
@@ -75,7 +73,7 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
     ];
 
     return defs;
-  }, [trcHourlyReport]);
+  }, [soundboxHourlyReport]);
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
@@ -140,11 +138,11 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
   );
 
   const pinnedBottomRowData = useMemo(() => {
-    const columns: string[] = trcHourlyReport?.columns || [];
-    const data: any[] = trcHourlyReport?.data || [];
+    const columns: string[] = soundboxHourlyReport?.columns || [];
+    const data: any[] = soundboxHourlyReport?.data || [];
     if (!columns.length || !data.length) return [];
 
-    const totals: Record<string, any> = { empCode: "Grand Total" };
+    const totals: Record<string, any> = { department: "Grand Total" };
     columns.forEach((col) => {
       if (FIXED_COLUMNS.includes(col) && col !== "total") return;
       totals[col] = data.reduce(
@@ -154,19 +152,19 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
     });
 
     return [totals];
-  }, [trcHourlyReport]);
+  }, [soundboxHourlyReport]);
 
   return (
     <div>
-      <div className="relative ag-theme-quartz workers-report-grid trc-report-grid h-[calc(100vh-150px)]">
+      <div className="relative ag-theme-quartz workers-report-grid soundbox-report-grid h-[calc(100vh-150px)]">
         <AgGridReact
           ref={gridRef}
           loadingOverlayComponent={CustomLoadingOverlay}
-          loading={trcHourlyReportLoading}
+          loading={soundboxHourlyReportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
           suppressMenuHide={true}
-          rowData={trcHourlyReport?.data || []}
+          rowData={soundboxHourlyReport?.data || []}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           sideBar={sideBar}
@@ -184,4 +182,4 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef }) => {
   );
 };
 
-export default TrcHourlyTable;
+export default SoundboxHourlyTable;
