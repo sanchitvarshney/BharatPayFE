@@ -104,7 +104,7 @@ const QcMinOutwardTable: React.FC<Props> = ({ gridRef }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: "agTextColumnFilter",
-      floatingFilter: true,
+      floatingFilter: false,
       sortable: true,
       resizable: true,
     };

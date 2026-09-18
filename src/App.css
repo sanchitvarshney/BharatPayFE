@@ -112,42 +112,48 @@
 /* Pinned Total row at bottom */
 .ag-theme-quartz.workers-report-grid .ag-row.wr-total-row .ag-cell {
   font-weight: 700;
-  background-color: #f0fdfa !important;
+  background-color: #fff4e5 !important;
   border-top: 2px solid #0e7490;
 }
 
 /* R26 summary reports: solid header color fill per module/tab */
 .ag-theme-quartz.awb-report-grid .ag-header-group-cell,
 .ag-theme-quartz.awb-report-grid .ag-header-cell {
-  background-color: #0e7490 !important;
+  background-color: #0891b2 !important;
   color: #fff;
+  --ag-icon-font-color: #fff !important;
 }
 .ag-theme-quartz.qc-report-grid .ag-header-group-cell,
 .ag-theme-quartz.qc-report-grid .ag-header-cell {
-  background-color: #0e7490 !important;
+  background-color: #0891b2 !important;
   color: #fff;
+  --ag-icon-font-color: #fff !important;
 }
 .ag-theme-quartz.trc-report-grid .ag-header-group-cell,
 .ag-theme-quartz.trc-report-grid .ag-header-cell {
-  background-color: #0e7490 !important;
+  background-color: #0891b2 !important;
   color: #fff;
+  --ag-icon-font-color: #fff !important;
 }
 .ag-theme-quartz.soundbox-report-grid .ag-header-group-cell,
 .ag-theme-quartz.soundbox-report-grid .ag-header-cell {
-  background-color: #0e7490 !important;
+  background-color: #0891b2 !important;
   color: #fff;
+  --ag-icon-font-color: #fff !important;
 }
 .ag-theme-quartz.swipe-report-grid .ag-header-group-cell,
 .ag-theme-quartz.swipe-report-grid .ag-header-cell {
-  background-color: #0e7490 !important;
+  background-color: #0891b2 !important;
   color: #fff;
+  --ag-icon-font-color: #fff !important;
 }
 
 /* Raw material report: different color per location group, same color for children of that group */
 .ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-0,
 .ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-0 {
-  background-color: #0e7490 !important;
+  background-color: #0891b2 !important;
   color: #fff;
+  --ag-icon-font-color: #fff !important;
 }
 .ag-theme-quartz.raw-material-report-grid .ag-header-group-cell.rm-group-1,
 .ag-theme-quartz.raw-material-report-grid .ag-header-cell.rm-group-1 {

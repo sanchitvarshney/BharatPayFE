@@ -2,6 +2,17 @@ import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 
+export type ReportDateKey =
+  | "awbscan"
+  | "qcMinOutward"
+  | "trcHourly"
+  | "soundboxHourly"
+  | "swipeHourly";
+
+type ReportDateRange = { from: string | null; to: string | null };
+
+const emptyDateRange: ReportDateRange = { from: null, to: null };
+
 const initialState: any = {
   mode: "awb",
   awbscanreport: null,
@@ -14,6 +25,13 @@ const initialState: any = {
   soundboxHourlyReportLoading: false,
   swipeHourlyReport: null,
   swipeHourlyReportLoading: false,
+  dateRanges: {
+    awbscan: { ...emptyDateRange },
+    qcMinOutward: { ...emptyDateRange },
+    trcHourly: { ...emptyDateRange },
+    soundboxHourly: { ...emptyDateRange },
+    swipeHourly: { ...emptyDateRange },
+  } as Record<ReportDateKey, ReportDateRange>,
 };
 
 export const getawbscanReport = createAsyncThunk<
@@ -74,6 +92,23 @@ const reportSummarySlice = createSlice({
   reducers: {
     setMode(state, action) {
       state.mode = action.payload;
+    },
+    setReportDateRange(
+      state,
+      action: {
+        payload: { key: ReportDateKey; from: string | null; to: string | null };
+      },
+    ) {
+      state.dateRanges[action.payload.key] = {
+        from: action.payload.from,
+        to: action.payload.to,
+      };
+    },
+    resetReportDateRange(
+      state,
+      action: { payload: { key: ReportDateKey } },
+    ) {
+      state.dateRanges[action.payload.key] = { from: null, to: null };
     },
   },
   extraReducers: (builder) => {
@@ -141,6 +176,7 @@ const reportSummarySlice = createSlice({
   },
 });
 
-export const { setMode } = reportSummarySlice.actions;
+export const { setMode, setReportDateRange, resetReportDateRange } =
+  reportSummarySlice.actions;
 
 export default reportSummarySlice.reducer;

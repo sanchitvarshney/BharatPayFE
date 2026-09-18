@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -9,29 +9,40 @@ import { showToast } from "@/utils/toasterContext";
 import { rangePresets } from "@/utils/rangePresets";
 import { Icons } from "@/components/icons";
 import SoundboxHourlyTable from "@/table/report/r26tabls/SoundboxHourlyTable";
-import { getSoundboxHourlyReport } from "@/features/report/report/reportSummarySlice";
+import {
+  getSoundboxHourlyReport,
+  setReportDateRange,
+} from "@/features/report/report/reportSummarySlice";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 
 const SoundboxHourlyReport: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { soundboxHourlyReportLoading, soundboxHourlyReport } = useAppSelector(
-    (state) => state.reportSummary,
+  const { soundboxHourlyReportLoading, soundboxHourlyReport, dateRanges } =
+    useAppSelector((state) => state.reportSummary);
+  const date = useMemo(
+    () => ({
+      from: dateRanges.soundboxHourly.from
+        ? dayjs(dateRanges.soundboxHourly.from)
+        : null,
+      to: dateRanges.soundboxHourly.to
+        ? dayjs(dateRanges.soundboxHourly.to)
+        : null,
+    }),
+    [dateRanges.soundboxHourly],
   );
-  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
-    from: null,
-    to: null,
-  });
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
-    if (range) {
-      setDate({ from: range[0], to: range[1] });
-    } else {
-      setDate({ from: null, to: null });
-    }
+    dispatch(
+      setReportDateRange({
+        key: "soundboxHourly",
+        from: range?.[0] ? range[0].toISOString() : null,
+        to: range?.[1] ? range[1].toISOString() : null,
+      }),
+    );
   };
 
   const handleExportExcel = () => {
