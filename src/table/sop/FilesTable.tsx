@@ -77,7 +77,7 @@ const FilesTable: React.FC<Props> = ({ rowdata,refreshfile }) => {
                 color="primary"
                 size="small"
                 onClick={() => {
-                  window.open(`${import.meta.env.VITE_REACT_APP_API_BASE_URL}/${params.data.url}`, "_blank");
+                  window.open(`${params.data.url}`, "_blank");
                 }}
               >
                 <FullscreenIcon fontSize="small" />
