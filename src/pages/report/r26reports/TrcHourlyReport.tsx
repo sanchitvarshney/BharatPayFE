@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -9,7 +9,10 @@ import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
 import { Typography } from "@mui/material";
 import TrcHourlyTable from "@/table/report/r26tabls/TrcHourlyTable";
-import { getTrcHourlyReport } from "@/features/report/report/reportSummarySlice";
+import {
+  getTrcHourlyReport,
+  setReportDateRange,
+} from "@/features/report/report/reportSummarySlice";
 import { rangePresets } from "@/utils/rangePresets";
 import ReportStatCard from "@/components/reusable/ReportStatCard";
 
@@ -18,13 +21,16 @@ const { RangePicker } = DatePicker;
 
 const TrcHourlyReport: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { trcHourlyReportLoading, trcHourlyReport } = useAppSelector(
-    (state) => state.reportSummary,
+  const { trcHourlyReportLoading, trcHourlyReport, dateRanges } =
+    useAppSelector((state) => state.reportSummary);
+
+  const date = useMemo(
+    () => ({
+      from: dateRanges.trcHourly.from ? dayjs(dateRanges.trcHourly.from) : null,
+      to: dateRanges.trcHourly.to ? dayjs(dateRanges.trcHourly.to) : null,
+    }),
+    [dateRanges.trcHourly],
   );
-  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
-    from: null,
-    to: null,
-  });
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
@@ -39,11 +45,13 @@ const TrcHourlyReport: React.FC = () => {
     });
   };
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
-    if (range) {
-      setDate({ from: range[0], to: range[1] });
-    } else {
-      setDate({ from: null, to: null });
-    }
+    dispatch(
+      setReportDateRange({
+        key: "trcHourly",
+        from: range?.[0] ? range[0].toISOString() : null,
+        to: range?.[1] ? range[1].toISOString() : null,
+      }),
+    );
   };
 
   const handleFetchTrcHourlyReport = async () => {
@@ -147,14 +155,10 @@ const TrcHourlyReport: React.FC = () => {
               value={trcHourlyReport?.total?.Trc_consumption ?? 0}
               color="info"
             />
+         
             <ReportStatCard
-              label="In Consumption"
-              value={trcHourlyReport?.summary?.trc_in ?? 0}
-              color="success"
-            />
-            <ReportStatCard
-              label="Out Consumption"
-              value={trcHourlyReport?.summary?.totalout ?? 0}
+              label="Current TRC Stock"
+              value={trcHourlyReport?.summary?.totalout - trcHourlyReport?.summary?.trc_in || 0}
               color="warning"
             />
             <ReportStatCard

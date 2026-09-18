@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -10,7 +10,10 @@ import { rangePresets } from "@/utils/rangePresets";
 import { Icons } from "@/components/icons";
 import { Typography } from "@mui/material";
 import QcMinOutwardTable from "@/table/report/r26tabls/QcMinOutwardTable";
-import { getQcMinReport } from "@/features/report/report/reportSummarySlice";
+import {
+  getQcMinReport,
+  setReportDateRange,
+} from "@/features/report/report/reportSummarySlice";
 import ReportStatCard from "@/components/reusable/ReportStatCard";
 
 dayjs.extend(customParseFormat);
@@ -18,22 +21,31 @@ const { RangePicker } = DatePicker;
 
 const QCMINQutwardReport: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { qcminreportLoading, qcminreport } = useAppSelector(
+  const { qcminreportLoading, qcminreport, dateRanges } = useAppSelector(
     (state) => state.reportSummary,
   );
-  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
-    from: null,
-    to: null,
-  });
+  const date = useMemo(
+    () => ({
+      from: dateRanges.qcMinOutward.from
+        ? dayjs(dateRanges.qcMinOutward.from)
+        : null,
+      to: dateRanges.qcMinOutward.to
+        ? dayjs(dateRanges.qcMinOutward.to)
+        : null,
+    }),
+    [dateRanges.qcMinOutward],
+  );
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
-    if (range) {
-      setDate({ from: range[0], to: range[1] });
-    } else {
-      setDate({ from: null, to: null });
-    }
+    dispatch(
+      setReportDateRange({
+        key: "qcMinOutward",
+        from: range?.[0] ? range[0].toISOString() : null,
+        to: range?.[1] ? range[1].toISOString() : null,
+      }),
+    );
   };
   const handleFetchQcMinReport = async () => {
     if (!date.from || !date.to) {

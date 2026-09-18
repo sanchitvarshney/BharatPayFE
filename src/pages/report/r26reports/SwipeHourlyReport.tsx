@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -9,29 +9,38 @@ import { showToast } from "@/utils/toasterContext";
 import { rangePresets } from "@/utils/rangePresets";
 import { Icons } from "@/components/icons";
 import SwipeHourlyTable from "@/table/report/r26tabls/SwipeHourlyTable";
-import { getSwipeHourlyReport } from "@/features/report/report/reportSummarySlice";
+import {
+  getSwipeHourlyReport,
+  setReportDateRange,
+} from "@/features/report/report/reportSummarySlice";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 
 const SwipeHourlyReport: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { swipeHourlyReportLoading, swipeHourlyReport } = useAppSelector(
-    (state) => state.reportSummary,
+  const { swipeHourlyReportLoading, swipeHourlyReport, dateRanges } =
+    useAppSelector((state) => state.reportSummary);
+  const date = useMemo(
+    () => ({
+      from: dateRanges.swipeHourly.from
+        ? dayjs(dateRanges.swipeHourly.from)
+        : null,
+      to: dateRanges.swipeHourly.to ? dayjs(dateRanges.swipeHourly.to) : null,
+    }),
+    [dateRanges.swipeHourly],
   );
-  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
-    from: null,
-    to: null,
-  });
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
-    if (range) {
-      setDate({ from: range[0], to: range[1] });
-    } else {
-      setDate({ from: null, to: null });
-    }
+    dispatch(
+      setReportDateRange({
+        key: "swipeHourly",
+        from: range?.[0] ? range[0].toISOString() : null,
+        to: range?.[1] ? range[1].toISOString() : null,
+      }),
+    );
   };
 
   const handleExportExcel = () => {

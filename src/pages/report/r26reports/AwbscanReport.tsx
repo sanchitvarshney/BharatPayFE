@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -11,7 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Divider, Typography } from "@mui/material";
 import AwbscanTable from "@/table/report/r26tabls/AwbscanTable";
-import { getawbscanReport } from "@/features/report/report/reportSummarySlice";
+import {
+  getawbscanReport,
+  setReportDateRange,
+} from "@/features/report/report/reportSummarySlice";
 import WrongAwbscanTable from "@/table/report/r26tabls/WrongAwbScanTable";
 import ReportStatCard from "@/components/reusable/ReportStatCard";
 
@@ -21,22 +24,27 @@ const { RangePicker } = DatePicker;
 const AwbscanReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { awbscanreportLoading, awbscanreport } = useAppSelector(
+  const { awbscanreportLoading, awbscanreport, dateRanges } = useAppSelector(
     (state) => state.reportSummary,
   );
-  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
-    from: null,
-    to: null,
-  });
+  const date = useMemo(
+    () => ({
+      from: dateRanges.awbscan.from ? dayjs(dateRanges.awbscan.from) : null,
+      to: dateRanges.awbscan.to ? dayjs(dateRanges.awbscan.to) : null,
+    }),
+    [dateRanges.awbscan],
+  );
 
   const gridRef = useRef<AgGridReact<any>>(null);
 
   const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
-    if (range) {
-      setDate({ from: range[0], to: range[1] });
-    } else {
-      setDate({ from: null, to: null });
-    }
+    dispatch(
+      setReportDateRange({
+        key: "awbscan",
+        from: range?.[0] ? range[0].toISOString() : null,
+        to: range?.[1] ? range[1].toISOString() : null,
+      }),
+    );
   };
   const handleFetchR25Report = async () => {
     if (!date.from || !date.to) {
