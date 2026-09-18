@@ -11,14 +11,14 @@ type Props = {
 };
 
 const columnDefs: ColDef[] = [
-  {
-    headerName: "#",
-    field: "id",
-    sortable: true,
-    filter: true,
-    width: 120,
-    valueGetter: (params) => (params.node?.rowIndex ?? 0) + 1,
-  },
+      {
+        headerName: "#",
+        sortable: false,
+        filter: false,
+        width: 100,
+        valueGetter: (params) =>
+          params.node?.rowPinned ? "" : (params.node?.rowIndex ?? 0) + 1,
+      },
   {
     headerName: "Model",
     field: "model",
