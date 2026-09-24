@@ -1,5 +1,10 @@
-import React, { RefObject, useMemo } from "react";
-import { ColDef, ColGroupDef, ExcelStyle } from "@ag-grid-community/core";
+import React, { RefObject, useCallback, useMemo } from "react";
+import {
+  ColDef,
+  ColGroupDef,
+  ExcelStyle,
+  PostSortRowsParams,
+} from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
@@ -29,20 +34,19 @@ const SwipeHourlyTable: React.FC<Props> = ({ gridRef }) => {
       });
 
     const defs: (ColDef | ColGroupDef)[] = [
-      {
-        headerName: "#",
-        sortable: false,
-        filter: false,
-        width: 100,
-        valueGetter: (params) =>
-          params.node?.rowPinned ? "" : (params.node?.rowIndex ?? 0) + 1,
-      },
+      // {
+      //   headerName: "#",
+      //   sortable: false,
+      //   filter: false,
+      //   width: 100,
+      //   valueGetter: (params) =>
+      //     params.node?.rowPinned ? "" : (params.node?.rowIndex ?? 0) + 1,
+      // },
       {
         headerName: "Department",
         field: "department",
         sortable: true,
-        filter: true,
-        width: 180,
+        width: 130,
       },
       {
         headerName: "Worked (Hourly)",
@@ -54,8 +58,7 @@ const SwipeHourlyTable: React.FC<Props> = ({ gridRef }) => {
             headerName: col,
             field: col,
             sortable: true,
-            filter: true,
-            width: 160,
+            width: 120,
             headerClass: `ag-right-aligned-header`,
             cellStyle: { textAlign: "right" },
           };
@@ -65,8 +68,7 @@ const SwipeHourlyTable: React.FC<Props> = ({ gridRef }) => {
         headerName: "Total",
         field: "total",
         sortable: true,
-        filter: true,
-        width: 130,
+        width: 100,
         headerClass: `ag-right-aligned-header`,
         cellStyle: { textAlign: "right", fontWeight: 600 },
       },
@@ -77,35 +79,16 @@ const SwipeHourlyTable: React.FC<Props> = ({ gridRef }) => {
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: "agTextColumnFilter",
-      floatingFilter: false,
+      filter: false,
+      suppressHeaderMenuButton: true,
+      suppressHeaderFilterButton: true,
       sortable: true,
       resizable: true,
       cellClassRules: {
-        "grand-total-cell": (params) => params.node.rowPinned === "bottom",
+        "grand-total-cell": (params) => !!params.data?.isGrandTotal,
       },
     };
   }, []);
-
-  const sideBar = useMemo(
-    () => ({
-      toolPanels: [
-        {
-          id: "columns",
-          labelDefault: "Columns",
-          labelKey: "columns",
-          iconKey: "columns",
-          toolPanel: "agColumnsToolPanel",
-          toolPanelParams: {
-            suppressPivotMode: true,
-            suppressPivots: true,
-          },
-        },
-      ],
-      defaultToolPanel: "",
-    }),
-    [],
-  );
 
   const excelStyles = useMemo<ExcelStyle[]>(
     () => [
@@ -137,12 +120,15 @@ const SwipeHourlyTable: React.FC<Props> = ({ gridRef }) => {
     [],
   );
 
-  const pinnedBottomRowData = useMemo(() => {
+  const rowData = useMemo(() => {
     const columns: string[] = swipeHourlyReport?.columns || [];
     const data: any[] = swipeHourlyReport?.data || [];
-    if (!columns.length || !data.length) return [];
+    if (!columns.length || !data.length) return data;
 
-    const totals: Record<string, any> = { department: "Grand Total" };
+    const totals: Record<string, any> = {
+      department: "Grand Total",
+      isGrandTotal: true,
+    };
     columns.forEach((col) => {
       if (FIXED_COLUMNS.includes(col) && col !== "total") return;
       totals[col] = data.reduce(
@@ -151,8 +137,17 @@ const SwipeHourlyTable: React.FC<Props> = ({ gridRef }) => {
       );
     });
 
-    return [totals];
+    return [...data, totals];
   }, [swipeHourlyReport]);
+
+  // Keep the Grand Total row at the bottom when sorting
+  const postSortRows = useCallback((params: PostSortRowsParams) => {
+    const nodes = params.nodes;
+    const index = nodes.findIndex((node) => node.data?.isGrandTotal);
+    if (index > -1) {
+      nodes.push(nodes.splice(index, 1)[0]);
+    }
+  }, []);
 
   return (
     <div>
@@ -163,18 +158,16 @@ const SwipeHourlyTable: React.FC<Props> = ({ gridRef }) => {
           loading={swipeHourlyReportLoading}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           suppressCellFocus={true}
-          suppressMenuHide={true}
-          rowData={swipeHourlyReport?.data || []}
+          rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          sideBar={sideBar}
           excelStyles={excelStyles}
-          pinnedBottomRowData={pinnedBottomRowData}
+          postSortRows={postSortRows}
           getRowClass={(params) =>
-            params.node?.rowPinned === "bottom" ? "wr-total-row" : undefined
+            params.data?.isGrandTotal ? "wr-total-row" : undefined
           }
-          pagination={true}
-          paginationPageSize={50}
+          pagination={false}
+     
           enableCellTextSelection={true}
         />
       </div>

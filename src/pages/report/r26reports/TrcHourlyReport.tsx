@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import { Typography } from "@mui/material";
 import TrcHourlyTable from "@/table/report/r26tabls/TrcHourlyTable";
 import {
@@ -20,6 +21,7 @@ dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 
 const TrcHourlyReport: React.FC = () => {
+  const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const { trcHourlyReportLoading, trcHourlyReport, dateRanges } =
     useAppSelector((state) => state.reportSummary);
@@ -97,8 +99,24 @@ const TrcHourlyReport: React.FC = () => {
   }, [trcHourlyReport?.summary?.workRepair, trcHourlyReport?.summary?.trc_in]);
 
   return (
-    <div className="grid w-full grid-cols-[1fr_3fr] bg-white">
-      <div className="w-full border-r border-neutral-300">
+    <div className="bg-white h-[calc(100vh-150px)] flex relative">
+      <div
+        className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
+      >
+        <Button
+          onClick={() => setcolapse(!colapse)}
+          className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}
+        >
+          {colapse ? (
+            <Icons.right fontSize="small" />
+          ) : (
+            <Icons.left fontSize="small" />
+          )}
+        </Button>
+      </div>
+      <div
+        className={`transition-all h-[calc(100vh-150px)] overflow-hidden border-r border-neutral-300 ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px]"}`}
+      >
         <div className="p-[10px] flex flex-col gap-[15px]">
           <div>
             <label className="text-[14px] font-[500] text-slate-600">
@@ -175,7 +193,7 @@ const TrcHourlyReport: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col w-full min-h-0 h-[calc(100vh-150px)]">
+      <div className="flex flex-col w-full min-w-0 min-h-0 h-[calc(100vh-150px)]">
         <TrcHourlyTable gridRef={gridRef} />
       </div>
     </div>
