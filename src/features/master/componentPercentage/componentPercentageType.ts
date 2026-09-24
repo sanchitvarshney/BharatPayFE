@@ -43,7 +43,15 @@ export type ComponentPercentageReportHeader = {
   type: ComponentPercentageReportHeaderType;
 };
 
-export type ComponentPercentageReportItem = Record<string, string | number | null | undefined>;
+export type ComponentPercentageReportComponent = {
+  comp_name: string;
+  comp_key: string;
+};
+
+export type ComponentPercentageReportItem = Record<
+  string,
+  string | number | ComponentPercentageReportComponent | null | undefined
+>;
 
 export type ComponentPercentageReportResponse = {
   success: boolean;
