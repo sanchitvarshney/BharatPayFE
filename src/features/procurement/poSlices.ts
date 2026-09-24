@@ -85,8 +85,8 @@ export const getPartCodeChallanDetail = createAsyncThunk<AxiosResponse<any>, { i
   const response = await axiosInstance.post("/challan/fetchPerforma", { challanId: payload.id });
   return response;
 });
-export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
-  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
+export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPOComponentDetail", async (payload) => {
+  const response = await axiosInstance.get(`/po/getComponentDetailsByCodeV2/${payload?.id}?ven_id=${payload?.vendor_id}`);
   return response;
 });
 

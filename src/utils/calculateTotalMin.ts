@@ -5,7 +5,7 @@ interface Totals {
   taxableValue: number;
 }
 interface RowData {
-  partComponent: { lable: string; value: string } | null;
+  partComponent: { label?: string; lable?: string; value: string } | null;
   qty: number;
   rate: string;
   taxableValue: number;

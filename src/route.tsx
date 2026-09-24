@@ -101,6 +101,7 @@ import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
+import AdminApprovalPage from "@/pages/procurement/AdminApprovalPage";
 import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 import ManagePO from "./pages/procurement/ManagePO";
@@ -1243,6 +1244,12 @@ export const router = createBrowserRouter([
         path: "/warehouse/part-code-conversion-report",
       },
     ],
+  },
+  {
+    // Opened cold from an emailed link (req_id + token in the URL) by an admin who
+    // isn't logged into the app, so this deliberately sits outside the Protected wrapper.
+    path: "/po/adminApprovalPage",
+    element: <AdminApprovalPage />,
   },
   {
     path: "*",
