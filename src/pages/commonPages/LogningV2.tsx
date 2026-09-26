@@ -346,6 +346,7 @@ const LogningV2: React.FC = () => {
                       onError={() => {
                         showToast("Login failed", "error");
                       }}
+                      use_fedcm_for_button
                       shape="circle"
                     />
                   </>
