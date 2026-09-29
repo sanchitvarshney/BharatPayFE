@@ -52,7 +52,7 @@ const CRMRemarkReport: React.FC = () => {
       status: row.status,
     }));
     const worksheet = XLSX.utils.json_to_sheet(data, {
-      header: ["serial_number", "awb", "remark_updated_date", "insert_date", "status"],
+      header: ["serial_number", "awb_no", "remark_updated_date", "insert_date", "status"],
 
     });
     const workbook = XLSX.utils.book_new();
