@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { createSwipeDeviceRequest, } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import styled from "styled-components";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
+import { Button, Checkbox, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
 import { showToast } from "@/utils/toasterContext";
@@ -29,18 +29,11 @@ type Formstate = {
   checkbox: boolean;
 };
 
-
-const NON_TRC_PART_CODES = ["BT0001"];
-
-const isNonTrcItem = (label?: string) =>
-  !!label && NON_TRC_PART_CODES.some((code) => label.toUpperCase().includes(code.toUpperCase()));
-
 const SwipeDeviceRequest = () => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
   const [final, setFinal] = useState<boolean>(false);
-  const [trcDialogOpen, setTrcDialogOpen] = useState<boolean>(false);
   const { type, createProductRequestLoading, locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const dispatch = useAppDispatch();
 
@@ -48,8 +41,6 @@ const SwipeDeviceRequest = () => {
     handleSubmit,
     reset,
     control,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm<Formstate>({
     defaultValues: {
@@ -58,7 +49,6 @@ const SwipeDeviceRequest = () => {
       checkbox: true,
     },
   });
-  const moveToTrc = watch("checkbox");
   const addRow = useCallback(() => {
     const newId = crypto.randomUUID();
     const newRow: RowData = {
@@ -111,7 +101,7 @@ const SwipeDeviceRequest = () => {
           pickLocation: row.pickLocation?.value || ""
         }));
       
-        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc: data.checkbox ? "1" : "0", productDetail })).then((res: any) => {
+        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc: "1", productDetail })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
@@ -129,20 +119,6 @@ const SwipeDeviceRequest = () => {
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
-
-  const nonTrcItems: string[] = rowData
-    .map((row) => row.code?.label)
-    .filter((label) => isNonTrcItem(label));
-
-  useEffect(() => {
-    const hasNonTrcItem = nonTrcItems.length > 0;
-    if (hasNonTrcItem && moveToTrc) {
-      setValue("checkbox", false);
-      setTrcDialogOpen(true);
-    } else if (!hasNonTrcItem && !moveToTrc) {
-      setValue("checkbox", true);
-    }
-  }, [rowData]);
 
   return (
     <div>
@@ -270,7 +246,7 @@ const SwipeDeviceRequest = () => {
                         <Checkbox
                           name={field.name}
                           inputRef={field.ref}
-                          checked={!!field.value}
+                          checked={true}
                           sx={{
                             '&.Mui-checked': {
                               color: '#0369a1',
@@ -284,34 +260,6 @@ const SwipeDeviceRequest = () => {
                       Directly Move To TRC
                     </label>
                   </div>
-                  <Dialog open={trcDialogOpen} onClose={() => setTrcDialogOpen(false)} maxWidth="xs" fullWidth>
-                    <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Icons.info color="primary" />
-                      Not Moving Directly To TRC
-                    </DialogTitle>
-                    <DialogContent>
-                      <Typography variant="body2" sx={{ mb: 1.5 }}>
-                        You have selected the item below, so <b>Directly Move To TRC</b> has been unchecked for this request.
-                      </Typography>
-                      <div className="p-[10px] rounded border border-neutral-200 bg-neutral-50">
-                        <ul className="pl-[18px] m-0 list-disc">
-                          {nonTrcItems.map((label, i) => (
-                            <li key={i}>
-                              <Typography variant="body2" fontWeight={600}>{label}</Typography>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <Typography variant="body2" sx={{ mt: 1.5 }}>
-                        If you want to do MIN for this device, you can't do MIN for the <b>other components</b>.
-                      </Typography>
-                    </DialogContent>
-                    <DialogActions sx={{ px: 3, pb: 2 }}>
-                      <Button variant="contained" onClick={() => setTrcDialogOpen(false)}>
-                        OK, Got It
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
                 </CardContent>
                 <CardFooter className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
                   <LoadingButton
