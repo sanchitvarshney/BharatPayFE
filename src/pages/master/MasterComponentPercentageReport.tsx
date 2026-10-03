@@ -142,18 +142,24 @@ const ReportStatusCellRenderer: React.FC<
   );
 };
 
-const buildReportColumnDefs = (
-  headers: ComponentPercentageReportHeader[],
-): ColDef<ComponentPercentageReportItem>[] =>
+const getCellValue = (value: unknown) => {
+  if (value && typeof value === "object" && "comp_name" in value) {
+    return (value as { comp_name?: string }).comp_name;
+  }
+
+  return value;
+};
+
+const buildReportColumnDefs = (headers: ComponentPercentageReportHeader[]): ColDef<ComponentPercentageReportItem>[] =>
   headers.map((header) => {
     const column: ColDef<ComponentPercentageReportItem> = {
       headerName: header.label,
       colId: header.key,
       flex: 1,
-      minWidth: header.key === "sr_no" ? 120 : 250,
-      pinned:
-        header.key === "status" || header.key === "sr_no" ? "left" : undefined,
-      filter: header.type !== "badge" && header.key !== "sr_no",
+      minWidth: header.key === "component" ? 260 : 140,
+      filter: header.type !== "badge",
+      valueGetter: (params) => getCellValue((params.data as Record<string, unknown> | undefined)?.[header.key]),
+      valueFormatter: (params) => formatReportValue(params.value, header.type),
     };
 
     if (header.type === "string" || header.type === "badge") {
