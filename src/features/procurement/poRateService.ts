@@ -42,8 +42,13 @@ export type RefreshApprovalItem = {
   part_code: string;
   component_name: string;
   requested_rate: string;
+  is_new_pair?: number;
+  requested_by?: string;
   status: string;
+  action_by?: string | null;
+  action_date?: string | null;
   remarks: string | null;
+  created_at?: string;
 };
 
 export type RefreshApprovalDataResponse = {
@@ -56,6 +61,9 @@ export type RefreshApprovalDataResponse = {
     requested_by: string;
     isPending: boolean;
     status: string;
+    created_at?: string;
+    action_by?: string | null;
+    action_date?: string | null;
     items: RefreshApprovalItem[];
   };
 };
@@ -67,8 +75,8 @@ export const refreshApprovalData = async (reqId: string): Promise<RefreshApprova
 
 
 export const fetchAdminApprovalRequest = async (reqId: string, token: string): Promise<RefreshApprovalDataResponse> => {
-  const response = await publicAxiosInstance.get(`/po/refreshApprovalData?req_id=${reqId}`, {
-    headers: { Authorization: `Bearer ${token}` },
+  const response = await publicAxiosInstance.get("/po/adminApprovalList", {
+    params: { req_id: reqId, token },
   });
   return response.data;
 };

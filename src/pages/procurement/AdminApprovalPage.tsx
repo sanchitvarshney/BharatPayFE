@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   Alert,
   Box,
@@ -21,10 +22,22 @@ import { Icons } from "@/components/icons";
 import {
   fetchAdminApprovalRequest,
   submitAdminApproval,
+  RefreshApprovalDataResponse,
   RefreshApprovalItem,
 } from "@/features/procurement/poRateService";
 
 type DecisionStatus = "APPROVED" | "REJECTED";
+type RequestInfo = Omit<RefreshApprovalDataResponse["data"], "items">;
+
+const formatDateTime = (value?: string | null) =>
+  value ? dayjs(value).format("DD MMM YYYY, hh:mm A") : "--";
+
+const formatRate = (value: string) => {
+  const num = Number(value);
+  return Number.isNaN(num)
+    ? value
+    : num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+};
 
 const statusChip: Record<
   string,
@@ -42,7 +55,7 @@ const AdminApprovalPage: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [vendorName, setVendorName] = useState<string>("");
+  const [requestInfo, setRequestInfo] = useState<RequestInfo | null>(null);
   const [items, setItems] = useState<RefreshApprovalItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [remarks, setRemarks] = useState<string>("");
@@ -55,8 +68,15 @@ const AdminApprovalPage: React.FC = () => {
     setLoadError(null);
     try {
       const response = await fetchAdminApprovalRequest(reqId, token);
-      setVendorName(response.data.vendor_name);
-      setItems(response.data.items);
+      if (!response?.success || !response.data) {
+        setLoadError(
+          response?.message || "This approval link is invalid or has expired.",
+        );
+        return;
+      }
+      const { items: requestItems, ...info } = response.data;
+      setRequestInfo(info);
+      setItems(requestItems ?? []);
     } catch (error: any) {
       setLoadError(
         error?.response?.data?.message ||
@@ -178,24 +198,67 @@ const AdminApprovalPage: React.FC = () => {
             <Alert severity="error">{loadError}</Alert>
           ) : (
             <>
-              {vendorName && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 2 }}
+              {requestInfo && (
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                    gap: 1.5,
+                    p: 2,
+                    mb: 2,
+                    borderRadius: 1,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: "#fafafa",
+                  }}
                 >
-                  Vendor: <strong>{vendorName}</strong>
-                </Typography>
+                  {[
+                    ["Vendor", requestInfo.vendor_name],
+                    ["Requested By", requestInfo.requested_by],
+                    ["Requested On", formatDateTime(requestInfo.created_at)],
+                    ["Action By", requestInfo.action_by || "--"],
+                    ["Action Date", formatDateTime(requestInfo.action_date)],
+                  ].map(([label, value]) => (
+                    <Box key={label}>
+                      <Typography variant="caption" color="text.secondary">
+                        {label}
+                      </Typography>
+                      <Typography variant="body2" fontWeight={600}>
+                        {value || "--"}
+                      </Typography>
+                    </Box>
+                  ))}
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Request Status
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={
+                        (statusChip[requestInfo.status?.toUpperCase()] || statusChip.PENDING).label
+                      }
+                      color={
+                        (statusChip[requestInfo.status?.toUpperCase()] || statusChip.PENDING).color
+                      }
+                    />
+                  </Box>
+                </Box>
               )}
 
-              <Alert
-                severity={isDecided ? "success" : "warning"}
-                sx={{ mb: 2 }}
-              >
-                {isDecided
-                  ? "All components in this request have been decided."
-                  : "Select the components to act on, then approve or reject them. You can approve some and reject others."}
-              </Alert>
+              {items.length === 0 ? (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  No components found in this request.
+                </Alert>
+              ) : (
+                <Alert
+                  severity={isDecided ? "success" : "warning"}
+                  sx={{ mb: 2 }}
+                >
+                  {isDecided
+                    ? "All components in this request have been decided."
+                    : "Select the components to act on, then approve or reject them. You can approve some and reject others."}
+                </Alert>
+              )}
 
               <Table size="small">
                 <TableHead>
@@ -236,10 +299,21 @@ const AdminApprovalPage: React.FC = () => {
                           />
                         </TableCell>
                         <TableCell>{index + 1}</TableCell>
-                        <TableCell>{item.component_name}</TableCell>
+                        <TableCell>
+                          {item.component_name?.trim()}
+                          {item.is_new_pair === 1 && (
+                            <Chip
+                              size="small"
+                              label="New"
+                              color="info"
+                              variant="outlined"
+                              sx={{ ml: 1, height: 20 }}
+                            />
+                          )}
+                        </TableCell>
                         <TableCell>{item.part_code}</TableCell>
                         <TableCell align="right">
-                          {item.requested_rate}
+                          {formatRate(item.requested_rate)}
                         </TableCell>
                         <TableCell align="center">
                           <Chip

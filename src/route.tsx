@@ -1246,8 +1246,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    // Opened cold from an emailed link (req_id + token in the URL) by an admin who
-    // isn't logged into the app, so this deliberately sits outside the Protected wrapper.
+   
     path: "/po/adminApprovalPage",
     element: <AdminApprovalPage />,
   },
