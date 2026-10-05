@@ -53,7 +53,7 @@ const EndpointCard: React.FC<EndpointCardProps> = ({
   envValue,
   onChange,
 }) => {
-  const trimmed = value.trim();
+  const trimmed = value?.trim();
   const invalid = trimmed.length > 0 && !isValidUrl(trimmed);
   const usingCustom = trimmed !== "" && trimmed !== envValue;
 
@@ -147,7 +147,7 @@ const SettingsPage: React.FC = () => {
   const initialSocketUrl = useMemo(getSocketUrl, []);
 
   const dirty =
-    apiUrl.trim() !== initialApiUrl || socketUrl.trim() !== initialSocketUrl;
+    apiUrl?.trim() !== initialApiUrl || socketUrl?.trim() !== initialSocketUrl;
 
   const handleReset = () => {
     setApiUrl(initialApiUrl);
@@ -156,8 +156,8 @@ const SettingsPage: React.FC = () => {
 
   const handleSave = (event: React.FormEvent) => {
     event.preventDefault();
-    const trimmedApi = apiUrl.trim();
-    const trimmedSocket = socketUrl.trim();
+    const trimmedApi = apiUrl?.trim();
+    const trimmedSocket = socketUrl?.trim();
 
     if (!trimmedApi || !trimmedSocket) {
       showToast("Both API URL and Socket URL are required.", "error");
