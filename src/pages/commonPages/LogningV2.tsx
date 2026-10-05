@@ -36,6 +36,8 @@ import { useNavigate } from "react-router-dom";
 import { consumeReturnTo } from "@/utils/returnTo";
 import ReCAPTCHA from "react-google-recaptcha";
 import { GoogleLogin } from "@react-oauth/google";
+import LockUnlockDialog from "@/components/auth/LockUnlockDialog";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 
 const SLIDES = [
   {
@@ -65,6 +67,7 @@ const SLIDES = [
 const LogningV2: React.FC = () => {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [capsLockOn, setCapsLockOn] = React.useState<boolean>(false);
+  const [authDialog, setAuthDialog] = React.useState<"lock" | "forgot" | null>(null);
   const [recaptchaValue, setRecaptchaValue] = React.useState<string | null>(
     null
   ); 
@@ -323,10 +326,23 @@ const LogningV2: React.FC = () => {
                   </Typography>
                 )}
                 <div className="mt-[10px] flex items-center justify-between">
-                  <Link href="/password-recovery" fontSize={13} underline="hover">
+                  <Link
+                    component="button"
+                    type="button"
+                    fontSize={13}
+                    underline="hover"
+                    onClick={() => setAuthDialog("lock")}
+                  >
                     Lock / Unlock user
                   </Link>
-                  <Link href="/forgot-password" fontSize={13} underline="hover" fontWeight={500}>
+                  <Link
+                    component="button"
+                    type="button"
+                    fontSize={13}
+                    underline="hover"
+                    fontWeight={500}
+                    onClick={() => setAuthDialog("forgot")}
+                  >
                     Forgot password?
                   </Link>
                 </div>
@@ -402,6 +418,9 @@ const LogningV2: React.FC = () => {
           </Link>
         </Typography>
       </div>
+
+      <LockUnlockDialog open={authDialog === "lock"} onClose={() => setAuthDialog(null)} />
+      <ForgotPasswordDialog open={authDialog === "forgot"} onClose={() => setAuthDialog(null)} />
     </div>
   );
 };
