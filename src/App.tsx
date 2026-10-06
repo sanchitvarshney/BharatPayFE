@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
+import {  Outlet } from "react-router-dom";
 import "./App.css";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -72,9 +72,7 @@ function App() {
   }
 
 
-  localStorage.removeItem("token");
-  localStorage.removeItem("loggedinUser");
-  return <Navigate to="/login" replace />;
+
 }
 
 export default App;
