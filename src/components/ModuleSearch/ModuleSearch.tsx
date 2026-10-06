@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Input, Empty, InputRef } from "antd";
 import { SearchOutlined, CloseCircleFilled } from "@ant-design/icons";
 import { Menu } from "@/features/menu/menuType";
+import { navSliderData, visibaleArr } from "@/components/shared/Navslider";
+import { useUser } from "@/hooks/useUser";
 import {
+  appendSubPageOptions,
   buildIndexedModuleOptionsFromMenu,
   extractQueryWords,
   filterModuleOptions,
@@ -100,6 +103,7 @@ type ModuleSearchProps = {
 
 export default function ModuleSearch({ menu }: ModuleSearchProps) {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [query, setQuery] = useState("");
@@ -107,7 +111,11 @@ export default function ModuleSearch({ menu }: ModuleSearchProps) {
   const inputRef = useRef<InputRef>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const allModules = useMemo(() => buildIndexedModuleOptionsFromMenu(menu), [menu]);
+  const allModules = useMemo(() => {
+    const canSeeR22 = visibaleArr.includes(user?.crn_id);
+    const reportPages = navSliderData.filter((page) => page.name !== "R22" || canSeeR22);
+    return appendSubPageOptions(buildIndexedModuleOptionsFromMenu(menu), "/report/", reportPages);
+  }, [menu, user?.crn_id]);
 
   const results = useMemo(
     () => filterModuleOptions(allModules, query),
