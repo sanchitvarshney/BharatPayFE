@@ -4,12 +4,23 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { sumBy } from "@/components/report/r26/reportUtils";
+import {
+  numericCol,
+  R26_GRID_CLASS,
+  r26DefaultColDef,
+  r26ExcelStyles,
+  r26SideBar,
+  rowIndexCol,
+  totalRowClass,
+} from "./r26GridShared";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
+  quickFilterText?: string;
 };
 
-const AwbscanTable: React.FC<Props> = ({ gridRef }) => {
+const AwbscanTable: React.FC<Props> = ({ gridRef, quickFilterText }) => {
   const { awbscanreport, awbscanreportLoading } = useAppSelector(
     (state) => state.reportSummary,
   );
@@ -18,80 +29,18 @@ const AwbscanTable: React.FC<Props> = ({ gridRef }) => {
     const columns: string[] = awbscanreport?.columns || [];
     if (!columns.length) return [];
 
-    const cols: ColDef[] = [
-      {
-        headerName: "#",
-        sortable: false,
-        filter: false,
-        width: 100,
-        valueGetter: (params) =>
-          params.node?.rowPinned ? "" : (params.node?.rowIndex ?? 0) + 1,
-      },
-    ];
-
+    const cols: ColDef[] = [rowIndexCol];
     columns.forEach((col) => {
       if (col === "product") {
-        cols.push({
-          headerName: "Product",
-          field: "product",
-          sortable: true,
-          filter: true,
-          width: 260,
-        });
+        cols.push({ headerName: "Product", field: "product", width: 280, pinned: "left" });
       } else if (col === "total") {
-        cols.push({
-          headerName: "Total",
-          field: "total",
-          sortable: true,
-          filter: true,
-          width: 150,
-          headerClass: "ag-right-aligned-header",
-          cellStyle: { textAlign: "right", fontWeight: 600 },
-        });
+        cols.push(numericCol("Total", "total", 130, true));
       } else {
-        cols.push({
-          headerName: col,
-          field: col,
-          sortable: true,
-          filter: true,
-          width: 150,
-          headerClass: "ag-right-aligned-header",
-          cellStyle: { textAlign: "right" },
-        });
+        cols.push(numericCol(col, col, 140));
       }
     });
-
     return cols;
   }, [awbscanreport?.columns]);
-
-  const defaultColDef = useMemo<ColDef>(() => {
-    return {
-      filter: "agTextColumnFilter",
-      floatingFilter: false,
-      sortable: true,
-      resizable: true,
-    };
-  }, []);
-
-  const sideBar = useMemo(
-    () => ({
-      toolPanels: [
-        {
-          id: "columns",
-          labelDefault: "Columns",
-          labelKey: "columns",
-          iconKey: "columns",
-          toolPanel: "agColumnsToolPanel",
-          toolPanelParams: {
-            suppressPivotMode: true,
-            suppressPivots: true,
-          },
-        },
-      ],
-      defaultToolPanel: "",
-    }),
-    [],
-  );
 
   const pinnedBottomRowData = useMemo(() => {
     const columns: string[] = awbscanreport?.columns || [];
@@ -101,38 +50,31 @@ const AwbscanTable: React.FC<Props> = ({ gridRef }) => {
     const totals: Record<string, any> = { product: "Grand Total" };
     columns.forEach((col) => {
       if (col === "product") return;
-      totals[col] = data.reduce(
-        (sum, row) => sum + (Number(row[col]) || 0),
-        0,
-      );
+      totals[col] = sumBy(data, (row) => row[col]);
     });
-
     return [totals];
   }, [awbscanreport]);
 
   return (
-    <div>
-      <div className="relative ag-theme-quartz workers-report-grid awb-report-grid h-[calc(100vh-150px)]">
-        <AgGridReact
-          ref={gridRef}
-          loadingOverlayComponent={CustomLoadingOverlay}
-          loading={awbscanreportLoading}
-          overlayNoRowsTemplate={OverlayNoRowsTemplate}
-          suppressCellFocus={true}
-          suppressMenuHide={true}
-          rowData={awbscanreport?.data || []}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          sideBar={sideBar}
-          pinnedBottomRowData={pinnedBottomRowData}
-          getRowClass={(params) =>
-            params.node?.rowPinned === "bottom" ? "wr-total-row" : undefined
-          }
-          pagination={true}
-          paginationPageSize={50}
-          enableCellTextSelection={true}
-        />
-      </div>
+    <div className={R26_GRID_CLASS}>
+      <AgGridReact
+        ref={gridRef}
+        loadingOverlayComponent={CustomLoadingOverlay}
+        loading={awbscanreportLoading}
+        overlayNoRowsTemplate={OverlayNoRowsTemplate}
+        suppressCellFocus={true}
+        rowData={awbscanreport?.data || []}
+        columnDefs={columnDefs}
+        defaultColDef={r26DefaultColDef}
+        sideBar={r26SideBar}
+        excelStyles={r26ExcelStyles}
+        quickFilterText={quickFilterText}
+        pinnedBottomRowData={pinnedBottomRowData}
+        getRowClass={totalRowClass}
+        pagination={false}
+        paginationPageSize={50}
+        enableCellTextSelection={true}
+      />
     </div>
   );
 };

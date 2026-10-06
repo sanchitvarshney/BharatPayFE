@@ -1,154 +1,56 @@
-import React, { useMemo, useRef, useState } from "react";
-import { DatePicker } from "antd";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import dayjs, { Dayjs } from "dayjs";
+import React, { useRef, useState } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import LoadingButton from "@mui/lab/LoadingButton";
+import { useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
-import { rangePresets } from "@/utils/rangePresets";
-import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { Typography } from "@mui/material";
+import { getQcMinReport } from "@/features/report/report/reportSummarySlice";
 import QcMinOutwardTable from "@/table/report/r26tabls/QcMinOutwardTable";
-import {
-  getQcMinReport,
-  setReportDateRange,
-} from "@/features/report/report/reportSummarySlice";
-import ReportStatCard from "@/components/reusable/ReportStatCard";
-
-dayjs.extend(customParseFormat);
-const { RangePicker } = DatePicker;
+import ReportShell from "@/components/report/r26/ReportShell";
+import { TableSearch } from "@/components/report/r26/ReportBlocks";
+import { useR26Report } from "@/components/report/r26/useR26Report";
+import { formatNumber } from "@/components/report/r26/reportUtils";
 
 const QCMINQutwardReport: React.FC = () => {
-  const [colapse, setcolapse] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
-  const { qcminreportLoading, qcminreport, dateRanges } = useAppSelector(
-    (state) => state.reportSummary,
-  );
-  const date = useMemo(
-    () => ({
-      from: dateRanges.qcMinOutward.from
-        ? dayjs(dateRanges.qcMinOutward.from)
-        : null,
-      to: dateRanges.qcMinOutward.to
-        ? dayjs(dateRanges.qcMinOutward.to)
-        : null,
-    }),
-    [dateRanges.qcMinOutward],
-  );
-
+  const { qcminreportLoading, qcminreport } = useAppSelector((state) => state.reportSummary);
   const gridRef = useRef<AgGridReact<any>>(null);
+  const [search, setSearch] = useState("");
+  const { date, setRange, generate, meta, error, fileSuffix } = useR26Report(
+    "qcMinOutward",
+    getQcMinReport,
+  );
 
-  const handleDateChange = (range: [Dayjs | null, Dayjs | null] | null) => {
-    dispatch(
-      setReportDateRange({
-        key: "qcMinOutward",
-        from: range?.[0] ? range[0].toISOString() : null,
-        to: range?.[1] ? range[1].toISOString() : null,
-      }),
-    );
-  };
-  const handleFetchQcMinReport = async () => {
-    if (!date.from || !date.to) {
-      showToast("Select date range", "error");
-    } else {
-      try {
-        const res = await dispatch(
-          getQcMinReport({
-            from: dayjs(date.from).format("DD-MM-YYYY"),
-            to: dayjs(date.to).format("DD-MM-YYYY"),
-          }),
-        ).unwrap();
-
-        if (res?.data?.success) {
-          showToast(
-            res?.data?.message || "Report fetched successfully",
-            "success",
-          );
-        } else {
-          showToast(res?.data?.message || "Report fetched failed", "error");
-        }
-      } catch (error: any) {
-        showToast(error?.message || "Something went wrong", "error");
-      }
+  const handleExport = () => {
+    if (!qcminreport?.data?.length) {
+      showToast("No data to export", "error");
+      return;
     }
+    gridRef.current?.api.exportDataAsExcel({
+      sheetName: "QC MIN Outward",
+      fileName: `QC_MIN_Outward_Report_${fileSuffix}.xlsx`,
+    });
   };
-  return (
-    <div className="bg-white h-[calc(100vh-150px)] flex relative">
-      <div
-        className={`transition-all ${colapse ? "left-0" : "left-[400px]"} w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
-      >
-        <Button
-          onClick={() => setcolapse(!colapse)}
-          className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}
-        >
-          {colapse ? (
-            <Icons.right fontSize="small" />
-          ) : (
-            <Icons.left fontSize="small" />
-          )}
-        </Button>
-      </div>
-      <div
-        className={`transition-all h-[calc(100vh-150px)] overflow-hidden border-r border-neutral-300 ${colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px]"}`}
-      >
-        <div className="p-[10px] flex flex-col gap-[15px]">
-          <div>
-            <label className="text-[14px] font-[500] text-slate-600">
-              Select Date Range
-            </label>
-            <RangePicker
-              className="h-[50px] w-full mt-[6px]"
-              presets={rangePresets}
-              onChange={handleDateChange}
-              disabledDate={(current) => current && current > dayjs()}
-              placeholder={["Start date", "End Date"]}
-              value={date.from && date.to ? [date.from, date.to] : null}
-              format="DD/MM/YYYY"
-            />
-          </div>
-          <div className="flex items-center justify-end">
-            <LoadingButton
-              variant="contained"
-              startIcon={<Icons.search fontSize="small" />}
-              loadingPosition="start"
-              loading={qcminreportLoading}
-              onClick={handleFetchQcMinReport}
-            >
-              Search
-            </LoadingButton>
-          </div>
-        </div>
-        <div className="border-t border-neutral-200 px-[10px] py-[12px]">
-          <Typography
-            className="mb-[10px] text-slate-500"
-            variant="caption"
-            fontWeight={600}
-            textTransform="uppercase"
-            letterSpacing={0.4}
-          >
-           Total Summary
-          </Typography>
-          <div className="grid grid-cols-2 gap-[10px]">
-            <ReportStatCard
-              label="Image Capture"
-              value={qcminreport?.device_img_count ?? 0}
-              color="error"
-            />
-            <ReportStatCard
-              label="Wrong Device MIN"
-              value={qcminreport?.wrong_device?.total_min ?? 0}
-              color="primary"
-            />
-          </div>
-        </div>
-      </div>
 
-      <div className="flex flex-col w-full min-w-0 min-h-0 h-[calc(100vh-150px)]">
-        <QcMinOutwardTable gridRef={gridRef} />
-      </div>
-    </div>
+  return (
+    <ReportShell
+      title="QC MIN Outward Report"
+      description="AWB scan, inward, outward and partial MIN by model and SKU."
+      reportName="QC MIN outward report"
+      date={date}
+      onDateChange={setRange}
+      onGenerate={generate}
+      loading={qcminreportLoading}
+      meta={meta}
+      error={error}
+      hasReport={!!qcminreport}
+      onExport={handleExport}
+      canExport={!!qcminreport?.data?.length}
+      summary={[
+        { label: "Image Capture", value: formatNumber(qcminreport?.device_img_count), highlight: true },
+        { label: "Wrong Device MIN", value: formatNumber(qcminreport?.wrong_device?.total_min) },
+      ]}
+      toolbar={<TableSearch value={search} onChange={setSearch} placeholder="Search model, SKU or product…" />}
+    >
+      <QcMinOutwardTable gridRef={gridRef} quickFilterText={search} />
+    </ReportShell>
   );
 };
 
