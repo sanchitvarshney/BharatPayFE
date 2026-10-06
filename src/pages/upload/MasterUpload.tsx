@@ -189,7 +189,7 @@ const MasterUpload: React.FC = () => {
     );
     const payload: any = res?.payload;
     if (payload?.data?.success) {
-      showToast(payload.data.message || "Uploaded successfully", "success");
+      showToast(payload.data.message?.msg || payload.data.message || "Uploaded successfully", "success");
       handleClear();
     }
   };

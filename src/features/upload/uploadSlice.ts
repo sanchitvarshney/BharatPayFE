@@ -58,8 +58,8 @@ export const uploadMasterData = createAsyncThunk<
     );
     return response;
   } catch (error: any) {
-    if (error.response?.data?.message) {
-      return rejectWithValue(error.response.data.message);
+    if (error.response?.data?.message ?? error.response?.data?.message?.msg ) {
+      return rejectWithValue(error.response.data.message ?? error.response.data.message?.msg);
     }
     return rejectWithValue(error.message || "Upload failed");
   }
