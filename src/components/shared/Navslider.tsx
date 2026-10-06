@@ -74,13 +74,9 @@ export const navSliderData: NavSliderData[] = [
      {
     path: "/report/R27",
     name: "R27",
-    content: <p>Reconsiliation Report</p>,
+    title: "Reconsiliation Report",
   },
-     {
-    path: "/report/R27",
-    name: "R27",
-    content: <p>Reconsiliation Report</p>,
-  },
+ 
 ];
 
 const NavSlider: React.FC = () => {
