@@ -25,6 +25,7 @@ import { CloudUpload, Download, ErrorOutline } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { uploadMasterData } from "@/features/upload/uploadSlice";
 import { showToast } from "@/utils/toasterContext";
+import { getApiMessage } from "@/utils/getApiMessage";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 
 type PreviewRow = Record<string, unknown>;
@@ -187,10 +188,13 @@ const MasterUpload: React.FC = () => {
         isSwipe: deviceType === "swipeMachine",
       }),
     );
-    const payload: any = res?.payload;
-    if (payload?.data?.success) {
-      showToast(payload.data.message?.msg || payload.data.message || "Uploaded successfully", "success");
+    if (!uploadMasterData.fulfilled.match(res)) return; 
+    const { success, message } = res.payload.data;
+    if (success) {
+      showToast(getApiMessage(message, "Uploaded successfully"), "success");
       handleClear();
+    } else {
+      showToast(getApiMessage(message, "Upload failed"), "error");
     }
   };
 
