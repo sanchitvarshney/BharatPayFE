@@ -30,7 +30,10 @@ const DepartmentHourlyReport: React.FC<Props> = ({
   filePrefix,
 }) => {
   const gridRef = useRef<AgGridReact<any>>(null);
-  const { date, setRange, generate, meta, error, fileSuffix } = useR26Report(dateKey, thunk);
+  const { date, setRange, generate, meta, error, fileSuffix } = useR26Report(
+    dateKey,
+    thunk,
+  );
 
   const hasRows = !!report?.data?.length;
 
@@ -58,9 +61,14 @@ const DepartmentHourlyReport: React.FC<Props> = ({
       error={error}
       hasReport={!!report}
       onExport={handleExport}
+
       canExport={hasRows}
     >
-      <DepartmentHourlyTable gridRef={gridRef} report={report} loading={loading} />
+      <DepartmentHourlyTable
+        gridRef={gridRef}
+        report={report}
+        loading={loading}
+      />
     </ReportShell>
   );
 };

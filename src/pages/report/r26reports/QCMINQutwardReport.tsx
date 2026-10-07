@@ -46,6 +46,7 @@ const QCMINQutwardReport: React.FC = () => {
       summary={[
         { label: "Image Capture", value: formatNumber(qcminreport?.device_img_count), highlight: true },
         { label: "Wrong Device MIN", value: formatNumber(qcminreport?.wrong_device?.total_min) },
+           { label: "Pending Device MIN", value: formatNumber(qcminreport?.wrong_device?.pending_min) },
       ]}
       toolbar={<TableSearch value={search} onChange={setSearch} placeholder="Search model, SKU or product…" />}
     >
