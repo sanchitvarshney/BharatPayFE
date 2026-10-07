@@ -140,6 +140,7 @@ import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
 import ViewImageLayout from "./layouts/ViewImageLayout";
 import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
 import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
+import DeliveryVideoPage from "./pages/delivery/DeliveryVideoPage";
 import SummaryLayout from "./layouts/SummaryLayout";
 import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
 import Dispatched from "./pages/summary-pages/Dispatched";
@@ -172,6 +173,10 @@ export const router = createBrowserRouter([
       {
         element: <StockDetailPage />,
         path: "/stockdetail",
+      },
+      {
+        element: <DeliveryVideoPage />,
+        path: "/delivery-video",
       },
       {
         element: (
