@@ -41,6 +41,7 @@ import { consumeReturnTo } from "@/utils/returnTo";
 import { GoogleLogin } from "@react-oauth/google";
 import LockUnlockDialog from "@/components/auth/LockUnlockDialog";
 import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
+import SelectEndPoint from "@/components/shared/SelectEndPoint";
 
 const SLIDES = [
   {
@@ -258,7 +259,10 @@ const LogningV2: React.FC = () => {
           </Typography>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div className="mt-[32px] flex flex-col gap-[18px]">
+         <div className="my-[18px]">
+             <SelectEndPoint />
+         </div>
+            <div className=" flex flex-col gap-[18px]">
               <TextField
                 autoFocus
                 fullWidth
