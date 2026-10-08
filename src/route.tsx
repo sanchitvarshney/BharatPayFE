@@ -141,6 +141,7 @@ import ViewImageLayout from "./layouts/ViewImageLayout";
 import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
 import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
 import DeliveryVideoPage from "./pages/delivery/DeliveryVideoPage";
+import CourierReturnReport from "./pages/delivery/CourierReturnReport";
 import SummaryLayout from "./layouts/SummaryLayout";
 import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
 import Dispatched from "./pages/summary-pages/Dispatched";
@@ -176,7 +177,7 @@ export const router = createBrowserRouter([
       },
       {
         element: <DeliveryVideoPage />,
-        path: "/delivery-video",
+        path: "/courier/return-device",
       },
       {
         element: (
@@ -260,6 +261,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/wrong-device/reports",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ViewImageLayout>
+              <CourierReturnReport />
+            </ViewImageLayout>
+          </MainLayout>
+        ),
+        path: "/courier/return-device/reports",
       },
       {
         element: (

@@ -3,19 +3,25 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { getApiMessage } from "@/utils/getApiMessage";
 import { buildDeliveryFormData } from "./delivery.utils";
+import { showToast } from "@/utils/toasterContext";
 import {
+  CourierReturnReportPayload,
+  CourierReturnReportResponse,
   DeliveryState,
   DeliverySubmitResponse,
   SubmitDeliveryPayload,
 } from "./deliveryType";
 
 export const DELIVERY_ENDPOINTS = {
-  submit: "/delivery/submit",
+  submit: "/wrongDevice/addAwbReturn",
+  courierReturnList: "/wrongDevice/getAwbReturns",
 };
 
 const initialState: DeliveryState = {
   isSubmitting: false,
   submitError: null,
+  courierReturnList: null,
+  courierReturnLoading: false,
 };
 
 const multipartConfig = {
@@ -48,11 +54,36 @@ export const submitDelivery = createAsyncThunk<
   }
 );
 
+export const getCourierReturnReport = createAsyncThunk<
+  CourierReturnReportResponse,
+  CourierReturnReportPayload,
+  { rejectValue: string }
+>("delivery/getCourierReturnReport", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get<CourierReturnReportResponse>(
+      DELIVERY_ENDPOINTS.courierReturnList,
+      { params: payload }
+    );
+    return response.data;
+  } catch (err) {
+    const axiosErr = err as AxiosError<CourierReturnReportResponse>;
+    return rejectWithValue(
+      getApiMessage(
+        axiosErr.response?.data?.message,
+        axiosErr.message || "Failed to fetch courier return report"
+      )
+    );
+  }
+});
+
 const deliverySlice = createSlice({
   name: "delivery",
   initialState,
   reducers: {
-    resetDeliveryState: () => initialState,
+    resetDeliveryState: (state) => {
+      state.isSubmitting = false;
+      state.submitError = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -67,6 +98,21 @@ const deliverySlice = createSlice({
         state.isSubmitting = false;
         state.submitError =
           action.payload ?? action.error.message ?? "Failed to submit delivery details";
+      })
+      .addCase(getCourierReturnReport.pending, (state) => {
+        state.courierReturnLoading = true;
+      })
+      .addCase(getCourierReturnReport.fulfilled, (state, action) => {
+        state.courierReturnLoading = false;
+        if (action.payload?.success === false) {
+          showToast(getApiMessage(action.payload.message, "No data found"), "error");
+        }
+        state.courierReturnList = action.payload?.data ?? [];
+      })
+      .addCase(getCourierReturnReport.rejected, (state, action) => {
+        state.courierReturnLoading = false;
+        state.courierReturnList = [];
+        showToast(action.payload ?? "Failed to fetch courier return report", "error");
       });
   },
 });

@@ -52,7 +52,6 @@ export const useDeliverySubmit = () => {
 
   const submit = useCallback(
     async (details: DeliveryDetails, video: RecordedVideo): Promise<boolean> => {
-      // Guards against double taps before the disabled state renders.
       if (busyRef.current) return false;
       busyRef.current = true;
       const controller = new AbortController();
