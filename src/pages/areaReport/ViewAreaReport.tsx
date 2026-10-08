@@ -158,6 +158,7 @@ const ViewAreaReport: React.FC = () => {
     handleSubmit,
     reset,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
@@ -171,7 +172,7 @@ const ViewAreaReport: React.FC = () => {
     const payload: any = {
       from: dayjs(data?.date[0]).format("DD-MM-YYYY"),
       to: dayjs(data?.date[1]).format("DD-MM-YYYY"),
-      department: data?.departmentId,
+      department: data?.departmentId === "ALL" ? data?.areaId : data?.departmentId,
       place: data?.areaId,
     };
 
@@ -252,6 +253,13 @@ const ViewAreaReport: React.FC = () => {
   };
 
   useEffect(() => {
+    if (selectedAreaId === "ALL") {
+      setValue("departmentId", "ALL", { shouldValidate: true });
+      return;
+    }
+    if (getValues("departmentId") === "ALL") {
+      setValue("departmentId", "");
+    }
     if (selectedAreaId) {
       fetchDepartments(selectedAreaId);
     }
@@ -315,7 +323,7 @@ const ViewAreaReport: React.FC = () => {
                             <span style={{ marginLeft: 8 }}>Loading...</span>
                           </MenuItem>
                         ) : (
-                          placeList?.map((item: PlaceType) => (
+                          [...placeList, { id: "ALL", text: "All" }]?.map((item: PlaceType) => (
                             <MenuItem key={item.id} value={item.id}>
                               {item.text}
                             </MenuItem>
@@ -337,7 +345,7 @@ const ViewAreaReport: React.FC = () => {
                     <FormControl
                       fullWidth
                       variant="outlined"
-                      disabled={!selectedAreaId || departmentLoading}
+                      disabled={!selectedAreaId || departmentLoading || selectedAreaId === "ALL"}
                     >
                       <InputLabel id="department-select-label">
                         Select Department
@@ -353,7 +361,7 @@ const ViewAreaReport: React.FC = () => {
                             <span style={{ marginLeft: 8 }}>Loading...</span>
                           </MenuItem>
                         ) : (
-                          departmentList?.map((item: any) => (
+                          [...departmentList, { id: "ALL", text: "All" }]?.map((item: any) => (
                             <MenuItem key={item.id} value={item.id}>
                               {item.text}
                             </MenuItem>
