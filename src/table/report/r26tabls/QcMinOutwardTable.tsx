@@ -4,115 +4,80 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { Typography } from "@mui/material";
+import { sumBy } from "@/components/report/r26/reportUtils";
+import {
+  numericCol,
+  R26_GRID_CLASS,
+  r26DefaultColDef,
+  r26ExcelStyles,
+  r26SideBar,
+  rowIndexCol,
+  totalRowClass,
+  QC_NUMERIC_COLUMNS,
+} from "./r26GridShared";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
+  quickFilterText?: string;
 };
 
 const columnDefs: ColDef[] = [
-  {
-    headerName: "#",
-    field: "id",
-    sortable: true,
-    filter: true,
-    width: 120,
-    valueGetter: (params) => (params.node?.rowIndex ?? 0) + 1,
-  },
-  {
-    headerName: "Model",
-    field: "model",
-    sortable: true,
-    filter: true,
-    width: 180,
-  },
-  {
-    headerName: "SKU",
-    field: "sku",
-    sortable: true,
-    filter: true,
-    width: 180,
-  },
-  {
-    headerName: "Product Name",
-    field: "product_name",
-    sortable: true,
-    filter: true,
-    width: 260,
-  },
-  {
-    headerName: "Inward",
-    field: "inward",
-    sortable: true,
-    filter: true,
-    width: 150,
-         headerClass: "ag-right-aligned-header",
-          cellStyle: { textAlign: "right" },
-  },
-  {
-    headerName: "Outward",
-    field: "outward",
-    sortable: true,
-    filter: true,
-    width: 150,
-         headerClass: "ag-right-aligned-header",
-          cellStyle: { textAlign: "right" },
-  },
-  {
-    headerName: "Partial MIN",
-    field: "partial_min",
-    sortable: true,
-    filter: true,
-    width: 180,
-         headerClass: "ag-right-aligned-header",
-          cellStyle: { textAlign: "right" },
-  },
+  rowIndexCol,
+  { headerName: "Model", field: "model", width: 170, pinned: "left" },
+  { headerName: "SKU", field: "sku", width: 170 },
+  { headerName: "Product Name", field: "product_name", width: 260 },
+  numericCol("AWB Scan", "awb_scan", 130),
+  numericCol("Inward", "inward", 120),
+  numericCol("Outward", "outward", 120, true),
+  numericCol("Partial MIN", "partial_min", 140),
   {
     headerName: "Device Image",
     field: "device_img",
     sortable: false,
     filter: false,
-    width: 160,
-    cellRenderer: (params: any) => {
-      if (!params.value) return "-";
-      return (
-       <Typography variant="body2" className="text-slate-500">
-            {params.value}
-       
-        </Typography>
-      );
-    },
+    width: 150,
+    cellStyle: { color: "#64748b" },
+    valueFormatter: (params) =>
+      params.node?.rowPinned ? "" : params.value ? String(params.value) : "-",
   },
 ];
 
-const QcMinOutwardTable: React.FC<Props> = ({ gridRef }) => {
+const QcMinOutwardTable: React.FC<Props> = ({ gridRef, quickFilterText }) => {
   const { qcminreport, qcminreportLoading } = useAppSelector(
     (state) => state.reportSummary,
   );
+  const data: any[] = qcminreport?.data || [];
 
-  const defaultColDef = useMemo<ColDef>(() => {
-    return {
-      filter: true,
-    };
-  }, []);
+  const pinnedBottomRowData = useMemo(() => {
+    if (!data.length) return [];
+
+    const totals: Record<string, any> = { model: "Grand Total" };
+    QC_NUMERIC_COLUMNS.forEach((col) => {
+      totals[col] = sumBy(data, (row) => row[col]);
+    });
+    return [totals];
+  }, [data]);
 
   return (
-    <div>
-      <div className="relative ag-theme-quartz h-[calc(100vh-150px)]">
-        <AgGridReact
-          ref={gridRef}
-          loadingOverlayComponent={CustomLoadingOverlay}
-          loading={qcminreportLoading}
-          overlayNoRowsTemplate={OverlayNoRowsTemplate}
-          suppressCellFocus={true}
-          rowData={qcminreport?.data || []}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          pagination={false}
-          paginationPageSize={20}
-          enableCellTextSelection={true}
-        />
-      </div>
+    <div className={R26_GRID_CLASS}>
+      <AgGridReact
+        ref={gridRef}
+        loadingOverlayComponent={CustomLoadingOverlay}
+        loading={qcminreportLoading}
+        overlayNoRowsTemplate={OverlayNoRowsTemplate}
+        suppressCellFocus={true}
+        rowData={data}
+        columnDefs={columnDefs}
+        defaultColDef={r26DefaultColDef}
+        sideBar={r26SideBar}
+        excelStyles={r26ExcelStyles}
+        quickFilterText={quickFilterText}
+        pinnedBottomRowData={pinnedBottomRowData}
+        getRowClass={totalRowClass}
+        pagination={false}
+        paginationPageSize={50}
+        enableCellTextSelection={true}
+      />
     </div>
   );
 };
