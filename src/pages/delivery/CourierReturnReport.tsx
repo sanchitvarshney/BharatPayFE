@@ -18,13 +18,7 @@ import type { CourierReturnRow } from "@/features/delivery/deliveryType";
 
 const { RangePicker } = DatePicker;
 
-// videoKey is a storage key (e.g. "awb_returns/VIDEO_xxx.mp4"); full URLs are used as-is.
-const getVideoUrl = (videoKey?: string) => {
-  if (!videoKey) return "";
-  if (/^https?:\/\//i.test(videoKey)) return videoKey;
-  const base = String(import.meta.env.VITE_REACT_APP_API_BASE_URL ?? "").replace(/\/+$/, "");
-  return `${base}/${videoKey.replace(/^\/+/, "")}`;
-};
+
 
 const CourierReturnReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
@@ -92,12 +86,7 @@ const CourierReturnReport: React.FC = () => {
           params.value ? dayjs(params.value).format("DD-MM-YYYY HH:mm") : "",
       },
       { headerName: "Insert By", field: "insertedBy", sortable: true, filter: true, flex: 1 },
-      {
-        headerName: "Video URL",
-        field: "videoKey",
-        hide: true,
-        valueGetter: (params: any) => getVideoUrl(params.data?.videoKey),
-      },
+    
       {
         headerName: "Action",
         field: "action",
@@ -108,8 +97,7 @@ const CourierReturnReport: React.FC = () => {
               variant="secondary"
               disabled={!params.data?.videoKey}
               onClick={() => {
-                const url = getVideoUrl(params.data?.videoKey);
-                if (url) window.open(url, "_blank", "noopener,noreferrer");
+                if (params.data?.videoKey) window.open(params.data?.videoUrl, "_blank", "noopener,noreferrer");
               }}
             >
               <Icons.view />
