@@ -172,7 +172,7 @@ const ViewAreaReport: React.FC = () => {
     const payload: any = {
       from: dayjs(data?.date[0]).format("DD-MM-YYYY"),
       to: dayjs(data?.date[1]).format("DD-MM-YYYY"),
-      department: data?.departmentId === "ALL" ? data?.areaId : data?.departmentId,
+      department: data?.departmentId,
       place: data?.areaId,
     };
 
