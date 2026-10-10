@@ -133,6 +133,11 @@ export const wrongDeviceDispatch = createAsyncThunk<AxiosResponse<{ success: boo
   return response;
 });
 
+export const wrongDeviceLookup = createAsyncThunk<AxiosResponse<{ success: boolean; message: string; searchType: "AWB" | "SERIAL"; data: any }>, { awbs?: string[]; serials?: string[] }>("dispatch/wrongDeviceLookup", async (payload) => {
+  const response = await axiosInstance.post(`/wrongDevice/wrongDeviceLookup`, payload);
+  return response;
+});
+
 export const uploadFile = createAsyncThunk<AxiosResponse<{ success: boolean; message: string; data: string }>, FormData>("dispatch/uploadFile", async (formdata) => {
   const response = await axiosInstance.post(`/dispatchDivice/upload`, formdata, { headers: { "Content-Type": "multipart/form-data" } });
   return response;
