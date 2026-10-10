@@ -74,7 +74,7 @@ export const navSliderData: NavSliderData[] = [
      {
     path: "/report/R27",
     name: "R27",
-    title: "Reconsiliation Report",
+    title: "Reconciliation Report",
   },
  
 ];

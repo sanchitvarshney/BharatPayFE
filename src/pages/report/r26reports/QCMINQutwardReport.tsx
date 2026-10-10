@@ -44,8 +44,9 @@ const QCMINQutwardReport: React.FC = () => {
       onExport={handleExport}
       canExport={!!qcminreport?.data?.length}
       summary={[
-        { label: "Image Capture", value: formatNumber(qcminreport?.device_img_count), highlight: true },
+        { label: "Image Capture", value: formatNumber(qcminreport?.device_img_count), },
         { label: "Wrong Device MIN", value: formatNumber(qcminreport?.wrong_device?.total_min) },
+           { label: "Pending Device MIN", value: formatNumber(qcminreport?.pending_min) ,  highlight: true },
       ]}
       toolbar={<TableSearch value={search} onChange={setSearch} placeholder="Search model, SKU or product…" />}
     >

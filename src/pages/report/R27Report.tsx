@@ -62,7 +62,7 @@ const R27Report: React.FC = () => {
       >
         <div className="mb-[20px] text-center">
           <Typography variant="h1" fontSize={20} fontWeight={500}>
-            Download Reconsiliation Report
+            Download ReconciliationReport
           </Typography>
         </div>
    

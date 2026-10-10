@@ -10,6 +10,7 @@ import {
   CircularProgress,
   FormControl,
   FormHelperText,
+  IconButton,
   InputAdornment,
   MenuItem,
   Select,
@@ -32,6 +33,7 @@ import type { RecordedVideo } from "./video/video.types";
 import { useDeliverySubmit } from "./useDeliverySubmit";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
 import MobileOnlyNotice from "./MobileOnlyNotice";
+import AWBScannerDialog from "./AWBScannerDialog";
 
 type DeliveryFormValues = {
   awb: string;
@@ -65,6 +67,7 @@ const DeliveryVideoContent = () => {
 
   const [recorderOpen, setRecorderOpen] = useState(false);
   const [retakeConfirmOpen, setRetakeConfirmOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [submittedAwb, setSubmittedAwb] = useState<string | null>(null);
 
   const {
@@ -90,6 +93,15 @@ const DeliveryVideoContent = () => {
     (video: RecordedVideo) => {
       setValue("video", video, { shouldValidate: true, shouldDirty: true });
       setRecorderOpen(false);
+    },
+    [setValue]
+  );
+
+  const handleScanned = useCallback(
+    (value: string) => {
+      setValue("awb", value, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+      setScannerOpen(false);
+      showToast(`AWB scanned: ${value}`, "success");
     },
     [setValue]
   );
@@ -202,6 +214,14 @@ const DeliveryVideoContent = () => {
                             endAdornment: (
                               <InputAdornment position="end">
                                 <QrCodeScanner className="text-slate-400" />
+                                <IconButton
+                                  edge="end"
+                                  aria-label="Scan AWB barcode"
+                                  onClick={() => setScannerOpen(true)}
+                                  disabled={isBusy}
+                                >
+                                  <QrCodeScanner className="text-cyan-700" />
+                                </IconButton>
                               </InputAdornment>
                             ),
                           },
@@ -329,6 +349,14 @@ const DeliveryVideoContent = () => {
           onClose={closeRecorder}
           onRecorded={handleRecorded}
           onTooShort={handleTooShort}
+        />
+      )}
+
+      {scannerOpen && (
+        <AWBScannerDialog
+          open
+          onClose={() => setScannerOpen(false)}
+          onScan={handleScanned}
         />
       )}
 
