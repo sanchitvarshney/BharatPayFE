@@ -22,20 +22,21 @@ const TrcHourlyReport: React.FC = () => {
 
   const summary = trcHourlyReport?.summary;
   const trcIn = toNumber(summary?.trc_in);
-  const workRepair = toNumber(summary?.workRepair);
   const totalOut = toNumber(summary?.totalout);
-  const assembly = toNumber(summary?.assemblyQTY);
   const scrap = toNumber(summary?.scrapQTY);
 
-  // Same cards and formulas as the previous TRC summary panel.
   const summaryItems: SummaryItem[] = [
-    { label: "Device Repair", value: formatNumber(workRepair), highlight: true },
-    { label: "Assembly", value: formatNumber(assembly), highlight: true },
-    { label: "Scrap", value: formatNumber(scrap), highlight: true },
-    { label: "Consumption", value: formatNumber(trcHourlyReport?.total?.Trc_consumption) },
-    { label: "Current TRC Stock", value: formatNumber(totalOut - trcIn) },
-    { label: "Remaining Consumption", value: formatNumber(workRepair - totalOut) },
-    { label: "Remaining To Repair", value: formatNumber(trcIn - workRepair) },
+    { label: "BER Movement", value: formatNumber(scrap), highlight: true },
+    {
+      label: "Consumption",
+      value: formatNumber(trcHourlyReport?.total?.Trc_consumption),
+      highlight: true,
+    },
+    {
+      label: "Current TRC Stock",
+      value: formatNumber(totalOut - trcIn),
+      highlight: true,
+    },
   ];
 
   const handleExportExcel = () => {
@@ -52,7 +53,7 @@ const TrcHourlyReport: React.FC = () => {
   return (
     <ReportShell
       title="TRC Hourly Report"
-      description="Hour-by-hour work per employee."
+      description="Total work done per employee."
       reportName="TRC report"
       date={date}
       onDateChange={setRange}
@@ -64,7 +65,13 @@ const TrcHourlyReport: React.FC = () => {
       onExport={handleExportExcel}
       canExport={!!trcHourlyReport?.data?.length}
       summary={summaryItems}
-      toolbar={<TableSearch value={search} onChange={setSearch} placeholder="Search employee code…" />}
+      toolbar={
+        <TableSearch
+          value={search}
+          onChange={setSearch}
+          placeholder="Search employee code…"
+        />
+      }
     >
       <TrcHourlyTable gridRef={gridRef} quickFilterText={search} />
     </ReportShell>
