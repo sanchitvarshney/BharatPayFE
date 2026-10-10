@@ -406,8 +406,6 @@ const WrongDeviceDispatch: React.FC = () => {
         return;
       }
 
-      // serial rows are fixed at qty 1; remarks become one editable row
-      // whose qty can't exceed the remarks count
       const newRows: RowData[] = serials.map((serial) => ({
         awbNo: awb,
         serialNo: serial,

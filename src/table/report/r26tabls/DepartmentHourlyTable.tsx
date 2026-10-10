@@ -38,7 +38,7 @@ const DepartmentHourlyTable: React.FC<Props> = ({ gridRef, report, loading }) =>
       ...departments.map((dept, i) =>
         numericCol(String(dept.department ?? "—"), deptField(i), 140),
       ),
-      { ...numericCol("Grand Total", "grandTotal", 130, true), pinned: "right" },
+      { ...numericCol("Grand Total", "grandTotal", 130, true),  },
     ];
   }, [columns.length, departments]);
 
