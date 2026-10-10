@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
@@ -34,14 +34,9 @@ import { DispatchWrongItemPayload } from "@/features/Dispatch/DispatchType";
 import WrongDeviceImeiTable, {
   WrongDeviceRow as RowData,
 } from "@/table/dispatch/WrongDeviceImeiTable";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CloudUpload, DeleteSweep } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "@/theme";
-
-type ScannedAwb = {
-  awbNo: string;
-  qty: number;
-};
 
 type FormDataType = {
   qty: string;
@@ -167,15 +162,40 @@ const WrongDeviceDispatch: React.FC = () => {
   const [awbLoading, setAwbLoading] = useState(false);
   const [serialNo, setSerialNo] = useState("");
   const [serialLoading, setSerialLoading] = useState(false);
-  const [lastScanned, setLastScanned] = useState<ScannedAwb | null>(null);
+  const [lastScannedAwb, setLastScannedAwb] = useState<string | null>(null);
   const [uploadConfirmOpen, setUploadConfirmOpen] = useState(false);
   const [pendingUploadRows, setPendingUploadRows] = useState<RowData[]>([]);
   const awbInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const { handleSubmit, reset, setValue, watch } = useForm<FormDataType>({
     defaultValues: { qty: "", remark: "" },
   });
   const dispatchQty = Number(watch("qty")) || 0;
+
+  const scanSummary = useMemo(() => {
+    const totalQty = rowData.reduce((sum, row) => sum + (row.qty || 1), 0);
+    const awbCount = new Set(rowData.map((row) => row.awbNo)).size;
+    const lastRows = lastScannedAwb
+      ? rowData.filter((row) => row.awbNo === lastScannedAwb)
+      : [];
+    const lastScanned = lastRows.length
+      ? {
+          awbNo: lastScannedAwb as string,
+          rows: lastRows.length,
+          qty: lastRows.reduce((sum, row) => sum + (row.qty || 1), 0),
+        }
+      : null;
+    return { totalQty, awbCount, lastScanned };
+  }, [rowData, lastScannedAwb]);
+  const { totalQty, awbCount, lastScanned } = scanSummary;
+  const qtyStatusClass = !dispatchQty
+    ? "bg-neutral-100 text-neutral-700 border-neutral-300"
+    : totalQty === dispatchQty
+      ? "bg-green-50 text-green-700 border-green-300"
+      : totalQty > dispatchQty
+        ? "bg-red-50 text-red-700 border-red-300"
+        : "bg-amber-50 text-amber-700 border-amber-300";
 
   useEffect(() => {
     if (!id) return;
@@ -199,7 +219,7 @@ const WrongDeviceDispatch: React.FC = () => {
 
   const resetAll = () => {
     setRowData([]);
-    setLastScanned(null);
+    setLastScannedAwb(null);
     reset();
     dispatch(resetDocumentFile());
     dispatch(clearaddressdetail());
@@ -336,12 +356,15 @@ const WrongDeviceDispatch: React.FC = () => {
 
   const handleUploadConfirm = () => {
     setRowData(pendingUploadRows);
-    showToast(`${pendingUploadRows.length} device(s) loaded from Excel`, "success");
+    showToast(
+      `${pendingUploadRows.length} device(s) loaded from Excel`,
+      "success",
+    );
     closeUploadConfirm();
   };
 
   const handleAwbSubmit = async () => {
-    setLastScanned(null);
+    setLastScannedAwb(null);
     const awbNo = awbInput.trim();
     if (!awbNo || awbLoading) return;
 
@@ -375,7 +398,9 @@ const WrongDeviceDispatch: React.FC = () => {
       }
 
       const existingSerials = new Set(rowData.map((row) => row.serialNo));
-      const duplicates = serials.filter((serial) => existingSerials.has(serial));
+      const duplicates = serials.filter((serial) =>
+        existingSerials.has(serial),
+      );
       if (duplicates.length) {
         showToast(`Serial No already added: ${duplicates.join(", ")}`, "error");
         return;
@@ -398,7 +423,7 @@ const WrongDeviceDispatch: React.FC = () => {
         });
       }
       setRowData((prev) => [...newRows, ...prev]);
-      setLastScanned({ awbNo: awb, qty: serials.length + remarkCount });
+      setLastScannedAwb(awb);
     } catch (error: any) {
       showToast(error?.message || "Unable to fetch AWB details", "error");
     } finally {
@@ -424,7 +449,7 @@ const WrongDeviceDispatch: React.FC = () => {
   // Manual entry: Serial No is looked up to find its AWB; if the lookup fails
   // the typed AWB is used.
   const handleManualAdd = async () => {
-    setLastScanned(null);
+    setLastScannedAwb(null);
     const typedAwb = awbInput.trim();
     const serial = serialNo.trim();
     if (!serial || serialLoading) return;
@@ -445,6 +470,7 @@ const WrongDeviceDispatch: React.FC = () => {
     }
 
     setRowData((prev) => [{ awbNo, serialNo: serial, qty: 1 }, ...prev]);
+    setLastScannedAwb(awbNo);
     setSerialNo("");
     setAwbInput("");
     focusAwbInput();
@@ -452,7 +478,7 @@ const WrongDeviceDispatch: React.FC = () => {
 
   const handleClearAll = () => {
     setRowData([]);
-    setLastScanned(null);
+    setLastScannedAwb(null);
     focusAwbInput();
   };
 
@@ -573,7 +599,7 @@ const WrongDeviceDispatch: React.FC = () => {
                 />
               </div>
 
-              <div className="px-[20px] pt-[10px] text-[13px] text-neutral-600 min-h-[30px]">
+              <div className="flex flex-wrap items-center justify-between gap-[10px] px-[20px] pt-[10px] text-[13px] text-neutral-600 min-h-[30px]">
                 {lastScanned ? (
                   <span>
                     Last scanned AWB{" "}
@@ -590,6 +616,23 @@ const WrongDeviceDispatch: React.FC = () => {
                     Scan an AWB to fetch its serial numbers, or use Bulk Upload.
                   </span>
                 )}
+                <div className="flex items-center gap-[8px]">
+                  <span className="px-[10px] py-[3px] rounded-full border border-neutral-300 bg-white text-neutral-700">
+                    AWBs <span className="font-semibold">{awbCount}</span>
+                  </span>
+                  <span className="px-[10px] py-[3px] rounded-full border border-neutral-300 bg-white text-neutral-700">
+                    Items <span className="font-semibold">{rowData.length}</span>
+                  </span>
+                  <span
+                    className={`px-[10px] py-[3px] rounded-full border ${qtyStatusClass}`}
+                  >
+                    Scanned Qty{" "}
+                    <span className="font-semibold">
+                      {totalQty}
+                      {dispatchQty ? ` / ${dispatchQty}` : ""}
+                    </span>
+                  </span>
+                </div>
               </div>
 
               <div className="flex-1 min-h-0 px-[20px] pb-[12px] pt-[6px]">
@@ -609,7 +652,7 @@ const WrongDeviceDispatch: React.FC = () => {
                   Dispatch Number - {dispatchNo}
                 </Typography>
                 <LoadingButton
-                  onClick={() => setActiveStep(0)}
+                  onClick={() => navigate("/manage-challan")}
                   variant="contained"
                 >
                   Create New Dispatch
