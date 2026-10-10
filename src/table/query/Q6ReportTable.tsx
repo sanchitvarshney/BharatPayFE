@@ -128,6 +128,7 @@ useEffect(() => {
         locOut: item.locationOut,
         insertBy: item.user,
         moveId: item.deviceMovId,
+        repairEmpCode: item.repairEmpCode,
         manufacturingMonth: item.manufacturingMonth,
         issue: item.issue,
         consumption: item.consumption,
