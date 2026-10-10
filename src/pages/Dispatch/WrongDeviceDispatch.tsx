@@ -548,97 +548,151 @@ const WrongDeviceDispatch: React.FC = () => {
           )}
 
           {activeStep === 1 && (
-            <div className="h-[calc(100vh-200px)] flex flex-col bg-neutral-50">
-              <div className="flex flex-wrap items-center gap-[12px] px-[20px] py-[14px] bg-white border-b border-neutral-200">
-                <TextField
-                  inputRef={awbInputRef}
-                  autoFocus
-                  value={awbInput}
-                  label="Scan / Enter AWB No."
-                  placeholder="Scan AWB and press Enter"
-                  sx={{ width: "320px" }}
-                  disabled={awbLoading}
-                  onChange={(e) => setAwbInput(e.target.value)}
-                  onKeyDown={onEnter(handleAwbSubmit)}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {awbLoading ? (
+            <div className="h-[calc(100vh-200px)] flex bg-neutral-50">
+              <div className="flex-1 min-w-0 flex flex-col">
+                <div className="flex flex-wrap items-center gap-[12px] px-[16px] py-[14px] bg-white border-b border-neutral-200">
+                  <TextField
+                    inputRef={awbInputRef}
+                    autoFocus
+                    value={awbInput}
+                    label="Scan / Enter AWB No."
+                    placeholder="Scan AWB and press Enter"
+                    sx={{ width: "320px" }}
+                    disabled={awbLoading}
+                    onChange={(e) => setAwbInput(e.target.value)}
+                    onKeyDown={onEnter(handleAwbSubmit)}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {awbLoading ? (
+                              <CircularProgress size={20} color="inherit" />
+                            ) : (
+                              <QrCodeScannerIcon />
+                            )}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                  <TextField
+                    value={serialNo}
+                    label="Serial No"
+                    placeholder="Enter Serial No and press Enter"
+                    sx={{ width: "260px" }}
+                    disabled={serialLoading}
+                    onChange={(e) => {
+                      if (/^[0-9_]*$/.test(e.target.value)) {
+                        setSerialNo(e.target.value);
+                      }
+                    }}
+                    onKeyDown={onEnter(handleManualAdd)}
+                    slotProps={{
+                      input: {
+                        endAdornment: serialLoading ? (
+                          <InputAdornment position="end">
                             <CircularProgress size={20} color="inherit" />
-                          ) : (
-                            <QrCodeScannerIcon />
-                          )}
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-                <TextField
-                  value={serialNo}
-                  label="Serial No"
-                  sx={{ width: "240px" }}
-                  disabled={serialLoading}
-                  onChange={(e) => {
-                    if (/^[0-9_]*$/.test(e.target.value)) {
-                      setSerialNo(e.target.value);
-                    }
-                  }}
-                  onKeyDown={onEnter(handleManualAdd)}
-                  slotProps={{
-                    input: {
-                      endAdornment: serialLoading ? (
-                        <InputAdornment position="end">
-                          <CircularProgress size={20} color="inherit" />
-                        </InputAdornment>
-                      ) : undefined,
-                    },
-                  }}
-                />
-              </div>
+                          </InputAdornment>
+                        ) : undefined,
+                      },
+                    }}
+                  />
+                </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-[10px] px-[20px] pt-[10px] text-[13px] text-neutral-600 min-h-[30px]">
-                {lastScanned ? (
-                  <span>
-                    Last scanned AWB{" "}
-                    <span className="font-semibold text-neutral-800">
-                      {lastScanned.awbNo}
-                    </span>{" "}
-                    · Qty{" "}
-                    <span className="font-semibold text-neutral-800">
-                      {lastScanned.qty}
-                    </span>
-                  </span>
-                ) : (
-                  <span>
-                    Scan an AWB to fetch its serial numbers, or use Bulk Upload.
-                  </span>
-                )}
-                <div className="flex items-center gap-[8px]">
-                  <span className="px-[10px] py-[3px] rounded-full border border-neutral-300 bg-white text-neutral-700">
-                    AWBs <span className="font-semibold">{awbCount}</span>
-                  </span>
-                  <span className="px-[10px] py-[3px] rounded-full border border-neutral-300 bg-white text-neutral-700">
-                    Items <span className="font-semibold">{rowData.length}</span>
-                  </span>
-                  <span
-                    className={`px-[10px] py-[3px] rounded-full border ${qtyStatusClass}`}
-                  >
-                    Scanned Qty{" "}
-                    <span className="font-semibold">
-                      {totalQty}
-                      {dispatchQty ? ` / ${dispatchQty}` : ""}
-                    </span>
-                  </span>
+                <div className="flex-1 min-h-0 p-[0px]">
+                  <WrongDeviceImeiTable
+                    setRowdata={setRowData}
+                    rowData={rowData}
+                  />
                 </div>
               </div>
 
-              <div className="flex-1 min-h-0 px-[20px] pb-[12px] pt-[6px]">
-                <WrongDeviceImeiTable
-                  setRowdata={setRowData}
-                  rowData={rowData}
-                />
-              </div>
+              <aside className="w-[320px] shrink-0 flex flex-col gap-[14px] p-[16px] bg-white border-l border-neutral-200 overflow-y-auto">
+                <section className="flex flex-col gap-[10px]">
+                  <h3 className="text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
+                    Scan Summary
+                  </h3>
+                  <div
+                    className={`flex items-center justify-between rounded-md border px-[12px] py-[10px] ${qtyStatusClass}`}
+                  >
+                    <span className="text-[13px]">Scanned Qty</span>
+                    <span className="text-[18px] font-semibold">
+                      {totalQty}
+                      {dispatchQty ? ` / ${dispatchQty}` : ""}
+                    </span>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-[8px] text-[13px]">
+                    {[
+                      { label: "AWBs", value: awbCount },
+                      { label: "Items", value: rowData.length },
+                      { label: "Dispatch Qty", value: dispatchQty || "--" },
+                      {
+                        label: "Remaining",
+                        value: dispatchQty
+                          ? Math.max(dispatchQty - totalQty, 0)
+                          : "--",
+                      },
+                    ].map(({ label, value }) => (
+                      <div
+                        key={label}
+                        className="rounded-md border border-neutral-200 bg-neutral-50 px-[10px] py-[8px]"
+                      >
+                        <dt className="text-neutral-500">{label}</dt>
+                        <dd className="text-[15px] font-semibold text-neutral-800">
+                          {value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="rounded-md border border-dashed border-neutral-300 px-[10px] py-[8px] text-[13px] text-neutral-600">
+                    {lastScanned ? (
+                      <>
+                        <span className="block text-neutral-500">
+                          Last scanned AWB
+                        </span>
+                        <span className="block font-semibold text-neutral-800 break-all">
+                          {lastScanned.awbNo}
+                        </span>
+                        <span className="block">
+                          Qty{" "}
+                          <span className="font-semibold text-neutral-800">
+                            {lastScanned.qty}
+                          </span>
+                        </span>
+                      </>
+                    ) : (
+                      <span>
+                        Scan an AWB to fetch its serial numbers, or use Bulk
+                        Upload.
+                      </span>
+                    )}
+                  </div>
+                </section>
+
+                <Divider />
+
+                <section className="flex flex-col gap-[8px]">
+                  <h3 className="text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
+                    Challan Details
+                  </h3>
+                  <dl className="flex flex-col gap-[6px] text-[13px]">
+                    {[
+                      { label: "Challan ID", value: toChallanId(id) },
+                      { label: "Client", value: data?.clientDetail?.name },
+                      { label: "Ship To", value: data?.shipToDetails?.shipLabel },
+                      { label: "Material", value: data?.materialName },
+                      { label: "Remarks", value: data?.remark },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="flex justify-between gap-[12px]">
+                        <dt className="shrink-0 text-neutral-500">{label}</dt>
+                        <dd className="text-right font-medium text-neutral-800 break-all">
+                          {value || "N/A"}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              </aside>
             </div>
           )}
 
