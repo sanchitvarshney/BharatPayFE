@@ -68,6 +68,8 @@
     "@tiptap/extension-underline": "^2.10.3",
     "@tiptap/react": "^2.10.3",
     "@tiptap/starter-kit": "^2.10.3",
+    "@zxing/browser": "^0.2.1",
+    "@zxing/library": "^0.23.0",
     "ag-grid-community": "^32.0.2",
     "ag-grid-react": "^32.0.2",
     "antd": "^5.19.2",
