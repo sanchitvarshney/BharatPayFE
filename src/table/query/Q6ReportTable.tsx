@@ -194,6 +194,12 @@ useEffect(() => {
       width:250
     },
     {
+          headerName: "Repaire By",
+      field: "repairEmpCode",
+      sortable: true,
+      filter: true,
+    },
+    {
       headerName: "Inserted By",
       field: "insertBy",
       sortable: true,
