@@ -9,15 +9,17 @@ import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
 import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecters/AntLocationSelectAcordinttoModule";
 import { getPOComponentDetail } from "@/features/procurement/poSlices";
 
+
 interface POCellRendererProps {
   props: any;
   customFunction: () => void;
   venId?: string | null;
 }
-const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction, venId }) => {
+const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }) => {
   const { value, colDef, data, api, column } = props;
   const [currency, setCurrency] = useState<string>(data.excRate);
   const [open, setOpen] = useState<boolean>(false);
+  const [rateLoading, setRateLoading] = useState<boolean>(false);
   const { currencyData, currencyLoaidng } = useAppSelector((state) => state.common);
   const dispatch = useAppDispatch();
 
@@ -41,6 +43,9 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction, 
   const handleInputChange = (e: any) => {
     const newValue = e.target.value;
     data[colDef.field] = newValue; // update the data
+    recalcRow();
+  };
+  const recalcRow = () => {
     data["taxableValue"] = Number(data.qty) * Number(data.rate);
     if (data.excRate != 0 || data.excRate != "") {
       data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
@@ -55,6 +60,36 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction, 
       data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
     }
     api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
+  };
+  // Taxable / foreign value according to the row currency (shared by rate typing and rate auto-fill)
+  const recalcCurrencyValues = () => {
+    const refreshColumns = ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"];
+    if (currencyData?.find((item) => item.id === data.currency)?.text === "₹") {
+      data["foreignValue"] = 0;
+      data["taxableValue"] = Number(data.qty) * Number(data.rate);
+    } else if (currency === "0" || currency === "") {
+      data["taxableValue"] = Number(data.qty) * Number(data.rate);
+    } else {
+      data["foreignValue"] = Number(data.qty) * Number(data.rate);
+      data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
+    }
+    api.refreshCells({ rowNodes: [props.node], columns: refreshColumns });
+  };
+  // On component select: get the vendor's initial rate and fill it in the row
+  const loadInitialRate = async (component:any) => {
+    data.initialRate = undefined;
+    if (!component) {
+      setRateLoading(false);
+      return;
+    }
+    setRateLoading(true);
+
+    data.initialRate = component?.rate;
+    data.rate = component?.rate;
+    recalcRow();
+    recalcCurrencyValues();
+    customFunction();
+    setRateLoading(false);
   };
 
   const renderContent = () => {
@@ -85,28 +120,19 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction, 
             }}
             onChange={(selectedValue) => {
               const newValue = selectedValue;
-              dispatch(getPOComponentDetail({ id: newValue?.value || "", venId })).then((res:any) => {
+              const vendorId = props.context?.vendorId;
+              const payload  = { id: newValue?.value || "", vendor_id: vendorId}
+              dispatch(getPOComponentDetail( payload|| "")).then((res:any) => {
                 if(res.payload.data.status==="success"){
                   data["hsnCode"]=res.payload.data.data.hsn;
-                  const apiRate = res.payload.data.data.rate;
-                  data["rate"] = apiRate != null && apiRate !== "" ? apiRate : 0;
-                  data["taxableValue"] = Number(data.qty) * Number(data.rate) * (Number(data.excRate) || 1);
-                  if (data.gstType === "L") {
-                    data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-                    data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-                    data["igst"] = 0;
-                  } else {
-                    data["sgst"] = 0;
-                    data["cgst"] = 0;
-                    data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
-                  }
-                  api.refreshCells({ rowNodes: [props.node], columns: [column, "hsnCode", "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
+                       data["gstRate"]=res.payload.data.data.gst_rate;
+                    loadInitialRate(res.payload.data.data);
                 }
               });
               data[colDef.field] = newValue;
               api.refreshCells({ rowNodes: [props.node], columns: [column, "component", "remark", "qty", "uom"] });
               api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] });
-              
+            
             }}
             value={
               value
@@ -237,21 +263,20 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction, 
           <div className="flex items-center gap-[5px] ">
             <Input
               min={0}
+              disabled={rateLoading}
+              // rate above the vendor's initial rate needs admin approval on submit
+              status={data.initialRate != null && Number(value) > Number(data.initialRate) ? "warning" : undefined}
+              suffix={
+                rateLoading ? (
+                  <span className="text-[11px] text-slate-400">Fetching...</span>
+                ) : data.initialRate != null ? (
+                  <span className={`text-[11px] ${Number(value) > Number(data.initialRate) ? "text-amber-600" : "text-slate-400"}`}>Init: {data.initialRate}</span>
+                ) : undefined
+              }
               onChange={(e) => {
                 if (/^-?\d*\.?\d*$/.test(e.target.value)) {
                   handleInputChange(e);
-                  if (currencyData?.find((item) => item.id === data.currency)?.text === "₹") {
-                    data["foreignValue"] = 0;
-                    data["taxableValue"] = Number(data.qty) * Number(data.rate);
-                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] });
-                  } else if (currency === "0" || currency === "") {
-                    data["taxableValue"] = Number(data.qty) * Number(data.rate);
-                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
-                  } else {
-                    data["foreignValue"] = Number(data.qty) * Number(data.rate);
-                    data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
-                    api.refreshCells({ rowNodes: [props.node], columns: ["taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "currency", "foreignValue"] }); // refresh the cell to show the new value
-                  }
+                  recalcCurrencyValues();
                 }
               }}
               value={value}
