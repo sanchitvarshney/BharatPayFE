@@ -11,7 +11,11 @@ const DeviceTransferLayout = (props:{children:React.ReactNode}) => {
                  Device Transfer
                </NavLink>
              </li>
-          
+             <li className="h-[50px]">
+               <NavLink to={"/device/assembly-to-trc"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
+                 Assembly to TRC
+               </NavLink>
+             </li>
            </ul>
          </div>
          <div className="h-[calc(100vh-100px)] bg-transparent overflow-y-auto ">
