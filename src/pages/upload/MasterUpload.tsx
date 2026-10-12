@@ -25,6 +25,7 @@ import { CloudUpload, Download, ErrorOutline } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { uploadMasterData } from "@/features/upload/uploadSlice";
 import { showToast } from "@/utils/toasterContext";
+import { getApiMessage } from "@/utils/getApiMessage";
 import SelectDevice, { DeviceType } from "@/components/reusable/SelectSku";
 
 type PreviewRow = Record<string, unknown>;
@@ -64,6 +65,8 @@ const DEVICE_TYPE_CONFIG: Record<DeviceTypeOption, DeviceTypeConfig> = {
   },
 };
 
+const PREVIEW_LIMIT = 100;
+
 const DEVICE_TYPE_OPTIONS = (
   Object.keys(DEVICE_TYPE_CONFIG) as DeviceTypeOption[]
 ).map((value) => ({ value, label: DEVICE_TYPE_CONFIG[value].label }));
@@ -78,6 +81,7 @@ const MasterUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [previewRows, setPreviewRows] = useState<PreviewRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
+  const [totalRows, setTotalRows] = useState(0);
   const [isParsing, setIsParsing] = useState(false);
 
   const config = deviceType ? DEVICE_TYPE_CONFIG[deviceType] : null;
@@ -89,7 +93,7 @@ const MasterUpload: React.FC = () => {
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const wb = XLSX.read(data, { type: "array" });
+        const wb = XLSX.read(data, { type: "array", dense: true });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows: PreviewRow[] = XLSX.utils.sheet_to_json(ws, { defval: "" });
 
@@ -97,9 +101,11 @@ const MasterUpload: React.FC = () => {
           showToast("File is empty or has no data rows.", "error");
           setPreviewRows([]);
           setColumns([]);
+          setTotalRows(0);
         } else {
           setColumns(Object.keys(rows[0]));
-          setPreviewRows(rows);
+          setTotalRows(rows.length);
+          setPreviewRows(rows.slice(0, PREVIEW_LIMIT));
         }
       } catch {
         showToast(
@@ -108,18 +114,21 @@ const MasterUpload: React.FC = () => {
         );
         setPreviewRows([]);
         setColumns([]);
+        setTotalRows(0);
       } finally {
         setIsParsing(false);
       }
     };
     reader.onerror = () => setIsParsing(false);
-    reader.readAsArrayBuffer(f);
+    // Defer so the progress bar renders before the (blocking) parse starts
+    setTimeout(() => reader.readAsArrayBuffer(f), 0);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     setPreviewRows([]);
     setColumns([]);
+    setTotalRows(0);
     if (!selected) {
       setFile(null);
       return;
@@ -150,6 +159,7 @@ const MasterUpload: React.FC = () => {
     setFile(null);
     setPreviewRows([]);
     setColumns([]);
+    setTotalRows(0);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -178,10 +188,13 @@ const MasterUpload: React.FC = () => {
         isSwipe: deviceType === "swipeMachine",
       }),
     );
-    const payload: any = res?.payload;
-    if (payload?.data?.success) {
-      showToast(payload.data.message || "Uploaded successfully", "success");
+    if (!uploadMasterData.fulfilled.match(res)) return; 
+    const { success, message } = res.payload.data;
+    if (success) {
+      showToast(getApiMessage(message, "Uploaded successfully"), "success");
       handleClear();
+    } else {
+      showToast(getApiMessage(message, "Upload failed"), "error");
     }
   };
 
@@ -430,8 +443,11 @@ const MasterUpload: React.FC = () => {
                       Preview
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {previewRows.length} row
-                      {previewRows.length !== 1 ? "s" : ""} · {columns.length}{" "}
+                      {totalRows > previewRows.length
+                        ? `Showing first ${previewRows.length} of `
+                        : ""}
+                      {totalRows.toLocaleString()} row
+                      {totalRows !== 1 ? "s" : ""} · {columns.length}{" "}
                       column{columns.length !== 1 ? "s" : ""}
                       {extraCols.length > 0
                         ? ` · ${extraCols.length} ignored`

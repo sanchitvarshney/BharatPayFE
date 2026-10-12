@@ -62,6 +62,36 @@ export function buildIndexedModuleOptionsFromMenu(
   return result;
 }
 
+type SubPage = { path: string; name: string; title: string };
+
+
+export function appendSubPageOptions(
+  options: ModuleSearchOption[],
+  parentPathPrefix: string,
+  subPages: SubPage[],
+): ModuleSearchOption[] {
+  const parent = options.find((o) => o.value?.startsWith(parentPathPrefix));
+  if (!parent) return options;
+
+  const subOptions: ModuleSearchOption[] = subPages
+    .filter((page) => !options.some((o) => o.value === page.path))
+    .map((page) => {
+      const label = `${page.name} - ${page.title}`;
+      const breadcrumb = `${parent.breadcrumb} > ${page.name}`;
+      return {
+        key: `${parent.key}-${page.name}`,
+        value: page.path,
+        label,
+        breadcrumb,
+        searchIndex: parent.searchIndex,
+        searchLabel: normalizeSearchToken(label),
+        searchBreadcrumb: normalizeSearchToken(breadcrumb),
+      };
+    });
+
+  return [...options, ...subOptions];
+}
+
 export function filterModuleOptions(options: ModuleSearchOption[], queryRaw: string) {
    const words = extractQueryWords(queryRaw);
    if (!words.length) return [];

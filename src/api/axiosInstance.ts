@@ -3,6 +3,7 @@ import { getToken } from "@/utils/tokenUtills";
 import { v4 as uuidv4 } from "uuid";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { showToast } from "@/utils/toasterContext";
+import { getApiMessage } from "@/utils/getApiMessage";
 import { getIndianFYSessionKeyForDate, isPlausibleFYSessionKey } from "@/utils/indianFinancialYear";
 import { setReturnTo } from "@/utils/returnTo";
 
@@ -72,7 +73,10 @@ axiosInstance.interceptors.response.use(
       globalThis.window.location.href = "/login";
     }
   
-    showToast(error.response?.data?.message ?? error.message ?? error.response?.data ?? error?.response?.data?.message?.msg ?? "An unexpected error occurred", "error");
+    showToast(
+      getApiMessage(error.response?.data?.message, error.message || "An unexpected error occurred"),
+      "error",
+    );
 
     return Promise.reject(error);
   }
