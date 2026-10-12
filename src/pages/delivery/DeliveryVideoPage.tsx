@@ -213,7 +213,6 @@ const DeliveryVideoContent = () => {
                           input: {
                             endAdornment: (
                               <InputAdornment position="end">
-                                <QrCodeScanner className="text-slate-400" />
                                 <IconButton
                                   edge="end"
                                   aria-label="Scan AWB barcode"

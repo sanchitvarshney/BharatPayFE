@@ -14,6 +14,7 @@ const initialState: any = {
   isImageLoading: false,
   isSubmitSwipeLoading: false,
   isCheckBoxLocationLoading: false,
+  isAssemblyToTrcLoading: false,
 };
 type FetchDeviceDetailsArgs = {
   deviceCode: string;
@@ -120,6 +121,22 @@ export const submitSwipeTransferData = createAsyncThunk<
     return response?.data;
   },
 );
+export type AssemblyToTrcPayload = {
+  imei: string[];
+  remark?: string;
+};
+
+export const submitAssemblyToTrc = createAsyncThunk<
+  { success?: boolean; message?: string; data?: unknown },
+  AssemblyToTrcPayload
+>("device/transfer/assemblyToTrc", async (payload) => {
+  const response = await axiosInstance.post(
+    `/deviceBranchTransfer/assembly-to-trc`,
+    payload,
+  );
+  return response?.data;
+});
+
 export const submitImage = createAsyncThunk<AxiosResponse<any>>(
   "master/transfer/image-submit",
   async ({imei, body}:any) => {
@@ -227,6 +244,15 @@ const transferSlice = createSlice({
       })
       .addCase(checkBoxLocation.rejected, (state) => {
         state.isCheckBoxLocationLoading = false;
+      })
+      .addCase(submitAssemblyToTrc.pending, (state) => {
+        state.isAssemblyToTrcLoading = true;
+      })
+      .addCase(submitAssemblyToTrc.fulfilled, (state) => {
+        state.isAssemblyToTrcLoading = false;
+      })
+      .addCase(submitAssemblyToTrc.rejected, (state) => {
+        state.isAssemblyToTrcLoading = false;
       });
   },
 });
