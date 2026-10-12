@@ -1259,9 +1259,9 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
   {
-   
-    path: "/po/adminApprovalPage",
+    path: "/po/adminApprovalPage/*",
     element: <AdminApprovalPage />,
   },
   {

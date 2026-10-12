@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   Alert,
@@ -50,8 +50,12 @@ const statusChip: Record<
 
 const AdminApprovalPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const reqId = searchParams.get("req_id") || "";
-  const token = searchParams.get("token") || "";
+  const location = useLocation();
+  const pathParams = new URLSearchParams(
+    location.pathname.split("/po/adminApprovalPage/")[1] || ""
+  );
+  const reqId = searchParams.get("req_id") || pathParams.get("req_id") || "";
+  const token = searchParams.get("token") || pathParams.get("token") || "";
 
   const [loading, setLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
