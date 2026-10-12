@@ -215,7 +215,7 @@ const billingSummaryCellStyle = (
     return { ...base, fontWeight: 700 };
   }
   if (data.rowType === "grandTotal") {
-    return { ...base, fontWeight: 700, backgroundColor: "#ffff00" };
+    return { ...base, fontWeight: 700, backgroundColor: "#fff4e5" };
   }
   return base;
 };

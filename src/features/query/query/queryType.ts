@@ -151,6 +151,7 @@ type TransactionData = {
   name?:string
   issue?: string
   consumption?: ConsumptionItem[]
+  repairEmpCode?:string
 };
 
 export type R6ApiResponse = {

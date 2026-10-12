@@ -94,6 +94,7 @@ const initialState: ReportStateType = {
   partCodeConvDetailLoading: false,
   r25report: null,
   r25reportLoading: false,
+  
 };
 
 export const getR1Data = createAsyncThunk<

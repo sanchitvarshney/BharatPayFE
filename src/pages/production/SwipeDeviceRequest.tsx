@@ -33,11 +33,9 @@ const SwipeDeviceRequest = () => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
   const [locationdetail, setLocationdetail] = useState<string>("--");
-  const [checked , setChecked] = useState<boolean>(false);
   const [final, setFinal] = useState<boolean>(false);
   const { type, createProductRequestLoading, locationData, craeteRequestData } = useAppSelector((state) => state.materialRequestWithoutBom);
   const dispatch = useAppDispatch();
-console.log(checked)
 
   const {
     handleSubmit,
@@ -48,7 +46,7 @@ console.log(checked)
     defaultValues: {
       location: null,
       remarks: "",
-      checkbox: false,
+      checkbox: true,
     },
   });
   const addRow = useCallback(() => {
@@ -103,13 +101,12 @@ console.log(checked)
           pickLocation: row.pickLocation?.value || ""
         }));
       
-        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc :"1", productDetail })).then((res: any) => {
+        dispatch(createSwipeDeviceRequest({ reqLocation: data.location!.code, forTrc: "1", productDetail })).then((res: any) => {
           if (res.payload?.data.success) {
             reset();
             setRowData([]);
             setFinal(true);
             setLocationdetail("--");
-            setChecked(false);
           }
         });
       }
@@ -122,6 +119,7 @@ console.log(checked)
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
+
   return (
     <div>
       {final ? (
@@ -144,7 +142,6 @@ console.log(checked)
                 onClick={() => {
                   setFinal(false);
                   setLocationdetail("--");
-                  setChecked(false);
                 }}
                 variant="contained"
               >
@@ -247,12 +244,9 @@ console.log(checked)
                       control={control}
                       render={({ field }) => (
                         <Checkbox
-                          {...field}
+                          name={field.name}
+                          inputRef={field.ref}
                           checked={true}
-                          // onChange={(e) => {
-                          //   field.onChange(e.target.checked);
-                          //   setChecked(e.target.checked);
-                          // }}
                           sx={{
                             '&.Mui-checked': {
                               color: '#0369a1',
@@ -262,7 +256,7 @@ console.log(checked)
                         />
                       )}
                     />
-                    <label className="text-sm font-medium leading-none cursor-pointer text-slate-500">
+                    <label className="text-sm font-medium leading-none text-slate-500">
                       Directly Move To TRC
                     </label>
                   </div>

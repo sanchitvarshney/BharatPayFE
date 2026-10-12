@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "@/api/axiosInstance";
 import { AxiosResponse } from "axios";
+import { getApiMessage } from "@/utils/getApiMessage";
 
 interface UploadState {
   uploadLoading: boolean;
@@ -41,12 +42,14 @@ export const uploadSwipeDeviceStatus = createAsyncThunk<
 });
 
 export const uploadMasterData = createAsyncThunk<
-  AxiosResponse<{ success: boolean; message: string }>,
-  FormData
->("upload/masterData", async (formData, { rejectWithValue }) => {
+  AxiosResponse<{ success: boolean; message: string | { msg: string } }>,
+  { formData: FormData; isSwipe?: boolean }
+>("upload/masterData", async ({ formData, isSwipe }, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.post(
-      "/bulkDeviceUpload/upload",
+      isSwipe
+        ? "/bulkDeviceUpload/upload-swipe"
+        : "/bulkDeviceUpload/upload",
       formData,
       {
         headers: {
@@ -56,10 +59,9 @@ export const uploadMasterData = createAsyncThunk<
     );
     return response;
   } catch (error: any) {
-    if (error.response?.data?.message) {
-      return rejectWithValue(error.response.data.message);
-    }
-    return rejectWithValue(error.message || "Upload failed");
+    return rejectWithValue(
+      getApiMessage(error.response?.data?.message, error.message || "Upload failed"),
+    );
   }
 });
 

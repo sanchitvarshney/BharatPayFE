@@ -2,7 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
-import ForgotPassword from "./pages/authentication/ForgotPassword";
 import Custom404Page from "./pages/commonPages/Custom404Page";
 import NotPermissionPage from "./pages/commonPages/NotPermissionPage";
 import MasterUOM from "./pages/master/MasterUOM";
@@ -82,7 +81,6 @@ import PendingTRCListTable from "@/table/master/PendingTRCListTable";
 import WrongDeviceDispatch from "@/pages/Dispatch/WrongDeviceDispatch";
 import WrongDispatchLayout from "@/layouts/WrongDispatchLayout";
 import OtpPage from "@/pages/commonPages/otpPage";
-import RecoveryPassword from "@/pages/authentication/RecoveryPassword";
 import MaterialIn from "@/pages/min/MaterialIn";
 import PhysicalQuantityUpdate from "@/pages/PhysicalQuantityReport/PhysicalQuantityUpdate";
 import DispatchTableForEwayBill from "@/pages/ewayBill/DispatchForEwayBill";
@@ -143,6 +141,8 @@ import WrongDeviceReport from "./pages/Dispatch/WrongDeviceReport";
 import ViewImageLayout from "./layouts/ViewImageLayout";
 import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
 import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
+import DeliveryVideoPage from "./pages/delivery/DeliveryVideoPage";
+import CourierReturnReport from "./pages/delivery/CourierReturnReport";
 import SummaryLayout from "./layouts/SummaryLayout";
 import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
 import Dispatched from "./pages/summary-pages/Dispatched";
@@ -175,6 +175,10 @@ export const router = createBrowserRouter([
       {
         element: <StockDetailPage />,
         path: "/stockdetail",
+      },
+      {
+        element: <DeliveryVideoPage />,
+        path: "/courier/return-device",
       },
       {
         element: (
@@ -258,6 +262,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/wrong-device/reports",
+      },
+      {
+        element: (
+          <MainLayout>
+            <ViewImageLayout>
+              <CourierReturnReport />
+            </ViewImageLayout>
+          </MainLayout>
+        ),
+        path: "/courier/return-device/reports",
       },
       {
         element: (
@@ -1294,27 +1308,7 @@ export const router = createBrowserRouter([
     path: "/login",
   },
 
-  {
-    element: (
-      <Protected authentication={false}>
-        {/* <AuthLayout> */}
-        <RecoveryPassword />
-        {/* </AuthLayout> */}
-      </Protected>
-    ),
-    path: "/password-recovery",
-  },
 
-  {
-    element: (
-      <Protected authentication={false}>
-        {/* <AuthLayout> */}
-        <ForgotPassword />
-        {/* </AuthLayout> */}
-      </Protected>
-    ),
-    path: "/forgot-password",
-  },
   {
     element: (
       <Protected authentication={true}>

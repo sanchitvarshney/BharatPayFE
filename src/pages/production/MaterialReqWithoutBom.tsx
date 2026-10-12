@@ -53,6 +53,15 @@ type Formstate = {
   checkbox: boolean;
 };
 
+
+const NON_TRC_PART_CODES = ["BT0001"];
+
+const isNonTrcItem = (label?: string) =>
+  !!label &&
+  NON_TRC_PART_CODES.some((code) =>
+    label.toUpperCase().includes(code.toUpperCase()),
+  );
+
 const MaterialReqWithoutBom = () => {
   const [rowData, setRowData] = useState<RowData[]>([]);
   const [location, setLocation] = useState<LocationType | null>(null);
@@ -63,6 +72,7 @@ const MaterialReqWithoutBom = () => {
   // const { locationData, getLocationLoading } = useAppSelector((state) => state.divicemin);
   const [open, setOpen] = useState<boolean>(false);
   const [reqType, setReqType] = useState<string>("");
+  const [trcDialogOpen, setTrcDialogOpen] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
   const handleTypeChange = (e: string) => {
@@ -83,7 +93,7 @@ const MaterialReqWithoutBom = () => {
     reset,
     control,
     watch,
-
+    setValue,
     formState: { errors },
   } = useForm<Formstate>({
     defaultValues: {
@@ -153,7 +163,13 @@ const MaterialReqWithoutBom = () => {
             putLocation: data.location!.code,
             comment: data.remarks,
             cc: data.cc?.id || "",
-            forTrc: type === "device" ? "1" : data.checkbox ? "1" : "0",
+            forTrc: hasNonTrcItem
+              ? "0"
+              : type === "device"
+                ? "1"
+                : data.checkbox
+                  ? "1"
+                  : "0",
           }),
         ).then((res: any) => {
           if (res.payload?.data.success) {
@@ -194,6 +210,21 @@ const MaterialReqWithoutBom = () => {
       setLocationdetail(locationDetail || "");
     }
   }, [location]);
+
+  const nonTrcItems: string[] = rowData
+    .map((row: any) => row.code?.label)
+    .filter((label) => isNonTrcItem(label));
+  const hasNonTrcItem = nonTrcItems.length > 0;
+
+  useEffect(() => {
+    if (hasNonTrcItem) {
+      if (watch("checkbox") || type === "device") {
+        setTrcDialogOpen(true);
+      }
+      setValue("checkbox", false);
+    }
+  }, [rowData]);
+
   return (
     <div>
       <Dialog
@@ -413,8 +444,11 @@ const MaterialReqWithoutBom = () => {
                       id="terms"
                       className="data-[state=checked]:bg-cyan-800 data-[state=checked]:text-[#fff] border-slate-400"
                       {...register("checkbox")}
-                      checked={type === "device" || !!watch("checkbox")} // Always checked when type is "SKU"
-                      disabled={type === "device"}
+                      checked={
+                        !hasNonTrcItem &&
+                        (type === "device" || !!watch("checkbox"))
+                      }
+                      disabled={type === "device" || hasNonTrcItem}
                     />
                     <label
                       htmlFor="terms"
@@ -423,6 +457,49 @@ const MaterialReqWithoutBom = () => {
                       Directly Move To TRC
                     </label>
                   </div>
+                  <Dialog
+                    open={trcDialogOpen}
+                    onClose={() => setTrcDialogOpen(false)}
+                    maxWidth="xs"
+                    fullWidth
+                  >
+                    <DialogTitle
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      <Icons.info color="primary" />
+                      Not Moving Directly To TRC
+                    </DialogTitle>
+                    <DialogContent>
+                      <Typography variant="body2" sx={{ mb: 1.5 }}>
+                        You have selected the item below, so{" "}
+                        <b>Directly Move To TRC</b> has been unchecked for
+                        this request.
+                      </Typography>
+                      <div className="p-[10px] rounded border border-neutral-200 bg-neutral-50">
+                        <ul className="pl-[18px] m-0 list-disc">
+                          {nonTrcItems.map((label, i) => (
+                            <li key={i}>
+                              <Typography variant="body2" fontWeight={600}>
+                                {label}
+                              </Typography>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <Typography variant="body2" sx={{ mt: 1.5 }}>
+                        If you want to do MIN for this device, you can't do MIN
+                        for the <b>other components</b>.
+                      </Typography>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 2 }}>
+                      <Button
+                        variant="contained"
+                        onClick={() => setTrcDialogOpen(false)}
+                      >
+                        OK, Got It
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
                 </CardContent>
                 <CardFooter className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
                   <LoadingButton

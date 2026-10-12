@@ -24,6 +24,7 @@ import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl';
 import ImageIcon from '@mui/icons-material/Image';
 import SummarizeIcon from '@mui/icons-material/Summarize';
+import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 
 export const Icons = {
   save: SaveIcon,
@@ -50,7 +51,8 @@ export const Icons = {
   transfer:SwapHorizontalCircleIcon,
   procurement: FormatListNumberedRtlIcon,
   image:ImageIcon,
-  summary:SummarizeIcon
+  summary:SummarizeIcon,
+  openBox:OpenInBrowserIcon
 };
 
 type IconName = keyof typeof Icons | string;

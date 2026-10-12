@@ -77,18 +77,7 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
       sortable: true,
       filter: true,
     },
-    {
-      headerName: "Department",
-      field: "department",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Rate",
-      field: "rate",
-      sortable: true,
-      filter: true,
-    },
+ 
 
     {
       headerName: "Is Enabled",

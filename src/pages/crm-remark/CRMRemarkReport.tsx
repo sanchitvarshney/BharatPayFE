@@ -46,12 +46,13 @@ const CRMRemarkReport: React.FC = () => {
     }
     const data = serials.map((row) => ({
       serial_number: row.serial,
+      awb_no: row.awb,
       remark_updated_date: row.date,
       insert_date: row.insertDt,
       status: row.status,
     }));
     const worksheet = XLSX.utils.json_to_sheet(data, {
-      header: ["serial_number", "remark_updated_date", "insert_date", "status"],
+      header: ["serial_number", "awb_no", "remark_updated_date", "insert_date", "status"],
 
     });
     const workbook = XLSX.utils.book_new();
@@ -70,6 +71,12 @@ const CRMRemarkReport: React.FC = () => {
     {
       headerName: "Serial Number",
       field: "serial",
+      minWidth: 200,
+      headerClass: "font-semibold",
+    },
+        {
+      headerName: "AWB No.",
+      field: "awb",
       minWidth: 200,
       headerClass: "font-semibold",
     },
