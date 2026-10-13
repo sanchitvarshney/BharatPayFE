@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import HomeIcon from "@mui/icons-material/Home";
 import dayjs from "dayjs";
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   Checkbox,
@@ -50,8 +52,13 @@ const statusChip: Record<
 
 const AdminApprovalPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const reqId = searchParams.get("req_id") || "";
-  const token = searchParams.get("token") || "";
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pathParams = new URLSearchParams(
+    location.pathname.split("/po/adminApprovalPage/")[1] || ""
+  );
+  const reqId = searchParams.get("req_id") || pathParams.get("req_id") || "";
+  const token = searchParams.get("token") || pathParams.get("token") || "";
 
   const [loading, setLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -185,10 +192,27 @@ const AdminApprovalPage: React.FC = () => {
         elevation={2}
       >
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
-          <Typography variant="h5" fontWeight={600} gutterBottom>
-            Vendor Rate Approval
-          </Typography>
-          
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1,
+              mb: 1,
+            }}
+          >
+            <Typography variant="h5" fontWeight={600}>
+              Vendor Rate Approval
+            </Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<HomeIcon />}
+              onClick={() => navigate("/")}
+            >
+              Home
+            </Button>
+          </Box>
 
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
@@ -216,8 +240,6 @@ const AdminApprovalPage: React.FC = () => {
                     ["Vendor", requestInfo.vendor_name],
                     ["Requested By", requestInfo.requested_by],
                     ["Requested On", formatDateTime(requestInfo.created_at)],
-                    ["Action By", requestInfo.action_by || "--"],
-                    ["Action Date", formatDateTime(requestInfo.action_date)],
                   ].map(([label, value]) => (
                     <Box key={label}>
                       <Typography variant="caption" color="text.secondary">

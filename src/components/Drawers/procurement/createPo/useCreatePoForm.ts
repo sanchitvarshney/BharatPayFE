@@ -14,8 +14,9 @@ import {
   getShippingAddress,
 } from "@/features/master/client/clientSlice";
 import { getCurrency } from "@/features/common/commonSlice";
-import { createPO } from "@/features/procurement/poSlices";
+import { createPO, getPOComponentDetail } from "@/features/procurement/poSlices";
 import { ComponentPoVendor } from "@/features/procurement/poTypes";
+import { RateApprovalItem } from "@/features/procurement/poRateService";
 import { CreatePoDrawerProps, ComponentRow, CurrencyOption } from "./types";
 import {
   STEPS,
@@ -64,6 +65,8 @@ export function useCreatePoForm({ open, setOpen, details, onSuccess }: CreatePoD
   const [fallbackShip, setFallbackShip] = useState<{ id: string; text: string } | null>(null);
 
   const [rows, setRows] = useState<ComponentRow[]>([]);
+  const [approvalOpen, setApprovalOpen] = useState(false);
+  const [approvalItems, setApprovalItems] = useState<RateApprovalItem[]>([]);
 
   const currencyOptions = useMemo<CurrencyOption[]>(
     () => (transformSkuCode(currencyData) as CurrencyOption[]) ?? [],
@@ -140,6 +143,47 @@ export function useCreatePoForm({ open, setOpen, details, onSuccess }: CreatePoD
       if (match) setShipAddr(match);
     }
   }, [fallbackShip, shippingAddress]);
+
+
+  const vendorId = vendor?.id;
+  useEffect(() => {
+    if (!open || !details) return;
+    if (!vendorId) {
+      setRows((prev) => prev.map((row) => ({ ...row, initialRate: undefined })));
+      return;
+    }
+    let cancelled = false;
+    const keys = Array.from(
+      new Set(details.components.map((c) => toRow(c).componentKey).filter(Boolean)),
+    );
+    Promise.all(
+      keys.map((key) =>
+        dispatch(getPOComponentDetail({ id: key, vendor_id: vendorId })).then((res: any) => ({
+          key,
+          data: res.payload?.data?.status === "success" ? res.payload.data.data : null,
+        })),
+      ),
+    ).then((results) => {
+      if (cancelled) return;
+      setRows((prev) =>
+        prev.map((row) => {
+          const comp = results.find((r) => r.key === row.componentKey)?.data;
+          if (!comp) return { ...row, initialRate: undefined };
+          const hasRate = comp.rate != null && comp.rate !== "";
+          return {
+            ...row,
+            hsnCode: comp.hsn ? String(comp.hsn) : row.hsnCode,
+            gstRate: comp.gst_rate != null && comp.gst_rate !== "" ? String(comp.gst_rate) : row.gstRate,
+            rate: hasRate ? String(comp.rate) : row.rate,
+            initialRate: hasRate ? Number(comp.rate) : undefined,
+          };
+        }),
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, details, vendorId, dispatch]);
 
   const totals = useMemo(
     () =>
@@ -281,6 +325,8 @@ export function useCreatePoForm({ open, setOpen, details, onSuccess }: CreatePoD
     setFallbackShip(null);
     setRows([]);
     setConfirmOpen(false);
+    setApprovalOpen(false);
+    setApprovalItems([]);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -359,10 +405,48 @@ export function useCreatePoForm({ open, setOpen, details, onSuccess }: CreatePoD
         "error",
       );
     }
+    const exceededRates: RateApprovalItem[] = rows
+      .map((row, i) => ({ row, i }))
+      .filter(({ row }) => row.initialRate != null && Number(row.rate) > Number(row.initialRate))
+      .map(({ row, i }) => ({
+        id: `${row.componentKey}-${i}`,
+        componentKey: row.componentKey,
+        componentLabel: row.componentName || row.partNo || row.componentKey,
+        initialRate: Number(row.initialRate),
+        enteredRate: Number(row.rate),
+      }));
+    if (exceededRates.length > 0) {
+      setApprovalItems(exceededRates);
+      setApprovalOpen(true);
+      return;
+    }
     setConfirmOpen(true);
   }, [validateStep, rows]);
 
   const closeConfirm = useCallback(() => setConfirmOpen(false), []);
+
+  const handleApprovalClose = useCallback(() => {
+    handleClose();
+  }, [handleClose]);
+
+  const handleApprovalSubmit = useCallback(() => {
+    setApprovalOpen(false);
+    setConfirmOpen(true);
+  }, []);
+
+  const handleRatesApproved = useCallback(
+    (approvedRates: { componentKey: string; rate: number }[]) => {
+      setRows((prev) =>
+        prev.map((row) => {
+          const approved = approvedRates.find((rate) => rate.componentKey === row.componentKey);
+          return approved ? { ...row, initialRate: approved.rate } : row;
+        }),
+      );
+      setApprovalOpen(false);
+      setApprovalItems([]);
+    },
+    [],
+  );
 
   const handleSubmit = useCallback(() => {
     for (let s = 0; s <= 2; s += 1) {
@@ -521,6 +605,12 @@ export function useCreatePoForm({ open, setOpen, details, onSuccess }: CreatePoD
     confirmOpen,
     openConfirm,
     closeConfirm,
+
+    approvalOpen,
+    approvalItems,
+    handleApprovalClose,
+    handleApprovalSubmit,
+    handleRatesApproved,
 
     handleClose,
     goToStep,
