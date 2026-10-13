@@ -16,6 +16,7 @@ import { showToast } from "@/utils/toasterContext";
 import {
   ColDef,
   ICellRendererParams,
+  IRowNode,
   SelectionChangedEvent,
 } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
@@ -23,12 +24,22 @@ import { LoadingButton } from "@mui/lab";
 import {
   Chip,
   FormControl,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
   TextField,
 } from "@mui/material";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const deviceTypeOptions: {
   label: string;
@@ -38,7 +49,6 @@ const deviceTypeOptions: {
   { label: "Soundbox", value: "soundbox" },
 ];
 
-// Some report cells arrive as reference objects, e.g. { comp_name, comp_key }.
 const extractCellText = (value: unknown): string => {
   if (value && typeof value === "object") {
     const obj = value as Record<string, unknown>;
@@ -88,22 +98,60 @@ const formatReportValue = (
 type StatusTone = "success" | "warning" | "danger" | "neutral";
 
 const STATUS_TONE_SX: Record<StatusTone, Record<string, string>> = {
-  success: { color: "#047857", backgroundColor: "#ecfdf5", borderColor: "#a7f3d0" },
-  warning: { color: "#b45309", backgroundColor: "#fffbeb", borderColor: "#fde68a" },
-  danger: { color: "#b91c1c", backgroundColor: "#fef2f2", borderColor: "#fecaca" },
-  neutral: { color: "#475569", backgroundColor: "#f8fafc", borderColor: "#e2e8f0" },
+  success: {
+    color: "#047857",
+    backgroundColor: "#ecfdf5",
+    borderColor: "#a7f3d0",
+  },
+  warning: {
+    color: "#b45309",
+    backgroundColor: "#fffbeb",
+    borderColor: "#fde68a",
+  },
+  danger: {
+    color: "#b91c1c",
+    backgroundColor: "#fef2f2",
+    borderColor: "#fecaca",
+  },
+  neutral: {
+    color: "#475569",
+    backgroundColor: "#f8fafc",
+    borderColor: "#e2e8f0",
+  },
 };
 
 const getStatusTone = (value: string): StatusTone => {
   const normalized = value.trim().toLowerCase();
 
-  if (["ok", "available", "sufficient", "success", "in stock", "instock", "enough"].includes(normalized)) {
+  if (
+    [
+      "ok",
+      "available",
+      "sufficient",
+      "success",
+      "in stock",
+      "instock",
+      "enough",
+    ].includes(normalized)
+  ) {
     return "success";
   }
-  if (["low", "warning", "partial", "moderate", "reorder"].includes(normalized)) {
+  if (
+    ["low", "warning", "partial", "moderate", "reorder"].includes(normalized)
+  ) {
     return "warning";
   }
-  if (["short", "shortage", "purchase", "required", "error", "critical", "out of stock"].includes(normalized)) {
+  if (
+    [
+      "short",
+      "shortage",
+      "purchase",
+      "required",
+      "error",
+      "critical",
+      "out of stock",
+    ].includes(normalized)
+  ) {
     return "danger";
   }
   return "neutral";
@@ -125,7 +173,6 @@ const ReportStatusCellRenderer: React.FC<
         label={label}
         size="small"
         variant="outlined"
-      
         sx={{
           height: 22,
           fontSize: 12,
@@ -142,22 +189,45 @@ const ReportStatusCellRenderer: React.FC<
   );
 };
 
+const COLUMN_WIDTHS: Record<string, number> = {
+  sr_no: 80,
+  component: 220,
+};
+const DEFAULT_COLUMN_WIDTH = 100;
+
+// Text columns stay left aligned; everything else (numbers) aligns right.
+const LEFT_ALIGNED_KEYS = new Set(["sr_no", "status", "component", "part_code"]);
+
 const buildReportColumnDefs = (
   headers: ComponentPercentageReportHeader[],
 ): ColDef<ComponentPercentageReportItem>[] =>
   headers.map((header) => {
+    const columnWidth = COLUMN_WIDTHS[header.key] ?? DEFAULT_COLUMN_WIDTH;
+    const isLeftAligned = LEFT_ALIGNED_KEYS.has(header.key);
     const column: ColDef<ComponentPercentageReportItem> = {
       headerName: header.label,
       colId: header.key,
-      flex: 1,
-      minWidth: header.key === "sr_no" ? 120 : 250,
+      width: columnWidth,
+      maxWidth: columnWidth,
+      wrapText: true,
+      autoHeight: true,
+      headerClass: [
+        "[&_.ag-header-cell-text]:text-[11px]",
+        "[&_.ag-header-cell-text]:font-bold",
+        ...(isLeftAligned ? [] : ["ag-right-aligned-header"]),
+      ],
+      cellStyle: {
+        lineHeight: "20px",
+        paddingTop: 8,
+        paddingBottom: 8,
+        fontSize: 12,
+        textAlign: isLeftAligned ? "left" : "right",
+      },
       pinned:
         header.key === "status" || header.key === "sr_no" ? "left" : undefined,
-      filter: header.type !== "badge" && header.key !== "sr_no",
     };
 
     if (header.type === "string" || header.type === "badge") {
-      // Text / badge columns may hold reference objects — derive a plain string.
       column.valueGetter = (params) =>
         extractCellText(params.data?.[header.key]);
     } else {
@@ -172,6 +242,21 @@ const buildReportColumnDefs = (
 
     return column;
   });
+
+// The search box only matches part code and component name columns.
+const SEARCHABLE_COLUMN_PATTERN =
+  /^(component|part[\s_-]*(code|no|number)?|comp(onent)?[\s_-]*name)$/i;
+
+const getSearchableKeys = (
+  headers: ComponentPercentageReportHeader[],
+): string[] =>
+  headers
+    .filter(
+      (header) =>
+        SEARCHABLE_COLUMN_PATTERN.test(header.key) ||
+        SEARCHABLE_COLUMN_PATTERN.test(header.label.trim()),
+    )
+    .map((header) => header.key);
 
 const getComponentKey = (row: ComponentPercentageReportItem): string =>
   extractCellKey(
@@ -202,6 +287,37 @@ const MasterComponentPercentageReport: React.FC = () => {
   const [poDetails, setPoDetails] = useState<
     ComponentPoDetailsResponse["data"] | null
   >(null);
+  const [searchText, setSearchText] = useState("");
+  const [displayedCount, setDisplayedCount] = useState(0);
+
+  const searchableKeys = useMemo(
+    () => getSearchableKeys(reportHeaders ?? []),
+    [reportHeaders],
+  );
+  const normalizedSearch = searchText.trim().toLowerCase();
+
+  const isExternalFilterPresent = useCallback(
+    () => normalizedSearch.length > 0,
+    [normalizedSearch],
+  );
+
+  const doesExternalFilterPass = useCallback(
+    (node: IRowNode<ComponentPercentageReportItem>) =>
+      searchableKeys.some((key) =>
+        extractCellText(node.data?.[key])
+          .toLowerCase()
+          .includes(normalizedSearch),
+      ),
+    [searchableKeys, normalizedSearch],
+  );
+
+  useEffect(() => {
+    gridRef.current?.api?.onFilterChanged();
+  }, [normalizedSearch, searchableKeys]);
+
+  const updateDisplayedCount = useCallback(() => {
+    setDisplayedCount(gridRef.current?.api?.getDisplayedRowCount() ?? 0);
+  }, []);
 
   const columnDefs = useMemo<ColDef<ComponentPercentageReportItem>[]>(
     () => [
@@ -265,8 +381,12 @@ const MasterComponentPercentageReport: React.FC = () => {
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: true,
+      filter: false,
       sortable: true,
+      resizable: true,
+      suppressHeaderMenuButton: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
     };
   }, []);
 
@@ -302,10 +422,12 @@ const MasterComponentPercentageReport: React.FC = () => {
     });
   };
 
+  const totalRows = reportData?.length ?? 0;
+
   return (
-    <div className="h-full bg-white flex flex-col">
-      <div className="p-[20px] border-b border-neutral-300 flex items-end gap-[16px] flex-wrap">
-        <FormControl size="small" sx={{ width: 220 }}>
+    <div className="h-full bg-slate-50 flex flex-col">
+      <div className="px-[20px] py-[16px] bg-white border-b border-neutral-200 flex items-center gap-[12px] flex-wrap">
+        <FormControl size="small" sx={{ width: 200 }}>
           <InputLabel id="component-percentage-report-device-type-label">
             Device Type
           </InputLabel>
@@ -343,45 +465,118 @@ const MasterComponentPercentageReport: React.FC = () => {
           label="Total Device"
           value={totalDevice}
           onChange={(event) => setTotalDevice(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") handleSearch();
+          }}
           slotProps={{
             htmlInput: {
               min: 1,
             },
           }}
-          sx={{ width: 220 }}
+          sx={{ width: 180 }}
         />
         <LoadingButton
           loading={reportLoading}
           variant="contained"
+          disableElevation
+          startIcon={<SearchIcon />}
           onClick={handleSearch}
         >
           Search
         </LoadingButton>
-        <LoadingButton
-          loading={componentPoDetailsLoading}
-          variant="outlined"
-          onClick={handleCreatePO}
-          disabled={!selectedRows.length}
-        >
-          Create PO{selectedRows.length ? ` (${selectedRows.length})` : ""}
-        </LoadingButton>
       </div>
 
-      <div className="flex-1 overflow-hidden p-[20px]">
-        <div className="ag-theme-quartz h-full border border-neutral-300 rounded-md overflow-hidden">
-          <AgGridReact
-            ref={gridRef}
-            rowData={reportData ?? []}
-            columnDefs={columnDefs}
-            defaultColDef={defaultColDef}
-            loading={reportLoading}
-            loadingOverlayComponent={CustomLoadingOverlay}
-            overlayNoRowsTemplate={OverlayNoRowsTemplate}
-            pagination={false}
-            rowSelection="multiple"
-            suppressRowClickSelection
-            onSelectionChanged={handleSelectionChanged}
-          />
+      <div className="flex-1 overflow-hidden p-[16px] flex flex-col">
+        <div className="flex-1 flex flex-col bg-white border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
+          <div className="px-[16px] py-[10px] border-b border-neutral-200 flex items-center justify-between gap-[12px] flex-wrap">
+            <div className="flex items-center gap-[8px]">
+              <span className="text-[15px] font-semibold text-slate-700">
+                Component Report
+              </span>
+              <Chip
+                size="small"
+                label={
+                  normalizedSearch
+                    ? `${displayedCount} of ${totalRows}`
+                    : `${totalRows} rows`
+                }
+                sx={{ height: 22, fontSize: 12, fontWeight: 500 }}
+              />
+              {selectedRows.length > 0 && (
+                <Chip
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  label={`${selectedRows.length} selected`}
+                  onDelete={() => gridRef.current?.api?.deselectAll()}
+                  sx={{ height: 22, fontSize: 12, fontWeight: 500 }}
+                />
+              )}
+            </div>
+
+            <div className="flex items-center gap-[10px] ml-auto">
+              <TextField
+                size="small"
+                placeholder="Search part code or component name"
+                value={searchText}
+                onChange={(event) => setSearchText(event.target.value)}
+                disabled={!totalRows}
+                sx={{ width: 320 }}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: searchText ? (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          edge="end"
+                          aria-label="Clear search"
+                          onClick={() => setSearchText("")}
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : undefined,
+                  },
+                }}
+              />
+              <LoadingButton
+                loading={componentPoDetailsLoading}
+                variant="contained"
+                disableElevation
+                onClick={handleCreatePO}
+                disabled={!selectedRows.length}
+              >
+                Create PO
+                {selectedRows.length ? ` (${selectedRows.length})` : ""}
+              </LoadingButton>
+            </div>
+          </div>
+
+          <div className="ag-theme-quartz flex-1 overflow-hidden">
+            <AgGridReact
+              ref={gridRef}
+              rowData={reportData ?? []}
+              columnDefs={columnDefs}
+              defaultColDef={defaultColDef}
+              loading={reportLoading}
+              loadingOverlayComponent={CustomLoadingOverlay}
+              overlayNoRowsTemplate={OverlayNoRowsTemplate}
+              pagination={false}
+              rowSelection="multiple"
+              suppressRowClickSelection
+              suppressCellFocus
+              animateRows
+              isExternalFilterPresent={isExternalFilterPresent}
+              doesExternalFilterPass={doesExternalFilterPass}
+              onModelUpdated={updateDisplayedCount}
+              onSelectionChanged={handleSelectionChanged}
+            />
+          </div>
         </div>
       </div>
 
