@@ -23,6 +23,7 @@ import { SummaryPanel } from "./createPo/SummaryPanel";
 import { ComponentsDrawer } from "./createPo/ComponentsDrawer";
 import { VendorPickDialog } from "./createPo/VendorPickDialog";
 import { ConfirmSubmitDialog } from "./createPo/ConfirmSubmitDialog";
+import RateApprovalDialog from "@/pages/procurement/RateApprovalDialog";
 
 const STEP_CONTENT = [
   VendorStep,
@@ -141,6 +142,15 @@ const CreatePOFromComponentsDrawer: React.FC<CreatePoDrawerProps> = (props) => {
       <ComponentsDrawer form={form} />
       <VendorPickDialog form={form} />
       <ConfirmSubmitDialog form={form} />
+      <RateApprovalDialog
+        open={form.approvalOpen}
+        items={form.approvalItems}
+        vendorId={form.vendor?.id || ""}
+        submitting={loading}
+        onClose={form.handleApprovalClose}
+        onSubmit={form.handleApprovalSubmit}
+        onRatesApproved={form.handleRatesApproved}
+      />
     </>
   );
 };

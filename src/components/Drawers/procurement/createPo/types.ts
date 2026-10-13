@@ -17,6 +17,7 @@ export type ComponentRow = {
   lastQty: number;
   vendors: { id: string; name: string }[];
   enabled: boolean;
+  initialRate?: number;
 };
 
 export type PoTotals = { taxable: number; cgst: number; sgst: number; igst: number };

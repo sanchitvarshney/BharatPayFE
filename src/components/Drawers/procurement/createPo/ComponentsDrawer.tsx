@@ -62,6 +62,15 @@ const ComponentEditorRow = React.memo<RowProps>(({ row, index, onPatch }) => {
       </td>
       <td className="p-[8px]">
         <NumCell value={row.rate} onChange={(v) => patch({ rate: v })} />
+        {row.initialRate != null && (
+          <span
+            className={`mt-[2px] block text-[11px] ${
+              Number(row.rate) > Number(row.initialRate) ? "text-amber-600" : "text-slate-400"
+            }`}
+          >
+            Init: {row.initialRate}
+          </span>
+        )}
       </td>
       <td className="p-[8px]">
         <NumCell value={row.hsnCode} onChange={(v) => patch({ hsnCode: v })} text />
