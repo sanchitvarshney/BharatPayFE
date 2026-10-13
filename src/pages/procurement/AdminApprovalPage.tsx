@@ -27,6 +27,7 @@ import {
   RefreshApprovalDataResponse,
   RefreshApprovalItem,
 } from "@/features/procurement/poRateService";
+import { Refresh } from "@mui/icons-material";
 
 type DecisionStatus = "APPROVED" | "REJECTED";
 type RequestInfo = Omit<RefreshApprovalDataResponse["data"], "items">;
@@ -202,8 +203,17 @@ const AdminApprovalPage: React.FC = () => {
             }}
           >
             <Typography variant="h5" fontWeight={600}>
-              Vendor Rate Approval
+              Rate Approval
             </Typography>
+             <div className="flex gap-2">
+                 <Button
+              variant="outlined"
+              size="small"
+              startIcon={<Refresh />}
+              onClick={() => window.location.reload()}
+            >
+              Reload
+            </Button>
             <Button
               variant="outlined"
               size="small"
@@ -212,6 +222,7 @@ const AdminApprovalPage: React.FC = () => {
             >
               Home
             </Button>
+              </div>
           </Box>
 
           {loading ? (
