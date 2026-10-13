@@ -77,8 +77,9 @@ const MaterialInvardv2: React.FC = () => {
   const dispatch = useAppDispatch();
   const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
   const { documnetFileData, createminLoading, formdata } = useAppSelector((state) => state.rawmin);
+const url =  window.location.pathname
 
-  const {
+  const  {
     register,
     handleSubmit,
     control,
@@ -364,6 +365,7 @@ const MaterialInvardv2: React.FC = () => {
                         dispatch(getVendorBranchAsync(e!.id));
                       }}
                       label="Cost Center"
+                      pathName={url}
                     />
                   )}
                 />
