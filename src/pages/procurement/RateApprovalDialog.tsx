@@ -114,7 +114,6 @@ const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting
   return (
     <Dialog
       open={open}
-      // Not dismissible: no backdrop click, no Esc. Only the Close button ends the flow.
       onClose={() => {}}
       disableEscapeKeyDown
       maxWidth="md"

@@ -178,11 +178,11 @@ const ManagePO: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleEditChallan = () => {
-    const id = selectedRow.po_transaction.replaceAll("/", "_");
-    window.open(`/procurement/edit-po/${id}`, "_blank");
-    setAnchorEl(null);
-  };
+  // const handleEditChallan = () => {
+  //   const id = selectedRow.po_transaction.replaceAll("/", "_");
+  //   window.open(`/procurement/edit-po/${id}`, "_blank");
+  //   setAnchorEl(null);
+  // };
 
   const handleCancelPO = () => {
     setOpenCancelModal(true);
@@ -403,7 +403,7 @@ const ManagePO: React.FC = () => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleEditChallan}>Update PO</MenuItem>
+          {/* <MenuItem disabled onClick={handleEditChallan}>Update PO</MenuItem> */}
           <MenuItem onClick={handleViewPO}>View</MenuItem>
           <MenuItem onClick={handlePrintChallan}>Download</MenuItem>
           <MenuItem onClick={handleCancelPO}>Cancel</MenuItem>
