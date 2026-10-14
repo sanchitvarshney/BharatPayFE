@@ -60,7 +60,7 @@ const MinLayout: React.FC<Props> = ({ children }) => {
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
-                <Icons.sim fontSize="small" />
+             <Icons.grid fontSize="small" />
                 PO MIN
               </div>
             }
