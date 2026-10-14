@@ -18,6 +18,7 @@ type Props = {
   required?: boolean;
   size?: "small" | "medium";
   disabled?: boolean;
+  pathName?: string | null;
 };
 
 const SelectCostCenter: React.FC<Props> = ({
@@ -30,7 +31,8 @@ const SelectCostCenter: React.FC<Props> = ({
   variant = "outlined",
   required = false,
   size = "medium",
-  disabled = false
+  disabled = false,
+  pathName = "",
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [costCenterList, setCostCenterList] = useState<CostCenterType[]>([]);
@@ -40,7 +42,12 @@ const SelectCostCenter: React.FC<Props> = ({
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/backend/costcenter`);
-      setCostCenterList(response.data.data); // Update with fetched cost center list
+      const list: CostCenterType[] = response.data?.data ?? [];
+      if (pathName && pathName === "/raw-min") {
+        setCostCenterList(list.filter((item) => item.id !== "09a869f9-b2a6-47e6-8f3d-174a55f1a8a6"));
+      } else {
+        setCostCenterList(list);
+      }
     } catch (error) {
       console.error("Error fetching cost centers:", error);
     } finally {

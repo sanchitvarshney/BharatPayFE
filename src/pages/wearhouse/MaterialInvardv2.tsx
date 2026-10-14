@@ -77,8 +77,9 @@ const MaterialInvardv2: React.FC = () => {
   const dispatch = useAppDispatch();
   const { VendorBranchData, venderaddressdata, uploadInvoiceFileLoading } = useAppSelector((state) => state.divicemin);
   const { documnetFileData, createminLoading, formdata } = useAppSelector((state) => state.rawmin);
+const url =  window.location.pathname
 
-  const {
+  const  {
     register,
     handleSubmit,
     control,
@@ -261,11 +262,11 @@ const MaterialInvardv2: React.FC = () => {
           setAlert(false);
         }}
       />
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white h-full">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
 
-        <div className="h-[calc(100vh-100px)]   ">
-          <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
+        <div className="h-full flex flex-col overflow-hidden">
+          <div className="h-[50px] shrink-0 flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
             <Stepper activeStep={activeStep} className="w-full">
               {steps.map((label, index) => (
                 <Step key={index}>
@@ -276,7 +277,7 @@ const MaterialInvardv2: React.FC = () => {
           </div>
 
           {activeStep === 0 && (
-            <div className="h-[calc(100vh-200px)] py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
+            <div className="relative flex-1 min-h-0 py-[20px] sm:px-[10px] md:px-[30px] lg:px-[50px] flex flex-col gap-[20px] overflow-y-auto">
               <div id="primary-item-details" className="flex items-center w-full gap-3">
                 <div className="flex items-center gap-[5px]">
                   <Icons.user />
@@ -364,6 +365,7 @@ const MaterialInvardv2: React.FC = () => {
                         dispatch(getVendorBranchAsync(e!.id));
                       }}
                       label="Cost Center"
+                      pathName={url}
                     />
                   )}
                 />
@@ -488,12 +490,12 @@ const MaterialInvardv2: React.FC = () => {
             </div>
           )}
           {activeStep === 1 && (
-            <div className="h-[calc(100vh-200px)]   ">
+            <div className="flex-1 min-h-0">
               <RMMaterialsAddTablev2 rowData={rowData} setRowData={setRowData} setTotal={setTotal} />
             </div>
           )}
           {activeStep === 2 && (
-            <div className="h-[calc(100vh-200px)] flex items-center justify-center">
+            <div className="flex-1 min-h-0 flex items-center justify-center">
               <div className="flex flex-col justify-center gap-[10px]">
                 <Success />
                 <Typography variant="inherit" fontWeight={500}>
@@ -505,7 +507,7 @@ const MaterialInvardv2: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="h-[50px] border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
+          <div className="h-[50px] shrink-0 border-t border-neutral-300 flex items-center justify-end px-[20px] bg-neutral-50 gap-[10px] relative">
             {activeStep === 1 && (
               <div className={`absolute bottom-0 left-0 w-[500px] z-[10]  transition-all bg-white ${open ? "h-[290px]" : "h-[50px]"} border-r overflow-hidden`}>
                 <div className="h-[50px] bg-cyan-900 flex items-center pe-[20px] gap-[10px]">
