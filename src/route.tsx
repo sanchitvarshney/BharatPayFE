@@ -725,7 +725,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <MinLayout>
             <MINFromPO />
+            </MinLayout>
           </MainLayout>
         ),
         path: "/material-in-with-po",

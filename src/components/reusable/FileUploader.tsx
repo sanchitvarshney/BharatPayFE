@@ -77,6 +77,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ multiple = false, onFileCha
         {...getRootProps()}
         sx={{
           p: 3,
+          position: "relative", // contain dropzone's absolutely-positioned hidden input so it can't stretch the page
           border: "3px dashed #0e7490",
           borderRadius: 1,
           cursor: loading || disabled ? "not-allowed" : "pointer",

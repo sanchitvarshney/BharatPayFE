@@ -469,7 +469,7 @@ const MINFromPO = () => {
 
   return (
     <div>
-      <div className="flex bg-white h-[calc(100vh-50px)]">
+      <div className="flex bg-white h-[calc(100vh-100px)] ">
         {/* Items */}
         <div className="flex-1 min-w-0 flex flex-col bg-slate-50">
           <div className="px-[20px] py-[12px] bg-white border-b border-neutral-200 flex items-center justify-between gap-[12px] flex-wrap">
