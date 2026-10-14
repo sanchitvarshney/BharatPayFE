@@ -9,7 +9,7 @@ import { Icons } from "@/components/icons";
 import { generateUniqueId } from "@/utils/uniqueid";
 import POCellRenderer from "@/table/Cellrenders/POCellRenderer";
 interface RowData {
-  partComponent: { lable: string; value: string } | null;
+  partComponent: { label?: string; lable?: string; value: string } | null;
   qty: number;
   rate: string;
   taxableValue: number;
@@ -28,6 +28,7 @@ interface RowData {
   isNew?: boolean;
   excRate: number;
   uom: string;
+  initialRate?: number;
 }
 interface Totals {
   cgst: number;
@@ -42,8 +43,9 @@ type Props = {
   exchange:any
   currency:any
   gstTypeStatus:string
+  vendorId?: string
 };
-const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency,gstTypeStatus }) => {
+const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, currency,gstTypeStatus, vendorId }) => {
   const gridRef = useRef<AgGridReact<RowData>>(null);
   const getAllTableData = () => {
     const allData: RowData[] = [];
@@ -253,6 +255,7 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, 
         animateRows
         statusBar={statusBar}
         components={components}
+        context={{ vendorId }}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         defaultColDef={{
           resizable: true,

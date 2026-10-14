@@ -8,6 +8,7 @@ import MasterUOM from "./pages/master/MasterUOM";
 import MasterComponent from "./pages/master/MasterComponent";
 import MasterComponentPercentage from "./pages/master/MasterComponentPercentage";
 import MasterComponentPercentageReport from "./pages/master/MasterComponentPercentageReport";
+import PurchasedHistory from "./pages/master/PurchasedHistory";
 import MasterComponentsLayout from "./layouts/MasterComponentsLayout";
 import MasterComponentProductLayout from "./layouts/MasterComponentProductLayout";
 import MasterProductFg from "./pages/master/MasterProductFg";
@@ -99,6 +100,7 @@ import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
+import AdminApprovalPage from "@/pages/procurement/AdminApprovalPage";
 import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 import ManagePO from "./pages/procurement/ManagePO";
@@ -386,6 +388,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-components/report",
+      },
+       {
+        element: (
+          <MainLayout>
+            <PercentageComponentLayout>
+              <PurchasedHistory />
+            </PercentageComponentLayout>
+          </MainLayout>
+        ),
+        path: "/master-components/purchase-history",
       },
       {
         element: (
@@ -704,16 +716,7 @@ export const router = createBrowserRouter([
         ),
         path: "/procurement/edit-po/:id",
       },
-      {
-        element: (
-          <MainLayout>
-            <ProcurementLayout>
-              <ManagePO />
-            </ProcurementLayout>
-          </MainLayout>
-        ),
-        path: "/procurement/manage",
-      },
+ 
       {
         element: (
           <MainLayout>
@@ -1270,6 +1273,11 @@ export const router = createBrowserRouter([
         path: "/warehouse/part-code-conversion-report",
       },
     ],
+  },
+
+  {
+    path: "/po/adminApprovalPage/*",
+    element: <AdminApprovalPage />,
   },
   {
     path: "*",

@@ -56,9 +56,11 @@ import {
 } from "@/features/procurement/poSlices";
 import { useNavigate } from "react-router-dom";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+import RateApprovalDialog from "./RateApprovalDialog";
+import { RateApprovalItem } from "@/features/procurement/poRateService";
 
 interface RowData {
-  partComponent: { lable: string; value: string } | null;
+  partComponent: { label?: string; lable?: string; value: string } | null;
   qty: number;
   rate: string;
   taxableValue: number;
@@ -79,6 +81,7 @@ interface RowData {
   uom: string;
   updaterow?: string;
   poid?: string;
+  initialRate?: number;
 }
 
 interface Totals {
@@ -142,6 +145,9 @@ const CreatePO: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [rowData, setRowData] = useState<RowData[]>([]);
+  const [approvalOpen, setApprovalOpen] = useState<boolean>(false);
+  const [approvalItems, setApprovalItems] = useState<RateApprovalItem[]>([]);
+  const [pendingPayload, setPendingPayload] = useState<any>(null);
   const [gstTypeStatus, setGstTypeStatus] = useState<string>("L");
   const [total, setTotal] = useState<Totals>({
     cgst: 0,
@@ -334,30 +340,80 @@ const CreatePO: React.FC = () => {
             vendor_type: "v01",            
             poRemarks: watch("remarks") || "",
           };
-          if (isEdit) {
-            dispatch(updatePO(payload)).then((response: any) => {
-              if (response.payload.data.success) {
-                showToast(response.payload?.data?.message, "success");
-                resetall();
-                handleNext();
-                dispatch(resetFormData());
-                navigate("/procurement/manage");
-              }
-            });
-          } else {
-            dispatch(createPO(payload)).then((response: any) => {
-              if (response.payload.data.success) {
-                showToast(response.payload?.data?.message, "success");
-                resetall();
-                handleNext();
-                dispatch(resetFormData());
-                setMinno(response.payload?.data?.data.po_id);
-              }
-            });
+          // Rows whose rate is above the vendor's initial rate need admin approval first
+          const exceededRates: RateApprovalItem[] = rowData
+            .filter((item) => item.initialRate != null && Number(item.rate) > Number(item.initialRate))
+            .map((item) => ({
+              id: item.id,
+              componentKey: item.partComponent?.value || "",
+              componentLabel: item.partComponent?.label || item.partComponent?.lable || "",
+              initialRate: Number(item.initialRate),
+              enteredRate: Number(item.rate),
+            }));
+          if (exceededRates.length > 0) {
+            setApprovalItems(exceededRates);
+            setPendingPayload(payload);
+            setApprovalOpen(true);
+            return;
           }
+          submitPO(payload);
         }
       }
     }
+  };
+
+  const submitPO = (payload: any) => {
+    if (isEdit) {
+      dispatch(updatePO(payload)).then((response: any) => {
+        if (response.payload.data.success) {
+          showToast(response.payload?.data?.message, "success");
+          resetall();
+          handleNext();
+          dispatch(resetFormData());
+          navigate("/procurement/manage");
+        }
+      });
+    } else {
+      dispatch(createPO(payload)).then((response: any) => {
+        if (response.payload.data.success) {
+          showToast(response.payload?.data?.message, "success");
+          resetall();
+          handleNext();
+          dispatch(resetFormData());
+          setMinno(response.payload?.data?.data.po_id);
+        }
+      });
+    }
+  };
+
+
+  const handleApprovalClose = () => {
+    setApprovalOpen(false);
+    setApprovalItems([]);
+    setPendingPayload(null);
+    resetall();
+    dispatch(resetFormData());
+    setActiveStep(0);
+  };
+
+
+  const handleApprovalSubmit = () => {
+    setApprovalOpen(false);
+    submitPO(pendingPayload);
+    setPendingPayload(null);
+  };
+
+
+  const handleRatesApproved = (approvedRates: { componentKey: string; rate: number }[]) => {
+    setRowData((prev) =>
+      prev.map((item) => {
+        const approved = approvedRates.find((rate) => rate.componentKey === item.partComponent?.value);
+        return approved ? { ...item, initialRate: approved.rate } : item;
+      })
+    );
+    setApprovalOpen(false);
+    setApprovalItems([]);
+    setPendingPayload(null);
   };
   useEffect(() => {
     dispatch(getVendorAsync(null));
@@ -540,6 +596,15 @@ const CreatePO: React.FC = () => {
           setActiveStep(0);
           setAlert(false);
         }}
+      />
+      <RateApprovalDialog
+        open={approvalOpen}
+        items={approvalItems}
+        vendorId={formData?.vendorname?.id || watch("vendorname")?.id || ""}
+        submitting={loading}
+        onClose={handleApprovalClose}
+        onSubmit={handleApprovalSubmit}
+        onRatesApproved={handleRatesApproved}
       />
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white ">
         <MaterialInvardUploadDocumentDrawer open={upload} setOpen={setUpload} />
@@ -1160,6 +1225,7 @@ const CreatePO: React.FC = () => {
                 exchange={formData?.exchange}
                 currency={formData?.currency?.value}
                 gstTypeStatus={gstTypeStatus}
+                vendorId={formData?.vendorname?.id}
               />
             </div>
           )}
