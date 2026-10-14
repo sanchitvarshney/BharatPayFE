@@ -220,7 +220,7 @@ const AssemblyToTrc: React.FC = () => {
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         title="Transfer to TRC?"
-        content={`${rowData.length} device(s) will be transferred from Assembly to TRC. Do you want to continue?`}
+        content={`${rowData.length} device(s) will be transferred from Assembly to TRC and for all the devices issue(s) will be same. Do you want to continue?`}
         cancelText="Cancel"
         confirmText="Transfer"
         color="primary"
