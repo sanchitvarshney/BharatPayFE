@@ -128,6 +128,7 @@ import TransferPartData from "./pages/tranferPartCode/TransferPartData";
 import WorkersReports from "./pages/areaReport/WorkersReports";
 import DeviceTransferLayout from "./layouts/DeviceTransferLayout";
 import DeviceTransfer from "./pages/transferDevice/DeviceTransfer";
+import AssemblyToTrc from "./pages/transferDevice/AssemblyToTrc";
 import CreatePartCodeChallan from "@/pages/partCodeChallan/CreatePartCodeChallan";
 import CreatePartCodeChallanLayout from "@/layouts/CreatePartCodeChallanLayout";
 import SwipeTransferLayout from "./layouts/SwipeTransferLayout";
@@ -301,6 +302,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/device/transfer",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DeviceTransferLayout>
+              <AssemblyToTrc />
+            </DeviceTransferLayout>
+          </MainLayout>
+        ),
+        path: "/device/assembly-to-trc",
       },
       {
         element: (
