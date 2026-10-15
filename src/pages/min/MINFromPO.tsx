@@ -4,18 +4,18 @@ import {
   Typography,
   TextField,
   Button,
-  Card,
-  CardContent,
+  Chip,
+  Dialog,
+  DialogContent,
   Divider,
-  Stepper,
-  StepLabel,
-  Step,
   Skeleton,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import SearchIcon from "@mui/icons-material/Search";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import { showToast } from "@/utils/toasterContext";
 import { IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
@@ -45,77 +45,48 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import {  centerAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
-const VendorDetailSkeleton = () => (
-  <div className="space-y-5 mb-8">
-    <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
-      <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
-          <Skeleton variant="text" width={60} />
-          <Skeleton variant="text" width={120} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <Skeleton variant="text" width={70} />
-          <Skeleton variant="text" width="100%" height={40} />
-        </div>
-        <div className="flex justify-between items-center">
-          <Skeleton variant="text" width={50} />
-          <Skeleton variant="text" width={100} />
-        </div>
-      </div>
-    </div>
-    <div className="bg-slate-50 p-4 rounded-lg shadow-sm flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        <Skeleton variant="text" width={80} />
-        <Skeleton variant="text" width={60} />
-      </div>
-      <div className="flex justify-between items-center">
-        <Skeleton variant="text" width={100} />
-        <Skeleton variant="text" width={60} />
-      </div>
-    </div>
-    <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
-      <Typography
-        variant="subtitle2"
-        className="text-slate-600 mb-3 font-semibold"
-      >
-        Invoice & Location
-      </Typography>
-      <div className="flex flex-col gap-3">
-        <Skeleton variant="rectangular" height={40} />
-        <Skeleton variant="rectangular" height={40} />
-        <Skeleton variant="rectangular" height={40} />
-      </div>
-    </div>
-  </div>
+const EMPTY_TOTALS = {
+  totalValue: 0,
+  cgst: 0,
+  sgst: 0,
+  igst: 0,
+  afterTax: 0,
+};
+
+const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500 mb-[8px]">
+    {children}
+  </p>
 );
 
-const TaxDetailSkeleton = () => (
-  <Card className="border-0 rounded-lg shadow bg-slate-50">
-    <CardContent className="flex flex-col gap-4 p-4">
-      <div className="flex justify-between items-center">
-        <Skeleton variant="text" width={180} />
-        <Skeleton variant="text" width={80} />
-      </div>
-      <div className="flex justify-between items-center">
-        <Skeleton variant="text" width={60} />
-        <Skeleton variant="text" width={80} />
-      </div>
-      <div className="flex justify-between items-center">
-        <Skeleton variant="text" width={60} />
-        <Skeleton variant="text" width={80} />
-      </div>
-      <div className="flex justify-between items-center">
-        <Skeleton variant="text" width={60} />
-        <Skeleton variant="text" width={80} />
-      </div>
-      <Divider className="my-2" />
-      <div className="flex justify-between items-center">
-        <Skeleton variant="text" width={180} />
-        <Skeleton variant="text" width={80} />
-      </div>
-    </CardContent>
-  </Card>
+const DetailRow: React.FC<{
+  label: string;
+  value: React.ReactNode;
+  loading?: boolean;
+  stacked?: boolean;
+}> = ({ label, value, loading, stacked }) => (
+  <div
+    className={
+      stacked
+        ? "flex flex-col gap-[2px]"
+        : "flex justify-between items-start gap-[12px]"
+    }
+  >
+    <span className="text-[13px] text-slate-500 shrink-0">{label}</span>
+    {loading ? (
+      <Skeleton variant="text" width={stacked ? "100%" : 120} />
+    ) : (
+      <span
+        className={`text-[13px] font-medium text-slate-800 break-words ${
+          stacked ? "" : "text-right"
+        }`}
+      >
+        {value || "-"}
+      </span>
+    )}
+  </div>
 );
 
 const MINFromPO = () => {
@@ -134,14 +105,7 @@ const MINFromPO = () => {
   } | null>(null);
   const [minMessage, setMinMessage] = useState("");
   const [activeStep, setActiveStep] = useState(0);
-  const [totals, setTotals] = useState({
-    totalValue: 0,
-    cgst: 0,
-    sgst: 0,
-    igst: 0,
-    afterTax: 0,
-  });
-  const steps = ["PO Details", "Submit"];
+  const [totals, setTotals] = useState(EMPTY_TOTALS);
 
   const { loading, submitPOMINLoading,uploadMinInvoiceLoading } = useAppSelector((state) => state.po);
 
@@ -210,6 +174,11 @@ const MINFromPO = () => {
   );
 
   const handleSearchPO = async () => {
+    if (!poNumber.trim()) {
+      showToast("Please enter a PO number", "error");
+      return;
+    }
+
     dispatch(fetchDataForMIN(poNumber.trim())).then((res: any) => {
       if (res.payload.data.success) {
         const materials = res.payload.data.data.materials;
@@ -293,7 +262,9 @@ const MINFromPO = () => {
     {
       headerName: "#",
       valueGetter: "node.rowIndex + 1",
-      width: 50,
+      width: 55,
+      minWidth: 55,
+      resizable: false,
     },
     {
       headerName: "",
@@ -305,6 +276,8 @@ const MINFromPO = () => {
       headerName: "Action",
       field: "action",
       width: 80,
+      minWidth: 80,
+      resizable: false,
       sortable: false,
       filter: false,
       cellRenderer: (params: any) => (
@@ -322,30 +295,62 @@ const MINFromPO = () => {
     {
       headerName: "Part Component",
       field: "partComponent.lable",
-      minWidth: 300,
+      flex: 3,
+      minWidth: 260,
+      wrapText: true,
+      autoHeight: true,
+      cellStyle: { lineHeight: "20px", paddingTop: 8, paddingBottom: 8 },
     },
     {
       headerName: "Order Qty",
       field: "qty",
       cellRenderer: "textInputCellRenderer",
+      flex: 1.2,
+      minWidth: 140,
+    },
+    {
+      headerName: "HSN Code",
+      field: "hsnCode",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1.2,
+      minWidth: 120,
+      ...centerAlignedColumn,
+    },
+    {
+      headerName: "GST Type",
+      field: "gstType",
+      cellRenderer: "textInputCellRenderer",
+      flex: 1.2,
+      minWidth: 100,
+      ...centerAlignedColumn,
     },
     {
       headerName: "Pending Qty",
       field: "pendingQty",
+      flex: 1,
+      minWidth: 120,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Total Qty",
       field: "orderQty",
+      flex: 1,
+      minWidth: 100,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Unit",
       field: "uom",
+      flex: 0.8,
+      minWidth: 80,
+      ...centerAlignedColumn,
     },
     {
       headerName: "Rate",
       field: "rate",
-      cellRenderer: "textInputCellRenderer",
-      width: 200,
+      flex: 1,
+      minWidth: 100,
+      ...rightAlignedColumn,
     },
     // {
     //   headerName: "",
@@ -357,45 +362,55 @@ const MINFromPO = () => {
       headerName: "Taxable Value",
       field: "taxableValue",
       cellRenderer: "textInputCellRenderer",
+      flex: 1.3,
+      minWidth: 140,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Foreign Value",
       field: "foreignValue",
       cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "HSN Code",
-      field: "hsnCode",
-      cellRenderer: "textInputCellRenderer",
-    },
-    {
-      headerName: "GST Type",
-      field: "gstType",
-      cellRenderer: "textInputCellRenderer",
+      flex: 1.3,
+      minWidth: 140,
+      ...rightAlignedColumn,
     },
     {
       headerName: "GST Rate",
       field: "gstRate",
       cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 100,
+      ...rightAlignedColumn,
     },
     {
       headerName: "CGST",
       field: "cgst",
       cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 110,
+      ...rightAlignedColumn,
     },
     {
       headerName: "SGST",
       field: "sgst",
       cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 110,
+      ...rightAlignedColumn,
     },
     {
       headerName: "IGST",
       field: "igst",
       cellRenderer: "textInputCellRenderer",
+      flex: 1,
+      minWidth: 110,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Remarks",
       field: "remarks",
+      flex: 2,
+      minWidth: 180,
       // cellRenderer: "textInputCellRenderer",
     },
   ];
@@ -434,8 +449,10 @@ const MINFromPO = () => {
           setInvoiceNo("");
           setInvoiceDate("");
           setUrl("");
+          setFiles(null);
           setLocation(null);
           setVendorData(null);
+          setTotals(EMPTY_TOTALS);
           setActiveStep(1);
         }
       });
@@ -445,237 +462,66 @@ const MINFromPO = () => {
     }
   };
 
+  const handleCreateNew = () => {
+    setMinMessage("");
+    setActiveStep(0);
+  };
+
   return (
     <div>
-      <div className="h-[50px] flex items-center w-full px-[20px] bg-neutral-50 border-b border-neutral-300">
-        <Stepper activeStep={activeStep} className="w-full">
-          {steps.map((label, index) => (
-            <Step key={index}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </div>
-      {activeStep === 0 && (
-        <div className="minfrompo-root flex bg-white h-[calc(100vh-100px)]">
-          {/* {loading && <FullPageLoading />} */}
-          {/* Left Panel */}
-          <div className="minfrompo-left flex flex-col border-r border-neutral-300 min-w-[350px] max-w-[400px] bg-gray-50 h-[calc(100vh-100px)]">
-            <div className="overflow-y-auto flex-1 p-6">
-              <Card
-                variant="outlined"
-                className="bg-white shadow-md rounded-xl"
-              >
-                <CardContent className="p-6">
-                  <Typography
-                    variant="h6"
-                    fontWeight={700}
-                    className="text-slate-700 mb-6 sticky top-0 bg-white z-10"
-                  >
-                    Vendor Detail
-                  </Typography>
-                  {loading ? (
-                    <>
-                      <VendorDetailSkeleton />
-                      <Divider className="my-6" />
-                      <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        className="text-slate-700 mb-6 sticky top-0 bg-white z-10"
-                      >
-                        Tax Detail
-                      </Typography>
-                      <TaxDetailSkeleton />
-                    </>
-                  ) : (
-                    <>
-                      <div className="space-y-5 mb-8">
-                        <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
-                          <div className="flex flex-col gap-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-slate-600 font-medium">
-                                Name:
-                              </span>
-                              <span className="text-slate-900 font-semibold">
-                                {vendorData?.vendorname || "-"}
-                              </span>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <span className="text-slate-600 font-medium">
-                                Address:
-                              </span>
-                              <span className="text-slate-900 font-semibold break-words">
-                                {vendorData?.vendoraddress || "-"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-slate-600 font-medium">
-                                GSTIN:
-                              </span>
-                              <span className="text-slate-900 font-semibold">
-                                {vendorData?.gstin || "-"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="bg-slate-50 p-4 rounded-lg shadow-sm flex flex-col gap-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-600 font-medium">
-                              Currency:
-                            </span>
-                            <span className="text-slate-900 font-semibold">
-                              {vendorData?.currency_symbol || "-"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-600 font-medium">
-                              Exchange Rate:
-                            </span>
-                            <span className="text-slate-900 font-semibold">
-                              {vendorData?.exchange_rate || "-"}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="bg-slate-50 p-4 rounded-lg shadow-sm">
-                          <Typography
-                            variant="subtitle2"
-                            className="text-slate-600 mb-3 font-semibold"
-                          >
-                            Invoice & Location
-                          </Typography>
-                          <div className="flex flex-col gap-3">
-                            <TextField
-                              label="Invoice No."
-                              value={invoiceNo}
-                              onChange={(e) => setInvoiceNo(e.target.value)}
-                              required
-                              size="small"
-                              fullWidth
-                              className="bg-white"
-                              variant="standard"
-                            />
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label="Invoice Date"
-                                format="DD-MM-YYYY"
-                                value={invoiceDate ? dayjs(invoiceDate) : null}
-                                onChange={(value) =>
-                                  setInvoiceDate(
-                                    value ? value.format("YYYY-MM-DD") : ""
-                                  )
-                                }
-                                maxDate={dayjs()}
-                                slots={{ textField: TextField }}
-                                slotProps={{
-                                  textField: {
-                                    required: true,
-                                    size: "small",
-                                    fullWidth: true,
-                                    className: "bg-white",
-                                    variant: "standard",
-                                  },
-                                }}
-                              />
-                            </LocalizationProvider>
-                            <AntLocationSelectAcordinttoModule
-                              endpoint="/transaction/rm-inward-location"
-                              onChange={setLocation}
-                              value={location}
-                              label="Select Location"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <Divider className="my-6" />
-                      <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        className="text-slate-700 mb-6 sticky top-0 bg-white z-10"
-                      >
-                        Tax Detail
-                      </Typography>
-                      <Card className="border-0 rounded-lg shadow bg-slate-50">
-                        <CardContent className="flex flex-col gap-4 p-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-600 font-medium pr-6">
-                              Sub-Total value before Taxes
-                            </span>
-                            <span className="text-slate-900 font-semibold">
-                              {totals.totalValue.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-600 font-medium">
-                              CGST
-                            </span>
-                            <span className="text-slate-900 font-semibold">
-                              (+) {totals.cgst.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-600 font-medium">
-                              SGST
-                            </span>
-                            <span className="text-slate-900 font-semibold">
-                              (+) {totals.sgst.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-600 font-medium">
-                              IGST
-                            </span>
-                            <span className="text-slate-900 font-semibold">
-                              (+) {totals.igst.toFixed(2)}
-                            </span>
-                          </div>
-                          <Divider className="my-2" />
-                          <div className="flex justify-between items-center">
-                            <span className="text-slate-700 font-bold">
-                              Sub-Total values after Taxes
-                            </span>
-                            <span className="text-slate-900 font-bold">
-                              {totals.afterTax.toFixed(2)}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          {/* Right Panel */}
-          <div className="flex-1 flex flex-col p-8">
-            <div className="flex justify-between gap-2 mb-6 w-full">
-              <div className="flex gap-2">
-                <TextField
-                  fullWidth
-                  label="PO Number"
-                  size="small"
-                  value={poNumber}
-                  onChange={(e) => setPoNumber(e.target.value)}
-                />
-                <LoadingButton
-                  variant="contained"
-                  onClick={handleSearchPO}
-                  loading={loading}
-                >
-                  Search
-                </LoadingButton>
-              </div>
-              <Button
-                variant="contained"
-                color="success"
+      <div className="flex bg-white h-[calc(100vh-100px)] ">
+        {/* Items */}
+        <div className="flex-1 min-w-0 flex flex-col bg-slate-50">
+          <div className="px-[20px] py-[12px] bg-white border-b border-neutral-200 flex items-center justify-between gap-[12px] flex-wrap">
+            <div className="flex items-center gap-[10px]">
+              <TextField
+                label="PO Number"
                 size="small"
+                value={poNumber}
+                onChange={(e) => setPoNumber(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearchPO();
+                }}
+                sx={{ width: 280 }}
+              />
+              <LoadingButton
+                variant="contained"
+                disableElevation
+                startIcon={<SearchIcon />}
+                onClick={handleSearchPO}
+                loading={loading}
+                disabled={!poNumber.trim()}
+              >
+                Search
+              </LoadingButton>
+            </div>
+            <div className="flex items-center gap-[10px]">
+              {url ? (
+                <Chip
+                  size="small"
+                  color="success"
+                  variant="outlined"
+                  icon={<CheckCircleIcon />}
+                  label="Invoice uploaded"
+                />
+              ) : (
+                <span className="text-[12px] text-slate-500">
+                  Invoice not uploaded
+                </span>
+              )}
+              <Button
+                variant="outlined"
+                color="success"
                 startIcon={<UploadFileIcon />}
                 onClick={() => setSheetOpen(true)}
-                className="w-40"
               >
-                Upload Docs
+                {url ? "Replace Invoice" : "Upload Invoice"}
               </Button>
             </div>
-            <div className="ag-theme-quartz rounded shadow h-[calc(100vh-150px)] bg-white">
+          </div>
+
+          <div className="flex-1 min-h-0 p-[0px]">
+            <div className="ag-theme-quartz h-full bg-white rounded-lg border border-neutral-200 overflow-hidden">
               <AgGridReact
                 ref={gridRef}
                 overlayNoRowsTemplate={OverlayNoRowsTemplate}
@@ -686,112 +532,222 @@ const MINFromPO = () => {
                 onCellValueChanged={onCellValueChanged}
               />
             </div>
-            <div className="flex justify-center mt-4">
-              <LoadingButton
-                variant="contained"
-                color="primary"
-                loading={submitPOMINLoading}
-                onClick={handleSubmit}
-                className="w-40"
-              >
-                Submit
-              </LoadingButton>
-            </div>
+          </div>
+        </div>
+
+        {/* Vendor, invoice and tax summary */}
+        <aside className="w-[360px] shrink-0 flex flex-col border-l border-neutral-300 bg-white">
+          <div className="h-[49px] px-[20px] flex items-center border-b border-neutral-200">
+            <Typography variant="subtitle1" fontWeight={700} className="text-slate-700">
+              Vendor Detail
+            </Typography>
           </div>
 
-          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetContent
-              className="min-w-[35%] p-0"
-              onInteractOutside={(e: any) => {
-                e.preventDefault();
-              }}
+          <div className="flex-1 overflow-y-auto px-[20px] py-[16px] flex flex-col gap-[20px]">
+            <section>
+              <SectionTitle>Vendor</SectionTitle>
+              <div className="flex flex-col gap-[8px]">
+                <DetailRow label="Name" value={vendorData?.vendorname} loading={loading} />
+                <DetailRow label="GSTIN" value={vendorData?.gstin} loading={loading} />
+                <DetailRow label="Address" value={vendorData?.vendoraddress} loading={loading} stacked />
+              </div>
+            </section>
+
+            <Divider />
+
+            <section>
+              <SectionTitle>Currency</SectionTitle>
+              <div className="flex flex-col gap-[8px]">
+                <DetailRow label="Currency" value={vendorData?.currency_symbol} loading={loading} />
+                <DetailRow label="Exchange Rate" value={vendorData?.exchange_rate} loading={loading} />
+              </div>
+            </section>
+
+            <Divider />
+
+            <section>
+              <SectionTitle>Invoice & Location</SectionTitle>
+              <div className="flex flex-col gap-[14px]">
+                <TextField
+                  label="Invoice No."
+                  value={invoiceNo}
+                  onChange={(e) => setInvoiceNo(e.target.value)}
+                  required
+                  size="small"
+                  fullWidth
+                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Invoice Date"
+                    format="DD-MM-YYYY"
+                    value={invoiceDate ? dayjs(invoiceDate) : null}
+                    onChange={(value) =>
+                      setInvoiceDate(value ? value.format("YYYY-MM-DD") : "")
+                    }
+                    maxDate={dayjs()}
+                    slots={{ textField: TextField }}
+                    slotProps={{
+                      textField: {
+                        required: true,
+                        size: "small",
+                        fullWidth: true,
+                      },
+                      openPickerButton: { size: "small", edge: "end" },
+                      openPickerIcon: { fontSize: "small" },
+                    }}
+                  />
+                </LocalizationProvider>
+                <AntLocationSelectAcordinttoModule
+                  endpoint="/transaction/rm-inward-location"
+                  onChange={setLocation}
+                  value={location}
+                  label="Select Location"
+                />
+              </div>
+            </section>
+
+            <Divider />
+
+            <section>
+              <SectionTitle>Tax Detail</SectionTitle>
+              <div className="flex flex-col gap-[8px]">
+                <DetailRow label="Sub-total before taxes" value={totals.totalValue.toFixed(2)} loading={loading} />
+                <DetailRow label="CGST" value={`(+) ${totals.cgst.toFixed(2)}`} loading={loading} />
+                <DetailRow label="SGST" value={`(+) ${totals.sgst.toFixed(2)}`} loading={loading} />
+                <DetailRow label="IGST" value={`(+) ${totals.igst.toFixed(2)}`} loading={loading} />
+              </div>
+            </section>
+          </div>
+
+          <div className="px-[20px] py-[14px] border-t border-neutral-200 bg-slate-50 flex flex-col gap-[12px]">
+            <div className="flex justify-between items-center">
+              <span className="text-[13px] font-semibold text-slate-600">
+                Total after taxes
+              </span>
+              <span className="text-[18px] font-bold text-slate-900">
+                {totals.afterTax.toFixed(2)}
+              </span>
+            </div>
+            <LoadingButton
+              variant="contained"
+              color="primary"
+              disableElevation
+              fullWidth
+              loading={submitPOMINLoading}
+              onClick={handleSubmit}
+              disabled={!rowData.length}
             >
-              <SheetHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400">
-                <SheetTitle className="text-slate-600">
-                  Upload Docs here
-                </SheetTitle>
-              </SheetHeader>
-              <div className="ag-theme-quartz h-[calc(100vh-100px)] w-full">
-                <FileUploader
-                  value={files}
-                  onValueChange={handleFileChange}
-                  dropzoneOptions={{
-                    accept: {
-                      "image/*": [".jpg", ".jpeg", ".png", ".gif", ".pdf"],
-                    },
-                    maxFiles: 5,
-                    maxSize: 4 * 1024 * 1024, // 4 MB
-                    multiple: true,
-                  }}
-                >
-                  <div className="bg-white border border-gray-300 rounded-lg shadow-lg h-[120px] p-[20px] m-[20px]">
-                    <h2 className="text-xl font-semibold text-center mb-4">
-                      <div className="text-center w-full justify-center flex">
-                        <div>Upload Your Files</div>
-                        <div>
-                          <IoCloudUpload
-                            className="text-cyan-700 ml-5 h-[20]"
-                            size={"1.5rem"}
-                          />
-                        </div>
-                      </div>
-                    </h2>
-                    <FileInput>
-                      <span className="text-slate-500 text-sm text-center w-full justify-center flex">
-                        Drag and drop files here, or click to select files
-                      </span>
-                    </FileInput>
-                  </div>
-                  <div className="m-[20px]">
-                    <FileUploaderContent>
-                      {files?.map((file, index) => (
-                        <FileUploaderItem key={index} index={index}>
-                          <span>{file.name}</span>
-                        </FileUploaderItem>
-                      ))}
-                    </FileUploaderContent>
-                  </div>
-                </FileUploader>
-              </div>
-              <div className="bg-white border-t shadow border-slate-300 h-[50px] flex items-center justify-end gap-[20px] px-[20px]">
-                <Button
-                  className="rounded-md shadow bg-cyan-700 hover:bg-cyan-600 shadow-slate-500 max-w-max px-[30px]"
-                  onClick={() => setSheetOpen(false)}
-                >
-                  Back
-                </Button>
-                <LoadingButton
-                  onClick={uploadDocs}
-                  sx={{
-                    backgroundColor: "#217346",
-                    "&:hover": {
-                      backgroundColor: "#2fa062",
-                    },
-                    color: "white",
-                  }}
-                  variant="contained"
-                  loading={uploadMinInvoiceLoading}
-                >
-                  Upload
-                </LoadingButton>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      )}
-      {activeStep === 1 && (
-        <div className="h-[calc(100vh-200px)] flex items-center justify-center bg-white">
-          <div className="flex flex-col justify-center gap-[10px]">
-            <Success />
-            <Typography variant="inherit" fontWeight={500}>
-              {minMessage}
-            </Typography>
-            <LoadingButton onClick={() => setActiveStep(0)} variant="contained">
-              Create New PO MIN
+              Submit
             </LoadingButton>
           </div>
-        </div>
-      )}
+        </aside>
+
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetContent
+            className="min-w-[35%] p-0"
+            onInteractOutside={(e: any) => {
+              e.preventDefault();
+            }}
+          >
+            <SheetHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400">
+              <SheetTitle className="text-slate-600">
+                Upload Invoice
+              </SheetTitle>
+            </SheetHeader>
+            <div className="ag-theme-quartz h-[calc(100vh-100px)] w-full">
+              <FileUploader
+                value={files}
+                onValueChange={handleFileChange}
+                dropzoneOptions={{
+                  accept: {
+                    "image/*": [".jpg", ".jpeg", ".png", ".gif", ".pdf"],
+                  },
+                  maxFiles: 5,
+                  maxSize: 4 * 1024 * 1024, // 4 MB
+                  multiple: true,
+                }}
+              >
+                <div className="bg-white border border-dashed border-gray-300 rounded-lg h-[120px] p-[20px] m-[20px]">
+                  <h2 className="text-xl font-semibold text-center mb-4">
+                    <div className="text-center w-full justify-center flex">
+                      <div>Upload Your Files</div>
+                      <div>
+                        <IoCloudUpload
+                          className="text-cyan-700 ml-5 h-[20]"
+                          size={"1.5rem"}
+                        />
+                      </div>
+                    </div>
+                  </h2>
+                  <FileInput>
+                    <span className="text-slate-500 text-sm text-center w-full justify-center flex">
+                      Drag and drop files here, or click to select files
+                    </span>
+                  </FileInput>
+                </div>
+                <div className="m-[20px]">
+                  <FileUploaderContent>
+                    {files?.map((file, index) => (
+                      <FileUploaderItem key={index} index={index}>
+                        <span>{file.name}</span>
+                      </FileUploaderItem>
+                    ))}
+                  </FileUploaderContent>
+                </div>
+              </FileUploader>
+            </div>
+            <div className="bg-white border-t border-slate-300 h-[50px] flex items-center justify-end gap-[12px] px-[20px]">
+              <Button variant="outlined" color="inherit" onClick={() => setSheetOpen(false)}>
+                Back
+              </Button>
+              <LoadingButton
+                onClick={uploadDocs}
+                color="success"
+                variant="contained"
+                disableElevation
+                disabled={!files?.length}
+                loading={uploadMinInvoiceLoading}
+              >
+                Upload
+              </LoadingButton>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <Dialog
+        open={activeStep === 1}
+        disableEscapeKeyDown
+        maxWidth="xs"
+        fullWidth
+        slotProps={{
+          backdrop: {
+            sx: {
+              backgroundColor: "rgba(15, 23, 42, 0.45)",
+              backdropFilter: "blur(3px)",
+            },
+          },
+        }}
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogContent className="flex flex-col items-center text-center gap-[12px] py-[32px]">
+          <Success />
+          <Typography variant="h6" fontWeight={700} className="text-slate-800">
+            MIN Created
+          </Typography>
+          <Typography variant="body2" className="text-slate-600">
+            {minMessage}
+          </Typography>
+          <LoadingButton
+            onClick={handleCreateNew}
+            variant="contained"
+            disableElevation
+            sx={{ mt: 1 }}
+          >
+            Create New PO MIN
+          </LoadingButton>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
