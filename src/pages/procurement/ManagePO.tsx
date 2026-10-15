@@ -39,7 +39,11 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { setDateRange } from "@/features/procurement/poSlices";
 import ViewPOModal from "@/pages/procurement/ViewPOModal";
-import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
+import {
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
+import { Typography } from "antd";
 const ManagePO: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -58,8 +62,6 @@ const ManagePO: React.FC = () => {
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
   const [cancelReason, setCancelReason] = useState<string>("");
   const [openViewPOModal, setOpenViewPOModal] = useState<boolean>(false);
-
-
 
   const columnDefs: ColDef[] = [
     {
@@ -131,7 +133,7 @@ const ManagePO: React.FC = () => {
       headerName: "Created At",
       field: "po_reg_date",
       sortable: true,
-         maxWidth: 120,
+      maxWidth: 120,
       ...leftAlignedColumn,
     },
     {
@@ -139,17 +141,17 @@ const ManagePO: React.FC = () => {
       field: "po_order_qty",
       sortable: true,
       maxWidth: 130,
-         ...rightAlignedColumn,
+      ...rightAlignedColumn,
     },
-      {
+    {
       headerName: "Pending QTY",
       field: "po_pending_qty",
       sortable: true,
       maxWidth: 130,
-        ...rightAlignedColumn,
+      ...rightAlignedColumn,
     },
-      
-       {
+
+    {
       headerName: "Status",
       field: "po_status",
       sortable: true,
@@ -164,14 +166,14 @@ const ManagePO: React.FC = () => {
     //   maxWidth: 150,
     //   ...leftAlignedColumn,
     // },
-       {
+    {
       headerName: "Part Code",
       field: "Item_code",
       sortable: true,
       maxWidth: 120,
       ...leftAlignedColumn,
     },
-     {
+    {
       headerName: "Component Name",
       field: "item_name",
       sortable: true,
@@ -317,12 +319,12 @@ const ManagePO: React.FC = () => {
     <div className="flex bg-white h-[calc(100vh-100px)] relative">
       <div
         className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${
-          colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "
+          colapse ? "min-w-0 max-w-0" : "min-w-[350px] max-w-[350px] "
         }`}
       >
         <div
           className={`transition-all ${
-            colapse ? "left-0" : "left-[400px]"
+            colapse ? "left-0" : "left-[350px]"
           } w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
         >
           <Button
@@ -337,7 +339,10 @@ const ManagePO: React.FC = () => {
           </Button>
         </div>
         <div className="overflow-x-hidden overflow-y-auto ">
-          <div className="flex items-center gap-[10px] p-[10px]  mt-[20px]">
+          <div className="flex flex-col gap-[10px] p-[10px]  mt-[0px]">
+            <Typography className="text-slate-600 font-semibold">
+              Filter By
+            </Typography>
             <FormControl fullWidth>
               <Select
                 value={type}
@@ -345,9 +350,9 @@ const ManagePO: React.FC = () => {
                 onChange={(e) => setType(e.target.value)}
               >
                 {[
-                  { value: "powise", label: "PO", isDisabled: false },
-                  { value: "datewise", label: "Date", isDisabled: false },
-                  { value: "vendorwise", label: "Vender", isDisabled: false },
+                  { value: "powise", label: "PO Wise", isDisabled: false },
+                  { value: "datewise", label: "Date Wise", isDisabled: false },
+                  // { value: "vendorwise", label: "Vender", isDisabled: false },
                 ].map((item) => (
                   <MenuItem
                     disabled={item.isDisabled}
@@ -364,7 +369,7 @@ const ManagePO: React.FC = () => {
             {type === "powise" ? (
               <div className="flex flex-col gap-[20px] ">
                 <TextField
-                  label="PO"
+                  label="PO Number"
                   value={po}
                   onChange={(e) => setPo(e.target.value)}
                 />
@@ -439,15 +444,15 @@ const ManagePO: React.FC = () => {
                   >
                     Search
                   </LoadingButton>
-                     <Button
-              variant="outline"
-              onClick={handleExportExcel}
-              disabled={!managePoData?.data?.length}
-              className="flex items-center gap-[5px] ml-auto"
-            >
-              <FileDownloadOutlinedIcon fontSize="small" />
-              Export Excel
-            </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleExportExcel}
+                    disabled={!managePoData?.data?.length}
+                    className="flex items-center gap-[5px] ml-auto"
+                  >
+                    <FileDownloadOutlinedIcon fontSize="small" />
+                    Export Excel
+                  </Button>
                 </div>
               </div>
             ) : null}
@@ -456,7 +461,7 @@ const ManagePO: React.FC = () => {
       </div>
       <div className="w-full">
         <div>
-          <div className="relative ag-theme-quartz h-[calc(100vh-190px)]">
+          <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
             <AgGridReact
               loadingOverlayComponent={CustomLoadingOverlay}
               loading={loading || printLoading}
@@ -470,16 +475,18 @@ const ManagePO: React.FC = () => {
               enableCellTextSelection={true}
             />
           </div>
-          <div className="p-4 border-t">
-            <CustomPagination
-              currentPage={currentPage}
-              totalPages={managePoData?.pagination?.total_pages}
-              totalRecords={managePoData?.pagination?.total}
-              onPageChange={handlePageChange}
-              pageSize={pageSize}
-              onPageSizeChange={handlePageSizeChange}
-            />
-          </div>
+          {managePoData?.pagination && (
+            <div className="p-0 border-t">
+              <CustomPagination
+                currentPage={currentPage}
+                totalPages={managePoData?.pagination?.total_pages}
+                totalRecords={managePoData?.pagination?.total}
+                onPageChange={handlePageChange}
+                pageSize={pageSize}
+                onPageSizeChange={handlePageSizeChange}
+              />
+            </div>
+          )}
         </div>
         <Dialog
           open={openCancelModal}
