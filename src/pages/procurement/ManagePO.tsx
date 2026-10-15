@@ -1,12 +1,16 @@
 import React, { useCallback, useMemo, useState } from "react";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+// import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import * as XLSX from "xlsx";
 import dayjs, { Dayjs } from "dayjs";
 import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import { StatusChipCellRenderer } from "@/components/reusable/StatusChip";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   cancelPO,
-  fetchPOData,
+  // fetchPOData,
   getListofPo,
   poPrint,
 } from "@/features/procurement/poSlices";
@@ -18,8 +22,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import {
   FormControl,
   IconButton,
-  Menu,
   MenuItem,
+  Tooltip,
   Select,
   TextField,
   Dialog,
@@ -35,6 +39,7 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { setDateRange } from "@/features/procurement/poSlices";
 import ViewPOModal from "@/pages/procurement/ViewPOModal";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 const ManagePO: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -49,87 +54,145 @@ const ManagePO: React.FC = () => {
     from: null,
     to: null,
   });
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
   const [cancelReason, setCancelReason] = useState<string>("");
   const [openViewPOModal, setOpenViewPOModal] = useState<boolean>(false);
 
-  const handleMenuClick = (
-    event: React.MouseEvent<HTMLElement>,
-    rowData: any
-  ) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRow(rowData);
-  };
+
 
   const columnDefs: ColDef[] = [
     {
-      headerName: "",
-      // pinned: "right",
+      headerName: "Actions",
+      pinned: "right",
       sortable: false,
       filter: false,
       cellRenderer: (params: { data: any }) => (
-        <IconButton
-          size="small"
-          onClick={(e) => handleMenuClick(e, params.data)}
-          className="hover:bg-gray-100"
-        >
-          <MoreVertIcon className="h-4 w-4" />
-        </IconButton>
+        <div className="flex items-center h-full">
+          {/* <Tooltip title="View">
+            <IconButton size="small" onClick={() => handleViewPO(params.data)}>
+              <VisibilityOutlinedIcon fontSize="small" color="primary" />
+            </IconButton>
+          </Tooltip> */}
+          <Tooltip title="Download">
+            <IconButton
+              size="small"
+              onClick={() => handlePrintChallan(params.data)}
+            >
+              <FileDownloadOutlinedIcon fontSize="small" color="success" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Cancel">
+            <IconButton
+              size="small"
+              onClick={() => handleCancelPO(params.data)}
+            >
+              <CancelOutlinedIcon fontSize="small" color="error" />
+            </IconButton>
+          </Tooltip>
+        </div>
       ),
-      width: 50,
+      width: 130,
+      ...leftAlignedColumn,
     },
-    {
-      headerName: "#",
-      field: "id",
-      sortable: true,
-      filter: true,
-      width: 100,
-      valueGetter: "node.rowIndex+1",
-    },
-    {
-      headerName: "PO No.",
-      field: "po_transaction",
-      sortable: true,
-      filter: true,
-    },
+    // {
+    //   headerName: "#",
+    //   field: "id",
+    //   sortable: true,
+    //   width: 100,
+    //   valueGetter: "node.rowIndex+1",
+    // },
 
     {
       headerName: "Vendor Id",
       field: "vendor_id",
       sortable: true,
-      filter: true,
+      maxWidth: 100,
+      ...leftAlignedColumn,
     },
     {
       headerName: "Vendor Name",
       field: "vendor_name",
       sortable: true,
-      filter: true,
+      wrapText: true,
+      autoHeight: true,
+      maxWidth: 200,
+      ...leftAlignedColumn,
+    },
+    {
+      headerName: "PO Number",
+      field: "po_transaction",
+      sortable: true,
+      maxWidth: 180,
+      ...leftAlignedColumn,
     },
 
-    // {
-    //   headerName: "Advance Payment",
-    //   field: "advancePayment",
-    //   sortable: true,
-    //   filter: true,
-    // },
     {
-      headerName: "PO Created Date",
+      headerName: "Created At",
       field: "po_reg_date",
       sortable: true,
-      filter: true,
+         maxWidth: 120,
+      ...leftAlignedColumn,
     },
     {
-      headerName: "PO Created By",
+      headerName: "Order QTY",
+      field: "po_order_qty",
+      sortable: true,
+      maxWidth: 130,
+         ...rightAlignedColumn,
+    },
+      {
+      headerName: "Pending QTY",
+      field: "po_pending_qty",
+      sortable: true,
+      maxWidth: 130,
+        ...rightAlignedColumn,
+    },
+      
+       {
+      headerName: "Status",
+      field: "po_status",
+      sortable: true,
+      maxWidth: 120,
+      cellRenderer: StatusChipCellRenderer,
+      ...leftAlignedColumn,
+    },
+    //    {
+    //   headerName: "Approval Status",
+    //   field: "approval_status",
+    //   sortable: true,
+    //   maxWidth: 150,
+    //   ...leftAlignedColumn,
+    // },
+       {
+      headerName: "Part Code",
+      field: "Item_code",
+      sortable: true,
+      maxWidth: 120,
+      ...leftAlignedColumn,
+    },
+     {
+      headerName: "Component Name",
+      field: "item_name",
+      sortable: true,
+      maxWidth: 200,
+      autoHeight: true,
+      wrapText: true,
+      ...leftAlignedColumn,
+    },
+    {
+      headerName: "Created By",
       field: "po_reg_by",
       sortable: true,
-      filter: true,
+      maxWidth: 150,
+      ...leftAlignedColumn,
     },
   ];
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: true,
+      filter: false,
+      sortable: true,
+      suppressHeaderMenuButton: true,
     };
   }, []);
 
@@ -143,10 +206,10 @@ const ManagePO: React.FC = () => {
 
           page: page,
           limit: pageSize,
-        })
+        }),
       );
     },
-    [dispatch, pageSize]
+    [dispatch, pageSize],
   );
 
   const handlePageSizeChange = useCallback(
@@ -160,11 +223,11 @@ const ManagePO: React.FC = () => {
             data: dateRange,
             page: currentPage,
             limit: size,
-          })
+          }),
         );
       }
     },
-    [dispatch]
+    [dispatch],
   );
   const handleDateChange = (dates: {
     from: Dayjs | null;
@@ -173,9 +236,8 @@ const ManagePO: React.FC = () => {
     setDate(dates);
   };
 
-  const handlePrintChallan = () => {
-    dispatch(poPrint({ id: selectedRow.po_transaction }));
-    setAnchorEl(null);
+  const handlePrintChallan = (row: any) => {
+    dispatch(poPrint({ id: row.po_transaction }));
   };
 
   // const handleEditChallan = () => {
@@ -184,9 +246,9 @@ const ManagePO: React.FC = () => {
   //   setAnchorEl(null);
   // };
 
-  const handleCancelPO = () => {
+  const handleCancelPO = (row: any) => {
+    setSelectedRow(row);
     setOpenCancelModal(true);
-    setAnchorEl(null);
   };
 
   const handleCloseCancelModal = () => {
@@ -216,7 +278,7 @@ const ManagePO: React.FC = () => {
               data: dateRange,
               page: currentPage,
               limit: pageSize,
-            })
+            }),
           );
         }
       });
@@ -225,11 +287,31 @@ const ManagePO: React.FC = () => {
     }
   };
 
-  const handleViewPO = () => {
-    setOpenViewPOModal(true);
-    dispatch(fetchPOData({ id: selectedRow.po_transaction }));
-    setAnchorEl(null);
+  const handleExportExcel = () => {
+    const rows: any[] = Array.isArray(managePoData?.data)
+      ? managePoData.data
+      : [];
+    if (!rows.length) {
+      showToast("No data to export", "error");
+      return;
+    }
+    const exportCols = columnDefs.filter((col) => col.field);
+    const data = rows.map((row) =>
+      Object.fromEntries(
+        exportCols.map((col) => [col.headerName, row?.[col.field as string]]),
+      ),
+    );
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Manage PO");
+    XLSX.writeFile(workbook, `manage_po_${dayjs().format("DD-MM-YYYY")}.xlsx`);
   };
+
+  // const handleViewPO = (row: any) => {
+  //   setSelectedRow(row);
+  //   setOpenViewPOModal(true);
+  //   dispatch(fetchPOData({ id: row.po_transaction }));
+  // };
 
   return (
     <div className="flex bg-white h-[calc(100vh-100px)] relative">
@@ -300,7 +382,7 @@ const ManagePO: React.FC = () => {
                             data: po,
                             limit: pageSize,
                             page: 1,
-                          })
+                          }),
                         );
                       } else {
                         showToast("Please enter PO", "error");
@@ -346,7 +428,7 @@ const ManagePO: React.FC = () => {
                             data: dataString,
                             limit: pageSize,
                             page: currentPage,
-                          })
+                          }),
                         );
                       }
                     }}
@@ -357,6 +439,15 @@ const ManagePO: React.FC = () => {
                   >
                     Search
                   </LoadingButton>
+                     <Button
+              variant="outline"
+              onClick={handleExportExcel}
+              disabled={!managePoData?.data?.length}
+              className="flex items-center gap-[5px] ml-auto"
+            >
+              <FileDownloadOutlinedIcon fontSize="small" />
+              Export Excel
+            </Button>
                 </div>
               </div>
             ) : null}
@@ -390,25 +481,6 @@ const ManagePO: React.FC = () => {
             />
           </div>
         </div>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={() => setAnchorEl(null)}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          {/* <MenuItem disabled onClick={handleEditChallan}>Update PO</MenuItem> */}
-          <MenuItem onClick={handleViewPO}>View</MenuItem>
-          <MenuItem onClick={handlePrintChallan}>Download</MenuItem>
-          <MenuItem onClick={handleCancelPO}>Cancel</MenuItem>
-        </Menu>
-
         <Dialog
           open={openCancelModal}
           onClose={handleCloseCancelModal}
