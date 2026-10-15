@@ -11,6 +11,7 @@ export type PoStateType = {
   fetchPOData:any;
   completedPoData:any;
   submitPOMINLoading:boolean;
+  shortCloseLoading:boolean;
   uploadMinInvoiceLoading:boolean;
   componentPoDetailsLoading:boolean;
 };
