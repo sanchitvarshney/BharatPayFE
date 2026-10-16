@@ -27,6 +27,7 @@ import {
   RefreshApprovalDataResponse,
   RefreshApprovalItem,
 } from "@/features/procurement/poRateService";
+import { Refresh } from "@mui/icons-material";
 
 type DecisionStatus = "APPROVED" | "REJECTED";
 type RequestInfo = Omit<RefreshApprovalDataResponse["data"], "items">;
@@ -38,7 +39,10 @@ const formatRate = (value: string) => {
   const num = Number(value);
   return Number.isNaN(num)
     ? value
-    : num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    : num.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4,
+      });
 };
 
 const statusChip: Record<
@@ -55,7 +59,7 @@ const AdminApprovalPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathParams = new URLSearchParams(
-    location.pathname.split("/po/adminApprovalPage/")[1] || ""
+    location.pathname.split("/po/adminApprovalPage/")[1] || "",
   );
   const reqId = searchParams.get("req_id") || pathParams.get("req_id") || "";
   const token = searchParams.get("token") || pathParams.get("token") || "";
@@ -184,7 +188,8 @@ const AdminApprovalPage: React.FC = () => {
     >
       <Card
         sx={{
-          maxWidth: 720,
+          maxWidth: "80%",
+        
           width: "100%",
           height: "fit-content",
           mt: { sm: 4 },
@@ -204,14 +209,24 @@ const AdminApprovalPage: React.FC = () => {
             <Typography variant="h5" fontWeight={600}>
               Vendor Rate Approval
             </Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<HomeIcon />}
-              onClick={() => navigate("/")}
-            >
-              Home
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<Refresh />}
+                onClick={() => window.location.reload()}
+              >
+                Reload
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<HomeIcon />}
+                onClick={() => navigate("/")}
+              >
+                Home
+              </Button>
+            </div>
           </Box>
 
           {loading ? (
@@ -226,7 +241,7 @@ const AdminApprovalPage: React.FC = () => {
                 <Box
                   sx={{
                     display: "grid",
-                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" },
                     gap: 1.5,
                     p: 2,
                     mb: 2,
@@ -250,20 +265,7 @@ const AdminApprovalPage: React.FC = () => {
                       </Typography>
                     </Box>
                   ))}
-                  <Box>
-                    <Typography variant="caption" color="text.secondary" display="block">
-                      Request Status
-                    </Typography>
-                    <Chip
-                      size="small"
-                      label={
-                        (statusChip[requestInfo.status?.toUpperCase()] || statusChip.PENDING).label
-                      }
-                      color={
-                        (statusChip[requestInfo.status?.toUpperCase()] || statusChip.PENDING).color
-                      }
-                    />
-                  </Box>
+               
                 </Box>
               )}
 
@@ -298,8 +300,11 @@ const AdminApprovalPage: React.FC = () => {
                     <TableCell>#</TableCell>
                     <TableCell>Component</TableCell>
                     <TableCell>Part Code</TableCell>
+                    <TableCell align="right">Current Rate</TableCell>
                     <TableCell align="right">Requested Rate</TableCell>
+                    <TableCell align="right">Difference</TableCell>
                     <TableCell align="center">Status</TableCell>
+                     <TableCell>Remark</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -335,7 +340,14 @@ const AdminApprovalPage: React.FC = () => {
                         </TableCell>
                         <TableCell>{item.part_code}</TableCell>
                         <TableCell align="right">
+                          {formatRate(item.current_rate)}
+                        </TableCell>
+                        <TableCell align="right">
                           {formatRate(item.requested_rate)}
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: "error.main" }}>
+                          +
+                          {(Number(item.requested_rate) - Number(item.current_rate)).toFixed(2)}
                         </TableCell>
                         <TableCell align="center">
                           <Chip
@@ -344,7 +356,9 @@ const AdminApprovalPage: React.FC = () => {
                             color={chip.color}
                           />
                         </TableCell>
+                        <TableCell>{item.remarks}</TableCell>
                       </TableRow>
+                      
                     );
                   })}
                 </TableBody>

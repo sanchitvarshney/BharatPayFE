@@ -23,12 +23,17 @@ type RequestPriceApprovalResponse = {
   };
 };
 
-export const requestPriceApproval = async (vendorId: string, items: RateApprovalItem[]): Promise<RequestPriceApprovalResponse> => {
+export const requestPriceApproval = async (
+  vendorId: string,
+  items: RateApprovalItem[],
+  remarks: Record<string, string> = {},
+): Promise<RequestPriceApprovalResponse> => {
   const response = await axiosInstance.post("/po/requestPriceApproval", {
     vendor_id: vendorId,
     components: items.map((item) => ({
       component_key: item.componentKey,
       requested_rate: item.enteredRate,
+      remark: remarks[item.id]?.trim() || "",
     })),
   });
   return response.data;
@@ -41,6 +46,7 @@ export type RefreshApprovalItem = {
   component_key: string;
   part_code: string;
   component_name: string;
+  current_rate: string;
   requested_rate: string;
   is_new_pair?: number;
   requested_by?: string;
@@ -68,13 +74,19 @@ export type RefreshApprovalDataResponse = {
   };
 };
 
-export const refreshApprovalData = async (reqId: string): Promise<RefreshApprovalDataResponse> => {
-  const response = await axiosInstance.get(`/po/refreshApprovalData?req_id=${reqId}`);
+export const refreshApprovalData = async (
+  reqId: string,
+): Promise<RefreshApprovalDataResponse> => {
+  const response = await axiosInstance.get(
+    `/po/refreshApprovalData?req_id=${reqId}`,
+  );
   return response.data;
 };
 
-
-export const fetchAdminApprovalRequest = async (reqId: string, token: string): Promise<RefreshApprovalDataResponse> => {
+export const fetchAdminApprovalRequest = async (
+  reqId: string,
+  token: string,
+): Promise<RefreshApprovalDataResponse> => {
   const response = await publicAxiosInstance.get("/po/adminApprovalList", {
     params: { req_id: reqId, token },
   });
@@ -95,7 +107,7 @@ export const submitAdminApproval = async (
   reqId: string,
   token: string,
   decisions: AdminApprovalDecision[],
-  remarks?: string
+  remarks?: string,
 ): Promise<SubmitAdminApprovalResponse> => {
   const response = await publicAxiosInstance.post(
     "/po/submitAdminApproval",
@@ -104,7 +116,7 @@ export const submitAdminApproval = async (
       remarks: remarks || "",
       decisions,
     },
-    { headers: { Authorization: `Bearer ${token}` } }
+    { headers: { Authorization: `Bearer ${token}` } },
   );
   return response.data;
 };
