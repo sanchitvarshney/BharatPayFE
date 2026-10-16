@@ -93,6 +93,53 @@ export const fetchAdminApprovalRequest = async (
   return response.data;
 };
 
+export type ComponentLog = {
+  req_id: string;
+  date: string;
+  rate: number;
+  status: string;
+  action_by?: string | null;
+  action_by_name: string | null;
+};
+
+export type OtherVendorRate = {
+  vendor_id: string;
+  vendor_name: string;
+  rate: number;
+  updated_date: string;
+};
+
+export type ComponentMetaData = {
+  component_key: string;
+  part_code: string;
+  component_name: string;
+  component_logs: ComponentLog[];
+  other_vendors: OtherVendorRate[];
+};
+
+export type ComponentMetaDataResponse = {
+  success: boolean;
+  status: string;
+  message: string;
+  data: {
+    req_id: string;
+    vendor_id: string;
+    vendor_name: string;
+    items: ComponentMetaData[];
+  };
+};
+
+export const getComponentMetaData = async (
+  reqId: string,
+  token: string,
+): Promise<ComponentMetaDataResponse> => {
+  const response = await publicAxiosInstance.get("/po/getComponentMetaData", {
+    params: { req_id: reqId },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 export type AdminApprovalDecision = {
   id: number;
   status: "APPROVED" | "REJECTED";
