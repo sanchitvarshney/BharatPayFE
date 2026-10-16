@@ -1,5 +1,8 @@
 import React, { memo, useMemo } from "react";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
   Button,
@@ -11,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HistoryIcon from "@mui/icons-material/History";
@@ -49,8 +53,9 @@ const SectionHeader: React.FC<{
   icon: React.ReactNode;
   title: string;
   count: number;
-}> = ({ icon, title, count }) => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+  mb?: number;
+}> = ({ icon, title, count, mb = 1.5 }) => (
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb }}>
     <Box sx={{ color: "primary.main", display: "flex" }}>{icon}</Box>
     <Typography variant="subtitle2" fontWeight={600}>
       {title}
@@ -90,8 +95,28 @@ const RateTimeline: React.FC<{ meta: ComponentMetaData; reqId: string }> = ({
   );
 
   return (
-    <>
-      <SectionHeader icon={<HistoryIcon fontSize="small" />} title="Rate History" count={logs.length} />
+    <Accordion
+      disableGutters
+      elevation={0}
+      slotProps={{ transition: { unmountOnExit: true } }}
+      sx={{
+        mb: 2,
+        borderRadius: 1,
+        bgcolor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+        "&:before": { display: "none" },
+      }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 2 }}>
+        <SectionHeader
+          icon={<HistoryIcon fontSize="small" />}
+          title="Rate History"
+          count={logs.length}
+          mb={0}
+        />
+      </AccordionSummary>
+      <AccordionDetails sx={{ px: 2, pt: 0, pb: 2 }}>
       {logs.length === 0 ? (
         <EmptyNote>No approved or rejected rates yet.</EmptyNote>
       ) : (
@@ -164,7 +189,8 @@ const RateTimeline: React.FC<{ meta: ComponentMetaData; reqId: string }> = ({
           })}
         </Box>
       )}
-    </>
+      </AccordionDetails>
+    </Accordion>
   );
 };
 
@@ -210,7 +236,7 @@ const OtherVendors: React.FC<{
                     {vendor.vendor_name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" component="div">
-                    {vendor.vendor_id} · Updated {formatDateTime(vendor.updated_date)}
+                    {vendor.vendor_id} · Last updated {formatDateTime(vendor.updated_date)}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "right", flexShrink: 0 }}>
@@ -312,18 +338,7 @@ const ComponentMetaDrawer: React.FC<Props> = ({
                     requested rate.
                   </Alert>
                 )}
-                <Box
-                  sx={{
-                    p: 2,
-                    mb: 2,
-                    borderRadius: 1,
-                    bgcolor: "background.paper",
-                    border: "1px solid",
-                    borderColor: "divider",
-                  }}
-                >
-                  <RateTimeline meta={meta} reqId={reqId} />
-                </Box>
+                <RateTimeline key={item.part_code} meta={meta} reqId={reqId} />
                 <Box
                   sx={{
                     p: 2,
