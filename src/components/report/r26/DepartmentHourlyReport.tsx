@@ -5,6 +5,7 @@ import DepartmentHourlyTable from "@/table/report/r26tabls/DepartmentHourlyTable
 import { showToast } from "@/utils/toasterContext";
 import ReportShell from "./ReportShell";
 import { useR26Report } from "./useR26Report";
+import { formatNumber } from "./reportUtils";
 
 type Props = {
   title: string;
@@ -12,10 +13,11 @@ type Props = {
   reportName: string;
   dateKey: ReportDateKey;
   thunk: Parameters<typeof useR26Report>[1];
-  report: { columns?: string[]; data?: any[] } | null;
+  report: { columns?: string[]; data?: any[]; summary?: any } | null;
   loading: boolean;
   sheetName: string;
   filePrefix: string;
+  isSoundbox?: boolean;
 };
 
 const DepartmentHourlyReport: React.FC<Props> = ({
@@ -28,6 +30,7 @@ const DepartmentHourlyReport: React.FC<Props> = ({
   loading,
   sheetName,
   filePrefix,
+  isSoundbox = false,
 }) => {
   const gridRef = useRef<AgGridReact<any>>(null);
   const { date, setRange, generate, meta, error, fileSuffix } = useR26Report(
@@ -36,6 +39,13 @@ const DepartmentHourlyReport: React.FC<Props> = ({
   );
 
   const hasRows = !!report?.data?.length;
+  const label = isSoundbox ? "Assembly QTY" : "Swip Refurb Line";
+  const value = isSoundbox
+    ? report?.summary?.assemblyQTY
+    : report?.summary?.swipRefurbLine;
+  const summaryItems: any[] = [
+    { label: label, value: formatNumber(value), highlight: true },
+  ];
 
   const handleExport = () => {
     if (!hasRows) {
@@ -61,7 +71,7 @@ const DepartmentHourlyReport: React.FC<Props> = ({
       error={error}
       hasReport={!!report}
       onExport={handleExport}
-
+      summary={summaryItems}
       canExport={hasRows}
     >
       <DepartmentHourlyTable

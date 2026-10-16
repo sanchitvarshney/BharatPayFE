@@ -1,16 +1,14 @@
 import { useCallback, useMemo } from "react";
 import dayjs, { Dayjs } from "dayjs";
-import { AsyncThunk } from "@reduxjs/toolkit";
-import { AxiosResponse } from "axios";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   ReportDateKey,
   ReportMeta,
+  ReportThunk,
   setReportDateRange,
 } from "@/features/report/report/reportSummarySlice";
 import { showToast } from "@/utils/toasterContext";
 
-type ReportThunk = AsyncThunk<AxiosResponse<any>, { from: string; to: string }, any>;
 
 
 export const useR26Report = (key: ReportDateKey, thunk: ReportThunk) => {
@@ -66,7 +64,6 @@ export const useR26Report = (key: ReportDateKey, thunk: ReportThunk) => {
     }
   }, [date, dispatch, thunk]);
 
-  /** "DD-MM-YYYY_to_DD-MM-YYYY" for the loaded report (for export file names). */
   const fileSuffix = meta
     ? `${meta.from}_to_${meta.to}`
     : dayjs().format("DD-MM-YYYY");

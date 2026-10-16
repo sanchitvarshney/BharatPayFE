@@ -67,60 +67,54 @@ const markFulfilled = (state: any, key: ReportDateKey, action: any) => {
 
 const markRejected = (state: any, key: ReportDateKey, action: any) => {
   state.reportErrors[key] =
-    action.error?.message || "Something went wrong while loading the report.";
+    action.payload?.message ||
+    action.error?.message ||
+    "Something went wrong while loading the report.";
 };
 
-export const getawbscanReport = createAsyncThunk<
-  AxiosResponse<any>,
-  { from: string; to: string }
->("report/getawbscanReport", async (date) => {
-  const response = await axiosInstance.get(
-    `/report/scanSKUSummaryReport?start_date=${date.from}&end_date=${date.to}`,
-  );
-  return response;
-});
+type ReportRange = { from: string; to: string };
 
-export const getQcMinReport = createAsyncThunk<
-  AxiosResponse<any>,
-  { from: string; to: string }
->("report/getQcMinReport", async (date) => {
-  const response = await axiosInstance.get(
-    `/report/qcMinReport?start_date=${date.from}&end_date=${date.to}`,
-  );
-  return response;
-});
+const createReportThunk = (type: string, endpoint: string) =>
+  createAsyncThunk<
+    AxiosResponse<any>,
+    ReportRange,
+    { rejectValue: { message?: string } }
+  >(type, async (range, { rejectWithValue }) => {
+    try {
+      return await axiosInstance.get(
+        `${endpoint}?start_date=${range.from}&end_date=${range.to}`,
+      );
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data ?? { message: error?.message });
+    }
+  });
 
-export const getTrcHourlyReport = createAsyncThunk<
-  AxiosResponse<any>,
-  { from: string; to: string }
->("report/getTrcHourlyReport", async (payload) => {
-  const response = await axiosInstance.get(
-    `/report/workerHourlyPivotReport?start_date=${payload.from}&end_date=${payload.to}`,
-  );
-  return response;
-});
+export type ReportThunk = ReturnType<typeof createReportThunk>;
 
-export const getSoundboxHourlyReport = createAsyncThunk<
-  AxiosResponse<any>,
-  { from: string; to: string }
->("report/getSoundboxHourlyReport", async (payload) => {
-  const response = await axiosInstance.get(
-    `/report/soundboxHourlyReport?start_date=${payload.from}&end_date=${payload.to}`,
-  );
-  return response;
-});
+export const getawbscanReport = createReportThunk(
+  "report/getawbscanReport",
+  "/report/scanSKUSummaryReport",
+);
 
-export const getSwipeHourlyReport = createAsyncThunk<
-  AxiosResponse<any>,
-  { from: string; to: string }
->("report/getSwipeHourlyReport", async (payload) => {
-  const response = await axiosInstance.get(
-    `/report/swipeHourlyReport?start_date=${payload.from}&end_date=${payload.to}`,
-  );
-  return response;
-});
+export const getQcMinReport = createReportThunk(
+  "report/getQcMinReport",
+  "/report/qcMinReport",
+);
 
+export const getTrcHourlyReport = createReportThunk(
+  "report/getTrcHourlyReport",
+  "/report/workerHourlyPivotReport",
+);
 
+export const getSoundboxHourlyReport = createReportThunk(
+  "report/getSoundboxHourlyReport",
+  "/report/soundboxHourlyReport",
+);
+
+export const getSwipeHourlyReport = createReportThunk(
+  "report/getSwipeHourlyReport",
+  "/report/swipeHourlyReport",
+);
 
 const reportSummarySlice = createSlice({
   name: "reportsummary",

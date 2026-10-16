@@ -123,6 +123,7 @@ export const submitSwipeTransferData = createAsyncThunk<
 );
 export type AssemblyToTrcPayload = {
   imei: string[];
+  issue: string;
   remark?: string;
 };
 

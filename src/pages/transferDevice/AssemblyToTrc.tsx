@@ -1,13 +1,26 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef } from "ag-grid-community";
-import { Button, IconButton, TextField, Tooltip } from "@mui/material";
+import {
+  ColDef,
+  RowSelectionOptions,
+  SelectionColumnDef,
+} from "ag-grid-community";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  TextField,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CloudUpload, DeleteSweep } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
-import { submitAssemblyToTrc } from "@/features/transfer/deviceTransferSlice";
+import {
+  fetchIssue,
+  submitAssemblyToTrc,
+} from "@/features/transfer/deviceTransferSlice";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { Icons } from "@/components/icons";
@@ -60,16 +73,45 @@ const defaultColDef: ColDef = {
   suppressHeaderMenuButton: true,
 };
 
+const rowSelection: RowSelectionOptions = {
+  mode: "multiRow",
+  checkboxes: true,
+  headerCheckbox: true,
+  enableClickSelection: true,
+};
+
+
+const selectionColumnDef: SelectionColumnDef = {
+  width: 60,
+  resizable: false,
+  suppressHeaderMenuButton: true,
+  headerClass:
+    "!justify-center !px-0 [&_.ag-header-select-all]:!mr-0 [&_.ag-header-cell-comp-wrapper]:!hidden",
+  cellClass:
+    "!flex !justify-center !px-0 [&_.ag-cell-wrapper]:justify-center [&_.ag-selection-checkbox]:!mr-0",
+};
+
 const AssemblyToTrc: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { isAssemblyToTrcLoading } = useAppSelector(
+  const { isAssemblyToTrcLoading, issueData } = useAppSelector(
     (state) => state.deviceTransfer,
   );
 
   const [rowData, setRowData] = useState<ImeiRow[]>([]);
+  const [selectedRows, setSelectedRows] = useState<ImeiRow[]>([]);
   const [fileName, setFileName] = useState("");
+  const [issues, setIssues] = useState<string[]>([]);
+
+  const toggleIssue = (id: string, checked: boolean) =>
+    setIssues((prev) =>
+      checked ? [...prev, id] : prev.filter((issueId) => issueId !== id),
+    );
   const [remark, setRemark] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchIssue());
+  }, []);
 
   const columnDefs = useMemo<ColDef<ImeiRow>[]>(
     () => [
@@ -80,29 +122,17 @@ const AssemblyToTrc: React.FC = () => {
         width: 80,
       },
       { headerName: "IMEI", field: "imei", flex: 1 },
-      {
-        headerName: "",
-        sortable: false,
-        resizable: false,
-        width: 80,
-        cellRenderer: (params: any) => (
-          <Tooltip title="Remove">
-            <IconButton
-              size="small"
-              disabled={isAssemblyToTrcLoading}
-              onClick={() => {
-                setRowData((prev) => prev.filter((row) => row !== params.data));
-                showToast(`Removed IMEI ${params.data?.imei}`, "info");
-              }}
-            >
-              <DeleteIcon fontSize="small" color="error" />
-            </IconButton>
-          </Tooltip>
-        ),
-      },
     ],
-    [isAssemblyToTrcLoading],
+    [],
   );
+
+  const handleDeleteSelected = () => {
+    if (!selectedRows.length) return;
+    const selected = new Set(selectedRows);
+    setRowData((prev) => prev.filter((row) => !selected.has(row)));
+    showToast(`Removed ${selected.size} IMEI(s)`, "info");
+    setSelectedRows([]);
+  };
 
   const handleDownloadSample = () => {
     const worksheet = XLSX.utils.json_to_sheet([
@@ -155,18 +185,21 @@ const AssemblyToTrc: React.FC = () => {
 
   const handleClear = () => {
     setRowData([]);
+    setSelectedRows([]);
     setFileName("");
+    setIssues([]);
     setRemark("");
   };
 
   const handleSubmit = async () => {
     setConfirmOpen(false);
-    if (!rowData.length) return;
+    if (!rowData.length || !issues.length) return;
 
     const trimmedRemark = remark.trim();
     const action = await dispatch(
       submitAssemblyToTrc({
         imei: rowData.map((row) => row.imei),
+        issue: issues.join(","),
         ...(trimmedRemark && { remark: trimmedRemark }),
       }),
     );
@@ -187,7 +220,7 @@ const AssemblyToTrc: React.FC = () => {
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         title="Transfer to TRC?"
-        content={`${rowData.length} device(s) will be transferred from Assembly to TRC. Do you want to continue?`}
+        content={`${rowData.length} device(s) will be transferred from Assembly to TRC and for all the devices issue(s) will be same. Do you want to continue?`}
         cancelText="Cancel"
         confirmText="Transfer"
         color="primary"
@@ -234,6 +267,16 @@ const AssemblyToTrc: React.FC = () => {
                   `Upload an Excel file with an "${IMEI_HEADER}" column (15-digit IMEI numbers).`
                 )}
               </span>
+              <Button
+                className="!ml-auto"
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                disabled={!selectedRows.length || isAssemblyToTrcLoading}
+                onClick={handleDeleteSelected}
+              >
+                Delete{selectedRows.length ? ` (${selectedRows.length})` : ""}
+              </Button>
             </div>
 
             <div className="flex-1 min-h-0 p-[0px]">
@@ -243,12 +286,17 @@ const AssemblyToTrc: React.FC = () => {
                   rowData={rowData}
                   columnDefs={columnDefs}
                   defaultColDef={defaultColDef}
+                  rowSelection={rowSelection}
+                  selectionColumnDef={selectionColumnDef}
+                  onSelectionChanged={(e) =>
+                    setSelectedRows(e.api.getSelectedRows())
+                  }
                 />
               </div>
             </div>
           </div>
 
-          <aside className="w-[320px] shrink-0 flex flex-col gap-[14px] p-[16px] bg-white border-l border-neutral-200 overflow-y-auto">
+          <aside className="w-[420px] shrink-0 flex flex-col gap-[14px] p-[16px] bg-white border-l border-neutral-200 overflow-y-auto">
             <section className="flex flex-col gap-[10px]">
               <h3 className="text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
                 Transfer Summary
@@ -276,11 +324,44 @@ const AssemblyToTrc: React.FC = () => {
                     : "bg-neutral-100 text-neutral-700 border-neutral-300"
                 }`}
               >
-                <span className="text-[13px]">Total IMEI</span>
+                <span className="text-[13px] font-semibold">Total IMEI</span>
                 <span className="text-[18px] font-semibold">
                   {rowData.length}
                 </span>
               </div>
+            </section>
+
+            <section className="flex flex-col gap-[8px]">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
+                Select Issue <span className="text-red-500">*</span>
+              </h3>
+              <FormGroup
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gap: 0.5,
+                }}
+              >
+                {issueData?.map((item: any) => (
+                  <FormControlLabel
+                    key={item.id}
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={issues.includes(String(item.id))}
+                        onChange={(e) => toggleIssue(String(item.id), e.target.checked)}
+                      />
+                    }
+                    label={item.text}
+                    sx={{
+                      "& .MuiFormControlLabel-label": {
+                        fontSize: "0.875rem",
+                      },
+                    }}
+                    disabled={isAssemblyToTrcLoading}
+                  />
+                ))}
+              </FormGroup>
             </section>
 
             <section className="flex flex-col gap-[8px]">
@@ -315,7 +396,7 @@ const AssemblyToTrc: React.FC = () => {
             variant="text"
             color="error"
             startIcon={<DeleteSweep />}
-            disabled={!rowData.length || isAssemblyToTrcLoading}
+            disabled={(!rowData.length && !issues.length) || isAssemblyToTrcLoading}
             onClick={handleClear}
           >
             Clear All
@@ -325,7 +406,7 @@ const AssemblyToTrc: React.FC = () => {
             loading={isAssemblyToTrcLoading}
             loadingPosition="start"
             startIcon={<Icons.save />}
-            disabled={!rowData.length}
+            disabled={!rowData.length || !issues.length}
             onClick={() => setConfirmOpen(true)}
           >
             Submit

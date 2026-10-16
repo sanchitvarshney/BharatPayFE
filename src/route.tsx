@@ -726,16 +726,7 @@ export const router = createBrowserRouter([
         ),
         path: "/procurement/edit-po/:id",
       },
-      {
-        element: (
-          <MainLayout>
-            <ProcurementLayout>
-              <ManagePO />
-            </ProcurementLayout>
-          </MainLayout>
-        ),
-        path: "/procurement/manage",
-      },
+ 
       {
         element: (
           <MainLayout>
@@ -758,7 +749,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <MinLayout>
             <MINFromPO />
+            </MinLayout>
           </MainLayout>
         ),
         path: "/material-in-with-po",

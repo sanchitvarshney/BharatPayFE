@@ -144,7 +144,6 @@ export function useCreatePoForm({ open, setOpen, details, onSuccess }: CreatePoD
     }
   }, [fallbackShip, shippingAddress]);
 
-
   const vendorId = vendor?.id;
   useEffect(() => {
     if (!open || !details) return;
