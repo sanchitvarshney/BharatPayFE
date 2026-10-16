@@ -11,6 +11,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -27,12 +28,17 @@ type Props = {
   items: RateApprovalItem[];
   vendorId: string;
   submitting?: boolean;
-  onClose: () => void; // closes the dialog and resets the whole PO form
-  onSubmit: () => void; // all rates approved -> create / update the PO
-  onRatesApproved: (approvedRates: { componentKey: string; rate: number }[]) => void; // approval confirmed -> sync rowData's initialRate and close
+  onClose: () => void; 
+  onSubmit: () => void;
+  onRatesApproved: (
+    approvedRates: { componentKey: string; rate: number }[],
+  ) => void; 
 };
 
-const statusChip: Record<RateApprovalStatus, { label: string; color: "warning" | "success" | "error" }> = {
+const statusChip: Record<
+  RateApprovalStatus,
+  { label: string; color: "warning" | "success" | "error" }
+> = {
   pending: { label: "Pending", color: "warning" },
   approved: { label: "Approved", color: "success" },
   rejected: { label: "Rejected", color: "error" },
@@ -44,30 +50,43 @@ const toStatus = (raw: string): RateApprovalStatus => {
   return "pending";
 };
 
-const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting, onClose, onRatesApproved }) => {
-  const [statuses, setStatuses] = useState<Record<string, RateApprovalStatus>>({});
+const RateApprovalDialog: React.FC<Props> = ({
+  open,
+  items,
+  vendorId,
+  submitting,
+  onClose,
+  onRatesApproved,
+}) => {
+  const [statuses, setStatuses] = useState<Record<string, RateApprovalStatus>>(
+    {},
+  );
   const [reqId, setReqId] = useState<string | null>(null);
   const [requesting, setRequesting] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [remarks, setRemarks] = useState<Record<string, string>>({});
 
-  // State lives only in memory, so a browser refresh resets everything to default.
   useEffect(() => {
     if (open) {
       setStatuses({});
+      setRemarks({});
       setReqId(null);
       setRequesting(false);
       setRefreshing(false);
     }
   }, [open]);
 
-  const getStatus = (id: string): RateApprovalStatus => statuses[id] ?? "pending";
-  const allApproved = items.length > 0 && items.every((item) => getStatus(item.id) === "approved");
+  const getStatus = (id: string): RateApprovalStatus =>
+    statuses[id] ?? "pending";
+  const allApproved =
+    items.length > 0 &&
+    items.every((item) => getStatus(item.id) === "approved");
   const hasRejected = items.some((item) => getStatus(item.id) === "rejected");
 
   const handleRequestApproval = async () => {
     setRequesting(true);
     try {
-      const response = await requestPriceApproval(vendorId, items);
+      const response = await requestPriceApproval(vendorId, items, remarks);
       setReqId(response.req_id);
       showToast(response.message || "Approval request sent", "success");
     } catch (error) {
@@ -83,27 +102,32 @@ const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting
     setRefreshing(true);
     try {
       const response = await refreshApprovalData(reqId);
-      if(response.success) {
+      if (response.success) {
         showToast(response.message || "Approval status refreshed", "success");
-            const responseItems = response.data.items;
+        const responseItems = response.data.items;
 
-      const newStatuses: Record<string, RateApprovalStatus> = {};
-      items.forEach((item) => {
-        const match = responseItems.find((i) => i.component_key === item.componentKey);
-        newStatuses[item.id] = match ? toStatus(match.status) : getStatus(item.id);
-      });
-      setStatuses(newStatuses);
+        const newStatuses: Record<string, RateApprovalStatus> = {};
+        items.forEach((item) => {
+          const match = responseItems.find(
+            (i) => i.component_key === item.componentKey,
+          );
+          newStatuses[item.id] = match
+            ? toStatus(match.status)
+            : getStatus(item.id);
+        });
+        setStatuses(newStatuses);
 
-      const allNowApproved = items.length > 0 && items.every((item) => newStatuses[item.id] === "approved");
-      if (allNowApproved) {
-        const approvedRates = responseItems.map((i) => ({
-          componentKey: i.component_key,
-          rate: Number(i.requested_rate),
-        }));
-        onRatesApproved(approvedRates);
+        const allNowApproved =
+          items.length > 0 &&
+          items.every((item) => newStatuses[item.id] === "approved");
+        if (allNowApproved) {
+          const approvedRates = responseItems.map((i) => ({
+            componentKey: i.component_key,
+            rate: Number(i.requested_rate),
+          }));
+          onRatesApproved(approvedRates);
+        }
       }
-      }
- 
     } catch (error) {
       showToast("Unable to fetch approval status", "error");
     } finally {
@@ -121,14 +145,18 @@ const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting
     >
       <DialogTitle>Rate Approval Required</DialogTitle>
       <DialogContent dividers>
-        <Alert severity={allApproved ? "success" : hasRejected ? "error" : "warning"} sx={{ mb: 2 }}>
+        <Alert
+          severity={allApproved ? "success" : hasRejected ? "error" : "warning"}
+          sx={{ mb: 2 }}
+        >
           {allApproved
             ? "All rates are approved. You can submit the PO now."
             : hasRejected
-            ? "Some rates were rejected by the admin. Close and correct the rates."
-            : reqId
-            ? "Waiting for admin approval. Click Refresh to check the latest status."
-            : "The rates below are higher than the vendor's initial rate. Click Request Approval to notify the admin. "}  Don't Refresh until the admin approves.
+              ? "Some rates were rejected by the admin. Close and correct the rates."
+              : reqId
+                ? "Waiting for admin approval. Click Refresh to check the latest status."
+                : "The rates below are higher than the vendor's initial rate. Click Request Approval to notify the admin. "}{" "}
+          Don't Refresh until the admin approves.
         </Alert>
         <Table size="small">
           <TableHead>
@@ -138,7 +166,9 @@ const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting
               <TableCell align="right">Initial Rate</TableCell>
               <TableCell align="right">Entered Rate</TableCell>
               <TableCell align="right">Difference</TableCell>
+
               <TableCell align="center">Status</TableCell>
+              <TableCell>Remark</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -153,8 +183,24 @@ const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting
                   <TableCell align="right" sx={{ color: "error.main" }}>
                     +{(item.enteredRate - item.initialRate).toFixed(2)}
                   </TableCell>
+
                   <TableCell align="center">
                     <Chip size="small" label={chip.label} color={chip.color} />
+                  </TableCell>
+                  <TableCell sx={{ minWidth: 180 }}>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      placeholder="Optional"
+                      value={remarks[item.id] ?? ""}
+                      disabled={!!reqId || requesting}
+                      onChange={(e) =>
+                        setRemarks((prev) => ({
+                          ...prev,
+                          [item.id]: e.target.value,
+                        }))
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               );
@@ -176,7 +222,9 @@ const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting
           variant="outlined"
           loading={requesting}
           loadingPosition="start"
-          disabled={requesting || !!reqId || submitting || allApproved || hasRejected}
+          disabled={
+            requesting || !!reqId || submitting || allApproved || hasRejected
+          }
           onClick={handleRequestApproval}
         >
           Request Approval
@@ -191,7 +239,6 @@ const RateApprovalDialog: React.FC<Props> = ({ open, items, vendorId, submitting
         >
           Refresh
         </LoadingButton>
-     
       </DialogActions>
     </Dialog>
   );

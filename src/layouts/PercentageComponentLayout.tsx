@@ -39,17 +39,6 @@ const PercentageComponentLayout = (props: { children: React.ReactNode }) => {
               PO History
             </NavLink>
           </li>
-            <li className="h-[50px]">
-            <NavLink
-              end
-              to="/master-components/purchase-history"
-              className={({ isActive }) =>
-                `h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50 border-b-[4px] border-cyan-400"} hover:bg-cyan-50`
-              }
-            >
-              PO History
-            </NavLink>
-          </li>
         </ul>
       </div>
       <div className="h-[calc(100vh-100px)] bg-transparent overflow-y-auto">{props.children}</div>

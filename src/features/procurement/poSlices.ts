@@ -16,6 +16,7 @@ const initialState: PoStateType = {
   fetchPOData:[],
   completedPoData:[],
   submitPOMINLoading:false,
+  shortCloseLoading:false,
   uploadMinInvoiceLoading:false,
   componentPoDetailsLoading:false,
 };
@@ -119,6 +120,18 @@ export const submitPOMIN = createAsyncThunk<AxiosResponse<any>, any>("po/submitP
   return response;
 });
 
+export const shortClosePOItems = createAsyncThunk<
+  AxiosResponse<any>,
+  { po_number: string; ids: (string | number)[] }
+>("po/shortClosePOItems", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post("/po/updatePOItemStatus", payload);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data ?? { message: error.message });
+  }
+});
+
 export const uploadMinInvoice = createAsyncThunk<
   any, // Define the type of the data you expect to return
   { files: File } // Define the type of the argument you expect
@@ -220,6 +233,16 @@ const procurementPoSlice = createSlice({
       })
       .addCase(submitPOMIN.rejected, (state, action) => {
         state.submitPOMINLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(shortClosePOItems.pending, (state) => {
+        state.shortCloseLoading = true;
+      })
+      .addCase(shortClosePOItems.fulfilled, (state) => {
+        state.shortCloseLoading = false;
+      })
+      .addCase(shortClosePOItems.rejected, (state, action) => {
+        state.shortCloseLoading = false;
         state.error = action.error.message;
       })
       .addCase(fetchDataForMIN.pending, (state) => {

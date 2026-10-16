@@ -242,6 +242,7 @@ const buildReportColumnDefs = (
     return column;
   });
 
+// The search box only matches part code and component name columns.
 const SEARCHABLE_COLUMN_PATTERN =
   /^(component|part[\s_-]*(code|no|number)?|comp(onent)?[\s_-]*name)$/i;
 
@@ -481,14 +482,6 @@ const MasterComponentPercentageReport: React.FC = () => {
           onClick={handleSearch}
         >
           Search
-        </LoadingButton>
-        <LoadingButton
-          loading={componentPoDetailsLoading}
-          variant="outlined"
-          onClick={handleCreatePO}
-          disabled={!selectedRows.length}
-        >
-          Create PO{selectedRows.length ? ` (${selectedRows.length})` : ""}
         </LoadingButton>
       </div>
 
