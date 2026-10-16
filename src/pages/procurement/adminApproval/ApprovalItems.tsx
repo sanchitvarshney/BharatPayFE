@@ -56,7 +56,6 @@ const ApprovalItemRow = memo(
       <TableRow
         hover
         selected={selected}
-        onClick={() => onShowDetails(item.component_key)}
         sx={{
           cursor: "pointer",
           boxShadow: active ? "inset 3px 0 0 #1976d2" : undefined,
@@ -77,6 +76,7 @@ const ApprovalItemRow = memo(
               variant="body2"
               color="primary"
               fontWeight={500}
+              onClick={() => onShowDetails(item.component_key)}
               sx={{ "&:hover": { textDecoration: "underline" } }}
             >
               {item.component_name?.trim()}
@@ -121,7 +121,9 @@ export const ApprovalItemsTable: React.FC<ItemsProps> = ({
               indeterminate={
                 selectedPendingCount > 0 && selectedPendingCount < pendingCount
               }
-              checked={pendingCount > 0 && selectedPendingCount === pendingCount}
+              checked={
+                pendingCount > 0 && selectedPendingCount === pendingCount
+              }
               disabled={pendingCount === 0}
               onChange={onToggleAll}
             />
