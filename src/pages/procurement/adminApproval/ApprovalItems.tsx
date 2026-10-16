@@ -57,7 +57,7 @@ const ApprovalItemRow = memo(
         hover
         selected={selected}
         sx={{
-          cursor: "pointer",
+         
           boxShadow: active ? "inset 3px 0 0 #1976d2" : undefined,
         }}
       >
@@ -77,7 +77,7 @@ const ApprovalItemRow = memo(
               color="primary"
               fontWeight={500}
               onClick={() => onShowDetails(item.component_key)}
-              sx={{ "&:hover": { textDecoration: "underline" } }}
+              sx={{ "&:hover": { textDecoration: "underline", cursor: "pointer", } }}
             >
               {item.component_name?.trim()}
             </Typography>
