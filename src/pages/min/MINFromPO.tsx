@@ -6,7 +6,9 @@ import {
   Button,
   Chip,
   Dialog,
+  DialogActions,
   DialogContent,
+  DialogTitle,
   Divider,
   Skeleton,
 } from "@mui/material";
@@ -21,6 +23,7 @@ import { IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 import {
   fetchDataForMIN,
+  shortClosePOItems,
   submitPOMIN,
   uploadMinInvoice,
 } from "@/features/procurement/poSlices";
@@ -106,8 +109,11 @@ const MINFromPO = () => {
   const [minMessage, setMinMessage] = useState("");
   const [activeStep, setActiveStep] = useState(0);
   const [totals, setTotals] = useState(EMPTY_TOTALS);
+  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [shortCloseConfirmOpen, setShortCloseConfirmOpen] = useState(false);
 
-  const { loading, submitPOMINLoading,uploadMinInvoiceLoading } = useAppSelector((state) => state.po);
+  const { loading, submitPOMINLoading, uploadMinInvoiceLoading, shortCloseLoading } =
+    useAppSelector((state) => state.po);
 
   const dispatch = useAppDispatch();
 
@@ -155,7 +161,6 @@ const MINFromPO = () => {
 
   const onCellValueChanged = useCallback(
     () => {
-      // Ensure we recalculate totals whenever any cell value changes
       getAllTableData();
     },
     [getAllTableData]
@@ -184,6 +189,8 @@ const MINFromPO = () => {
         const materials = res.payload.data.data.materials;
         const newRowData = materials.map((item: any, index: number) => ({
           rowId: `${item.access_code}-${index}`,
+          id: item.id,
+          itemId: item.id ?? item.access_code,
           partComponent: {
             lable: "( " + item.c_partno + " ) " + item.component_shortname,
             value: item.componentKey,
@@ -211,6 +218,7 @@ const MINFromPO = () => {
           uom: item.unitsname,
         }));
         setRowData(newRowData);
+        setSelectedRows([]);
         setVendorData(res.payload.data.data.vendor_type);
         // Calculate initial totals
         setTotals(calculateTotals(newRowData));
@@ -227,6 +235,32 @@ const MINFromPO = () => {
     },
     [getAllTableData]
   );
+
+  const onSelectionChanged = useCallback(() => {
+    setSelectedRows(gridRef.current?.api?.getSelectedRows() ?? []);
+  }, []);
+
+  const handleShortClose = () => {
+    const ids = selectedRows.map((row: any) => row.id);
+    dispatch(
+      shortClosePOItems({ po_number: poNumber.trim(), ids })
+    ).then((res: any) => {
+      if (res.payload?.data?.success) {
+        showToast(res.payload.data.message || "Items short closed", "success");
+        const closedRowIds = new Set(selectedRows.map((row: any) => row.rowId));
+        setRowData((prev: any[]) =>
+          prev.filter((row) => !closedRowIds.has(row.rowId))
+        );
+        setSelectedRows([]);
+        setShortCloseConfirmOpen(false);
+        setTimeout(getAllTableData, 0);
+      } else if (res.meta?.requestStatus === "fulfilled") {
+        // HTTP 2xx with success: false — the interceptor didn't see it as an error
+        showToast(res.payload?.data?.message || "Failed to short close", "error");
+      }
+      // Rejected (4xx/5xx): axios interceptor already toasts the backend message
+    });
+  };
 
   const handleFileChange = async (files: File[] | null) => {
     setFiles(files);
@@ -262,9 +296,17 @@ const MINFromPO = () => {
     {
       headerName: "#",
       valueGetter: "node.rowIndex + 1",
-      width: 55,
-      minWidth: 55,
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+      width: 80,
+      minWidth: 80,
       resizable: false,
+      headerClass: "ag-center-select-header",
+      cellStyle: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      },
     },
     {
       headerName: "",
@@ -276,6 +318,7 @@ const MINFromPO = () => {
       headerName: "Action",
       field: "action",
       width: 80,
+      pinned: "right",
       minWidth: 80,
       resizable: false,
       sortable: false,
@@ -496,6 +539,15 @@ const MINFromPO = () => {
               </LoadingButton>
             </div>
             <div className="flex items-center gap-[10px]">
+              {selectedRows.length > 0 && (
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  onClick={() => setShortCloseConfirmOpen(true)}
+                >
+                  Short Close ({selectedRows.length})
+                </Button>
+              )}
               {url ? (
                 <Chip
                   size="small"
@@ -530,6 +582,9 @@ const MINFromPO = () => {
                 columnDefs={columnDefs}
                 components={components}
                 onCellValueChanged={onCellValueChanged}
+                rowSelection="multiple"
+                suppressRowClickSelection={true}
+                onSelectionChanged={onSelectionChanged}
               />
             </div>
           </div>
@@ -714,6 +769,40 @@ const MINFromPO = () => {
           </SheetContent>
         </Sheet>
       </div>
+
+      <Dialog
+        open={shortCloseConfirmOpen}
+        onClose={() => !shortCloseLoading && setShortCloseConfirmOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Confirm Short Close</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" className="text-slate-600">
+            Are you sure you want to short close {selectedRows.length} selected
+            item{selectedRows.length > 1 ? "s" : ""} of PO{" "}
+            <b>{poNumber}</b>? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="inherit"
+            onClick={() => setShortCloseConfirmOpen(false)}
+            disabled={shortCloseLoading}
+          >
+            Cancel
+          </Button>
+          <LoadingButton
+            variant="contained"
+            color="warning"
+            disableElevation
+            loading={shortCloseLoading}
+            onClick={handleShortClose}
+          >
+            Short Close
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={activeStep === 1}
