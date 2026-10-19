@@ -8,6 +8,7 @@ import MasterUOM from "./pages/master/MasterUOM";
 import MasterComponent from "./pages/master/MasterComponent";
 import MasterComponentPercentage from "./pages/master/MasterComponentPercentage";
 import MasterComponentPercentageReport from "./pages/master/MasterComponentPercentageReport";
+import PurchasedHistory from "./pages/master/PurchasedHistory";
 import MasterComponentsLayout from "./layouts/MasterComponentsLayout";
 import MasterComponentProductLayout from "./layouts/MasterComponentProductLayout";
 import MasterProductFg from "./pages/master/MasterProductFg";
@@ -99,6 +100,7 @@ import SwipeUploadLayout from "@/layouts/SwipeUploadLayout";
 import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
+import AdminApprovalPage from "@/pages/procurement/AdminApprovalPage";
 import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 import ManagePO from "./pages/procurement/ManagePO";
@@ -128,6 +130,7 @@ import TransferPartData from "./pages/tranferPartCode/TransferPartData";
 import WorkersReports from "./pages/areaReport/WorkersReports";
 import DeviceTransferLayout from "./layouts/DeviceTransferLayout";
 import DeviceTransfer from "./pages/transferDevice/DeviceTransfer";
+import AssemblyToTrc from "./pages/transferDevice/AssemblyToTrc";
 import CreatePartCodeChallan from "@/pages/partCodeChallan/CreatePartCodeChallan";
 import CreatePartCodeChallanLayout from "@/layouts/CreatePartCodeChallanLayout";
 import SwipeTransferLayout from "./layouts/SwipeTransferLayout";
@@ -305,6 +308,16 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <DeviceTransferLayout>
+              <AssemblyToTrc />
+            </DeviceTransferLayout>
+          </MainLayout>
+        ),
+        path: "/device/assembly-to-trc",
+      },
+      {
+        element: (
+          <MainLayout>
             <SwipeTransferLayout>
               <SwipeTransfer />
             </SwipeTransferLayout>
@@ -375,6 +388,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-components/report",
+      },
+       {
+        element: (
+          <MainLayout>
+            <PercentageComponentLayout>
+              <PurchasedHistory />
+            </PercentageComponentLayout>
+          </MainLayout>
+        ),
+        path: "/master-components/purchase-history",
       },
       {
         element: (
@@ -693,16 +716,7 @@ export const router = createBrowserRouter([
         ),
         path: "/procurement/edit-po/:id",
       },
-      {
-        element: (
-          <MainLayout>
-            <ProcurementLayout>
-              <ManagePO />
-            </ProcurementLayout>
-          </MainLayout>
-        ),
-        path: "/procurement/manage",
-      },
+ 
       {
         element: (
           <MainLayout>
@@ -725,7 +739,9 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <MinLayout>
             <MINFromPO />
+            </MinLayout>
           </MainLayout>
         ),
         path: "/material-in-with-po",
@@ -1257,6 +1273,11 @@ export const router = createBrowserRouter([
         path: "/warehouse/part-code-conversion-report",
       },
     ],
+  },
+
+  {
+    path: "/po/adminApprovalPage/*",
+    element: <AdminApprovalPage />,
   },
   {
     path: "*",

@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { PoListResponse, PoStateType } from "./poTypes";
+import { ComponentPoDetailsResponse, PoListResponse, PoStateType } from "./poTypes";
 
 const initialState: PoStateType = {
   data: [],
@@ -16,8 +16,18 @@ const initialState: PoStateType = {
   fetchPOData:[],
   completedPoData:[],
   submitPOMINLoading:false,
+  shortCloseLoading:false,
   uploadMinInvoiceLoading:false,
+  componentPoDetailsLoading:false,
 };
+
+export const getComponentPoDetails = createAsyncThunk<
+  AxiosResponse<ComponentPoDetailsResponse>,
+  { components: string[] }
+>("po/getComponentPoDetails", async (payload) => {
+  const response = await axiosInstance.post("/componentPercentage/getComponentPoDetails", payload);
+  return response;
+});
 export const getListofPo = createAsyncThunk<
   AxiosResponse<PoListResponse>,
   { wise: "powise" | "datewise" | "vendorwise" | string ; data: string; limit: number; page: number }
@@ -85,8 +95,8 @@ export const getPartCodeChallanDetail = createAsyncThunk<AxiosResponse<any>, { i
   const response = await axiosInstance.post("/challan/fetchPerforma", { challanId: payload.id });
   return response;
 });
-export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, string>("po/getPOComponentDetail", async (id) => {
-  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${id}`);
+export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, any>("po/getPOComponentDetail", async (payload) => {
+  const response = await axiosInstance.get(`/po/getComponentDetailsByCodeV2/${payload?.id}?ven_id=${payload?.vendor_id}`);
   return response;
 });
 
@@ -108,6 +118,18 @@ export const fetchDataForMIN   = createAsyncThunk<AxiosResponse<any>, string>("p
 export const submitPOMIN = createAsyncThunk<AxiosResponse<any>, any>("po/submitPOMIN", async (payload) => {
   const response = await axiosInstance.post("/po/poMIN", payload);
   return response;
+});
+
+export const shortClosePOItems = createAsyncThunk<
+  AxiosResponse<any>,
+  { po_number: string; ids: (string | number)[] }
+>("po/shortClosePOItems", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post("/po/updatePOItemStatus", payload);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data ?? { message: error.message });
+  }
 });
 
 export const uploadMinInvoice = createAsyncThunk<
@@ -213,6 +235,16 @@ const procurementPoSlice = createSlice({
         state.submitPOMINLoading = false;
         state.error = action.error.message;
       })
+      .addCase(shortClosePOItems.pending, (state) => {
+        state.shortCloseLoading = true;
+      })
+      .addCase(shortClosePOItems.fulfilled, (state) => {
+        state.shortCloseLoading = false;
+      })
+      .addCase(shortClosePOItems.rejected, (state, action) => {
+        state.shortCloseLoading = false;
+        state.error = action.error.message;
+      })
       .addCase(fetchDataForMIN.pending, (state) => {
         state.loading = true;
       })
@@ -296,6 +328,16 @@ const procurementPoSlice = createSlice({
       })
       .addCase(updatePO.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getComponentPoDetails.pending, (state) => {
+        state.componentPoDetailsLoading = true;
+      })
+      .addCase(getComponentPoDetails.fulfilled, (state) => {
+        state.componentPoDetailsLoading = false;
+      })
+      .addCase(getComponentPoDetails.rejected, (state, action) => {
+        state.componentPoDetailsLoading = false;
         state.error = action.error.message;
       })
       .addCase(createPartCodeChallan.pending, (state) => {

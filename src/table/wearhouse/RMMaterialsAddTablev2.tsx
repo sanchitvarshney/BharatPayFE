@@ -232,7 +232,7 @@ const RMMaterialsAddTablev2: React.FC<Props> = ({ rowData, setRowData, setTotal 
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-200px)]">
+    <div className=" ag-theme-quartz h-full">
       <AgGridReact
         suppressCellFocus={false}
         ref={gridRef}

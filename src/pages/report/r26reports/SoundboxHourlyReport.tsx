@@ -19,6 +19,7 @@ const SoundboxHourlyReport: React.FC = () => {
       loading={soundboxHourlyReportLoading}
       sheetName="Soundbox Hourly Report"
       filePrefix="Soundbox_Hourly_Report"
+      isSoundbox={true}
     />
   );
 };

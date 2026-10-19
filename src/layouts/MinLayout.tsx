@@ -14,7 +14,7 @@ const MinLayout: React.FC<Props> = ({ children }) => {
 
   // Determine the active tab based on the current route
   // const tabRoutes = ["/raw-min", "/raw-min-v2", "/sim-min"];
-  const tabRoutes = [ "/raw-min", "/sim-min"];
+  const tabRoutes = ["/raw-min", "/sim-min", "/material-in-with-po"];
   const currentTabIndex = tabRoutes.indexOf(location.pathname);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -37,7 +37,7 @@ const MinLayout: React.FC<Props> = ({ children }) => {
           onChange={handleChange}
           centered
         >
-          {/* <Tab
+          <Tab
             sx={{ fontWeight: "500" }}
             label={
               <div className="flex items-center gap-[10px]">
@@ -45,18 +45,7 @@ const MinLayout: React.FC<Props> = ({ children }) => {
                 RAW MIN
               </div>
             }
-          /> */}
-          {/* {import.meta.env.VITE_REACT_APP_ENVIRONMENT === "DEV" && ( */}
-            <Tab
-              sx={{ fontWeight: "500" }}
-              label={
-                <div className="flex items-center gap-[10px]">
-                  <Icons.grid fontSize="small" />
-                  RAW MIN 
-                </div>
-              }
-            />
-          {/* )} */}
+          />
 
           <Tab
             sx={{ fontWeight: "500" }}
@@ -67,9 +56,20 @@ const MinLayout: React.FC<Props> = ({ children }) => {
               </div>
             }
           />
+          <Tab
+            sx={{ fontWeight: "500" }}
+            label={
+              <div className="flex items-center gap-[10px]">
+             <Icons.grid fontSize="small" />
+                PO MIN
+              </div>
+            }
+          />
         </Tabs>
       </div>
-      <Box sx={{ height: "calc(100vh - 100px)" }}>{children}</Box>
+      <Box sx={{ height: "calc(100vh - 100px)", overflow: "hidden" }}>
+        {children}
+      </Box>
     </div>
   );
 };
