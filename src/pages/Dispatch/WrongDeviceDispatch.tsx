@@ -166,6 +166,7 @@ const WrongDeviceDispatch: React.FC = () => {
   const [uploadConfirmOpen, setUploadConfirmOpen] = useState(false);
   const [pendingUploadRows, setPendingUploadRows] = useState<RowData[]>([]);
   const awbInputRef = useRef<HTMLInputElement>(null);
+  const serialInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const { handleSubmit, reset, setValue, watch } = useForm<FormDataType>({
@@ -215,6 +216,10 @@ const WrongDeviceDispatch: React.FC = () => {
 
   const focusAwbInput = () => {
     setTimeout(() => awbInputRef.current?.focus(), 0);
+  };
+
+  const focusSerialInput = () => {
+    setTimeout(() => serialInputRef.current?.focus(), 0);
   };
 
   const resetAll = () => {
@@ -454,6 +459,8 @@ const WrongDeviceDispatch: React.FC = () => {
 
     if (rowData.some((row) => row.serialNo === serial)) {
       showToast("This Serial No already exists", "error");
+      setSerialNo("");
+      focusSerialInput();
       return;
     }
 
@@ -464,6 +471,7 @@ const WrongDeviceDispatch: React.FC = () => {
     const awbNo = awb || typedAwb;
     if (!awbNo) {
       showToast(message || "AWB not found for this Serial No", "error");
+      focusSerialInput();
       return;
     }
 
@@ -471,7 +479,7 @@ const WrongDeviceDispatch: React.FC = () => {
     setLastScannedAwb(awbNo);
     setSerialNo("");
     setAwbInput("");
-    // focusAwbInput();
+    focusSerialInput();
   };
 
   const handleClearAll = () => {
@@ -576,6 +584,7 @@ const WrongDeviceDispatch: React.FC = () => {
                     }}
                   />
                   <TextField
+                    inputRef={serialInputRef}
                     value={serialNo}
                     label="Serial No"
                     placeholder="Enter Serial No and press Enter"
