@@ -471,7 +471,7 @@ const WrongDeviceDispatch: React.FC = () => {
     setLastScannedAwb(awbNo);
     setSerialNo("");
     setAwbInput("");
-    focusAwbInput();
+    // focusAwbInput();
   };
 
   const handleClearAll = () => {
