@@ -191,6 +191,8 @@ const WrongDeviceDispatch: React.FC = () => {
     return { totalQty, awbCount, lastScanned };
   }, [rowData, lastScannedAwb]);
   const { totalQty, awbCount, lastScanned } = scanSummary;
+  const remainingQty = dispatchQty ? dispatchQty - totalQty : Infinity;
+  const qtyFullMessage = `Dispatch quantity of ${dispatchQty} is already complete. Remove an item to scan another.`;
   const qtyStatusClass = !dispatchQty
     ? "bg-neutral-100 text-neutral-700 border-neutral-300"
     : totalQty === dispatchQty
@@ -374,6 +376,13 @@ const WrongDeviceDispatch: React.FC = () => {
     const awbNo = awbInput.trim();
     if (!awbNo || awbLoading) return;
 
+    if (remainingQty <= 0) {
+      showToast(qtyFullMessage, "error");
+      setAwbInput("");
+      focusAwbInput();
+      return;
+    }
+
     if (rowData.some((row) => row.awbNo === awbNo)) {
       showToast(`AWB ${awbNo} is already added`, "error");
       setAwbInput("");
@@ -426,6 +435,15 @@ const WrongDeviceDispatch: React.FC = () => {
           maxQty: remarkCount,
         });
       }
+
+      const newQty = newRows.reduce((sum, row) => sum + (row.qty || 1), 0);
+      if (newQty > remainingQty) {
+        showToast(
+          `AWB ${awb} has ${newQty} device(s), but only ${remainingQty} remaining for dispatch quantity of ${dispatchQty}.`,
+          "error",
+        );
+        return;
+      }
       setRowData((prev) => [...newRows, ...prev]);
       setLastScannedAwb(awb);
     } catch (error: any) {
@@ -450,13 +468,19 @@ const WrongDeviceDispatch: React.FC = () => {
     }
   };
 
-  // Manual entry: Serial No is looked up to find its AWB; if the lookup fails
-  // the typed AWB is used.
+  
   const handleManualAdd = async () => {
     setLastScannedAwb(null);
     const typedAwb = awbInput.trim();
     const serial = serialNo.trim();
     if (!serial || serialLoading) return;
+
+    if (remainingQty <= 0) {
+      showToast(qtyFullMessage, "error");
+      setSerialNo("");
+      focusSerialInput();
+      return;
+    }
 
     if (rowData.some((row) => row.serialNo === serial)) {
       showToast("This Serial No already exists", "error");
