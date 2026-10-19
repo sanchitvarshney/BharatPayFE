@@ -86,10 +86,16 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
           <Tooltip title="Remove">
             <IconButton
               size="small"
-              onClick={() =>
-                // remove by reference so it stays correct when the grid is sorted
-                setRowdata((prev) => prev.filter((row) => row !== params.data))
-              }
+              onClick={() => {
+                setRowdata((prev) => prev.filter((row) => row !== params.data));
+                const { awbNo, serialNo } = params.data ?? {};
+                showToast(
+                  serialNo && serialNo !== "--"
+                    ? `Removed Serial No ${serialNo} (AWB ${awbNo})`
+                    : `Removed AWB ${awbNo}`,
+                  "info",
+                );
+              }}
             >
               <DeleteIcon fontSize="small" color="error" />
             </IconButton>
