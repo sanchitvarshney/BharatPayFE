@@ -165,6 +165,7 @@ const WrongDeviceDispatch: React.FC = () => {
   const [lastScannedAwb, setLastScannedAwb] = useState<string | null>(null);
   const [uploadConfirmOpen, setUploadConfirmOpen] = useState(false);
   const [pendingUploadRows, setPendingUploadRows] = useState<RowData[]>([]);
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
   const awbInputRef = useRef<HTMLInputElement>(null);
   const serialInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -485,6 +486,9 @@ const WrongDeviceDispatch: React.FC = () => {
   const handleClearAll = () => {
     setRowData([]);
     setLastScannedAwb(null);
+    setAwbInput("");
+    setSerialNo("");
+    setClearConfirmOpen(false);
     focusAwbInput();
   };
 
@@ -499,6 +503,16 @@ const WrongDeviceDispatch: React.FC = () => {
         confirmText="Continue"
         color="primary"
         onConfirm={handleUploadConfirm}
+      />
+      <ConfirmationModel
+        open={clearConfirmOpen}
+        onClose={() => setClearConfirmOpen(false)}
+        title="Clear all scanned data?"
+        content="All scanned AWBs and serial numbers will be removed. Do you want to continue?"
+        cancelText="Cancel"
+        confirmText="Clear All"
+        color="error"
+        onConfirm={handleClearAll}
       />
       {getChallanLoading && <FullPageLoading />}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white">
@@ -770,7 +784,7 @@ const WrongDeviceDispatch: React.FC = () => {
                     color="error"
                     startIcon={<DeleteSweep />}
                     disabled={!rowData.length}
-                    onClick={handleClearAll}
+                    onClick={() => setClearConfirmOpen(true)}
                   >
                     Clear All
                   </Button>
