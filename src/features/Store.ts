@@ -28,6 +28,7 @@ import client from "@/features/master/client/clientSlice";
 import dashboard from "@/features/Dashboard/Dashboard";
 import uploadReducer from "@/features/upload/uploadSlice";
 import procurementReducer from "@/features/procurement/poSlices";
+import adminApprovalRemarkReducer from "@/features/procurement/adminApprovalRemarkSlice";
 import materialManagementReducer from "@/features/materialManagement/materialManagementSlices";
 import partCodeConversionReducer from "@/features/partCodeConversion/partCodeConversionSlices";
 import gpdcChallanReducer from "@/features/GPDCChallan/GPDCChallanSlice";
@@ -71,6 +72,7 @@ export const store = configureStore({
     dashboard,
     upload: uploadReducer,
     po: procurementReducer,
+    adminApprovalRemark: adminApprovalRemarkReducer,
     materialManagement: materialManagementReducer,
     partCodeConversion: partCodeConversionReducer,
     gpdcChallan: gpdcChallanReducer,

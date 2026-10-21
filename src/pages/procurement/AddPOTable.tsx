@@ -23,6 +23,8 @@ interface RowData {
   location: { lable: string; value: string } | null;
   autoConsump: string;
   remarks: string;
+  brand: string;
+  specification: string;
   id: string;
   currency: string;
   isNew?: boolean;
@@ -79,6 +81,8 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, 
       location: null,
       autoConsump: "",
       remarks: "",
+      brand: "",
+      specification: "",
       currency: currency,
       isNew: true,
       excRate: exchange,
@@ -218,6 +222,18 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, 
       cellRenderer: "textInputCellRenderer",
     },
     {
+      headerName: "Brand Name",
+      field: "brand",
+      cellRenderer: "textInputCellRenderer",
+      minWidth: 200,
+    },
+    {
+      headerName: "Other Specification",
+      field: "specification",
+      cellRenderer: "textInputCellRenderer",
+      minWidth: 300,
+    },
+    {
       headerName: "Remarks",
       field: "remarks",
       cellRenderer: "textInputCellRenderer",
@@ -248,7 +264,7 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, 
           }
         }}
         navigateToNextCell={() => {
-          return null; // Returning null prevents default focus movement
+          return null; 
         }}
         columnDefs={columnDefs}
         rowData={rowData}
