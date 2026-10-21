@@ -18,6 +18,8 @@ const NUMERIC_FIELDS = [
   "swipe_p10",
   "swipe_g24g",
   "swipe_ingenico",
+  "sr600_mini_digital",
+  "sr600_mini_static",
   "swipe_assembly",
   "swipe_storeAdmin",
   "swipe_quality",
@@ -134,21 +136,21 @@ const columnDefs: any[] = [
         width: 170,
         maxWidth: 250,
       },
-       {
+      {
         headerName: "SR600 Mini Digital Revenue",
         field: "sr600_mini_digital",
         headerClass: WR_GROUP_1,
-        minWidth: 200,
+        minWidth: 150,
         width: 170,
-        maxWidth: 300,
+        maxWidth: 250,
       },
-       {
+      {
         headerName: "SR600 Mini Static Revenue",
         field: "sr600_mini_static",
         headerClass: WR_GROUP_1,
-        minWidth: 200,
+        minWidth: 150,
         width: 170,
-        maxWidth: 300,
+        maxWidth: 250,
       },
       {
         headerName: "Assembly",
@@ -560,6 +562,8 @@ const WorkersReports = () => {
     const sp2 = sumField("swipe_p10");
     const sp3 = sumField("swipe_g24g");
     const sp4 = sumField("swipe_ingenico");
+    const sp5 = sumField("sr600_mini_digital");
+    const sp6 = sumField("sr600_mini_static");
     const sP = sumField("swipe_profitLoss");
 
     const soundp = sumField("soundbox_production");
@@ -580,7 +584,7 @@ const WorkersReports = () => {
     }
 
     return {
-      swipe: pct(sp1 + sp2 + sp3 + sp4, sP),
+      swipe: pct(sp1 + sp2 + sp3 + sp4 + sp5 + sp6, sP),
       soundbox: pct(soundp, sound),
       cleaning: pct(cleanp, clean),
       gtotal,
