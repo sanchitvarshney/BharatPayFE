@@ -328,6 +328,10 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
         return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
       case "remarks":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
+      case "brand":
+        return <Input onChange={handleInputChange} value={value} maxLength={100}type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
+      case "specification":
+        return <Input onChange={handleInputChange} value={value} maxLength={200}type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
     }
   };
 

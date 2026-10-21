@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  TextField,
   Typography,
   useMediaQuery,
   useTheme,
@@ -24,6 +23,8 @@ import {
   RefreshApprovalItem,
 } from "@/features/procurement/poRateService";
 import { Refresh } from "@mui/icons-material";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { setApprovalRemark } from "@/features/procurement/adminApprovalRemarkSlice";
 import { ApprovalItemCards, ApprovalItemsTable } from "./adminApproval/ApprovalItems";
 import ComponentMetaDrawer from "./adminApproval/ComponentMetaPanel";
 import { formatDateTime, isPendingStatus } from "./adminApproval/helpers";
@@ -55,7 +56,9 @@ const AdminApprovalPage: React.FC = () => {
   const [requestInfo, setRequestInfo] = useState<RequestInfo | null>(null);
   const [items, setItems] = useState<RefreshApprovalItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [remarks, setRemarks] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const reasons = useAppSelector((state) => state.adminApprovalRemark.remarks);
+  const [reasonErrorIds, setReasonErrorIds] = useState<Set<number>>(new Set());
   const [submittingStatus, setSubmittingStatus] =
     useState<DecisionStatus | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -158,6 +161,15 @@ const AdminApprovalPage: React.FC = () => {
     setActiveKey(componentKey);
   }, []);
   const closeDetails = useCallback(() => setActiveKey(null), []);
+  const changeReason = useCallback((id: number, value: string) => {
+    dispatch(setApprovalRemark({ id, value }));
+    setReasonErrorIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, [dispatch]);
   const showPrev = useCallback(() => {
     if (activeIndex > 0) setActiveKey(items[activeIndex - 1].component_key);
   }, [items, activeIndex]);
@@ -170,14 +182,27 @@ const AdminApprovalPage: React.FC = () => {
     const targetItems = pendingItems.filter((item) => selectedIds.has(item.id));
     if (targetItems.length === 0) return;
 
+    if (status === "REJECTED") {
+      const missing = targetItems.filter((item) => !reasons[item.id]?.trim());
+      if (missing.length > 0) {
+        setReasonErrorIds(new Set(missing.map((item) => item.id)));
+        setSubmitError("Enter a reason for every component you are rejecting.");
+        return;
+      }
+    }
+
     setSubmittingStatus(status);
     setSubmitError(null);
+    setReasonErrorIds(new Set());
     try {
       await submitAdminApproval(
         reqId,
         token,
-        targetItems.map((item) => ({ id: item.id, status })),
-        remarks,
+        targetItems.map((item) => ({
+          id: item.id,
+          status,
+          remarks: (reasons[item.id] || "").trim(),
+        })),
       );
       const decidedIds = new Set(targetItems.map((item) => item.id));
       setItems((prev) =>
@@ -210,6 +235,9 @@ const AdminApprovalPage: React.FC = () => {
     onToggle: toggleSelected,
     onToggleAll: toggleSelectAllPending,
     onShowDetails: showDetails,
+    reasons,
+    reasonErrorIds,
+    onReasonChange: changeReason,
   };
 
   return (
@@ -220,7 +248,7 @@ const AdminApprovalPage: React.FC = () => {
         p: { xs: 1, sm: 2, lg: 3 },
       }}
     >
-      <Box sx={{ maxWidth: 1400, mx: "auto" }}>
+      <Box sx={{ width: "100%", maxWidth: { xs: "100%", xl: 1600 }, mx: "auto" }}>
       <Box
         sx={{
           display: "flex",
@@ -322,16 +350,6 @@ const AdminApprovalPage: React.FC = () => {
 
                 {!isDecided && (
                   <>
-                    <TextField
-                      label="Remarks (optional)"
-                      value={remarks}
-                      onChange={(e) => setRemarks(e.target.value)}
-                      fullWidth
-                      multiline
-                      minRows={2}
-                      sx={{ mt: 3 }}
-                    />
-
                     {submitError && (
                       <Alert severity="error" sx={{ mt: 2 }}>
                         {submitError}
