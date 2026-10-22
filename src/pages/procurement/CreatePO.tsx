@@ -565,6 +565,7 @@ const CreatePO: React.FC = () => {
               remarks: item.remark,
               brand: item.brand || "",
               specification: item.specification || "",
+              type: item.type || "",
               currency: {
                 value: item.header?.currency?.value,
                 label: item.header?.currency?.label,

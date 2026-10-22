@@ -221,6 +221,11 @@ const AddPOTable: React.FC<Props> = ({ rowData, setRowData, setTotal, exchange, 
       field: "igst",
       cellRenderer: "textInputCellRenderer",
     },
+     {
+      headerName: "Type",
+      field: "type",
+      cellRenderer: "textInputCellRenderer",
+    },
     {
       headerName: "Brand Name",
       field: "brand",

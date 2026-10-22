@@ -126,6 +126,8 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
                 if(res.payload.data.status==="success"){
                   data["hsnCode"]=res.payload.data.data.hsn;
                        data["gstRate"]=res.payload.data.data.gst_rate;
+                  data["type"] = res.payload.data.data.type;
+                  api.refreshCells({ rowNodes: [props.node], columns: ["type"] });
                     loadInitialRate(res.payload.data.data);
                 }
               });
@@ -329,7 +331,9 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
         return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
       case "remarks":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
-      case "brand":
+      case "type":
+        return <span>{value}</span>;
+        case "brand":
         return <Input onChange={handleInputChange} value={value} maxLength={100}type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
       case "specification":
         return <Input onChange={handleInputChange} value={value} maxLength={200}type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
