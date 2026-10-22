@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -20,15 +20,38 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HistoryIcon from "@mui/icons-material/History";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import {
+  ComponentLog,
   ComponentMetaData,
+  PurchaseRecord,
   RefreshApprovalItem,
 } from "@/features/procurement/poRateService";
 import {
   formatDateTime,
+  formatDmy,
   formatRate,
   getStatusChip,
   isPendingStatus,
+  parseDateTime,
+  parseDmy,
 } from "./helpers";
+
+const byLatestPurchase = (a: PurchaseRecord, b: PurchaseRecord) =>
+  parseDmy(b.purchase_date) - parseDmy(a.purchase_date);
+
+const vendorRateKey = (record: PurchaseRecord) =>
+  `${record.vendor_id}-${record.rate}`;
+
+// Latest purchase per vendor + rate, excluding the vendor of this request
+const getOtherVendors = (records: PurchaseRecord[] = []) => {
+  const latest = new Map<string, PurchaseRecord & { po_count: number }>();
+  [...records].sort(byLatestPurchase).forEach((record) => {
+    if (record.is_current_vendor) return;
+    const existing = latest.get(vendorRateKey(record));
+    if (existing) existing.po_count += 1;
+    else latest.set(vendorRateKey(record), { ...record, po_count: 1 });
+  });
+  return [...latest.values()];
+};
 
 type Props = {
   open: boolean;
@@ -82,23 +105,167 @@ const EmptyNote: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 
 
+type RateRequest = {
+  reqId: string;
+  rate: number;
+  status: string;
+  requestedAt?: string;
+  decidedAt?: string;
+  decidedBy?: string | null;
+  brand?: string | null;
+  specification?: string | null;
+  remarks?: string | null;
+};
+
+const PAGE_SIZE = 5;
+
+const latestTime = (request: RateRequest) =>
+  Math.max(parseDateTime(request.decidedAt), parseDateTime(request.requestedAt));
+
+// Merges the "raised" and "decided" log rows of each request into one entry
+const groupLogsByRequest = (logs: ComponentLog[] = []) => {
+  const requests = new Map<string, RateRequest>();
+  logs.forEach((log) => {
+    const entry: RateRequest = requests.get(log.req_id) ?? {
+      reqId: log.req_id,
+      rate: log.rate,
+      status: "pending",
+    };
+    if (isPendingStatus(log.status)) {
+      entry.requestedAt = log.date;
+    } else {
+      entry.status = log.status.toLowerCase();
+      entry.decidedAt = log.date;
+      entry.decidedBy = log.action_by_name;
+      entry.remarks = log.remarks;
+    }
+    entry.rate = log.rate;
+    entry.brand = log.brand || entry.brand;
+    entry.specification = log.specification || entry.specification;
+    requests.set(log.req_id, entry);
+  });
+  return [...requests.values()].sort((a, b) => latestTime(b) - latestTime(a));
+};
+
+
+const RateRequestCard: React.FC<{
+  request: RateRequest;
+  isCurrent: boolean;
+}> = ({ request, isCurrent }) => {
+  const chip = getStatusChip(request.status);
+  const isPending = isPendingStatus(request.status);
+  const remark = request.remarks?.trim();
+
+  return (
+    <Box
+      sx={{
+        p: 1.5,
+        borderRadius: 1,
+        border: "1px solid",
+        borderColor: isCurrent ? "warning.light" : "divider",
+        borderLeft: "4px solid",
+        borderLeftColor: statusDotColor[chip.color],
+        bgcolor: isCurrent ? "#fffaf0" : "background.paper",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 1,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ lineHeight: 1.2 }}>
+            ₹ {formatRate(request.rate)}
+          </Typography>
+          {isCurrent && (
+            <Chip
+              size="small"
+              label="Current request"
+              color="warning"
+              sx={{ height: 20, fontSize: 11 }}
+            />
+          )}
+        </Box>
+        <Chip size="small" label={chip.label} color={chip.color} variant="outlined" />
+      </Box>
+
+      <Box sx={{ mt: 0.75, display: "flex", flexDirection: "column", gap: 0.25 }}>
+        {request.requestedAt && (
+          <Typography variant="caption" color="text.secondary">
+            Requested · {formatDateTime(request.requestedAt)}
+          </Typography>
+        )}
+        {!isPending && (
+          <Typography variant="caption" color="text.secondary">
+            {chip.label}
+            {request.decidedBy ? ` by ${request.decidedBy}` : ""} ·{" "}
+            {formatDateTime(request.decidedAt)}
+          </Typography>
+        )}
+      </Box>
+
+      {(request.brand || request.specification) && (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, mt: 1 }}>
+          {request.brand && (
+            <Chip
+              size="small"
+              variant="outlined"
+              label={`Brand: ${request.brand}`}
+              sx={{ maxWidth: "100%" }}
+            />
+          )}
+          {request.specification && (
+            <Chip
+              size="small"
+              variant="outlined"
+              label={`Spec: ${request.specification}`}
+              sx={{ maxWidth: "100%" }}
+            />
+          )}
+        </Box>
+      )}
+
+      {remark && (
+        <Box
+          sx={{
+            mt: 1,
+            px: 1.25,
+            py: 0.75,
+            borderRadius: 1,
+            bgcolor: "#f5f6fa",
+          }}
+        >
+          <Typography variant="caption" color="text.secondary" component="div">
+            APR/REJ Remark
+          </Typography>
+          <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
+            {remark}
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  );
+};
+
 const RateTimeline: React.FC<{ meta: ComponentMetaData; reqId: string }> = ({
   meta,
   reqId,
 }) => {
-  const logs = useMemo(
-    () =>
-      meta.component_logs
-        .filter((log) => !isPendingStatus(log.status))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+  const [visible, setVisible] = useState<number>(PAGE_SIZE);
+
+  const requests = useMemo(
+    () => groupLogsByRequest(meta.component_logs),
     [meta.component_logs],
   );
 
   return (
     <Accordion
+      defaultExpanded
       disableGutters
       elevation={0}
-      slotProps={{ transition: { unmountOnExit: true } }}
       sx={{
         mb: 2,
         borderRadius: 1,
@@ -112,83 +279,32 @@ const RateTimeline: React.FC<{ meta: ComponentMetaData; reqId: string }> = ({
         <SectionHeader
           icon={<HistoryIcon fontSize="small" />}
           title="Rate History"
-          count={logs.length}
+          count={requests.length}
           mb={0}
         />
       </AccordionSummary>
       <AccordionDetails sx={{ px: 2, pt: 0, pb: 2 }}>
-      {logs.length === 0 ? (
-        <EmptyNote>No approved or rejected rates yet.</EmptyNote>
-      ) : (
-        <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0 }}>
-          {logs.map((log, index) => {
-            const chip = getStatusChip(log.status);
-            const isLast = index === logs.length - 1;
-            return (
-              <Box
-                component="li"
-                key={`${log.req_id}-${log.date}-${index}`}
-                sx={{ display: "flex", gap: 1.5 }}
+        {requests.length === 0 ? (
+          <EmptyNote>No rate requests for this component yet.</EmptyNote>
+        ) : (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {requests.slice(0, visible).map((request) => (
+              <RateRequestCard
+                key={request.reqId}
+                request={request}
+                isCurrent={request.reqId === reqId}
+              />
+            ))}
+            {requests.length > visible && (
+              <Button
+                size="small"
+                onClick={() => setVisible((prev) => prev + PAGE_SIZE)}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    pt: 0.75,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      bgcolor: statusDotColor[chip.color],
-                      flexShrink: 0,
-                    }}
-                  />
-                  {!isLast && (
-                    <Box sx={{ width: 2, flex: 1, bgcolor: "divider", my: 0.5 }} />
-                  )}
-                </Box>
-                <Box
-                  sx={{
-                    flex: 1,
-                    minWidth: 0,
-                    pb: isLast ? 0 : 2,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 1,
-                    }}
-                  >
-                    <Typography variant="body2" fontWeight={700}>
-                      ₹ {formatRate(log.rate)}
-                    </Typography>
-                    <Chip size="small" label={chip.label} color={chip.color} variant="outlined" />
-                  </Box>
-                  <Typography variant="caption" color="text.secondary" component="div">
-                    {formatDateTime(log.date)}
-                    {log.action_by_name ? ` · by ${log.action_by_name}` : ""}
-                  </Typography>
-                  {log.req_id === reqId && (
-                    <Chip
-                      size="small"
-                      label="This request"
-                      color="warning"
-                      sx={{ mt: 0.5, height: 18, fontSize: 10 }}
-                    />
-                  )}
-                </Box>
-              </Box>
-            );
-          })}
-        </Box>
-      )}
+                Show more ({requests.length - visible} remaining)
+              </Button>
+            )}
+          </Box>
+        )}
       </AccordionDetails>
     </Accordion>
   );
@@ -198,7 +314,10 @@ const OtherVendors: React.FC<{
   meta: ComponentMetaData;
 }> = ({ meta }) => {
   const vendors = useMemo(
-    () => [...meta.other_vendors].sort((a, b) => a.rate - b.rate),
+    () =>
+      getOtherVendors(meta.other_vendors).sort(
+        (a, b) => a.rate - b.rate || byLatestPurchase(a, b),
+      ),
     [meta.other_vendors],
   );
 
@@ -218,7 +337,7 @@ const OtherVendors: React.FC<{
            
             return (
               <Box
-                key={vendor.vendor_id}
+                key={vendorRateKey(vendor)}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -236,7 +355,8 @@ const OtherVendors: React.FC<{
                     {vendor.vendor_name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" component="div">
-                    {vendor.vendor_id} · Last updated {formatDateTime(vendor.updated_date)}
+                    Last PO {vendor.po_number} · {formatDmy(vendor.purchase_date)}
+                    {vendor.po_count > 1 ? ` · ${vendor.po_count} POs at this rate` : ""}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "right", flexShrink: 0 }}>
@@ -267,8 +387,9 @@ const ComponentMetaDrawer: React.FC<Props> = ({
   onNext,
 }) => {
   const requestedRate = Number(item?.requested_rate ?? 0);
-  const lowestOther = meta?.other_vendors.length
-    ? meta.other_vendors.reduce((min, v) => (v.rate < min.rate ? v : min))
+  const otherVendors = getOtherVendors(meta?.other_vendors);
+  const lowestOther = otherVendors.length
+    ? otherVendors.reduce((min, v) => (v.rate < min.rate ? v : min))
     : undefined;
   const statusChip = getStatusChip(item?.status);
 

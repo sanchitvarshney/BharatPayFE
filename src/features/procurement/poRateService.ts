@@ -7,6 +7,8 @@ export type RateApprovalItem = {
   id: string;
   componentKey: string;
   componentLabel: string;
+  brand: string;
+  specification: string;
   initialRate: number;
   enteredRate: number;
 };
@@ -33,6 +35,8 @@ export const requestPriceApproval = async (
     components: items.map((item) => ({
       component_key: item.componentKey,
       requested_rate: item.enteredRate,
+      brand: item.brand,
+      specification: item.specification,
       remark: remarks[item.id]?.trim() || "",
     })),
   });
@@ -46,6 +50,9 @@ export type RefreshApprovalItem = {
   component_key: string;
   part_code: string;
   component_name: string;
+  unit?: string | null;
+  brand?: string | null;
+  specification?: string | null;
   current_rate: string;
   requested_rate: string;
   is_new_pair?: number;
@@ -100,13 +107,20 @@ export type ComponentLog = {
   status: string;
   action_by?: string | null;
   action_by_name: string | null;
+  remarks?: string | null;
+  brand?: string | null;
+  specification?: string | null;
 };
 
-export type OtherVendorRate = {
+export type PurchaseRecord = {
   vendor_id: string;
   vendor_name: string;
+  is_current_vendor: boolean;
   rate: number;
-  updated_date: string;
+  order_qty: string;
+  po_number: string;
+  currency: string;
+  purchase_date: string; // DD-MM-YYYY
 };
 
 export type ComponentMetaData = {
@@ -114,7 +128,8 @@ export type ComponentMetaData = {
   part_code: string;
   component_name: string;
   component_logs: ComponentLog[];
-  other_vendors: OtherVendorRate[];
+  purchase_history?: PurchaseRecord[];
+  other_vendors: PurchaseRecord[];
 };
 
 export type ComponentMetaDataResponse = {
@@ -143,6 +158,7 @@ export const getComponentMetaData = async (
 export type AdminApprovalDecision = {
   id: number;
   status: "APPROVED" | "REJECTED";
+  remarks: string;
 };
 
 type SubmitAdminApprovalResponse = {
@@ -154,13 +170,11 @@ export const submitAdminApproval = async (
   reqId: string,
   token: string,
   decisions: AdminApprovalDecision[],
-  remarks?: string,
 ): Promise<SubmitAdminApprovalResponse> => {
   const response = await publicAxiosInstance.post(
     "/po/submitAdminApproval",
     {
       req_id: reqId,
-      remarks: remarks || "",
       decisions,
     },
     { headers: { Authorization: `Bearer ${token}` } },

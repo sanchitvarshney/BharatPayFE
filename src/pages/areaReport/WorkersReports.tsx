@@ -18,6 +18,8 @@ const NUMERIC_FIELDS = [
   "swipe_p10",
   "swipe_g24g",
   "swipe_ingenico",
+  "sr600_mini_digital",
+  "sr600_mini_static",
   "swipe_assembly",
   "swipe_storeAdmin",
   "swipe_quality",
@@ -83,6 +85,18 @@ const columnDefs: any[] = [
     field: "date",
     minWidth: 150,
     flex: 1,
+    filter: "agDateColumnFilter",
+    filterParams: {
+      buttons: ["reset", "apply"],
+      comparator: (filterDate: Date, cellValue: string) => {
+        if (!cellValue) return -1;
+        const cell = dayjs(cellValue, ["DD-MM-YYYY", "YYYY-MM-DD", "DD/MM/YYYY"]);
+        if (!cell.isValid()) return -1;
+        const filter = dayjs(filterDate);
+        if (cell.isSame(filter, "day")) return 0;
+        return cell.isBefore(filter, "day") ? -1 : 1;
+      },
+    },
     headerClass: `${WR_GROUP_0} ${WR_LAST_0}`,
     cellClass: WR_LAST_0,
   },
@@ -117,6 +131,22 @@ const columnDefs: any[] = [
       {
         headerName: "Ingenico Revenue",
         field: "swipe_ingenico",
+        headerClass: WR_GROUP_1,
+        minWidth: 150,
+        width: 170,
+        maxWidth: 250,
+      },
+      {
+        headerName: "SR600 Mini Digital Revenue",
+        field: "sr600_mini_digital",
+        headerClass: WR_GROUP_1,
+        minWidth: 150,
+        width: 170,
+        maxWidth: 250,
+      },
+      {
+        headerName: "SR600 Mini Static Revenue",
+        field: "sr600_mini_static",
         headerClass: WR_GROUP_1,
         minWidth: 150,
         width: 170,
@@ -401,17 +431,29 @@ const WorkersReports = () => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: "agTextColumnFilter",
-      floatingFilter: true,
+      floatingFilter: false,
       sortable: true,
 
       resizable: true,
+      maxWidth: 250,
+      wrapText: true,
+      autoHeight: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
+
       cellRenderer: (params: any) => {
         const v = params.value;
         if (v === null || v === undefined) return 0;
         if (typeof v === "number" && !Number.isFinite(v)) return 0;
         return v;
       },
-      cellStyle: { textAlign: "center" },
+      cellStyle: {
+        textAlign: "center",
+        lineHeight: "1.4",
+        paddingTop: "6px",
+        paddingBottom: "6px",
+        wordBreak: "break-word",
+      },
     };
   }, []);
   const sideBar = useMemo(
@@ -520,6 +562,8 @@ const WorkersReports = () => {
     const sp2 = sumField("swipe_p10");
     const sp3 = sumField("swipe_g24g");
     const sp4 = sumField("swipe_ingenico");
+    const sp5 = sumField("sr600_mini_digital");
+    const sp6 = sumField("sr600_mini_static");
     const sP = sumField("swipe_profitLoss");
 
     const soundp = sumField("soundbox_production");
@@ -540,7 +584,7 @@ const WorkersReports = () => {
     }
 
     return {
-      swipe: pct(sp1 + sp2 + sp3 + sp4, sP),
+      swipe: pct(sp1 + sp2 + sp3 + sp4 + sp5 + sp6, sP),
       soundbox: pct(soundp, sound),
       cleaning: pct(cleanp, clean),
       gtotal,
@@ -564,53 +608,7 @@ const WorkersReports = () => {
   };
 
   return (
-    <div className="grid  w-full grid-cols-[1fr_3fr]  bg-white">
-      <div className="w-full border-r border-neutral-300">
-        <form onSubmit={handleSubmit(onSubmit)} className="p-[10px]">
-          <div className="py-[0px] flex flex-col gap-[0px]">
-            <div>
-              <label className="text-[14px] font-[500] text-slate-600 ">
-                Select Date Range
-              </label>
-              <Controller
-                name="date"
-                control={control}
-                rules={{
-                  required: "Date range is required",
-                }}
-                render={({ field }) => (
-                  <RangePicker
-                    {...field}
-                    placement="bottomRight"
-                    className="w-full h-[50px]"
-                    format="DD-MM-YYYY"
-                    placeholder={["Start date", "End date"]}
-                    value={field.value}
-                    onChange={(dates) => field.onChange(dates)}
-                    presets={rangePresets}
-                  />
-                )}
-              />
-              {errors.date && (
-                <span className=" text-[12px] text-red-500">
-               {/* @ts-ignore */}
-                  {errors.date.message}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="h-[50px] p-0 flex items-center px-[20px] gap-[10px] justify-end">
-            <LoadingButton
-              loadingPosition="start"
-              type="submit"
-              variant="contained"
-              disabled={isReportLoading}
-            >
-              Search
-            </LoadingButton>
-          </div>
-        </form>
-      </div>
+    <div className="w-full bg-white">
       <div className="flex flex-col w-full min-h-0 h-[calc(100vh-100px)]">
         {profitPercentages && (
           <div className="flex flex-wrap items-center gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 shrink-0">
@@ -683,7 +681,52 @@ const WorkersReports = () => {
             )}
           </div>
         )}
-        <div className="flex flex-wrap justify-end gap-3 p-2 ">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-2 shrink-0">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-wrap items-center gap-2"
+          >
+            <label className="text-[13px] font-[500] text-slate-600">
+              Select Date Range :
+            </label>
+            <div className="flex flex-col">
+              <Controller
+                name="date"
+                control={control}
+                rules={{
+                  required: "Date range is required",
+                }}
+                render={({ field }) => (
+                  <RangePicker
+                    {...field}
+                   
+                    placement="bottomLeft"
+                    className="w-[200px] sm:w-[300px]"
+                    format="DD-MM-YYYY"
+                    placeholder={["Start date", "End date"]}
+                    value={field.value}
+                    onChange={(dates) => field.onChange(dates)}
+                    presets={rangePresets}
+                    status={errors.date ? "error" : undefined}
+                  />
+                )}
+              />
+              {errors.date && (
+                <span className="text-[11px] text-red-500">
+                  {String(errors.date.message ?? "")}
+                </span>
+              )}
+            </div>
+            <LoadingButton
+              type="submit"
+              variant="contained"
+              size="small"
+              loading={isReportLoading}
+              disabled={isReportLoading}
+            >
+              Search
+            </LoadingButton>
+          </form>
           <Button
             variant="contained"
             color="primary"

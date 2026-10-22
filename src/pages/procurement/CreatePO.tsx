@@ -74,6 +74,8 @@ interface RowData {
   location: { lable: string; value: string } | null;
   autoConsump: string;
   remarks: string;
+  brand: string;
+  specification: string;
   id: string;
   currency: string;
   isNew?: boolean;
@@ -244,6 +246,22 @@ const CreatePO: React.FC = () => {
         `Some required fields are missing:\n${missingDetails.join("\n")}`,
         "error"
       );
+      return hasErrors;
+    }
+
+    const lengthErrors: string[] = [];
+    data.forEach((item, index) => {
+      if ((item.brand || "").trim().length > 100) {
+        lengthErrors.push(`Row ${index + 1}: Brand name cannot exceed 100 characters`);
+      }
+      if ((item.specification || "").trim().length > 200) {
+        lengthErrors.push(`Row ${index + 1}: Other specification cannot exceed 200 characters`);
+      }
+    });
+
+    if (lengthErrors.length > 0) {
+      showToast(lengthErrors.join("\n"), "error");
+      hasErrors = true;
     }
 
     return hasErrors;
@@ -299,6 +317,8 @@ const CreatePO: React.FC = () => {
           const gstrate = rowData.map((item) => Number(item.gstRate));
           const hsncode = rowData.map((item) => item.hsnCode);
           const remark = rowData.map((item) => item.remarks);
+          const brand = rowData.map((item) => (item.brand || "").trim());
+          const specification = rowData.map((item) => (item.specification || "").trim());
           const dueDate = watch("duedate");
           let formattedDueDate = "";
           if (dueDate) {
@@ -316,6 +336,8 @@ const CreatePO: React.FC = () => {
             gstrate,
             hsncode,
             remark,
+            brand,
+            specification,
             currency: formData.currency?.value || "",
             vendorname: formData.vendorname?.id || "",
             vendorbranch: formData.vendorbranch || "",
@@ -340,7 +362,6 @@ const CreatePO: React.FC = () => {
             vendor_type: "v01",            
             poRemarks: watch("remarks") || "",
           };
-          // Rows whose rate is above the vendor's initial rate need admin approval first
           const exceededRates: RateApprovalItem[] = rowData
             .filter((item) => item.initialRate != null && Number(item.rate) > Number(item.initialRate))
             .map((item) => ({
@@ -349,6 +370,8 @@ const CreatePO: React.FC = () => {
               componentLabel: item.partComponent?.label || item.partComponent?.lable || "",
               initialRate: Number(item.initialRate),
               enteredRate: Number(item.rate),
+              brand: item.brand || "",
+              specification: item.specification || "",
             }));
           if (exceededRates.length > 0) {
             setApprovalItems(exceededRates);
@@ -540,6 +563,9 @@ const CreatePO: React.FC = () => {
               sgst: Number(item.sgst) || 0,
               igst: Number(item.igst) || 0,
               remarks: item.remark,
+              brand: item.brand || "",
+              specification: item.specification || "",
+              type: item.type || "",
               currency: {
                 value: item.header?.currency?.value,
                 label: item.header?.currency?.label,

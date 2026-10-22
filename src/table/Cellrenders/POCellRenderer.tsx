@@ -10,6 +10,16 @@ import AntLocationSelectAcordinttoModule from "@/components/reusable/antSelecter
 import { getPOComponentDetail } from "@/features/procurement/poSlices";
 
 
+const toNum = (val: any): number => {
+  const n = Number(val);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const formatAmount = (val: any) => {
+  const n = toNum(val);
+  return n % 1 == 0 ? n : n.toFixed(2);
+};
+
 interface POCellRendererProps {
   props: any;
   customFunction: () => void;
@@ -29,13 +39,13 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
     const newValue = value;
     data[colDef.field] = newValue; // update the data
     if (data.gstType === "L") {
-      data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-      data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+      data["sgst"] = ((toNum(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+      data["cgst"] = ((toNum(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
       data["igst"] = 0;
     } else {
       data["sgst"] = 0;
       data["cgst"] = 0;
-      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
+      data["igst"] = (toNum(data.gstRate) / 100) * Number(data.taxableValue);
     }
     api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
   };
@@ -50,13 +60,13 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
       data["taxableValue"] = Number(data.qty) * Number(data.rate) * Number(data.excRate);
     }
     if (data.gstType === "L") {
-      data["sgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
-      data["cgst"] = ((Number(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+      data["sgst"] = ((toNum(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
+      data["cgst"] = ((toNum(data.gstRate) / 100) * Number(data.taxableValue)) / 2;
       data["igst"] = 0;
     } else {
       data["sgst"] = 0;
       data["cgst"] = 0;
-      data["igst"] = (Number(data.gstRate) / 100) * Number(data.taxableValue);
+      data["igst"] = (toNum(data.gstRate) / 100) * Number(data.taxableValue);
     }
     api.refreshCells({ rowNodes: [props.node], columns: [column, "taxableValue", "rate", "qty", "igst", "cgst", "sgst", "gstRate", "excRate"] }); // refresh the cell to show the new value
   };
@@ -125,6 +135,8 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
                 if(res.payload.data.status==="success"){
                   data["hsnCode"]=res.payload.data.data.hsn;
                        data["gstRate"]=res.payload.data.data.gst_rate;
+                  data["type"] = res.payload.data.data.type;
+                  api.refreshCells({ rowNodes: [props.node], columns: ["type"] });
                     loadInitialRate(res.payload.data.data);
                 }
               });
@@ -321,13 +333,19 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
           />
         );
       case "cgst":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
+        return <span>{formatAmount(value)}</span>;
       case "sgst":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
+        return <span>{formatAmount(value)}</span>;
       case "igst":
-        return <span>{value % 1 == 0 ? value : value?.toFixed(2) ?? "0.00"}</span>;
+        return <span>{formatAmount(value)}</span>;
       case "remarks":
         return <Input onChange={handleInputChange} value={value} type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
+      case "type":
+        return <span>{value}</span>;
+        case "brand":
+        return <Input onChange={handleInputChange} value={value} maxLength={100}type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
+      case "specification":
+        return <Input onChange={handleInputChange} value={value} maxLength={200}type="text" placeholder={colDef.headerName} className="w-[100%] custom-input" />;
     }
   };
 

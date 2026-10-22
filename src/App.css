@@ -63,6 +63,23 @@
   color: #0f172a;
 }
 
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell,
+.ag-theme-quartz.workers-report-grid .ag-header-cell,
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell .ag-icon,
+.ag-theme-quartz.workers-report-grid .ag-header-cell .ag-icon {
+  color: #fff !important;
+}
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-5,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-5,
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-5 .ag-icon,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-5 .ag-icon,
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-6,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-6,
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-6 .ag-icon,
+.ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-6 .ag-icon {
+  color: #0f172a !important;
+}
+
 /* Vertical borders: header + data (column separators through full grid) */
 .ag-theme-quartz.workers-report-grid .ag-header-group-cell,
 .ag-theme-quartz.workers-report-grid .ag-header-cell {

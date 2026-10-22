@@ -10,6 +10,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import HistoryIcon from "@mui/icons-material/History";
@@ -25,7 +26,35 @@ type ItemsProps = {
   onToggle: (id: number) => void;
   onToggleAll: () => void;
   onShowDetails: (componentKey: string) => void;
+  reasons: Record<number, string>;
+  reasonErrorIds: Set<number>;
+  onReasonChange: (id: number, value: string) => void;
 };
+
+export const REASON_MAX_LENGTH = 200;
+
+type ReasonInputProps = {
+  id: number;
+  value: string;
+  error: boolean;
+  onChange: (id: number, value: string) => void;
+};
+
+const ReasonInput = ({ id, value, error, onChange }: ReasonInputProps) => (
+  <TextField
+    size="small"
+    fullWidth
+    multiline
+    maxRows={3}
+    placeholder="Remark (required if rejecting)"
+    value={value}
+    error={error}
+    helperText={error ? "Reason is required to reject" : undefined}
+    inputProps={{ maxLength: REASON_MAX_LENGTH }}
+    onClick={(e) => e.stopPropagation()}
+    onChange={(e) => onChange(id, e.target.value)}
+  />
+);
 
 const rateDiff = (item: RefreshApprovalItem) =>
   (Number(item.requested_rate) - Number(item.current_rate)).toFixed(2);
@@ -47,10 +76,23 @@ type RowProps = {
   active: boolean;
   onToggle: (id: number) => void;
   onShowDetails: (componentKey: string) => void;
+  reason: string;
+  reasonError: boolean;
+  onReasonChange: (id: number, value: string) => void;
 };
 
 const ApprovalItemRow = memo(
-  ({ item, index, selected, active, onToggle, onShowDetails }: RowProps) => {
+  ({
+    item,
+    index,
+    selected,
+    active,
+    onToggle,
+    onShowDetails,
+    reason,
+    reasonError,
+    onReasonChange,
+  }: RowProps) => {
     const chip = getStatusChip(item.status);
     return (
       <TableRow
@@ -86,6 +128,13 @@ const ApprovalItemRow = memo(
           </Box>
         </TableCell>
         <TableCell>{item.part_code}</TableCell>
+        <TableCell>{item.unit?.trim() || "--"}</TableCell>
+        <TableCell sx={{ maxWidth: 160, wordBreak: "break-word" }}>
+          {item.brand?.trim() || "--"}
+        </TableCell>
+        <TableCell sx={{ maxWidth: 220, wordBreak: "break-word" }}>
+          {item.specification?.trim() || "--"}
+        </TableCell>
         <TableCell align="right">{formatRate(item.current_rate)}</TableCell>
         <TableCell align="right">{formatRate(item.requested_rate)}</TableCell>
         <TableCell align="right" sx={{ color: "error.main" }}>
@@ -96,6 +145,20 @@ const ApprovalItemRow = memo(
         </TableCell>
         <TableCell sx={{ maxWidth: 200, wordBreak: "break-word" }}>
           {item.remarks || "--"}
+        </TableCell>
+        <TableCell sx={{ minWidth: 220 }}>
+          {isPendingStatus(item.status) ? (
+            <ReasonInput
+              id={item.id}
+              value={reason}
+              error={reasonError}
+              onChange={onReasonChange}
+            />
+          ) : (
+            <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
+              {reason.trim() || "--"}
+            </Typography>
+          )}
         </TableCell>
       </TableRow>
     );
@@ -111,6 +174,9 @@ export const ApprovalItemsTable: React.FC<ItemsProps> = ({
   onToggle,
   onToggleAll,
   onShowDetails,
+  reasons,
+  reasonErrorIds,
+  onReasonChange,
 }) => (
   <TableContainer sx={{ overflowX: "auto" }}>
     <Table size="small">
@@ -131,11 +197,15 @@ export const ApprovalItemsTable: React.FC<ItemsProps> = ({
           <TableCell>#</TableCell>
           <TableCell>Component</TableCell>
           <TableCell>Part Code</TableCell>
+          <TableCell>UOM</TableCell>
+          <TableCell>Brand</TableCell>
+          <TableCell>Specification</TableCell>
           <TableCell align="right">Current Rate</TableCell>
           <TableCell align="right">Requested Rate</TableCell>
           <TableCell align="right">Difference</TableCell>
           <TableCell align="center">Status</TableCell>
-          <TableCell>Remark</TableCell>
+          <TableCell>Requester Remark</TableCell>
+          <TableCell>APR/REJ Remark</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -148,6 +218,9 @@ export const ApprovalItemsTable: React.FC<ItemsProps> = ({
             active={activeKey === item.component_key}
             onToggle={onToggle}
             onShowDetails={onShowDetails}
+            reason={reasons[item.id] ?? ""}
+            reasonError={reasonErrorIds.has(item.id)}
+            onReasonChange={onReasonChange}
           />
         ))}
       </TableBody>
@@ -156,7 +229,17 @@ export const ApprovalItemsTable: React.FC<ItemsProps> = ({
 );
 
 const ApprovalItemCard = memo(
-  ({ item, index, selected, active, onToggle, onShowDetails }: RowProps) => {
+  ({
+    item,
+    index,
+    selected,
+    active,
+    onToggle,
+    onShowDetails,
+    reason,
+    reasonError,
+    onReasonChange,
+  }: RowProps) => {
     const chip = getStatusChip(item.status);
     const isPending = isPendingStatus(item.status);
     return (
@@ -199,11 +282,37 @@ const ApprovalItemCard = memo(
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {item.part_code}
+                {item.unit?.trim() && ` · ${item.unit.trim()}`}
               </Typography>
             </Box>
           </Box>
           <Chip size="small" label={chip.label} color={chip.color} />
         </Box>
+        {(item.brand?.trim() || item.specification?.trim()) && (
+          <Box sx={{ mt: 1 }}>
+            {[
+              ["Brand", item.brand?.trim()],
+              ["Specification", item.specification?.trim()],
+            ]
+              .filter(([, value]) => value)
+              .map(([label, value]) => (
+                <Typography
+                  key={label}
+                  variant="body2"
+                  sx={{ wordBreak: "break-word" }}
+                >
+                  <Typography
+                    component="span"
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    {label}:{" "}
+                  </Typography>
+                  {value}
+                </Typography>
+              ))}
+          </Box>
+        )}
         <Box
           sx={{
             display: "grid",
@@ -238,9 +347,38 @@ const ApprovalItemCard = memo(
               variant="caption"
               color="text.secondary"
             >
-              Remark:{" "}
+              Requester Remark:{" "}
             </Typography>
             {item.remarks}
+          </Typography>
+        )}
+        {isPending && (
+          <Box sx={{ mt: 1.5 }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", mb: 0.5 }}
+            >
+              APR/REJ Remark
+            </Typography>
+            <ReasonInput
+              id={item.id}
+              value={reason}
+              error={reasonError}
+              onChange={onReasonChange}
+            />
+          </Box>
+        )}
+        {!isPending && reason.trim() && (
+          <Typography variant="body2" sx={{ mt: 1, wordBreak: "break-word" }}>
+            <Typography
+              component="span"
+              variant="caption"
+              color="text.secondary"
+            >
+              APR/REJ Remark:{" "}
+            </Typography>
+            {reason.trim()}
           </Typography>
         )}
         <Button
@@ -268,6 +406,9 @@ export const ApprovalItemCards: React.FC<ItemsProps> = ({
   onToggle,
   onToggleAll,
   onShowDetails,
+  reasons,
+  reasonErrorIds,
+  onReasonChange,
 }) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
     {pendingCount > 0 && (
@@ -291,6 +432,9 @@ export const ApprovalItemCards: React.FC<ItemsProps> = ({
         active={activeKey === item.component_key}
         onToggle={onToggle}
         onShowDetails={onShowDetails}
+        reason={reasons[item.id] ?? ""}
+        reasonError={reasonErrorIds.has(item.id)}
+        onReasonChange={onReasonChange}
       />
     ))}
   </Box>

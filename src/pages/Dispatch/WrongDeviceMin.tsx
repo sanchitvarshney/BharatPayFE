@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import axiosInstance from "@/api/axiosInstance";
 
 import { showToast } from "@/utils/toasterContext";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,12 +32,8 @@ import {
   getAWBLengthRange,
 } from "@/constants/deliveryPartners";
 
-const CategoryData = [
-  { value: "abb8d54f-6862-4978-ab41-a69fdaaab6ec", text: "BPe Swipe Machine" },
-  { value: "bdc8d26f-47c3-4bm7-a8c6-753bc77547ld", text: "Walnut" },
-  { value: "d7aa41c2-655a-11f1-9493-04421aa8167c", text: "Bluetooth Device" },
-  { value: "051aec9b-fdd6-4d34-848a-25b9f1b6252a", text: "Other" },
-];
+type CategoryOption = { value: string; text: string };
+
 const typeData = [
   { value: "challan", text: "Challan" },
   { value: "awb", text: "AWB" },
@@ -49,6 +46,8 @@ const WrongDeviceMin: React.FC = () => {
   const [serialNo, setSerialNo] = useState<string>("");
 
   const [combinedRowData, setCombinedRowData] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryOption[]>([]);
+  const [categoryLoading, setCategoryLoading] = useState<boolean>(false);
   const dispatch: any = useDispatch();
   const appDispatch = useAppDispatch();
   const { workingDataLoading, fieldLoading } = useSelector(
@@ -178,6 +177,32 @@ const WrongDeviceMin: React.FC = () => {
 
   const formValues = watch();
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setCategoryLoading(true);
+      try {
+        const response = await axiosInstance.get("/api/getWrongDeviceCategories");
+        const list = response.data?.data ?? response.data ?? [];
+        setCategoryData(
+          (Array.isArray(list) ? list : []).map((item: any) => ({
+            value: item.categoryKey,
+            text: item.categoryName,
+          })),
+        );
+      } catch (error) {
+        showToast("Failed to load categories", "error");
+      } finally {
+        setCategoryLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Serial No is only enabled for the Walnut category
+  const walnutCategoryId = categoryData.find(
+    (item) => item.text?.trim().toLowerCase() === "walnut",
+  )?.value;
+
   const onSubmit = (data: any) => {
     const payload: any = {
       from: dayjs(data?.date[0]).format("DD-MM-YYYY"),
@@ -289,7 +314,7 @@ const WrongDeviceMin: React.FC = () => {
       };
       try {
         //@ts-ignore
-        const res = await dispatch(getFromFieldData(payload)).unwrap();
+         await dispatch(getFromFieldData(payload)).unwrap();
 
         addOrUpdateRow("awbNo", awbNo);
         setAwbNo("");
@@ -360,8 +385,9 @@ const WrongDeviceMin: React.FC = () => {
                       {...field}
                       labelId="area-select-label"
                       label="Select Category"
+                      disabled={categoryLoading}
                     >
-                      {CategoryData?.map((item: any) => (
+                      {categoryData?.map((item: any) => (
                         <MenuItem key={item.value} value={item.value}>
                           {item.text}
                         </MenuItem>
@@ -497,8 +523,8 @@ const WrongDeviceMin: React.FC = () => {
                     rows={2}
                     value={serialNo}
                     disabled={
-                      formValues.categoryId !==
-                      "bdc8d26f-47c3-4bm7-a8c6-753bc77547ld"
+                      !walnutCategoryId ||
+                      formValues.categoryId !== walnutCategoryId
                     }
                     label="Serial Device"
                     id="standard-adornment-qty"
