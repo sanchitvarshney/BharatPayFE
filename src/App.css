@@ -126,6 +126,17 @@
   border-right: 4px solid #5eead4 !important;
 }
 
+.ag-theme-quartz.workers-report-grid .ag-header-group-cell-label {
+  justify-content: center;
+  text-align: center;
+}
+.ag-theme-quartz.workers-report-grid
+  .ag-header-cell:not(.ag-header-cell-center)
+  .ag-header-cell-label {
+  justify-content: flex-end;
+  text-align: right;
+}
+
 /* Pinned Total row at bottom */
 .ag-theme-quartz.workers-report-grid .ag-row.wr-total-row .ag-cell {
   font-weight: 700;
