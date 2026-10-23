@@ -181,7 +181,7 @@ const WrongDeviceMin: React.FC = () => {
     const fetchCategories = async () => {
       setCategoryLoading(true);
       try {
-        const response = await axiosInstance.get("/api/getWrongDeviceCategories");
+        const response = await axiosInstance.get("/wrongDevice/getWrongDeviceCategories");
         const list = response.data?.data ?? response.data ?? [];
         setCategoryData(
           (Array.isArray(list) ? list : []).map((item: any) => ({
