@@ -200,14 +200,14 @@ const MINFromPO = () => {
           orderQty: Number(item.orderqty) || 0,
           updaterow: item.access_code,
           rate: Number(item.orderrate) || 0,
-          taxableValue: Number(item.totalValue) || 0,
-          foreignValue: Number(item.usdValue),
+          taxableValue: 0,
+          foreignValue: 0,
           hsnCode: item.hsncode,
           gstType: item.gsttype,
           gstRate: Number(item.gstrate),
-          cgst: Number(item.cgst) || 0,
-          sgst: Number(item.sgst) || 0,
-          igst: Number(item.igst) || 0,
+          cgst: 0,
+          sgst: 0,
+          igst: 0,
           remarks: item.orderremark,
           currency: {
             value: item.header?.currency?.value,
@@ -294,19 +294,19 @@ const MINFromPO = () => {
 
   const columnDefs: ColDef[] = [
     {
-      headerName: "#",
-      valueGetter: "node.rowIndex + 1",
+      headerName: "",
+      colId: "select",
       checkboxSelection: true,
       headerCheckboxSelection: true,
-      width: 80,
-      minWidth: 80,
+      width: 56,
+      minWidth: 56,
+      maxWidth: 56,
       resizable: false,
+      sortable: false,
+      filter: false,
+      suppressMovable: true,
       headerClass: "ag-center-select-header",
-      cellStyle: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      },
+      cellClass: "ag-center-select-cell",
     },
     {
       headerName: "",
@@ -382,18 +382,17 @@ const MINFromPO = () => {
       ...rightAlignedColumn,
     },
     {
-      headerName: "Unit",
-      field: "uom",
-      flex: 0.8,
-      minWidth: 80,
-      ...centerAlignedColumn,
-    },
-    {
       headerName: "Rate",
       field: "rate",
       flex: 1,
-      minWidth: 100,
+      minWidth: 120,
       ...rightAlignedColumn,
+      valueFormatter: (params: any) => {
+        const symbol =
+          params.data?.currency?.label || vendorData?.currency_symbol || "";
+        const rate = Number(params.value || 0).toFixed(2);
+        return symbol ? `${symbol} ${rate}` : rate;
+      },
     },
     // {
     //   headerName: "",
@@ -418,7 +417,7 @@ const MINFromPO = () => {
       ...rightAlignedColumn,
     },
     {
-      headerName: "GST Rate",
+      headerName: "GST %",
       field: "gstRate",
       cellRenderer: "textInputCellRenderer",
       flex: 1,

@@ -26,6 +26,35 @@
   justify-content: center;
 }
 
+/* Checkbox-only selection column: center checkbox in header and cells */
+.ag-theme-quartz .ag-header-cell.ag-center-select-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+.ag-theme-quartz .ag-header-cell.ag-center-select-header .ag-header-cell-comp-wrapper {
+  display: none;
+}
+.ag-theme-quartz .ag-header-cell.ag-center-select-header .ag-header-select-all {
+  margin: 0;
+}
+.ag-theme-quartz .ag-cell.ag-center-select-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+.ag-theme-quartz .ag-cell.ag-center-select-cell .ag-cell-wrapper {
+  justify-content: center;
+}
+.ag-theme-quartz .ag-cell.ag-center-select-cell .ag-selection-checkbox {
+  margin: 0;
+}
+.ag-theme-quartz .ag-cell.ag-center-select-cell .ag-cell-value {
+  display: none;
+}
+
 /* Workers report: different color per parent group, same color for children of that group */
 .ag-theme-quartz.workers-report-grid .ag-header-group-cell.wr-group-0,
 .ag-theme-quartz.workers-report-grid .ag-header-cell.wr-group-0 {
