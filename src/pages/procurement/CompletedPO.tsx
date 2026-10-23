@@ -137,6 +137,8 @@ const CompletedPO: React.FC = () => {
       field: "po_status",
       sortable: true,
       maxWidth: 120,
+      wrapText: true,
+        autoHeight: true,
       cellRenderer: StatusChipCellRenderer,
       ...leftAlignedColumn,
     },

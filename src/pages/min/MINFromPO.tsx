@@ -48,7 +48,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import {  centerAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
+import {
+  centerAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 
 const EMPTY_TOTALS = {
   totalValue: 0,
@@ -58,7 +61,9 @@ const EMPTY_TOTALS = {
   afterTax: 0,
 };
 
-const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const SectionTitle: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500 mb-[8px]">
     {children}
   </p>
@@ -112,27 +117,31 @@ const MINFromPO = () => {
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   const [shortCloseConfirmOpen, setShortCloseConfirmOpen] = useState(false);
 
-  const { loading, submitPOMINLoading, uploadMinInvoiceLoading, shortCloseLoading } =
-    useAppSelector((state) => state.po);
+  const {
+    loading,
+    submitPOMINLoading,
+    uploadMinInvoiceLoading,
+    shortCloseLoading,
+  } = useAppSelector((state) => state.po);
 
   const dispatch = useAppDispatch();
 
   const calculateTotals = (data: any[]) => {
     const totalValue = data.reduce(
       (sum: number, row: any) => sum + (Number(row.taxableValue) || 0),
-      0
+      0,
     );
     const cgst = data.reduce(
       (sum: number, row: any) => sum + (Number(row.cgst) || 0),
-      0
+      0,
     );
     const sgst = data.reduce(
       (sum: number, row: any) => sum + (Number(row.sgst) || 0),
-      0
+      0,
     );
     const igst = data.reduce(
       (sum: number, row: any) => sum + (Number(row.igst) || 0),
-      0
+      0,
     );
     const afterTax = totalValue + cgst + sgst + igst;
 
@@ -159,12 +168,9 @@ const MINFromPO = () => {
     return newTotals;
   }, []);
 
-  const onCellValueChanged = useCallback(
-    () => {
-      getAllTableData();
-    },
-    [getAllTableData]
-  );
+  const onCellValueChanged = useCallback(() => {
+    getAllTableData();
+  }, [getAllTableData]);
 
   const components = useMemo(
     () => ({
@@ -175,7 +181,7 @@ const MINFromPO = () => {
         />
       ),
     }),
-    [getAllTableData]
+    [getAllTableData],
   );
 
   const handleSearchPO = async () => {
@@ -233,7 +239,7 @@ const MINFromPO = () => {
       setRowData((prev: any[]) => prev.filter((row) => row.rowId !== rowId));
       setTimeout(getAllTableData, 0);
     },
-    [getAllTableData]
+    [getAllTableData],
   );
 
   const onSelectionChanged = useCallback(() => {
@@ -242,24 +248,32 @@ const MINFromPO = () => {
 
   const handleShortClose = () => {
     const ids = selectedRows.map((row: any) => row.id);
-    dispatch(
-      shortClosePOItems({ po_number: poNumber.trim(), ids })
-    ).then((res: any) => {
-      if (res.payload?.data?.success) {
-        showToast(res.payload.data.message || "Items short closed", "success");
-        const closedRowIds = new Set(selectedRows.map((row: any) => row.rowId));
-        setRowData((prev: any[]) =>
-          prev.filter((row) => !closedRowIds.has(row.rowId))
-        );
-        setSelectedRows([]);
-        setShortCloseConfirmOpen(false);
-        setTimeout(getAllTableData, 0);
-      } else if (res.meta?.requestStatus === "fulfilled") {
-        // HTTP 2xx with success: false — the interceptor didn't see it as an error
-        showToast(res.payload?.data?.message || "Failed to short close", "error");
-      }
-      // Rejected (4xx/5xx): axios interceptor already toasts the backend message
-    });
+    dispatch(shortClosePOItems({ po_number: poNumber.trim(), ids })).then(
+      (res: any) => {
+        if (res.payload?.data?.success) {
+          showToast(
+            res.payload.data.message || "Items short closed",
+            "success",
+          );
+          const closedRowIds = new Set(
+            selectedRows.map((row: any) => row.rowId),
+          );
+          setRowData((prev: any[]) =>
+            prev.filter((row) => !closedRowIds.has(row.rowId)),
+          );
+          setSelectedRows([]);
+          setShortCloseConfirmOpen(false);
+          setTimeout(getAllTableData, 0);
+        } else if (res.meta?.requestStatus === "fulfilled") {
+          // HTTP 2xx with success: false — the interceptor didn't see it as an error
+          showToast(
+            res.payload?.data?.message || "Failed to short close",
+            "error",
+          );
+        }
+        // Rejected (4xx/5xx): axios interceptor already toasts the backend message
+      },
+    );
   };
 
   const handleFileChange = async (files: File[] | null) => {
@@ -277,7 +291,7 @@ const MINFromPO = () => {
           .then((res) => {
             if (res.payload?.success) {
               setUrl(res.payload?.data[0]?.url);
-             showToast(res.payload.message, "success");
+              showToast(res.payload.message, "success");
               setSheetOpen(false);
             }
           })
@@ -368,19 +382,20 @@ const MINFromPO = () => {
       ...centerAlignedColumn,
     },
     {
-      headerName: "Pending Qty",
-      field: "pendingQty",
-      flex: 1,
-      minWidth: 120,
-      ...rightAlignedColumn,
-    },
-    {
       headerName: "Total Qty",
       field: "orderQty",
       flex: 1,
       minWidth: 100,
       ...rightAlignedColumn,
     },
+    {
+      headerName: "Pending Qty",
+      field: "pendingQty",
+      flex: 1,
+      minWidth: 120,
+      ...rightAlignedColumn,
+    },
+
     {
       headerName: "Rate",
       field: "rate",
@@ -592,7 +607,11 @@ const MINFromPO = () => {
         {/* Vendor, invoice and tax summary */}
         <aside className="w-[360px] shrink-0 flex flex-col border-l border-neutral-300 bg-white">
           <div className="h-[49px] px-[20px] flex items-center border-b border-neutral-200">
-            <Typography variant="subtitle1" fontWeight={700} className="text-slate-700">
+            <Typography
+              variant="subtitle1"
+              fontWeight={700}
+              className="text-slate-700"
+            >
               Vendor Detail
             </Typography>
           </div>
@@ -601,9 +620,22 @@ const MINFromPO = () => {
             <section>
               <SectionTitle>Vendor</SectionTitle>
               <div className="flex flex-col gap-[8px]">
-                <DetailRow label="Name" value={vendorData?.vendorname} loading={loading} />
-                <DetailRow label="GSTIN" value={vendorData?.gstin} loading={loading} />
-                <DetailRow label="Address" value={vendorData?.vendoraddress} loading={loading} stacked />
+                <DetailRow
+                  label="Name"
+                  value={vendorData?.vendorname}
+                  loading={loading}
+                />
+                <DetailRow
+                  label="GSTIN"
+                  value={vendorData?.gstin}
+                  loading={loading}
+                />
+                <DetailRow
+                  label="Address"
+                  value={vendorData?.vendoraddress}
+                  loading={loading}
+                  stacked
+                />
               </div>
             </section>
 
@@ -612,8 +644,16 @@ const MINFromPO = () => {
             <section>
               <SectionTitle>Currency</SectionTitle>
               <div className="flex flex-col gap-[8px]">
-                <DetailRow label="Currency" value={vendorData?.currency_symbol} loading={loading} />
-                <DetailRow label="Exchange Rate" value={vendorData?.exchange_rate} loading={loading} />
+                <DetailRow
+                  label="Currency"
+                  value={vendorData?.currency_symbol}
+                  loading={loading}
+                />
+                <DetailRow
+                  label="Exchange Rate"
+                  value={vendorData?.exchange_rate}
+                  loading={loading}
+                />
               </div>
             </section>
 
@@ -665,10 +705,26 @@ const MINFromPO = () => {
             <section>
               <SectionTitle>Tax Detail</SectionTitle>
               <div className="flex flex-col gap-[8px]">
-                <DetailRow label="Sub-total before taxes" value={totals.totalValue.toFixed(2)} loading={loading} />
-                <DetailRow label="CGST" value={`(+) ${totals.cgst.toFixed(2)}`} loading={loading} />
-                <DetailRow label="SGST" value={`(+) ${totals.sgst.toFixed(2)}`} loading={loading} />
-                <DetailRow label="IGST" value={`(+) ${totals.igst.toFixed(2)}`} loading={loading} />
+                <DetailRow
+                  label="Sub-total before taxes"
+                  value={totals.totalValue.toFixed(2)}
+                  loading={loading}
+                />
+                <DetailRow
+                  label="CGST"
+                  value={`(+) ${totals.cgst.toFixed(2)}`}
+                  loading={loading}
+                />
+                <DetailRow
+                  label="SGST"
+                  value={`(+) ${totals.sgst.toFixed(2)}`}
+                  loading={loading}
+                />
+                <DetailRow
+                  label="IGST"
+                  value={`(+) ${totals.igst.toFixed(2)}`}
+                  loading={loading}
+                />
               </div>
             </section>
           </div>
@@ -704,9 +760,7 @@ const MINFromPO = () => {
             }}
           >
             <SheetHeader className="h-[50px] p-0 flex flex-col justify-center px-[20px] bg-zinc-200 gap-0 border-b border-zinc-400">
-              <SheetTitle className="text-slate-600">
-                Upload Invoice
-              </SheetTitle>
+              <SheetTitle className="text-slate-600">Upload Invoice</SheetTitle>
             </SheetHeader>
             <div className="ag-theme-quartz h-[calc(100vh-100px)] w-full">
               <FileUploader
@@ -751,7 +805,11 @@ const MINFromPO = () => {
               </FileUploader>
             </div>
             <div className="bg-white border-t border-slate-300 h-[50px] flex items-center justify-end gap-[12px] px-[20px]">
-              <Button variant="outlined" color="inherit" onClick={() => setSheetOpen(false)}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => setSheetOpen(false)}
+              >
                 Back
               </Button>
               <LoadingButton
@@ -779,8 +837,8 @@ const MINFromPO = () => {
         <DialogContent>
           <Typography variant="body2" className="text-slate-600">
             Are you sure you want to short close {selectedRows.length} selected
-            item{selectedRows.length > 1 ? "s" : ""} of PO{" "}
-            <b>{poNumber}</b>? This action cannot be undone.
+            item{selectedRows.length > 1 ? "s" : ""} of PO <b>{poNumber}</b>?
+            This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
