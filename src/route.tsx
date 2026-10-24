@@ -101,6 +101,7 @@ import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
 import AdminApprovalPage from "@/pages/procurement/AdminApprovalPage";
+import DeviceDefectApprovalPage from "@/pages/deviceDefectApproval/DeviceDefectApprovalPage";
 import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 import ManagePO from "./pages/procurement/ManagePO";
@@ -144,6 +145,9 @@ import ViewImageLayout from "./layouts/ViewImageLayout";
 import FQCDeviceImage from "./pages/queries/FQCDeviceImage";
 import ImageCapturePage from "./pages/imageCapture/ImageCapturePage";
 import DeliveryVideoPage from "./pages/delivery/DeliveryVideoPage";
+import DeviceQualityCheckPage from "./pages/deviceQualityCheck/DeviceQualityCheckPage";
+import DeviceQualityReport from "./pages/deviceQualityCheck/DeviceQualityReport";
+import DeviceQualityLayout from "./layouts/DeviceQualityLayout";
 import CourierReturnReport from "./pages/delivery/CourierReturnReport";
 import SummaryLayout from "./layouts/SummaryLayout";
 import AssemblyAndTRC from "./pages/summary-pages/AssemblyAndTRC";
@@ -181,6 +185,10 @@ export const router = createBrowserRouter([
       {
         element: <DeliveryVideoPage />,
         path: "/courier/return-device",
+      },
+      {
+        element: <DeviceQualityCheckPage />,
+        path: "/device-quality-check",
       },
       {
         element: (
@@ -274,6 +282,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/courier/return-device/reports",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DeviceQualityLayout>
+              <DeviceQualityReport />
+            </DeviceQualityLayout>
+          </MainLayout>
+        ),
+        path: "/device-quality/reports",
       },
       {
         element: (
@@ -1278,6 +1296,10 @@ export const router = createBrowserRouter([
   {
     path: "/po/adminApprovalPage/*",
     element: <AdminApprovalPage />,
+  },
+  {
+    path: "/device/bpe/approval/*",
+    element: <DeviceDefectApprovalPage />,
   },
   {
     path: "*",
