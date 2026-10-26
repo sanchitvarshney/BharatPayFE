@@ -16,6 +16,7 @@ import { DeviceQualityReportRow, fetchDeviceQualityReport } from "@/features/dev
 import { getStatusChip } from "@/pages/procurement/adminApproval/helpers";
 import FqcImagePreviewModal from "@/pages/queries/fqcDeviceImage/FqcImagePreviewModal";
 import { formatServerDateTime } from "@/pages/deviceDefectApproval/deviceDefectApproval.utils";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const { RangePicker } = DatePicker;
 
@@ -58,8 +59,8 @@ const DeviceQualityReport: React.FC = () => {
 
   const columnDefs = useMemo<any[]>(
     () => [
-      { headerName: "#", width: 90, valueGetter: "node.rowIndex+1" },
-      { headerName: "Serial No.", field: "serial_no", sortable: true, filter: true, flex: 1 },
+      { headerName: "#", width: 80, valueGetter: "node.rowIndex+1",  ...leftAlignedColumn,  },
+      { headerName: "Serial No.", field: "serial_no", sortable: true, filter: true, flex: 1,...leftAlignedColumn, },
       {
         headerName: "Status",
         field: "status",
@@ -70,13 +71,15 @@ const DeviceQualityReport: React.FC = () => {
           const chip = getStatusChip(params.value);
           return <Chip size="small" label={chip.label} color={chip.color} />;
         },
+        ...leftAlignedColumn,
       },
       {
-        headerName: "Created On",
+        headerName: "Action Date & Time",
         field: "created_at",
         sortable: true,
         filter: true,
         flex: 1,
+        ...leftAlignedColumn,
         valueFormatter: (params: any) => formatServerDateTime(params.value),
       },
       {
@@ -85,11 +88,18 @@ const DeviceQualityReport: React.FC = () => {
         flex: 1,
         valueGetter: (params: any) => params.data?.image_links?.filter(Boolean).length ?? 0,
         cellRenderer: (params: any) => (
-          <Button variant="secondary" disabled={!params.value} onClick={() => setActiveRow(params.data)}>
-            <Icons.view />
-            <span className="ml-1">View Images ({params.value})</span>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-7 px-2 text-xs"
+            disabled={!params.value}
+            onClick={() => setActiveRow(params.data)}
+          >
+            <Icons.view sx={{ fontSize: 16 }} />
+            <span className="ml-1 font-medium">View Images ({params.value})</span>
           </Button>
         ),
+        ...leftAlignedColumn,
       },
     ],
     [],

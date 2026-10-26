@@ -192,8 +192,8 @@ export const submitDeviceApproval = createAsyncThunk<
 >(
   "deviceDefect/submitDeviceApproval",
   async ({ reqId, token, actions }, { rejectWithValue }) => {
-    const verb = { APPROVED: "approve", REJECTED: "reject", HOLD: "hold" }[actions[0]?.status] ?? "update";
-    const fallback = `Unable to ${verb} the selected devices.`;
+    const verb = { APPROVED: "approve", REJECTED: "reject", HOLD: "hold" }[actions?.[0]?.status] ?? "update";
+    const fallback = `Unable to ${verb} this device.`;
     try {
       const res = await publicAxiosInstance.post<ApiResponse>(
         "/approval/submitApproval",
@@ -291,7 +291,7 @@ const deviceDefectSlice = createSlice({
       })
 
       .addCase(submitDeviceApproval.pending, (state, action) => {
-        state.decisionLoading = action.meta.arg.actions[0]?.status ?? null;
+        state.decisionLoading = action.meta.arg.actions?.[0]?.status ?? null;
         state.decisionError = null;
       })
       .addCase(submitDeviceApproval.fulfilled, (state, action) => {
@@ -320,7 +320,8 @@ const deviceDefectSlice = createSlice({
       })
       .addCase(submitDeviceApproval.rejected, (state, action) => {
         state.decisionLoading = null;
-        state.decisionError = action.payload || "Unable to submit decision.";
+        state.decisionError =
+          action.payload || action.error?.message || "Unable to submit decision.";
       })
 
       .addCase(fetchDeviceQualityReport.pending, (state) => {

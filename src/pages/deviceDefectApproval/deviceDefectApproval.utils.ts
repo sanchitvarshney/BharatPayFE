@@ -26,8 +26,6 @@ export const DEVICE_ACTIONS: { value: DeviceNextAction; label: string }[] = [
   { value: "repair", label: "Repair" },
 ];
 
-export const getDeviceActionLabel = (value?: string | null) =>
-  DEVICE_ACTIONS.find((a) => a.value === value?.trim().toLowerCase())?.label || value?.trim() || "--";
 
 export const getDeviceTypeLabel = (value?: string | null) =>
   DEVICE_TYPE_LABEL[value?.toLowerCase() ?? ""] || value || "--";
