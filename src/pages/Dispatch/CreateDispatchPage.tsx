@@ -56,6 +56,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
+import { CloudUpload } from "@mui/icons-material";
+import { VisuallyHiddenInput } from "@/theme";
 import DispatchPageSkeleton from "@/components/skeletons/DispatchPageSkeleton";
 import {
   blockedScrapMessage,
@@ -73,6 +76,15 @@ type RowData = {
   index: number;
   boxNo?: string;
 };
+
+type BulkFailedEntry = {
+  value: string;
+  reason: string;
+};
+
+const BULK_DISPATCH_MAX = 5000;
+const BULK_FETCH_CHUNK_SIZE = 100;
+const BULK_FETCH_CONCURRENCY = 3;
 
 type FormDataType = {
   clientDetail: clientDetailType | null;
@@ -138,6 +150,8 @@ const CreateDispatchPage: React.FC = () => {
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
   const [deviceBatchSize, setDeviceBatchSize] = useState<number>(30); // Devices per batch: 20 or 30
+  const [bulkLoading, setBulkLoading] = useState<boolean>(false);
+  const [bulkProgress, setBulkProgress] = useState<number>(0);
   const { dispatchCreateLoading, checkBoxValidLoading } = useAppSelector(
     (state) => state.dispatch
   );
@@ -214,26 +228,25 @@ const CreateDispatchPage: React.FC = () => {
     }
   }, [challanList]);
 
-  const finalSubmit = () => {
+  const finalSubmit = (rows: RowData[] = rowData) => {
   const data1 = formValues;
 
   // Initial quantity validation
-  if (rowData.length !== Number(data1.qty)) {
+  if (rows.length !== Number(data1.qty)) {
     showToast(
-      `Total Devices (${rowData.length}) should be equal to Quantity you have entered (${data1.qty})`,
+      `Total Devices (${rows.length}) should be equal to Quantity you have entered (${data1.qty})`,
       "error"
     );
     return;
   }
 
-  // Collect all identifiers for duplicate checking
-  const allImeis = rowData
+  const allImeis = rows
     .map((item) => item.imei?.trim())
     .filter((imei) => imei && imei !== "--");
-  const allImei2s = rowData
+  const allImei2s = rows
     .map((item) => item.imei2?.trim())
     .filter((imei) => imei && imei !== "--");
-  const allSerials = rowData
+  const allSerials = rows
     .map((item) => item.srno?.trim())
     .filter((srno) => srno);
 
@@ -275,8 +288,7 @@ const CreateDispatchPage: React.FC = () => {
     );
   }
 
-  // Filter out invalid/duplicate entries but keep valid ones
-  const validRowData = rowData.filter((item) => {
+  const validRowData = rows.filter((item) => {
     const imei = item.imei?.trim();
     const imei2 = item.imei2?.trim();
     const srno = item.srno?.trim();
@@ -430,6 +442,215 @@ const CreateDispatchPage: React.FC = () => {
       setOpen(true);
     }
   };
+  const handleDownloadBulkSample = () => {
+    const worksheet = XLSX.utils.json_to_sheet([
+      { "IMEI/SR No": "" },
+    ]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bulk Dispatch");
+    XLSX.writeFile(workbook, "bulk_dispatch_sample.xlsx");
+  };
+
+  const fetchBulkDeviceDetails = async (values: string[]) => {
+    const chunks: string[][] = [];
+    for (let i = 0; i < values.length; i += BULK_FETCH_CHUNK_SIZE) {
+      chunks.push(values.slice(i, i + BULK_FETCH_CHUNK_SIZE));
+    }
+
+    const devices: Omit<RowData, "index" | "serialNo">[] = [];
+    const failed: BulkFailedEntry[] = [];
+    let done = 0;
+    let next = 0;
+
+    const worker = async () => {
+      while (next < chunks.length) {
+        const chunk = chunks[next++];
+        try {
+          const res: any = await dispatch(
+            getDeviceDetails({
+              imei: chunk.join("\n"),
+              deviceType: data?.deviceType,
+            })
+          );
+          if (res?.payload?.data?.success) {
+            (res.payload.data.data ?? []).forEach((device: any) => {
+              devices.push({
+                imei: device.device_imei || device.imei_no1 || "",
+                imei2: device.imei_no2 || "",
+                srno: device.sl_no || "",
+                modalNo: device?.p_name || "",
+                deviceSku: device?.device_sku || "",
+                productKey: device?.product_key || "",
+              });
+            });
+          } else {
+            const reason =
+              res?.payload?.data?.message || "Failed to fetch device details";
+            chunk.forEach((value) => failed.push({ value, reason }));
+          }
+        } catch {
+          chunk.forEach((value) =>
+            failed.push({ value, reason: "Failed to fetch device details" })
+          );
+        }
+        done++;
+        setBulkProgress(Math.round((done / chunks.length) * 100));
+      }
+    };
+
+    await Promise.all(
+      Array.from(
+        { length: Math.min(BULK_FETCH_CONCURRENCY, chunks.length) },
+        worker
+      )
+    );
+    return { devices, failed };
+  };
+
+  const handleBulkFile = (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!ext || !["xls", "xlsx", "csv"].includes(ext)) {
+      showToast("Please upload an Excel file (.xlsx, .xls or .csv)", "error");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      let values: string[] = [];
+      try {
+        const workbook = XLSX.read(event.target?.result, { type: "array" });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const sheetRows = XLSX.utils.sheet_to_json<unknown[]>(worksheet, {
+          header: 1,
+          defval: "",
+          raw: false,
+        });
+        // First column holds IMEI/SR No, first row is the header
+        values = sheetRows
+          .slice(1)
+          .map((row) => String(row?.[0] ?? "").trim())
+          .filter((value) => value !== "");
+      } catch {
+        showToast(
+          "Unable to read the file. Please check the format and try again.",
+          "error"
+        );
+        return;
+      }
+
+      if (values.length === 0) {
+        showToast("No IMEI/SR No found in the uploaded file", "error");
+        return;
+      }
+
+      const uniqueValues = [...new Set(values)];
+      if (uniqueValues.length !== values.length) {
+        showToast(
+          `${values.length - uniqueValues.length} duplicate IMEI/SR No removed from file`,
+          "warning"
+        );
+      }
+
+      // Skip anything already scanned into the table
+      const isSet = (v: string) => v !== "" && v !== "--";
+      const existingKeys = new Set<string>(
+        rowData
+          .flatMap((row) => [row.imei, row.imei2 ?? "", row.srno])
+          .map((v) => (v ?? "").trim())
+          .filter(isSet)
+      );
+      const newValues = uniqueValues.filter((v) => !existingKeys.has(v));
+      if (newValues.length !== uniqueValues.length) {
+        showToast(
+          `${uniqueValues.length - newValues.length} IMEI/SR No already in table, skipped`,
+          "warning"
+        );
+      }
+      if (newValues.length === 0) {
+        showToast("No new devices to add", "warning");
+        return;
+      }
+
+      const dispatchQty = Number(formValues.qty) || 0;
+      const remainingQty = dispatchQty - rowData.length;
+      if (remainingQty <= 0) {
+        showToast(
+          `Dispatch quantity (${dispatchQty}) already reached in table`,
+          "error"
+        );
+        return;
+      }
+      if (newValues.length > remainingQty) {
+        showToast(
+          `Only ${remainingQty} more devices allowed (Dispatch Qty ${dispatchQty}, in table ${rowData.length}). File has ${newValues.length}.`,
+          "error"
+        );
+        return;
+      }
+
+      if (rowData.length + newValues.length > BULK_DISPATCH_MAX) {
+        showToast(
+          `Maximum ${BULK_DISPATCH_MAX} devices allowed. Table has ${rowData.length}, file has ${newValues.length} new.`,
+          "error"
+        );
+        return;
+      }
+
+      setBulkProgress(0);
+      setBulkLoading(true);
+      const { devices, failed } = await fetchBulkDeviceDetails(newValues);
+      setBulkLoading(false);
+
+      // Dedupe fetched devices on IMEI1 / IMEI2 / SR No, including against the table
+      const seen = new Set<string>(existingKeys);
+      const fetchedKeys = new Set<string>();
+      const deduped = devices.filter((device) => {
+        const keys = [device.imei, device.imei2 ?? "", device.srno]
+          .map((v) => v.trim())
+          .filter(isSet);
+        keys.forEach((k) => fetchedKeys.add(k));
+        if (keys.length === 0 || keys.some((k) => seen.has(k))) return false;
+        keys.forEach((k) => seen.add(k));
+        return true;
+      });
+
+      // Anything uploaded that didn't come back from the API
+      const failedValues = new Set(failed.map((f) => f.value));
+      const notFound = newValues.filter(
+        (v) => !fetchedKeys.has(v) && !failedValues.has(v)
+      );
+
+      if (failed.length > 0) {
+        const reasons = [...new Set(failed.map((f) => f.reason))];
+        showToast(
+          `${failed.length} devices failed: ${reasons.join(", ")}`,
+          "error"
+        );
+      }
+      if (notFound.length > 0) {
+        showToast(`Devices not found: ${notFound.join(", ")}`, "warning");
+      }
+
+      if (deduped.length === 0) {
+        showToast("No devices added from file", "warning");
+        return;
+      }
+
+      // Same as scanning: newest on top, then reindex
+      setRowData((prevRowData) =>
+        [...(deduped as RowData[]), ...prevRowData].map((item, index) => ({
+          ...item,
+          index: index + 1,
+        }))
+      );
+      showToast(`${deduped.length} devices added from file`, "success");
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
   const handleClose = (_: object, reason: string) => {
     if (reason === "backdropClick") return; // Prevent closing on outside click
     setOpen(false);
@@ -1291,6 +1512,41 @@ const CreateDispatchPage: React.FC = () => {
                             </span>
                           </p>
                         </div>
+                      </div>
+                      <div className="flex items-center gap-4 ml-auto pr-6">
+                        <Button
+                          component="label"
+                          role={undefined}
+                          variant="outlined"
+                          tabIndex={-1}
+                          startIcon={
+                            bulkLoading ? (
+                              <CircularProgress size={18} color="inherit" />
+                            ) : (
+                              <CloudUpload />
+                            )
+                          }
+                          disabled={bulkLoading || dispatchCreateLoading}
+                        >
+                          {bulkLoading
+                            ? `Fetching... ${bulkProgress}%`
+                            : `Bulk Upload (Max ${BULK_DISPATCH_MAX})`}
+                          <VisuallyHiddenInput
+                            type="file"
+                            accept=".xlsx,.xls,.csv"
+                            onChange={(event) => {
+                              handleBulkFile(event.target.files);
+                              event.target.value = "";
+                            }}
+                          />
+                        </Button>
+                        <Button
+                          variant="text"
+                          startIcon={<Icons.download />}
+                          onClick={handleDownloadBulkSample}
+                        >
+                          Sample
+                        </Button>
                       </div>
                     </div>
                     <div className="h-[calc(100vh-250px)]">

@@ -92,7 +92,7 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
   ];
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-250px)] ">
+    <div className=" ag-theme-quartz h-[calc(100vh-290px)] ">
       <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
     </div>
   );
