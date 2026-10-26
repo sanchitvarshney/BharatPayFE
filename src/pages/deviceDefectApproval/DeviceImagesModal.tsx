@@ -1,6 +1,7 @@
 import React from "react";
 import { Alert, Box, Chip, Divider, Drawer, IconButton, MenuItem, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { PauseCircleOutline } from "@mui/icons-material";
 import { Icons } from "@/components/icons";
 import { DeviceApprovalItem, DeviceDecisionStatus } from "@/features/deviceDefect/deviceDefectSlice";
 import { getStatusChip, isPendingStatus } from "@/pages/procurement/adminApproval/helpers";
@@ -154,6 +155,17 @@ const DeviceImagesModal: React.FC<Props> = ({
                     onClick={() => onDecision("REJECTED")}
                   >
                     Reject
+                  </LoadingButton>
+                  <LoadingButton
+                    variant="outlined"
+                    color="warning"
+                    startIcon={<PauseCircleOutline />}
+                    loading={decisionLoading === "HOLD"}
+                    loadingPosition="start"
+                    disabled={decisionLoading !== null}
+                    onClick={() => onDecision("HOLD")}
+                  >
+                    Hold
                   </LoadingButton>
                   <LoadingButton
                     variant="contained"

@@ -12,7 +12,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { Refresh } from "@mui/icons-material";
+import { PauseCircleOutline, Refresh } from "@mui/icons-material";
 import { Icons } from "@/components/icons";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
@@ -206,7 +206,7 @@ const DeviceDefectApprovalPage: React.FC = () => {
           <Alert severity={isDecided ? "success" : "warning"} sx={{ mb: 2 }}>
             {isDecided
               ? "All devices in this request have been decided."
-              : "Click View to check device images, then select devices and approve or reject them. Action (Scrap / Repair) is required for rejection."}
+              : "Click View to check device images, then select devices and approve, hold or reject them. Action (Scrap / Repair) is required for rejection."}
           </Alert>
         )}
 
@@ -242,7 +242,18 @@ const DeviceDefectApprovalPage: React.FC = () => {
                   disabled={decisionLoading !== null || selectedPendingIds.length === 0}
                   onClick={() => handleDecision(selectedPendingIds, "REJECTED")}
                 >
-                  Reject Selected
+                  Reject
+                </LoadingButton>
+                <LoadingButton
+                  variant="outlined"
+                  color="warning"
+                  startIcon={<PauseCircleOutline />}
+                  loading={decisionLoading === "HOLD" && activeId === null}
+                  loadingPosition="start"
+                  disabled={decisionLoading !== null || selectedPendingIds.length === 0}
+                  onClick={() => handleDecision(selectedPendingIds, "HOLD")}
+                >
+                  Hold
                 </LoadingButton>
                 <LoadingButton
                   variant="contained"
@@ -253,7 +264,7 @@ const DeviceDefectApprovalPage: React.FC = () => {
                   disabled={decisionLoading !== null || selectedPendingIds.length === 0}
                   onClick={() => handleDecision(selectedPendingIds, "APPROVED")}
                 >
-                  Approve Selected
+                  Approve
                 </LoadingButton>
               </Box>
             </Box>

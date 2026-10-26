@@ -20,7 +20,7 @@ type RejectValue = {
   toasted: boolean;
 };
 
-export type DeviceApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type DeviceApprovalStatus = "PENDING" | "APPROVED" | "REJECTED" | "HOLD";
 export type DeviceDecisionStatus = Exclude<DeviceApprovalStatus, "PENDING">;
 
 export type DevicePhoto = {
@@ -192,7 +192,8 @@ export const submitDeviceApproval = createAsyncThunk<
 >(
   "deviceDefect/submitDeviceApproval",
   async ({ reqId, token, actions }, { rejectWithValue }) => {
-    const fallback = `Unable to ${actions[0]?.status === "APPROVED" ? "approve" : "reject"} the selected devices.`;
+    const verb = { APPROVED: "approve", REJECTED: "reject", HOLD: "hold" }[actions[0]?.status] ?? "update";
+    const fallback = `Unable to ${verb} the selected devices.`;
     try {
       const res = await publicAxiosInstance.post<ApiResponse>(
         "/approval/submitApproval",
