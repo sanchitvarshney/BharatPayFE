@@ -136,7 +136,9 @@ const POCellRenderer: React.FC<POCellRendererProps> = ({ props, customFunction }
                   data["hsnCode"]=res.payload.data.data.hsn;
                        data["gstRate"]=res.payload.data.data.gst_rate;
                   data["type"] = res.payload.data.data.type;
-                  api.refreshCells({ rowNodes: [props.node], columns: ["type"] });
+                  data["brand"] = res.payload.data.data.brand ?? "";
+                  data["specification"] = res.payload.data.data.specification ?? "";
+                  api.refreshCells({ rowNodes: [props.node], columns: ["type", "brand", "specification", "hsnCode"] });
                     loadInitialRate(res.payload.data.data);
                 }
               });
