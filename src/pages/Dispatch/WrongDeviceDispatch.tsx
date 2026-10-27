@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
@@ -34,14 +34,9 @@ import { DispatchWrongItemPayload } from "@/features/Dispatch/DispatchType";
 import WrongDeviceImeiTable, {
   WrongDeviceRow as RowData,
 } from "@/table/dispatch/WrongDeviceImeiTable";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CloudUpload, DeleteSweep } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "@/theme";
-
-type ScannedAwb = {
-  awbNo: string;
-  qty: number;
-};
 
 type FormDataType = {
   qty: string;
@@ -167,15 +162,44 @@ const WrongDeviceDispatch: React.FC = () => {
   const [awbLoading, setAwbLoading] = useState(false);
   const [serialNo, setSerialNo] = useState("");
   const [serialLoading, setSerialLoading] = useState(false);
-  const [lastScanned, setLastScanned] = useState<ScannedAwb | null>(null);
+  const [lastScannedAwb, setLastScannedAwb] = useState<string | null>(null);
   const [uploadConfirmOpen, setUploadConfirmOpen] = useState(false);
   const [pendingUploadRows, setPendingUploadRows] = useState<RowData[]>([]);
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
   const awbInputRef = useRef<HTMLInputElement>(null);
+  const serialInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const { handleSubmit, reset, setValue, watch } = useForm<FormDataType>({
     defaultValues: { qty: "", remark: "" },
   });
   const dispatchQty = Number(watch("qty")) || 0;
+
+  const scanSummary = useMemo(() => {
+    const totalQty = rowData.reduce((sum, row) => sum + (row.qty || 1), 0);
+    const awbCount = new Set(rowData.map((row) => row.awbNo)).size;
+    const lastRows = lastScannedAwb
+      ? rowData.filter((row) => row.awbNo === lastScannedAwb)
+      : [];
+    const lastScanned = lastRows.length
+      ? {
+          awbNo: lastScannedAwb as string,
+          rows: lastRows.length,
+          qty: lastRows.reduce((sum, row) => sum + (row.qty || 1), 0),
+        }
+      : null;
+    return { totalQty, awbCount, lastScanned };
+  }, [rowData, lastScannedAwb]);
+  const { totalQty, awbCount, lastScanned } = scanSummary;
+  const remainingQty = dispatchQty ? dispatchQty - totalQty : Infinity;
+  const qtyFullMessage = `Dispatch quantity of ${dispatchQty} is already complete. Remove an item to scan another.`;
+  const qtyStatusClass = !dispatchQty
+    ? "bg-neutral-100 text-neutral-700 border-neutral-300"
+    : totalQty === dispatchQty
+      ? "bg-green-50 text-green-700 border-green-300"
+      : totalQty > dispatchQty
+        ? "bg-red-50 text-red-700 border-red-300"
+        : "bg-amber-50 text-amber-700 border-amber-300";
 
   useEffect(() => {
     if (!id) return;
@@ -197,9 +221,13 @@ const WrongDeviceDispatch: React.FC = () => {
     setTimeout(() => awbInputRef.current?.focus(), 0);
   };
 
+  const focusSerialInput = () => {
+    setTimeout(() => serialInputRef.current?.focus(), 0);
+  };
+
   const resetAll = () => {
     setRowData([]);
-    setLastScanned(null);
+    setLastScannedAwb(null);
     reset();
     dispatch(resetDocumentFile());
     dispatch(clearaddressdetail());
@@ -336,14 +364,24 @@ const WrongDeviceDispatch: React.FC = () => {
 
   const handleUploadConfirm = () => {
     setRowData(pendingUploadRows);
-    showToast(`${pendingUploadRows.length} device(s) loaded from Excel`, "success");
+    showToast(
+      `${pendingUploadRows.length} device(s) loaded from Excel`,
+      "success",
+    );
     closeUploadConfirm();
   };
 
   const handleAwbSubmit = async () => {
-    setLastScanned(null);
+    setLastScannedAwb(null);
     const awbNo = awbInput.trim();
     if (!awbNo || awbLoading) return;
+
+    if (remainingQty <= 0) {
+      showToast(qtyFullMessage, "error");
+      setAwbInput("");
+      focusAwbInput();
+      return;
+    }
 
     if (rowData.some((row) => row.awbNo === awbNo)) {
       showToast(`AWB ${awbNo} is already added`, "error");
@@ -375,14 +413,14 @@ const WrongDeviceDispatch: React.FC = () => {
       }
 
       const existingSerials = new Set(rowData.map((row) => row.serialNo));
-      const duplicates = serials.filter((serial) => existingSerials.has(serial));
+      const duplicates = serials.filter((serial) =>
+        existingSerials.has(serial),
+      );
       if (duplicates.length) {
         showToast(`Serial No already added: ${duplicates.join(", ")}`, "error");
         return;
       }
 
-      // serial rows are fixed at qty 1; remarks become one editable row
-      // whose qty can't exceed the remarks count
       const newRows: RowData[] = serials.map((serial) => ({
         awbNo: awb,
         serialNo: serial,
@@ -397,8 +435,17 @@ const WrongDeviceDispatch: React.FC = () => {
           maxQty: remarkCount,
         });
       }
+
+      const newQty = newRows.reduce((sum, row) => sum + (row.qty || 1), 0);
+      if (newQty > remainingQty) {
+        showToast(
+          `AWB ${awb} has ${newQty} device(s), but only ${remainingQty} remaining for dispatch quantity of ${dispatchQty}.`,
+          "error",
+        );
+        return;
+      }
       setRowData((prev) => [...newRows, ...prev]);
-      setLastScanned({ awbNo: awb, qty: serials.length + remarkCount });
+      setLastScannedAwb(awb);
     } catch (error: any) {
       showToast(error?.message || "Unable to fetch AWB details", "error");
     } finally {
@@ -421,16 +468,24 @@ const WrongDeviceDispatch: React.FC = () => {
     }
   };
 
-  // Manual entry: Serial No is looked up to find its AWB; if the lookup fails
-  // the typed AWB is used.
+  
   const handleManualAdd = async () => {
-    setLastScanned(null);
+    setLastScannedAwb(null);
     const typedAwb = awbInput.trim();
     const serial = serialNo.trim();
     if (!serial || serialLoading) return;
 
+    if (remainingQty <= 0) {
+      showToast(qtyFullMessage, "error");
+      setSerialNo("");
+      focusSerialInput();
+      return;
+    }
+
     if (rowData.some((row) => row.serialNo === serial)) {
       showToast("This Serial No already exists", "error");
+      setSerialNo("");
+      focusSerialInput();
       return;
     }
 
@@ -441,18 +496,23 @@ const WrongDeviceDispatch: React.FC = () => {
     const awbNo = awb || typedAwb;
     if (!awbNo) {
       showToast(message || "AWB not found for this Serial No", "error");
+      focusSerialInput();
       return;
     }
 
     setRowData((prev) => [{ awbNo, serialNo: serial, qty: 1 }, ...prev]);
+    setLastScannedAwb(awbNo);
     setSerialNo("");
     setAwbInput("");
-    focusAwbInput();
+    focusSerialInput();
   };
 
   const handleClearAll = () => {
     setRowData([]);
-    setLastScanned(null);
+    setLastScannedAwb(null);
+    setAwbInput("");
+    setSerialNo("");
+    setClearConfirmOpen(false);
     focusAwbInput();
   };
 
@@ -467,6 +527,16 @@ const WrongDeviceDispatch: React.FC = () => {
         confirmText="Continue"
         color="primary"
         onConfirm={handleUploadConfirm}
+      />
+      <ConfirmationModel
+        open={clearConfirmOpen}
+        onClose={() => setClearConfirmOpen(false)}
+        title="Clear all scanned data?"
+        content="All scanned AWBs and serial numbers will be removed. Do you want to continue?"
+        cancelText="Cancel"
+        confirmText="Clear All"
+        color="error"
+        onConfirm={handleClearAll}
       />
       {getChallanLoading && <FullPageLoading />}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white">
@@ -524,80 +594,152 @@ const WrongDeviceDispatch: React.FC = () => {
           )}
 
           {activeStep === 1 && (
-            <div className="h-[calc(100vh-200px)] flex flex-col bg-neutral-50">
-              <div className="flex flex-wrap items-center gap-[12px] px-[20px] py-[14px] bg-white border-b border-neutral-200">
-                <TextField
-                  inputRef={awbInputRef}
-                  autoFocus
-                  value={awbInput}
-                  label="Scan / Enter AWB No."
-                  placeholder="Scan AWB and press Enter"
-                  sx={{ width: "320px" }}
-                  disabled={awbLoading}
-                  onChange={(e) => setAwbInput(e.target.value)}
-                  onKeyDown={onEnter(handleAwbSubmit)}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {awbLoading ? (
+            <div className="h-[calc(100vh-200px)] flex bg-neutral-50">
+              <div className="flex-1 min-w-0 flex flex-col">
+                <div className="flex flex-wrap items-center gap-[12px] px-[16px] py-[14px] bg-white border-b border-neutral-200">
+                  <TextField
+                    inputRef={awbInputRef}
+                    autoFocus
+                    value={awbInput}
+                    label="Scan / Enter AWB No."
+                    placeholder="Scan AWB and press Enter"
+                    sx={{ width: "320px" }}
+                    disabled={awbLoading}
+                    onChange={(e) => setAwbInput(e.target.value)}
+                    onKeyDown={onEnter(handleAwbSubmit)}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {awbLoading ? (
+                              <CircularProgress size={20} color="inherit" />
+                            ) : (
+                              <QrCodeScannerIcon />
+                            )}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                  <TextField
+                    inputRef={serialInputRef}
+                    value={serialNo}
+                    label="Serial No"
+                    placeholder="Enter Serial No and press Enter"
+                    sx={{ width: "260px" }}
+                    disabled={serialLoading}
+                    onChange={(e) => {
+                      if (/^[0-9_]*$/.test(e.target.value)) {
+                        setSerialNo(e.target.value);
+                      }
+                    }}
+                    onKeyDown={onEnter(handleManualAdd)}
+                    slotProps={{
+                      input: {
+                        endAdornment: serialLoading ? (
+                          <InputAdornment position="end">
                             <CircularProgress size={20} color="inherit" />
-                          ) : (
-                            <QrCodeScannerIcon />
-                          )}
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-                <TextField
-                  value={serialNo}
-                  label="Serial No"
-                  sx={{ width: "240px" }}
-                  disabled={serialLoading}
-                  onChange={(e) => {
-                    if (/^[0-9_]*$/.test(e.target.value)) {
-                      setSerialNo(e.target.value);
-                    }
-                  }}
-                  onKeyDown={onEnter(handleManualAdd)}
-                  slotProps={{
-                    input: {
-                      endAdornment: serialLoading ? (
-                        <InputAdornment position="end">
-                          <CircularProgress size={20} color="inherit" />
-                        </InputAdornment>
-                      ) : undefined,
-                    },
-                  }}
-                />
+                          </InputAdornment>
+                        ) : undefined,
+                      },
+                    }}
+                  />
+                </div>
+
+                <div className="flex-1 min-h-0 p-[0px]">
+                  <WrongDeviceImeiTable
+                    setRowdata={setRowData}
+                    rowData={rowData}
+                  />
+                </div>
               </div>
 
-              <div className="px-[20px] pt-[10px] text-[13px] text-neutral-600 min-h-[30px]">
-                {lastScanned ? (
-                  <span>
-                    Last scanned AWB{" "}
-                    <span className="font-semibold text-neutral-800">
-                      {lastScanned.awbNo}
-                    </span>{" "}
-                    · Qty{" "}
-                    <span className="font-semibold text-neutral-800">
-                      {lastScanned.qty}
+              <aside className="w-[320px] shrink-0 flex flex-col gap-[14px] p-[16px] bg-white border-l border-neutral-200 overflow-y-auto">
+                <section className="flex flex-col gap-[10px]">
+                  <h3 className="text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
+                    Scan Summary
+                  </h3>
+                  <div
+                    className={`flex items-center justify-between rounded-md border px-[12px] py-[10px] ${qtyStatusClass}`}
+                  >
+                    <span className="text-[13px]">Scanned Qty</span>
+                    <span className="text-[18px] font-semibold">
+                      {totalQty}
+                      {dispatchQty ? ` / ${dispatchQty}` : ""}
                     </span>
-                  </span>
-                ) : (
-                  <span>
-                    Scan an AWB to fetch its serial numbers, or use Bulk Upload.
-                  </span>
-                )}
-              </div>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-[8px] text-[13px]">
+                    {[
+                      { label: "AWBs", value: awbCount },
+                      { label: "Items", value: rowData.length },
+                      { label: "Dispatch Qty", value: dispatchQty || "--" },
+                      {
+                        label: "Remaining",
+                        value: dispatchQty
+                          ? Math.max(dispatchQty - totalQty, 0)
+                          : "--",
+                      },
+                    ].map(({ label, value }) => (
+                      <div
+                        key={label}
+                        className="rounded-md border border-neutral-200 bg-neutral-50 px-[10px] py-[8px]"
+                      >
+                        <dt className="text-neutral-500">{label}</dt>
+                        <dd className="text-[15px] font-semibold text-neutral-800">
+                          {value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="rounded-md border border-dashed border-neutral-300 px-[10px] py-[8px] text-[13px] text-neutral-600">
+                    {lastScanned ? (
+                      <>
+                        <span className="block text-neutral-500">
+                          Last scanned AWB
+                        </span>
+                        <span className="block font-semibold text-neutral-800 break-all">
+                          {lastScanned.awbNo}
+                        </span>
+                        <span className="block">
+                          Qty{" "}
+                          <span className="font-semibold text-neutral-800">
+                            {lastScanned.qty}
+                          </span>
+                        </span>
+                      </>
+                    ) : (
+                      <span>
+                        Scan an AWB to fetch its serial numbers, or use Bulk
+                        Upload.
+                      </span>
+                    )}
+                  </div>
+                </section>
 
-              <div className="flex-1 min-h-0 px-[20px] pb-[12px] pt-[6px]">
-                <WrongDeviceImeiTable
-                  setRowdata={setRowData}
-                  rowData={rowData}
-                />
-              </div>
+                <Divider />
+
+                <section className="flex flex-col gap-[8px]">
+                  <h3 className="text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
+                    Challan Details
+                  </h3>
+                  <dl className="flex flex-col gap-[6px] text-[13px]">
+                    {[
+                      { label: "Challan ID", value: toChallanId(id) },
+                      { label: "Client", value: data?.clientDetail?.name },
+                      { label: "Ship To", value: data?.shipToDetails?.shipLabel },
+                      { label: "Material", value: data?.materialName },
+                      { label: "Remarks", value: data?.remark },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="flex justify-between gap-[12px]">
+                        <dt className="shrink-0 text-neutral-500">{label}</dt>
+                        <dd className="text-right font-medium text-neutral-800 break-all">
+                          {value || "N/A"}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              </aside>
             </div>
           )}
 
@@ -609,7 +751,7 @@ const WrongDeviceDispatch: React.FC = () => {
                   Dispatch Number - {dispatchNo}
                 </Typography>
                 <LoadingButton
-                  onClick={() => setActiveStep(0)}
+                  onClick={() => navigate("/manage-challan")}
                   variant="contained"
                 >
                   Create New Dispatch
@@ -666,7 +808,7 @@ const WrongDeviceDispatch: React.FC = () => {
                     color="error"
                     startIcon={<DeleteSweep />}
                     disabled={!rowData.length}
-                    onClick={handleClearAll}
+                    onClick={() => setClearConfirmOpen(true)}
                   >
                     Clear All
                   </Button>

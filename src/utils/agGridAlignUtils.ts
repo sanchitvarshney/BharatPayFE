@@ -1,9 +1,7 @@
-
-
 export const rightAlignedCellStyle = {
   textAlign: "right",
   justifyContent: "flex-end",
-  paddingRight: "10px",
+  paddingRight: "18px",
 } as const;
 
 export const centerAlignedCellStyle = {

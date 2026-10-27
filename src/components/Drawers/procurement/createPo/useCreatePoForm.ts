@@ -411,6 +411,8 @@ export function useCreatePoForm({ open, setOpen, details, onSuccess }: CreatePoD
         id: `${row.componentKey}-${i}`,
         componentKey: row.componentKey,
         componentLabel: row.componentName || row.partNo || row.componentKey,
+        brand: "",
+        specification: "",
         initialRate: Number(row.initialRate),
         enteredRate: Number(row.rate),
       }));

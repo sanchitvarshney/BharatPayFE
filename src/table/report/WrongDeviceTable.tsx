@@ -155,7 +155,7 @@ const WrongDeviceTable: React.FC<Props> = ({
   return (
     <div>
       {loading && <FullPageLoading />}
-      <div className="relative ag-theme-quartz h-[calc(100vh-100px)]">
+      <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
         <AgGridReact
           loadingOverlayComponent={CustomLoadingOverlay}
           ref={gridRef}

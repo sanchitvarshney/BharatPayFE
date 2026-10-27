@@ -95,7 +95,63 @@ export const fetchAdminApprovalRequest = async (
   token: string,
 ): Promise<RefreshApprovalDataResponse> => {
   const response = await publicAxiosInstance.get("/po/adminApprovalList", {
-    params: { req_id: reqId, token },
+    params: { req_id: reqId },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export type ComponentLog = {
+  req_id: string;
+  date: string;
+  rate: number;
+  status: string;
+  action_by?: string | null;
+  action_by_name: string | null;
+  remarks?: string | null;
+  brand?: string | null;
+  specification?: string | null;
+};
+
+export type PurchaseRecord = {
+  vendor_id: string;
+  vendor_name: string;
+  is_current_vendor: boolean;
+  rate: number;
+  order_qty: string;
+  po_number: string;
+  currency: string;
+  purchase_date: string; // DD-MM-YYYY
+};
+
+export type ComponentMetaData = {
+  component_key: string;
+  part_code: string;
+  component_name: string;
+  component_logs: ComponentLog[];
+  purchase_history?: PurchaseRecord[];
+  other_vendors: PurchaseRecord[];
+};
+
+export type ComponentMetaDataResponse = {
+  success: boolean;
+  status: string;
+  message: string;
+  data: {
+    req_id: string;
+    vendor_id: string;
+    vendor_name: string;
+    items: ComponentMetaData[];
+  };
+};
+
+export const getComponentMetaData = async (
+  reqId: string,
+  token: string,
+): Promise<ComponentMetaDataResponse> => {
+  const response = await publicAxiosInstance.get("/po/getComponentMetaData", {
+    params: { req_id: reqId },
+    headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };

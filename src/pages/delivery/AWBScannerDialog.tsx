@@ -8,6 +8,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onScan: (value: string) => void;
+  title?: string;
+  hint?: string;
 };
 
 const FORMATS = [
@@ -38,7 +40,13 @@ const getErrorMessage = (err: unknown) => {
   return "Couldn't start the camera. Please try again.";
 };
 
-const AWBScannerDialog = ({ open, onClose, onScan }: Props) => {
+const AWBScannerDialog = ({
+  open,
+  onClose,
+  onScan,
+  title = "Scan AWB barcode",
+  hint = "Place the AWB barcode inside the frame",
+}: Props) => {
   // Callback ref: the dialog renders in a portal, so the element may appear after the first effect.
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const onScanRef = useRef(onScan);
@@ -103,7 +111,7 @@ const AWBScannerDialog = ({ open, onClose, onScan }: Props) => {
       <div className="relative flex h-full w-full flex-col">
         <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between p-3">
           <span className="rounded-full bg-black/50 px-3 py-1 text-sm font-medium text-white">
-            Scan AWB barcode
+            {title}
           </span>
           <IconButton onClick={onClose} sx={{ color: "white", bgcolor: "rgba(0,0,0,0.5)" }}>
             <Close />
@@ -124,7 +132,7 @@ const AWBScannerDialog = ({ open, onClose, onScan }: Props) => {
               <div className="absolute left-3 right-3 top-1/2 h-0.5 animate-pulse bg-red-500" />
             </div>
             <span className="text-center text-sm text-white">
-              Place the AWB barcode inside the frame
+              {hint}
             </span>
           </div>
         )}
