@@ -26,6 +26,8 @@ import {
 import { cancelPartCodeChallan } from "@/features/procurement/poSlices";
 import { showToast } from "@/utils/toasterContext";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+import UploadChallanDocDialog from "@/pages/ewayBill/UploadChallanDocDialog";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 interface RowData {
   orderQty: number;
@@ -46,6 +48,8 @@ interface RowData {
   type?: string;
   itemType?: string;
   status?: string;
+  productName?: string;
+  materialName?: string;
 }
 
 type Props = {
@@ -61,6 +65,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelLoading, setCancelLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
+  const [uploadDocOpen, setUploadDocOpen] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -166,7 +171,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
 
   const columnDefs: ColDef[] = [
     {
-      headerName: "",
+      headerName: "Actions",
       // pinned: "right",
       sortable: false,
       filter: false,
@@ -179,7 +184,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
           <MoreVertIcon className="h-4 w-4" />
         </IconButton>
       ),
-      width: 50,
+      width: 120,
     },
     {
       headerName: "Challan ID",
@@ -236,6 +241,13 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
             filter: true,
             flex: 1,
             minWidth: 200,
+            cellRenderer: (params: { data: RowData }) => {
+              return (
+                <div className="flex items-center">
+                  {params.data.productName===""   ? "-" : params.data.productName}
+                </div>
+              );
+            }
           },
           {
             headerName: "Material Name",
@@ -244,6 +256,13 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
             filter: true,
             flex: 1,
             minWidth: 200,
+            cellRenderer: (params: { data: RowData }) => {
+              return (
+                <div className="flex items-center">
+                  {params.data.materialName===""   ? "-" : params.data.materialName}
+                </div>
+              );
+            }
           },
         ]
       : []),
@@ -330,6 +349,11 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
     return {
       filter: true,
       sortable: true,
+         wrapText: true,
+    autoHeight: true,
+    wrapHeaderText: true,
+    autoHeaderHeight: true,
+    ...leftAlignedColumn,
     };
   }, []);
 
@@ -382,6 +406,16 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
               Create Dispatch
             </MenuItem>
           )}
+          {challanType !== "PART" && selectedRow?.isewaybill === "Y" && (
+            <MenuItem
+              onClick={() => {
+                handleMenuClose();
+                setUploadDocOpen(true);
+              }}
+            >
+              Upload E-way Bill
+            </MenuItem>
+          )}
           {challanType === "PART" && (
             <MenuItem
               onClick={handleCancelChallan}
@@ -407,6 +441,12 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         selectedRow={selectedRow}
+      />
+
+      <UploadChallanDocDialog
+        open={uploadDocOpen}
+        challanId={selectedRow?.challanId}
+        onClose={() => setUploadDocOpen(false)}
       />
 
       {/* ── Cancel Challan Dialog ── */}

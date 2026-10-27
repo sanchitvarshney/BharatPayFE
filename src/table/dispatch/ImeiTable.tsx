@@ -4,6 +4,7 @@ import { ColDef } from "ag-grid-community";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 interface RowData {
   imei: string;
   srno: string;
@@ -91,9 +92,24 @@ const ImeiTable: React.FC<Props> = ({ rowData, setRowdata }) => {
     },
   ];
 
+  const defaultColDef: ColDef = {
+    wrapText: true,
+    autoHeight: true,
+    wrapHeaderText: true,
+    autoHeaderHeight: true,
+    ...leftAlignedColumn,
+  };
+
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-290px)] ">
-      <AgGridReact overlayNoRowsTemplate={OverlayNoRowsTemplate} suppressCellFocus={true} rowData={rowData} columnDefs={columnDefs} />
+    <div className="ag-theme-quartz h-full">
+      <AgGridReact
+        overlayNoRowsTemplate={OverlayNoRowsTemplate}
+        suppressCellFocus={true}
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        enableCellTextSelection={true}
+      />
     </div>
   );
 };

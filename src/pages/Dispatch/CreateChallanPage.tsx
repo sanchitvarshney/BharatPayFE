@@ -37,6 +37,7 @@ import {
   CreateChallan,
   getClientBranch,
   getChallanById,
+  uploadChallanDocs,
 } from "@/features/Dispatch/DispatchSlice";
 import {
   getClientAddressDetail,
@@ -45,6 +46,11 @@ import {
 import { Dayjs } from "dayjs";
 import { showToast } from "@/utils/toasterContext";
 import { useParams } from "react-router-dom";
+import DocDropzone from "@/components/reusable/DocDropzone";
+
+const INVOICE_MAX_LENGTH = 18;
+const INVOICE_PATTERN = /^[A-Za-z0-9/-]+$/;
+const INVOICE_MAX_FILES = 4;
 
 type FormDataType = {
   clientDetail: clientDetailType | null;
@@ -103,6 +109,8 @@ const CreateChallanPage: React.FC = () => {
   const [alert, setAlert] = useState<boolean>(false);
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
+  const [invoiceFiles, setInvoiceFiles] = useState<File[]>([]);
+  const [invoiceUploading, setInvoiceUploading] = useState<boolean>(false);
 
   const { createChallanLoading, clientBranchList } = useAppSelector(
     (state) => state.dispatch
@@ -118,6 +126,7 @@ const CreateChallanPage: React.FC = () => {
     control,
     reset,
     setValue,
+    setError,
     watch,
     formState: { errors },
   } = useForm<FormDataType>({
@@ -150,6 +159,7 @@ const CreateChallanPage: React.FC = () => {
 
   const resetall = () => {
     reset();
+    setInvoiceFiles([]);
     dispatch(resetDocumentFile());
     formdata.delete("document");
   };
@@ -264,9 +274,33 @@ const CreateChallanPage: React.FC = () => {
       showToast("Please select Device Type", "error");
       return;
     }
+    const invoice = data.invoice?.trim() ?? "";
+    if (!invoice) {
+      setError("invoice", { message: "Invoice Number is required" });
+      showToast("Please enter Invoice Number", "error");
+      return;
+    }
+    if (invoice.length > INVOICE_MAX_LENGTH) {
+      setError("invoice", {
+        message: `Invoice Number must be at most ${INVOICE_MAX_LENGTH} characters`,
+      });
+      showToast(
+        `Invoice Number must be at most ${INVOICE_MAX_LENGTH} characters`,
+        "error"
+      );
+      return;
+    }
+    if (!INVOICE_PATTERN.test(invoice)) {
+      setError("invoice", {
+        message: "Only letters, numbers, hyphen (-) and slash (/) are allowed",
+      });
+      showToast("Invoice Number has invalid characters", "error");
+      return;
+    }
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
+      invoiceNo: invoice,
       dispatchQty: Number(data.qty),
       remark: data.remark,
       clientDetail: data.clientDetail
@@ -284,11 +318,28 @@ const CreateChallanPage: React.FC = () => {
       materialName: data.materialName,
       deviceType: data.deviceType,
     };
-    dispatch(CreateChallan(payload)).then((res: any) => {
+    dispatch(CreateChallan(payload)).then(async (res: any) => {
       console.log(res);
       if (res.payload.data.success) {
-        setDispatchNo(res?.payload?.data?.data);
+        const challanId = res?.payload?.data?.data;
+        setDispatchNo(challanId);
         showToast(res?.payload?.data?.message, "success");
+
+        // Attach invoice docs to the newly created challan
+        if (invoiceFiles.length > 0 && challanId) {
+          setInvoiceUploading(true);
+          const uploadRes: any = await dispatch(
+            uploadChallanDocs({ challanId, files: invoiceFiles })
+          );
+          setInvoiceUploading(false);
+          if (!uploadRes?.payload?.data?.success) {
+            showToast(
+              "Challan created, but invoice upload failed. Upload it from Manage Challan → Upload Doc.",
+              "warning"
+            );
+          }
+        }
+
         reset();
         handleNext();
         resetall();
@@ -1061,6 +1112,47 @@ const CreateChallanPage: React.FC = () => {
                     </FormControl>
                   )}
                 />
+
+                <Controller
+                  name="invoice"
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: "Invoice Number is required",
+                    },
+                    maxLength: {
+                      value: INVOICE_MAX_LENGTH,
+                      message: `Invoice Number must be at most ${INVOICE_MAX_LENGTH} characters`,
+                    },
+                    pattern: {
+                      value: INVOICE_PATTERN,
+                      message:
+                        "Only letters, numbers, hyphen (-) and slash (/) are allowed",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <FormControl
+                      error={!!errors.invoice}
+                      fullWidth
+                      variant="filled"
+                    >
+                      <InputLabel htmlFor="invoice">Invoice Number</InputLabel>
+                      <FilledInput
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value.trim())}
+                        error={!!errors.invoice}
+                        id="invoice"
+                        type="text"
+                        inputProps={{ maxLength: INVOICE_MAX_LENGTH }}
+                    
+                      />
+                      {errors.invoice && (
+                        <FormHelperText>{errors.invoice.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
               </div>
               <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
                 <FormControl fullWidth variant="filled">
@@ -1081,6 +1173,31 @@ const CreateChallanPage: React.FC = () => {
                     rows={2}
                   />
                 </FormControl>
+              </div>
+              <div className="flex items-center w-full gap-3 pt-[10px]">
+                <div className="flex items-center gap-[5px]">
+                  <Icons.files />
+                  <h2 className="text-lg font-semibold">Invoice Attachment</h2>
+                  <Typography variant="caption" color="textSecondary">
+                    (optional)
+                  </Typography>
+                </div>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    borderColor: "#f59e0b",
+                    flexGrow: 1,
+                  }}
+                />
+              </div>
+              <div className="max-w-[640px]">
+                <DocDropzone
+                  files={invoiceFiles}
+                  onChange={setInvoiceFiles}
+                  maxFiles={INVOICE_MAX_FILES}
+                  disabled={createChallanLoading || invoiceUploading}
+                  label="Invoice documents"
+                />
               </div>
               {/* </div> */}
             </div>
@@ -1105,7 +1222,7 @@ const CreateChallanPage: React.FC = () => {
             {activeStep === 0 && (
               <>
                 <LoadingButton
-                  loading={createChallanLoading}
+                  loading={createChallanLoading || invoiceUploading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}
