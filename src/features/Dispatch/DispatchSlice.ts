@@ -39,8 +39,8 @@ export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean;
   return response;
 });
 
-export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateChallan", async (payload) => {
-  const response = await axiosInstance.post(`challan/create`, payload);
+export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, FormData>("dispatch/CreateChallan", async (formdata) => {
+  const response = await axiosInstance.post(`challan/create`, formdata, { headers: { "Content-Type": "multipart/form-data" } });
   return response;
 });
 

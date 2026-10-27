@@ -37,7 +37,6 @@ import {
   CreateChallan,
   getClientBranch,
   getChallanById,
-  uploadChallanDocs,
 } from "@/features/Dispatch/DispatchSlice";
 import {
   getClientAddressDetail,
@@ -110,7 +109,6 @@ const CreateChallanPage: React.FC = () => {
   const [upload, setUpload] = useState<boolean>(false);
   const [dispatchNo, setDispatchNo] = useState<string>("");
   const [invoiceFiles, setInvoiceFiles] = useState<File[]>([]);
-  const [invoiceUploading, setInvoiceUploading] = useState<boolean>(false);
 
   const { createChallanLoading, clientBranchList } = useAppSelector(
     (state) => state.dispatch
@@ -300,7 +298,7 @@ const CreateChallanPage: React.FC = () => {
     // if (formdata) {
     const payload: any = {
       otherRef: data.otherRef,
-      invoiceNo: invoice,
+      document_invoice_no: invoice,
       dispatchQty: Number(data.qty),
       remark: data.remark,
       clientDetail: data.clientDetail
@@ -318,28 +316,14 @@ const CreateChallanPage: React.FC = () => {
       materialName: data.materialName,
       deviceType: data.deviceType,
     };
-    dispatch(CreateChallan(payload)).then(async (res: any) => {
-      console.log(res);
-      if (res.payload.data.success) {
-        const challanId = res?.payload?.data?.data;
-        setDispatchNo(challanId);
+    const formdata = new FormData();
+    formdata.append("data", JSON.stringify(payload));
+    invoiceFiles.forEach((file) => formdata.append("bill", file));
+
+    dispatch(CreateChallan(formdata)).then((res: any) => {
+      if (res?.payload?.data?.success) {
+        setDispatchNo(res?.payload?.data?.data);
         showToast(res?.payload?.data?.message, "success");
-
-        // Attach invoice docs to the newly created challan
-        if (invoiceFiles.length > 0 && challanId) {
-          setInvoiceUploading(true);
-          const uploadRes: any = await dispatch(
-            uploadChallanDocs({ challanId, files: invoiceFiles })
-          );
-          setInvoiceUploading(false);
-          if (!uploadRes?.payload?.data?.success) {
-            showToast(
-              "Challan created, but invoice upload failed. Upload it from Manage Challan → Upload Doc.",
-              "warning"
-            );
-          }
-        }
-
         reset();
         handleNext();
         resetall();
@@ -1195,7 +1179,7 @@ const CreateChallanPage: React.FC = () => {
                   files={invoiceFiles}
                   onChange={setInvoiceFiles}
                   maxFiles={INVOICE_MAX_FILES}
-                  disabled={createChallanLoading || invoiceUploading}
+                  disabled={createChallanLoading}
                   label="Invoice documents"
                 />
               </div>
@@ -1222,7 +1206,7 @@ const CreateChallanPage: React.FC = () => {
             {activeStep === 0 && (
               <>
                 <LoadingButton
-                  loading={createChallanLoading || invoiceUploading}
+                  loading={createChallanLoading}
                   loadingPosition="start"
                   variant="contained"
                   startIcon={<Icons.save />}

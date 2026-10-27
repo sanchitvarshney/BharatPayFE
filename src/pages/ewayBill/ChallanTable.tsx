@@ -50,7 +50,33 @@ interface RowData {
   status?: string;
   productName?: string;
   materialName?: string;
+  documentInvoiceNo?: string | null;
+  billLinks?: (BillLink | string)[];
 }
+
+type BillLink = { filename: string; url: string };
+
+const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|svg)$/i;
+
+const getFileName = (url: string) => {
+  try {
+    return decodeURIComponent(new URL(url).pathname.split("/").pop() || url);
+  } catch {
+    return url;
+  }
+};
+
+const normalizeBillLinks = (links?: (BillLink | string)[]): BillLink[] =>
+  (links ?? [])
+    .map((link) =>
+      typeof link === "string"
+        ? { url: link, filename: getFileName(link) }
+        : { url: link?.url, filename: link?.filename || getFileName(link?.url ?? "") },
+    )
+    .filter((link) => Boolean(link.url));
+
+const isImageLink = (link: BillLink) =>
+  IMAGE_EXT.test(link.filename) || IMAGE_EXT.test(getFileName(link.url));
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
@@ -66,6 +92,10 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
   const [cancelLoading, setCancelLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const [uploadDocOpen, setUploadDocOpen] = useState(false);
+  const [billLinksView, setBillLinksView] = useState<{
+    challanId: string;
+    links: BillLink[];
+  } | null>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -171,7 +201,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
 
   const columnDefs: ColDef[] = [
     {
-      headerName: "Actions",
+      headerName: "#",
       // pinned: "right",
       sortable: false,
       filter: false,
@@ -181,10 +211,10 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
           onClick={(e) => handleMenuClick(e, params.data)}
           className="hover:bg-gray-100"
         >
-          <MoreVertIcon className="h-4 w-4" />
+          <MoreVertIcon fontSize="small" />
         </IconButton>
       ),
-      width: 120,
+      width: 80,
     },
     {
       headerName: "Challan ID",
@@ -263,6 +293,41 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
                 </div>
               );
             }
+          },
+          {
+            headerName: "Invoice No",
+            field: "documentInvoiceNo",
+            sortable: true,
+            filter: true,
+            flex: 1,
+            minWidth: 160,
+            valueGetter: (params: { data: RowData }) =>
+              params.data.documentInvoiceNo || "-",
+          },
+          {
+            headerName: "Bills",
+            field: "billLinks",
+            sortable: false,
+            filter: false,
+            minWidth: 120,
+            cellRenderer: (params: { data: RowData }) => {
+              const links = normalizeBillLinks(params.data.billLinks);
+              return (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={links.length === 0}
+                  onClick={() =>
+                    setBillLinksView({
+                      challanId: params.data.challanId,
+                      links,
+                    })
+                  }
+                >
+                  View{links.length > 0 ? ` (${links.length})` : ""}
+                </Button>
+              );
+            },
           },
         ]
       : []),
@@ -448,6 +513,52 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
         challanId={selectedRow?.challanId}
         onClose={() => setUploadDocOpen(false)}
       />
+
+      {/* ── Bill Links Dialog ── */}
+      <Dialog
+        open={Boolean(billLinksView)}
+        onClose={() => setBillLinksView(null)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 600 }}>
+          Bills — {billLinksView?.challanId}
+        </DialogTitle>
+        <DialogContent dividers>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {billLinksView?.links.map((link, index) => (
+              <a
+                key={`${link.url}-${index}`}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={link.filename}
+                className="flex flex-col border border-neutral-300 rounded-md overflow-hidden hover:shadow-md transition-shadow"
+              >
+                {isImageLink(link) ? (
+                  <img
+                    src={link.url}
+                    alt={link.filename}
+                    className="h-[160px] w-full object-contain bg-neutral-100"
+                  />
+                ) : (
+                  <div className="h-[160px] w-full flex items-center justify-center bg-neutral-100 text-slate-500 text-[13px]">
+                    {link.filename.toLowerCase().endsWith(".pdf") ? "PDF — click to open" : "Click to open"}
+                  </div>
+                )}
+                <span className="px-2 py-1 text-[12px] text-blue-600 truncate">
+                  {link.filename}
+                </span>
+              </a>
+            ))}
+          </div>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button variant="outlined" color="inherit" onClick={() => setBillLinksView(null)}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* ── Cancel Challan Dialog ── */}
       <Dialog
