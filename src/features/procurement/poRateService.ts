@@ -1,6 +1,8 @@
 import axiosInstance from "@/api/axiosInstance";
 import publicAxiosInstance from "@/api/publicAxiosInstance";
 
+const authHeaders = (token: string) => ({ authorization: token });
+
 export type RateApprovalStatus = "pending" | "approved" | "rejected";
 
 export type RateApprovalItem = {
@@ -96,7 +98,7 @@ export const fetchAdminApprovalRequest = async (
 ): Promise<RefreshApprovalDataResponse> => {
   const response = await publicAxiosInstance.get("/po/adminApprovalList", {
     params: { req_id: reqId },
-    headers: { Authorization: `Bearer ${token}` },
+    headers: authHeaders(token),
   });
   return response.data;
 };
@@ -151,7 +153,7 @@ export const getComponentMetaData = async (
 ): Promise<ComponentMetaDataResponse> => {
   const response = await publicAxiosInstance.get("/po/getComponentMetaData", {
     params: { req_id: reqId },
-    headers: { Authorization: `Bearer ${token}` },
+    headers: authHeaders(token),
   });
   return response.data;
 };
@@ -178,7 +180,7 @@ export const submitAdminApproval = async (
       req_id: reqId,
       decisions,
     },
-    { headers: { Authorization: `Bearer ${token}` } },
+    { headers: authHeaders(token) },
   );
   return response.data;
 };

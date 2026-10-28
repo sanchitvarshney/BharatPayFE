@@ -815,7 +815,7 @@ const CreatePO: React.FC = () => {
                   render={({ field }) => (
                     <Autocomplete
                       value={
-                        dispatchFromDetails?.data?.find(
+                        dispatchFromDetails?.find(
                           (address: any) => address.code === field.value
                         ) || null
                       }
@@ -959,7 +959,7 @@ const CreatePO: React.FC = () => {
                     <Autocomplete
                       // value={field.value}
                       value={
-                        shippingAddress?.data?.find(
+                        shippingAddress?.find(
                           (address: any) => address.code === field.value
                         ) || null
                       }
