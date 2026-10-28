@@ -53,24 +53,66 @@ const DeviceQualityReport: React.FC = () => {
     gridRef.current?.api.exportDataAsExcel({
       sheetName: "Device Quality Report",
       fileName: `DeviceQualityReport_${dayjs().format("DD-MM-YYYY_HH-mm")}.xlsx`,
-      columnKeys: ["serial_no", "status", "created_at", "images"],
+      columnKeys: ["serial_no", "status", "requested_by", "action_by", "remark", "created_at", "images"],
     });
   }, []);
+
+  const defaultColDef = useMemo(
+    () => ({
+      wrapText: true,
+      autoHeight: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
+    }),
+    [],
+  );
 
   const columnDefs = useMemo<any[]>(
     () => [
       { headerName: "#", width: 80, valueGetter: "node.rowIndex+1",  ...leftAlignedColumn,  },
-      { headerName: "Serial No.", field: "serial_no", sortable: true, filter: true, flex: 1,...leftAlignedColumn, },
+      { headerName: "Serial No.", field: "serial_no", sortable: true, filter: true, flex: 1, minWidth: 180, ...leftAlignedColumn, },
       {
         headerName: "Status",
         field: "status",
         sortable: true,
         filter: true,
         flex: 1,
+        minWidth: 130,
         cellRenderer: (params: any) => {
           const chip = getStatusChip(params.value);
           return <Chip size="small" label={chip.label} color={chip.color} />;
         },
+        ...leftAlignedColumn,
+      },
+      {
+        headerName: "Requested By",
+        field: "requested_by",
+        sortable: true,
+        filter: true,
+        flex: 1,
+        minWidth: 160,
+        valueFormatter: (params: any) => params.value || "-",
+        ...leftAlignedColumn,
+      },
+      {
+        headerName: "Action By",
+        field: "action_by",
+        sortable: true,
+        filter: true,
+        flex: 1,
+        minWidth: 160,
+        valueFormatter: (params: any) => params.value || "-",
+        ...leftAlignedColumn,
+      },
+      {
+        headerName: "Remark",
+        colId: "remark",
+        sortable: true,
+        filter: true,
+        flex: 2,
+        minWidth: 240,
+        valueGetter: (params: any) => params.data?.remarks || params.data?.remark || "-",
+        tooltipValueGetter: (params: any) => (params.value && params.value !== "-" ? params.value : undefined),
         ...leftAlignedColumn,
       },
       {
@@ -79,6 +121,7 @@ const DeviceQualityReport: React.FC = () => {
         sortable: true,
         filter: true,
         flex: 1,
+        minWidth: 180,
         ...leftAlignedColumn,
         valueFormatter: (params: any) => formatServerDateTime(params.value),
       },
@@ -86,6 +129,7 @@ const DeviceQualityReport: React.FC = () => {
         headerName: "Images",
         colId: "images",
         flex: 1,
+        minWidth: 170,
         valueGetter: (params: any) => params.data?.image_links?.filter(Boolean).length ?? 0,
         cellRenderer: (params: any) => (
           <Button
@@ -170,9 +214,11 @@ const DeviceQualityReport: React.FC = () => {
           suppressCellFocus={true}
           rowData={reportList}
           columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={100}
           enableCellTextSelection
+          enableBrowserTooltips
         />
       </div>
 

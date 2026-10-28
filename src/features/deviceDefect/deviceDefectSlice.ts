@@ -5,8 +5,9 @@ import { showToast } from "@/utils/toasterContext";
 import { getApiMessage } from "@/utils/getApiMessage";
 
 export type RequestDeviceApprovalPayload = {
-  device_type: string;
+  device_type?: string;
   serial_no: string;
+  remark?: string;
   images: File[];
 };
 
@@ -74,6 +75,10 @@ export type DeviceQualityReportRow = {
   status: DeviceApprovalStatus | string;
   image_links: string[] | null;
   created_at: string;
+  action_by?: string | null;
+  requested_by?: string | null;
+  remarks?: string | null;
+  remark?: string | null;
 };
 
 type DeviceQualityReportResponse = ApiResponse & {
@@ -127,8 +132,9 @@ export const requestDeviceApproval = createAsyncThunk<
       // Backend expects serial_numbers as JSON text and each photo keyed as photos_<serial_number>
       // (one serial per submission)
       const formData = new FormData();
-      formData.append("device_type", payload.device_type);
+      if (payload.device_type) formData.append("device_type", payload.device_type);
       formData.append("serial_numbers", JSON.stringify([payload.serial_no]));
+      if (payload.remark) formData.append("remark", payload.remark);
       payload.images.forEach((file) =>
         formData.append(`photos_${payload.serial_no}`, file),
       );

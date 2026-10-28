@@ -4,36 +4,32 @@ import {
   Button,
   Card,
   CardContent,
-  FormControl,
   IconButton,
   InputAdornment,
-  MenuItem,
-  Select,
   TextField,
   Typography,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { AddAPhotoOutlined, AssessmentOutlined, Close, QrCodeScanner } from "@mui/icons-material";
+import { AddAPhotoOutlined, AssessmentOutlined, Brush, Close, QrCodeScanner } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { Icons } from "@/components/icons";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { requestDeviceApproval } from "@/features/deviceDefect/deviceDefectSlice";
-import { fieldSx, selectSx } from "../queries/fqcDeviceImage/fqcDeviceImage.constants";
+import { fieldSx } from "../queries/fqcDeviceImage/fqcDeviceImage.constants";
 import FqcImagePreviewModal from "../queries/fqcDeviceImage/FqcImagePreviewModal";
 import AWBScannerDialog from "../delivery/AWBScannerDialog";
 import { MAX_PHOTOS, compressPhoto } from "./deviceQualityCheck.utils";
 import FullScreenPhotoCamera from "./FullScreenPhotoCamera";
+import PhotoMarkupEditor from "./PhotoMarkupEditor";
 
-const deviceTypeData = [
-  { value: "swipe", text: "Swipe Machine" },
-  { value: "sound", text: "Sound Box" },
-];
+const MAX_REMARK_LENGTH = 500;
 
 type Photo = {
   id: string;
   file: File;
   previewUrl: string;
+  marked?: boolean;
 };
 
 const FieldLabel = ({ children, required }: { children: React.ReactNode; required?: boolean }) => (
@@ -47,14 +43,15 @@ const DeviceQualityCheckContent = () => {
   const dispatch = useAppDispatch();
   const { requestApprovalLoading: loading, requestApprovalError } = useAppSelector((state) => state.deviceDefect);
 
-  const [deviceType, setDeviceType] = useState("");
   const [serialNo, setSerialNo] = useState("");
+  const [remark, setRemark] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
   // number of photos still being compressed
   const [processing, setProcessing] = useState(0);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const [markupId, setMarkupId] = useState<string | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [submittedSerial, setSubmittedSerial] = useState<string | null>(null);
 
@@ -88,9 +85,23 @@ const DeviceQualityCheckContent = () => {
     // shrink in background; submit stays disabled until done
     setProcessing((count) => count + 1);
     compressPhoto(raw)
-      .then((file) => setPhotos((prev) => prev.map((p) => (p.id === photo.id ? { ...p, file } : p))))
+      // skip if the photo was marked meanwhile, so the marks aren't overwritten
+      .then((file) => setPhotos((prev) => prev.map((p) => (p.id === photo.id && p.file === raw ? { ...p, file } : p))))
       .finally(() => setProcessing((count) => count - 1));
   }, []);
+
+  const handleMarkupSave = (id: string, file: File) => {
+    setPhotos((prev) =>
+      prev.map((p) => {
+        if (p.id !== id) return p;
+        URL.revokeObjectURL(p.previewUrl);
+        return { ...p, file, previewUrl: URL.createObjectURL(file), marked: true };
+      }),
+    );
+    setMarkupId(null);
+  };
+
+  const markupPhoto = photos.find((p) => p.id === markupId);
 
   const removePhoto = (id: string) => {
     setPhotos((prev) => {
@@ -104,17 +115,22 @@ const DeviceQualityCheckContent = () => {
     photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
     setPhotos([]);
     setSerialNo("");
+    setRemark("");
     setShowErrors(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setShowErrors(true);
-    if (!deviceType || !serialNo.trim() || photos.length === 0) return;
+    if (!serialNo.trim() || photos.length === 0) return;
 
     const serial = serialNo.trim();
     const result = await dispatch(
-      requestDeviceApproval({ device_type: deviceType, serial_no: serial, images: photos.map((p) => p.file) }),
+      requestDeviceApproval({
+        serial_no: serial,
+        remark: remark.trim() || undefined,
+        images: photos.map((p) => p.file),
+      }),
     );
     if (requestDeviceApproval.fulfilled.match(result)) {
       resetForm();
@@ -123,7 +139,6 @@ const DeviceQualityCheckContent = () => {
   };
 
   const errors = {
-    deviceType: showErrors && !deviceType ? "Device type is required" : "",
     serialNo: showErrors && !serialNo.trim() ? "Serial number is required" : "",
     photos: showErrors && photos.length === 0 ? "Please take at least one photo" : "",
   };
@@ -176,38 +191,12 @@ const DeviceQualityCheckContent = () => {
             <CardContent>
               <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-[20px]">
                 <div className="flex flex-col gap-[10px]">
-                  <FieldLabel required>Device Type</FieldLabel>
-                  <FormControl fullWidth error={!!errors.deviceType} disabled={isBusy}>
-                    <Select
-                      value={deviceType}
-                      onChange={(e) => setDeviceType(e.target.value)}
-                      displayEmpty
-                      sx={selectSx}
-                      renderValue={(value) =>
-                        value ? (
-                          deviceTypeData.find((d) => d.value === value)?.text ?? value
-                        ) : (
-                          <span className="text-slate-400">Select device type</span>
-                        )
-                      }
-                    >
-                      {deviceTypeData.map((item) => (
-                        <MenuItem key={item.value} value={item.value}>
-                          {item.text}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  {errors.deviceType && <span className="text-[12px] text-red-500">{errors.deviceType}</span>}
-                </div>
-
-                <div className="flex flex-col gap-[10px]">
                   <FieldLabel required>Serial No.</FieldLabel>
                   <TextField
                     fullWidth
                     value={serialNo}
-                    placeholder={deviceType ? "Enter or scan serial number" : "Select device type first"}
-                    disabled={!deviceType || isBusy}
+                    placeholder="Enter or scan serial number"
+                    disabled={isBusy}
                     error={!!errors.serialNo}
                     helperText={errors.serialNo || undefined}
                     sx={fieldSx}
@@ -223,7 +212,7 @@ const DeviceQualityCheckContent = () => {
                               edge="end"
                               aria-label="Scan serial barcode"
                               onClick={() => setScannerOpen(true)}
-                              disabled={!deviceType || isBusy}
+                              disabled={isBusy}
                             >
                               <QrCodeScanner className="text-cyan-700" />
                             </IconButton>
@@ -259,12 +248,26 @@ const DeviceQualityCheckContent = () => {
                         >
                           <Close fontSize="small" />
                         </IconButton>
+                        {photo.marked && (
+                          <span className="absolute left-1 top-1 rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                            Marked
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setMarkupId(photo.id)}
+                          disabled={isBusy}
+                          className="absolute bottom-1 left-1 right-1 flex items-center justify-center gap-1 rounded-md bg-black/60 py-1.5 text-xs font-medium text-white active:bg-black/75 disabled:opacity-50"
+                        >
+                          <Brush sx={{ fontSize: 16 }} />
+                          {photo.marked ? "Edit Marks" : "Mark Defect"}
+                        </button>
                       </div>
                     ))}
                     {photos.length < MAX_PHOTOS && (
                       <button
                         type="button"
-                        disabled={!canAddPhoto || !deviceType}
+                        disabled={!canAddPhoto}
                         onClick={() => setCameraOpen(true)}
                         className={`flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-slate-500 transition-colors disabled:opacity-50 ${
                           errors.photos ? "border-red-400 bg-red-50" : "border-slate-300 bg-white active:bg-slate-100"
@@ -276,6 +279,25 @@ const DeviceQualityCheckContent = () => {
                     )}
                   </div>
                   {errors.photos && <span className="text-[12px] text-red-500">{errors.photos}</span>}
+                </div>
+
+                <div className="flex flex-col gap-[10px]">
+                  <div className="flex items-center justify-between">
+                    <FieldLabel>Remark</FieldLabel>
+                    <span className="text-xs text-slate-500">
+                      {remark.length}/{MAX_REMARK_LENGTH}
+                    </span>
+                  </div>
+                  <TextField
+                    fullWidth
+                    multiline
+                    minRows={3}
+                    value={remark}
+                    placeholder="Describe the quality issue (optional)"
+                    disabled={isBusy}
+                    sx={fieldSx}
+                    onChange={(e) => setRemark(e.target.value.slice(0, MAX_REMARK_LENGTH))}
+                  />
                 </div>
 
                 {requestApprovalError && !loading && (
@@ -310,6 +332,16 @@ const DeviceQualityCheckContent = () => {
           thumbnails={photos.map((p) => p.previewUrl)}
           onCapture={handleCapture}
           onClose={() => setCameraOpen(false)}
+        />
+      )}
+
+      {markupPhoto && (
+        <PhotoMarkupEditor
+          key={markupPhoto.id}
+          imageUrl={markupPhoto.previewUrl}
+          fileName={markupPhoto.file.name}
+          onSave={(file) => handleMarkupSave(markupPhoto.id, file)}
+          onClose={() => setMarkupId(null)}
         />
       )}
 
