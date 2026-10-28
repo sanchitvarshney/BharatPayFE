@@ -264,7 +264,7 @@ export const router = createBrowserRouter([
             </FormLayout>
           </MainLayout>
         ),
-        path: "/wrong-device-min/report",
+        path: "/wrong-device-dispatch/report",
       },
       {
         element: (
