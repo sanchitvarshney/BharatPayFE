@@ -124,6 +124,7 @@ import AddAreaReportLayout from "./layouts/AddAreareportLayout";
 import ViewAreaReport from "./pages/areaReport/ViewAreaReport";
 import WrongDeviceMin from "./pages/Dispatch/WrongDeviceMin";
 import FormLayout from "./layouts/WrongDeviceMINLayout";
+import WrongDeviceMinReport from "./pages/Dispatch/WrongDeviceMinReport";
 import DeletionMonoPage from "./pages/master/DeletionMonoPage";
 import AddPartCodeLayout from "./layouts/AddPartCodeLayout";
 import TransferPartData from "./pages/tranferPartCode/TransferPartData";
@@ -254,6 +255,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/wrong-device-min",
+      },
+      {
+        element: (
+          <MainLayout>
+            <FormLayout>
+              <WrongDeviceMinReport />
+            </FormLayout>
+          </MainLayout>
+        ),
+        path: "/wrong-device-min/report",
       },
       {
         element: (
