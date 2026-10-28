@@ -147,6 +147,21 @@ export const uploadChallanDocs = createAsyncThunk<
   return response;
 });
 
+export const uploadEwayBill = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string; data?: unknown }>,
+  { challanId: string; files: File[]; documentInvoiceNo?: string; onUploadProgress?: (event: AxiosProgressEvent) => void }
+>("dispatch/uploadEwayBill", async ({ challanId, files, documentInvoiceNo, onUploadProgress }) => {
+  const formdata = new FormData();
+  formdata.append("challanId", challanId);
+  files.forEach((file) => formdata.append("bill", file));
+  if (documentInvoiceNo) formdata.append("document_invoice_no", documentInvoiceNo);
+  const response = await axiosInstance.post(`challan/uploadBill`, formdata, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress,
+  });
+  return response;
+});
+
 export const uploadFile = createAsyncThunk<AxiosResponse<{ success: boolean; message: string; data: string }>, FormData>("dispatch/uploadFile", async (formdata) => {
   const response = await axiosInstance.post(`/dispatchDivice/upload`, formdata, { headers: { "Content-Type": "multipart/form-data" } });
   return response;

@@ -511,6 +511,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       <UploadChallanDocDialog
         open={uploadDocOpen}
         challanId={selectedRow?.challanId}
+        invoiceNo={selectedRow?.documentInvoiceNo}
         onClose={() => setUploadDocOpen(false)}
       />
 

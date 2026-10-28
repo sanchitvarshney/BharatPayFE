@@ -7,6 +7,7 @@ import {
 } from "react-hook-form";
 import MaterialInvardUploadDocumentDrawer from "@/components/Drawers/wearhouse/MaterialInvardUploadDocumentDrawer";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { useUser } from "@/hooks/useUser";
 import { clearaddressdetail } from "@/features/wearhouse/Divicemin/devaiceMinSlice";
 import {
   resetDocumentFile,
@@ -154,6 +155,7 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer,
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
+  const canBulkUpload = useUser()?.user?.crn_id === "CRN8395192";
   const [deviceBatchSize, setDeviceBatchSize] = useState<number>(30); // Devices per batch: 20 or 30
   const [bulkLoading, setBulkLoading] = useState<boolean>(false);
   const [bulkProgress, setBulkProgress] = useState<number>(0);
@@ -1469,42 +1471,7 @@ const CreateDispatchPage: React.FC = () => {
                           }}
                         />
                       </div>
-                      <div className="bg-white border border-neutral-200 rounded-lg p-4 flex flex-col gap-3">
-                        <div className="grid grid-cols-2 gap-2">
-                          {[
-                            {
-                              label: "Total",
-                              value: rowData.length,
-                              className: "bg-blue-50 text-blue-700",
-                            },
-                            {
-                              label: "L Devices",
-                              value: modelCount("(L)"),
-                              className: "bg-green-50 text-green-700",
-                            },
-                            {
-                              label: "E Devices",
-                              value: modelCount("(E)"),
-                              className: "bg-red-50 text-red-700",
-                            },
-                            {
-                              label: "F Devices",
-                              value: modelCount("(F)"),
-                              className: "bg-yellow-50 text-yellow-800",
-                            },
-                          ].map(({ label, value, className }) => (
-                            <div
-                              key={label}
-                              className={`rounded-md px-3 py-2 ${className}`}
-                            >
-                              <p className="text-xs font-medium">{label}</p>
-                              <p className="text-xl font-semibold">{value}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {isMultiple && (
+                      {isMultiple && canBulkUpload && (
                         <div className="bg-white border border-neutral-200 rounded-lg p-4 flex flex-col gap-3">
                           <Typography variant="subtitle1" fontWeight={600}>
                             Bulk Upload
@@ -1560,9 +1527,38 @@ const CreateDispatchPage: React.FC = () => {
                         <Typography variant="subtitle1" fontWeight={600}>
                           Scanned Devices
                         </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {rowData.length} item{rowData.length === 1 ? "" : "s"}
-                        </Typography>
+                        <div className="flex items-center gap-2">
+                          {[
+                            {
+                              label: "Total",
+                              value: rowData.length,
+                              className: "bg-blue-50 text-blue-700",
+                            },
+                            {
+                              label: "L",
+                              value: modelCount("(L)"),
+                              className: "bg-green-50 text-green-700",
+                            },
+                            {
+                              label: "E",
+                              value: modelCount("(E)"),
+                              className: "bg-red-50 text-red-700",
+                            },
+                            {
+                              label: "F",
+                              value: modelCount("(F)"),
+                              className: "bg-yellow-50 text-yellow-800",
+                            },
+                          ].map(({ label, value, className }) => (
+                            <span
+                              key={label}
+                              className={`rounded-md px-2 py-[2px] text-xs font-medium ${className}`}
+                            >
+                              {label}:{" "}
+                              <span className="font-semibold">{value}</span>
+                            </span>
+                          ))}
+                        </div>
                       </div>
                       <div className="flex-1 min-h-0">
                         <ImeiTable setRowdata={setRowData} rowData={rowData} />
