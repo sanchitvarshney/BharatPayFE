@@ -471,7 +471,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
               Create Dispatch
             </MenuItem>
           )}
-          {challanType !== "PART" && selectedRow?.isewaybill === "Y" && (
+          {challanType !== "PART"  && (
             <MenuItem
               onClick={() => {
                 handleMenuClose();
