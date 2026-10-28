@@ -112,69 +112,69 @@ const stateSchema = z.object({
 });
 
 const header = z.object({
-  documentType: z.string({ error: "Document Type is required" }),
-  supplyType: z.string({ error: "Supply Type is required" }),
-  subSupplyType: z.string({ error: "Sub Supply Type is required" }),
-  documentNo: z.string({ error: "Document No is required" }),
-  documentDate: z.string({ error: "Document Date is required" }),
+  documentType: z.string({ message: "Document Type is required" }),
+  supplyType: z.string({ message: "Supply Type is required" }),
+  subSupplyType: z.string({ message: "Sub Supply Type is required" }),
+  documentNo: z.string({ message: "Document No is required" }),
+  documentDate: z.string({ message: "Document Date is required" }),
   transactionType: z.enum(["1", "2", "3", "4"], {
-    error: "Transaction Type is required",
+    message: "Transaction Type is required",
   }),
   reverseCharge: z.enum(["Y", "N"]).optional(),
   igstOnIntra: z.enum(["Y", "N"]).optional(),
 });
 
 const billFrom = z.object({
-  gstin: z.string({ error: "GSTIN is required" }),
-  legalName: z.string({ error: "Legal Name is required" }),
+  gstin: z.string({ message: "GSTIN is required" }),
+  legalName: z.string({ message: "Legal Name is required" }),
   tradeName: z.string().optional(),
-  addressLine1: z.string({ error: "Address Line 1 is required" }),
+  addressLine1: z.string({ message: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
-  location: z.string({ error: "Location is required" }),
+  location: z.string({ message: "Location is required" }),
   state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
-  pincode: z.string({ error: "Pincode is required" }),
+  pincode: z.string({ message: "Pincode is required" }),
   email: z.string().optional(),
   phone: z.string().optional(),
 });
 
 const billTo = z.object({
-  gstin: z.string({ error: "GSTIN is required" }),
-  legalName: z.string({ error: "Legal Name is required" }),
-  addressLine1: z.string({ error: "Address Line 1 is required" }),
+  gstin: z.string({ message: "GSTIN is required" }),
+  legalName: z.string({ message: "Legal Name is required" }),
+  addressLine1: z.string({ message: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
-  location: z.string({ error: "Location is required" }),
+  location: z.string({ message: "Location is required" }),
   state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
-  pincode: z.string({ error: "Pincode is required" }),
+  pincode: z.string({ message: "Pincode is required" }),
   phone: z.union([z.string().optional(), z.null()]),
   email: z.union([z.string().optional(), z.null()]),
 });
 
 const dispatchFrom = z.object({
-  legalName: z.string({ error: "Legal Name is required" }),
-  addressLine1: z.string({ error: "Address Line 1 is required" }),
+  legalName: z.string({ message: "Legal Name is required" }),
+  addressLine1: z.string({ message: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
-  location: z.string({ error: "Location is required" }),
+  location: z.string({ message: "Location is required" }),
   state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
-  pincode: z.string({ error: "Pincode is required" }),
+  pincode: z.string({ message: "Pincode is required" }),
 });
 
 const shipTo = z.object({
-  gstin: z.string({ error: "GSTIN is required" }),
-  legalName: z.string({ error: "Legal Name is required" }),
+  gstin: z.string({ message: "GSTIN is required" }),
+  legalName: z.string({ message: "Legal Name is required" }),
   tradeName: z.string().optional(),
-  addressLine1: z.string({ error: "Address Line 1 is required" }),
+  addressLine1: z.string({ message: "Address Line 1 is required" }),
   addressLine2: z.string().optional(),
-  location: z.string({ error: "Location is required" }),
+  location: z.string({ message: "Location is required" }),
   state: stateSchema.refine((val) => val.Code && val.Name, {
     message: "State is required",
   }),
-  pincode: z.string({ error: "Pincode is required" }),
+  pincode: z.string({ message: "Pincode is required" }),
 });
 
 const ewaybillDetails = z.object({
