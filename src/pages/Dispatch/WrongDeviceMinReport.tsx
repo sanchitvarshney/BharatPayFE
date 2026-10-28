@@ -44,7 +44,7 @@ const WrongDeviceMinReport: React.FC = () => {
           </div>
           <div>
             <div className="text-[18px] font-semibold text-slate-700">
-              Wrong Device Report
+              Wrong Device Dispatch Report
             </div>
             <div className="text-[13px] text-slate-500">
               Select a date range to download the report
