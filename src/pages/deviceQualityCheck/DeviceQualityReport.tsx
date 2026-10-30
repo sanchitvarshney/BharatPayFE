@@ -84,7 +84,19 @@ const DeviceQualityReport: React.FC = () => {
         },
         ...leftAlignedColumn,
       },
+
       {
+        headerName: "Remark",
+        colId: "remark",
+        sortable: true,
+        filter: true,
+        flex: 2,
+        minWidth: 240,
+        valueGetter: (params: any) => params.data?.remarks || params.data?.remark || "-",
+        tooltipValueGetter: (params: any) => (params.value && params.value !== "-" ? params.value : undefined),
+        ...leftAlignedColumn,
+      },
+            {
         headerName: "Requested By",
         field: "requested_by",
         sortable: true,
@@ -102,17 +114,6 @@ const DeviceQualityReport: React.FC = () => {
         flex: 1,
         minWidth: 160,
         valueFormatter: (params: any) => params.value || "-",
-        ...leftAlignedColumn,
-      },
-      {
-        headerName: "Remark",
-        colId: "remark",
-        sortable: true,
-        filter: true,
-        flex: 2,
-        minWidth: 240,
-        valueGetter: (params: any) => params.data?.remarks || params.data?.remark || "-",
-        tooltipValueGetter: (params: any) => (params.value && params.value !== "-" ? params.value : undefined),
         ...leftAlignedColumn,
       },
       {
