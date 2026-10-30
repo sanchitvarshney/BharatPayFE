@@ -1,6 +1,6 @@
 import axiosInstance from "@/api/axiosInstance";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { AxiosResponse } from "axios";
+import { AxiosProgressEvent, AxiosResponse } from "axios";
 import { DispatchItemPayload, DispatchState, DispatchWrongItemPayload } from "./DispatchType";
 import { showToast } from "@/utils/toasterContext";
 
@@ -39,8 +39,8 @@ export const CreateDispatch = createAsyncThunk<AxiosResponse<{ success: boolean;
   return response;
 });
 
-export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, DispatchItemPayload>("dispatch/CreateChallan", async (payload) => {
-  const response = await axiosInstance.post(`challan/create`, payload);
+export const CreateChallan = createAsyncThunk<AxiosResponse<{ success: boolean; message: string }>, FormData>("dispatch/CreateChallan", async (formdata) => {
+  const response = await axiosInstance.post(`challan/create`, formdata, { headers: { "Content-Type": "multipart/form-data" } });
   return response;
 });
 
@@ -135,6 +135,35 @@ export const wrongDeviceDispatch = createAsyncThunk<AxiosResponse<{ success: boo
 
 export const wrongDeviceLookup = createAsyncThunk<AxiosResponse<{ success: boolean; message: string; searchType: "AWB" | "SERIAL"; data: any }>, { awbs?: string[]; serials?: string[] }>("dispatch/wrongDeviceLookup", async (payload) => {
   const response = await axiosInstance.post(`/wrongDevice/wrongDeviceLookup`, payload);
+  return response;
+});
+
+export const uploadChallanDocs = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string; data?: unknown }>,
+  { challanId: string; files: File[]; onUploadProgress?: (event: AxiosProgressEvent) => void }
+>("dispatch/uploadChallanDocs", async ({ challanId, files, onUploadProgress }) => {
+  const formdata = new FormData();
+  formdata.append("challanId", challanId);
+  files.forEach((file) => formdata.append("files", file));
+  const response = await axiosInstance.post(`challan/uploadDocument`, formdata, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress,
+  });
+  return response;
+});
+
+export const uploadEwayBill = createAsyncThunk<
+  AxiosResponse<{ success: boolean; message: string; data?: unknown }>,
+  { challanId: string; files: File[]; documentInvoiceNo?: string; onUploadProgress?: (event: AxiosProgressEvent) => void }
+>("dispatch/uploadEwayBill", async ({ challanId, files, documentInvoiceNo, onUploadProgress }) => {
+  const formdata = new FormData();
+  formdata.append("challanId", challanId);
+  files.forEach((file) => formdata.append("bill", file));
+  if (documentInvoiceNo) formdata.append("document_invoice_no", documentInvoiceNo);
+  const response = await axiosInstance.post(`challan/uploadBill`, formdata, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress,
+  });
   return response;
 });
 

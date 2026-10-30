@@ -327,16 +327,20 @@ const ProfilePage: React.FC = () => {
               </Avatar>
               <Typography variant="h5">{user?.username}</Typography>
               <div className="w-full px-[20px] mt-[20px]">
+                   <div className="flex items-center justify-between">
+                  <Typography fontWeight={500}>CRN ID:</Typography>
+                  <Typography>{user?.crn_id}</Typography>
+                </div>
                 <div className="flex items-center justify-between">
-                  <Typography fontWeight={500}>Department</Typography>
-                  <Typography>{user?.department}</Typography>
+                  <Typography fontWeight={500}>Department:</Typography>
+                  <Typography>{user?.department || "-"}</Typography>
                 </div>
                 <div className="flex items-center justify-between">
                   <Typography fontWeight={500}>Phone No:</Typography>
                   <Typography>{user?.crn_mobile}</Typography>
                 </div>
                 <div className="flex items-center justify-between">
-                  <Typography fontWeight={500}>Email</Typography>
+                  <Typography fontWeight={500}>Email:</Typography>
                   <Typography>{user?.crn_email}</Typography>
                 </div>
               </div>

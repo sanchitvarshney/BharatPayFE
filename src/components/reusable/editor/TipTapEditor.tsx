@@ -10,12 +10,11 @@ import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
-import { Underline } from "@tiptap/extension-underline";
 import { TextAlign } from "@tiptap/extension-text-align";
 
 const TipTapEditor: React.FC = () => {
   const editor = useEditor({
-    extensions: [StarterKit, Underline, TextAlign],
+    extensions: [StarterKit, TextAlign],
     content: "<p>Start typing...</p>",
   });
 

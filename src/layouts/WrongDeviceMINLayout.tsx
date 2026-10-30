@@ -7,11 +7,15 @@ const WrongDeviceMINLayout = (props:{children:React.ReactNode}) => {
       <div className="w-full bg-white tab h-[50px] shadow z-10 border-b border-slate-300">
         <ul className="group flex items-center  h-[50px] ">
           <li className="h-[50px]">
-            <NavLink to={"/wrong-device-min"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
+            <NavLink end to={"/wrong-device-min"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
               Wrong Device MIN
             </NavLink>
           </li>
-         
+          <li className="h-[50px]">
+            <NavLink to={"/wrong-device-dispatch/report"} className={({ isActive })=>`h-[50px] text-[14px] px-[20px] flex items-center text-center ${isActive && "bg-cyan-50  border-b-[4px] border-cyan-400"}    hover:bg-cyan-50  `}>
+              Wrong Device Dispatch Report
+            </NavLink>
+          </li>
 
         </ul>
       </div>
