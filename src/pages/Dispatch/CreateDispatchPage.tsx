@@ -89,8 +89,7 @@ type BulkFailedEntry = {
 };
 
 const BULK_DISPATCH_MAX = 5000;
-const BULK_FETCH_CHUNK_SIZE = 100;
-const BULK_FETCH_CONCURRENCY = 3;
+const BULK_FETCH_PARTS = 3;
 
 type FormDataType = {
   clientDetail: clientDetailType | null;
@@ -474,58 +473,51 @@ const CreateDispatchPage: React.FC = () => {
   };
 
   const fetchBulkDeviceDetails = async (values: string[]) => {
-    const chunks: string[][] = [];
-    for (let i = 0; i < values.length; i += BULK_FETCH_CHUNK_SIZE) {
-      chunks.push(values.slice(i, i + BULK_FETCH_CHUNK_SIZE));
+    const partCount = Math.min(BULK_FETCH_PARTS, values.length);
+    const partSize = Math.ceil(values.length / partCount);
+    const parts: string[][] = [];
+    for (let i = 0; i < values.length; i += partSize) {
+      parts.push(values.slice(i, i + partSize));
     }
 
     const devices: Omit<RowData, "index" | "serialNo">[] = [];
     const failed: BulkFailedEntry[] = [];
     let done = 0;
-    let next = 0;
 
-    const worker = async () => {
-      while (next < chunks.length) {
-        const chunk = chunks[next++];
-        try {
-          const res: any = await dispatch(
-            getDeviceDetails({
-              imei: chunk.join("\n"),
-              deviceType: data?.deviceType,
-            }),
-          );
-          if (res?.payload?.data?.success) {
-            (res.payload.data.data ?? []).forEach((device: any) => {
-              devices.push({
-                imei: device.device_imei || device.imei_no1 || "",
-                imei2: device.imei_no2 || "",
-                srno: device.sl_no || "",
-                modalNo: device?.p_name || "",
-                deviceSku: device?.device_sku || "",
-                productKey: device?.product_key || "",
-              });
+    const fetchPart = async (part: string[]) => {
+      try {
+        const res: any = await dispatch(
+          getDeviceDetails({
+            imei: part.join("\n"),
+            deviceType: data?.deviceType,
+          }),
+        );
+        if (res?.payload?.data?.success) {
+          (res.payload.data.data ?? []).forEach((device: any) => {
+            devices.push({
+              imei: device.device_imei || device.imei_no1 || "",
+              imei2: device.imei_no2 || "",
+              srno: device.sl_no || "",
+              modalNo: device?.p_name || "",
+              deviceSku: device?.device_sku || "",
+              productKey: device?.product_key || "",
             });
-          } else {
-            const reason =
-              res?.payload?.data?.message || "Failed to fetch device details";
-            chunk.forEach((value) => failed.push({ value, reason }));
-          }
-        } catch {
-          chunk.forEach((value) =>
-            failed.push({ value, reason: "Failed to fetch device details" }),
-          );
+          });
+        } else {
+          const reason =
+            res?.payload?.data?.message || "Failed to fetch device details";
+          part.forEach((value) => failed.push({ value, reason }));
         }
-        done++;
-        setBulkProgress(Math.round((done / chunks.length) * 100));
+      } catch {
+        part.forEach((value) =>
+          failed.push({ value, reason: "Failed to fetch device details" }),
+        );
       }
+      done++;
+      setBulkProgress(Math.round((done / parts.length) * 100));
     };
 
-    await Promise.all(
-      Array.from(
-        { length: Math.min(BULK_FETCH_CONCURRENCY, chunks.length) },
-        worker,
-      ),
-    );
+    await Promise.all(parts.map(fetchPart));
     return { devices, failed };
   };
 
