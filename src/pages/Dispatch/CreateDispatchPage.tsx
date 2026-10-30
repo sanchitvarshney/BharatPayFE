@@ -153,7 +153,7 @@ const CreateDispatchPage: React.FC = () => {
     (state) => state.batteryQcReducer,
   );
   const [isMultiple, setIsMultiple] = useState<boolean>(true); // Default is multiple IMEIs
-  const canBulkUpload = useUser()?.user?.crn_id === "CRN8395192";
+  const canBulkUpload = ["CRN8395192", "CRN103522"].includes(useUser()?.user?.crn_id ?? "");
   const [deviceBatchSize, setDeviceBatchSize] = useState<number>(30); // Devices per batch: 20 or 30
   const [bulkLoading, setBulkLoading] = useState<boolean>(false);
   const [bulkProgress, setBulkProgress] = useState<number>(0);
