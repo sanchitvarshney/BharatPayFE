@@ -60,7 +60,7 @@ const R9ReportTable: React.FC<Props> = ({
       },
     },
     {
-      headerName: "",
+      headerName: "Actions",
       field: "issues",
       pinned: "right",
       cellRenderer: (params: any) => {

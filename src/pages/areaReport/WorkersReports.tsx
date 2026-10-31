@@ -85,20 +85,16 @@ const columnDefs: any[] = [
     field: "date",
     minWidth: 150,
     flex: 1,
-    filter: "agDateColumnFilter",
-    filterParams: {
-      buttons: ["reset", "apply"],
-      comparator: (filterDate: Date, cellValue: string) => {
-        if (!cellValue) return -1;
-        const cell = dayjs(cellValue, ["DD-MM-YYYY", "YYYY-MM-DD", "DD/MM/YYYY"]);
-        if (!cell.isValid()) return -1;
-        const filter = dayjs(filterDate);
-        if (cell.isSame(filter, "day")) return 0;
-        return cell.isBefore(filter, "day") ? -1 : 1;
-      },
-    },
-    headerClass: `${WR_GROUP_0} ${WR_LAST_0}`,
+    spanHeaderHeight: true,
+    headerClass: `${WR_GROUP_0} ${WR_LAST_0} ag-header-cell-center`,
     cellClass: WR_LAST_0,
+    cellStyle: {
+      textAlign: "center",
+      lineHeight: "1.4",
+      paddingTop: "6px",
+      paddingBottom: "6px",
+      wordBreak: "break-word",
+    },
   },
   {
     headerName: "Swipe Sales Cost",
@@ -430,8 +426,8 @@ const WorkersReports = () => {
 
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: "agTextColumnFilter",
-      floatingFilter: false,
+      filter: false,
+      suppressHeaderMenuButton: true,
       sortable: true,
 
       resizable: true,
@@ -443,12 +439,13 @@ const WorkersReports = () => {
 
       cellRenderer: (params: any) => {
         const v = params.value;
-        if (v === null || v === undefined) return 0;
-        if (typeof v === "number" && !Number.isFinite(v)) return 0;
-        return v;
+        if (params.colDef?.field === "date") return v;
+        if (v === null || v === undefined || v === "") return "0.00";
+        const n = Number(v);
+        return Number.isFinite(n) ? n.toFixed(2) : v;
       },
       cellStyle: {
-        textAlign: "center",
+        textAlign: "right",
         lineHeight: "1.4",
         paddingTop: "6px",
         paddingBottom: "6px",

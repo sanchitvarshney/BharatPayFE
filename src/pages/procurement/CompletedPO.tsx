@@ -1,12 +1,15 @@
 import React, { useCallback, useMemo, useState } from "react";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+// import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import * as XLSX from "xlsx";
 import dayjs, { Dayjs } from "dayjs";
 import { ColDef } from "@ag-grid-community/core";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
+import { StatusChipCellRenderer } from "@/components/reusable/StatusChip";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   cancelPO,
-  fetchPOData,
+  // fetchPOData,
   getListofCompletedPo,
   poPrint,
 } from "@/features/procurement/poSlices";
@@ -18,8 +21,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import {
   FormControl,
   IconButton,
-  Menu,
   MenuItem,
+  Tooltip,
   Select,
   TextField,
   Dialog,
@@ -29,13 +32,17 @@ import {
 } from "@mui/material";
 import { showToast } from "@/utils/toasterContext";
 import { Icons } from "@/components/icons";
-import MuiTooltip from "@/components/reusable/MuiTooltip";
 import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
 import { setDateRange } from "@/features/procurement/poSlices";
-import ViewPOModal from "@/pages/procurement/ViewPOModal";
+// import ViewPOModal from "@/pages/procurement/ViewPOModal";
+import {
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
+import { Typography } from "antd";
 const CompletedPO: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -50,96 +57,120 @@ const CompletedPO: React.FC = () => {
     from: null,
     to: null,
   });
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedRow, setSelectedRow] = useState<any>(null);
+  // const [selectedRow, setSelectedRow] = useState<any>(null);
   const [openCancelModal, setOpenCancelModal] = useState<boolean>(false);
   const [cancelReason, setCancelReason] = useState("");
-  const [openViewPOModal, setOpenViewPOModal] = useState<boolean>(false);
-
-  const handleMenuClick = (
-    event: React.MouseEvent<HTMLElement>,
-    rowData: any
-  ) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRow(rowData);
-  };
+  // const [openViewPOModal, setOpenViewPOModal] = useState<boolean>(false);
 
   const columnDefs: ColDef[] = [
     {
-      headerName: "",
-      // pinned: "right",
+      headerName: "Actions",
+      pinned: "right",
       sortable: false,
       filter: false,
       cellRenderer: (params: { data: any }) => (
-        <IconButton
-          size="small"
-          onClick={(e) => handleMenuClick(e, params.data)}
-          className="hover:bg-gray-100"
-        >
-          <MoreVertIcon className="h-4 w-4" />
-        </IconButton>
+        <div className="flex items-center h-full">
+          {/* <Tooltip title="View">
+            <IconButton size="small" onClick={() => handleViewPO(params.data)}>
+              <VisibilityOutlinedIcon fontSize="small" color="primary" />
+            </IconButton>
+          </Tooltip> */}
+          <Tooltip title="Download">
+            <IconButton
+              size="small"
+              onClick={() => handlePrintChallan(params.data)}
+            >
+              <FileDownloadOutlinedIcon fontSize="small" color="success" />
+            </IconButton>
+          </Tooltip>
+        </div>
       ),
-      width: 50,
-    },
-    {
-      headerName: "#",
-      field: "id",
-      sortable: true,
-      filter: true,
       width: 100,
-      valueGetter: "node.rowIndex+1",
+      ...leftAlignedColumn,
     },
-    {
-      headerName: "PO No.",
-      field: "po_transaction_code",
-      sortable: true,
-      filter: true,
-    },
-
     {
       headerName: "Vendor Id",
       field: "vendor_id",
       sortable: true,
-      filter: true,
+      maxWidth: 100,
+      ...leftAlignedColumn,
     },
     {
       headerName: "Vendor Name",
       field: "vendor_name",
       sortable: true,
-      filter: true,
+      wrapText: true,
+      autoHeight: true,
+      maxWidth: 200,
+      ...leftAlignedColumn,
+    },
+    {
+      headerName: "PO Number",
+      field: "po_transaction_code",
+      sortable: true,
+      maxWidth: 180,
+      ...leftAlignedColumn,
+    },
+    {
+      headerName: "Created At",
+      field: "po_reg_date",
+      sortable: true,
+      maxWidth: 120,
+      ...leftAlignedColumn,
+    },
+    {
+      headerName: "Order QTY",
+      field: "po_order_qty",
+      sortable: true,
+      maxWidth: 130,
+      ...rightAlignedColumn,
+    },
+    {
+      headerName: "Pending QTY",
+      field: "po_pending_qty",
+      sortable: true,
+      maxWidth: 130,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Status",
-      field: "po_transaction_style",
-      filter: "agTextColumnFilter",
-      cellRenderer: (params: any) => {
-        return <div dangerouslySetInnerHTML={{ __html: params.value }} />;
-      },
-      autoHeight: true,
-    },
-
-    // {
-    //   headerName: "Advance Payment",
-    //   field: "advancePayment",
-    //   sortable: true,
-    //   filter: true,
-    // },
-    {
-      headerName: "PO Created Date",
-      field: "po_reg_date",
+      field: "po_status",
       sortable: true,
-      filter: true,
+      maxWidth: 120,
+      wrapText: true,
+        autoHeight: true,
+      cellRenderer: StatusChipCellRenderer,
+      ...leftAlignedColumn,
     },
     {
-      headerName: "PO Created By",
+      headerName: "Part Code",
+      field: "Item_code",
+      sortable: true,
+      maxWidth: 120,
+      ...leftAlignedColumn,
+    },
+    {
+      headerName: "Component Name",
+      field: "item_name",
+      sortable: true,
+      maxWidth: 200,
+      autoHeight: true,
+      wrapText: true,
+      ...leftAlignedColumn,
+    },
+    {
+      headerName: "Created By",
       field: "po_reg_by",
       sortable: true,
-      filter: true,
+      maxWidth: 150,
+      ...leftAlignedColumn,
     },
   ];
   const defaultColDef = useMemo<ColDef>(() => {
     return {
-      filter: true,
+      filter: false,
+      sortable: true,
+      suppressHeaderMenuButton: true,
     };
   }, []);
 
@@ -153,10 +184,10 @@ const CompletedPO: React.FC = () => {
 
           page: page,
           limit: pageSize,
-        })
+        }),
       );
     },
-    [dispatch, pageSize]
+    [dispatch, pageSize],
   );
 
   const handlePageSizeChange = useCallback(
@@ -170,11 +201,11 @@ const CompletedPO: React.FC = () => {
             data: dateRange,
             page: currentPage,
             limit: size,
-          })
+          }),
         );
       }
     },
-    [dispatch]
+    [dispatch],
   );
   const handleDateChange = (dates: {
     from: Dayjs | null;
@@ -183,14 +214,31 @@ const CompletedPO: React.FC = () => {
     setDate(dates);
   };
 
-  const handleExport = () => {
-    console.log("DownloadReport");
+  const handlePrintChallan = (row: any) => {
+    dispatch(poPrint({ id: row.po_transaction_code }));
   };
-  console.log("date range", dateRange);
 
-  const handlePrintChallan = () => {
-    dispatch(poPrint({ id: selectedRow.po_transaction_code }));
-    setAnchorEl(null);
+  const handleExportExcel = () => {
+    const rows: any[] = Array.isArray(completedPoData?.data)
+      ? completedPoData.data
+      : [];
+    if (!rows.length) {
+      showToast("No data to export", "error");
+      return;
+    }
+    const exportCols = columnDefs.filter((col) => col.field);
+    const data = rows.map((row) =>
+      Object.fromEntries(
+        exportCols.map((col) => [col.headerName, row?.[col.field as string]]),
+      ),
+    );
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Completed PO");
+    XLSX.writeFile(
+      workbook,
+      `completed_po_${dayjs().format("DD-MM-YYYY")}.xlsx`,
+    );
   };
 
   const handleCloseCancelModal = () => {
@@ -206,7 +254,7 @@ const CompletedPO: React.FC = () => {
 
     try {
       const payload = {
-        purchase_order: selectedRow.po_transaction_code,
+        // purchase_order: selectedRow.po_transaction_code,
         remark: cancelReason.trim(),
       };
       dispatch(cancelPO(payload)).then((res: any) => {
@@ -220,7 +268,7 @@ const CompletedPO: React.FC = () => {
               data: dateRange,
               page: currentPage,
               limit: pageSize,
-            })
+            }),
           );
         }
       });
@@ -229,22 +277,21 @@ const CompletedPO: React.FC = () => {
     }
   };
 
-  const handleViewPO = () => {
-    setOpenViewPOModal(true);
-    dispatch(fetchPOData({ id: selectedRow.po_transaction_code }));
-    setAnchorEl(null);
-  };
-  console.log("completedPoData", completedPoData);
+  // const handleViewPO = (row: any) => {
+  //   setSelectedRow(row);
+  //   setOpenViewPOModal(true);
+  //   dispatch(fetchPOData({ id: row.po_transaction_code }));
+  // };
   return (
     <div className="flex bg-white h-[calc(100vh-100px)] relative">
       <div
         className={`transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)]  border-r border-neutral-300   ${
-          colapse ? "min-w-0 max-w-0" : "min-w-[400px] max-w-[400px] "
+          colapse ? "min-w-0 max-w-0" : "min-w-[350px] max-w-[350px] "
         }`}
       >
         <div
           className={`transition-all ${
-            colapse ? "left-0" : "left-[400px]"
+            colapse ? "left-0" : "left-[350px]"
           } w-[16px] p-0  h-full top-0 bottom-0 absolute rounded-none  text-slate-600 z-[10] flex items-center justify-center`}
         >
           <Button
@@ -259,7 +306,10 @@ const CompletedPO: React.FC = () => {
           </Button>
         </div>
         <div className="overflow-x-hidden overflow-y-auto ">
-          <div className="flex items-center gap-[10px] p-[10px]  mt-[20px]">
+          <div className="flex flex-col gap-[10px] p-[10px]  mt-[0px]">
+            <Typography className="text-slate-600 font-semibold">
+              Filter By
+            </Typography>
             <FormControl fullWidth>
               <Select
                 value={type}
@@ -267,9 +317,9 @@ const CompletedPO: React.FC = () => {
                 onChange={(e) => setType(e.target.value)}
               >
                 {[
-                  { value: "powise", label: "PO", isDisabled: false },
-                  { value: "datewise", label: "Date", isDisabled: false },
-                  { value: "vendorwise", label: "Vender", isDisabled: false },
+                  { value: "powise", label: "PO Wise", isDisabled: false },
+                  { value: "datewise", label: "Date Wise", isDisabled: false },
+                  // { value: "vendorwise", label: "Vender", isDisabled: false },
                 ].map((item) => (
                   <MenuItem
                     disabled={item.isDisabled}
@@ -286,7 +336,7 @@ const CompletedPO: React.FC = () => {
             {type === "powise" ? (
               <div className="flex flex-col gap-[20px] ">
                 <TextField
-                  label="PO"
+                  label="PO Number"
                   value={po}
                   onChange={(e) => setPo(e.target.value)}
                 />
@@ -304,7 +354,7 @@ const CompletedPO: React.FC = () => {
                             data: po,
                             limit: pageSize,
                             page: 1,
-                          })
+                          }),
                         );
                       } else {
                         showToast("Please enter PO", "error");
@@ -314,25 +364,6 @@ const CompletedPO: React.FC = () => {
                   >
                     Search
                   </LoadingButton>
-                  <MuiTooltip title="Download" placement="right">
-                    <LoadingButton
-                      // disabled={!mainR1Report}
-                      variant="contained"
-                      color="primary"
-                      style={{
-                        borderRadius: "50%",
-                        width: 40,
-                        height: 40,
-                        minWidth: 0,
-                        padding: 0,
-                      }}
-                      onClick={handleExport}
-                      size="small"
-                      sx={{ zIndex: 1 }}
-                    >
-                      <Icons.download />
-                    </LoadingButton>
-                  </MuiTooltip>
                 </div>
               </div>
             ) : type === "datewise" ? (
@@ -369,7 +400,7 @@ const CompletedPO: React.FC = () => {
                             data: dataString,
                             limit: pageSize,
                             page: currentPage,
-                          })
+                          }),
                         );
                       }
                     }}
@@ -380,6 +411,15 @@ const CompletedPO: React.FC = () => {
                   >
                     Search
                   </LoadingButton>
+                  <Button
+                    variant="outline"
+                    onClick={handleExportExcel}
+                    disabled={!completedPoData?.data?.length}
+                    className="flex items-center gap-[5px] ml-auto"
+                  >
+                    <FileDownloadOutlinedIcon fontSize="small" />
+                    Export Excel
+                  </Button>
                 </div>
               </div>
             ) : null}
@@ -388,7 +428,7 @@ const CompletedPO: React.FC = () => {
       </div>
       <div className="w-full">
         <div>
-          <div className="relative ag-theme-quartz h-[calc(100vh-190px)]">
+          <div className="relative ag-theme-quartz h-[calc(100vh-160px)]">
             <AgGridReact
               loadingOverlayComponent={CustomLoadingOverlay}
               loading={loading || printLoading}
@@ -399,35 +439,22 @@ const CompletedPO: React.FC = () => {
               }
               columnDefs={columnDefs}
               defaultColDef={defaultColDef}
+              enableCellTextSelection={true}
             />
-          </div>
-          <div className="p-4 border-t">
-            <CustomPagination
-              currentPage={currentPage}
-              totalPages={completedPoData?.pagination?.total_pages}
-              totalRecords={completedPoData?.pagination?.total}
-              onPageChange={handlePageChange}
-              pageSize={pageSize}
-              onPageSizeChange={handlePageSizeChange}
-            />
+            {completedPoData?.pagination && (
+              <div className="p-0 border-t">
+                <CustomPagination
+                  currentPage={currentPage}
+                  totalPages={completedPoData?.pagination?.total_pages}
+                  totalRecords={completedPoData?.pagination?.total}
+                  onPageChange={handlePageChange}
+                  pageSize={pageSize}
+                  onPageSizeChange={handlePageSizeChange}
+                />
+              </div>
+            )}
           </div>
         </div>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={() => setAnchorEl(null)}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          <MenuItem onClick={handleViewPO}>View</MenuItem>
-          <MenuItem onClick={handlePrintChallan}>Download</MenuItem>
-        </Menu>
 
         <Dialog
           open={openCancelModal}
@@ -463,11 +490,11 @@ const CompletedPO: React.FC = () => {
             </LoadingButton>
           </DialogActions>
         </Dialog>
-        <ViewPOModal
+        {/* <ViewPOModal
           open={openViewPOModal}
           setOpen={setOpenViewPOModal}
           poId={selectedRow?.po_transaction_code}
-        />
+        /> */}
       </div>
     </div>
   );
