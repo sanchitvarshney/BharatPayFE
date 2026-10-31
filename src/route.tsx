@@ -1303,13 +1303,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: (
-      <Protected authentication>
-        <MainLayout>
-          <Custom404Page />
-        </MainLayout>
-      </Protected>
-    ),
+    element: <Custom404Page />,
   },
   {
     path: "/not-permission",
