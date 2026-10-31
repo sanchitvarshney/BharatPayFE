@@ -430,14 +430,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
       flex: 1,
       minWidth: 160,
     },
-    {
-      headerName: "Dispatch Date",
-      field: "date",
-      sortable: true,
-      filter: true,
-      flex: 1,
-      minWidth: 160,
-    },
+
     {
       headerName: "Is Dispatch",
       field: "isdispatch",

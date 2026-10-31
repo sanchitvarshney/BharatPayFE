@@ -14,6 +14,10 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import {
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
+import {
   ColDef,
   ICellRendererParams,
   IRowNode,
@@ -22,6 +26,7 @@ import {
 import { AgGridReact } from "@ag-grid-community/react";
 import { LoadingButton } from "@mui/lab";
 import {
+  Button,
   Chip,
   FormControl,
   IconButton,
@@ -30,9 +35,15 @@ import {
   MenuItem,
   Select,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import React, {
   useCallback,
   useEffect,
@@ -120,41 +131,19 @@ const STATUS_TONE_SX: Record<StatusTone, Record<string, string>> = {
   },
 };
 
-const getStatusTone = (value: string): StatusTone => {
+// "ok" -> Available, "out of stock" -> Out of Stock, anything else -> Low Stock.
+const getStatusDisplay = (
+  value: string,
+): { label: string; tone: StatusTone } => {
   const normalized = value.trim().toLowerCase();
 
-  if (
-    [
-      "ok",
-      "available",
-      "sufficient",
-      "success",
-      "in stock",
-      "instock",
-      "enough",
-    ].includes(normalized)
-  ) {
-    return "success";
+  if (normalized === "ok") {
+    return { label: "Available", tone: "success" };
   }
-  if (
-    ["low", "warning", "partial", "moderate", "reorder"].includes(normalized)
-  ) {
-    return "warning";
+  if (normalized === "out of stock") {
+    return { label: "Out of Stock", tone: "danger" };
   }
-  if (
-    [
-      "short",
-      "shortage",
-      "purchase",
-      "required",
-      "error",
-      "critical",
-      "out of stock",
-    ].includes(normalized)
-  ) {
-    return "danger";
-  }
-  return "neutral";
+  return { label: "Low Stock", tone: "warning" };
 };
 
 const ReportStatusCellRenderer: React.FC<
@@ -164,8 +153,7 @@ const ReportStatusCellRenderer: React.FC<
     return <span className="text-slate-400">-</span>;
   }
 
-  const label = String(value);
-  const tone = getStatusTone(label);
+  const { label, tone } = getStatusDisplay(String(value));
 
   return (
     <span className="flex h-full items-center">
@@ -190,8 +178,10 @@ const ReportStatusCellRenderer: React.FC<
 };
 
 const COLUMN_WIDTHS: Record<string, number> = {
-  sr_no: 80,
-  component: 220,
+  sr_no: 70,
+  component: 240,
+  last_updated: 140,
+  updated_by: 140,
 };
 const DEFAULT_COLUMN_WIDTH = 100;
 
@@ -202,7 +192,9 @@ const buildReportColumnDefs = (
 ): ColDef<ComponentPercentageReportItem>[] =>
   headers.map((header) => {
     const columnWidth = COLUMN_WIDTHS[header.key] ?? DEFAULT_COLUMN_WIDTH;
-    const isLeftAligned = LEFT_ALIGNED_KEYS.has(header.key);
+    const alignedColumn = LEFT_ALIGNED_KEYS.has(header.key)
+      ? leftAlignedColumn
+      : rightAlignedColumn;
     const column: ColDef<ComponentPercentageReportItem> = {
       headerName: header.label,
       colId: header.key,
@@ -213,14 +205,14 @@ const buildReportColumnDefs = (
       headerClass: [
         "[&_.ag-header-cell-text]:text-[11px]",
         "[&_.ag-header-cell-text]:font-bold",
-        ...(isLeftAligned ? [] : ["ag-right-aligned-header"]),
+        alignedColumn.headerClass,
       ],
       cellStyle: {
         lineHeight: "20px",
         paddingTop: 8,
         paddingBottom: 8,
         fontSize: 12,
-        textAlign: isLeftAligned ? "left" : "right",
+        ...alignedColumn.cellStyle,
       },
       pinned:
         header.key === "status" || header.key === "sr_no" ? "left" : undefined,
@@ -268,16 +260,31 @@ const getComponentKey = (row: ComponentPercentageReportItem): string =>
       "",
   );
 
+type SkuRow = {
+  key: number;
+  sku: DeviceType | null;
+  qty: string;
+};
+
+const createSkuRow = (key: number): SkuRow => ({ key, sku: null, qty: "" });
+
+const isValidQty = (qty: string) => {
+  const value = Number(qty);
+  return qty.trim() !== "" && Number.isInteger(value) && value >= 1;
+};
+
 const MasterComponentPercentageReport: React.FC = () => {
   const dispatch = useAppDispatch();
   const { reportData, reportHeaders, reportLoading } = useAppSelector(
     (state) => state.componentPercentage,
   );
   const { componentPoDetailsLoading } = useAppSelector((state) => state.po);
-  const [totalDevice, setTotalDevice] = useState<string>("");
   const [deviceType, setDeviceType] =
     useState<ComponentPercentageDeviceType>("soundbox");
-  const [sku, setSku] = useState<DeviceType | null>(null);
+  const skuRowKeyRef = useRef(1);
+  const [skuRows, setSkuRows] = useState<SkuRow[]>(() => [createSkuRow(0)]);
+  const [showSkuErrors, setShowSkuErrors] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(true);
   const [selectedRows, setSelectedRows] = useState<
     ComponentPercentageReportItem[]
   >([]);
@@ -386,31 +393,65 @@ const MasterComponentPercentageReport: React.FC = () => {
       suppressHeaderMenuButton: true,
       wrapHeaderText: true,
       autoHeaderHeight: true,
+      
     };
   }, []);
 
-  const handleSearch = () => {
-    const totalDeviceValue = Number(totalDevice);
+  const addSkuRow = () => {
+    setSkuRows((rows) => [...rows, createSkuRow(skuRowKeyRef.current++)]);
+  };
 
+  const removeSkuRow = (key: number) => {
+    setSkuRows((rows) =>
+      rows.length > 1 ? rows.filter((row) => row.key !== key) : rows,
+    );
+  };
+
+  const updateSkuRow = (key: number, changes: Partial<SkuRow>) => {
+    setSkuRows((rows) =>
+      rows.map((row) => (row.key === key ? { ...row, ...changes } : row)),
+    );
+  };
+
+  const handleSkuChange = (key: number, value: DeviceType | null) => {
     if (
-      !totalDevice ||
-      Number.isNaN(totalDeviceValue) ||
-      totalDeviceValue < 1
+      value &&
+      skuRows.some((row) => row.key !== key && row.sku?.id === value.id)
     ) {
-      showToast("Please enter a valid total device value", "error");
+      showToast(`${value.text} is already added`, "error");
       return;
     }
+    updateSkuRow(key, { sku: value });
+  };
 
-    if (!sku?.id) {
-      showToast("Please select a SKU", "error");
+  const handleDeviceTypeChange = (value: ComponentPercentageDeviceType) => {
+    setDeviceType(value);
+    // SKUs are filtered by device type, so previous selections no longer apply.
+    setSkuRows([createSkuRow(skuRowKeyRef.current++)]);
+    setShowSkuErrors(false);
+  };
+
+  const totalQty = skuRows.reduce(
+    (sum, row) => sum + (isValidQty(row.qty) ? Number(row.qty) : 0),
+    0,
+  );
+  const selectedSkuCount = skuRows.filter((row) => row.sku).length;
+
+  const handleSearch = () => {
+    if (skuRows.some((row) => !row.sku || !isValidQty(row.qty))) {
+      setShowSkuErrors(true);
+      showToast("Select a SKU and enter a valid quantity in every row", "error");
       return;
     }
+    setShowSkuErrors(false);
 
     dispatch(
       fetchComponentPercentageReportAsync({
-        totalDevice: totalDeviceValue,
         deviceType,
-        sku: sku.id,
+        skuData: skuRows.map((row) => ({
+          sku: row.sku!.id,
+          qty: Number(row.qty),
+        })),
       }),
     ).then((res: any) => {
       const response = res.payload?.data;
@@ -424,68 +465,175 @@ const MasterComponentPercentageReport: React.FC = () => {
   const totalRows = reportData?.length ?? 0;
 
   return (
-    <div className="h-full bg-slate-50 flex flex-col">
-      <div className="px-[20px] py-[16px] bg-white border-b border-neutral-200 flex items-center gap-[12px] flex-wrap">
-        <FormControl size="small" sx={{ width: 200 }}>
-          <InputLabel id="component-percentage-report-device-type-label">
-            Device Type
-          </InputLabel>
-          <Select
-            labelId="component-percentage-report-device-type-label"
-            id="component-percentage-report-device-type"
-            value={deviceType}
-            label="Device Type"
-            onChange={(event) => {
-              setDeviceType(
-                event.target.value as ComponentPercentageDeviceType,
-              );
-              setSku(null);
-            }}
-          >
-            {deviceTypeOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <SelectSku
-          varient="outlined"
-          size="small"
-          label="SKU"
-          width="280px"
-          value={sku}
-          quaryValue={deviceType}
-          onChange={setSku}
-        />
-        <TextField
-          type="number"
-          size="small"
-          label="Total Device"
-          value={totalDevice}
-          onChange={(event) => setTotalDevice(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") handleSearch();
-          }}
-          slotProps={{
-            htmlInput: {
-              min: 1,
-            },
-          }}
-          sx={{ width: 180 }}
-        />
-        <LoadingButton
-          loading={reportLoading}
-          variant="contained"
-          disableElevation
-          startIcon={<SearchIcon />}
-          onClick={handleSearch}
-        >
-          Search
-        </LoadingButton>
-      </div>
+    <div className="h-full bg-slate-50 flex">
+      <aside
+        className={`h-full shrink-0 bg-white border-r border-neutral-200 flex flex-col transition-[width] duration-200 ${
+          filterPanelOpen ? "w-[380px]" : "w-[52px]"
+        }`}
+      >
+        {filterPanelOpen ? (
+          <>
+            <div className="px-[16px] py-[12px] border-b border-neutral-200 flex items-center justify-between">
+              <div className="flex items-center gap-[8px]">
+                <FilterAltOutlinedIcon fontSize="small" className="text-slate-500" />
+                <span className="text-[15px] font-semibold text-slate-700">
+                  Filters
+                </span>
+              </div>
+              <Tooltip title="Collapse filters">
+                <IconButton
+                  size="small"
+                  aria-label="Collapse filters"
+                  onClick={() => setFilterPanelOpen(false)}
+                >
+                  <KeyboardDoubleArrowLeftIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </div>
 
-      <div className="flex-1 overflow-hidden p-[16px] flex flex-col">
+            <div className="flex-1 overflow-y-auto px-[16px] py-[16px] flex flex-col gap-[16px]">
+              <FormControl size="small" fullWidth>
+                <InputLabel id="component-percentage-report-device-type-label">
+                  Device Type
+                </InputLabel>
+                <Select
+                  labelId="component-percentage-report-device-type-label"
+                  id="component-percentage-report-device-type"
+                  value={deviceType}
+                  label="Device Type"
+                  onChange={(event) =>
+                    handleDeviceTypeChange(
+                      event.target.value as ComponentPercentageDeviceType,
+                    )
+                  }
+                >
+                  {deviceTypeOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <div className="flex flex-col gap-[10px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-semibold text-slate-600">
+                    SKUs & Quantity
+                  </span>
+                  <Button size="small" startIcon={<AddIcon />} onClick={addSkuRow}>
+                    Add SKU
+                  </Button>
+                </div>
+
+                {skuRows.map((row, index) => (
+                  <div
+                    key={row.key}
+                    className="border border-neutral-200 rounded-lg p-[12px] pt-[14px] flex flex-col gap-[12px] bg-slate-50/50"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[12px] font-semibold text-slate-500">
+                        SKU {index + 1}
+                      </span>
+                      <Tooltip title="Remove SKU">
+                        <span>
+                          <IconButton
+                            size="small"
+                            aria-label="Remove SKU"
+                            onClick={() => removeSkuRow(row.key)}
+                            disabled={skuRows.length === 1}
+                            sx={{ p: 0.25 }}
+                          >
+                            <DeleteOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </div>
+                    <SelectSku
+                      varient="outlined"
+                      size="small"
+                      label="SKU"
+                      width="100%"
+                      value={row.sku}
+                      quaryValue={deviceType}
+                      onChange={(value) => handleSkuChange(row.key, value)}
+                      error={showSkuErrors && !row.sku}
+                    />
+                    <TextField
+                      type="number"
+                      size="small"
+                      label="Quantity"
+                      fullWidth
+                      value={row.qty}
+                      onChange={(event) =>
+                        updateSkuRow(row.key, { qty: event.target.value })
+                      }
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") handleSearch();
+                      }}
+                      error={showSkuErrors && !isValidQty(row.qty)}
+                      slotProps={{
+                        htmlInput: {
+                          min: 1,
+                        },
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="px-[16px] py-[12px] border-t border-neutral-200 flex flex-col gap-[10px]">
+              <div className="flex items-center justify-between text-[13px] text-slate-600">
+                <span>
+                  {selectedSkuCount} SKU{selectedSkuCount === 1 ? "" : "s"}
+                </span>
+                <span>
+                  Total Qty:{" "}
+                  <span className="font-semibold text-slate-800">
+                    {totalQty.toLocaleString()}
+                  </span>
+                </span>
+              </div>
+              <LoadingButton
+                loading={reportLoading}
+                variant="contained"
+                disableElevation
+                fullWidth
+                startIcon={<SearchIcon />}
+                onClick={handleSearch}
+              >
+                Search
+              </LoadingButton>
+            </div>
+          </>
+        ) : (
+          <div className="h-full flex flex-col items-center gap-[12px] py-[12px]">
+            <Tooltip title="Expand filters" placement="right">
+              <IconButton
+                size="small"
+                aria-label="Expand filters"
+                onClick={() => setFilterPanelOpen(true)}
+              >
+                <KeyboardDoubleArrowRightIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <FilterAltOutlinedIcon fontSize="small" className="text-slate-500" />
+            <span className="text-[13px] font-semibold text-slate-600 [writing-mode:vertical-rl] rotate-180">
+              Filters
+            </span>
+            {selectedSkuCount > 0 && (
+              <Chip
+                size="small"
+                color="primary"
+                label={selectedSkuCount}
+                sx={{ height: 20, fontSize: 11, fontWeight: 600 }}
+              />
+            )}
+          </div>
+        )}
+      </aside>
+
+      <div className="flex-1 min-w-0 overflow-hidden p-[8px] flex flex-col">
         <div className="flex-1 flex flex-col bg-white border border-neutral-200 rounded-lg shadow-sm overflow-hidden">
           <div className="px-[16px] py-[10px] border-b border-neutral-200 flex items-center justify-between gap-[12px] flex-wrap">
             <div className="flex items-center gap-[8px]">

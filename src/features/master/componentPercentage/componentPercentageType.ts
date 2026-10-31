@@ -29,10 +29,14 @@ export type InsertComponentPercentageResponse = {
   message: string;
 };
 
-export type ComponentPercentageReportPayload = {
-  totalDevice: number;
-  deviceType: ComponentPercentageDeviceType;
+export type ComponentPercentageReportSkuItem = {
   sku: string;
+  qty: number;
+};
+
+export type ComponentPercentageReportPayload = {
+  deviceType: ComponentPercentageDeviceType;
+  skuData: ComponentPercentageReportSkuItem[];
 };
 
 export type ComponentPercentageReportHeaderType = "number" | "string" | "percent" | "badge" | "datetime";
