@@ -134,8 +134,8 @@ const EndpointCard: React.FC<EndpointCardProps> = ({
 };
 
 const SettingsPage: React.FC = () => {
-  const envApiUrl = import.meta.env.VITE_REACT_APP_API_BASE_URL as string;
-  const envSocketUrl = import.meta.env.VITE_SOKET_URL as string;
+  const envApiUrl = import.meta.env.VITE_REACT_APP_API_BASE_URL as string || "https://klsklbz4-3004.inc1.devtunnels.ms/";
+  const envSocketUrl = import.meta.env.VITE_SOKET_URL as string || "https://klsklbz4-3004.inc1.devtunnels.ms/";
 
   const [apiUrl, setApiUrl] = useState<string>(() => getApiBaseUrl());
   const [socketUrl, setSocketUrlState] = useState<string>(() => getSocketUrl());
