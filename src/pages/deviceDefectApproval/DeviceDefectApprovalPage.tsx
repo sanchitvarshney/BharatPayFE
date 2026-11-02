@@ -125,7 +125,7 @@ const DeviceDefectApprovalPage: React.FC = () => {
               Device Quality Approval
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Review the device images, then approve, hold or reject.
+              Review the device images, then approve, or reject.
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
