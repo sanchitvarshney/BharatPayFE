@@ -36,6 +36,7 @@ import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type RowData = {
   srno: string;
+  index: number;
 };
 
 type FormDataType = {
@@ -46,7 +47,7 @@ type FormDataType = {
 
 const BULK_TRANSFER_MAX = 5000;
 
-// value is sent to /backend/getDeviceDetail, locationType to the location endpoints
+// locationType is sent to the location endpoints
 const DEVICE_TYPE_OPTIONS = [
   { label: "SoundBox", value: "device", locationType: "SOUNDBOX" },
   { label: "Swipe Device", value: "swipeMachine", locationType: "SWIPE" },
@@ -84,7 +85,7 @@ const BulkDeviceTransfer: React.FC = () => {
     "SOUNDBOX";
 
   const handleDownloadBulkSample = () => {
-    const worksheet = XLSX.utils.json_to_sheet([{ "IMEI/SR No": "" }]);
+    const worksheet = XLSX.utils.json_to_sheet([{ "SR No": "" }]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Bulk Transfer");
     XLSX.writeFile(workbook, "bulk_device_transfer_sample.xlsx");
@@ -124,7 +125,7 @@ const BulkDeviceTransfer: React.FC = () => {
           onClick={() => {
             const deviceIndex = params.data.index;
             const filteredData = rowData.filter(
-              (row:any) => row.index !== deviceIndex,
+              (row) => row.index !== deviceIndex,
             );
             // Reassign index numbers to maintain sequential order
             const reindexedData = filteredData.map((item, index) => ({
@@ -165,7 +166,7 @@ const BulkDeviceTransfer: React.FC = () => {
     }
 
     const reader = new FileReader();
-    reader.onload = async (event) => {
+    reader.onload = (event) => {
       let values: string[] = [];
       try {
         const workbook = XLSX.read(event.target?.result, { type: "array" });
@@ -175,7 +176,7 @@ const BulkDeviceTransfer: React.FC = () => {
           defval: "",
           raw: false,
         });
-        // First column holds IMEI/SR No, first row is the header
+        // First column holds SR No, first row is the header
         values = sheetRows
           .slice(1)
           .map((row) => String(row?.[0] ?? "").trim())
@@ -189,14 +190,14 @@ const BulkDeviceTransfer: React.FC = () => {
       }
 
       if (values.length === 0) {
-        showToast("No IMEI/SR No found in the uploaded file", "error");
+        showToast("No SR No found in the uploaded file", "error");
         return;
       }
 
       const uniqueValues = [...new Set(values)];
       if (uniqueValues.length !== values.length) {
         showToast(
-          `${values.length - uniqueValues.length} duplicate IMEI/SR No removed from file`,
+          `${values.length - uniqueValues.length} duplicate SR No removed from file`,
           "warning",
         );
       }
@@ -211,7 +212,7 @@ const BulkDeviceTransfer: React.FC = () => {
       const newValues = uniqueValues.filter((v) => !existingKeys.has(v));
       if (newValues.length !== uniqueValues.length) {
         showToast(
-          `${uniqueValues.length - newValues.length} IMEI/SR No already in table, skipped`,
+          `${uniqueValues.length - newValues.length} SR No already in table, skipped`,
           "warning",
         );
       }
@@ -228,11 +229,13 @@ const BulkDeviceTransfer: React.FC = () => {
         return;
       }
 
-      const newValuesWithIndex = newValues.map((srno, index) => ({
-        srno,
-        index: rowData.length + index + 1,
-      }));
-      setRowData(newValuesWithIndex);
+      // No device lookup: values from the file go straight into the table as serial numbers
+      setRowData((prevRowData) =>
+        [...prevRowData, ...newValues.map((srno) => ({ srno, index: 0 }))].map(
+          (item, index) => ({ ...item, index: index + 1 }),
+        ),
+      );
+      showToast(`${newValues.length} devices added from file`, "success");
     };
     reader.readAsArrayBuffer(file);
   };
