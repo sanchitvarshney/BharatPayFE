@@ -17,10 +17,17 @@ import {
   Typography,
   Box,
   Chip,
+  CircularProgress,
+  IconButton,
+  Link,
 } from "@mui/material";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { VisibilityOutlined } from "@mui/icons-material";
+import MuiTooltip from "@/components/reusable/MuiTooltip";
+import axiosInstance from "@/api/axiosInstance";
+import { showToast } from "@/utils/toasterContext";
 
 type Props = {
   gridRef: RefObject<AgGridReact>;
@@ -155,9 +162,69 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
     swipeItemDetailsLoading,
   } = useAppSelector((state) => state.report);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [docLoadingRow, setDocLoadingRow] = useState<string>("");
+  const [documents, setDocuments] = useState<string[]>([]);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const extractUrls = (data: any): string[] => {
+    if (!data) return [];
+    if (typeof data === "string") return [data];
+    if (Array.isArray(data)) return data.flatMap(extractUrls);
+    if (typeof data === "object") {
+      const url = data.url || data.file_url || data.document || data.path || data.link;
+      if (url) return [url];
+      if (data.data) return extractUrls(data.data);
+    }
+    return [];
+  };
+
+  const viewDocument = async (txnNo: string, rowId: string) => {
+    if (!txnNo) {
+      showToast("Transaction number not found", "error");
+      return;
+    }
+    setDocLoadingRow(rowId);
+    try {
+      const response = await axiosInstance.get(
+        `/scan/awb/document/${encodeURIComponent(txnNo)}`,
+        { responseType: "blob" }
+      );
+      const contentType = String(response.headers["content-type"] || "");
+
+      if (contentType.includes("application/json")) {
+        const json = JSON.parse(await response.data.text());
+        if (json?.success === false) {
+          showToast(json?.message || "Document not found", "error");
+          return;
+        }
+        const urls = extractUrls(json?.data ?? json);
+        if (urls.length === 0) {
+          showToast("No document found", "error");
+        } else if (urls.length === 1) {
+          window.open(urls[0], "_blank", "noopener,noreferrer");
+        } else {
+          setDocuments(urls);
+        }
+        return;
+      }
+
+      const blob = new Blob([response.data], { type: contentType || "application/pdf" });
+      window.open(window.URL.createObjectURL(blob), "_blank");
+    } catch (error: any) {
+      let message = "Failed to fetch document";
+      try {
+        const text = await error?.response?.data?.text?.();
+        if (text) message = JSON.parse(text)?.message || message;
+      } catch {
+        // response is not JSON
+      }
+      showToast(message, "error");
+    } finally {
+      setDocLoadingRow("");
+    }
   };
 
   const columnDefs: ColDef[] = [
@@ -236,6 +303,27 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       minWidth: 100,
       headerClass: "font-semibold",
     },
+    {
+      headerName: "Documents",
+      field: "txn_no",
+      minWidth: 110,
+      headerClass: "font-semibold",
+      filter: false,
+      sortable: false,
+      cellRenderer: (params: any) => {
+        const txnNo = params.data?.txn_no;
+        const rowId = String(params.node?.id ?? params.node?.rowIndex);
+        return docLoadingRow === rowId ? (
+          <CircularProgress size={20} />
+        ) : (
+          <MuiTooltip title="View Document" placement="left">
+            <IconButton size="small" color="primary" onClick={() => viewDocument(txnNo, rowId)}>
+              <VisibilityOutlined fontSize="small" />
+            </IconButton>
+          </MuiTooltip>
+        );
+      },
+    },
   ];
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -273,6 +361,25 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
         details={swipeItemDetails}
         loading={swipeItemDetailsLoading}
       />
+      <Dialog open={documents.length > 0} onClose={() => setDocuments([])} maxWidth="sm" fullWidth>
+        <DialogTitle>Documents</DialogTitle>
+        <DialogContent>
+          <List>
+            {documents.map((url, index) => (
+              <ListItem key={index}>
+                <Link href={url} target="_blank" rel="noopener noreferrer">
+                  Document {index + 1}
+                </Link>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDocuments([])} variant="contained">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
