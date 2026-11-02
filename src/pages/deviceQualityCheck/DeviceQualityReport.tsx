@@ -76,11 +76,26 @@ const DeviceQualityReport: React.FC = () => {
         field: "status",
         sortable: true,
         filter: true,
+        wrapText: true,
+        autoHeight: true,
         flex: 1,
         minWidth: 130,
         cellRenderer: (params: any) => {
           const chip = getStatusChip(params.value);
-          return <Chip size="small" label={chip.label} color={chip.color} />;
+          const next = params.data?.next;
+          const fullValue = next && next !== "--" ? `${chip.label} with ${next}` : chip.label;
+          return (
+            <Chip
+              size="small"
+              label={fullValue}
+              color={chip.color}
+              sx={{
+                height: "auto",
+                py: 0.25,
+                "& .MuiChip-label": { whiteSpace: "normal", lineHeight: 1.4 },
+              }}
+            />
+          );
         },
         ...leftAlignedColumn,
       },
@@ -92,7 +107,7 @@ const DeviceQualityReport: React.FC = () => {
         filter: true,
         flex: 2,
         minWidth: 240,
-        valueGetter: (params: any) => params.data?.remarks || params.data?.remark || "-",
+        valueGetter: (params: any) => params.data?.bpe_remarks || "-",
         tooltipValueGetter: (params: any) => (params.value && params.value !== "-" ? params.value : undefined),
         ...leftAlignedColumn,
       },

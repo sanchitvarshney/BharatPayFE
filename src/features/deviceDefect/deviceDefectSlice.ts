@@ -55,7 +55,7 @@ export type DeviceApprovalListResponse = ApiResponse & {
   data?: DeviceApprovalItem[];
 };
 
-export type DeviceNextAction = "scrap" | "repair";
+export type DeviceNextAction = "scrap" | "hold";
 
 export type DeviceApprovalAction = {
   unique_key: string;

@@ -53,7 +53,7 @@ const DeviceDefectApprovalPage: React.FC = () => {
   );
 
   const handleDecision = async (device: DeviceApprovalItem, status: DeviceDecisionStatus) => {
-    // reject dialog only enables confirm once Scrap / Repair is picked
+    // reject dialog only enables confirm once Scrap / Hold is picked
     if (status === "REJECTED" && !actions[device.id]) return;
     setSubmittingId(device.id);
     await dispatch(
