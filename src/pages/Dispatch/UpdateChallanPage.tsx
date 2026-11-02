@@ -15,6 +15,9 @@ import {
   InputAdornment,
   InputLabel,
   TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
@@ -34,6 +37,15 @@ import {
 import { showToast } from "@/utils/toasterContext";
 import { useNavigate, useParams } from "react-router-dom";
 import FullPageLoading from "@/components/shared/FullPageLoading";
+
+// Maps the device type returned by fetchPerforma to the radio values used on Create Challan
+const toFormDeviceType = (deviceType?: string) => {
+  const value = (deviceType ?? "").toLowerCase();
+  if (value.startsWith("swipe")) return "swipeMachine";
+  if (value.startsWith("wrong")) return "wrongDevice";
+  if (value.startsWith("scrap")) return "scrapDevice";
+  return "soundBox";
+};
 
 type FormDataType = {
   clientDetail: {
@@ -136,6 +148,8 @@ const UpdateChallanPage: React.FC = () => {
 
   const finalSubmit = () => {
     const data = formValues;
+
+    // Client validations
     if (!data.clientDetail?.client) {
       showToast("Please select a client", "error");
       return;
@@ -144,16 +158,82 @@ const UpdateChallanPage: React.FC = () => {
       showToast("Please select a client branch", "error");
       return;
     }
+    if (!data.clientDetail?.address1) {
+      showToast("Client address 1 is required", "error");
+      return;
+    }
+    if (!data.clientDetail?.address2) {
+      showToast("Client address 2 is required", "error");
+      return;
+    }
+    if (!data.clientDetail?.pincode) {
+      showToast("Client pincode is required", "error");
+      return;
+    }
+
+    // Ship to validations
     if (!data.shipToDetails?.shipTo) {
       showToast("Please select ship to details", "error");
       return;
     }
+    if (!data.shipToDetails?.address1) {
+      showToast("Ship to address 1 is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.address2) {
+      showToast("Ship to address 2 is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.pincode) {
+      showToast("Ship to pincode is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.mobileNo) {
+      showToast("Ship to mobile number is required", "error");
+      return;
+    }
+    if (!data.shipToDetails?.city) {
+      showToast("Ship to city is required", "error");
+      return;
+    }
+
+    // Dispatch from validations
     if (!data.dispatchFromDetails?.dispatchFrom) {
       showToast("Please select dispatch from details", "error");
       return;
     }
-    if (!data.qty) {
-      showToast("Please enter quantity", "error");
+    if (!data.dispatchFromDetails?.address1) {
+      showToast("Dispatch from address 1 is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.address2) {
+      showToast("Dispatch from address 2 is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.pin) {
+      showToast("Dispatch from pin is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.mobileNo) {
+      showToast("Dispatch from mobile number is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.gst) {
+      showToast("Dispatch from GST is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.pan) {
+      showToast("Dispatch from PAN is required", "error");
+      return;
+    }
+    if (!data.dispatchFromDetails?.city) {
+      showToast("Dispatch from city is required", "error");
+      return;
+    }
+
+    // Other validations
+    if (!data.qty || Number(data.qty) <= 0) {
+      showToast("Please enter a valid quantity", "error");
       return;
     }
     if (!data.gstRate) {
@@ -164,7 +244,14 @@ const UpdateChallanPage: React.FC = () => {
       showToast("Please select GST state", "error");
       return;
     }
-    // if (formdata) {
+    if (!data.itemPrice) {
+      showToast("Please Enter Item Price", "error");
+      return;
+    }
+    if (!data.deviceType) {
+      showToast("Please select Device Type", "error");
+      return;
+    }
     const payload: any = {
       otherRef: data.otherRef,
       dispatchQty: Number(data.qty),
@@ -186,7 +273,7 @@ const UpdateChallanPage: React.FC = () => {
       deviceType: data.deviceType,
     };
     dispatch(UpdateChallan(payload)).then((res: any) => {
-      if (res.payload.data.success) {
+      if (res?.payload?.data?.success) {
         showToast(res?.payload?.data?.message, "success");
         reset();
         resetall();
@@ -267,14 +354,7 @@ const UpdateChallanPage: React.FC = () => {
           setValue("hsnCode", data?.hsnCode);
           setValue("materialName", data?.materialName);
           setValue("itemPrice", data?.itemRate);
-          setValue(
-            "deviceType",
-            data?.deviceType === "swipedevice"
-              ? "swipeMachine"
-              : data?.deviceType === "wrongDevices"
-              ? "wrongDevices"
-              : "soundBox"
-          );
+          setValue("deviceType", toFormDeviceType(data?.deviceType));
         }
       });
     }
@@ -748,36 +828,33 @@ const UpdateChallanPage: React.FC = () => {
                     fullWidth
                     variant="filled"
                   >
-                    <InputLabel shrink>Device Type</InputLabel>
-                    <div style={{ padding: "16px 0" }}>
-                      <label style={{ marginRight: 24,gap: "8px",}}>
-                        <input
-                          type="radio"
-                          value="soundBox"
-                          checked={field.value === "soundBox"}
-                          onChange={() => field.onChange("soundBox")}
-                        />
-                        Sound Box
-                      </label>
-                      <label style={{ marginRight: 24 }}>
-                        <input
-                          type="radio"
-                          value="swipeMachine"
-                          checked={field.value === "swipeMachine"}
-                          onChange={() => field.onChange("swipeMachine")}
-                        />
-                        Swipe Machine
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          value="wrongDevices"
-                          checked={field.value === "wrongDevices"}
-                          onChange={() => field.onChange("wrongDevices")}
-                        />
-                        Wrong Device
-                      </label>
-                    </div>
+                    <RadioGroup
+                      {...field}
+                      row
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                    >
+                      <FormControlLabel
+                        value="soundBox"
+                        control={<Radio />}
+                        label="Sound Box"
+                      />
+                      <FormControlLabel
+                        value="swipeMachine"
+                        control={<Radio />}
+                        label="Swipe Device"
+                      />
+                      <FormControlLabel
+                        value="wrongDevice"
+                        control={<Radio />}
+                        label="Wrong Device"
+                      />
+                      <FormControlLabel
+                        value="scrapDevice"
+                        control={<Radio />}
+                        label="Scrap Device"
+                      />
+                    </RadioGroup>
                     {errors.deviceType && (
                       <FormHelperText>
                         {errors.deviceType.message}
@@ -986,7 +1063,6 @@ const UpdateChallanPage: React.FC = () => {
                   </FormControl>
                 )}
               />
-             
             </div>
             <div className="grid grid-cols-2 gap-[30px] pt-[30px]">
               <FormControl fullWidth variant="filled">
