@@ -15,6 +15,7 @@ const initialState: any = {
   isSubmitSwipeLoading: false,
   isCheckBoxLocationLoading: false,
   isAssemblyToTrcLoading: false,
+  isBulkTransferLoading: false,
 };
 type FetchDeviceDetailsArgs = {
   deviceCode: string;
@@ -40,8 +41,9 @@ export const fetchDeviceDetails = createAsyncThunk<
   AxiosResponse<any>,
   FetchDeviceDetailsArgs
 >("part/code/qty", async ({ deviceCode, deviceModel }) => {
-  const response = await axiosInstance.get(
-    `/backend/getDeviceDetail/${deviceCode}?device=${deviceModel}`,
+  const response = await axiosInstance.post(
+    `/backend/getDeviceDetail`,
+    { data:[deviceCode], deviceType: deviceModel },
   );
 
   return response.data;
@@ -133,6 +135,38 @@ export const submitAssemblyToTrc = createAsyncThunk<
 >("device/transfer/assemblyToTrc", async (payload) => {
   const response = await axiosInstance.post(
     `/deviceBranchTransfer/assembly-to-trc`,
+    payload,
+  );
+  return response?.data;
+});
+
+export type BulkTransferPayload = {
+  serial: string[];
+  pickLocation: string;
+  dropLocation: string;
+};
+
+export type BulkTransferSkipped = {
+  serial: string;
+  reason: string;
+};
+
+export type BulkTransferResponse = {
+  success?: boolean;
+  message?: string;
+  transactionId?: string;
+  transferredCount?: number;
+  transferred?: string[];
+  skippedCount?: number;
+  skipped?: BulkTransferSkipped[];
+};
+
+export const submitBulkTransfer = createAsyncThunk<
+  BulkTransferResponse,
+  BulkTransferPayload
+>("device/transfer/bulkTransfer", async (payload) => {
+  const response = await axiosInstance.post(
+    `/swipeMovement/bulkTransfer`,
     payload,
   );
   return response?.data;
@@ -254,6 +288,15 @@ const transferSlice = createSlice({
       })
       .addCase(submitAssemblyToTrc.rejected, (state) => {
         state.isAssemblyToTrcLoading = false;
+      })
+      .addCase(submitBulkTransfer.pending, (state) => {
+        state.isBulkTransferLoading = true;
+      })
+      .addCase(submitBulkTransfer.fulfilled, (state) => {
+        state.isBulkTransferLoading = false;
+      })
+      .addCase(submitBulkTransfer.rejected, (state) => {
+        state.isBulkTransferLoading = false;
       });
   },
 });

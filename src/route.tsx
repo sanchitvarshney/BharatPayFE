@@ -125,6 +125,7 @@ import AddAreaReportLayout from "./layouts/AddAreareportLayout";
 import ViewAreaReport from "./pages/areaReport/ViewAreaReport";
 import WrongDeviceMin from "./pages/Dispatch/WrongDeviceMin";
 import FormLayout from "./layouts/WrongDeviceMINLayout";
+import WrongDeviceMinReport from "./pages/Dispatch/WrongDeviceMinReport";
 import DeletionMonoPage from "./pages/master/DeletionMonoPage";
 import AddPartCodeLayout from "./layouts/AddPartCodeLayout";
 import TransferPartData from "./pages/tranferPartCode/TransferPartData";
@@ -132,6 +133,7 @@ import WorkersReports from "./pages/areaReport/WorkersReports";
 import DeviceTransferLayout from "./layouts/DeviceTransferLayout";
 import DeviceTransfer from "./pages/transferDevice/DeviceTransfer";
 import AssemblyToTrc from "./pages/transferDevice/AssemblyToTrc";
+import BulkDeviceTransfer from "./pages/transferDevice/BulkDeviceTransfer";
 import CreatePartCodeChallan from "@/pages/partCodeChallan/CreatePartCodeChallan";
 import CreatePartCodeChallanLayout from "@/layouts/CreatePartCodeChallanLayout";
 import SwipeTransferLayout from "./layouts/SwipeTransferLayout";
@@ -266,6 +268,16 @@ export const router = createBrowserRouter([
       {
         element: (
           <MainLayout>
+            <FormLayout>
+              <WrongDeviceMinReport />
+            </FormLayout>
+          </MainLayout>
+        ),
+        path: "/wrong-device-dispatch/report",
+      },
+      {
+        element: (
+          <MainLayout>
             <ViewImageLayout>
               <WrongDeviceReport />
             </ViewImageLayout>
@@ -332,6 +344,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/device/assembly-to-trc",
+      },
+      {
+        element: (
+          <MainLayout>
+            <DeviceTransferLayout>
+              <BulkDeviceTransfer />
+            </DeviceTransferLayout>
+          </MainLayout>
+        ),
+        path: "/device/bulk-transfer",
       },
       {
         element: (

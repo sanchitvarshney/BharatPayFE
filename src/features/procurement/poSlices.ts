@@ -99,6 +99,11 @@ export const getPOComponentDetail = createAsyncThunk<AxiosResponse<any>, any>("p
   const response = await axiosInstance.get(`/po/getComponentDetailsByCodeV2/${payload?.id}?ven_id=${payload?.vendor_id}`);
   return response;
 });
+export const getPOComponentChallanDetail = createAsyncThunk<AxiosResponse<any>, any>("pogetPOComponentChallanDetail", async (payload) => {
+
+  const response = await axiosInstance.get(`/po/getComponentDetailsByCode/${payload}`);
+  return response;
+});
 
 export const getPartCodeChallanNo = createAsyncThunk<AxiosResponse<any>, void>("po/getPartCodeChallanNo", async () => {
   const response = await axiosInstance.get("/challan/nextChallan");

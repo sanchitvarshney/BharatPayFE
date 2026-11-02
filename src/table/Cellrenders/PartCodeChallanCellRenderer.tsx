@@ -2,7 +2,7 @@ import { Input, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import AntCompSelect from "@/components/reusable/antSelecters/AntCompSelect";
-import { getPOComponentDetail } from "@/features/procurement/poSlices";
+import { getPOComponentChallanDetail } from "@/features/procurement/poSlices";
 import { getAvailbleQty } from "@/features/production/MaterialRequestWithoutBom/MRRequestWithoutBomSlice";
 import { LocationType } from "@/components/reusable/SelectLocationAcordingModule";
 import { showToast } from "@/utils/toasterContext";
@@ -186,6 +186,7 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
               customFunction();
             }}
             onChange={(selectedValue: { label?: string; value?: string } | null) => {
+           
               if (selectedValue?.value && isDuplicatePartComponent(selectedValue.value)) {
                 showToast("This part code is already added", "error");
                 data[colDef.field] = value || null;
@@ -199,7 +200,7 @@ const PartCodeChallanCellRenderer: React.FC<PartCodeChallanCellRendererProps> = 
                 return;
               }
               if (selectedValue?.value) {
-                dispatch(getPOComponentDetail(selectedValue.value)).then((response: any) => {
+                dispatch(getPOComponentChallanDetail(selectedValue.value)).then((response: any) => {
                   const res = response?.payload?.data;
                   const itemData = res?.data;
 

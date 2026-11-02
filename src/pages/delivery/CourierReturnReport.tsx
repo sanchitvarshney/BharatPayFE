@@ -19,6 +19,17 @@ import type { CourierReturnRow } from "@/features/delivery/deliveryType";
 const { RangePicker } = DatePicker;
 
 
+const openVideoInNewTab = (url: string) => {
+  const safeUrl = url.replace(/"/g, "&quot;");
+  const html = `<!doctype html><html><head><title>Video</title></head>
+<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh">
+<video src="${safeUrl}" controls autoplay style="max-width:100%;max-height:100%"></video>
+</body></html>`;
+  const blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+  window.open(blobUrl, "_blank", "noopener,noreferrer");
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+};
+
 
 const CourierReturnReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
@@ -97,7 +108,7 @@ const CourierReturnReport: React.FC = () => {
               variant="secondary"
               disabled={!params.data?.videoKey}
               onClick={() => {
-                if (params.data?.videoKey) window.open(params.data?.videoUrl, "_blank", "noopener,noreferrer");
+                if (params.data?.videoKey) openVideoInNewTab(params.data?.videoUrl);
               }}
             >
               <Icons.view />
@@ -148,7 +159,7 @@ const CourierReturnReport: React.FC = () => {
               value={deliveryPartner}
               onChange={(e) => setDeliveryPartner(e.target.value)}
             >
-              <MenuItem value="">All</MenuItem>
+              <MenuItem value="all">All</MenuItem>
               {DELIVERY_PARTNERS.map((item) => (
                 <MenuItem key={item.value} value={item.value}>
                   {item.text}
