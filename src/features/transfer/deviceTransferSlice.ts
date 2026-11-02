@@ -41,8 +41,9 @@ export const fetchDeviceDetails = createAsyncThunk<
   AxiosResponse<any>,
   FetchDeviceDetailsArgs
 >("part/code/qty", async ({ deviceCode, deviceModel }) => {
-  const response = await axiosInstance.get(
-    `/backend/getDeviceDetail/${deviceCode}?device=${deviceModel}`,
+  const response = await axiosInstance.post(
+    `/backend/getDeviceDetail`,
+    { data:[deviceCode], deviceType: deviceModel },
   );
 
   return response.data;
