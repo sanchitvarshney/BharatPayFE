@@ -1,20 +1,22 @@
 import { Button, FormControl, IconButton, MenuItem, Select, SelectChangeEvent, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Icons } from "../icons";
+import { DEFAULT_API_URL } from "@/utils/endpointConfig";
 
 const STORAGE_KEY = "baseUrls";
 const CURRENT_URL_KEY = "currentUrl";
+const DEFAULT_URL = DEFAULT_API_URL;
 
 const SelectEndPoint: React.FC = () => {
   const [urls, setUrls] = useState<string[]>(() => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
-  const [currentUrl, setCurrentUrl] = useState<string>(() => localStorage.getItem(CURRENT_URL_KEY) || import.meta.env.VITE_REACT_APP_API_BASE_URL);
+  const [currentUrl, setCurrentUrl] = useState<string>(() => localStorage.getItem(CURRENT_URL_KEY) || DEFAULT_URL);
   const [open, setOpen] = useState(false);
   const [newUrl, setNewUrl] = useState("");
 
   useEffect(() => {
     const handleStorageChange = () => {
       setUrls(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
-      setCurrentUrl(localStorage.getItem(CURRENT_URL_KEY) || "");
+      setCurrentUrl(localStorage.getItem(CURRENT_URL_KEY) || DEFAULT_URL);
     };
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
@@ -71,7 +73,7 @@ const SelectEndPoint: React.FC = () => {
            
           >
             {
-              !urls.length && <MenuItem value={import.meta.env.VITE_REACT_APP_API_BASE_URL}>{import.meta.env.VITE_REACT_APP_API_BASE_URL}</MenuItem>
+              !urls.length && <MenuItem value={DEFAULT_URL}>{DEFAULT_URL}</MenuItem>
             }
             {urls.map((url, index) => (
               <MenuItem key={index} value={url}>

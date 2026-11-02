@@ -18,8 +18,10 @@ const addToList = (key: string, value: string) => {
   localStorage.setItem(key, JSON.stringify(updated));
 };
 
+export const DEFAULT_API_URL = "https://klsklbz4-3004.inc1.devtunnels.ms/";
+
 export const getApiBaseUrl = (): string =>
-  localStorage.getItem(API_URL_KEY) || import.meta.env.VITE_REACT_APP_API_BASE_URL;
+  localStorage.getItem(API_URL_KEY) || DEFAULT_API_URL;
 
 export const getSocketUrl = (): string =>
   localStorage.getItem(SOCKET_URL_KEY) || import.meta.env.VITE_SOKET_URL;
