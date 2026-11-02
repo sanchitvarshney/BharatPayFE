@@ -114,6 +114,15 @@ const groupBillLinks = (links: BillLink[]) =>
 const hasEwayBill = (row: RowData | null) =>
   normalizeBillLinks(row?.billLinks).some((link) => getBillType(link) === "ewb");
 
+const hasInvoice = (row: RowData | null) =>
+  normalizeBillLinks(row?.billLinks).some((link) => getBillType(link) === "inv");
+
+const getEwayBillMenuLabel = (row: RowData | null) => {
+  if (hasEwayBill(row)) return "E-way Bill Uploaded";
+  if (!hasInvoice(row)) return "Upload E-way Bill (Invoice required)";
+  return "Upload E-way Bill";
+};
+
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
   challanType?: string;
@@ -538,9 +547,9 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType, onRefresh }) => {
                 handleMenuClose();
                 setUploadDocOpen(true);
               }}
-              disabled={hasEwayBill(selectedRow)}
+              disabled={hasEwayBill(selectedRow) || !hasInvoice(selectedRow)}
             >
-              {hasEwayBill(selectedRow) ? "E-way Bill Uploaded" : "Upload E-way Bill"}
+              {getEwayBillMenuLabel(selectedRow)}
             </MenuItem>
           )}
           {challanType === "PART" && (
