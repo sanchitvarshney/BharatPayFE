@@ -99,7 +99,7 @@ const BILL_TABS: { type: BillType; label: string }[] = [
 
 const getBillType = (link: BillLink): BillType => {
   const name = link.filename.trim().toUpperCase();
-  return name.startsWith("EWAY-") ? "ewb" : "inv";
+  return name.startsWith("EWAY-") || name.startsWith("EWB_") ? "ewb" : "inv";
 };
 
 const groupBillLinks = (links: BillLink[]) =>
