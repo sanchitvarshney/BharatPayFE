@@ -23,7 +23,7 @@ export const formatServerDateTime = (value?: string | null) => {
 // "next" step chosen by approver (required on reject, optional on approve)
 export const DEVICE_ACTIONS: { value: DeviceNextAction; label: string }[] = [
   { value: "scrap", label: "Scrap" },
-  { value: "repair", label: "Repair" },
+  { value: "hold", label: "Hold" },
 ];
 
 

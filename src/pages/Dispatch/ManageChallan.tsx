@@ -36,6 +36,19 @@ const ManageChallan: React.FC<ManageChallanProps> = ({ challanType }) => {
     to: null,
   });
   const [open, setOpen] = React.useState(false);
+  const lastQueryRef = useRef<{ from: string; to: string } | null>(null);
+
+  const fetchChallans = useCallback(
+    (from: string, to: string) => {
+      lastQueryRef.current = { from, to };
+      dispatch(getChallan({ type: "DATE", from, to, challanType }));
+    },
+    [dispatch, challanType]
+  );
+
+  const refreshChallans = useCallback(() => {
+    if (lastQueryRef.current) fetchChallans(lastQueryRef.current.from, lastQueryRef.current.to);
+  }, [fetchChallans]);
 
   useEffect(() => {
     return () => {
@@ -116,14 +129,7 @@ const ManageChallan: React.FC<ManageChallanProps> = ({ challanType }) => {
                     if (!date.from || !date.to) {
                       showToast("Please select a date", "error");
                     } else {
-                      dispatch(
-                        getChallan({
-                          type: "DATE",
-                          from: dayjs(date.from).format("DD-MM-YYYY"),
-                          to: dayjs(date.to).format("DD-MM-YYYY"),
-                          challanType,
-                        })
-                      );
+                      fetchChallans(dayjs(date.from).format("DD-MM-YYYY"), dayjs(date.to).format("DD-MM-YYYY"));
                     }
                   }
                 }}
@@ -154,7 +160,7 @@ const ManageChallan: React.FC<ManageChallanProps> = ({ challanType }) => {
           </div>
         </div>
         <div className="w-full">
-          <ChallanTable gridRef={gridRef} challanType={challanType} />
+          <ChallanTable gridRef={gridRef} challanType={challanType} onRefresh={refreshChallans} />
         </div>
       </div>
     </>

@@ -53,7 +53,7 @@ const DeviceDefectApprovalPage: React.FC = () => {
   );
 
   const handleDecision = async (device: DeviceApprovalItem, status: DeviceDecisionStatus) => {
-    // reject dialog only enables confirm once Scrap / Repair is picked
+    // reject dialog only enables confirm once Scrap / Hold is picked
     if (status === "REJECTED" && !actions[device.id]) return;
     setSubmittingId(device.id);
     await dispatch(
@@ -125,7 +125,7 @@ const DeviceDefectApprovalPage: React.FC = () => {
               Device Quality Approval
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Review the device images, then approve, hold or reject.
+              Review the device images, then approve, or reject.
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

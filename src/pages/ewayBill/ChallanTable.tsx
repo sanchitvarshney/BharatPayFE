@@ -99,9 +99,7 @@ const BILL_TABS: { type: BillType; label: string }[] = [
 
 const getBillType = (link: BillLink): BillType => {
   const name = link.filename.trim().toUpperCase();
-  if (name.startsWith("EWB_")) return "ewb";
-  if (name.startsWith("INV_")) return "inv";
-  return "other";
+  return name.startsWith("EWAY-") || name.startsWith("EWB_") ? "ewb" : "inv";
 };
 
 const groupBillLinks = (links: BillLink[]) =>
@@ -116,12 +114,22 @@ const groupBillLinks = (links: BillLink[]) =>
 const hasEwayBill = (row: RowData | null) =>
   normalizeBillLinks(row?.billLinks).some((link) => getBillType(link) === "ewb");
 
+const hasInvoice = (row: RowData | null) =>
+  normalizeBillLinks(row?.billLinks).some((link) => getBillType(link) === "inv");
+
+const getEwayBillMenuLabel = (row: RowData | null) => {
+  if (hasEwayBill(row)) return "E-way Bill Uploaded";
+  if (!hasInvoice(row)) return "Upload E-way Bill (Invoice required)";
+  return "Upload E-way Bill";
+};
+
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
   challanType?: string;
+  onRefresh?: () => void;
 };
 
-const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
+const ChallanTable: React.FC<Props> = ({ gridRef, challanType, onRefresh }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -539,9 +547,9 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
                 handleMenuClose();
                 setUploadDocOpen(true);
               }}
-              disabled={hasEwayBill(selectedRow)}
+              disabled={hasEwayBill(selectedRow) || !hasInvoice(selectedRow)}
             >
-              {hasEwayBill(selectedRow) ? "E-way Bill Uploaded" : "Upload E-way Bill"}
+              {getEwayBillMenuLabel(selectedRow)}
             </MenuItem>
           )}
           {challanType === "PART" && (
@@ -576,6 +584,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType }) => {
         challanId={selectedRow?.challanId}
         invoiceNo={selectedRow?.documentInvoiceNo}
         onClose={() => setUploadDocOpen(false)}
+        onUploaded={onRefresh}
       />
 
       {/* ── Bill Links Dialog ── */}

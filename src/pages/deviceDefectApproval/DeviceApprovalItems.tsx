@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { PauseCircleOutline } from "@mui/icons-material";
+// import { PauseCircleOutline } from "@mui/icons-material";
 import ImageIcon from "@mui/icons-material/Image";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import { Icons } from "@/components/icons";
@@ -143,7 +143,7 @@ const PhotoGallery = ({ photos, onImageClick }: Pick<Props, "photos" | "onImageC
 
 const ACTION_HINTS: Record<string, string> = {
   scrap: "Device cannot be used and will be scrapped",
-  repair: "Device will be sent for repair",
+  hold: "Device will be kept on hold",
 };
 
 type RejectDialogProps = Pick<
@@ -156,7 +156,7 @@ type RejectDialogProps = Pick<
   onConfirm: () => void;
 };
 
-// Reject needs a next step (Scrap / Repair), so it is confirmed here
+// Reject needs a next step (Scrap / Hold), so it is confirmed here
 const RejectDialog = ({
   open,
   item,
@@ -319,6 +319,7 @@ const DeviceApprovalCard: React.FC<Props> = ({
               <DetailRow label="Device Type" value={getDeviceTypeLabel(item.device_type)} />
               <DetailRow label="Requested By" value={item.requested_by} />
               <DetailRow label="Requested On" value={formatServerDateTime(item.created_at)} />
+              <DetailRow label="Requested Remark" value={item.remarks} />
             </Box>
           </Box>
 
@@ -358,7 +359,7 @@ const DeviceApprovalCard: React.FC<Props> = ({
                 >
                   Reject
                 </Button>
-                <LoadingButton
+                {/* <LoadingButton
                   variant="outlined"
                   color="warning"
                   startIcon={<PauseCircleOutline />}
@@ -368,7 +369,7 @@ const DeviceApprovalCard: React.FC<Props> = ({
                   onClick={() => onDecision("HOLD")}
                 >
                   Hold
-                </LoadingButton>
+                </LoadingButton> */}
                 <LoadingButton
                   variant="contained"
                   color="success"
@@ -379,7 +380,7 @@ const DeviceApprovalCard: React.FC<Props> = ({
                   loadingPosition="start"
                   disabled={disabled}
                   onClick={() => onDecision("APPROVED")}
-                  sx={{ gridColumn: "1 / -1" }}
+            
                 >
                   Approve
                 </LoadingButton>
