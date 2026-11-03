@@ -21,8 +21,8 @@ const TrcHourlyReport: React.FC = () => {
   );
 
   const summary = trcHourlyReport?.summary;
-  const trcIn = toNumber(summary?.trc_in);
-  const totalOut = toNumber(summary?.totalout);
+  // const trcIn = toNumber(summary?.trc_in);
+  // const totalOut = toNumber(summary?.totalout);
   const scrap = toNumber(summary?.scrapQTY);
 
   const summaryItems: SummaryItem[] = [
@@ -33,8 +33,8 @@ const TrcHourlyReport: React.FC = () => {
       highlight: true,
     },
     {
-      label: "Current TRC Stock",
-      value: formatNumber(totalOut - trcIn),
+      label: "Closing Stock",
+      value: formatNumber(summary?.closing_balance),
       highlight: true,
     },
   ];
