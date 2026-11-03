@@ -7,7 +7,8 @@ export type ReportDateKey =
   | "qcMinOutward"
   | "trcHourly"
   | "soundboxHourly"
-  | "swipeHourly";
+  | "swipeHourly"
+  | "preQc";
 
 type ReportDateRange = { from: string | null; to: string | null };
 
@@ -22,6 +23,7 @@ const emptyByKey = <T,>(value: T) =>
     trcHourly: value,
     soundboxHourly: value,
     swipeHourly: value,
+    preQc: value,
   }) as Record<ReportDateKey, T>;
 
 const initialState: any = {
@@ -36,12 +38,15 @@ const initialState: any = {
   soundboxHourlyReportLoading: false,
   swipeHourlyReport: null,
   swipeHourlyReportLoading: false,
+  preQcReport: null,
+  preQcReportLoading: false,
   dateRanges: {
     awbscan: { ...emptyDateRange },
     qcMinOutward: { ...emptyDateRange },
     trcHourly: { ...emptyDateRange },
     soundboxHourly: { ...emptyDateRange },
     swipeHourly: { ...emptyDateRange },
+    preQc: { ...emptyDateRange },
   } as Record<ReportDateKey, ReportDateRange>,
   reportMeta: emptyByKey<ReportMeta | null>(null),
   reportErrors: emptyByKey<string | null>(null),
@@ -114,6 +119,11 @@ export const getSoundboxHourlyReport = createReportThunk(
 export const getSwipeHourlyReport = createReportThunk(
   "report/getSwipeHourlyReport",
   "/report/swipeHourlyReport",
+);
+
+export const getPreQcReport = createReportThunk(
+  "report/getPreQcReport",
+  "/report/preQcMovementReport",
 );
 
 const reportSummarySlice = createSlice({
@@ -217,6 +227,21 @@ const reportSummarySlice = createSlice({
       .addCase(getSwipeHourlyReport.rejected, (state, action) => {
         state.swipeHourlyReportLoading = false;
         markRejected(state, "swipeHourly", action);
+      })
+      .addCase(getPreQcReport.pending, (state) => {
+        state.preQcReportLoading = true;
+        markPending(state, "preQc");
+      })
+      .addCase(getPreQcReport.fulfilled, (state: any, action) => {
+        state.preQcReportLoading = false;
+        if (action.payload.data.success) {
+          state.preQcReport = action.payload.data;
+        }
+        markFulfilled(state, "preQc", action);
+      })
+      .addCase(getPreQcReport.rejected, (state, action) => {
+        state.preQcReportLoading = false;
+        markRejected(state, "preQc", action);
       });
   },
 });
