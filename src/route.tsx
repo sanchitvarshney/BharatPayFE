@@ -161,6 +161,12 @@ import Trc from "./pages/summary-pages/Trc";
 import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
 import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
 import PreviousBilling from "./pages/summary-pages/PreviousBilling";
+import SwipeBillingLayout from "./layouts/SwipeBillingLayout";
+import SwipeBillingSummary from "./pages/swipe-billing/SwipeBillingSummary";
+import SwipeSummaryReport from "./pages/swipe-billing/SwipeSummaryReport";
+import SwipeSkuConsumption from "./pages/swipe-billing/SwipeSkuConsumption";
+import SwipeDispatch from "./pages/swipe-billing/SwipeDispatch";
+import SwipePurchase from "./pages/swipe-billing/SwipePurchase";
 
 
 export const router = createBrowserRouter([
@@ -856,6 +862,56 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/billing/material-purchase",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeBillingLayout>
+              <SwipeBillingSummary />
+            </SwipeBillingLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-billing",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeBillingLayout>
+              <SwipeSummaryReport />
+            </SwipeBillingLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-billing/summary",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeBillingLayout>
+              <SwipeSkuConsumption />
+            </SwipeBillingLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-billing/sku/:skuKey",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeBillingLayout>
+              <SwipeDispatch />
+            </SwipeBillingLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-billing/dispatch",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SwipeBillingLayout>
+              <SwipePurchase />
+            </SwipeBillingLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-billing/purchase",
       },
       {
         element: (
