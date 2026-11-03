@@ -40,7 +40,7 @@ const TrcHourlyReport: React.FC = () => {
   ];
 
   const handleExportExcel = () => {
-    if (!trcHourlyReport?.data?.length) {
+    if (!trcHourlyReport?.hourly?.rows?.length) {
       showToast("No data to export", "error");
       return;
     }
@@ -53,7 +53,7 @@ const TrcHourlyReport: React.FC = () => {
   return (
     <ReportShell
       title="TRC Hourly Report"
-      description="Total work done per employee."
+      description="Hourly work done per employee."
       reportName="TRC report"
       date={date}
       onDateChange={setRange}
@@ -63,13 +63,13 @@ const TrcHourlyReport: React.FC = () => {
       error={error}
       hasReport={!!trcHourlyReport}
       onExport={handleExportExcel}
-      canExport={!!trcHourlyReport?.data?.length}
+      canExport={!!trcHourlyReport?.hourly?.rows?.length}
       summary={summaryItems}
       toolbar={
         <TableSearch
           value={search}
           onChange={setSearch}
-          placeholder="Search employee code…"
+          placeholder="Search employee code or name…"
         />
       }
     >
