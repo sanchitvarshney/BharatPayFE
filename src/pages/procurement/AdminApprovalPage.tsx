@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import HomeIcon from "@mui/icons-material/Home";
+import { useLocation, useSearchParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -37,7 +36,6 @@ const INVALID_LINK = "This approval link is invalid or has expired.";
 const AdminApprovalPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -274,14 +272,6 @@ const AdminApprovalPage: React.FC = () => {
             onClick={() => window.location.reload()}
           >
             Reload
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<HomeIcon />}
-            onClick={() => navigate("/")}
-          >
-            Home
           </Button>
         </Box>
       </Box>

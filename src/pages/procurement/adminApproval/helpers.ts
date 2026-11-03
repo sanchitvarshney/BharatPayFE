@@ -40,6 +40,7 @@ const statusChipMap: Record<string, { label: string; color: ChipColor }> = {
   APPROVED: { label: "Approved", color: "success" },
   REJECTED: { label: "Rejected", color: "error" },
   PENDING: { label: "Pending", color: "warning" },
+  HOLD: { label: "On Hold", color: "warning" },
 };
 
 export const getStatusChip = (status?: string | null) =>

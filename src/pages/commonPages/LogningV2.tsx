@@ -246,7 +246,7 @@ const LogningV2: React.FC = () => {
             },
           }}
         >
-          <img src="/bharatpay.svg" alt="BharatPay" className="h-[160px] w-[160px] object-contain mb-[0px] lg:hidden" />
+          <img src="/ms.png" alt="BharatPe" className="h-[140px] w-[320px] object-contain mb-[0px] lg:hidden" />
           <Typography variant="h1" fontSize={28} fontWeight={700} className="text-slate-800">
             Welcome back
           </Typography>

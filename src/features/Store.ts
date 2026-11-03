@@ -40,6 +40,7 @@ import deliveryReducer from "@/features/delivery/deliverySlice";
 import billingSlices from "@/features/summarySlice/billingSlices";
 import rawMaterialReportReducer from "@/features/rawMaterialReport/rawMaterialReportSlice";
 import reportSummarySlice from "@/features/report/report/reportSummarySlice";
+import deviceDefectReducer from "@/features/deviceDefect/deviceDefectSlice";
 
 export const store = configureStore({
   reducer: {
@@ -84,6 +85,7 @@ export const store = configureStore({
     summary: billingSlices,
     rawMaterialReport: rawMaterialReportReducer,
     reportSummary: reportSummarySlice,
+    deviceDefect: deviceDefectReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

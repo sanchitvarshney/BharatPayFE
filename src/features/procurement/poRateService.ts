@@ -95,7 +95,8 @@ export const fetchAdminApprovalRequest = async (
   token: string,
 ): Promise<RefreshApprovalDataResponse> => {
   const response = await publicAxiosInstance.get("/po/adminApprovalList", {
-    params: { req_id: reqId, token },
+    params: { req_id: reqId },
+    headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };

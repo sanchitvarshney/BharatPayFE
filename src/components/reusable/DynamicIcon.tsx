@@ -25,6 +25,7 @@ import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl
 import ImageIcon from '@mui/icons-material/Image';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
+import GppGoodIcon from '@mui/icons-material/GppGood';
 
 export const Icons = {
   save: SaveIcon,
@@ -52,7 +53,8 @@ export const Icons = {
   procurement: FormatListNumberedRtlIcon,
   image:ImageIcon,
   summary:SummarizeIcon,
-  openBox:OpenInBrowserIcon
+  openBox:OpenInBrowserIcon,
+  good:GppGoodIcon
 };
 
 type IconName = keyof typeof Icons | string;
