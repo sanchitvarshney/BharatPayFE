@@ -163,9 +163,13 @@ import Trc from "./pages/summary-pages/Trc";
 import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
 import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
 import PreviousBilling from "./pages/summary-pages/PreviousBilling";
+import FallBackUi from "./pages/errorBoundary/FallBackUi";
 
 
 export const router = createBrowserRouter([
+  {
+    errorElement: <FallBackUi />,
+    children: [
   {
     element: (
       <Protected authentication>
@@ -1417,5 +1421,7 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/change-password",
+  },
+    ],
   },
 ]);

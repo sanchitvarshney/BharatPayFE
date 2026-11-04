@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button, CircularProgress, IconButton } from "@mui/material";
-import { Brush, Check, Close, DeleteSweep, PanoramaFishEye, Undo } from "@mui/icons-material";
+import { Check, Close, DeleteSweep, NorthEast, PanoramaFishEye, Undo } from "@mui/icons-material";
 
-type Tool = "pen" | "circle";
+type Tool = "circle" | "arrow";
 type Point = { x: number; y: number };
-type Shape =
-  | { tool: "pen"; color: string; points: Point[] }
-  | { tool: "circle"; color: string; start: Point; end: Point };
+type Shape = { tool: Tool; color: string; start: Point; end: Point };
 
 type Props = {
   imageUrl: string;
@@ -25,10 +23,16 @@ const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape, lineWidth: numbe
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.beginPath();
-  if (shape.tool === "pen") {
-    shape.points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
-    // a single tap still leaves a visible dot
-    if (shape.points.length === 1) ctx.lineTo(shape.points[0].x + 0.1, shape.points[0].y);
+  if (shape.tool === "arrow") {
+    // arrow points from where the drag started to where it ended
+    const { start, end } = shape;
+    const angle = Math.atan2(end.y - start.y, end.x - start.x);
+    const head = lineWidth * 4;
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.moveTo(end.x - head * Math.cos(angle - Math.PI / 6), end.y - head * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(end.x, end.y);
+    ctx.lineTo(end.x - head * Math.cos(angle + Math.PI / 6), end.y - head * Math.sin(angle + Math.PI / 6));
   } else {
     const cx = (shape.start.x + shape.end.x) / 2;
     const cy = (shape.start.y + shape.end.y) / 2;
@@ -39,7 +43,7 @@ const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape, lineWidth: numbe
   ctx.stroke();
 };
 
-// Full-screen editor to circle / draw over scratches and defects on a captured photo.
+// Full-screen editor to circle / point an arrow at scratches and defects on a captured photo.
 const PhotoMarkupEditor: React.FC<Props> = ({ imageUrl, fileName, onSave, onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -92,16 +96,14 @@ const PhotoMarkupEditor: React.FC<Props> = ({ imageUrl, fileName, onSave, onClos
     if (!loaded || saving) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     const p = toCanvasPoint(e);
-    drawingRef.current = tool === "pen" ? { tool, color, points: [p] } : { tool, color, start: p, end: p };
+    drawingRef.current = { tool, color, start: p, end: p };
     redraw();
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const shape = drawingRef.current;
     if (!shape) return;
-    const p = toCanvasPoint(e);
-    if (shape.tool === "pen") shape.points.push(p);
-    else shape.end = p;
+    shape.end = toCanvasPoint(e);
     redraw();
   };
 
@@ -109,6 +111,11 @@ const PhotoMarkupEditor: React.FC<Props> = ({ imageUrl, fileName, onSave, onClos
     const shape = drawingRef.current;
     if (!shape) return;
     drawingRef.current = null;
+    // ignore taps without a drag
+    if (Math.hypot(shape.end.x - shape.start.x, shape.end.y - shape.start.y) < 5) {
+      redraw();
+      return;
+    }
     setShapes((prev) => [...prev, shape]);
   };
 
@@ -174,13 +181,13 @@ const PhotoMarkupEditor: React.FC<Props> = ({ imageUrl, fileName, onSave, onClos
 
       <div className="flex flex-col gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-2">
         <p className="text-center text-xs text-white/60">
-          {tool === "circle" ? "Drag over the issue to circle it" : "Draw freely over the issue"}
+          {tool === "circle" ? "Drag over the issue to circle it" : "Drag towards the issue to point an arrow at it"}
         </p>
         <div className="flex items-center justify-between gap-3">
           <div className="flex rounded-full bg-white/10 p-1">
             {[
               { value: "circle" as Tool, label: "Circle", icon: <PanoramaFishEye fontSize="small" /> },
-              { value: "pen" as Tool, label: "Pen", icon: <Brush fontSize="small" /> },
+              { value: "arrow" as Tool, label: "Arrow", icon: <NorthEast fontSize="small" /> },
             ].map((t) => (
               <button
                 key={t.value}

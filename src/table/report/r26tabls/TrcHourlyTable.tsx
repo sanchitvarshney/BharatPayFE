@@ -4,45 +4,57 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { sumBy } from "@/components/report/r26/reportUtils";
 import {
   numericCol,
   R26_GRID_CLASS,
   r26DefaultColDef,
   r26ExcelStyles,
   r26SideBar,
-  rowIndexCol,
   totalRowClass,
 } from "./r26GridShared";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
+  // Filters employee columns by code or name.
   quickFilterText?: string;
 };
 
-const columnDefs: ColDef[] = [
-  rowIndexCol,
-  { headerName: "Emp Code", field: "empCode", flex: 1, minWidth: 160 },
-  { ...numericCol("Total Done", "total_done", 160, true), flex: 1 },
-];
+type EmpColumn = { empCode: string; empName?: string };
+
+const empHeader = ({ empCode, empName }: EmpColumn) =>
+  empName && empName !== "--" ? `${empName} (${empCode})` : empCode;
 
 const TrcHourlyTable: React.FC<Props> = ({ gridRef, quickFilterText }) => {
   const { trcHourlyReport, trcHourlyReportLoading } = useAppSelector(
     (state) => state.reportSummary,
   );
-  const data: any[] = trcHourlyReport?.data || [];
+  const hourly = trcHourlyReport?.hourly;
+  const employees: EmpColumn[] = hourly?.columns || [];
+  const rowData: any[] = hourly?.rows || [];
+
+  const columnDefs = useMemo<ColDef[]>(() => {
+    if (!employees.length) return [];
+    const term = quickFilterText?.trim().toLowerCase() ?? "";
+    const visible = term
+      ? employees.filter(
+          (emp) =>
+            emp.empCode.toLowerCase().includes(term) ||
+            (emp.empName ?? "").toLowerCase().includes(term),
+        )
+      : employees;
+    return [
+      { headerName: "Time", field: "slot", width: 150, pinned: "left" },
+      ...visible.map((emp) => ({
+        ...numericCol(empHeader(emp), emp.empCode, 170),
+        headerTooltip: empHeader(emp),
+      })),
+      { ...numericCol("Total", "total", 120, true), pinned: "right" },
+    ];
+  }, [employees, quickFilterText]);
 
   const pinnedBottomRowData = useMemo(
-    () =>
-      data.length
-        ? [
-            {
-              empCode: "Grand Total",
-              total_done: sumBy(data, (row) => row.total_done),
-            },
-          ]
-        : [],
-    [data],
+    () => (hourly?.footer && rowData.length ? [hourly.footer] : []),
+    [hourly?.footer, rowData.length],
   );
 
   return (
@@ -53,12 +65,11 @@ const TrcHourlyTable: React.FC<Props> = ({ gridRef, quickFilterText }) => {
         loading={trcHourlyReportLoading}
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         suppressCellFocus={true}
-        rowData={data}
+        rowData={rowData}
         columnDefs={columnDefs}
         defaultColDef={r26DefaultColDef}
         sideBar={r26SideBar}
         excelStyles={r26ExcelStyles}
-        quickFilterText={quickFilterText}
         pinnedBottomRowData={pinnedBottomRowData}
         getRowClass={totalRowClass}
         pagination={false}

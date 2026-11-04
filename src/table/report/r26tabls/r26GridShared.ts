@@ -9,6 +9,7 @@ export const R26_GRID_CLASS = "relative ag-theme-quartz r26-grid h-[560px] lg:h-
 export const r26DefaultColDef: ColDef = {
   filter: false,
   suppressHeaderFilterButton: true,
+  suppressHeaderMenuButton: true,
   sortable: true,
   resizable: true,
   

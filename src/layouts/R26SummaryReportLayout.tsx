@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock3, PackageCheck, ScanLine, Speaker, Wrench, CreditCard } from "lucide-react";
+import { Clock3, PackageCheck, ScanLine, Speaker, Wrench, CreditCard, ClipboardCheck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { setMode } from "@/features/report/report/reportSummarySlice";
@@ -8,8 +8,9 @@ import QCMINQutwardReport from "@/pages/report/r26reports/QCMINQutwardReport";
 import TrcHourlyReport from "@/pages/report/r26reports/TrcHourlyReport";
 import SoundboxHourlyReport from "@/pages/report/r26reports/SoundboxHourlyReport";
 import SwipeHourlyReport from "@/pages/report/r26reports/SwipeHourlyReport";
+import PreQcReport from "@/pages/report/r26reports/PreQcReport";
 
-type ViewMode = "trc" | "awb" | "qc" | "soundbox" | "swipe";
+type ViewMode = "trc" | "awb" | "qc" | "soundbox" | "swipe" | "preQc";
 
 const REPORTS: { value: ViewMode; label: string; icon: React.ElementType; render: () => React.ReactNode }[] = [
   { value: "awb", label: "AWB Scan", icon: ScanLine, render: () => <AwbscanReport /> },
@@ -17,6 +18,7 @@ const REPORTS: { value: ViewMode; label: string; icon: React.ElementType; render
   { value: "trc", label: "TRC", icon: Wrench, render: () => <TrcHourlyReport /> },
   { value: "soundbox", label: "Soundbox Hourly", icon: Speaker, render: () => <SoundboxHourlyReport /> },
   { value: "swipe", label: "Swipe Hourly", icon: CreditCard, render: () => <SwipeHourlyReport /> },
+  { value: "preQc", label: "Pre-QC", icon: ClipboardCheck, render: () => <PreQcReport /> },
 ];
 
 const R26SummaryReportLayout = () => {

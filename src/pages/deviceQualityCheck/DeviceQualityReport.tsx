@@ -3,7 +3,14 @@ import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { AgGridReact } from "@ag-grid-community/react";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Box, Chip, Divider, Drawer, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Divider,
+  Drawer,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { rangePresets } from "@/utils/rangePresets";
@@ -12,7 +19,10 @@ import { Icons } from "@/components/icons";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
-import { DeviceQualityReportRow, fetchDeviceQualityReport } from "@/features/deviceDefect/deviceDefectSlice";
+import {
+  DeviceQualityReportRow,
+  fetchDeviceQualityReport,
+} from "@/features/deviceDefect/deviceDefectSlice";
 import { getStatusChip } from "@/pages/procurement/adminApproval/helpers";
 import FqcImagePreviewModal from "@/pages/queries/fqcDeviceImage/FqcImagePreviewModal";
 import { formatServerDateTime } from "@/pages/deviceDefectApproval/deviceDefectApproval.utils";
@@ -23,10 +33,17 @@ const { RangePicker } = DatePicker;
 const DeviceQualityReport: React.FC = () => {
   const [colapse, setcolapse] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { reportList, reportLoading } = useAppSelector((state) => state.deviceDefect);
+  const { reportList, reportLoading } = useAppSelector(
+    (state) => state.deviceDefect,
+  );
 
-  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({ from: null, to: null });
-  const [activeRow, setActiveRow] = useState<DeviceQualityReportRow | null>(null);
+  const [date, setDate] = useState<{ from: Dayjs | null; to: Dayjs | null }>({
+    from: null,
+    to: null,
+  });
+  const [activeRow, setActiveRow] = useState<DeviceQualityReportRow | null>(
+    null,
+  );
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   const gridRef = useRef<AgGridReact<DeviceQualityReportRow>>(null);
@@ -53,7 +70,15 @@ const DeviceQualityReport: React.FC = () => {
     gridRef.current?.api.exportDataAsExcel({
       sheetName: "Device Quality Report",
       fileName: `DeviceQualityReport_${dayjs().format("DD-MM-YYYY_HH-mm")}.xlsx`,
-      columnKeys: ["serial_no", "status", "requested_by", "action_by", "remark", "created_at", "images"],
+      columnKeys: [
+        "serial_no",
+        "status",
+        "requested_by",
+        "action_by",
+        "remark",
+        "created_at",
+        "images",
+      ],
     });
   }, []);
 
@@ -63,14 +88,28 @@ const DeviceQualityReport: React.FC = () => {
       autoHeight: true,
       wrapHeaderText: true,
       autoHeaderHeight: true,
+      // hide the ⋮ column menu icon in headers
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
     }),
     [],
   );
 
   const columnDefs = useMemo<any[]>(
     () => [
-      { headerName: "#", width: 80, valueGetter: "node.rowIndex+1",  ...leftAlignedColumn,  },
-      { headerName: "Serial No.", field: "serial_no", sortable: true, filter: true, flex: 1, minWidth: 180, ...leftAlignedColumn, },
+      {
+        headerName: "#",
+        width: 80,
+        valueGetter: "node.rowIndex+1",
+      },
+      {
+        headerName: "Serial No.",
+        field: "serial_no",
+        sortable: true,
+        filter: true,
+        flex: 1,
+        minWidth: 180,
+      },
       {
         headerName: "Status",
         field: "status",
@@ -83,7 +122,8 @@ const DeviceQualityReport: React.FC = () => {
         cellRenderer: (params: any) => {
           const chip = getStatusChip(params.value);
           const next = params.data?.next;
-          const fullValue = next && next !== "--" ? `${chip.label} with ${next}` : chip.label;
+          const fullValue =
+            next && next !== "--" ? `${chip.label} with ${next}` : chip.label;
           return (
             <Chip
               size="small"
@@ -97,7 +137,6 @@ const DeviceQualityReport: React.FC = () => {
             />
           );
         },
-        ...leftAlignedColumn,
       },
 
       {
@@ -108,10 +147,10 @@ const DeviceQualityReport: React.FC = () => {
         flex: 2,
         minWidth: 240,
         valueGetter: (params: any) => params.data?.bpe_remarks || "-",
-        tooltipValueGetter: (params: any) => (params.value && params.value !== "-" ? params.value : undefined),
-        ...leftAlignedColumn,
+        tooltipValueGetter: (params: any) =>
+          params.value && params.value !== "-" ? params.value : undefined,
       },
-            {
+      {
         headerName: "Requested By",
         field: "requested_by",
         sortable: true,
@@ -119,7 +158,6 @@ const DeviceQualityReport: React.FC = () => {
         flex: 1,
         minWidth: 160,
         valueFormatter: (params: any) => params.value || "-",
-        ...leftAlignedColumn,
       },
       {
         headerName: "Action By",
@@ -129,7 +167,6 @@ const DeviceQualityReport: React.FC = () => {
         flex: 1,
         minWidth: 160,
         valueFormatter: (params: any) => params.value || "-",
-        ...leftAlignedColumn,
       },
       {
         headerName: "Action Date & Time",
@@ -138,7 +175,6 @@ const DeviceQualityReport: React.FC = () => {
         filter: true,
         flex: 1,
         minWidth: 180,
-        ...leftAlignedColumn,
         valueFormatter: (params: any) => formatServerDateTime(params.value),
       },
       {
@@ -146,7 +182,8 @@ const DeviceQualityReport: React.FC = () => {
         colId: "images",
         flex: 1,
         minWidth: 170,
-        valueGetter: (params: any) => params.data?.image_links?.filter(Boolean).length ?? 0,
+        valueGetter: (params: any) =>
+          params.data?.image_links?.filter(Boolean).length ?? 0,
         cellRenderer: (params: any) => (
           <Button
             size="sm"
@@ -156,10 +193,11 @@ const DeviceQualityReport: React.FC = () => {
             onClick={() => setActiveRow(params.data)}
           >
             <Icons.view sx={{ fontSize: 16 }} />
-            <span className="ml-1 font-medium">View Images ({params.value})</span>
+            <span className="ml-1 font-medium">
+              View Images ({params.value})
+            </span>
           </Button>
         ),
-        ...leftAlignedColumn,
       },
     ],
     [],
@@ -181,7 +219,11 @@ const DeviceQualityReport: React.FC = () => {
             onClick={() => setcolapse(!colapse)}
             className={`transition-all w-[16px] p-0 py-[35px] bg-neutral-200  rounded-none hover:bg-neutral-300/50 text-slate-600 hover:h-full shadow-sm shadow-neutral-400 duration-300   `}
           >
-            {colapse ? <Icons.right fontSize="small" /> : <Icons.left fontSize="small" />}
+            {colapse ? (
+              <Icons.right fontSize="small" />
+            ) : (
+              <Icons.left fontSize="small" />
+            )}
           </Button>
         </div>
         <div className="flex  gap-[20px] flex-col   p-[20px] overflow-hidden mt-[20px]">
@@ -211,7 +253,13 @@ const DeviceQualityReport: React.FC = () => {
                 disabled={!reportList.length}
                 onClick={onBtExport}
                 color="primary"
-                style={{ borderRadius: "50%", width: 30, height: 30, minWidth: 0, padding: 0 }}
+                style={{
+                  borderRadius: "50%",
+                  width: 30,
+                  height: 30,
+                  minWidth: 0,
+                  padding: 0,
+                }}
                 size="small"
                 sx={{ zIndex: 1 }}
               >
@@ -242,14 +290,40 @@ const DeviceQualityReport: React.FC = () => {
         anchor="right"
         open={activeRow !== null}
         onClose={() => setActiveRow(null)}
-        PaperProps={{ sx: { width: { xs: "100%", md: "50vw" }, display: "flex", flexDirection: "column" } }}
+        PaperProps={{
+          sx: {
+            width: { xs: "100%", md: "50vw" },
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
       >
         {activeRow && (
           <>
-            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1, px: 3, py: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 1,
+                px: 3,
+                py: 2,
+              }}
+            >
               <Box sx={{ minWidth: 0 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                  <Typography variant="h6" fontWeight={600} sx={{ wordBreak: "break-all" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    sx={{ wordBreak: "break-all" }}
+                  >
                     {activeRow.serial_no}
                   </Typography>
                   <Chip
@@ -263,7 +337,11 @@ const DeviceQualityReport: React.FC = () => {
                   Created on {formatServerDateTime(activeRow.created_at)}
                 </Typography>
               </Box>
-              <IconButton onClick={() => setActiveRow(null)} size="small" aria-label="Close">
+              <IconButton
+                onClick={() => setActiveRow(null)}
+                size="small"
+                aria-label="Close"
+              >
                 <Icons.close />
               </IconButton>
             </Box>
@@ -278,8 +356,15 @@ const DeviceQualityReport: React.FC = () => {
                       onClick={() => setPreviewIndex(idx)}
                       className="flex flex-col items-center border rounded-lg p-3 shadow-sm bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors"
                     >
-                      <img src={url} alt={`Photo ${idx + 1}`} className="rounded object-contain max-h-[220px] w-full" />
-                      <Typography variant="subtitle2" className="mt-2 font-medium text-slate-700">
+                      <img
+                        src={url}
+                        alt={`Photo ${idx + 1}`}
+                        className="rounded object-contain max-h-[220px] w-full"
+                      />
+                      <Typography
+                        variant="subtitle2"
+                        className="mt-2 font-medium text-slate-700"
+                      >
                         Photo {idx + 1}
                       </Typography>
                     </button>
@@ -298,12 +383,24 @@ const DeviceQualityReport: React.FC = () => {
       <FqcImagePreviewModal
         open={previewIndex !== null}
         label={previewIndex !== null ? `Photo ${previewIndex + 1}` : ""}
-        imageUrl={previewIndex !== null ? activeImages[previewIndex] : undefined}
+        imageUrl={
+          previewIndex !== null ? activeImages[previewIndex] : undefined
+        }
         currentIndex={previewIndex ?? 0}
         total={activeImages.length}
         onClose={() => setPreviewIndex(null)}
-        onPrev={() => setPreviewIndex((i) => (i === null ? i : (i - 1 + activeImages.length) % activeImages.length))}
-        onNext={() => setPreviewIndex((i) => (i === null ? i : (i + 1) % activeImages.length))}
+        onPrev={() =>
+          setPreviewIndex((i) =>
+            i === null
+              ? i
+              : (i - 1 + activeImages.length) % activeImages.length,
+          )
+        }
+        onNext={() =>
+          setPreviewIndex((i) =>
+            i === null ? i : (i + 1) % activeImages.length,
+          )
+        }
       />
     </div>
   );
