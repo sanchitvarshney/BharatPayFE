@@ -4,7 +4,11 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
+import {
+  leftAlignedColumn,
+  rightAlignedCellStyle,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 import {
   R26_GRID_CLASS,
   r26DefaultColDef,
@@ -20,6 +24,16 @@ const columnDefs: ColDef[] = [
   { headerName: "Time", field: "time", flex: 1, minWidth: 160, ...leftAlignedColumn },
   { headerName: "Assembly", field: "assembly", flex: 1, minWidth: 140, ...rightAlignedColumn },
   { headerName: "TRC", field: "trc", flex: 1, minWidth: 140, ...rightAlignedColumn },
+  {
+    headerName: "Total",
+    colId: "total",
+    flex: 1,
+    minWidth: 140,
+    ...rightAlignedColumn,
+    cellStyle: { ...rightAlignedCellStyle, fontWeight: 600 },
+    valueGetter: (params) =>
+      (Number(params.data?.assembly) || 0) + (Number(params.data?.trc) || 0),
+  },
 ];
 
 const PreQcTable: React.FC<Props> = ({ gridRef }) => {
