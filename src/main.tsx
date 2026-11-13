@@ -16,12 +16,14 @@ import theme from "./theme/index.ts";
 import { SocketProvider } from "./components/context/SocketContext.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import RootLayout from "./layouts/layout.tsx";
+import ErrorBoundary from "./pages/errorBoundary/ErrorBoundary.tsx";
 
 
 const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
 
 moduleregistri();
 ReactDOM.createRoot(document.getElementById("root")!).render(
+  <ErrorBoundary>
   <GoogleOAuthProvider clientId={googleId}>
   <Provider store={store}>
     <ConfigProvider
@@ -78,4 +80,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </ConfigProvider>
   </Provider>
   </GoogleOAuthProvider>
+  </ErrorBoundary>
 );

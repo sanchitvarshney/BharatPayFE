@@ -125,6 +125,11 @@ export const submitPOMIN = createAsyncThunk<AxiosResponse<any>, any>("po/submitP
   return response;
 });
 
+export const checkInvoiceId = createAsyncThunk<AxiosResponse<any>, string>("po/checkInvoiceId", async (invoice) => {
+  const response = await axiosInstance.get(`/po/checkInvoiceId?invoice=${encodeURIComponent(invoice)}`);
+  return response;
+});
+
 export const shortClosePOItems = createAsyncThunk<
   AxiosResponse<any>,
   { po_number: string; ids: (string | number)[] }

@@ -166,7 +166,7 @@ export const submitBulkTransfer = createAsyncThunk<
   BulkTransferPayload
 >("device/transfer/bulkTransfer", async (payload) => {
   const response = await axiosInstance.post(
-    `/swipeMovement/bulkTransfer`,
+    `/dispatchDivice/bulkTransfer`,
     payload,
   );
   return response?.data;
