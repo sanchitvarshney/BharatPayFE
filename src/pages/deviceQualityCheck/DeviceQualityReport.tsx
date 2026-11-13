@@ -25,7 +25,7 @@ import {
 } from "@/features/deviceDefect/deviceDefectSlice";
 import { getStatusChip } from "@/pages/procurement/adminApproval/helpers";
 import FqcImagePreviewModal from "@/pages/queries/fqcDeviceImage/FqcImagePreviewModal";
-import { formatServerDateTime } from "@/pages/deviceDefectApproval/deviceDefectApproval.utils";
+import { formatServerDateTime } from "./deviceQualityCheck.utils";
 import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const { RangePicker } = DatePicker;

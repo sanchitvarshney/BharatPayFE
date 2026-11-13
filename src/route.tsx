@@ -101,7 +101,6 @@ import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
 import AdminApprovalPage from "@/pages/procurement/AdminApprovalPage";
-import DeviceDefectApprovalPage from "@/pages/deviceDefectApproval/DeviceDefectApprovalPage";
 import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 import ManagePO from "./pages/procurement/ManagePO";
@@ -1322,10 +1321,6 @@ export const router = createBrowserRouter([
   {
     path: "/po/adminApprovalPage/*",
     element: <AdminApprovalPage />,
-  },
-  {
-    path: "/device/bpe/approval/*",
-    element: <DeviceDefectApprovalPage />,
   },
   {
     path: "*",
