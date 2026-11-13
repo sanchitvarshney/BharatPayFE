@@ -8,7 +8,8 @@ export type ReportDateKey =
   | "trcHourly"
   | "soundboxHourly"
   | "swipeHourly"
-  | "preQc";
+  | "preQc"
+  | "cleaningSummary";
 
 type ReportDateRange = { from: string | null; to: string | null };
 
@@ -24,6 +25,7 @@ const emptyByKey = <T,>(value: T) =>
     soundboxHourly: value,
     swipeHourly: value,
     preQc: value,
+    cleaningSummary: value,
   }) as Record<ReportDateKey, T>;
 
 const initialState: any = {
@@ -40,6 +42,8 @@ const initialState: any = {
   swipeHourlyReportLoading: false,
   preQcReport: null,
   preQcReportLoading: false,
+  cleaningSummaryReport: null,
+  cleaningSummaryReportLoading: false,
   dateRanges: {
     awbscan: { ...emptyDateRange },
     qcMinOutward: { ...emptyDateRange },
@@ -47,6 +51,7 @@ const initialState: any = {
     soundboxHourly: { ...emptyDateRange },
     swipeHourly: { ...emptyDateRange },
     preQc: { ...emptyDateRange },
+    cleaningSummary: { ...emptyDateRange },
   } as Record<ReportDateKey, ReportDateRange>,
   reportMeta: emptyByKey<ReportMeta | null>(null),
   reportErrors: emptyByKey<string | null>(null),
@@ -125,6 +130,26 @@ export const getPreQcReport = createReportThunk(
   "report/getPreQcReport",
   "/report/preQcMovementReport",
 );
+
+// Cleaning summary takes fromDate/toDate as YYYY-MM-DD and replies with
+// `status` instead of `success`; normalize so the shared R26 helpers work.
+const toIsoDate = (ddmmyyyy: string) => ddmmyyyy.split("-").reverse().join("-");
+
+export const getCleaningSummaryReport = createAsyncThunk<
+  AxiosResponse<any>,
+  ReportRange,
+  { rejectValue: { message?: string } }
+>("report/getCleaningSummaryReport", async (range, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.get(
+      `/report/cleaningSummary?fromDate=${toIsoDate(range.from)}&toDate=${toIsoDate(range.to)}`,
+    );
+    res.data = { ...res.data, success: res.data?.success ?? res.data?.status };
+    return res;
+  } catch (error: any) {
+    return rejectWithValue(error?.response?.data ?? { message: error?.message });
+  }
+});
 
 const reportSummarySlice = createSlice({
   name: "reportsummary",
@@ -242,6 +267,21 @@ const reportSummarySlice = createSlice({
       .addCase(getPreQcReport.rejected, (state, action) => {
         state.preQcReportLoading = false;
         markRejected(state, "preQc", action);
+      })
+      .addCase(getCleaningSummaryReport.pending, (state) => {
+        state.cleaningSummaryReportLoading = true;
+        markPending(state, "cleaningSummary");
+      })
+      .addCase(getCleaningSummaryReport.fulfilled, (state: any, action) => {
+        state.cleaningSummaryReportLoading = false;
+        if (action.payload.data.success) {
+          state.cleaningSummaryReport = action.payload.data;
+        }
+        markFulfilled(state, "cleaningSummary", action);
+      })
+      .addCase(getCleaningSummaryReport.rejected, (state, action) => {
+        state.cleaningSummaryReportLoading = false;
+        markRejected(state, "cleaningSummary", action);
       });
   },
 });
