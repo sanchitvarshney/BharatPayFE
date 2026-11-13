@@ -1,14 +1,11 @@
-import React, { useMemo, useRef } from "react";
+import React,{ useRef } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
 import { getCleaningSummaryReport } from "@/features/report/report/reportSummarySlice";
-import CleaningSummaryTable, {
-  getCleaningQtyKeys,
-} from "@/table/report/r26tabls/CleaningSummaryTable";
-import ReportShell, { SummaryItem } from "@/components/report/r26/ReportShell";
+import CleaningSummaryTable from "@/table/report/r26tabls/CleaningSummaryTable";
+import ReportShell from "@/components/report/r26/ReportShell";
 import { useR26Report } from "@/components/report/r26/useR26Report";
-import { formatNumber } from "@/components/report/r26/reportUtils";
 
 const CleaningSummaryReport: React.FC = () => {
   const { cleaningSummaryReportLoading, cleaningSummaryReport } = useAppSelector(
