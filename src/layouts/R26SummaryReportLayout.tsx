@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock3, PackageCheck, ScanLine, Speaker, Wrench, CreditCard, ClipboardCheck, Sparkles } from "lucide-react";
+import { Clock3, PackageCheck, ScanLine, Speaker, Wrench, CreditCard, ClipboardCheck, Sparkles, Truck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { setMode } from "@/features/report/report/reportSummarySlice";
@@ -10,8 +10,9 @@ import SoundboxHourlyReport from "@/pages/report/r26reports/SoundboxHourlyReport
 import SwipeHourlyReport from "@/pages/report/r26reports/SwipeHourlyReport";
 import PreQcReport from "@/pages/report/r26reports/PreQcReport";
 import CleaningSummaryReport from "@/pages/report/r26reports/CleaningSummaryReport";
+import DispatchSummaryReport from "@/pages/report/r26reports/DispatchSummaryReport";
 
-type ViewMode = "trc" | "awb" | "qc" | "soundbox" | "swipe" | "preQc" | "cleaning";
+type ViewMode = "trc" | "awb" | "qc" | "soundbox" | "swipe" | "preQc" | "cleaning" | "dispatch";
 
 const REPORTS: { value: ViewMode; label: string; icon: React.ElementType; render: () => React.ReactNode }[] = [
   { value: "awb", label: "AWB Scan", icon: ScanLine, render: () => <AwbscanReport /> },
@@ -21,6 +22,7 @@ const REPORTS: { value: ViewMode; label: string; icon: React.ElementType; render
   { value: "swipe", label: "Swipe Hourly", icon: CreditCard, render: () => <SwipeHourlyReport /> },
   { value: "preQc", label: "Pre-QC", icon: ClipboardCheck, render: () => <PreQcReport /> },
   { value: "cleaning", label: "Cleaning Summary", icon: Sparkles, render: () => <CleaningSummaryReport /> },
+  { value: "dispatch", label: "Dispatch Summary", icon: Truck, render: () => <DispatchSummaryReport /> },
 ];
 
 const R26SummaryReportLayout = () => {

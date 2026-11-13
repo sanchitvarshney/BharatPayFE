@@ -9,7 +9,8 @@ export type ReportDateKey =
   | "soundboxHourly"
   | "swipeHourly"
   | "preQc"
-  | "cleaningSummary";
+  | "cleaningSummary"
+  | "dispatchSummary";
 
 type ReportDateRange = { from: string | null; to: string | null };
 
@@ -26,6 +27,7 @@ const emptyByKey = <T,>(value: T) =>
     swipeHourly: value,
     preQc: value,
     cleaningSummary: value,
+    dispatchSummary: value,
   }) as Record<ReportDateKey, T>;
 
 const initialState: any = {
@@ -44,6 +46,8 @@ const initialState: any = {
   preQcReportLoading: false,
   cleaningSummaryReport: null,
   cleaningSummaryReportLoading: false,
+  dispatchSummaryReport: null,
+  dispatchSummaryReportLoading: false,
   dateRanges: {
     awbscan: { ...emptyDateRange },
     qcMinOutward: { ...emptyDateRange },
@@ -52,6 +56,7 @@ const initialState: any = {
     swipeHourly: { ...emptyDateRange },
     preQc: { ...emptyDateRange },
     cleaningSummary: { ...emptyDateRange },
+    dispatchSummary: { ...emptyDateRange },
   } as Record<ReportDateKey, ReportDateRange>,
   reportMeta: emptyByKey<ReportMeta | null>(null),
   reportErrors: emptyByKey<string | null>(null),
@@ -131,25 +136,36 @@ export const getPreQcReport = createReportThunk(
   "/report/preQcMovementReport",
 );
 
-// Cleaning summary takes fromDate/toDate as YYYY-MM-DD and replies with
-// `status` instead of `success`; normalize so the shared R26 helpers work.
+// Cleaning/dispatch summary APIs take fromDate/toDate as YYYY-MM-DD and reply
+// with `status` instead of `success`; normalize so the shared R26 helpers work.
 const toIsoDate = (ddmmyyyy: string) => ddmmyyyy.split("-").reverse().join("-");
 
-export const getCleaningSummaryReport = createAsyncThunk<
-  AxiosResponse<any>,
-  ReportRange,
-  { rejectValue: { message?: string } }
->("report/getCleaningSummaryReport", async (range, { rejectWithValue }) => {
-  try {
-    const res = await axiosInstance.get(
-      `/report/cleaningSummary?fromDate=${toIsoDate(range.from)}&toDate=${toIsoDate(range.to)}`,
-    );
-    res.data = { ...res.data, success: res.data?.success ?? res.data?.status };
-    return res;
-  } catch (error: any) {
-    return rejectWithValue(error?.response?.data ?? { message: error?.message });
-  }
-});
+const createIsoDateReportThunk = (type: string, endpoint: string) =>
+  createAsyncThunk<
+    AxiosResponse<any>,
+    ReportRange,
+    { rejectValue: { message?: string } }
+  >(type, async (range, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(
+        `${endpoint}?fromDate=${toIsoDate(range.from)}&toDate=${toIsoDate(range.to)}`,
+      );
+      res.data = { ...res.data, success: res.data?.success ?? res.data?.status };
+      return res;
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data ?? { message: error?.message });
+    }
+  });
+
+export const getCleaningSummaryReport = createIsoDateReportThunk(
+  "report/getCleaningSummaryReport",
+  "/report/cleaningSummary",
+);
+
+export const getDispatchSummaryReport = createIsoDateReportThunk(
+  "report/getDispatchSummaryReport",
+  "/report/dispatchSummary",
+);
 
 const reportSummarySlice = createSlice({
   name: "reportsummary",
@@ -282,6 +298,21 @@ const reportSummarySlice = createSlice({
       .addCase(getCleaningSummaryReport.rejected, (state, action) => {
         state.cleaningSummaryReportLoading = false;
         markRejected(state, "cleaningSummary", action);
+      })
+      .addCase(getDispatchSummaryReport.pending, (state) => {
+        state.dispatchSummaryReportLoading = true;
+        markPending(state, "dispatchSummary");
+      })
+      .addCase(getDispatchSummaryReport.fulfilled, (state: any, action) => {
+        state.dispatchSummaryReportLoading = false;
+        if (action.payload.data.success) {
+          state.dispatchSummaryReport = action.payload.data;
+        }
+        markFulfilled(state, "dispatchSummary", action);
+      })
+      .addCase(getDispatchSummaryReport.rejected, (state, action) => {
+        state.dispatchSummaryReportLoading = false;
+        markRejected(state, "dispatchSummary", action);
       });
   },
 });

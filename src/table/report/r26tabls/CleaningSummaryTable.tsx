@@ -5,14 +5,11 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import {
-  leftAlignedColumn,
-  rightAlignedCellStyle,
-  rightAlignedColumn,
-} from "@/utils/agGridAlignUtils";
-import {
   R26_GRID_CLASS,
-  r26DefaultColDef,
   r26ExcelStyles,
+  r26WrapColDef as defaultColDef,
+  r26WrapLeftCol as leftCol,
+  r26WrapRightCol as rightCol,
   totalRowClass,
 } from "./r26GridShared";
 
@@ -26,26 +23,6 @@ export const CLEANING_TEXT_COLUMNS = ["part_no", "part_name"];
 
 export const getCleaningQtyKeys = (columns: ApiColumn[] = []) =>
   columns.map((c) => c.key).filter((key) => !CLEANING_TEXT_COLUMNS.includes(key));
-
-// Wrap long cell values and header labels instead of truncating them.
-const defaultColDef: ColDef = {
-  ...r26DefaultColDef,
-  wrapText: true,
-  autoHeight: true,
-  wrapHeaderText: true,
-  autoHeaderHeight: true,
-};
-
-const wrapStyle = {
-  lineHeight: "20px",
-  paddingTop: 8,
-  paddingBottom: 8,
-  whiteSpace: "normal",
-  wordBreak: "break-word",
-} as const;
-
-const leftCol = { ...leftAlignedColumn, cellStyle: { ...leftAlignedColumn.cellStyle, ...wrapStyle } };
-const rightCol = { ...rightAlignedColumn, cellStyle: { ...rightAlignedCellStyle, ...wrapStyle } };
 
 const rowTotal =(row: any, qtyKeys: string[]) =>
   qtyKeys.reduce((sum, key) => sum + (Number(row?.[key]) || 0), 0);
