@@ -5,28 +5,63 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import CustomPagination from "@/components/reusable/CustomPagination";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { flexCellStyle, formatNumber } from "@/utils/agGridSummaryCellUtils";
+import { formatNumber } from "@/utils/agGridSummaryCellUtils";
+import {
+  centerAlignedColumn,
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 
 type Props = {
   handlePageChange: (page: number) => void;
   pageSize: number;
 };
 
-const numericCellStyle = flexCellStyle("right");
+const defaultColDef: ColDef = {
+  filter: false,
+  sortable: true,
+  resizable: true,
+  suppressHeaderMenuButton: true,
+  suppressHeaderFilterButton: true,
+  wrapText: true,
+  autoHeight: true,
+  wrapHeaderText: true,
+  autoHeaderHeight: true,
+};
+
+const textFilter: ColDef = {
+  filter: "agTextColumnFilter",
+  floatingFilter: true,
+  suppressFloatingFilterButton: true,
+  filterParams: { filterOptions: ["contains"], maxNumConditions: 1 },
+};
 
 const numericCol = (headerName: string, field: string, width = 140): ColDef => ({
   headerName,
   field,
   width,
   valueFormatter: (params) => formatNumber(params.value),
-  cellStyle: numericCellStyle,
-  headerClass: "ag-right-aligned-header",
+  ...rightAlignedColumn,
 });
 
 const baseColumnDefs: ColDef[] = [
-  { headerName: "S.No", field: "s_no", width: 90, pinned: "left" },
-  { headerName: "Part Code", field: "part_code", width: 120, pinned: "left" },
-  { headerName: "Part Name", field: "part_name", width: 280, pinned: "left" },
+  { headerName: "S.No", field: "s_no", width: 90, pinned: "left", ...centerAlignedColumn },
+  {
+    headerName: "Part Code",
+    field: "part_code",
+    width: 130,
+    pinned: "left",
+    ...textFilter,
+    ...centerAlignedColumn,
+  },
+  {
+    headerName: "Part Name",
+    field: "part_name",
+    width: 280,
+    pinned: "left",
+    ...textFilter,
+    ...leftAlignedColumn,
+  },
   numericCol("BOM Qty", "bom_qty", 110),
   numericCol("Opening Balance", "opening_balance", 160),
   numericCol("Purchase MSC", "purchase_msc"),
@@ -71,8 +106,7 @@ const SwipeSummaryReportTable: React.FC<Props> = ({
           width: 130,
           valueGetter: (params) => params.data?.sku_data?.[name]?.consumption,
           valueFormatter: (params) => formatNumber(params.value),
-          cellStyle: numericCellStyle,
-          headerClass: "ag-right-aligned-header",
+          ...rightAlignedColumn,
         },
         {
           headerName: "%",
@@ -80,24 +114,13 @@ const SwipeSummaryReportTable: React.FC<Props> = ({
           width: 90,
           valueGetter: (params) => params.data?.sku_data?.[name]?.percentage,
           valueFormatter: (params) => formatNumber(params.value),
-          cellStyle: numericCellStyle,
-          headerClass: "ag-right-aligned-header",
+          ...rightAlignedColumn,
         },
       ],
     }));
 
     return [...baseColumnDefs, ...skuGroups];
   }, [rowData]);
-
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      filter: true,
-      sortable: true,
-      resizable: true,
-      cellStyle: flexCellStyle("left"),
-    }),
-    [],
-  );
 
   const pagination = summaryReportData?.pagination;
 

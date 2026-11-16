@@ -1,20 +1,39 @@
 import React, { memo, useMemo } from "react";
-import { ColDef } from "@ag-grid-community/core";
+import { ColDef, RowClassParams } from "@ag-grid-community/core";
 import { AgGridReact } from "@ag-grid-community/react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
-import { flexCellStyle, formatCurrency } from "@/utils/agGridSummaryCellUtils";
+import { formatCurrency } from "@/utils/agGridSummaryCellUtils";
+import {
+  centerAlignedColumn,
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 
-const numericCellStyle = flexCellStyle("right");
+const defaultColDef: ColDef = {
+  filter: true,
+  sortable: true,
+  resizable: true,
+  suppressHeaderMenuButton: true,
+  suppressHeaderFilterButton: false,
+  wrapText: true,
+  autoHeight: true,
+  wrapHeaderText: true,
+  autoHeaderHeight: true,
+};
+
+const getRowStyle = (params: RowClassParams) =>
+  params.node.rowPinned === "bottom"
+    ? { fontWeight: 700, backgroundColor: "#f2f4f7" }
+    : undefined;
 
 const currencyCol = (headerName: string, field: string): ColDef => ({
   headerName,
   field,
   width: 170,
   valueFormatter: (params) => formatCurrency(params.value),
-  cellStyle: numericCellStyle,
-  headerClass: "ag-right-aligned-header",
+  ...rightAlignedColumn,
 });
 
 const columnDefs: ColDef[] = [
@@ -24,15 +43,15 @@ const columnDefs: ColDef[] = [
     width: 80,
     valueGetter: (params) =>
       params?.node?.rowPinned ? "" : (params?.node?.rowIndex ?? 0) + 1,
+    ...centerAlignedColumn,
   },
-  { headerName: "Part Code", field: "part_code", width: 130 },
-  { headerName: "Component Name", field: "component_name", width: 340 },
+  { headerName: "Part Code", field: "part_code", width: 130, ...centerAlignedColumn },
+  { headerName: "Component Name", field: "component_name", width: 340, ...leftAlignedColumn },
   {
     headerName: "Quantity",
     field: "qty",
     width: 130,
-    cellStyle: numericCellStyle,
-    headerClass: "ag-right-aligned-header",
+    ...rightAlignedColumn,
   },
   currencyCol("Rate", "rate"),
   currencyCol("Taxable Amount", "taxable_amount"),
@@ -40,8 +59,7 @@ const columnDefs: ColDef[] = [
     headerName: "GST Rate",
     field: "gst_rate",
     width: 120,
-    cellStyle: numericCellStyle,
-    headerClass: "ag-right-aligned-header",
+    ...rightAlignedColumn,
   },
   currencyCol("GST Amount", "gst_amount"),
   currencyCol("Total Invoice", "total_invoice"),
@@ -49,10 +67,9 @@ const columnDefs: ColDef[] = [
     headerName: "Purchase Count",
     field: "purchase_count",
     width: 150,
-    cellStyle: numericCellStyle,
-    headerClass: "ag-right-aligned-header",
+    ...rightAlignedColumn,
   },
-  { headerName: "Rate Bifurcation", field: "bifurcation", width: 220 },
+  { headerName: "Rate Bifurcation", field: "bifurcation", width: 220, ...leftAlignedColumn },
 ];
 
 const EMPTY_ROWS: any[] = [];
@@ -81,16 +98,6 @@ const SwipePurchaseTable: React.FC = () => {
     [rowData],
   );
 
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      filter: true,
-      sortable: true,
-      resizable: true,
-      cellStyle: flexCellStyle("left"),
-    }),
-    [],
-  );
-
   return (
     <div className="relative ag-theme-quartz flex-1 min-h-0">
       <AgGridReact
@@ -102,6 +109,7 @@ const SwipePurchaseTable: React.FC = () => {
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
         pinnedBottomRowData={rowData.length ? [grandTotalRow] : []}
+        getRowStyle={getRowStyle}
         enableCellTextSelection={true}
       />
     </div>

@@ -4,7 +4,12 @@ import { AgGridReact } from "@ag-grid-community/react";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import CustomPagination from "@/components/reusable/CustomPagination";
-import { flexCellStyle, formatNumber } from "@/utils/agGridSummaryCellUtils";
+import { formatNumber } from "@/utils/agGridSummaryCellUtils";
+import {
+  centerAlignedColumn,
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 
 type Props = {
   data: any;
@@ -13,7 +18,18 @@ type Props = {
   pageSize: number;
 };
 
-const numericCellStyle = flexCellStyle("right");
+// No header (three-dot) menu, no filters; cells and headers wrap instead of truncating.
+const defaultColDef: ColDef = {
+  filter: false,
+  sortable: true,
+  resizable: true,
+  suppressHeaderMenuButton: true,
+  suppressHeaderFilterButton: true,
+  wrapText: true,
+  autoHeight: true,
+  wrapHeaderText: true,
+  autoHeaderHeight: true,
+};
 
 const baseColumnDefs: ColDef[] = [
   {
@@ -22,14 +38,15 @@ const baseColumnDefs: ColDef[] = [
     width: 80,
     pinned: "left",
     valueGetter: "node.rowIndex+1",
+    ...centerAlignedColumn,
   },
-  { headerName: "Serial No", field: "serial_no", width: 170, pinned: "left" },
-  { headerName: "SKU", field: "device_sku", width: 110 },
-  { headerName: "IMEI No 1", field: "imei_no1", width: 160 },
-  { headerName: "IMEI No 2", field: "imei_no2", width: 160 },
-  { headerName: "Issue Txn ID", field: "issue_txn_id", width: 170 },
-  { headerName: "MFG Txn ID", field: "mfg_txn_id", width: 140 },
-  { headerName: "Dispatch Date", field: "dispatch_date", width: 180 },
+  { headerName: "Serial No", field: "serial_no", width: 170, pinned: "left", ...leftAlignedColumn },
+  { headerName: "SKU", field: "device_sku", width: 110, ...centerAlignedColumn },
+  { headerName: "IMEI No 1", field: "imei_no1", width: 160, ...leftAlignedColumn },
+  { headerName: "IMEI No 2", field: "imei_no2", width: 160, ...leftAlignedColumn },
+  { headerName: "Issue Txn ID", field: "issue_txn_id", width: 170, ...leftAlignedColumn },
+  { headerName: "MFG Txn ID", field: "mfg_txn_id", width: 140, ...leftAlignedColumn },
+  { headerName: "Dispatch Date", field: "dispatch_date", width: 180, ...leftAlignedColumn },
 ];
 
 const EMPTY_ROWS: any[] = [];
@@ -51,22 +68,11 @@ const SwipeSkuConsumptionTable: React.FC<Props> = ({
       width: 200,
       valueGetter: (params) => params.data?.[header],
       valueFormatter: (params) => formatNumber(params.value),
-      cellStyle: numericCellStyle,
-      headerClass: "ag-right-aligned-header",
+      ...rightAlignedColumn,
       headerTooltip: header,
     }));
     return [...baseColumnDefs, ...componentCols];
   }, [data?.headers]);
-
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      filter: true,
-      sortable: true,
-      resizable: true,
-      cellStyle: flexCellStyle("left"),
-    }),
-    [],
-  );
 
   const pagination = data?.pagination;
 
