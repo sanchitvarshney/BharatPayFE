@@ -570,7 +570,7 @@ const SidebarInner = ({
           >
             <img
               src={showSideBar ? "/bharatpay.svg" : "/bharatpay.svg"}
-              alt="BharatPay"
+              alt="BharatPe"
               style={{
                 width: showSideBar ? 40 : 32,
                 height: showSideBar ? 40 : 32,
