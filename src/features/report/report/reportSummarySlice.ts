@@ -7,7 +7,10 @@ export type ReportDateKey =
   | "qcMinOutward"
   | "trcHourly"
   | "soundboxHourly"
-  | "swipeHourly";
+  | "swipeHourly"
+  | "preQc"
+  | "cleaningSummary"
+  | "dispatchSummary";
 
 type ReportDateRange = { from: string | null; to: string | null };
 
@@ -22,6 +25,9 @@ const emptyByKey = <T,>(value: T) =>
     trcHourly: value,
     soundboxHourly: value,
     swipeHourly: value,
+    preQc: value,
+    cleaningSummary: value,
+    dispatchSummary: value,
   }) as Record<ReportDateKey, T>;
 
 const initialState: any = {
@@ -36,12 +42,21 @@ const initialState: any = {
   soundboxHourlyReportLoading: false,
   swipeHourlyReport: null,
   swipeHourlyReportLoading: false,
+  preQcReport: null,
+  preQcReportLoading: false,
+  cleaningSummaryReport: null,
+  cleaningSummaryReportLoading: false,
+  dispatchSummaryReport: null,
+  dispatchSummaryReportLoading: false,
   dateRanges: {
     awbscan: { ...emptyDateRange },
     qcMinOutward: { ...emptyDateRange },
     trcHourly: { ...emptyDateRange },
     soundboxHourly: { ...emptyDateRange },
     swipeHourly: { ...emptyDateRange },
+    preQc: { ...emptyDateRange },
+    cleaningSummary: { ...emptyDateRange },
+    dispatchSummary: { ...emptyDateRange },
   } as Record<ReportDateKey, ReportDateRange>,
   reportMeta: emptyByKey<ReportMeta | null>(null),
   reportErrors: emptyByKey<string | null>(null),
@@ -114,6 +129,42 @@ export const getSoundboxHourlyReport = createReportThunk(
 export const getSwipeHourlyReport = createReportThunk(
   "report/getSwipeHourlyReport",
   "/report/swipeHourlyReport",
+);
+
+export const getPreQcReport = createReportThunk(
+  "report/getPreQcReport",
+  "/report/preQcMovementReport",
+);
+
+// Cleaning/dispatch summary APIs take fromDate/toDate as YYYY-MM-DD and reply
+// with `status` instead of `success`; normalize so the shared R26 helpers work.
+const toIsoDate = (ddmmyyyy: string) => ddmmyyyy.split("-").reverse().join("-");
+
+const createIsoDateReportThunk = (type: string, endpoint: string) =>
+  createAsyncThunk<
+    AxiosResponse<any>,
+    ReportRange,
+    { rejectValue: { message?: string } }
+  >(type, async (range, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(
+        `${endpoint}?fromDate=${toIsoDate(range.from)}&toDate=${toIsoDate(range.to)}`,
+      );
+      res.data = { ...res.data, success: res.data?.success ?? res.data?.status };
+      return res;
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data ?? { message: error?.message });
+    }
+  });
+
+export const getCleaningSummaryReport = createIsoDateReportThunk(
+  "report/getCleaningSummaryReport",
+  "/report/cleaningSummary",
+);
+
+export const getDispatchSummaryReport = createIsoDateReportThunk(
+  "report/getDispatchSummaryReport",
+  "/report/dispatchSummary",
 );
 
 const reportSummarySlice = createSlice({
@@ -217,6 +268,51 @@ const reportSummarySlice = createSlice({
       .addCase(getSwipeHourlyReport.rejected, (state, action) => {
         state.swipeHourlyReportLoading = false;
         markRejected(state, "swipeHourly", action);
+      })
+      .addCase(getPreQcReport.pending, (state) => {
+        state.preQcReportLoading = true;
+        markPending(state, "preQc");
+      })
+      .addCase(getPreQcReport.fulfilled, (state: any, action) => {
+        state.preQcReportLoading = false;
+        if (action.payload.data.success) {
+          state.preQcReport = action.payload.data;
+        }
+        markFulfilled(state, "preQc", action);
+      })
+      .addCase(getPreQcReport.rejected, (state, action) => {
+        state.preQcReportLoading = false;
+        markRejected(state, "preQc", action);
+      })
+      .addCase(getCleaningSummaryReport.pending, (state) => {
+        state.cleaningSummaryReportLoading = true;
+        markPending(state, "cleaningSummary");
+      })
+      .addCase(getCleaningSummaryReport.fulfilled, (state: any, action) => {
+        state.cleaningSummaryReportLoading = false;
+        if (action.payload.data.success) {
+          state.cleaningSummaryReport = action.payload.data;
+        }
+        markFulfilled(state, "cleaningSummary", action);
+      })
+      .addCase(getCleaningSummaryReport.rejected, (state, action) => {
+        state.cleaningSummaryReportLoading = false;
+        markRejected(state, "cleaningSummary", action);
+      })
+      .addCase(getDispatchSummaryReport.pending, (state) => {
+        state.dispatchSummaryReportLoading = true;
+        markPending(state, "dispatchSummary");
+      })
+      .addCase(getDispatchSummaryReport.fulfilled, (state: any, action) => {
+        state.dispatchSummaryReportLoading = false;
+        if (action.payload.data.success) {
+          state.dispatchSummaryReport = action.payload.data;
+        }
+        markFulfilled(state, "dispatchSummary", action);
+      })
+      .addCase(getDispatchSummaryReport.rejected, (state, action) => {
+        state.dispatchSummaryReportLoading = false;
+        markRejected(state, "dispatchSummary", action);
       });
   },
 });

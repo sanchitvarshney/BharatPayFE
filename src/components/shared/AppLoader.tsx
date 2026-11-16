@@ -6,7 +6,7 @@ interface AppLoaderProps {
   label?: string;
 }
 
-const AppLoader = ({ logo = "/ms.png", label = "Loading BharatPay" }: AppLoaderProps) => {
+const AppLoader = ({ logo = "/ms.png", label = "Loading BharatPe" }: AppLoaderProps) => {
   const [dots, setDots] = useState(0);
 
   useEffect(() => {

@@ -18,10 +18,73 @@ const FORMATS = [
   BarcodeFormat.CODE_93,
   BarcodeFormat.CODABAR,
   BarcodeFormat.EAN_13,
+  BarcodeFormat.EAN_8,
+  BarcodeFormat.UPC_A,
+  BarcodeFormat.UPC_E,
   BarcodeFormat.ITF,
   BarcodeFormat.QR_CODE,
   BarcodeFormat.DATA_MATRIX,
+  BarcodeFormat.PDF_417,
 ];
+
+// Same formats, named for the browser's native BarcodeDetector.
+const NATIVE_FORMATS = [
+  "code_128",
+  "code_39",
+  "code_93",
+  "codabar",
+  "ean_13",
+  "ean_8",
+  "upc_a",
+  "upc_e",
+  "itf",
+  "qr_code",
+  "data_matrix",
+  "pdf417",
+];
+
+// Higher resolution so small, dense serial barcodes have enough pixels to decode.
+const CONSTRAINTS: MediaStreamConstraints = {
+  audio: false,
+  video: {
+    facingMode: { ideal: "environment" },
+    width: { ideal: 1920 },
+    height: { ideal: 1080 },
+  },
+};
+
+const SCAN_INTERVAL_MS = 150;
+
+type NativeBarcodeDetector = {
+  detect: (source: HTMLVideoElement) => Promise<{ rawValue: string }[]>;
+};
+type NativeBarcodeDetectorCtor = {
+  new (options: { formats: string[] }): NativeBarcodeDetector;
+  getSupportedFormats: () => Promise<string[]>;
+};
+
+// Native detector (Android Chrome) reads small 1D barcodes far better than ZXing's JS decoder.
+const getNativeDetector = async (): Promise<NativeBarcodeDetector | null> => {
+  const Ctor = (window as unknown as { BarcodeDetector?: NativeBarcodeDetectorCtor }).BarcodeDetector;
+  if (!Ctor) return null;
+  try {
+    const supported = await Ctor.getSupportedFormats();
+    const formats = NATIVE_FORMATS.filter((f) => supported.includes(f));
+    return formats.length ? new Ctor({ formats }) : null;
+  } catch {
+    return null;
+  }
+};
+
+// Phones often lock focus far away, which blurs a barcode held close; ask for continuous autofocus.
+const enableAutofocus = (stream: MediaStream | null) => {
+  const track = stream?.getVideoTracks()[0];
+  const caps = track?.getCapabilities?.() as { focusMode?: string[] } | undefined;
+  if (!track || !caps?.focusMode?.includes("continuous")) return;
+  track
+    .applyConstraints({ advanced: [{ focusMode: "continuous" } as MediaTrackConstraintSet] })
+    .catch(() => {});
+};
 
 const getErrorMessage = (err: unknown) => {
   const name = (err as DOMException)?.name;
@@ -59,50 +122,74 @@ const AWBScannerDialog = ({
   useEffect(() => {
     if (!open || !video) return;
 
-    let controls: IScannerControls | null = null;
     let cancelled = false;
+    let stop: (() => void) | null = null;
     setReady(false);
     setError(null);
 
-    const hints = new Map([[DecodeHintType.POSSIBLE_FORMATS, FORMATS]]);
-    const reader = new BrowserMultiFormatReader(hints, { delayBetweenScanAttempts: 150 });
+    // Returns true once a code is accepted, so callers stop scanning.
+    const accept = (raw: string | undefined) => {
+      const text = raw?.trim();
+      if (!text || cancelled) return false;
+      cancelled = true;
+      stop?.();
+      navigator.vibrate?.(80);
+      onScanRef.current(text);
+      return true;
+    };
 
-    reader
-      .decodeFromConstraints(
-        {
-          audio: false,
-          video: {
-            facingMode: { ideal: "environment" },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-        },
-        video,
-        (result, _err, ctrl) => {
-          if (!result || cancelled) return;
-          const text = result.getText().trim();
-          if (!text) return;
-          cancelled = true;
-          ctrl.stop();
-          navigator.vibrate?.(80);
-          onScanRef.current(text);
+    const startNative = async (detector: NativeBarcodeDetector) => {
+      const stream = await navigator.mediaDevices.getUserMedia(CONSTRAINTS);
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      stop = () => {
+        clearTimeout(timer);
+        stream.getTracks().forEach((t) => t.stop());
+        video.srcObject = null;
+      };
+      if (cancelled) return stop();
+      video.srcObject = stream;
+      enableAutofocus(stream);
+      await video.play();
+      if (cancelled) return;
+      setReady(true);
+
+      const tick = async () => {
+        if (cancelled) return;
+        try {
+          const codes = await detector.detect(video);
+          if (accept(codes.find((c) => c.rawValue?.trim())?.rawValue)) return;
+        } catch {
+          // frame not ready yet; try the next one
         }
-      )
-      .then((ctrl) => {
-        if (cancelled) {
-          ctrl.stop();
-          return;
-        }
-        controls = ctrl;
-        setReady(true);
-      })
+        timer = setTimeout(tick, SCAN_INTERVAL_MS);
+      };
+      tick();
+    };
+
+    const startZxing = async () => {
+      const hints = new Map<DecodeHintType, unknown>([
+        [DecodeHintType.POSSIBLE_FORMATS, FORMATS],
+        [DecodeHintType.TRY_HARDER, true],
+      ]);
+      const reader = new BrowserMultiFormatReader(hints, { delayBetweenScanAttempts: SCAN_INTERVAL_MS });
+      const controls: IScannerControls = await reader.decodeFromConstraints(CONSTRAINTS, video, (result) => {
+        if (result) accept(result.getText());
+      });
+      stop = () => controls.stop();
+      if (cancelled) return stop();
+      enableAutofocus(video.srcObject as MediaStream | null);
+      setReady(true);
+    };
+
+    getNativeDetector()
+      .then((detector) => (cancelled ? undefined : detector ? startNative(detector) : startZxing()))
       .catch((err) => {
         if (!cancelled) setError(getErrorMessage(err));
       });
 
     return () => {
       cancelled = true;
-      controls?.stop();
+      stop?.();
     };
   }, [open, video, attempt]);
 

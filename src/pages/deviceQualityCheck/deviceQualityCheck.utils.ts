@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const MAX_PHOTOS = 4;
 
 const MAX_DIMENSION = 1600;
@@ -38,3 +40,9 @@ export const compressPhoto = (file: File): Promise<File> =>
     };
     img.src = url;
   });
+
+export const formatServerDateTime = (value?: string | null) => {
+  if (!value) return "--";
+  const date = dayjs(value.replace(/(\.\d+)?Z$/i, ""));
+  return date.isValid() ? date.format("DD MMM YYYY, hh:mm A") : value;
+};

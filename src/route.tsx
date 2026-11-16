@@ -101,7 +101,6 @@ import BranchTransferLayout from "@/layouts/BranchTransferLayout";
 import ProcurementLayout from "@/layouts/ProcurementLayout";
 import CreatePO from "@/pages/procurement/CreatePO";
 import AdminApprovalPage from "@/pages/procurement/AdminApprovalPage";
-import DeviceDefectApprovalPage from "@/pages/deviceDefectApproval/DeviceDefectApprovalPage";
 import ManageBranchTable from "@/pages/branchTransfer/ManageBranchTable";
 import CreateBranchTransferPage from "@/pages/branchTransfer/CreateBranchTransferPage";
 import ManagePO from "./pages/procurement/ManagePO";
@@ -167,9 +166,13 @@ import SwipeSummaryReport from "./pages/swipe-billing/SwipeSummaryReport";
 import SwipeSkuConsumption from "./pages/swipe-billing/SwipeSkuConsumption";
 import SwipeDispatch from "./pages/swipe-billing/SwipeDispatch";
 import SwipePurchase from "./pages/swipe-billing/SwipePurchase";
+import FallBackUi from "./pages/errorBoundary/FallBackUi";
 
 
 export const router = createBrowserRouter([
+  {
+    errorElement: <FallBackUi />,
+    children: [
   {
     element: (
       <Protected authentication>
@@ -1376,10 +1379,6 @@ export const router = createBrowserRouter([
     element: <AdminApprovalPage />,
   },
   {
-    path: "/device/bpe/approval/*",
-    element: <DeviceDefectApprovalPage />,
-  },
-  {
     path: "*",
     element: <Custom404Page />,
   },
@@ -1455,5 +1454,7 @@ export const router = createBrowserRouter([
       </Protected>
     ),
     path: "/change-password",
+  },
+    ],
   },
 ]);

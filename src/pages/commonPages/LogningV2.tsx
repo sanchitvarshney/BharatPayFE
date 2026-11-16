@@ -161,7 +161,7 @@ const LogningV2: React.FC = () => {
       <div className="relative hidden lg:flex flex-col overflow-hidden bg-gradient-to-br from-cyan-700 via-cyan-800 to-slate-900 text-white">
         <div className="absolute inset-0 bg-[url(/loginv2bg2.svg)] bg-cover bg-center opacity-20" />
         <div className="relative z-[1] flex items-center gap-[10px] px-[48px] pt-[40px]">
-          <img src="/ms.png" alt="BharatPay" className="h-[36px] w-auto brightness-0 invert" />
+          <img src="/ms.png" alt="BharatPe" className="h-[36px] w-auto brightness-0 invert" />
         </div>
         <div className="relative z-[1] flex-1 flex items-center px-[48px]">
           <Swiper

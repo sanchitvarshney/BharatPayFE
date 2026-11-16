@@ -1,4 +1,9 @@
 import { ColDef, ExcelStyle } from "@ag-grid-community/core";
+import {
+  leftAlignedColumn,
+  rightAlignedCellStyle,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 
 export const TRC_FIXED_COLUMNS = ["empCode", "department", "total"];
 export const DEPARTMENT_FIXED_COLUMNS = ["department", "total"];
@@ -9,6 +14,7 @@ export const R26_GRID_CLASS = "relative ag-theme-quartz r26-grid h-[560px] lg:h-
 export const r26DefaultColDef: ColDef = {
   filter: false,
   suppressHeaderFilterButton: true,
+  suppressHeaderMenuButton: true,
   sortable: true,
   resizable: true,
   
@@ -69,3 +75,31 @@ export const rowIndexCol: ColDef = {
 
 export const totalRowClass = (params: { node?: { rowPinned?: string | null } }) =>
   params.node?.rowPinned === "bottom" ? "r26-total-row" : undefined;
+
+// Wrap long cell values and header labels instead of truncating them.
+export const r26WrapColDef: ColDef = {
+  ...r26DefaultColDef,
+  wrapText: true,
+  autoHeight: true,
+  wrapHeaderText: true,
+  autoHeaderHeight: true,
+};
+
+const wrapStyle = {
+  lineHeight: "20px",
+  paddingTop: 8,
+  paddingBottom: 8,
+  whiteSpace: "normal",
+  wordBreak: "break-word",
+} as const;
+
+// Column-level cellStyle replaces the default one, so alignment + wrap are merged here.
+export const r26WrapLeftCol = {
+  ...leftAlignedColumn,
+  cellStyle: { ...leftAlignedColumn.cellStyle, ...wrapStyle },
+};
+
+export const r26WrapRightCol = {
+  ...rightAlignedColumn,
+  cellStyle: { ...rightAlignedCellStyle, ...wrapStyle },
+};

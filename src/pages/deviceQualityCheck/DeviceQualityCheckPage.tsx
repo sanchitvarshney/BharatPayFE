@@ -10,7 +10,14 @@ import {
   Typography,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { AddAPhotoOutlined, AssessmentOutlined, Brush, Close, QrCodeScanner } from "@mui/icons-material";
+import {
+  AddAPhotoOutlined,
+  AssessmentOutlined,
+  Brush,
+  Close,
+  FileUploadOutlined,
+  QrCodeScanner,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { Icons } from "@/components/icons";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
@@ -55,6 +62,7 @@ const DeviceQualityCheckContent = () => {
   const [showErrors, setShowErrors] = useState(false);
   const [submittedSerial, setSubmittedSerial] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<Photo[]>([]);
   photosRef.current = photos;
 
@@ -90,7 +98,18 @@ const DeviceQualityCheckContent = () => {
       .finally(() => setProcessing((count) => count - 1));
   }, []);
 
-  const handleMarkupSave = (id: string, file: File) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    // reset so picking the same file again still fires onChange
+    e.target.value = "";
+    const images = files.filter((f) => f.type.startsWith("image/"));
+    if (images.length < files.length) showToast("Only image files are allowed", "error");
+    const slots = MAX_PHOTOS - photosRef.current.length;
+    if (images.length > slots) showToast(`Only ${MAX_PHOTOS} photos allowed — extra files skipped`, "error");
+    images.slice(0, slots).forEach(handleCapture);
+  };
+
+  const handleMarkupSave =(id: string, file: File) => {
     setPhotos((prev) =>
       prev.map((p) => {
         if (p.id !== id) return p;
@@ -140,7 +159,7 @@ const DeviceQualityCheckContent = () => {
 
   const errors = {
     serialNo: showErrors && !serialNo.trim() ? "Serial number is required" : "",
-    photos: showErrors && photos.length === 0 ? "Please take at least one photo" : "",
+    photos: showErrors && photos.length === 0 ? "Please capture or upload at least one photo" : "",
   };
 
   return (
@@ -152,7 +171,7 @@ const DeviceQualityCheckContent = () => {
           </span>
           <div className="flex flex-col">
             <h1 className="text-base font-semibold text-slate-800">Device Quality Check</h1>
-            <p className="text-xs text-slate-500">Scan device and capture defect photos</p>
+            <p className="text-xs text-slate-500">Scan device and capture or upload defect photos</p>
           </div>
           <Link
             to="/device-quality/reports"
@@ -265,18 +284,40 @@ const DeviceQualityCheckContent = () => {
                       </div>
                     ))}
                     {photos.length < MAX_PHOTOS && (
-                      <button
-                        type="button"
-                        disabled={!canAddPhoto}
-                        onClick={() => setCameraOpen(true)}
-                        className={`flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-slate-500 transition-colors disabled:opacity-50 ${
-                          errors.photos ? "border-red-400 bg-red-50" : "border-slate-300 bg-white active:bg-slate-100"
+                      <div
+                        className={`flex aspect-square flex-col overflow-hidden rounded-lg border-2 border-dashed text-slate-500 ${
+                          errors.photos ? "border-red-400 bg-red-50" : "border-slate-300 bg-white"
                         }`}
                       >
-                        <AddAPhotoOutlined sx={{ fontSize: 32 }} className="text-cyan-700" />
-                        <span className="text-sm font-medium">Take Photo</span>
-                      </button>
+                        <button
+                          type="button"
+                          disabled={!canAddPhoto}
+                          onClick={() => setCameraOpen(true)}
+                          className="flex flex-1 flex-col items-center justify-center gap-1 transition-colors active:bg-slate-100 disabled:opacity-50"
+                        >
+                          <AddAPhotoOutlined sx={{ fontSize: 28 }} className="text-cyan-700" />
+                          <span className="text-sm font-medium">Capture</span>
+                        </button>
+                        <div className="border-t border-dashed border-slate-300" />
+                        <button
+                          type="button"
+                          disabled={!canAddPhoto}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex flex-1 flex-col items-center justify-center gap-1 transition-colors active:bg-slate-100 disabled:opacity-50"
+                        >
+                          <FileUploadOutlined sx={{ fontSize: 28 }} className="text-cyan-700" />
+                          <span className="text-sm font-medium">Upload</span>
+                        </button>
+                      </div>
                     )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      hidden
+                      onChange={handleUpload}
+                    />
                   </div>
                   {errors.photos && <span className="text-[12px] text-red-500">{errors.photos}</span>}
                 </div>

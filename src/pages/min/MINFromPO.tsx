@@ -22,6 +22,7 @@ import { showToast } from "@/utils/toasterContext";
 import { IconButton } from "@mui/material";
 import { Icons } from "@/components/icons";
 import {
+  checkInvoiceId,
   fetchDataForMIN,
   shortClosePOItems,
   submitPOMIN,
@@ -103,6 +104,8 @@ const MINFromPO = () => {
   const [poNumber, setPoNumber] = useState("");
   const [vendorData, setVendorData] = useState<any>(null);
   const [invoiceNo, setInvoiceNo] = useState("");
+  const [checkingInvoice, setCheckingInvoice] = useState(false);
+  const [invoiceWarning, setInvoiceWarning] = useState("");
   const [invoiceDate, setInvoiceDate] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [files, setFiles] = useState<File[] | null>(null);
@@ -483,6 +486,32 @@ const MINFromPO = () => {
       return;
     }
     try {
+      setCheckingInvoice(true);
+      const res: any = await dispatch(checkInvoiceId(invoiceNo));
+      setCheckingInvoice(false);
+      // Rejected (4xx/5xx): axios interceptor already toasts the backend message
+      if (res.error || !res.payload?.data) return;
+      const body = res.payload.data;
+      // Assumption: the API returns success + data/exists when the invoice is already present
+      const exists = body.success && !!(body.exists ?? body.data);
+      if (exists) {
+        setInvoiceWarning(
+          typeof body.message === "string" && body.message
+            ? body.message
+            : `Invoice ${invoiceNo} already exists.`
+        );
+        return;
+      }
+      submitMIN();
+    } catch (error) {
+      setCheckingInvoice(false);
+      console.error("Error checking invoice:", error);
+      showToast("Failed to verify invoice number", "error");
+    }
+  };
+
+  const submitMIN = () => {
+    try {
       const submitData = {
         poid: poNumber,
         invoice: invoiceNo,
@@ -743,7 +772,7 @@ const MINFromPO = () => {
               color="primary"
               disableElevation
               fullWidth
-              loading={submitPOMINLoading}
+              loading={submitPOMINLoading || checkingInvoice}
               onClick={handleSubmit}
               disabled={!rowData.length}
             >
@@ -858,6 +887,36 @@ const MINFromPO = () => {
           >
             Short Close
           </LoadingButton>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={!!invoiceWarning}
+        onClose={() => setInvoiceWarning("")}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Invoice Already Exists</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" className="text-slate-600">
+            {invoiceWarning} Do you still want to submit?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button color="inherit" onClick={() => setInvoiceWarning("")}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="warning"
+            disableElevation
+            onClick={() => {
+              setInvoiceWarning("");
+              submitMIN();
+            }}
+          >
+            Submit Anyway
+          </Button>
         </DialogActions>
       </Dialog>
 

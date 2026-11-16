@@ -25,7 +25,7 @@ import {
 } from "@/features/deviceDefect/deviceDefectSlice";
 import { getStatusChip } from "@/pages/procurement/adminApproval/helpers";
 import FqcImagePreviewModal from "@/pages/queries/fqcDeviceImage/FqcImagePreviewModal";
-import { formatServerDateTime } from "@/pages/deviceDefectApproval/deviceDefectApproval.utils";
+import { formatServerDateTime } from "./deviceQualityCheck.utils";
 import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const { RangePicker } = DatePicker;
@@ -175,7 +175,6 @@ const DeviceQualityReport: React.FC = () => {
         filter: true,
         flex: 1,
         minWidth: 180,
-
         valueFormatter: (params: any) => formatServerDateTime(params.value),
       },
       {
