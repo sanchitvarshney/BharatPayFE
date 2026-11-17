@@ -14,6 +14,7 @@ import {
   setSwipeDateRange,
   setSwipeIsData,
 } from "@/features/swipeBilling/swipeBillingSlice";
+import { useSocketContext } from "@/components/context/SocketContext";
 import useSwipeDateRange from "./useSwipeDateRange";
 
 const { RangePicker } = DatePicker;
@@ -30,6 +31,21 @@ const SwipeBillingSummary = () => {
   );
   const [dateError, setDateError] = useState("");
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const { isConnected, emitDownloadSwipeBillingReport } = useSocketContext();
+
+  const handleDownload = () => {
+    if (!range) {
+      setDateError("Date range is required");
+      return;
+    }
+    if (!isConnected) {
+      showToast("Socket not connected. Please try again.", "error");
+      return;
+    }
+    setDateError("");
+    emitDownloadSwipeBillingReport({ fromDate: range.from, toDate: range.to });
+    showToast("Download started", "success");
+  };
 
   const handleSearch = async () => {
     if (!range) {
@@ -128,6 +144,15 @@ const SwipeBillingSummary = () => {
               Search
             </LoadingButton>
           </div>
+          <LoadingButton
+            type="button"
+            variant="outlined"
+            fullWidth
+            disabled={!range}
+            onClick={handleDownload}
+          >
+            Download Full Report
+          </LoadingButton>
         </div>
       </div>
 
