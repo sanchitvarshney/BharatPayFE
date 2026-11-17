@@ -263,7 +263,7 @@ const MaterialManagement = () => {
       dispatch(submitMaterialTransfer(submitData as any)).then((result) => {
         if(result.payload.success){
           showToast(result.payload.message || "Material transfer request submitted successfully", "success");
-        setRowData([]);
+        // setRowData([]);
         setFromLocation(null);
         setToLocation(null);
         setFromCostCenter(null);
