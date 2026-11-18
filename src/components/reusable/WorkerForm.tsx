@@ -442,11 +442,11 @@ const WorkerForm: React.FC<Props> = ({
         <h3 className="text-lg font-semibold mb-3">Selected Employees</h3>
         <Box
           sx={{
-            p: 2,
-            border: "1px solid #e0e0e0",
+            p: 0,
+            // border: "1px solid #e0e0e0",
             borderRadius: 1,
             backgroundColor: "#fff",
-            height: "calc(100vh - 330px)",
+            height: "calc(100vh - 312px)",
             display: "flex",
             flexDirection: "column",
           }}
