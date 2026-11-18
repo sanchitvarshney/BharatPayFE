@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 
 import { DatePicker, TimePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
@@ -128,9 +128,16 @@ const WorkerForm: React.FC<Props> = ({
     }
   }, [area]);
 
-  const selectedEmployees = empList.filter((emp: any) =>
-    selectedEmployeeIds.includes(emp.id),
+
+  const selectedEmployees = useMemo(
+    () =>
+      empList.filter((emp: any) => selectedEmployeeIds.includes(emp.id)),
+    [empList, selectedEmployeeIds],
   );
+
+
+  const onFormChangeRef = useRef(onFormChange);
+  onFormChangeRef.current = onFormChange;
 
   const handleCheckboxChange = (employeeId: string) => {
     setSelectedEmployeeIds((prev) => {
@@ -143,25 +150,15 @@ const WorkerForm: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (onFormChange) {
-      onFormChange({
-        area,
-        department,
-        employees: selectedEmployees,
-        date,
-        startTime,
-        endTime,
-      });
-    }
-  }, [
-    area,
-    department,
-    selectedEmployees,
-    date,
-    startTime,
-    endTime,
-    onFormChange,
-  ]);
+    onFormChangeRef.current?.({
+      area,
+      department,
+      employees: selectedEmployees,
+      date,
+      startTime,
+      endTime,
+    });
+  }, [area, department, selectedEmployees, date, startTime, endTime]);
 
   const handleAreaChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
