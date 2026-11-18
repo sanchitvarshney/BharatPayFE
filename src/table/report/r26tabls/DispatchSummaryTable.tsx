@@ -35,10 +35,14 @@ type DispatchCategory = {
 type Period = "range" | "month";
 const PERIODS: Period[] = ["range", "month"];
 const METRICS = [
-  { suffix: "total", label: "Total", modelKey: "total_qty", catKey: "total" },
   { suffix: "dispatched", label: "Dispatched", modelKey: "dispatched_qty", catKey: "dispatched" },
   { suffix: "pending", label: "Pending", modelKey: "pending_qty", catKey: "pending" },
+  { suffix: "total", label: "Total", modelKey: "total_qty", catKey: "total" },
 ] as const;
+
+const setRowTotal = (row: Record<string, any>, period: Period) => {
+  row[`${period}_total`] = (row[`${period}_dispatched`] || 0) + (row[`${period}_pending`] || 0);
+};
 
 const CATEGORIES = [
   { key: "speaker", label: "Soundbox" },
@@ -52,8 +56,7 @@ const emptyMetrics = () =>
     PERIODS.flatMap((p) => METRICS.map((m) => [`${p}_${m.suffix}`, 0])),
   ) as Record<string, number>;
 
-// Merge selected-range and current-month models by SKU, add a subtotal row per
-// category, and return the grand total for the pinned bottom row.
+
 export const buildDispatchRows = (report: any) => {
   const rows: any[] = [];
   const grand: Record<string, any> = { category: "Grand Total", ...emptyMetrics() };
@@ -71,8 +74,9 @@ export const buildDispatchRows = (report: any) => {
           bySku.get(model.sku) ??
           { category: label, sku: model.sku, model_name: model.model_name, ...emptyMetrics() };
         METRICS.forEach((m) => {
-          row[`${period}_${m.suffix}`] = Number(model[m.modelKey]) || 0;
+          if (m.suffix !== "total") row[`${period}_${m.suffix}`] = Number(model[m.modelKey]) || 0;
         });
+        setRowTotal(row, period);
         bySku.set(model.sku, row);
       });
     });
@@ -84,13 +88,15 @@ export const buildDispatchRows = (report: any) => {
       isSubtotal: true,
       ...emptyMetrics(),
     };
-    PERIODS.forEach((period) =>
+    PERIODS.forEach((period) => {
       METRICS.forEach((m) => {
-        const field = `${period}_${m.suffix}`;
-        subtotal[field] = Number(sources[period]?.[m.catKey]) || 0;
-        grand[field] += subtotal[field];
-      }),
-    );
+        if (m.suffix !== "total") subtotal[`${period}_${m.suffix}`] = Number(sources[period]?.[m.catKey]) || 0;
+      });
+      setRowTotal(subtotal, period);
+      METRICS.forEach((m) => {
+        grand[`${period}_${m.suffix}`] += subtotal[`${period}_${m.suffix}`];
+      });
+    });
 
     rows.push(...bySku.values(), subtotal);
   });
