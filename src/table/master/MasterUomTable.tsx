@@ -20,7 +20,7 @@ const columnDefs: ColDef[] = [
     headerName: "#",
     field: "ID",
     sortable: true,
-    filter: true,
+    filter: false,
     flex: 1,
   },
   {
