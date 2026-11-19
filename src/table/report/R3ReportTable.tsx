@@ -5,6 +5,7 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -15,7 +16,7 @@ type Props = {
 // Dummy data
 
 const columnDefs: ColDef[] = [
-  { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
+  { headerName: "#", field: "id", sortable: true, filter: false, width: 100, valueGetter: "node.rowIndex+1",  },
   { headerName: "IMEI", field: "imeiNo", sortable: true, filter: true,width: 150},
   { headerName: "Serial No", field: "serialNo", sortable: true, filter: true,width: 150},
   { 
@@ -56,7 +57,7 @@ const columnDefs: ColDef[] = [
   },
   { headerName: "IR (Internal Resistance)", field: "ir", sortable: true, filter: true, width: 250},
   { headerName: "Voltage", field: "volt", sortable: true, filter: true, width: 150},
-  { headerName: "New IR (Internal Resistance)", field: "newIR", sortable: true, filter: true, width: 150},
+  { headerName: "New IR (Internal Resistance)", field: "newIR", sortable: true, filter: true, width: 250},
   { headerName: "New Voltage", field: "newVolt", sortable: true, filter: true, width: 150},
   { headerName: "Battary ID", field: "batteryId", sortable: true, filter: true, width: 150 },
   { headerName: "Status", field: "status", sortable: true, filter: true, width: 150  },
@@ -72,6 +73,14 @@ const R3ReportTable: React.FC<Props> = ({ gridRef, handlePageChange, handlePageS
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      sortable: true,
+      ...leftAlignedColumn,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      wrapText: true,
+      autoHeight: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
     };
   }, []);
 

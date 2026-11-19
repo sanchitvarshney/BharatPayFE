@@ -4,13 +4,14 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
 };
 
 const columnDefs: ColDef[] = [
-  { headerName: "#", field: "txnID", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
+  { headerName: "#", field: "txnID", sortable: true, filter: false, width: 80, valueGetter: "node.rowIndex+1" },
   { headerName: "SIM Number", field: "simNo", sortable: true, filter: true },
   { headerName: "Insert Date", field: "insertDt", sortable: true, filter: true },
   { headerName: "Inserted By", field: "insertBy", sortable: true, filter: true },
@@ -27,6 +28,9 @@ const Q5StatementTable: React.FC<Props> = ({ gridRef }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

@@ -5,6 +5,8 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -19,6 +21,7 @@ import {
   IconButton,
   CircularProgress,
   Stack,
+  Button as MuiButton,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Icons } from "@/components/icons";
@@ -30,6 +33,7 @@ import {
   rejectTransfer,
 } from "@/features/Dispatch/DispatchSlice";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 // Generate dummy data according to pagination needs
 const ManageBranchTable = () => {
@@ -60,8 +64,9 @@ const ManageBranchTable = () => {
                     });
                   }}
                   color="primary"
+                  size="small"
                 >
-                  <LocalPrintshopIcon />
+                  <LocalPrintshopIcon  fontSize="small" />
                 </IconButton>
               </MuiTooltip>
             )}
@@ -75,9 +80,9 @@ const ManageBranchTable = () => {
       headerName: "#",
       field: "serialNo",
       sortable: true,
-      filter: true,
+      filter: false,
       valueGetter: "node.rowIndex+1",
-      width: 100,
+      width: 70,
     },
     {
       headerName: "Challan ID",
@@ -99,6 +104,7 @@ const ManageBranchTable = () => {
       sortable: true,
       filter: true,
       width: 200,
+      ...rightAlignedColumn,
     },
     {
       headerName: "From Branch",
@@ -150,7 +156,9 @@ const ManageBranchTable = () => {
       cellRenderer: (params: any) =>
         params.data.status === "PEN" ? (
           <Stack direction="row" spacing={1}>
-            <IconButton
+            <MuiButton
+              variant="text"
+              startIcon={<CheckCircleOutlineIcon />}
               onClick={() => {
                 setSelectedRow(params.data);
                 // Map IMEI and serial arrays to objects for the table
@@ -168,8 +176,10 @@ const ManageBranchTable = () => {
               size="small"
             >
               Approve
-            </IconButton>
-            <IconButton
+            </MuiButton>
+            <MuiButton
+              variant="text"
+              startIcon={<CancelOutlinedIcon />}
               onClick={() => {
                 setSelectedRow(params.data);
                 setRejectModalOpen(true);
@@ -178,7 +188,7 @@ const ManageBranchTable = () => {
               size="small"
             >
               Reject
-            </IconButton>
+            </MuiButton>
           </Stack>
         ) : null,
       width: 220,
@@ -204,6 +214,11 @@ const ManageBranchTable = () => {
     return {
       filter: true,
       sortable: true,
+      resizable: true,
+      suppressHeaderMenuButton: true,
+      wrapText: true,
+      autoHeight: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

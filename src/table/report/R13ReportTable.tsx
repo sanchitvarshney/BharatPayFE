@@ -5,6 +5,7 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -14,7 +15,7 @@ type Props = {
 };
 
 const columnDefs: ColDef[] = [
-  { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
+  { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 80, filter: false, sortable: true },
   { headerName: "IMEI", field: "imei", sortable: true, filter: true, width: 150 },
   { headerName: "Serial", field: "serial", sortable: true, filter: true },
   { headerName: "Model", field: "model", sortable: true, filter: true },
@@ -37,6 +38,11 @@ const R13ReportTable: React.FC<Props> = ({ gridRef,handlePageChange, handlePageS
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      ...leftAlignedColumn,
+      sortable: true,
+      wrapText: true,
+      wrapHeaderText: true,
+      suppressHeaderMenuButton: true,
     };
   }, []);
 

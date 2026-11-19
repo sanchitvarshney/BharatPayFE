@@ -28,6 +28,10 @@ import { VisibilityOutlined } from "@mui/icons-material";
 import MuiTooltip from "@/components/reusable/MuiTooltip";
 import axiosInstance from "@/api/axiosInstance";
 import { showToast } from "@/utils/toasterContext";
+import {
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact>;
@@ -174,7 +178,8 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
     if (typeof data === "string") return [data];
     if (Array.isArray(data)) return data.flatMap(extractUrls);
     if (typeof data === "object") {
-      const url = data.url || data.file_url || data.document || data.path || data.link;
+      const url =
+        data.url || data.file_url || data.document || data.path || data.link;
       if (url) return [url];
       if (data.data) return extractUrls(data.data);
     }
@@ -190,7 +195,7 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
     try {
       const response = await axiosInstance.get(
         `/scan/awb/document/${encodeURIComponent(txnNo)}`,
-        { responseType: "blob" }
+        { responseType: "blob" },
       );
       const contentType = String(response.headers["content-type"] || "");
 
@@ -211,7 +216,9 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
         return;
       }
 
-      const blob = new Blob([response.data], { type: contentType || "application/pdf" });
+      const blob = new Blob([response.data], {
+        type: contentType || "application/pdf",
+      });
       window.open(window.URL.createObjectURL(blob), "_blank");
     } catch (error: any) {
       let message = "Failed to fetch document";
@@ -232,82 +239,75 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       headerName: "#",
       field: "id",
       valueGetter: "node.rowIndex+1",
-      maxWidth: 100,
-      headerClass: "font-semibold",
+      maxWidth: 80,
+      filter: false,
     },
     {
       headerName: "AWB No.",
       field: "awb_nos",
       minWidth: 150,
-      headerClass: "font-semibold",
     },
     {
       headerName: "Lot QTY",
       field: "doc_qty",
-      minWidth: 100,
-      headerClass: "font-semibold",
+      maxWidth: 130,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Inward Quantity",
       field: "total_inward",
-      minWidth: 100,
-      headerClass: "font-semibold",
+      maxWidth: 150,
+      ...rightAlignedColumn,
     },
     {
       headerName: "AWB Count",
       field: "awb_count",
-      minWidth: 100,
-      headerClass: "font-semibold",
+      maxWidth: 130,
+      ...rightAlignedColumn,
     },
 
     {
       headerName: "Pending QTY",
       field: "penQty",
       minWidth: 100,
-      headerClass: "font-semibold",
+      ...rightAlignedColumn,
     },
-       {
+    {
       headerName: "Scanned QTY",
       field: "total_scanned",
       minWidth: 100,
-      headerClass: "font-semibold",
+      ...rightAlignedColumn,
     },
 
     {
       headerName: "MIN",
       field: "min",
       minWidth: 100,
-      headerClass: "font-semibold",
     },
     {
       headerName: "Device Type",
       field: "deviceType",
       minWidth: 100,
-      headerClass: "font-semibold",
     },
-        {
+    {
       headerName: "Document No.",
       field: "doc_no",
       minWidth: 100,
-      headerClass: "font-semibold",
     },
     {
       headerName: "Partner",
       field: "partner",
       minWidth: 100,
-      headerClass: "font-semibold",
     },
     {
       headerName: "Insert Date",
       field: "insert_dt",
       minWidth: 100,
-      headerClass: "font-semibold",
     },
     {
       headerName: "Documents",
       field: "txn_no",
       minWidth: 110,
-      headerClass: "font-semibold",
       filter: false,
       sortable: false,
       cellRenderer: (params: any) => {
@@ -317,7 +317,11 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
           <CircularProgress size={20} />
         ) : (
           <MuiTooltip title="View Document" placement="left">
-            <IconButton size="small" color="primary" onClick={() => viewDocument(txnNo, rowId)}>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() => viewDocument(txnNo, rowId)}
+            >
               <VisibilityOutlined fontSize="small" />
             </IconButton>
           </MuiTooltip>
@@ -331,7 +335,12 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       sortable: true,
       resizable: true,
-      cellClass: "text-sm py-2",
+      floatingFilter: false,
+      autoHeight: true,
+      wrapText: true,
+      wrapHeaderText: true,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
     };
   }, []);
 
@@ -361,7 +370,12 @@ const R20ReportTable: React.FC<Props> = ({ gridRef }) => {
         details={swipeItemDetails}
         loading={swipeItemDetailsLoading}
       />
-      <Dialog open={documents.length > 0} onClose={() => setDocuments([])} maxWidth="sm" fullWidth>
+      <Dialog
+        open={documents.length > 0}
+        onClose={() => setDocuments([])}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Documents</DialogTitle>
         <DialogContent>
           <List>

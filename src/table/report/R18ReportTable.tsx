@@ -5,6 +5,7 @@ import { ColDef } from "@ag-grid-community/core";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 interface R18ReportTableProps {
   onPageChange: (page: number) => void;
@@ -28,7 +29,8 @@ const R18ReportTable: React.FC<R18ReportTableProps> = ({
         headerName: "#",
         field: "id",
         valueGetter: "node.rowIndex+1",
-        maxWidth: 100,
+        maxWidth: 80,
+        filter: false,
       },
       {
         field: "serial",
@@ -72,6 +74,13 @@ const R18ReportTable: React.FC<R18ReportTableProps> = ({
       sortable: true,
       filter: true,
       resizable: true,
+      floatingFilter: false,
+      autoHeight: true,
+      wrapText: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
     }),
     []
   );

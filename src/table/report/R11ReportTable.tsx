@@ -5,6 +5,7 @@ import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -17,8 +18,9 @@ const columnDefs: ColDef[] = [
   {
     headerName: "#",
     field: "id",
+    filter: false,
     valueGetter: "node.rowIndex+1",
-    maxWidth: 100,
+    maxWidth: 80,
   },
   {
     headerName: "IMEI",
@@ -73,6 +75,14 @@ const R11ReportTable: React.FC<Props> = ({
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      sortable: true,
+      resizable: true,
+      suppressHeaderMenuButton: true,
+      wrapHeaderText: true,
+      floatingFilter: false,
+      autoHeight: true,
+      wrapText: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

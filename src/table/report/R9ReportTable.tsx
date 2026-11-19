@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { formatNumber } from "@/utils/numberFormatUtils";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
@@ -35,7 +36,9 @@ const R9ReportTable: React.FC<Props> = ({
       headerName: "#",
       field: "id",
       valueGetter: "node.rowIndex+1",
-      maxWidth: 100,
+      maxWidth: 80,
+      filter: false,
+      sortable: true,
     },
     { headerName: "Vendor Code", field: "vendorCode" },
     { headerName: "Vendor Name", field: "vendorName", minWidth: 300 },
@@ -47,6 +50,9 @@ const R9ReportTable: React.FC<Props> = ({
     {
       headerName: "Quantity",
       field: "quantity",
+      ...rightAlignedColumn,
+      maxWidth: 130,
+      minWidth: 130,
       valueFormatter: (params: any) => {
         return formatNumber(params.value);
       },
@@ -55,6 +61,8 @@ const R9ReportTable: React.FC<Props> = ({
     {
       headerName: "Total Debit",
       field: "totalDebit",
+      ...rightAlignedColumn,
+      maxWidth: 130,
       valueFormatter: (params: any) => {
         return formatNumber(params.value);
       },
@@ -63,6 +71,7 @@ const R9ReportTable: React.FC<Props> = ({
       headerName: "Actions",
       field: "issues",
       pinned: "right",
+      filter: false,
       cellRenderer: (params: any) => {
         return (
           <div className="flex items-center h-full gap-2">
@@ -116,6 +125,13 @@ const R9ReportTable: React.FC<Props> = ({
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      sortable: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
+      autoHeight: true,
+      wrapText: true,
+      
     };
   }, []);
 

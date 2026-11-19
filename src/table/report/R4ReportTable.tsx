@@ -8,6 +8,7 @@ import { Button } from "@mui/material";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import { r4ReportDetail } from "@/features/report/report/reportSlice";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -34,8 +35,8 @@ const R4ReportTable: React.FC<Props> = ({
       headerName: "#",
       field: "id",
       sortable: true,
-      filter: true,
-      width: 100,
+      filter: false,
+      width: 80,
       valueGetter: "node.rowIndex+1",
     },
     {
@@ -102,7 +103,7 @@ const R4ReportTable: React.FC<Props> = ({
       hide: true,
     },
     {
-      headerName: "",
+      headerName: "Action",
       pinned: "right",
       sortable: false,
       filter: false,
@@ -135,6 +136,14 @@ const R4ReportTable: React.FC<Props> = ({
     return {
       filter: true,
       sortable: true,
+      ...leftAlignedColumn,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      wrapText: true,
+      autoHeight: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
+      
     };
   }, []);
 

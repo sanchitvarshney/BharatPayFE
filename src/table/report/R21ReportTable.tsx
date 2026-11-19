@@ -21,6 +21,7 @@ import {
 import InventoryIcon from "@mui/icons-material/Inventory";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact>;
@@ -164,6 +165,7 @@ const R21ReportTable: React.FC<Props> = ({ gridRef }) => {
     {
       headerName: "#",
       field: "id",
+      filter: false,
       valueGetter: "node.rowIndex+1",
       maxWidth: 80,
       headerClass: "font-semibold",
@@ -218,7 +220,13 @@ const R21ReportTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       sortable: true,
       resizable: true,
-      cellClass: "text-sm py-2",
+      floatingFilter: false,
+      autoHeight: true,
+      wrapText: true,
+      wrapHeaderText: true,
+      suppressHeaderMenuButton: true,
+      autoHeaderHeight: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

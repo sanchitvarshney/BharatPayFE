@@ -33,45 +33,46 @@ const R17ReportTable: React.FC<R17ReportTableProps> = ({
       {
         headerName: "#",
         field: "id",
+        filter: false,
         valueGetter: "node.rowIndex+1",
-        maxWidth: 100,
+        maxWidth: 80,
       },
       {
         field: "productName",
         headerName: "Product Name",
         flex: 1,
-        minWidth: 150,
+        minWidth: 250,
       },
       {
         field: "productCode",
         headerName: "Product Code",
         flex: 1,
-        minWidth: 120,
+        minWidth: 220,
       },
       {
         field: "serial",
         headerName: "Serial Number",
         flex: 1,
-        minWidth: 150,
+        minWidth: 180,
       },
       {
         field: "imei_no1",
         headerName: "IMEI 1",
         flex: 1,
-        minWidth: 120,
+        minWidth: 200,
       },
       {
         field: "imei_no2",
         headerName: "IMEI 2",
         flex: 1,
-        minWidth: 120,
+        minWidth: 200,
       },
 
       {
         field: "date",
         headerName: "Date",
         flex: 1,
-        minWidth: 120,
+        minWidth: 220,
       },
       {
         field: "remark",
@@ -106,6 +107,11 @@ const R17ReportTable: React.FC<R17ReportTableProps> = ({
       sortable: true,
       filter: true,
       resizable: true,
+      floatingFilter: false,
+      autoHeight: true,
+      wrapText: true,
+      wrapHeaderText: true,
+      suppressHeaderMenuButton: true,
     }),
     []
   );
