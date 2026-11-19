@@ -70,26 +70,59 @@ export function appendSubPageOptions(
   parentPathPrefix: string,
   subPages: SubPage[],
 ): ModuleSearchOption[] {
-  const parent = options.find((o) => o.value?.startsWith(parentPathPrefix));
-  if (!parent) return options;
+  const prefixNoSlash = parentPathPrefix.replace(/\/+$/, "");
+
+  const parent = options.find(
+    (o) => o.value === prefixNoSlash || o.value?.startsWith(parentPathPrefix),
+  );
+  const parentBreadcrumb = parent?.breadcrumb || "Reports";
+  const parentKey = parent?.key || `static${prefixNoSlash.replace(/\//g, "-")}`;
 
   const subOptions: ModuleSearchOption[] = subPages
     .filter((page) => !options.some((o) => o.value === page.path))
     .map((page) => {
       const label = `${page.name} - ${page.title}`;
-      const breadcrumb = `${parent.breadcrumb} > ${page.name}`;
+      const breadcrumb = `${parentBreadcrumb} > ${page.name}`;
       return {
-        key: `${parent.key}-${page.name}`,
+        key: `${parentKey}-${page.name}`,
         value: page.path,
         label,
         breadcrumb,
-        searchIndex: parent.searchIndex,
+        searchIndex: parent?.searchIndex ?? "",
         searchLabel: normalizeSearchToken(label),
         searchBreadcrumb: normalizeSearchToken(breadcrumb),
       };
     });
 
   return [...options, ...subOptions];
+}
+
+type StaticPage = { path: string; label: string; breadcrumb?: string; aliases?: string[] };
+
+/** Adds frontend-only pages (not returned by the menu API) to the search options. */
+export function appendStaticOptions(
+  options: ModuleSearchOption[],
+  pages: StaticPage[],
+): ModuleSearchOption[] {
+  const extra: ModuleSearchOption[] = pages
+    .filter((page) => !options.some((o) => o.value === page.path))
+    .map((page) => {
+      const breadcrumb = page.breadcrumb ?? page.label;
+      const aliases = page.aliases ?? [];
+      return {
+        key: `static-${page.path}`,
+        value: page.path,
+        label: page.label,
+        breadcrumb,
+        aliases,
+        searchIndex: "",
+        searchLabel: normalizeSearchToken(page.label),
+        searchBreadcrumb: normalizeSearchToken(breadcrumb),
+        searchAliases: aliases.map(normalizeSearchToken),
+      };
+    });
+
+  return [...options, ...extra];
 }
 
 export function filterModuleOptions(options: ModuleSearchOption[], queryRaw: string) {
