@@ -1,5 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack } from "@mui/material";
+import { Box, Button, Chip, FormControl, InputLabel, MenuItem, Select, Stack } from "@mui/material";
+
+const STATUS_CHIP: Record<string, { label: string; text: string; bg: string; border: string }> = {
+  DONE: { label: "Done", text: "#166534", bg: "#dcfce7", border: "#86efac" },
+  QC_PENDING: { label: "QC Pending", text: "#9a3412", bg: "#ffedd5", border: "#fdba74" },
+  REMARK_PENDING: { label: "Remark Pending", text: "#1e40af", bg: "#dbeafe", border: "#93c5fd" },
+  QC_DATABASE_NOT_FOUND: { label: "QC Database Not Found", text: "#6b21a8", bg: "#f3e8ff", border: "#d8b4fe" },
+  HOLD: { label: "Hold", text: "#991b1b", bg: "#fee2e2", border: "#fca5a5" },
+};
+
+const DEFAULT_STATUS_CHIP = { text: "#374151", bg: "#f3f4f6", border: "#d1d5db" };
 import { AgGridReact } from "@ag-grid-community/react";
 import { ColDef } from "@ag-grid-community/core";
 import * as XLSX from "xlsx";
@@ -12,6 +22,7 @@ import {
   CrmSerialRow,
   fetchCrmSerials,
 } from "@/features/crmRemark/crmRemarkSlice";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 
 const CRMRemarkReport: React.FC = () => {
@@ -65,7 +76,8 @@ const CRMRemarkReport: React.FC = () => {
       headerName: "#",
       field: "id",
       valueGetter: "node.rowIndex + 1",
-      maxWidth: 100,
+      maxWidth: 70,
+      filter: false,
       headerClass: "font-semibold",
     },
     {
@@ -96,7 +108,28 @@ const CRMRemarkReport: React.FC = () => {
       headerName: "Status",
       field: "status",
       minWidth: 200,
+      flex: 1,
       headerClass: "font-semibold",
+      cellRenderer: (params: any) => {
+        const value = String(params.value ?? "").trim().toUpperCase();
+        if (!value) return null;
+        const config = STATUS_CHIP[value];
+        const style = config ?? DEFAULT_STATUS_CHIP;
+        return (
+          <Chip
+            size="small"
+            label={config?.label ?? params.value}
+            sx={{
+              color: style.text,
+              backgroundColor: style.bg,
+              border: `1px solid ${style.border}`,
+              fontWeight: 600,
+              fontSize: "0.75rem",
+              borderRadius: "6px",
+            }}
+          />
+        );
+      },
     },
   ];
 
@@ -105,7 +138,9 @@ const CRMRemarkReport: React.FC = () => {
       filter: true,
       sortable: true,
       resizable: true,
-      cellClass: "text-sm py-2",
+      ...leftAlignedColumn,
+      suppressHeaderMenuButton: true,
+
     }),
     [],
   );
