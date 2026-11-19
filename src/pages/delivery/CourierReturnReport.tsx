@@ -15,6 +15,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { DELIVERY_PARTNERS } from "@/constants/deliveryPartners";
 import { getCourierReturnReport } from "@/features/delivery/deliverySlice";
 import type { CourierReturnRow } from "@/features/delivery/deliveryType";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const { RangePicker } = DatePicker;
 
@@ -75,7 +76,8 @@ const CourierReturnReport: React.FC = () => {
       {
         headerName: "#",
         field: "id",
-        width: 100,
+        width: 80,
+        filter: false,
         valueGetter: "node.rowIndex+1",
       },
       { headerName: "AWB", field: "awb", sortable: true, filter: true, flex: 1 },
@@ -102,6 +104,8 @@ const CourierReturnReport: React.FC = () => {
         headerName: "Action",
         field: "action",
         flex: 1,
+        filter: false,
+        autoHeight: true,
         cellRenderer: (params: any) => (
           <div className="flex gap-[10px] items-center">
             <Button
@@ -209,6 +213,12 @@ const CourierReturnReport: React.FC = () => {
           suppressCellFocus={true}
           rowData={courierReturnList ?? []}
           columnDefs={columnDefs}
+          defaultColDef={{
+            filter: true,
+            floatingFilter: false,
+            suppressHeaderMenuButton: true,
+            ...leftAlignedColumn,
+          }}
           pagination={true}
           paginationPageSize={100}
           enableCellTextSelection

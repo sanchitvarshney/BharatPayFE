@@ -46,7 +46,7 @@ const FQCDeviceImagePage: React.FC = () => {
   } = useFqcDeviceImage();
 
   return (
-    <div className="relative flex bg-white">
+    <div className="relative flex  bg-white">
       <FqcDeviceImageSearchForm
         deviceType={deviceType}
         deviceTypeReport={deviceTypeReport}
