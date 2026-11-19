@@ -36,6 +36,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const deviceTypeOptions: { label: string; value: ComponentPercentageDeviceType }[] = [
   { label: "Swipe Machine", value: "swipeMachine" },
@@ -119,15 +120,14 @@ const MasterComponentPercentage: React.FC = () => {
         headerName: "#",
         maxWidth: 70,
         valueGetter: (params) => (params.node?.rowIndex ?? 0) + 1,
-        cellClass: "text-slate-400",
+        ...leftAlignedColumn,
       },
       {
         headerName: "Part Code",
         field: "component",
         flex: 1,
-        minWidth: 130,
-        maxWidth: 170,
-        cellClass: "font-medium",
+      
+        ...leftAlignedColumn,
       },
       {
         headerName: "Component",
@@ -136,7 +136,7 @@ const MasterComponentPercentage: React.FC = () => {
         minWidth: 220,
         wrapText: true,
         autoHeight: true,
-        cellStyle: { display: "flex", alignItems: "center", lineHeight: "20px", paddingTop: 8, paddingBottom: 8 },
+        ...leftAlignedColumn,
       },
       {
         headerName: "Percentage",
@@ -146,6 +146,7 @@ const MasterComponentPercentage: React.FC = () => {
         cellEditor: "agNumberCellEditor",
         cellEditorParams: { min: 0, max: 100, precision: 2 },
         cellRenderer: PercentageCellRenderer,
+        ...leftAlignedColumn,
         width: 180,
         cellClassRules: {
           "percentage-cell-changed": (params: CellClassParams<MasterComponentPercentageItem>) =>
@@ -161,7 +162,6 @@ const MasterComponentPercentage: React.FC = () => {
       filter: false,
       sortable: false,
       suppressHeaderMenuButton: true,
-      cellStyle: { display: "flex", alignItems: "center" },
     };
   }, []);
 

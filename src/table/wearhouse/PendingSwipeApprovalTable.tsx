@@ -12,6 +12,7 @@ import CachedIcon from "@mui/icons-material/Cached";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import CloseIcon from "@mui/icons-material/Close";
 import PrintIcon from '@mui/icons-material/Print';
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   approve: boolean;
@@ -36,8 +37,9 @@ const PendingSwipeApprovalTable: React.FC<Props> = ({ setApprove, setAlert, setR
   const columnDefs: ColDef[] = [
     {
       headerName: "Action",
-      maxWidth: 150,
+      maxWidth: 90,
       field: "action",
+      filter: false,
       cellRenderer: (params: any) => (
         <>
           <div className="flex items-center h-full">
@@ -46,17 +48,18 @@ const PendingSwipeApprovalTable: React.FC<Props> = ({ setApprove, setAlert, setR
                 handleClick(e);
                 setParams(params);
               }}
+              size="small"
             >
-              <MoreVertIcon />
+              <MoreVertIcon fontSize="small" />
             </IconButton>
           </div>
         </>
       ),
     },
-    { headerName: "#", field: "id", sortable: true, filter: true, maxWidth: 100, valueGetter: (params: any) => params.node.rowIndex + 1 },
+    { headerName: "#", field: "id", sortable: true, filter: false, maxWidth: 80, valueGetter: (params: any) => params.node.rowIndex + 1 },
     {headerName: "Product SKU", field: "productSku", sortable: true, filter: true, flex: 1 },
     {headerName: "Product Name", field: "productName", sortable: true, filter: true, flex: 1 },
-    {headerName: "Qty", field: "qty", sortable: true, filter: true, flex: 1 },
+    {headerName: "Qty", field: "qty", sortable: true, filter: true, flex: 1, ...rightAlignedColumn },
     { headerName: "Put Location", field: "putLocation", sortable: true, filter: true, flex: 1 },
     { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true, flex: 1 },
     { headerName: "Request ID", field: "transactionId", sortable: true, filter: true, flex: 1 },
@@ -67,6 +70,8 @@ const PendingSwipeApprovalTable: React.FC<Props> = ({ setApprove, setAlert, setR
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      ...leftAlignedColumn,
+    
     };
   }, []);
 

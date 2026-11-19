@@ -52,7 +52,7 @@ const MasterLocation: React.FC = () => {
   return (
     <>
       <MasterLocationViewDrawer open={viewLocation} setOpen={setViwLocation} />
-      <div className="h-[calc(100vh-50px)] grid grid-cols-[550px_1fr] bg-white">
+      <div className="h-[calc(100vh-50px)] grid grid-cols-[500px_1fr] bg-white">
         <form onSubmit={handleSubmit(onSubmit)} className="p-[20px] border-r border-neutral-300">
           <Typography variant="h1" className="text-slate-600 " fontSize={20} fontWeight={500}>
             Add Location

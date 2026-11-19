@@ -8,7 +8,8 @@ import {
   PoHistoryRecord,
 } from "@/features/master/componentPercentage/componentPercentageType";
 import StatusCellRenderer from "./StatusCellRenderer";
-import { formatNumber, pendingCellStyle, rec, toNumber } from "./poHistory.utils";
+import { formatNumber, rec, toNumber } from "./poHistory.utils";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 // Right-align the cell AND the header (AG Grid ships both helper classes).
 const rightAlign: Pick<ColDef, "headerClass" | "cellClass"> = {
@@ -45,8 +46,8 @@ const buildDetailColumns = (mode: PoHistoryFilterType): ColDef<PoHistoryRecord>[
   const identity: ColDef<PoHistoryRecord>[] =
     mode === "vendor"
       ? [
-          { headerName: "Part No.", minWidth: 120, valueGetter: get(rec.partNo) },
-          { headerName: "Component", minWidth: 220, flex: 1, valueGetter: get(rec.componentName) },
+          { headerName: "Part No.", minWidth: 120, valueGetter: get(rec.partNo), ...leftAlignedColumn },
+          { headerName: "Component", minWidth: 220, flex: 1, valueGetter: get(rec.componentName), ...leftAlignedColumn },
         ]
       : [
           { headerName: "Vendor", minWidth: 200, flex: 1, valueGetter: get(rec.vendorName) },
@@ -54,25 +55,25 @@ const buildDetailColumns = (mode: PoHistoryFilterType): ColDef<PoHistoryRecord>[
         ];
 
   return [
-    { headerName: "PO No.", minWidth: 180, cellClass: "font-semibold", valueGetter: get(rec.po) },
+    { headerName: "PO No.", minWidth: 180, ...leftAlignedColumn, valueGetter: get(rec.po) },
     ...identity,
-    { headerName: "PO Date", minWidth: 120, valueGetter: get(rec.poDate) },
-    { headerName: "Due Date", minWidth: 120, valueGetter: get(rec.dueDate) },
-    { ...numberCol("Order Qty", rec.qty), minWidth: 120 },
+    { headerName: "PO Date", minWidth: 120, ...leftAlignedColumn, valueGetter: get(rec.poDate) },
+    { headerName: "Due Date", minWidth: 120, ...leftAlignedColumn, valueGetter: get(rec.dueDate) },
+    { ...numberCol("Order Qty", rec.qty), minWidth: 120, ...rightAlignedColumn },
     {
       ...numberCol("Pending Qty", rec.pendingQty),
       minWidth: 120,
-      cellStyle: (p) => pendingCellStyle(p.value),
+      ...rightAlignedColumn,
     },
-    numberCol("Rate", rec.rate),
+    { ...numberCol("Rate", rec.rate), minWidth: 120, ...rightAlignedColumn },
     {
       headerName: "GST %",
       minWidth: 90,
-      ...rightAlign,
+      ...rightAlignedColumn,
       valueGetter: get(rec.gstRate, ""),
       valueFormatter: (p) => (p.value ? `${p.value}%` : "-"),
     },
-    { headerName: "HSN", minWidth: 110, valueGetter: get(rec.hsn) },
+    { headerName: "HSN", minWidth: 110, valueGetter: get(rec.hsn) , ...leftAlignedColumn},
     {
       headerName: "Status",
       minWidth: 120,
@@ -88,17 +89,16 @@ const totalsColumns: ColDef<PoHistoryGroup>[] = [
   {
     headerName: "Total Ordered",
     minWidth: 140,
-    ...rightAlign,
+    ...rightAlignedColumn,
     valueGetter: (p) => sumHistory(p, rec.qty),
     valueFormatter: (p) => formatNumber(p.value),
   },
   {
     headerName: "Total Pending",
     minWidth: 140,
-    ...rightAlign,
+    ...rightAlignedColumn,
     valueGetter: (p) => sumHistory(p, rec.pendingQty),
     valueFormatter: (p) => formatNumber(p.value),
-    cellStyle: (p) => ({ ...pendingCellStyle(p.value), textAlign: "right" }),
   },
 ];
 
@@ -109,10 +109,11 @@ const buildMasterColumns = (mode: PoHistoryFilterType): ColDef<PoHistoryGroup>[]
         headerName: "Vendor",
         cellRenderer: "agGroupCellRenderer",
         minWidth: 260,
+        cellStyle: { marginLeft: "10px" },
         flex: 1,
         valueGetter: (p) => p.data?.vendor?.vendor_name ?? "-",
       },
-      { headerName: "Vendor ID", minWidth: 140, valueGetter: (p) => p.data?.vendor?.vendor_id ?? "-" },
+      { headerName: "Vendor ID", minWidth: 140, valueGetter: (p) => p.data?.vendor?.vendor_id ?? "-", ...leftAlignedColumn },
       ...totalsColumns,
     ];
   }
@@ -153,4 +154,4 @@ export const detailColumnDefs = (mode: PoHistoryFilterType) => {
   return detailCache.get(mode)!;
 };
 
-export const gridDefaultColDef: ColDef = { sortable: true, filter: true, resizable: true };
+export const gridDefaultColDef: ColDef = { sortable: true, filter: true, resizable: true, suppressHeaderMenuButton: true };

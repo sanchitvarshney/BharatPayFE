@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { Icons } from "@/components/icons";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { Typography } from "@mui/material";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   updateProduct?: boolean;
@@ -61,6 +62,7 @@ const MasterVendorDetailTable: React.FC<Props> = () => {
     return {
       filter: true,
       floatingFilter: true,
+      ...leftAlignedColumn,
     };
   }, []);
   return (

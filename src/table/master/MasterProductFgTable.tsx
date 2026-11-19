@@ -9,6 +9,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 type Props = {
   updateProduct?: boolean;
   setUpdateProduct?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,14 +44,14 @@ const MasterProductFgTable: React.FC<Props> = ({ setUpdateProduct, setViewProduc
       filter: false,
       width: 80,
     },
-    {
-      headerName: "#",
-      field: "id",
-      sortable: true,
-      filter: false,
-      maxWidth: 80,
-      valueGetter: (params: any) => params.node.rowIndex + 1,
-    },
+    // {
+    //   headerName: "#",
+    //   field: "id",
+    //   sortable: true,
+    //   filter: false,
+    //   maxWidth: 80,
+    //   valueGetter: (params: any) => params.node.rowIndex + 1,
+    // },
     {
       headerName: "Product Name",
       field: "p_name",
@@ -77,6 +78,7 @@ const MasterProductFgTable: React.FC<Props> = ({ setUpdateProduct, setViewProduc
     return {
       filter: true,
       floatingFilter: true,
+      ...leftAlignedColumn,
     };
   }, []);
   return (
