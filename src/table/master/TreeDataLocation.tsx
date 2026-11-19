@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { changeSatatus, getLocationAsync, getLocationDetails } from "@/features/master/location/locationSlice";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule]);
 
 // TypeScript types for hierarchical data and row data
@@ -60,13 +61,14 @@ const TreeDataLocation: React.FC<Props> = ({ setViewLocation }) => {
   const { getLocationLoading, createLocationData, changeStatusData } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
   const [columnDefs] = useState<ColDef[]>([
-    { field: "name" },
+    { field: "name", ...leftAlignedColumn,  },
     { field: "label", hide: true },
     {
       headerName: "Status",
       field: "status",
       sortable: true,
       filter: true,
+      ...leftAlignedColumn,
       cellRenderer: (params: any) => {
         const { data } = params;
         const [active, setActive] = useState(params.value === "ACTIVE" ? 1 : 0);
@@ -90,6 +92,7 @@ const TreeDataLocation: React.FC<Props> = ({ setViewLocation }) => {
     {
       headerName: "Action",
       field: "action",
+      ...leftAlignedColumn,
       cellRenderer: (params: any) => (
         <DropdownMenu>
           <div className="flex items-center px-[20px] h-full">
@@ -120,6 +123,7 @@ const TreeDataLocation: React.FC<Props> = ({ setViewLocation }) => {
   const defaultColDef = useMemo<ColDef>(
     () => ({
       flex: 1,
+      suppressHeaderMenuButton: true,
     }),
     []
   );
@@ -128,6 +132,8 @@ const TreeDataLocation: React.FC<Props> = ({ setViewLocation }) => {
     () => ({
       headerName: "Location Hierarchy",
       minWidth: 300,
+      cellStyle: { paddingLeft: "10px", fontSize: "14px", },
+      
       cellRendererParams: {
         suppressCount: true,
       },

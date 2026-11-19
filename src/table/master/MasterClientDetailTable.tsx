@@ -7,6 +7,7 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Icons } from "@/components/icons";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const MasterClientDetailTable: React.FC = () => {
   const { clientdata, getClientLoading } = useAppSelector((state) => state.client);
@@ -17,14 +18,13 @@ const MasterClientDetailTable: React.FC = () => {
       headerName: "Client Name",
       field: "name",
       sortable: true,
-      filter: false,
       cellRenderer: (params: any) => (
-        <div className="flex items-center justify-center h-[50px] ">
+        <div className="flex items-center justify-center  ">
           <Link to={`/master-client/${params.data.c_id}`} className=" hover:bg-white   rounded-md   flex items-center justify-between text-cyan-600  gap-[20px]  whitespace-pre-wrap  w-full px-[5px] ">
             <Typography fontSize={14} textAlign={"start"}>
               {params.value}
             </Typography>
-            <Icons.followLink sx={{ fontSize: "16px" }} />
+            <Icons.followLink sx={{ fontSize: "16px", marginRight: "5px" }} />
           </Link>
         </div>
       ),
@@ -48,15 +48,16 @@ const MasterClientDetailTable: React.FC = () => {
     //   maxWidth: 300,
     //   autoHeight: true,
     // },
-    { headerName: "GST Number", field: "gst", sortable: true, filter: false, flex: 1 },
-    { headerName: "Mobile", field: "mobile", sortable: true, filter: false, flex: 1 },
-    { headerName: "Email", field: "email", sortable: true, filter: false, flex: 1 },
-    { headerName: "City", field: "city", sortable: true, filter: false, flex: 1 },
+    { headerName: "GST Number", field: "gst", sortable: true,  flex: 1 },
+    { headerName: "Mobile", field: "mobile", sortable: true,  flex: 1 },
+    { headerName: "Email", field: "email", sortable: true,  flex: 1 },
+    { headerName: "City", field: "city", sortable: true,  flex: 1 },
   ];
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
-      floatingFilter: false,
+      ...leftAlignedColumn,
+      autoHeight: true,
     };
   }, []);
   return (
@@ -71,7 +72,7 @@ const MasterClientDetailTable: React.FC = () => {
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           pagination={true}
-          paginationPageSizeSelector={[10, 25, 50]}
+          paginationPageSizeSelector={[ 10, 25, 50]}
         />
       </div>
     </div>

@@ -7,6 +7,7 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { Button } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { getSubCategoryList } from "@/features/master/Category/CategorySlice";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,6 +59,8 @@ const MasterCategoryList: React.FC<Props> = ({ setOpen, setCategoryName }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+  
+      ...leftAlignedColumn,
     };
   }, []);
 

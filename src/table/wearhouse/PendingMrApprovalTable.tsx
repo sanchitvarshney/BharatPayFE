@@ -12,6 +12,7 @@ import CachedIcon from "@mui/icons-material/Cached";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import CloseIcon from "@mui/icons-material/Close";
 import PrintIcon from '@mui/icons-material/Print';
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 type Props = {
   approve: boolean;
   setApprove: Dispatch<React.SetStateAction<boolean>>;
@@ -35,7 +36,8 @@ const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert, setRequ
   const columnDefs: ColDef[] = [
     {
       headerName: "Action",
-      maxWidth: 150,
+      maxWidth: 100,
+      filter: false,
       field: "action",
       cellRenderer: (params: any) => (
         <>
@@ -45,14 +47,15 @@ const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert, setRequ
                 handleClick(e);
                 setParams(params);
               }}
+              size="small"
             >
-              <MoreVertIcon />
+              <MoreVertIcon fontSize="small" />
             </IconButton>
           </div>
         </>
       ),
     },
-    { headerName: "#", field: "id", sortable: true, filter: true, maxWidth: 100, valueGetter: (params: any) => params.node.rowIndex + 1 },
+    { headerName: "#", field: "id", sortable: true, filter: false, maxWidth: 80, valueGetter: (params: any) => params.node.rowIndex + 1 },
     { headerName: "Request From", field: "userName", sortable: true, filter: true, flex: 1 },
     { headerName: "Request ID", field: "transactionId", sortable: true, filter: true, flex: 1 },
     { headerName: "Transaction Type", field: "transactionType", sortable: true, filter: true, flex: 1 },
@@ -62,6 +65,7 @@ const PendingMrApprovalTable: React.FC<Props> = ({ setApprove, setAlert, setRequ
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

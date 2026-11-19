@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@mui/material";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import * as XLSX from "xlsx";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const MrRequisitionReqTable: React.FC = () => {
   const {
@@ -31,6 +32,7 @@ const MrRequisitionReqTable: React.FC = () => {
     return {
       filter: true,
       flex: 1,
+      ...leftAlignedColumn,
       cellRenderer: (params: any) =>
         approvedMaterialListLoading ? (
           <div className="flex items-center justify-center h-full">
@@ -47,7 +49,7 @@ const MrRequisitionReqTable: React.FC = () => {
       headerName: "#",
       field: "id",
       sortable: true,
-      filter: true,
+      filter: false,
       flex: 1,
       valueGetter: "node.rowIndex+1",
       maxWidth: 80,

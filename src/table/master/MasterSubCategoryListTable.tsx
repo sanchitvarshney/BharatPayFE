@@ -4,6 +4,7 @@ import { AgGridReact } from "ag-grid-react";
 import {  useAppSelector } from "@/hooks/useReduxHook";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 
 const MasterSubCategoryListTable: React.FC = () => {
@@ -38,6 +39,7 @@ const MasterSubCategoryListTable: React.FC = () => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      ...leftAlignedColumn,
     };
   }, []);
 
