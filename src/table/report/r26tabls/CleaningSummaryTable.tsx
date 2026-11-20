@@ -24,8 +24,13 @@ export const CLEANING_TEXT_COLUMNS = ["part_no", "part_name"];
 export const getCleaningQtyKeys = (columns: ApiColumn[] = []) =>
   columns.map((c) => c.key).filter((key) => !CLEANING_TEXT_COLUMNS.includes(key));
 
-const rowTotal =(row: any, qtyKeys: string[]) =>
-  qtyKeys.reduce((sum, key) => sum + (Number(row?.[key]) || 0), 0);
+const splitQtyClosing = (row: any, key: string): [number, number] => {
+  const qty = Number(row?.[`${key}_qty`]);
+  const closing = Number(row?.[`${key}_closing`]);
+  if (Number.isFinite(qty) && Number.isFinite(closing)) return [qty, closing];
+  const [q, c] = String(row?.[key] ?? "").split("/");
+  return [Number(q) || 0, Number(c) || 0];
+};
 
 const CleaningSummaryTable: React.FC<Props> = ({ gridRef }) => {
   const { cleaningSummaryReport, cleaningSummaryReportLoading } = useAppSelector(
@@ -53,25 +58,21 @@ const CleaningSummaryTable: React.FC<Props> = ({ gridRef }) => {
       }
       return { headerName: label, field: key, minWidth: 120, flex: 1, ...rightCol };
     });
-    if (qtyKeys.length) {
-      defs.push({
-        headerName: "Total",
-        colId: "total",
-        pinned: "right",
-        width: 110,
-        ...rightCol,
-        cellStyle: { ...rightCol.cellStyle, fontWeight: 600 },
-        valueGetter: (params) => rowTotal(params.data, qtyKeys),
-      });
-    }
     return defs;
-  }, [columns, qtyKeys]);
+  }, [columns]);
 
   const pinnedBottomRowData = useMemo(() => {
     if (!rows.length) return [];
     const totals: Record<string, any> = { part_no: "Total", part_name: "" };
     qtyKeys.forEach((key) => {
-      totals[key] = rows.reduce((sum, row) => sum + (Number(row?.[key]) || 0), 0);
+      let qty = 0;
+      let closing = 0;
+      rows.forEach((row) => {
+        const [q, c] = splitQtyClosing(row, key);
+        qty += q;
+        closing += c;
+      });
+      totals[key] = `${qty}/${closing}`;
     });
     return [totals];
   }, [rows, qtyKeys]);

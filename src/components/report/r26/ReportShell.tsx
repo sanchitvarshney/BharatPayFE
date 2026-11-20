@@ -39,6 +39,7 @@ type ReportShellProps = {
   canExport?: boolean;
   summary?: SummaryItem[];
   toolbar?: React.ReactNode;
+  sideContent?: React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -99,6 +100,7 @@ const ReportShell: React.FC<ReportShellProps> = ({
   canExport,
   summary = [],
   toolbar,
+  sideContent,
   children,
 }) => {
   const panelId = useId();
@@ -211,7 +213,7 @@ const ReportShell: React.FC<ReportShellProps> = ({
                 )}
               </section>
 
-            
+              {sideContent && <section className="px-4 py-4">{sideContent}</section>}
 
               {hasReport && summary.length > 0 && (
                 <section className="px-4 py-4">
