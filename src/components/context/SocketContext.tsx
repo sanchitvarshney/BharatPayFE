@@ -135,6 +135,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
   const emitDownloadSwipeBillingReport = (payload: {
     fromDate: string;
     toDate: string;
+    fileBase64: string;
   }) => {
     socketService.emit("downloadSwipeReport", payload);
   };
