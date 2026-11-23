@@ -9,6 +9,7 @@ import { Icons } from "@/components/icons";
 import { MenuItem, Select } from "@mui/material";
 import ConfirmationModel from "@/components/reusable/ConfirmationModel";
 import { getComponentsAsync, updateMaterialPurchasedAsync } from "@/features/master/component/componentSlice";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   open: boolean;
@@ -132,6 +133,8 @@ const MsterComponentsMaterialListTable: React.FC<Props> = ({ gridRef }) => {
     return {
       filter: true,
       floatingFilter: false,
+      ...leftAlignedColumn,
+      suppressHeaderMenuButton: true,
     };
   }, []);
   return (

@@ -4,6 +4,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 // import CustomPagination from "@/components/reusable/CustomPagination";
 
 type Props = {
@@ -16,8 +17,8 @@ const columnDefs: ColDef[] = [
     headerName: "#",
     field: "id",
     sortable: true,
-    filter: true,
-    width: 100,
+    filter: false,
+    width: 80,
     valueGetter: "node.rowIndex+1",
   },
   {
@@ -66,6 +67,15 @@ const R25ReportTable: React.FC<Props> = ({ gridRef }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      sortable: true,
+      resizable: true,
+      floatingFilter: false,
+      autoHeight: true,
+      wrapText: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

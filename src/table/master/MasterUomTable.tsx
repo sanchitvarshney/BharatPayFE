@@ -5,6 +5,7 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const CustomLoadingCellRenderer: React.FC = () => {
   return (
@@ -19,7 +20,7 @@ const columnDefs: ColDef[] = [
     headerName: "#",
     field: "ID",
     sortable: true,
-    filter: true,
+    filter: false,
     flex: 1,
   },
   {
@@ -44,7 +45,8 @@ const MasterUomTable: React.FC = () => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
-      floatingFilter: true,
+      floatingFilter: false,
+      ...leftAlignedColumn,
     };
   }, []);
 
@@ -52,7 +54,7 @@ const MasterUomTable: React.FC = () => {
     <div>
       <div className="ag-theme-quartz h-[calc(100vh-50px)]">
         <AgGridReact
-        loadingOverlayComponent={CustomLoadingOverlay}
+          loadingOverlayComponent={CustomLoadingOverlay}
           suppressCellFocus={true}
           overlayNoRowsTemplate={OverlayNoRowsTemplate}
           rowData={UOM}

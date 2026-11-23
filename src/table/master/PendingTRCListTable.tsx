@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { getTrcList } from "@/features/trc/ViewTrc/viewTrcSlice";
 import { Button } from "@mui/material";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const PendingTRCListTable: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -21,8 +22,8 @@ const PendingTRCListTable: React.FC = () => {
     {
       headerName: "#",
       field: "id",
-      width: 50,
-      filter: true,
+      width: 80,
+      filter: false,
       valueGetter: "node.rowIndex+1",
     },
     {
@@ -77,11 +78,14 @@ const PendingTRCListTable: React.FC = () => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
     };
   }, []);
 
   return (
-    <div className=" ag-theme-quartz h-[calc(100vh-100px)] bg-white">
+    <div className=" ag-theme-quartz h-[calc(100vh-150px)] bg-white">
          <div className="flex justify-between items-center mb-4 ">
         <Button
           variant="contained"

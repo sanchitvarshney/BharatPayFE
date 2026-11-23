@@ -9,6 +9,7 @@ import { Button } from "@mui/material";
 import { Icons } from "@/components/icons";
 import { getR1Data } from "@/features/report/report/reportSlice";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,22 +23,22 @@ const R1reportTable: React.FC<Props> = ({ gridRef, setOpen,setMin, onPageChange,
   const dispatch = useAppDispatch();
   const { mainR1Report, mainR1ReportLoading } = useAppSelector((state) => state.report);
   const columnDefs: ColDef[] = [
-    { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
+    { headerName: "#", field: "id", sortable: true, filter: false, width: 80, valueGetter: "node.rowIndex+1" },
     { headerName: "MIN No.", field: "minNo", sortable: true, filter: true },
     { headerName: "Insert Date", field: "insertDt", sortable: true, filter: true },
     { headerName: "SKU Code", field: "skuCode", sortable: true, filter: true },
     { headerName: "SKU Name", field: "skuName", sortable: true, filter: true },
-    { headerName: "QTY", field: "inQty", sortable: true, filter: true },
-    { headerName: "Unit", field: "uom", sortable: true, filter: true },
+    { headerName: "QTY", field: "inQty", sortable: true, filter: true, ...rightAlignedColumn, maxWidth: 130 },
+    { headerName: "Unit", field: "uom", sortable: true, filter: true, maxWidth: 130 },
     { headerName: "In Location", field: "inLoc", sortable: true, filter: true },
     { headerName: "Vendor Name", field: "vendorName", sortable: true, filter: true },
     { headerName: "Vendor Code", field: "vendorCode", sortable: true, filter: true },
-    { headerName: "Vendor Address", field: "vendorAddress", sortable: true, filter: true, cellRenderer: (params: any) => replaceBrWithNewLine(params.value), autoHeight: true, maxWidth: 400 },
+    { headerName: "Vendor Address", field: "vendorAddress", sortable: true, filter: true, cellRenderer: (params: any) => replaceBrWithNewLine(params.value), maxWidth: 450, minWidth: 300 },
     { headerName: "DOC Type", field: "docType", sortable: true, filter: true },
     { headerName: "DOC No.", field: "docNo", sortable: true, filter: true },
     { headerName: "DOC Date", field: "docDate", sortable: true, filter: true },
     {
-      headerName: "",
+      headerName: "Action",
       field: "action",
       sortable: false,
       filter: false,
@@ -49,9 +50,10 @@ const R1reportTable: React.FC<Props> = ({ gridRef, setOpen,setMin, onPageChange,
             setMin(params.data.minNo);
           }}
           variant="contained"
+          size="small"
           startIcon={<Icons.view fontSize="small" />}
         >
-          View Deatil
+          View Detail
         </Button>
       ),
       pinned: "right",
@@ -60,6 +62,13 @@ const R1reportTable: React.FC<Props> = ({ gridRef, setOpen,setMin, onPageChange,
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
+      wrapHeaderText: true,
+      autoHeight: true,
+      wrapText: true,
+      autoHeaderHeight: true,
     };
   }, []);
 

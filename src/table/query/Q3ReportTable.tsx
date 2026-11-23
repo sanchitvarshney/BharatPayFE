@@ -5,12 +5,13 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { ColDef } from "@ag-grid-community/core";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { formatNumber } from "@/utils/numberFormatUtils";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const Q3ReportTable: React.FC = () => {
   const { q3data, q3DataLoading } = useAppSelector((state) => state.query);
 
   const defaultColDef = useMemo<ColDef>(
-    () => ({ filter: true, sortable: true, resizable: true }),
+    () => ({ filter: true, sortable: true, resizable: true, ...rightAlignedColumn, suppressHeaderMenuButton: true, wrapHeaderText: true, autoHeaderHeight: true, wrapText: true, autoHeight: true }),
     []
   );
 
@@ -18,9 +19,11 @@ const Q3ReportTable: React.FC = () => {
     {
       headerName: "#",
       width: 80,
+      filter: false,
       valueGetter: (params) => (params.node?.rowIndex ?? 0) + 1,
+      ...leftAlignedColumn,
     },
-    { headerName: "Location", field: "locationName", flex: 1 },
+    { headerName: "Location", field: "locationName", flex: 1, ...leftAlignedColumn },
     {
       headerName: "Opening Balance",
       field: "openingBalance",

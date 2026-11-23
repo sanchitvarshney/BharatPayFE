@@ -14,6 +14,7 @@ import {
 } from "@/features/Dispatch/DispatchSlice";
 import { showToast } from "@/utils/toasterContext";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 interface RowData {
   orderQty: number;
@@ -160,18 +161,18 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
           onClick={(e) => handleMenuClick(e, params.data)}
           className="hover:bg-gray-100"
         >
-          <MoreVertIcon className="h-4 w-4" />
+          <MoreVertIcon fontSize="small" />
         </IconButton>
       ),
       width: 50,
     },
-    { headerName: "SKU", field: "sku", sortable: true, filter: true,width: 150 },
+    { headerName: "SKU", field: "sku", sortable: true, filter: true,width: 200 },
     {
       headerName: "SKU Name",
       field: "skuName",
       sortable: true,
       filter: true,
-      width: 150,
+      width: 250,
     },
     {
       headerName: "Dispatch Date",
@@ -186,7 +187,8 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
       field: "dispatchQty",
       sortable: true,
       filter: true,
-      width:100
+      ...rightAlignedColumn,
+      width:120
     },
     
     {
@@ -231,6 +233,11 @@ const R5ReportTable: React.FC<Props> = ({ gridRef ,pageSize,handlePageChange,han
     return {
       filter: true,
       sortable: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
+      wrapText: true,
+      autoHeight: true,
     };
   }, []);
 

@@ -54,7 +54,7 @@ const FqcDeviceImageSearchForm: React.FC<Props> = ({
   onBulkDownload,
   onChangeDeviceType,
 }) => (
-  <div className="transition-all flex flex-col gap-[10px] h-[calc(100vh-100px)] border-r border-neutral-300 min-w-[400px] max-w-[400px] items-center">
+  <div className="transition-all flex flex-col gap-[10px] max-h-[calc(100vh-100px)] overflow-y-auto overflow-x-hidden border-r border-neutral-300 min-w-[400px] max-w-[400px] items-center">
     <Paper elevation={0} className="m-2 w-full">
       <CardContent>
         <div className="flex flex-col gap-[20px]">

@@ -14,6 +14,7 @@ import { clearR6data } from "@/features/report/report/reportSlice";
 import { formatNumber } from "@/utils/numberFormatUtils";
 import CustomPagination from "@/components/reusable/CustomPagination";
 import { VisibilityOutlined } from "@mui/icons-material";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef?: RefObject<AgGridReact<any>>;
@@ -136,6 +137,10 @@ const R6reportTable: React.FC<Props> = ({
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      sortable: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

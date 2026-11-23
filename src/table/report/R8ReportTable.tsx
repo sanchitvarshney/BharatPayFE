@@ -6,6 +6,10 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { formatNumber } from "@/utils/numberFormatUtils";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import {
+  leftAlignedColumn,
+  rightAlignedColumn,
+} from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -15,29 +19,87 @@ type Props = {
 };
 
 const columnDefs: ColDef[] = [
-  { headerName: "#", field: "id", valueGetter: "node.rowIndex+1", maxWidth: 100 },
-  { headerName: "#", field: "txnId", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1", hide: true },
+  {
+    headerName: "#",
+    field: "id",
+    valueGetter: "node.rowIndex+1",
+    maxWidth: 80,
+    sortable: true,
+    filter: false,
+  },
+  {
+    headerName: "#",
+    field: "txnId",
+    sortable: true,
+    filter: true,
+    width: 100,
+    valueGetter: "node.rowIndex+1",
+    hide: true,
+  },
   { headerName: "Part Code", field: "partCode", sortable: true, filter: true },
-  { headerName: "Component Name", field: "componentName", sortable: true, filter: true },
+  {
+    headerName: "Component Name",
+    field: "componentName",
+    sortable: true,
+    filter: true,
+  },
   { headerName: "Category", field: "category", sortable: true, filter: true },
-  { headerName: "Sub-Category", field: "subCategory", sortable: true, filter: true },
-  { headerName: "UOM", field: "uom", sortable: true, filter: true },
-  { headerName: "Out Quantity", field: "outQty", sortable: true, filter: true, valueFormatter: (params: any) => {
-    return formatNumber(params.value);
-  }},
-  { headerName: "Location From", field: "locFrom", sortable: true, filter: true },
+  {
+    headerName: "Sub-Category",
+    field: "subCategory",
+    sortable: true,
+    filter: true,
+  },
+  { headerName: "UOM", field: "uom", sortable: true, filter: true, maxWidth: 100 },
+  {
+    headerName: "Out Quantity",
+    field: "outQty",
+    sortable: true,
+    filter: true,
+    valueFormatter: (params: any) => {
+      return formatNumber(params.value);
+    },
+    ...rightAlignedColumn,
+  },
+  {
+    headerName: "Location From",
+    field: "locFrom",
+    sortable: true,
+    filter: true,
+  },
   { headerName: "Location In", field: "locIn", sortable: true, filter: true },
   { headerName: "Requested By", field: "reqBy", sortable: true, filter: true },
-  { headerName: "Insert Date", field: "insertDt", sortable: true, filter: true },
-  { headerName: "Approved By", field: "approvedBy", sortable: true, filter: true },
+  {
+    headerName: "Insert Date",
+    field: "insertDt",
+    sortable: true,
+    filter: true,
+  },
+  {
+    headerName: "Approved By",
+    field: "approvedBy",
+    sortable: true,
+    filter: true,
+  },
   { headerName: "Remark", field: "remark", sortable: true, filter: true },
 ];
 
-const R8ReportTable: React.FC<Props> = ({ gridRef, handlePageChange, handlePageSizeChange, pageSize }) => {
+const R8ReportTable: React.FC<Props> = ({
+  gridRef,
+  handlePageChange,
+  handlePageSizeChange,
+  pageSize,
+}) => {
   const { r8Report, r8ReportLoading } = useAppSelector((state) => state.report);
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      resizable: true,
+      ...leftAlignedColumn,
+      wrapText: true,
+      autoHeight: true,
     };
   }, []);
 

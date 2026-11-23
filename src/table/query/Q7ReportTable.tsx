@@ -13,6 +13,7 @@ import {
   ModalTitle,
   ModalDescription,
 } from "@/components/reusable/CustomModal";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -240,6 +241,7 @@ const Q7ReportTable = forwardRef<Q7TableHandle, Props>(({ gridRef }, ref) => {
       {
         headerName: "#",
         width: 60,
+        filter: false,
         valueGetter: (p: any) => p.node.rowIndex + 1,
       },
       { headerName: "DSN", field: "dsn", sortable: true, filter: true, flex: 2 },
@@ -249,6 +251,7 @@ const Q7ReportTable = forwardRef<Q7TableHandle, Props>(({ gridRef }, ref) => {
         field: "totalAttempts",
         sortable: true,
         filter: true,
+        ...rightAlignedColumn,
         width: 145,
       },
       {
@@ -291,7 +294,7 @@ const Q7ReportTable = forwardRef<Q7TableHandle, Props>(({ gridRef }, ref) => {
     []
   );
 
-  const defaultColDef = useMemo<ColDef>(() => ({ filter: true }), []);
+  const defaultColDef = useMemo<ColDef>(() => ({ filter: true, sortable: true, ...leftAlignedColumn, suppressHeaderMenuButton: true, flex: 1 }), []);
 
   return (
     <>

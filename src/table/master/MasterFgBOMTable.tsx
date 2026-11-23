@@ -10,6 +10,7 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { CircularProgress, Switch } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Icons } from "@/components/icons";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 type Props = {
   edit?: boolean;
   setEdit?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -96,6 +97,7 @@ const MasterFgBOMTable: React.FC<Props> = () => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      ...leftAlignedColumn,
     };
   }, []);
 

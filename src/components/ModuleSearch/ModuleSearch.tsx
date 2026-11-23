@@ -6,6 +6,7 @@ import { Menu } from "@/features/menu/menuType";
 import { navSliderData, visibaleArr } from "@/components/shared/Navslider";
 import { useUser } from "@/hooks/useUser";
 import {
+  appendStaticOptions,
   appendSubPageOptions,
   buildIndexedModuleOptionsFromMenu,
   extractQueryWords,
@@ -13,7 +14,12 @@ import {
   ModuleSearchOption,
 } from "./moduleSearchUtils";
 
-const escapeRegex = (s:any) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const STATIC_PAGES = [
+  { path: "/", label: "Dashboard", aliases: ["home"] },
+  { path: "/sop", label: "SOP" },
+];
+
+const escapeRegex =(s:any) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const highlightWords = (text:any, words:any) => {
   if (!words.length || !text) return text;
@@ -114,7 +120,9 @@ export default function ModuleSearch({ menu }: ModuleSearchProps) {
   const allModules = useMemo(() => {
     const canSeeR22 = visibaleArr.includes(user?.crn_id);
     const reportPages = navSliderData.filter((page) => page.name !== "R22" || canSeeR22);
-    return appendSubPageOptions(buildIndexedModuleOptionsFromMenu(menu), "/report/", reportPages);
+    const apiOptions = buildIndexedModuleOptionsFromMenu(menu);
+    const withReports = appendSubPageOptions(apiOptions, "/report/", reportPages);
+    return appendStaticOptions(withReports, STATIC_PAGES);
   }, [menu, user?.crn_id]);
 
   const results = useMemo(

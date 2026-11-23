@@ -6,6 +6,7 @@ import { ColDef } from "@ag-grid-community/core";
 import { RowData } from "@/features/query/query/queryType";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<RowData>>;
@@ -26,6 +27,11 @@ const Q2ReportTable: React.FC<Props> = ({
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
+  
+  
     };
   }, []);
 
@@ -53,8 +59,8 @@ const Q2ReportTable: React.FC<Props> = ({
       headerName: "#",
       field: "id",
       sortable: true,
-      filter: true,
-      width: 100,
+      filter: false,
+      width: 80,
       valueGetter: (params: any) => params.node.rowIndex + 1,
     },
     { headerName: "Date", field: "insertDate", sortable: true, filter: true },
@@ -71,6 +77,7 @@ const Q2ReportTable: React.FC<Props> = ({
       sortable: true,
       filter: true,
       width: 150,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Qty Out",
@@ -78,6 +85,7 @@ const Q2ReportTable: React.FC<Props> = ({
       sortable: true,
       filter: true,
       width: 150,
+      ...rightAlignedColumn,
     },
     { headerName: "Location In", field: "locIn", sortable: true, filter: true },
     {

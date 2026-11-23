@@ -6,6 +6,7 @@ import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { formatNumber } from "@/utils/numberFormatUtils";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
@@ -19,7 +20,9 @@ const columnDefs: ColDef[] = [
     headerName: "#",
     field: "id",
     valueGetter: "node.rowIndex+1",
-    maxWidth: 100,
+    maxWidth: 80,
+    filter: false,
+    sortable: true,
   },
   {
     headerName: "Part Code",
@@ -95,6 +98,11 @@ const R13ReportTable: React.FC<Props> = ({
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      ...leftAlignedColumn,
+      sortable: true,
+      wrapText: true,
+      wrapHeaderText: true,
+      suppressHeaderMenuButton: true,
     };
   }, []);
 

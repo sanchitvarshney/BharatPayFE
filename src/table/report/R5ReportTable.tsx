@@ -9,6 +9,7 @@ import { useSocketContext } from "@/components/context/SocketContext";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { formatNumber } from "@/utils/numberFormatUtils";
 import CustomPagination from "@/components/reusable/CustomPagination";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -30,32 +31,34 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
       headerName: "#",
       field: "id",
       sortable: true,
-      filter: true,
-      width: 100,
+      filter: false,
+      width: 80,
       valueGetter: "node.rowIndex+1",
     },
 
-    { headerName: "SKU", field: "sku", sortable: true, filter: true, flex: 1 },
+    { headerName: "SKU", field: "sku", sortable: true, filter: true, width: 200 },
     {
       headerName: "SKU Name",
       field: "skuName",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 250,
+
     },
     {
       headerName: "Dispatch Date",
       field: "dispatchDate",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 200,
     },
     {
       headerName: "Dispatch Qty",
       field: "dispatchQty",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 200,
+      ...rightAlignedColumn,
       valueFormatter: (params: any) => {
         return formatNumber(params.value);
       },
@@ -65,7 +68,7 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
       field: "inserby",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 200,
     },
     {
       headerName: "TXN ID",
@@ -80,12 +83,12 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
       field: "dispatchId",
       sortable: true,
       filter: true,
-      flex: 1,
+      width: 200,
       hide: false,
     },
 
     {
-      headerName: "",
+      headerName: "Action",
       pinned: "right",
       sortable: false,
       filter: false,
@@ -124,6 +127,10 @@ const R5ReportTable: React.FC<Props> = ({ gridRef, setTxn, handlePageChange, han
     return {
       filter: true,
       sortable: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+   
+      ...leftAlignedColumn,
     };
   }, []);
 

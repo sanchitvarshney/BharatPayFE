@@ -38,7 +38,7 @@ import { cancelPartCodeChallan } from "@/features/procurement/poSlices";
 import { showToast } from "@/utils/toasterContext";
 import FullPageLoading from "@/components/shared/FullPageLoading";
 import UploadChallanDocDialog from "@/pages/ewayBill/UploadChallanDocDialog";
-import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 interface RowData {
   orderQty: number;
@@ -284,6 +284,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType, onRefresh }) => {
       filter: true,
       flex: 1,
       minWidth: 140,
+      ...rightAlignedColumn,
     },
     {
       headerName: "Type",
@@ -489,6 +490,7 @@ const ChallanTable: React.FC<Props> = ({ gridRef, challanType, onRefresh }) => {
     wrapHeaderText: true,
     autoHeaderHeight: true,
     ...leftAlignedColumn,
+    suppressHeaderMenuButton: true,
     };
   }, []);
 

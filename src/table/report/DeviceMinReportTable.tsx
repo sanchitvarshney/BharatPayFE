@@ -4,12 +4,13 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { AgGridReact } from "@ag-grid-community/react";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 type Props = {
   gridRef: RefObject<AgGridReact<any>>;
 };
 
 const columnDefs: ColDef[] = [
-  { headerName: "#", field: "id", sortable: true, filter: true, width: 100, valueGetter: "node.rowIndex+1" },
+  { headerName: "#", field: "id", sortable: true, filter: false, width: 80, valueGetter: "node.rowIndex+1" },
   { headerName: "Serial No.", field: "serialNo", sortable: true, filter: true, flex: 1 },
   { headerName: "IMEI", field: "imei", sortable: true, filter: true, flex: 1 },
   { headerName: "SIM Availability", field: "simAvailability", sortable: true, filter: true, flex: 1 },
@@ -22,6 +23,10 @@ const DeviceMinReportTable: React.FC<Props> = ({ gridRef }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      resizable: true,
+      ...leftAlignedColumn,
     };
   }, []);
   return (

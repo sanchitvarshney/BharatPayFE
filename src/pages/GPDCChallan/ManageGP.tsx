@@ -28,6 +28,7 @@ import { rangePresets } from "@/utils/rangePresets";
 import { Button } from "@/components/ui/button";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import RangeSelect from "@/components/reusable/antSelecters/RangeSelect";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 const ManageGP: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -123,6 +124,12 @@ const ManageGP: React.FC = () => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      ...leftAlignedColumn,
+      wrapText: true,
+      autoHeight: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
+      suppressHeaderMenuButton: true,
     };
   }, []);
 

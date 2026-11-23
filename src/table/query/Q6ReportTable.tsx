@@ -15,6 +15,7 @@ import {
   ModalTitle,
   ModalDescription,
 } from "@/components/reusable/CustomModal";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: any;
@@ -77,6 +78,10 @@ const Q6ReportTable: React.FC<Props> = ({ gridRef, deviceType }) => {
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       filter: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
+     
     };
   }, []);
 
@@ -148,8 +153,8 @@ useEffect(() => {
       headerName: "#",
       field: "id",
       sortable: true,
-      filter: true,
-      width: 100,
+      filter: false,
+      width: 80,
       valueGetter: (params: any) => params.node.rowIndex + 1,
     },
     {

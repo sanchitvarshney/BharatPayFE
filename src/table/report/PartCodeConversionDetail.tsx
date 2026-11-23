@@ -10,6 +10,7 @@ import { MenuModule } from "@ag-grid-enterprise/menu";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTemplate";
 import { useAppSelector } from "@/hooks/useReduxHook";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 ModuleRegistry.registerModules([ClientSideRowModelModule, ColumnsToolPanelModule, MasterDetailModule, MenuModule]);
 const R2ReportDetail: React.FC = () => {
   const { partCodeConvDetailLoading, partCodeConvDetailData } = useAppSelector((state) => state.report);
@@ -19,13 +20,13 @@ const R2ReportDetail: React.FC = () => {
       headerName: "#",
       field: "srNo",
       sortable: true,
-      filter: true,
+      filter: false,
       valueGetter: "node.rowIndex + 1",
       maxWidth: 80,
     },
-    { headerName: "Consumption Part Code", field: "partNo_no", sortable: true, filter: true },
+    { headerName: "Consumption Part Code", field: "partNo_no", sortable: true, filter: true, width: 150 },
     { headerName: "Consumption Part Name", field: "partName", sortable: true, filter: true },
-    { headerName: "Consumption Quantity", field: "qty", sortable: true, filter: true },
+    { headerName: "Consumption Quantity", field: "qty", sortable: true, filter: true, width: 150, ...rightAlignedColumn },
     { headerName: "Pick Location", field: "pickLocation", sortable: true, filter: true },
     {
       headerName: "Date",
@@ -46,6 +47,12 @@ const R2ReportDetail: React.FC = () => {
     return {
       filter: true,
       sortable: true,
+      ...leftAlignedColumn,
+      wrapText: true,
+      autoHeight: true,
+      wrapHeaderText: true,
+      autoHeaderHeight: true,
+      suppressHeaderMenuButton: true,
     };
   }, []);
 

@@ -34,6 +34,7 @@ import { showToast } from "@/utils/toasterContext";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   gridRef: RefObject<AgGridReact>;
@@ -215,8 +216,9 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
     {
       headerName: "#",
       field: "id",
+      filter: false,
       valueGetter: "node.rowIndex+1",
-      maxWidth: 100,
+      maxWidth: 80,
       headerClass: "font-semibold",
     },
     {
@@ -301,6 +303,7 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
       headerName: "Actions",
       field: "actions",
       minWidth: 200,
+      filter: false,
       headerClass: "font-semibold",
       cellRenderer: (params: any) => {
         const buttonId = `${params.data.txnID}-${params.data.uniqueKey}`;
@@ -344,7 +347,11 @@ const R16ReportTable: React.FC<Props> = ({ gridRef }) => {
       filter: true,
       sortable: true,
       resizable: true,
-      cellClass: "text-sm py-2",
+      ...leftAlignedColumn,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      wrapText: true,
+      wrapHeaderText: true,
     };
   }, []);
 

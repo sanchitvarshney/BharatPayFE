@@ -10,6 +10,7 @@ import {
 } from "@/features/report/report/reportSlice";
 import { LoadingButton } from "@mui/lab";
 import { Icons } from "@/components/icons";
+import { leftAlignedColumn, rightAlignedColumn } from "@/utils/agGridAlignUtils";
 
 type Props = {
   open?: boolean;
@@ -25,13 +26,13 @@ const PartCodeConversionReportTable: React.FC<Props> = ({ setOpen }) => {
       headerName: "#",
       field: "srNo",
       sortable: true,
-      filter: true,
+      filter: false,
       valueGetter: "node.rowIndex + 1",
       maxWidth: 80,
     },
     { headerName: "Part Code", field: "partNo_no", sortable: true, filter: true },
     { headerName: "Component Name", field: "partName", sortable: true, filter: true },
-    { headerName: "Qty", field: "qty", sortable: true, filter: true },
+    { headerName: "Qty", field: "qty", sortable: true, filter: true, ...rightAlignedColumn },
     { headerName: "Drop Location", field: "dropLocation", sortable: true, filter: true },
     {
       headerName: "Date",
@@ -81,6 +82,11 @@ const PartCodeConversionReportTable: React.FC<Props> = ({ setOpen }) => {
         overlayNoRowsTemplate={OverlayNoRowsTemplate}
         suppressCellFocus
         columnDefs={columnDefs}
+        defaultColDef={{
+          ...leftAlignedColumn,
+          wrapText: true,
+          filter: true,
+        }}
         rowData={partConversionData || []}
         pagination={true}
         enableCellTextSelection={true}

@@ -29,7 +29,7 @@ const MasterCategory: React.FC = () => {
           </IconButton>
           <Typography variant="inherit">{categoryname}</Typography>
         </div>
-        <div className="w-[400px]">
+        <div className="w-[500px]">
           <MasterSubCategoryListTable />
         </div>
       </Drawer>

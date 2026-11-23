@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import MainLayout from "./layouts/MainLayout";
@@ -60,6 +61,7 @@ import DownloadQrExcel from "./pages/production/DownloadQrExcel";
 import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/commonPages/SettingsPage";
 import MasterReport from "./pages/report/MasterReport";
+import MetaReportLayout from "./layouts/MetaReportLayout";
 import MasterComponentDeatil from "./pages/master/MasterComponentDeatil";
 import MaterVendorDetail from "./pages/master/MaterVendorDetail";
 import MasterCategory from "./pages/master/MasterCategory";
@@ -163,6 +165,8 @@ import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
 import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
 import PreviousBilling from "./pages/summary-pages/PreviousBilling";
 import FallBackUi from "./pages/errorBoundary/FallBackUi";
+
+const MetaReport = lazy(() => import("./pages/report/MetaReport"));
 
 
 export const router = createBrowserRouter([
@@ -1086,7 +1090,6 @@ export const router = createBrowserRouter([
         path: "/branchTransfer/manage",
       },
 
-      //dispatch===========================================
       {
         element: (
           <MainLayout>
@@ -1220,6 +1223,18 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/master-report",
+      },
+      {
+        element: (
+          <MainLayout>
+            <MetaReportLayout>
+              <Suspense fallback={null}>
+                <MetaReport />
+              </Suspense>
+            </MetaReportLayout>
+          </MainLayout>
+        ),
+        path: "/meta-report",
       },
       //query======================================
       {
