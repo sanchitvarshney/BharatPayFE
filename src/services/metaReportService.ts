@@ -184,15 +184,24 @@ export const runMetaReport = async (
   payload: { locationId: string; reportCode: string; filters: Record<string, any> },
   { signal }: ReqOpts = {},
 ): Promise<MetaReportResult> => {
-  const data = unwrap<any>(await axiosInstance.post("/metaReport/run", payload, { signal })) ?? {};
-  const rows: Record<string, any>[] = Array.isArray(data.data)
-    ? data.data
-    : Array.isArray(data.rows)
-      ? data.rows
+  const res = await axiosInstance.post("/metaReport/run", payload, { signal });
+  const body = res.data ?? {};
+  if (body.status !== "success") throw new Error(body.message || "Request failed");
+
+  // Supported shapes:
+  //  { status, headers, data: [...rows], pagination }            (result at top level)
+  //  { status, data: { headers, data: [...rows], pagination } }  (result nested in data)
+  //  { status, data: { rows: [...] } }                           (legacy)
+  const nested = body.data && !Array.isArray(body.data) && typeof body.data === "object";
+  const src = nested ? body.data : body;
+  const rows: Record<string, any>[] = Array.isArray(src.data)
+    ? src.data
+    : Array.isArray(src.rows)
+      ? src.rows
       : [];
   const headers: MetaHeader[] =
-    Array.isArray(data.headers) && data.headers.length
-      ? data.headers
+    Array.isArray(src.headers) && src.headers.length
+      ? src.headers
       : Object.keys(rows[0] ?? {}).map((key) => ({ key, label: humanize(key) }));
-  return { headers, rows, pagination: data.pagination ?? null };
+  return { headers, rows, pagination: src.pagination ?? null };
 };
