@@ -15,6 +15,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { DELIVERY_PARTNERS } from "@/constants/deliveryPartners";
 import { getCourierReturnReport } from "@/features/delivery/deliverySlice";
 import type { CourierReturnRow } from "@/features/delivery/deliveryType";
+import { ColDef } from "@ag-grid-community/core";
 import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
 
 const { RangePicker } = DatePicker;
@@ -103,8 +104,8 @@ const CourierReturnReport: React.FC = () => {
       {
         headerName: "Action",
         field: "action",
-        flex: 1,
         filter: false,
+        flex: 1,
         autoHeight: true,
         cellRenderer: (params: any) => (
           <div className="flex gap-[10px] items-center">
@@ -114,9 +115,10 @@ const CourierReturnReport: React.FC = () => {
               onClick={() => {
                 if (params.data?.videoKey) openVideoInNewTab(params.data?.videoUrl);
               }}
+              size="sm"
             >
-              <Icons.view />
-              <span className="ml-1">View Video</span>
+                  <Icons.view sx={{ fontSize: 18 }} />
+                       <span className="ml-1 text-xs">View</span>
             </Button>
           </div>
         ),
@@ -124,6 +126,19 @@ const CourierReturnReport: React.FC = () => {
     ],
     []
   );
+
+    const defaultColDef = useMemo<ColDef>(() => {
+      return {
+        filter: true,
+        sortable: true,
+        floatingFilter: false,
+        suppressHeaderMenuButton: true,
+        ...leftAlignedColumn,
+        wrapText: true,
+        autoHeight: true,
+        wrapHeaderText: true,
+      };
+    }, []);
 
   return (
     <div className="bg-white h-[calc(100vh-100px)] flex relative">
@@ -213,12 +228,7 @@ const CourierReturnReport: React.FC = () => {
           suppressCellFocus={true}
           rowData={courierReturnList ?? []}
           columnDefs={columnDefs}
-          defaultColDef={{
-            filter: true,
-            floatingFilter: false,
-            suppressHeaderMenuButton: true,
-            ...leftAlignedColumn,
-          }}
+          defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={100}
           enableCellTextSelection

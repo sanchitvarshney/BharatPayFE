@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { DatePicker } from "antd";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import dayjs, { Dayjs } from "dayjs";
@@ -15,6 +15,7 @@ import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTempla
 import { getWrongDeviceReport } from "@/features/Dispatch/DispatchSlice";
 import { useSelector } from "react-redux";
 import { leftAlignedColumn } from "@/utils/agGridAlignUtils";
+import { ColDef } from "@ag-grid-community/core";
 
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
@@ -144,14 +145,26 @@ const R5Report: React.FC = () => {
                 );
               }
             }}
+            size="sm"
           >
-            <Icons.view />
-            <span className="ml-1">View Video</span>
+            <Icons.view sx={{ fontSize: 18 }} />
+            <span className="ml-1 text-xs">View</span>
           </Button>
         </div>
       ),
     },
   ];
+   const defaultColDef = useMemo<ColDef>(() => {
+    return {
+      filter: true,
+      sortable: true,
+      floatingFilter: false,
+      suppressHeaderMenuButton: true,
+      ...leftAlignedColumn,
+      wrapText: true,
+      autoHeight: true,
+    };
+  }, []);
 
   return (
     <div className="bg-white h-[calc(100vh-100px)] flex relative">
@@ -230,14 +243,7 @@ const R5Report: React.FC = () => {
           suppressCellFocus={true}
           rowData={wrongDeviceList || []}
           columnDefs={columnDefs}
-          defaultColDef={{
-            filter: true,
-            floatingFilter: false,
-            suppressHeaderMenuButton: true,
-            ...leftAlignedColumn,
-            wrapHeaderText: true,
-            autoHeaderHeight: true,
-          }}
+          defaultColDef={defaultColDef}
           pagination={true}
           paginationPageSize={100}
           enableCellTextSelection
