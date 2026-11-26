@@ -1,29 +1,33 @@
 import { useCallback, useState } from "react";
 import { DatePicker } from "antd";
 import { LoadingButton } from "@mui/lab";
-import { Alert, IconButton, MenuItem, Select } from "@mui/material";
+import {
+  Alert,
+  Chip,
+  IconButton,
+  MenuItem,
+  Select,
+  Tooltip,
+} from "@mui/material";
 import { FileRejection, useDropzone } from "react-dropzone";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useNavigate } from "react-router-dom";
+import DownloadIcon from "@mui/icons-material/Download";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { rangePresets } from "@/utils/rangePresets";
-import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
+import { useAppDispatch } from "@/hooks/useReduxHook";
 import { showToast } from "@/utils/toasterContext";
-import ConfirmationModel from "@/components/reusable/ConfirmationModel";
-import DateRangeBadge from "@/components/reusable/DateRangeBadge";
-import {
-  getSwipeSummaryReport,
-  resetSwipeBilling,
-  setSwipeDateRange,
-  setSwipeIsData,
-} from "@/features/swipeBilling/swipeBillingSlice";
+import { setSwipeDateRange } from "@/features/swipeBilling/swipeBillingSlice";
 import { useSocketContext } from "@/components/context/SocketContext";
 import useSwipeDateRange from "./useSwipeDateRange";
 
 const { RangePicker } = DatePicker;
 
 export const SWIPE_SUMMARY_LIMIT = 500;
+
+const ACCENT = "#0891b2"; // Tailwind cyan-600
+const ACCENT_HOVER = "#0e7490"; // Tailwind cyan-700
 
 const MAX_EXCEL_SIZE_MB = 10;
 const ALLOWED_EXCEL_EXTENSIONS = [".xlsx", ".xls", ".csv"];
@@ -52,16 +56,37 @@ const readFileAsBase64 = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
+const formatFileSize = (bytes: number): string =>
+  bytes < 1024 * 1024
+    ? `${(bytes / 1024).toFixed(1)} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+
+const StepTitle = ({
+  step,
+  title,
+  optional,
+}: {
+  step: number;
+  title: string;
+  optional?: boolean;
+}) => (
+  <div className="flex items-center gap-2">
+    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-cyan-600 text-white text-[12px] font-[600]">
+      {step}
+    </span>
+    <span className="text-[14px] font-[600] text-slate-700">{title}</span>
+    {optional && (
+      <span className="text-[11px] font-[500] text-slate-500 bg-neutral-100 rounded px-1.5 py-0.5">
+        Optional
+      </span>
+    )}
+  </div>
+);
+
 const SwipeBillingSummary = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const { dateRange, range } = useSwipeDateRange();
-  const isData = useAppSelector((state) => state.swipeBilling.isData);
-  const summaryReportLoading = useAppSelector(
-    (state) => state.swipeBilling.summaryReportLoading,
-  );
   const [dateError, setDateError] = useState("");
-  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const { isConnected, emitDownloadSwipeBillingReport } = useSocketContext();
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState("");
@@ -142,211 +167,174 @@ const SwipeBillingSummary = () => {
     }
   };
 
-  const handleSearch = async () => {
-    if (!range) {
-      setDateError("Date range is required");
-      return;
-    }
-    setDateError("");
-
-    try {
-      const response = await dispatch(
-        getSwipeSummaryReport({
-          from: range.from,
-          to: range.to,
-          page: 1,
-          limit: SWIPE_SUMMARY_LIMIT,
-        }),
-      ).unwrap();
-
-      if (response?.data?.success) {
-        showToast(
-          response?.data?.message || "Data fetched successfully",
-          "success",
-        );
-        dispatch(setSwipeIsData(true));
-      } else {
-        showToast(response?.data?.message || "Failed to fetch data", "error");
-        dispatch(setSwipeIsData(false));
-      }
-    } catch (error: any) {
-      showToast(error?.message || "Failed to fetch data", "error");
-      dispatch(setSwipeIsData(false));
-    }
-  };
-
-  const handleConfirmReset = () => {
-    setDateError("");
-    setUploadFile(null);
-    setFileError("");
-    dispatch(resetSwipeBilling());
-    setResetConfirmOpen(false);
-  };
-
   return (
-    <div className="grid w-full h-full grid-cols-[320px_3fr] bg-white">
-      <div className="w-full border-r border-neutral-300 overflow-y-auto">
-        <div className="p-[10px] flex flex-col gap-[10px]">
-          <div>
-            <label className="text-[14px] font-[500] text-slate-600">
-              Device Type
-            </label>
-            <Select fullWidth value="swipemachine" disabled>
-              <MenuItem value="swipemachine">Swipe Machine</MenuItem>
-            </Select>
+    <div className="w-full h-full overflow-y-auto bg-neutral-50 flex justify-center items-start sm:items-center p-4 sm:p-6">
+      <div className="w-full max-w-[560px] bg-white mt-20 border border-neutral-200 rounded-xl shadow-sm">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 px-6 py-5 border-b border-neutral-200">
+          <div className="flex items-start gap-3">
+          
+            <div>
+              <h2 className="text-[17px] font-[600] text-slate-800 leading-tight">
+                Swipe Billing Report
+              </h2>
+              <p className="text-[13px] text-slate-500 mt-1">
+                Choose a date range and download the full billing report.
+              </p>
+            </div>
           </div>
-          <div>
-            <label className="text-[14px] font-[500] text-slate-600">
-              Date Range
-            </label>
-            <RangePicker
-              placement="bottomRight"
-              className="w-full h-[50px]"
-              format="DD-MM-YYYY"
-              placeholder={["Start date", "End date"]}
-              value={dateRange}
-              disabled={isData}
-              onChange={(dates) => {
-                dispatch(setSwipeDateRange(dates));
-                dispatch(setSwipeIsData(false));
-                if (dates && dates[0] && dates[1]) {
-                  setDateError("");
-                }
-              }}
-              presets={rangePresets}
-            />
-            {dateError && (
-              <span className="text-[12px] text-red-500">{dateError}</span>
-            )}
-          </div>
-          <div className="h-[50px] flex items-center gap-[10px] justify-end">
-            <LoadingButton
-              type="button"
-              variant="outlined"
-              color="error"
-              onClick={() => setResetConfirmOpen(true)}
-              sx={{ minWidth: "100px" }}
-            >
-              Reset
-            </LoadingButton>
-            <LoadingButton
-              type="button"
-              variant="contained"
-              loading={summaryReportLoading}
-              loadingPosition="center"
-              disabled={isData}
-              onClick={handleSearch}
-              sx={{ minWidth: "100px" }}
-            >
-              Search
-            </LoadingButton>
-          </div>
+          <Chip
+            size="small"
+            variant="outlined"
+            color={isConnected ? "success" : "error"}
+            icon={<FiberManualRecordIcon sx={{ fontSize: 10 }} />}
+            label={isConnected ? "Connected" : "Offline"}
+            sx={{ fontWeight: 500, flexShrink: 0 }}
+          />
         </div>
 
-        {/* Upload excel */}
-        <div className="border-t border-neutral-200 p-[10px] flex flex-col gap-[10px]">
-          <label className="text-[14px] font-[500] text-slate-600">
-            Upload Excel
-          </label>
+        <div className="px-6 py-5 flex flex-col gap-6">
+          {/* Step 1 */}
+          <section className="flex flex-col gap-3">
+            <StepTitle step={1} title="Report details" />
 
-          <Alert
-            severity="warning"
-            sx={{ fontSize: "12px", py: 0.5, fontWeight: 600 }}
-          >
-            If you want to get hold device bill you have to upload excel file
-            before downloading the report.
-          </Alert>
+            <div className="flex flex-col gap-1">
+              <label className="text-[13px] font-[500] text-slate-600">
+                Device Type
+              </label>
+              <Select fullWidth size="small" value="swipemachine" disabled>
+                <MenuItem value="swipemachine">Swipe Machine</MenuItem>
+              </Select>
+            </div>
 
-          <div
-            {...getRootProps()}
-            className={`flex flex-col items-center justify-center gap-1 border-2 border-dashed rounded-md px-3 py-6 text-center transition-colors ${
-              downloading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
-            } ${
-              isDragActive
-                ? "bg-blue-50 border-blue-400"
-                : fileError
-                  ? "border-red-400"
-                  : "border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            <input {...getInputProps()} />
-            <CloudUploadIcon fontSize="medium" color="primary" />
-            <span className="text-[13px] text-gray-600">
-              {isDragActive
-                ? "Drop Excel file here"
-                : "Drag & drop or click to upload Excel"}
-            </span>
-            <span className="text-[11px] text-gray-400">
-              Supports .xls, .xlsx, .csv (max {MAX_EXCEL_SIZE_MB} MB)
-            </span>
-          </div>
-          {fileError && (
-            <span className="text-[12px] text-red-500">{fileError}</span>
-          )}
+            <div className="flex flex-col gap-1">
+              <label className="text-[13px] font-[500] text-slate-600">
+                Date Range <span className="text-red-500">*</span>
+              </label>
+              <RangePicker
+                placement="bottomLeft"
+                className="w-full h-[42px]"
+                format="DD-MM-YYYY"
+                placeholder={["Start date", "End date"]}
+                value={dateRange}
+                status={dateError ? "error" : undefined}
+                onChange={(dates) => {
+                  dispatch(setSwipeDateRange(dates));
+                  if (dates && dates[0] && dates[1]) {
+                    setDateError("");
+                  }
+                }}
+                presets={rangePresets}
+              />
+              {dateError && (
+                <span className="text-[12px] text-red-500">{dateError}</span>
+              )}
+            </div>
+          </section>
 
-          {uploadFile && (
-            <div className="flex items-center justify-between gap-2 border border-gray-200 rounded-md px-3 py-2 bg-gray-50">
-              <div className="flex items-center gap-2 min-w-0">
-                <InsertDriveFileIcon fontSize="small" color="action" />
-                <span className="truncate text-[13px] text-gray-700">
-                  {uploadFile.name}
+          {/* Step 2 */}
+          <section className="flex flex-col gap-3">
+            <StepTitle step={2} title="Upload Excel" optional />
+
+            <Alert
+              severity="warning"
+              sx={{ fontSize: "12px", py: 0.25, fontWeight: 500 }}
+            >
+              To include the hold device bill, upload the Excel file before
+              downloading the report.
+            </Alert>
+
+            {uploadFile ? (
+              <div className="flex items-center justify-between gap-2 border border-green-200 rounded-lg px-3 py-3 bg-green-50">
+                <div className="flex items-center gap-3 min-w-0">
+                  <InsertDriveFileIcon color="success" />
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-[500] text-slate-700">
+                      {uploadFile.name}
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      {formatFileSize(uploadFile.size)}
+                    </p>
+                  </div>
+                </div>
+                <Tooltip title="Remove file">
+                  <span>
+                    <IconButton
+                      size="small"
+                      disabled={downloading}
+                      onClick={handleRemoveUploadFile}
+                    >
+                      <DeleteIcon fontSize="small" color="error" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </div>
+            ) : (
+              <div
+                {...getRootProps()}
+                className={`flex flex-col items-center justify-center gap-1 border-2 border-dashed rounded-lg px-3 py-7 text-center transition-colors ${
+                  downloading
+                    ? "opacity-60 cursor-not-allowed"
+                    : "cursor-pointer"
+                } ${
+                  isDragActive
+                    ? "bg-cyan-50 border-cyan-400"
+                    : fileError
+                      ? "border-red-400 bg-red-50/40"
+                      : "border-gray-300 hover:border-cyan-300 hover:bg-cyan-50/40"
+                }`}
+              >
+                <input {...getInputProps()} />
+                <CloudUploadIcon fontSize="large" sx={{ color: ACCENT }} />
+                <span className="text-[13px] text-slate-700 font-[500]">
+                  {isDragActive ? (
+                    "Drop the Excel file here"
+                  ) : (
+                    <>
+                      Drag & drop or{" "}
+                      <span className="text-cyan-600 underline">browse</span>
+                    </>
+                  )}
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  .xls, .xlsx or .csv · max {MAX_EXCEL_SIZE_MB} MB
                 </span>
               </div>
-              <IconButton
-                size="small"
-                disabled={downloading}
-                onClick={handleRemoveUploadFile}
-              >
-                <DeleteIcon fontSize="small" color="error" />
-              </IconButton>
-            </div>
-          )}
+            )}
+            {fileError && (
+              <span className="text-[12px] text-red-500">{fileError}</span>
+            )}
+          </section>
+        </div>
 
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-neutral-200 bg-neutral-50 rounded-b-xl flex flex-col gap-2">
           <LoadingButton
             type="button"
             variant="contained"
+            size="large"
             fullWidth
             loading={downloading}
-            loadingPosition="center"
+            loadingPosition="start"
+            startIcon={<DownloadIcon />}
             disabled={!range || !isConnected}
+            sx={{
+              bgcolor: ACCENT,
+              "&:hover": { bgcolor: ACCENT_HOVER },
+            }}
             onClick={handleDownload}
           >
             Download Full Report
           </LoadingButton>
+          {(!range || !isConnected) && (
+            <span className="text-[12px] text-slate-500 text-center">
+              {!isConnected
+                ? "Waiting for the server connection…"
+                : "Select a date range to enable the download."}
+            </span>
+          )}
         </div>
       </div>
-
-      <div className="flex flex-col items-center justify-center gap-3 p-6">
-        {isData ? (
-          <>
-            <DateRangeBadge dateRange={dateRange} />
-            <Alert severity="success" sx={{ fontWeight: 500 }}>
-              Swipe billing data is ready. Open the tabs above to review the
-              summary, SKU consumption, dispatch and purchase.
-            </Alert>
-            <LoadingButton
-              variant="outlined"
-              onClick={() => navigate("/swipe-billing/summary")}
-            >
-              Go to Summary
-            </LoadingButton>
-          </>
-        ) : (
-          <Alert severity="info" sx={{ fontWeight: 500 }}>
-            Select a date range and click Search to load swipe billing data.
-          </Alert>
-        )}
-      </div>
-
-      <ConfirmationModel
-        open={resetConfirmOpen}
-        onClose={() => setResetConfirmOpen(false)}
-        onConfirm={handleConfirmReset}
-        title="Reset all data?"
-        content="This will clear the date range and all swipe billing results. Do you want to continue?"
-        cancelText="No"
-        confirmText="Yes"
-      />
     </div>
   );
 };

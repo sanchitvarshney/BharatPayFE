@@ -547,7 +547,7 @@ const BillingSummary = () => {
                     fullWidth
                     value={field.value}
                     onChange={field.onChange}
-                    disabled={isData}
+                    disabled={true}
                     sx={{
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: "rgb(203 213 225)",

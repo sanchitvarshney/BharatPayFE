@@ -8,7 +8,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-
 import { useAppSelector } from "@/hooks/useReduxHook";
 import { useDispatch } from "react-redux";
 import { setTabValue } from "@/features/summarySlice/billingSlices";
@@ -19,13 +18,11 @@ type Props = {
 
 const tabRoutes = [
   "/billing",
-   "/billing/material-purchase",
-    "/billing/dispatch",
+  "/billing/material-purchase",
+  "/billing/dispatch",
   "/billing/assembly-and-trc",
   "/billing/speaker-assembly",
   "/billing/trc",
- 
- 
 ];
 
 const tabData = [
@@ -33,11 +30,11 @@ const tabData = [
     label: "Billing Summary",
     icon: <CreditScoreIcon />,
   },
-    {
+  {
     label: "Material Purchase",
     icon: <SummarizeIcon />,
   },
-    {
+  {
     label: "Dispatch",
     icon: <SummarizeIcon />,
   },
@@ -53,8 +50,6 @@ const tabData = [
     label: "TRC",
     icon: <SummarizeIcon />,
   },
-
-
 ];
 
 const SummaryLayout: React.FC<Props> = ({ children }) => {
@@ -66,6 +61,9 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
   const tabValue = useAppSelector((state) => state.summary.tabValue);
 
   const isPreviousBilling = location.pathname === "/previous-billing";
+  const isSwipeBilling = location.pathname === "/swipe-billing";
+  // Main tab order: 0 = Sound Billing, 1 = Swipe Billing, 2 = Previous Billing
+  const mainTabValue = isSwipeBilling ? 1 : isPreviousBilling ? 2 : 0;
 
   const currentTabIndex = Math.max(tabRoutes.indexOf(location.pathname), 0);
 
@@ -91,7 +89,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
   }, [isData, currentTabIndex, navigate]);
 
   /**
-   * Create / Previous Billing tabs.
+   * Sound Billing / Swipe Billing / Previous Billing tabs.
    */
   const handleMainTabChange = (
     _event: React.SyntheticEvent,
@@ -104,6 +102,12 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
     }
 
     if (newValue === 1) {
+      dispatch(setTabValue("create"));
+      navigate("/swipe-billing");
+      return;
+    }
+
+    if (newValue === 2) {
       dispatch(setTabValue("preview"));
       navigate("/previous-billing");
     }
@@ -141,7 +145,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
           }}
           variant="scrollable"
           scrollButtons="auto"
-          value={isPreviousBilling ? 1 : 0}
+          value={mainTabValue}
           onChange={handleMainTabChange}
         >
           <Tab
@@ -149,11 +153,20 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
             label={
               <div className="flex items-center gap-[10px]">
                 <CreditScoreIcon />
-                <span>Billing</span>
+                <span>Sound Billing </span>
               </div>
             }
           />
 
+          <Tab
+            sx={{ fontWeight: 500 }}
+            label={
+              <div className="flex items-center gap-[10px]">
+                <CreditScoreIcon />
+                <span>Swipe Billing</span>
+              </div>
+            }
+          />
           <Tab
             sx={{ fontWeight: 500 }}
             label={
@@ -166,7 +179,7 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
       </div>
 
       {/* Summary child tabs */}
-      {!isPreviousBilling && (
+      {!isPreviousBilling && !isSwipeBilling && (
         <div className="w-full h-[50px] border-b border-neutral-300 bg-white">
           <Tabs
             sx={{
@@ -203,9 +216,10 @@ const SummaryLayout: React.FC<Props> = ({ children }) => {
       {/* Page content */}
       <Box
         sx={{
-          height: isPreviousBilling
-            ? "calc(100vh - 100px)"
-            : "calc(100vh - 150px)",
+          height:
+            isPreviousBilling || isSwipeBilling
+              ? "calc(100vh - 100px)"
+              : "calc(100vh - 150px)",
         }}
       >
         {children}
