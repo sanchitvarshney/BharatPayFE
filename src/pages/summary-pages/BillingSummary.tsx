@@ -223,7 +223,11 @@ const billingSummaryCellStyle = (
 const BillingSummary = () => {
   const gridRef = useRef(null);
   const dispatch: any = useDispatch();
-  const { isConnected, emitDownloadBillingSummaryReport } = useSocketContext();
+  const {
+    isConnected,
+    emitDownloadBillingSummaryReport,
+    emitDownloadSwipeBillingReport,
+  } = useSocketContext();
   const [dateError, setDateError] = useState<string>("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [downloading, setDownloading] = useState(false);
@@ -368,12 +372,15 @@ const BillingSummary = () => {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<any>({
     defaultValues: {
       type: "soundbox",
     },
   });
+
+  const isSwipe = watch("type") === "swipemachine";
 
   const onSubmit = async () => {
     if (!dateRange || !dateRange[0] || !dateRange[1]) {
@@ -423,14 +430,63 @@ const BillingSummary = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onExcelDrop,
     multiple: false,
-    disabled: uploadLoading || isData,
-    accept: {
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
-        ".xlsx",
-      ],
-      "application/vnd.ms-excel": [".xls"],
-    },
+    disabled: isSwipe ? downloading : uploadLoading || isData,
+    accept: isSwipe
+      ? {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            [".xlsx"],
+          "application/vnd.ms-excel": [".xls", ".csv"],
+          "text/csv": [".csv"],
+        }
+      : {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            [".xlsx"],
+          "application/vnd.ms-excel": [".xls"],
+        },
   });
+
+  const handleDeviceTypeChange = (
+    value: string,
+    onChange: (value: string) => void,
+  ) => {
+    onChange(value);
+    setUploadFile(null);
+    setDateError("");
+  };
+
+  const handleSwipeDownload = () => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      setDateError("Date range is required");
+      return;
+    }
+    if (!isConnected) {
+      showToast("Socket not connected. Please try again.", "error");
+      return;
+    }
+    setDateError("");
+
+    setDownloading(true);
+    const fromDate = dayjs(dateRange[0]).format("DD-MM-YYYY");
+    const toDate = dayjs(dateRange[1]).format("DD-MM-YYYY");
+    const emit = (fileBase64: string) => {
+      emitDownloadSwipeBillingReport({ fromDate, toDate, fileBase64 });
+      showToast("Download started", "success");
+      setDownloading(false);
+    };
+
+    if (!uploadFile) {
+      emit("");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () =>
+      emit((reader.result as string)?.split(",")[1] ?? "");
+    reader.onerror = () => {
+      showToast("Failed to read the uploaded file", "error");
+      setDownloading(false);
+    };
+    reader.readAsDataURL(uploadFile);
+  };
 
   const handleRemoveUploadFile = () => {
     setUploadFile(null);
@@ -546,8 +602,13 @@ const BillingSummary = () => {
                   <Select
                     fullWidth
                     value={field.value}
-                    onChange={field.onChange}
-                    disabled={true}
+                    onChange={(e) =>
+                      handleDeviceTypeChange(
+                        e.target.value as string,
+                        field.onChange,
+                      )
+                    }
+                    disabled={isData}
                     sx={{
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: "rgb(203 213 225)",
@@ -561,7 +622,7 @@ const BillingSummary = () => {
                     }}
                   >
                     <MenuItem value="soundbox">Sound Box</MenuItem>
-                    {/* <MenuItem value="swipemachine">Swipe Machine</MenuItem> */}
+                    <MenuItem value="swipemachine">Swipe Machine</MenuItem>
                   </Select>
                 )}
               />
@@ -598,6 +659,8 @@ const BillingSummary = () => {
               )}
             </div>
           </div>
+          {!isSwipe && (
+          <>
           <div className="h-[50px] p-0 flex items-center px-[0px] gap-[10px] justify-end">
             <MuiTooltip title="Download Report" placement="top">
               <span className="mr-auto">
@@ -651,6 +714,8 @@ const BillingSummary = () => {
               Final Billing
             </LoadingButton>
           </div>
+          </>
+          )}
         </form>
 
         {/* Upload excel */}
@@ -664,7 +729,7 @@ const BillingSummary = () => {
             sx={{ fontSize: "12px", py: 0.5, fontWeight: 600 }}
           >
             If you want to get hold device bill you have to upload excel file
-            before billing.
+            {isSwipe ? " before downloading the report." : " before billing."}
           </Alert>
 
           <div
@@ -685,7 +750,7 @@ const BillingSummary = () => {
                 : "Drag & drop or click to upload Excel"}
             </span>
             <span className="text-[11px] text-gray-400">
-              Supports .xls, .xlsx
+              {isSwipe ? "Supports .xls, .xlsx, .csv" : "Supports .xls, .xlsx"}
             </span>
           </div>
 
@@ -699,7 +764,7 @@ const BillingSummary = () => {
               </div>
               <IconButton
                 size="small"
-                disabled={uploadLoading || isData}
+                disabled={isSwipe ? downloading : uploadLoading || isData}
                 onClick={handleRemoveUploadFile}
               >
                 <DeleteIcon fontSize="small" color="error" />
@@ -707,22 +772,45 @@ const BillingSummary = () => {
             </div>
           )}
 
-          <LoadingButton
-            type="button"
-            fullWidth
-            variant="contained"
-            disabled={!uploadFile || isData}
-            loading={uploadLoading}
-            loadingPosition="center"
-            onClick={handleUpload}
-          >
-            Upload
-          </LoadingButton>
+          {isSwipe ? (
+            <LoadingButton
+              type="button"
+              fullWidth
+              variant="contained"
+              disabled={!dateRange?.[0] || !dateRange?.[1] || !isConnected}
+              loading={downloading}
+              loadingPosition="start"
+              startIcon={<Icons.download />}
+              onClick={handleSwipeDownload}
+            >
+              Download Full Report
+            </LoadingButton>
+          ) : (
+            <LoadingButton
+              type="button"
+              fullWidth
+              variant="contained"
+              disabled={!uploadFile || isData}
+              loading={uploadLoading}
+              loadingPosition="center"
+              onClick={handleUpload}
+            >
+              Upload
+            </LoadingButton>
+          )}
         </div>
       </div>
       <div
         className={`flex flex-col w-full min-h-0  ${tabValue === "preview" ? "h-[calc(100vh-100px)]" : "h-[calc(100vh-150px)]"}`}
       >
+        {isSwipe ? (
+          <div className="flex-1 flex items-center justify-center p-6">
+            <Alert severity="info" sx={{ fontWeight: 500 }}>
+              For Swipe Machine, select a date range (and optionally upload an
+              Excel file), then click Download Full Report.
+            </Alert>
+          </div>
+        ) : (
         <div className="ag-theme-quartz billing-summary-grid flex-1 min-h-0">
           <AgGridReact
             ref={gridRef}
@@ -740,6 +828,7 @@ const BillingSummary = () => {
             defaultColDef={{ resizable: true, headerComponent: BlankHeader }}
           />
         </div>
+        )}
       </div>
       <ConfirmationModel
         open={resetConfirmOpen}
