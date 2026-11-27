@@ -41,6 +41,7 @@ import billingSlices from "@/features/summarySlice/billingSlices";
 import rawMaterialReportReducer from "@/features/rawMaterialReport/rawMaterialReportSlice";
 import reportSummarySlice from "@/features/report/report/reportSummarySlice";
 import deviceDefectReducer from "@/features/deviceDefect/deviceDefectSlice";
+import swipeBillingReducer from "@/features/swipeBilling/swipeBillingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -86,6 +87,7 @@ export const store = configureStore({
     rawMaterialReport: rawMaterialReportReducer,
     reportSummary: reportSummarySlice,
     deviceDefect: deviceDefectReducer,
+    swipeBilling: swipeBillingReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

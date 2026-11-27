@@ -164,6 +164,7 @@ import Trc from "./pages/summary-pages/Trc";
 import RawMaterialReport from "./pages/materialReport/RawMaterialReport";
 import RawMaterialReportLayout from "./layouts/RawMaterialReportLayout";
 import PreviousBilling from "./pages/summary-pages/PreviousBilling";
+import SwipeBillingSummary from "./pages/swipe-billing/SwipeBillingSummary";
 import FallBackUi from "./pages/errorBoundary/FallBackUi";
 
 const MetaReport = lazy(() => import("./pages/report/MetaReport"));
@@ -873,6 +874,16 @@ export const router = createBrowserRouter([
           </MainLayout>
         ),
         path: "/billing/material-purchase",
+      },
+      {
+        element: (
+          <MainLayout>
+            <SummaryLayout>
+              <SwipeBillingSummary />
+            </SummaryLayout>
+          </MainLayout>
+        ),
+        path: "/swipe-billing",
       },
       {
         element: (
